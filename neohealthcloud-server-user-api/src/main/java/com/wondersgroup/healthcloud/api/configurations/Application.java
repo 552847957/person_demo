@@ -1,7 +1,7 @@
 package com.wondersgroup.healthcloud.api.configurations;
 
 import com.squareup.okhttp.OkHttpClient;
-import com.wondersgroup.common.jail.property.JailStartListerner;
+import com.wondersgroup.common.jail.property.JailStartListener;
 import com.wondersgroup.healthcloud.common.http.support.version.APIVersionChecker;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -50,11 +50,11 @@ public class Application extends SpringBootServletInitializer {
         APIVersionChecker.check();
     }
 
-    private static JailStartListerner buildListener() throws Exception {
+    private static JailStartListener buildListener() throws Exception {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
         Resource resource = resourceLoader.getResource("config/application-de.properties");
         Properties properties = new Properties();
         properties.load(resource.getInputStream());
-        return new JailStartListerner(new OkHttpClient(), properties.getProperty("jail.host"), properties.getProperty("jail.group"));
+        return new JailStartListener(new OkHttpClient(), properties.getProperty("jail.host"), properties.getProperty("jail.group"));
     }
 }
