@@ -1,0 +1,38 @@
+logging:
+  level:
+    org.hiberante: ERROR
+
+redis:
+  connection:
+    master:
+      url:
+        de: redis.wdjky.me
+        te: redis.wdjky.me
+        re: redis-pe1.wdjky.me
+        pe1: redis-pe1.wdjky.me
+      port:
+        de: 9003
+        te: 9001
+        re: 6385
+        pe1: 6385
+      password:
+        re: Wonders2015Redis
+        pe1: Wonders2015Redis
+
+mysql:
+  connection:
+    url:
+      de: jdbc:mysql://mysql-m.wdjky.me:9035/healthcloud_jingan?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&rewriteBatchedStatements=TRUE&zeroDateTimeBehavior=convertToNull
+      te: jdbc:mysql://mysql-m.wdjky.me:9034/healthcloud_jingan?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&rewriteBatchedStatements=TRUE&zeroDateTimeBehavior=convertToNull
+      re: jdbc:mysql://mysql-pxc-pe1.wdjky.me:5500/healthcloud_jingan?useUnicode=true&autoReconnect=true&rewriteBatchedStatements=TRUE&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull
+      pe1: jdbc:mysql://mysql-pxc-pe1.wdjky.me:5500/healthcloud_jingan?useUnicode=true&autoReconnect=true&rewriteBatchedStatements=TRUE&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull
+    username:
+      de: healthcloud
+      te: healthcloud
+      re: health
+      pe1: health
+    password:
+      de: healthcloud123456
+      te: healthcloud123456
+      re: PassWord
+      pe1: PassWord
