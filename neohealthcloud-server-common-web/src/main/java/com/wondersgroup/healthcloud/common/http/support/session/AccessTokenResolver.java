@@ -3,7 +3,6 @@ package com.wondersgroup.healthcloud.common.http.support.session;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class AccessTokenResolver implements HandlerMethodArgumentResolver {
 
-    @Autowired
     private SessionUtil sessionService;
 
     public AccessTokenResolver(SessionUtil sessionService) {
