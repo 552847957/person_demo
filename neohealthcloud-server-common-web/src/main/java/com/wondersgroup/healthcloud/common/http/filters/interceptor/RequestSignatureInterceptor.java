@@ -39,10 +39,12 @@ public final class RequestSignatureInterceptor extends AbstractHeaderInterceptor
     private static final Logger logger = LoggerFactory.getLogger(RequestSignatureInterceptor.class);
 
     private final SessionUtil sessionUtil;
+    private final String appSecret;
 
-    public RequestSignatureInterceptor(SessionUtil sessionUtil, Boolean isSandbox) {
+    public RequestSignatureInterceptor(SessionUtil sessionUtil, Boolean isSandbox, String appSecret) {
         this.sessionUtil = sessionUtil;
         this.isSandbox = isSandbox;
+        this.appSecret = appSecret;
     }
 
     @Override
@@ -63,7 +65,6 @@ public final class RequestSignatureInterceptor extends AbstractHeaderInterceptor
         Session session = ServletAttributeCacheUtil.getSession(request, sessionUtil);
         String secret = session == null ? "1bc215fa-7a88-4972-a33e-3eb2e37de5ca" : session.getSecret();
         String prefix = "crackerdontdothisplz!\n";
-        String appSecret = "12240361-db03-40d3-a906-2fb0be0c3527";
         String parameterStr;
         if ("GET".equals(method) || "DELETE".equals(method)) {
             parameterStr = getMethodParameterStr(request);

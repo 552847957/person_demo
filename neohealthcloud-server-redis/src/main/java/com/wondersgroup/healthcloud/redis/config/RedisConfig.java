@@ -28,12 +28,11 @@ public class RedisConfig {
     @Autowired
     private Environment env;
 
-
     @Bean
     public JedisPool redisConnectionFactory() {
         JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxTotal(100);
-        config.setMaxIdle(100);
+        config.setMaxTotal(1000);
+        config.setMaxIdle(1000);
         config.setMinIdle(1);
         config.setTestOnBorrow(true);
         config.setTestWhileIdle(true);

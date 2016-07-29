@@ -83,7 +83,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
             interceptorList.add(new RequestHeaderInterceptor(isSandbox));
             interceptorList.add(new RequestReplayDefenderInterceptor(defender, isSandbox));
             interceptorList.add(new RequestAccessTokenInterceptor(sessionService, isSandbox));
-            interceptorList.add(new RequestSignatureInterceptor(sessionService, isSandbox));
+            interceptorList.add(new RequestSignatureInterceptor(sessionService, isSandbox, ""));//todo
         }
         handlerMapping.setInterceptors(interceptorList.toArray());
         return handlerMapping;

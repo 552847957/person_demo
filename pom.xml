@@ -13,11 +13,6 @@
         <module>neohealthcloud-server-amqp</module>
         <module>neohealthcloud-server-implement</module>
         <module>neohealthcloud-server-common-web</module>
-        <module>neohealthcloud-server-user-api</module>
-        <module>neohealthcloud-server-doctor-api</module>
-        <module>neohealthcloud-server-internal-api</module>
-        <module>neohealthcloud-server-schedule</module>
-        <module>neohealthcloud-server-message-handler</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -65,6 +60,44 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <modules>
+                <module>neohealthcloud-server-user-api</module>
+                <module>neohealthcloud-server-doctor-api</module>
+                <module>neohealthcloud-server-internal-api</module>
+                <module>neohealthcloud-server-schedule</module>
+                <module>neohealthcloud-server-message-handler</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-user</id>
+            <modules>
+                <module>neohealthcloud-server-user-api</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-doctor</id>
+            <modules>
+                <module>neohealthcloud-server-doctor-api</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-internal</id>
+            <modules>
+                <module>neohealthcloud-server-internal-api</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-message</id>
+            <modules>
+                <module>neohealthcloud-server-message-handler</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>

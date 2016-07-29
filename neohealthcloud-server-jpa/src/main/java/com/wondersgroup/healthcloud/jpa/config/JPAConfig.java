@@ -65,7 +65,7 @@ public class JPAConfig {
         return em;
     }
 
-    Properties additionalProperties() {
+    private Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
         return properties;
@@ -88,7 +88,7 @@ public class JPAConfig {
         dataSource.setPassword(env.getProperty("mysql.connection.password"));
         dataSource.setInitialSize(10);
         dataSource.setMinIdle(1);
-        dataSource.setMaxActive(200);
+        dataSource.setMaxActive(2000);
         dataSource.setMaxWait(60000L);
         dataSource.setTimeBetweenEvictionRunsMillis(60000L);
         dataSource.setMinEvictableIdleTimeMillis(300000L);
