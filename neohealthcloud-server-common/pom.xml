@@ -52,6 +52,12 @@
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
             <version>7.0.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
