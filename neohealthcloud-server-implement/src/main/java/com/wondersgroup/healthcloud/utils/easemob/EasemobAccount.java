@@ -1,10 +1,4 @@
-package com.wondersgroup.healthcloud.services.user;
-
-import com.wondersgroup.healthcloud.jpa.entity.user.Feedback;
-import com.wondersgroup.healthcloud.jpa.repository.user.FeedbackRepository;
-import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package com.wondersgroup.healthcloud.utils.easemob;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -17,24 +11,15 @@ import org.springframework.stereotype.Component;
  * ▌▓▄▌▀░▀░▐▀█▄▓▓██████████▓▓▓▌█▌
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
- * <p>
- * Created by zhangzhixiu on 7/27/16.
+ * <p/>
+ * Created by zhangzhixiu on 15/12/4.
  */
-@Component
-public class FeedbackService {
+public final class EasemobAccount {
+    public final String id;
+    public final String pwd;
 
-  @Autowired
-  private FeedbackRepository feedbackRepository;
-
-  public void saveFeedback(String uid, String comments, String contact, String type) {
-    Feedback feedback = new Feedback();
-    feedback.setRegisterid(uid);
-    feedback.setComments(comments);
-    feedback.setContact(contact);
-    feedback.setType(type);
-    feedback.setCreateDate(new Date());
-    feedback.setCreateBy(uid);
-    feedback.setDelFlag("0");
-    feedbackRepository.save(feedback);
-  }
+    public EasemobAccount(String id, String pwd) {
+        this.id = id;
+        this.pwd = pwd;
+    }
 }

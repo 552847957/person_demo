@@ -1,10 +1,6 @@
-package com.wondersgroup.healthcloud.services.user;
+package com.wondersgroup.healthcloud.utils.easemob;
 
-import com.wondersgroup.healthcloud.jpa.entity.user.Feedback;
-import com.wondersgroup.healthcloud.jpa.repository.user.FeedbackRepository;
-import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -17,24 +13,36 @@ import org.springframework.stereotype.Component;
  * ▌▓▄▌▀░▀░▐▀█▄▓▓██████████▓▓▓▌█▌
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
- * <p>
- * Created by zhangzhixiu on 7/27/16.
+ * <p/>
+ * Created by zhangzhixiu on 15/12/4.
  */
-@Component
-public class FeedbackService {
+public class EasemobAsyncCreateTask implements Runnable {
 
-  @Autowired
-  private FeedbackRepository feedbackRepository;
+    private CountDownLatch cdl;
+    private EasemobAccount result;
+    private EasemobPool pool;
+    private Boolean toPool;
 
-  public void saveFeedback(String uid, String comments, String contact, String type) {
-    Feedback feedback = new Feedback();
-    feedback.setRegisterid(uid);
-    feedback.setComments(comments);
-    feedback.setContact(contact);
-    feedback.setType(type);
-    feedback.setCreateDate(new Date());
-    feedback.setCreateBy(uid);
-    feedback.setDelFlag("0");
-    feedbackRepository.save(feedback);
-  }
+    public EasemobAsyncCreateTask(EasemobPool pool, Boolean toPool) {
+        this.pool = pool;
+        this.toPool = toPool;
+    }
+
+    public EasemobAsyncCreateTask(EasemobPool pool, Boolean toPool, CountDownLatch cdl) {
+        this.pool = pool;
+        this.toPool = toPool;
+        this.cdl = cdl;
+    }
+
+    @Override
+    public void run() {
+        this.result = pool.createOne(toPool);
+        if (cdl != null) {
+            cdl.countDown();
+        }
+    }
+
+    public EasemobAccount getResult() {
+        return result;
+    }
 }
