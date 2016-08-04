@@ -60,7 +60,7 @@ public class BeanFactory {
 
     @Bean
     @Profile({"de", "te"})
-    public HttpWdUtils httpWdUtils() {
+    public HttpWdUtils httpWdUtils(HttpRequestExecutorManager manager) {
         HttpWdUtils httpWdUtils = new HttpWdUtils();
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         builder.put("octopusSid", "C6B18542F8E0000118BD1E2A1C001D9E");//测试环境服务编号
@@ -88,9 +88,9 @@ public class BeanFactory {
         builder.put("verficationSubmitInfoApiId", "11fe1cae-205b-4762-bd6b-af6deeac399d");//获取提交实名制审核用户状态信息
         builder.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
         httpWdUtils.setIdMap(builder.build());
-        httpWdUtils.setAppToken("ee7177eb-9b73-4f59-96ec-a5d433920d74");//静安Token
+        httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
-
+        httpWdUtils.setHttpRequestExecutorManager(manager);
         return httpWdUtils;
     }
 
@@ -125,8 +125,9 @@ public class BeanFactory {
         builder.put("sessionExtraApiId", "edb73abf-987a-4055-9e1f-19408468cc73");//扩展session自定义字段
 
         httpWdUtils.setIdMap(builder.build());
-        httpWdUtils.setAppToken("5726bc3a-dc4d-43c6-a90e-89b495fe2212");
+        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
         httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
+        httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
         return httpWdUtils;
     }
 
