@@ -12,7 +12,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionedRequest
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;

@@ -26,6 +26,8 @@ public class SessionUtil {
 
     private HttpWdUtils httpWdUtils;
 
+    private static String user_type_patient = "1";
+
 
     public Session get(String accessToken) {
         JsonNode result = httpWdUtils.getSession(accessToken);
@@ -43,7 +45,7 @@ public class SessionUtil {
         if (success) {
             String token = result.get("session_token").asText();
             String key = IdGen.uuid();
-            httpWdUtils.addSessionExtra(token, key);
+            httpWdUtils.addSessionExtra(token, key,this.user_type_patient);
             return Session.guest(token, key);
         } else {
             return null;

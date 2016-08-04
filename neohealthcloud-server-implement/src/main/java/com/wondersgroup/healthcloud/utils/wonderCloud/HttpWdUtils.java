@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class HttpWdUtils {
     private static final String url = "http://clientgateway.huidao168.com/webopenapi/toremotecustom";
+//private static final String url = "http://10.1.65.224:82/webopenapi/toremotecustom";//测试环境
     private String appToken = "ee7177eb-9b73-4f59-96ec-a5d433920d74";//测试环境
     public static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDGHjtLwTJP9ehWYM3Dmwg9eTX3gDAFwQMyL1edXKPOjyUucWml7O8VF8adQgLH8fM1PoZSKHGliE0rZ3q6o1jh4lkF1CLIqWRbZ4ObKM2i1w5O2VP9lMKyWTrRM/R9RWxCgwINb/QQmbmNLTVruh4YG1Q0QTK2dQLnIh0oANdpwIDAQAB";
 
@@ -427,11 +428,11 @@ public class HttpWdUtils {
      * @param key
      * @return
      */
-    public JsonNode addSessionExtra(String session, String key) {
+    public JsonNode addSessionExtra(String session, String key,String userType) {
         String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sessionExtraApiId")};
-        String[] form = new String[]{"session_token",session,"key",key,"token",appToken};
+        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"token",appToken};
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();

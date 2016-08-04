@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.api.http.dto.doctor.SyncResponseDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorSyncAccountService;
 import com.wondersgroup.healthcloud.services.doctor.exception.SyncDoctorAccountException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -24,6 +25,7 @@ public class DoctorSyncAccountController {
     @Autowired
     private DoctorSyncAccountService doctorSyncAccountService;
 
+
     /**
      * 开通万达云账号
      * @param
@@ -40,23 +42,22 @@ public class DoctorSyncAccountController {
             throw new SyncDoctorAccountException("该医生手机号已经开通过万达云账号");
         }
 
-        DoctorInfo doctorInfo = new DoctorInfo();
+
         if(doctorAccount==null){
             doctorAccount = new DoctorAccount();
             doctorAccount.setCreateDate(new Date());
             doctorAccount.setRegtime(new Date());
-
-            doctorInfo.setCreateDate(new Date());
         }
 
         doctorAccount.setMobile(syncRequest.getMobile());
         doctorAccount.setName(syncRequest.getName());
 
 
+        DoctorInfo doctorInfo = new DoctorInfo();
         doctorInfo.setDutyId(syncRequest.getDutyId());
         doctorInfo.setHospitalId(syncRequest.getHospitalId());
         doctorInfo.setIdcard(syncRequest.getIdcard());
-
+        doctorInfo.setDutyId(syncRequest.getDutyId());
         if(StringUtils.isNotBlank(syncRequest.getIdcard())){
             doctorInfo.setGender(IdcardUtils.getGenderByIdCard(syncRequest.getIdcard()));
         }
