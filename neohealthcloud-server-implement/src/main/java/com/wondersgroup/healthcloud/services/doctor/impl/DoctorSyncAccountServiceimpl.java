@@ -13,8 +13,8 @@ import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorServiceRepositor
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorServiceRoleMapRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorSyncAccountService;
 import com.wondersgroup.healthcloud.services.doctor.exception.SyncDoctorAccountException;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
-import com.wondersgroup.healthcloud.utils.easemob.EasemobAccountUtil;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
-import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -110,10 +109,24 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         doctorAccount.setUpdateDate(new Date());
         doctorAccountRepository.saveAndFlush(doctorAccount);
 
-        doctorInfo.setId(registerId);
-        doctorInfo.setDelFlag("0");
-        doctorAccount.setUpdateDate(new Date());
-        doctorInfoRepository.saveAndFlush(doctorInfo);
+        DoctorInfo oldDoctorInfo = doctorInfoRepository.findOne(registerId);
+
+        if(oldDoctorInfo == null){
+            oldDoctorInfo = new DoctorInfo();
+            oldDoctorInfo.setId(registerId);
+            oldDoctorInfo.setCreateDate(new Date());
+
+        }
+        oldDoctorInfo.setHospitalId(doctorInfo.getHospitalId());
+        oldDoctorInfo.setNo(doctorInfo.getNo());
+        oldDoctorInfo.setIdcard(doctorInfo.getIdcard());
+        if(StringUtils.isNotBlank(doctorInfo.getIdcard())){
+            oldDoctorInfo.setGender(IdcardUtils.getGenderByIdCard(doctorInfo.getIdcard()));
+        }
+        oldDoctorInfo.setDelFlag("0");
+        oldDoctorInfo.setDutyId(doctorInfo.getDutyId());
+        oldDoctorInfo.setUpdateDate(new Date());
+        doctorInfoRepository.saveAndFlush(oldDoctorInfo);
 
         //设置医生对应的服务包 根据roles 来判断医生拥有哪些服务包
         String[] roleStr = roles.split(",");

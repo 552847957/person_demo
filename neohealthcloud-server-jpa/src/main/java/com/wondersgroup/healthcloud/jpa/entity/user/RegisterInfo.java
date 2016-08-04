@@ -33,7 +33,7 @@ public class RegisterInfo {
 
     private String medicarecard;//医保卡
 
-    private String regPassword; //密码
+    private String regpassword; //密码
 
     private String headphoto; //头像
 

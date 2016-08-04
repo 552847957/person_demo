@@ -20,13 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DoctorAccountServiceImpl implements DoctorAccountService {
 
-    public static final String userType = "0";//0 是医生
-
     @Autowired
     private DoctorAccountRepository repository;
 
     @Autowired
     private HttpWdUtils httpWdUtils;
+
+    private final String user_type_doctor = "0";
 
     private static final String[] smsContent = {
             "您的验证码是：:code，请在10分钟内按照提示提交验证码。切勿将验证码泄露于他人。",
@@ -152,7 +152,7 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
     private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key);
+        httpWdUtils.addSessionExtra(session, key,this.user_type_doctor);
         AccessToken accessToken = getAccessToken(session);
         return accessToken;
     }

@@ -15,6 +15,8 @@ public class AccessToken {
 
     private Boolean isValid;//患者是否是实名认证的
 
+    private String userType;// "0" for doctor, "1" for patient
+
     public AccessToken() {
 
     }
@@ -23,6 +25,7 @@ public class AccessToken {
         this.uid = uid;
         this.token = token;
         this.key = key;
+        this.userType = userType;
     }
 
     public AccessToken(String session, JsonNode jsonNode) {
@@ -31,6 +34,7 @@ public class AccessToken {
         this.uid = jsonNode.has("userid") ? jsonNode.get("userid").asText() : null;
         this.isValid = "true".equals(jsonNode.get("isValid").asText());
         this.key = jsonNode.has("key") ? jsonNode.get("key").asText() : "";
+        this.userType = jsonNode.has("type") ? jsonNode.get("type").asText() : "";
     }
 
     public AccessTokenStatus getStatus() {
@@ -73,4 +77,11 @@ public class AccessToken {
         this.isValid = isValid;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
 }
