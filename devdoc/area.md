@@ -8,7 +8,7 @@
 
 ### 设计
 
-客户端所有的请求, request-header都需要附带`main-area`表示当前使用的app版本, 附带`spec-area`表示用户选中的特定区域, 其中, `spec-area`必须是`main-area`的子集, 都使用国标区域代码, 只包含两级, 一般`main
+客户端所有的请求, request-header都需要附带`main-area`表示当前使用的app版本, 附带`spec-area`表示用户选中的特定区域, 其中, `spec-area`必须是`main-area`的子集, 都使用国标区域代码, 只包含两级
 
 标准版`main-area`值为`""`空字符串, 上海健康云使用`3101`, 广州健康通使用`4401`, 可选区域由后台配置, 若选择的代码服务端不支持, 则默认使用`main-area`
 
