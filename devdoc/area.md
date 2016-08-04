@@ -27,10 +27,10 @@ id | title | main_area | spec_area
 API查询时:
 
 标准版: `select * from article_tb where main_area=''` 返回1  
-上海版(未选区域): `select * from article_tb where (main_area='' or main_area = '3101') and spec_area is null` 返回1,2  
-上海版(长宁): `select * from article_tb where (main_area='' or main_area = '3101') and spec_area = '310105'` 返回1,2,3  
-上海版(静安): `select * from article_tb where (main_area='' or main_area = '3101') and spec_area = '310106'` 返回1,2  
-广州版(未选区域): `select * from article_tb where (main_area='' or main_area = '4401') and spec_area is null` 返回1 
+上海版(未选区域): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area is null)` 返回1,2  
+上海版(长宁): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area is null or spec_area = '310105')` 返回1,2,3  
+上海版(静安): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area is null or spec_area = '310106')` 返回1,2  
+广州版(未选区域): `select * from article_tb where (main_area='' or main_area = '4401') and (spec_area is null)` 返回1 
 
 管理后台编辑时:
 
