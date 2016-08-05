@@ -17,6 +17,7 @@ import java.util.Map;
  * Created by longshasha on 16/8/4.
  */
 @RestController
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -41,7 +42,15 @@ public class UserController {
                                                            @RequestParam(defaultValue = "0") Integer type)  {
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
         userAccountService.getVerifyCode(mobile, type);
-        response.setMsg("短信验证码发送成功");
+        String msg = "短信验证码发送成功";
+
+        if("1".equals(type)){
+            msg = "验证码已发送，请注意查看短信";
+        }else if("3".equals(type)){
+            msg = "验证码已发送至+"+mobile;
+        }
+        response.setMsg(msg);
+
         return response;
     }
 
