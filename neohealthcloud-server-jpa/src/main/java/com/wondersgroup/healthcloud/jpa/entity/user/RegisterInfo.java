@@ -66,4 +66,8 @@ public class RegisterInfo {
 
     @Column(name = "update_date")
     private Date updateDate;
+
+    public Boolean verified() {
+        return !"0".equals(identifytype);
+    }
 }

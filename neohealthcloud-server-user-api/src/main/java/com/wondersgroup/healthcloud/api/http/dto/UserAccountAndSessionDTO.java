@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 
 /**
@@ -13,6 +14,8 @@ public class UserAccountAndSessionDTO {
     private String uid;
     private String token;
     private String key;
+
+    @JsonProperty("user_type")
     private String userType;
 
     private UserAccountDTO info;

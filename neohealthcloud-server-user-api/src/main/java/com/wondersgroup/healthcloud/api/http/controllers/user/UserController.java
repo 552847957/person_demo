@@ -1,11 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.api.http.dto.UserAccountDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,7 @@ import java.util.Map;
  * Created by longshasha on 16/8/4.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
@@ -27,17 +29,31 @@ public class UserController {
     private UserAccountService userAccountService;
 
 
+    /**
+     * 获取用户信息
+     * @param id
+     * @return
+     */
+    @VersionRange
+    @GetMapping(path = "/info")
+    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String id) {
+        RegisterInfo registerInfo = userService.getOneNotNull(id);
+
+        JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
+        response.setData(new UserAccountDTO(registerInfo));
+        return response;
+    }
 
 
     /**
-     * 获取验证码 type : `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码
+     * 获取验证码 type : `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码 ,4 :修改手机号 ,5:绑定手机号
      * @param mobile
      * @param type
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "/code", method = RequestMethod.GET)
     @VersionRange
+    @GetMapping(path = "/code")
     public JsonResponseEntity<String> getVerificationCodes(@RequestParam String mobile,
                                                            @RequestParam(defaultValue = "0") Integer type)  {
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
@@ -62,7 +78,7 @@ public class UserController {
      */
     @WithoutToken
     @VersionRange
-    @RequestMapping(value = "/code/check", method = RequestMethod.GET)
+    @GetMapping(path = "/code/check")
     public JsonResponseEntity<String> validateCode(@RequestParam("mobile") String mobile,
                                                    @RequestParam("verify_code") String code) {
         Boolean result = userAccountService.validateCode(mobile, code, false);
@@ -72,9 +88,14 @@ public class UserController {
         return body;
     }
 
+    /**
+     * 重置密码
+     * @param request
+     * @return
+     */
     @WithoutToken
     @VersionRange
-    @RequestMapping(value = "/password/reset", method = RequestMethod.POST)
+    @PostMapping(path = "/password/reset")
     public JsonResponseEntity<String> resetPassword(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String mobile = reader.readString("mobile", false);
@@ -93,12 +114,34 @@ public class UserController {
     }
 
     /**
+     * 修改手机号
+     * @param request
+     * @return
+     */
+    @PostMapping(path = "/mobile/update")
+    public JsonResponseEntity<Map<String, String>> changeMobile(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String oldVerifyCode = reader.readString("old_verify_code", true);
+        String newMobile = reader.readString("new_mobile", false);
+        String newVerifyCode = reader.readString("new_verify_code", false);
+
+        userAccountService.changeMobile(id, oldVerifyCode, newMobile, newVerifyCode);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("更换手机号码成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("mobile", newMobile);
+        body.setData(data);
+        return body;
+    }
+
+    /**
      * 注册账号
      * @param request
      * @return
      */
-    @RequestMapping(value = "/registe", method = RequestMethod.POST)
     @VersionRange
+    @PostMapping(path = "/registe")
     public JsonResponseEntity<UserAccountAndSessionDTO> register(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String mobile = reader.readString("mobile", false);
@@ -117,8 +160,8 @@ public class UserController {
      * 提交实名认证信息
      * @return
      */
-    @RequestMapping(value = "/verification/submit", method = RequestMethod.POST)
     @VersionRange
+    @PostMapping(path = "/verification/submit")
     public JsonResponseEntity<String> verificationSubmit(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid",false);
@@ -138,4 +181,47 @@ public class UserController {
         UserAccountDTO accountDto = new UserAccountDTO(user);
         return  accountDto;
     }
+
+    /**
+     * 修改昵称
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/nickname/update")
+    public JsonResponseEntity<Map<String, String>> changeNickname(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String nickname = reader.readString("nickname", false);
+
+        userService.updateNickname(id, nickname);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("昵称修改成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("nickname", nickname);
+        body.setData(data);
+        return body;
+    }
+
+    /**
+     * 修改性别
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/gender/update")
+    public JsonResponseEntity<Map<String, String>> updateGender(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String gender = reader.readString("gender", false);
+
+        userService.updateGender(id, gender);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        Map<String, String> data = Maps.newHashMap();
+        data.put("gender", gender);
+        body.setData(data);
+        body.setMsg("性别修改成功");
+        return body;
+    }
+
 }

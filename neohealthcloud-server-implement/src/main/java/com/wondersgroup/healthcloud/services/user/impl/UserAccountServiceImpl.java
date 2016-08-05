@@ -7,10 +7,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorSmsRequestException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserGuestLogoutException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasBeenRegisteredException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasNotRegisteredException;
+import com.wondersgroup.healthcloud.services.user.exception.*;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
@@ -41,7 +38,9 @@ public class UserAccountServiceImpl implements UserAccountService{
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
-            "您的验证码为:code，10分钟内有效。"
+            "您的验证码为:code，10分钟内有效。",
+            "您正在更改绑定的手机号，验证码:code。慎重操作，打死都不能告诉别人",
+            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。"
     };
 
     @Override
@@ -278,6 +277,45 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
     }
 
+    /**
+     * 修改手机号
+     * @param uid
+     * @param oldVerifyCode
+     * @param newMobile
+     * @param newVerifyCode
+     * @return
+     */
+    @Override
+    public Boolean changeMobile(String uid, String oldVerifyCode, String newMobile, String newVerifyCode) {
+        RegisterInfo register = findOneRegister(uid,false);
+        if (register.getRegmobilephone() != null) {
+            if (StringUtils.isBlank(oldVerifyCode)) {
+                throw new ErrorChangeMobileException("请输入原手机的验证码");
+            }
+            if (register.getRegmobilephone().equals(newMobile)) {
+                throw new ErrorChangeMobileException("手机号码相同, 无需更换");
+            }
+            if (!validateCode(register.getRegmobilephone(), oldVerifyCode, true)) {
+                throw new ErrorChangeMobileException("验证码错误");
+            }
+        }
+        if (!validateCode(newMobile, newVerifyCode, true)) {
+            throw new ErrorChangeMobileException("验证码错误");
+        }
+
+        JsonNode result = httpWdUtils.updateMobile(uid,newMobile);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            register.setRegmobilephone(newMobile);
+            register.setUpdateBy(register.getRegisterid());
+            register.setUpdateDate(new Date());
+            registerInfoRepository.saveAndFlush(register);
+            return true;
+        } else {
+            throw new ErrorChangeMobileException(1002,result.get("msg").asText());
+        }
+    }
+
 
     /**
      * 同步本地账号
@@ -468,6 +506,15 @@ public class UserAccountServiceImpl implements UserAccountService{
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
+    }
+
+    private RegisterInfo findOneRegister(String id, Boolean nullable) {
+        RegisterInfo register = registerInfoRepository.findOne(id);
+        if (register != null || nullable) {
+            return register;
+        } else {
+            throw new ErrorUserAccountException();
         }
     }
 
