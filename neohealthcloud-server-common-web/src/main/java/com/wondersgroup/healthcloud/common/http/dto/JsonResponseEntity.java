@@ -16,6 +16,17 @@ public class JsonResponseEntity<T> {
         this.code = 0;
     }
 
+    public JsonResponseEntity(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public JsonResponseEntity(int code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
     public int getCode() {
         return code;
     }

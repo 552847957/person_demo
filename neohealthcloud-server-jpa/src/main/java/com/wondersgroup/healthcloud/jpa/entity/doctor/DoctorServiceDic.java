@@ -42,4 +42,7 @@ public class DoctorServiceDic {
 
     @Column(name = "update_date")
     private Date updateDate;
+
+
+
 }
