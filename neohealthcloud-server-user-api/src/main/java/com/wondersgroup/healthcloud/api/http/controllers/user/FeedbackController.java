@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers;
+package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.google.common.io.ByteStreams;
 import com.squareup.okhttp.Request;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api")
-public class UserHelperController {
+public class FeedbackController {
 
   @Autowired
   private FeedbackService feedbackService;
