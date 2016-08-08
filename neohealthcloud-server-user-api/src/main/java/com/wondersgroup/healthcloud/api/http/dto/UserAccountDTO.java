@@ -39,17 +39,37 @@ public class UserAccountDTO {
 
 
     public UserAccountDTO(Map<String, Object> user) {
-
-
+        if(user!=null) {
+            this.uid = user.get("registerid") == null ? "" : user.get("registerid").toString();
+            this.name = user.get("name") == null ? "" : user.get("name").toString();
+            this.nickName = user.get("nickname") == null ? "" : user.get("nickname").toString();
+            this.mobile = user.get("regmobilephone") == null ? "" : user.get("regmobilephone").toString();
+            this.avatar = user.get("headphoto") == null ? "" : user.get("headphoto").toString();
+            this.idcard = user.get("personcard") == null ? "" : user.get("personcard").toString();
+            String gender = user.get("gender") == null ? "" : user.get("gender").toString();
+            if (StringUtils.isNotBlank(gender))
+                this.gender = Integer.valueOf(gender);
+            this.age = "";
+            String identifytype = user.get("identifytype") == null ? "" : user.get("identifytype").toString();
+            this.verified = !"0".equals(identifytype);
+            if (this.verified) {
+                this.age = StringUtils.isBlank(this.idcard) ? "" : String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
+            }
+            this.talkId = user.get("talkid") == null ? "" : user.get("talkid").toString();
+            this.talkPwd = user.get("talkpwd") == null ? "" : user.get("talkpwd").toString();
+            this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
+            this.medicarecard = user.get("medicarecard") == null ? "" : user.get("medicarecard").toString();
+            this.bindPersoncard = user.get("bind_personcard") == null ? "" : user.get("bind_personcard").toString();
+        }
     }
 
     public UserAccountDTO(RegisterInfo registerInfo) {
         this.uid = registerInfo.getRegisterid();
-        this.name = registerInfo.getName();
-        this.nickName = registerInfo.getNickname();
-        this.mobile = registerInfo.getRegmobilephone();
-        this.avatar = registerInfo.getHeadphoto();
-        this.idcard = registerInfo.getPersoncard();
+        this.name = registerInfo.getName()==null?"":registerInfo.getName();
+        this.nickName = registerInfo.getNickname()==null?"":registerInfo.getNickname();
+        this.mobile = registerInfo.getRegmobilephone()==null?"":registerInfo.getRegmobilephone();
+        this.avatar = registerInfo.getHeadphoto()==null?"":registerInfo.getHeadphoto();
+        this.idcard = registerInfo.getPersoncard()==null?"":registerInfo.getPersoncard();
         if(StringUtils.isNotBlank(registerInfo.getGender()))
             this.gender = Integer.valueOf(registerInfo.getGender());
         this.age = "";
@@ -57,11 +77,11 @@ public class UserAccountDTO {
         if(this.verified){
             this.age = StringUtils.isBlank(this.idcard)?"":String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
         }
-        this.talkId = registerInfo.getTalkid();
-        this.talkPwd = registerInfo.getTalkpwd();
-        this.tagid = registerInfo.getTagid();
-        this.medicarecard = registerInfo.getMedicarecard();
-        this.bindPersoncard = registerInfo.getBindPersoncard();
+        this.talkId = registerInfo.getTalkid()==null?"":registerInfo.getTalkid();
+        this.talkPwd = registerInfo.getTalkpwd()==null?"":registerInfo.getTalkpwd();
+        this.tagid = registerInfo.getTagid()==null?"":registerInfo.getTagid();
+        this.medicarecard = registerInfo.getMedicarecard()==null?"": registerInfo.getMedicarecard();
+        this.bindPersoncard = registerInfo.getBindPersoncard()==null?"":registerInfo.getBindPersoncard();
     }
 
     public String getUid() {

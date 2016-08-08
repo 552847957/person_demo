@@ -26,7 +26,7 @@ import java.util.Date;
 @Service
 public class UserAccountServiceImpl implements UserAccountService{
 
-    private final String user_type_patient = "0";//用户类型 0:患者 1:医生
+    private final String user_type_patient = "1";//用户类型 0:医生,1:患者
 
     @Autowired
     private HttpWdUtils httpWdUtils;

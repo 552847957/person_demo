@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateGenderException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,9 +21,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RegisterInfoRepository registerInfoRepository;
 
+    @Autowired
+    private JdbcTemplate jt;
+
+
+    private String query = "select i.registerid ,i.`name`,i.nickname ,i.regmobilephone ,i.headphoto , " +
+            " i.personcard ,i.gender ,i.identifytype ,i.talkid ,i.talkpwd ,i.tagid , " +
+            " i.medicarecard ,i.bind_personcard " +
+            " from app_tb_register_info i ";
+
     @Override
     public Map<String, Object> findUserInfoByUid(String uid) {
-        return null;
+
+        String sql = query + "where i.registerid = '%s'";
+        sql = String.format(sql,uid);
+        return jt.queryForMap(sql);
     }
 
     @Override

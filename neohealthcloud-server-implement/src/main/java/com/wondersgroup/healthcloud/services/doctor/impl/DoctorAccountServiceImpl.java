@@ -14,10 +14,12 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by longshasha on 16/8/1.
  */
+@Service
 public class DoctorAccountServiceImpl implements DoctorAccountService {
 
     @Autowired
