@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.utils.wonderCloud;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -15,6 +16,7 @@ public class AccessToken {
 
     private Boolean isValid;//患者是否是实名认证的
 
+    @JsonProperty("user_type")
     private String userType;// "0" for doctor, "1" for patient
 
     public AccessToken() {

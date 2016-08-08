@@ -1,10 +1,16 @@
 package com.wondersgroup.healthcloud.services.doctor.impl;
 
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -15,6 +21,12 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Autowired
     private JdbcTemplate jt;
+
+    @Autowired
+    private DoctorInfoRepository doctorInfoRepository;
+
+    @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
 
 
     private String query = "select a.id,a.`name` ,a.mobile,a.nickname ,a.login_name as 'loginName',a.avatar , " +
@@ -52,4 +64,42 @@ public class DoctorServiceImpl implements DoctorService {
         sql = String.format(sql,actcode);
         return jt.queryForMap(sql);
     }
+
+    @Override
+    public DoctorInfo updateIntro(String uid, String intro) {
+        DoctorInfo doctorInfo = doctorInfoRepository.findOne(uid);
+        if(doctorInfo == null){
+            throw new ErrorDoctorAccountException("用户不存在");
+        }
+        doctorInfo.setIntroduction(intro);
+        doctorInfo.setUpdateDate(new Date());
+        doctorInfo.setUpdateBy(uid);
+        return doctorInfoRepository.saveAndFlush(doctorInfo);
+    }
+
+    @Override
+    public DoctorInfo updateExpertin(String uid, String expertin) {
+        DoctorInfo doctorInfo = doctorInfoRepository.findOne(uid);
+        if(doctorInfo == null){
+            throw new ErrorDoctorAccountException("用户不存在");
+        }
+        doctorInfo.setExpertin(expertin);
+        doctorInfo.setUpdateDate(new Date());
+        doctorInfo.setUpdateBy(uid);
+        return doctorInfoRepository.saveAndFlush(doctorInfo);
+    }
+
+    @Override
+    public DoctorAccount updateDoctorAvatar(String uid, String avatar) {
+        DoctorAccount doctorAccount = doctorAccountRepository.findOne(uid);
+        if(doctorAccount == null){
+            throw new ErrorDoctorAccountException("用户不存在");
+        }
+        doctorAccount.setAvatar(avatar);
+        doctorAccount.setUpdateDate(new Date());
+        doctorAccount.setUpdateBy(uid);
+        return doctorAccountRepository.saveAndFlush(doctorAccount);
+    }
+
+
 }
