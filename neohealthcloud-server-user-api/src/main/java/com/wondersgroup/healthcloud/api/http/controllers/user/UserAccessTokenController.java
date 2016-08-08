@@ -46,8 +46,8 @@ public class UserAccessTokenController {
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "token/guest", method = RequestMethod.GET)
     @VersionRange
+    @GetMapping(path = "/token/guest")
     public JsonResponseEntity<UserAccountAndSessionDTO> fetchGuestToken() {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.guestLogin()));
@@ -61,7 +61,7 @@ public class UserAccessTokenController {
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "token/fast", method = RequestMethod.GET)
+    @RequestMapping(value = "/token/fast", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> fastFetchToken(@RequestParam String mobile,
                                                                        @RequestParam String verify_code) {
@@ -79,7 +79,7 @@ public class UserAccessTokenController {
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "token/thirdparty/wechat", method = RequestMethod.GET)
+    @RequestMapping(value = "/token/thirdparty/wechat", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> wechatLogin(@RequestParam String token,
                                                                     @RequestParam String openid) {
@@ -96,7 +96,7 @@ public class UserAccessTokenController {
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "token/thirdparty/weibo", method = RequestMethod.GET)
+    @RequestMapping(value = "/token/thirdparty/weibo", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> weiboLogin(@RequestParam String token) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
@@ -112,7 +112,7 @@ public class UserAccessTokenController {
      * @return
      */
     @WithoutToken
-    @RequestMapping(value = "token/thirdparty/qq", method = RequestMethod.GET)
+    @RequestMapping(value = "/token/thirdparty/qq", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> qqLogin(@RequestParam String token) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
@@ -123,7 +123,7 @@ public class UserAccessTokenController {
     }
 
 
-    @RequestMapping(value = "token/logout", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/token/logout", method = RequestMethod.DELETE)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> deleteToken(@RequestHeader("access-token") String token) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
