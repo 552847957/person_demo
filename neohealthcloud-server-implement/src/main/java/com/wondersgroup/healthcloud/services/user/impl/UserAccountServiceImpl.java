@@ -26,7 +26,7 @@ import java.util.Date;
 @Service
 public class UserAccountServiceImpl implements UserAccountService{
 
-    private final String user_type_patient = "0";
+    private final String user_type_patient = "0";//用户类型 0:患者 1:医生
 
     @Autowired
     private HttpWdUtils httpWdUtils;
@@ -363,7 +363,6 @@ public class UserAccountServiceImpl implements UserAccountService{
         RegisterInfo registerInfo = new RegisterInfo();
         registerInfo.setRegisterid(id);
         registerInfo.setRegmobilephone(mobile);
-        registerInfo.setUsertype(this.user_type_patient);
         if (fromThirdParty) {
             registerInfo.setNickname(thirdPartyUser.nickname);
         } else if (mobile != null) {
