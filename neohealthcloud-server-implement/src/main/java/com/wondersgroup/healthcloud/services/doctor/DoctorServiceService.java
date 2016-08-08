@@ -25,8 +25,8 @@ public interface DoctorServiceService {
 
     void saveDoctorServiceRoleMap(DoctorServiceRoleMap serviceRoleMap);
 
-    List<DoctorServiceRoleMap> queryDoctorServiceRoleMap(String key, Pageable pageable);
+    Page<DoctorServiceRoleMap> queryDoctorServiceRoleMap(String key, Pageable pageable);
 
-    int deleteDoctorServiceRoleMap(long id);
+    int deleteDoctorServiceRoleMap(String id);
 }
 

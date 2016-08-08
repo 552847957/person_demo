@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceRoleMap;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorServiceDicRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorServiceRoleMapRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorServiceService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,11 @@ public class DoctorServiceServiceImpl implements DoctorServiceService {
 
     @Override
     public Page<DoctorServiceDic> queryDoctorServiceDices(String key, Pageable pageable) {
-        return doctorServiceDicRepository.findAllByNameLike(key, pageable);
+        if (StringUtils.isEmpty(key)) {
+            return doctorServiceDicRepository.findAll(pageable);
+        }
+        return doctorServiceDicRepository.findByNameLike(key, pageable);
+
     }
 
     @Override
@@ -40,12 +45,15 @@ public class DoctorServiceServiceImpl implements DoctorServiceService {
     }
 
     @Override
-    public List<DoctorServiceRoleMap> queryDoctorServiceRoleMap(String key, Pageable pageable) {
-        return doctorServiceRoleMapRepository.findAllByNameLike(key, pageable);
+    public Page<DoctorServiceRoleMap> queryDoctorServiceRoleMap(String key, Pageable pageable) {
+        if (StringUtils.isEmpty(key)) {
+            return doctorServiceRoleMapRepository.findAll(pageable);
+        }
+        return doctorServiceRoleMapRepository.findByServiceNameLike(key, pageable);
     }
 
     @Override
-    public int deleteDoctorServiceRoleMap(long id) {
+    public int deleteDoctorServiceRoleMap(String id) {
         return doctorServiceRoleMapRepository.deleteDoctorServiceRoleMap(id);
     }
 }

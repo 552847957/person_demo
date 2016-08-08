@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface DoctorServiceDicRepository extends JpaRepository<DoctorServiceDic, String> {
 
-    Page<DoctorServiceDic> findAllByNameLike(String key, Pageable pageable);
+    Page<DoctorServiceDic> findByNameLike(String key, Pageable pageable);
 }

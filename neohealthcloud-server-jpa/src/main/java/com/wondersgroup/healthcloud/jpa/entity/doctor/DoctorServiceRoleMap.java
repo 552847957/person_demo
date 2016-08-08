@@ -31,7 +31,7 @@ public class DoctorServiceRoleMap {
     private String roleName;
 
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag = "1";
 
     @Column(name = "source_id")
     private String sourceId;

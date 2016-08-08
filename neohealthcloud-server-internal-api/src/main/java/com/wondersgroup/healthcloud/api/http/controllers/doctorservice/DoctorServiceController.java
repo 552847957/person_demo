@@ -1,7 +1,8 @@
-package com.wondersgroup.healthcloud.api.http.controllers.doctor.doctorservice;
+package com.wondersgroup.healthcloud.api.http.controllers.doctorservice;
 
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceDic;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceRoleMap;
 import com.wondersgroup.healthcloud.services.doctor.DoctorServiceService;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("api")
 public class DoctorServiceController {
 
     @Autowired
@@ -31,7 +31,8 @@ public class DoctorServiceController {
      * @return
      */
     @RequestMapping(value = "config/saveDoctorServiceDic", method = RequestMethod.POST)
-    public JsonResponseEntity saveDoctorServiceDic(@RequestBody Map para) {
+    public JsonResponseEntity saveDoctorServiceDic(@RequestBody Map<String, Object> para) {
+        para.put("id",IdGen.uuid());
         DoctorServiceDic doctorServiceDic = new MapToBeanUtil<DoctorServiceDic>().fromMapToBean(DoctorServiceDic.class, para);
         doctorServiceService.saveDoctorServiceDic(doctorServiceDic);
         return new JsonResponseEntity(0, "保存成功");
@@ -46,14 +47,15 @@ public class DoctorServiceController {
     @RequestMapping(value = "config/getServiceDic", method = RequestMethod.GET)
     public JsonResponseEntity queryDoctorServiceDices(String key, @PageableDefault Pageable pageable) {
         Page<DoctorServiceDic> doctorServiceDices = doctorServiceService.queryDoctorServiceDices(key, pageable);
-        return new JsonResponseEntity(0, "保存成功", doctorServiceDices);
+        return new JsonResponseEntity(0, "查询成功", doctorServiceDices);
     }
 
     /**
      * 医生服务包和web医生角色关联配置
      */
-    @RequestMapping(value = "config/saveServiceRoleMap", method = RequestMethod.GET)
+    @PostMapping(value = "config/saveServiceRoleMap")
     public JsonResponseEntity saveDoctorServiceRoleMap(@RequestBody Map para) {
+        para.put("id",IdGen.uuid());
         DoctorServiceRoleMap serviceRoleMap = new MapToBeanUtil<DoctorServiceRoleMap>().fromMapToBean(DoctorServiceRoleMap.class, para);
         doctorServiceService.saveDoctorServiceRoleMap(serviceRoleMap);
         return new JsonResponseEntity(0, "保存成功");
@@ -64,8 +66,8 @@ public class DoctorServiceController {
      */
     @RequestMapping(value = "config/getServiceRoleMap", method = RequestMethod.GET)
     public JsonResponseEntity queryDoctorServiceRoleMap(String key, @PageableDefault Pageable pageable) {
-        List<DoctorServiceRoleMap> doctorServiceRoleMaps = doctorServiceService.queryDoctorServiceRoleMap(key, pageable);
-        return new JsonResponseEntity(0, "保存成功", doctorServiceRoleMaps);
+        Page<DoctorServiceRoleMap> doctorServiceRoleMaps = doctorServiceService.queryDoctorServiceRoleMap(key, pageable);
+        return new JsonResponseEntity(0, "查询成功", doctorServiceRoleMaps);
     }
 
     /**
@@ -73,7 +75,7 @@ public class DoctorServiceController {
      */
 
     @RequestMapping(value = "config/deleteServiceRoleMap/{id}", method = RequestMethod.GET)
-    public JsonResponseEntity deleteServiceRoleMap(@PathVariable long id) {
+    public JsonResponseEntity deleteServiceRoleMap(@PathVariable String id) {
         int index = doctorServiceService.deleteDoctorServiceRoleMap(id);
         if (index == 1) {
             return new JsonResponseEntity(0, "删除成功");
