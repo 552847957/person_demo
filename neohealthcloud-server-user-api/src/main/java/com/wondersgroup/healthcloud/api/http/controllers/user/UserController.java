@@ -8,8 +8,10 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,8 +41,9 @@ public class UserController {
     public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid) {
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
 
+        UserInfo userInfo = userService.getUserInfo(uid);
         JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
-        response.setData(new UserAccountDTO(registerInfo));
+        response.setData(new UserAccountDTO(registerInfo,userInfo));
         return response;
     }
 
@@ -221,6 +224,54 @@ public class UserController {
         data.put("gender", gender);
         body.setData(data);
         body.setMsg("性别修改成功");
+        return body;
+    }
+
+
+    /**
+     * 修改 性别 年龄 身高 体重 腰围
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/userInfo/update")
+    public JsonResponseEntity<String> updateUserInfo(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+
+        UserInfoForm form = new UserInfoForm();
+
+        form.registerId = reader.readString("uid", false);
+        form.age = reader.readInteger("age", true);
+        form.height = reader.readInteger("height", true);
+        form.weight = reader.readObject("weight", true, Float.class);
+        form.waist = reader.readObject("waist", true, Float.class);
+
+        form.gender = reader.readString("gender",true);
+
+        userService.updateUserInfo(form);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setMsg("信息修改成功");
+        return body;
+    }
+
+    /**
+     * 修改昵称
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/avatar/update")
+    public JsonResponseEntity<Map<String, String>> updateAvatar(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String avatar = reader.readString("avatar", false);
+
+        userService.updateAvatar(id, avatar);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("头像修改成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("avatar", avatar);
+        body.setData(data);
         return body;
     }
 

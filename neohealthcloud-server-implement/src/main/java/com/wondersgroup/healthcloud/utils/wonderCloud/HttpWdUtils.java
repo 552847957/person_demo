@@ -14,15 +14,15 @@ import java.util.Map;
  * Created by longshasha on 16/5/10.
  */
 public class HttpWdUtils {
-    private static final String url = "http://clientgateway.huidao168.com/webopenapi/toremotecustom";
-//private static final String url = "http://10.1.65.224:82/webopenapi/toremotecustom";//测试环境
-    private String appToken = "ee7177eb-9b73-4f59-96ec-a5d433920d74";//测试环境
+    private  String url = "http://10.1.65.106:82/webopenapi/toremotecustom";//测试环境
+    private String appToken = "59b30cbd-7f39-4fa7-8fda-17acabb74d86";//测试环境
+    private String octopusSid = "C6B18542F8E0000118BD1E2A1C001D9E";//测试环境
+
+
     public static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDGHjtLwTJP9ehWYM3Dmwg9eTX3gDAFwQMyL1edXKPOjyUucWml7O8VF8adQgLH8fM1PoZSKHGliE0rZ3q6o1jh4lkF1CLIqWRbZ4ObKM2i1w5O2VP9lMKyWTrRM/R9RWxCgwINb/QQmbmNLTVruh4YG1Q0QTK2dQLnIh0oANdpwIDAQAB";
-
-
     private static final String channelid = "d92618bc-ab52-4e03-989f-6f764f26a12b";
     private static final String appkey = "d9dbdfb2-bcf5-423c-b80a-2d51e8bf5d58";
-    private String octopusSid = "C6B18542F8E0000118BD1E2A1C001D9E";//测试环境
+
 
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
@@ -42,6 +42,14 @@ public class HttpWdUtils {
 
     public void setOctopusSid(String octopusSid) {
         this.octopusSid = octopusSid;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     /**
@@ -469,7 +477,7 @@ public class HttpWdUtils {
 
 
         HttpWdUtils httpWdUtils = new HttpWdUtils();
-        httpWdUtils.setAppToken("bd8f960b-1e7b-434b-b1ea-8faee6028435");
+        httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
         httpWdUtils.setIdMap(idMap);
 

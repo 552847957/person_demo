@@ -90,6 +90,7 @@ public class BeanFactory {
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
+        httpWdUtils.setUrl("http://10.1.65.106:82/webopenapi/toremotecustom");
         httpWdUtils.setHttpRequestExecutorManager(manager);
         return httpWdUtils;
     }
@@ -127,6 +128,7 @@ public class BeanFactory {
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
         httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
+        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
         return httpWdUtils;
     }

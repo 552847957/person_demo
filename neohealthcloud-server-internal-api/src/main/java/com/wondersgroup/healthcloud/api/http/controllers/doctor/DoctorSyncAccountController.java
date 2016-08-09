@@ -19,7 +19,7 @@ import java.util.Date;
  * Created by longshasha on 16/8/2.
  */
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/doctor")
 public class DoctorSyncAccountController {
 
     @Autowired
