@@ -31,8 +31,8 @@ public class DoctorServiceController {
      * @return
      */
     @RequestMapping(value = "config/saveDoctorServiceDic", method = RequestMethod.POST)
-    public JsonResponseEntity saveDoctorServiceDic(@RequestBody Map<String, Object> para) {
-        para.put("id",IdGen.uuid());
+    public JsonResponseEntity saveDoctorServiceDic(@RequestBody Map para) {
+        para.put("id", IdGen.uuid());
         DoctorServiceDic doctorServiceDic = new MapToBeanUtil<DoctorServiceDic>().fromMapToBean(DoctorServiceDic.class, para);
         doctorServiceService.saveDoctorServiceDic(doctorServiceDic);
         return new JsonResponseEntity(0, "保存成功");
@@ -55,7 +55,7 @@ public class DoctorServiceController {
      */
     @PostMapping(value = "config/saveServiceRoleMap")
     public JsonResponseEntity saveDoctorServiceRoleMap(@RequestBody Map para) {
-        para.put("id",IdGen.uuid());
+        para.put("id", IdGen.uuid());
         DoctorServiceRoleMap serviceRoleMap = new MapToBeanUtil<DoctorServiceRoleMap>().fromMapToBean(DoctorServiceRoleMap.class, para);
         doctorServiceService.saveDoctorServiceRoleMap(serviceRoleMap);
         return new JsonResponseEntity(0, "保存成功");

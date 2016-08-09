@@ -11,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * Created by jimmy on 16/8/5.
  */
@@ -33,9 +31,9 @@ public class DoctorServiceServiceImpl implements DoctorServiceService {
     @Override
     public Page<DoctorServiceDic> queryDoctorServiceDices(String key, Pageable pageable) {
         if (StringUtils.isEmpty(key)) {
-            return doctorServiceDicRepository.findAll(pageable);
+            return doctorServiceDicRepository.findByDelFlag("0", pageable);
         }
-        return doctorServiceDicRepository.findByNameLike(key, pageable);
+        return doctorServiceDicRepository.findByNameLikeAndDelFlag(key, "0", pageable);
 
     }
 
@@ -47,9 +45,9 @@ public class DoctorServiceServiceImpl implements DoctorServiceService {
     @Override
     public Page<DoctorServiceRoleMap> queryDoctorServiceRoleMap(String key, Pageable pageable) {
         if (StringUtils.isEmpty(key)) {
-            return doctorServiceRoleMapRepository.findAll(pageable);
+            return doctorServiceRoleMapRepository.findByDelFlag("0", pageable);
         }
-        return doctorServiceRoleMapRepository.findByServiceNameLike(key, pageable);
+        return doctorServiceRoleMapRepository.findByServiceNameLikeAndDelFlag(key, "0", pageable);
     }
 
     @Override

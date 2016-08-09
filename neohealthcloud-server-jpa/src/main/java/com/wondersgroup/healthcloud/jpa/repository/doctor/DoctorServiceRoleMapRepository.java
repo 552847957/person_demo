@@ -20,10 +20,15 @@ public interface DoctorServiceRoleMapRepository extends JpaRepository<DoctorServ
     @Query(" select a from DoctorServiceRoleMap a where a.delFlag ='0' and a.roleId in ?1 GROUP BY a.serviceId")
     List<DoctorServiceRoleMap> findServicesByRoles(Collection<String> roleList);
 
-    Page<DoctorServiceRoleMap> findByServiceNameLike(String key, Pageable pageable);
+    Page<DoctorServiceRoleMap> findByServiceNameLikeAndDelFlag(String key, String flag, Pageable pageable);
+
+    Page<DoctorServiceRoleMap> findByDelFlag(String s, Pageable pageable);
 
     @Transactional
     @Modifying
-    @Query("update DoctorServiceRoleMap a set a.delFlag =1 where a.id = :id")
+    @Query("update DoctorServiceRoleMap a set a.delFlag = '1' where a.id = :id")
     int deleteDoctorServiceRoleMap(@Param("id") String id);
+
+
+
 }
