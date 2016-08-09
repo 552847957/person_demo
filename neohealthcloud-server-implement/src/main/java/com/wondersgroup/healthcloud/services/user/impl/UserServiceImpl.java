@@ -67,4 +67,10 @@ public class UserServiceImpl implements UserService {
 
         return true;
     }
+
+    @Override
+    public RegisterInfo findRegisterInfoByMobile(String mobile) {
+        RegisterInfo register = registerInfoRepository.findByMobile(mobile);
+        return register;
+    }
 }

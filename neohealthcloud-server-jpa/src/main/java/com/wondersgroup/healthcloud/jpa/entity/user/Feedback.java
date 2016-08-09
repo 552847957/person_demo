@@ -43,5 +43,6 @@ public class Feedback extends BaseEntity {
     private String suggesttime;
     private String comments;
     private String contact;
+    private String area;
     private String type;
 }

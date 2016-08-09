@@ -1,7 +1,7 @@
 ## 新健康云服务端开发规约
 
 ### db及dao
-db使用mysql, `JPA`做orm, 建表规则参考已有的表, 由于历史原因, 一般表以`app_tb_`开头, 已`id`为主键名, 使用`UUID`, 建议加上`del_flag`,`source_id`,`create_date`,`create_by`,`update_date`,`update_by`字段
+db使用mysql, `JPA`做orm, 建表规则参考已有的表, 由于历史原因, 一般表以`app_tb_`开头, 以`id`为主键名, 使用`UUID`, 建议加上`del_flag`,`source_id`,`create_date`,`create_by`,`update_date`,`update_by`字段
 数据库不建立外键约束, 由程序管理关联, 是使用外键字符串还是使用`@ManyToOne`等`JPA`关联注解, 根据业务自行决定
 
 开发流程为:

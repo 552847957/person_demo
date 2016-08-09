@@ -20,8 +20,8 @@
 
 id | title | main_area | spec_area
 ---|-------|-----------|----------
-1  | 标题1 |           | 
-2  | 标题2 | 3101      | 
+1  | 标题1 |           |
+2  | 标题2 | 3101      |
 3  | 标题3 | 3101      | 310105
 
 API查询时:
@@ -30,10 +30,37 @@ API查询时:
 上海版(未选区域): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area='')` 返回1,2  
 上海版(长宁): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area='' or spec_area = '310105')` 返回1,2,3  
 上海版(静安): `select * from article_tb where (main_area='' or main_area = '3101') and (spec_area='' or spec_area = '310106')` 返回1,2  
-广州版(未选区域): `select * from article_tb where (main_area='' or main_area = '4401') and (spec_area='')` 返回1 
+广州版(未选区域): `select * from article_tb where (main_area='' or main_area = '4401') and (spec_area='')` 返回1
 
 管理后台编辑时:
 
 admin权限的可以插入`main_area='' and spec_area=''`的文章  
 `3101`权限的可以插入`main_area='3101' and spec_area=''`的文章  
 `310105`权限的可以插入`main_area='3101' and spec_area='310105'`的文章  
+
+
+## 推送相关
+
+服务端以用户最后登录的app为准, 所有对用户的推送都推到最后登录的app上
+
+### 推送登录表
+
+列名     | 类型    | 含义
+---------|---------|-------
+id       | uuid    |
+uid      | uuid    | 用户id
+clientid | varchar | 个推clientid
+area     | varchar | 用户最后登录的app
+platform | varchar | 0:ios, 1:android
+
+### 推送key
+
+存在数据库中, 程序启动后, 预先读取到内存中
+
+### 推送接口
+
+通过http调用, 在`/internal-api/message`路径下
+
+### 推送url约定
+
+com.wondersgroup.healthcloud.${main_area}://......

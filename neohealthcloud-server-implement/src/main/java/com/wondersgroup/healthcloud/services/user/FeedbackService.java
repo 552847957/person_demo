@@ -26,11 +26,12 @@ public class FeedbackService {
   @Autowired
   private FeedbackRepository feedbackRepository;
 
-  public void saveFeedback(String uid, String comments, String contact, String type) {
+  public void saveFeedback(String uid, String comments, String contact, String mainArea, String type) {
     Feedback feedback = new Feedback();
     feedback.setRegisterid(uid);
     feedback.setComments(comments);
     feedback.setContact(contact);
+    feedback.setArea(mainArea);
     feedback.setType(type);
     feedback.setCreateDate(new Date());
     feedback.setCreateBy(uid);
