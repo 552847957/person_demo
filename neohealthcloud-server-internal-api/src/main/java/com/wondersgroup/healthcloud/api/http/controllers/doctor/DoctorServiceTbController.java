@@ -34,20 +34,18 @@ public class DoctorServiceTbController {
      * @return
      */
     @RequestMapping(value = "/doctorService/save", method = RequestMethod.GET)
-    public JsonResponseEntity<String> saveDoctorService(@RequestParam String doctorId,
-                                                        @RequestParam String serviceId){
+    public JsonResponseEntity saveDoctorService(@RequestParam String doctorId,
+                                                @RequestParam String serviceId){
         DoctorInfo doctor = doctorInfoRepository.findById(doctorId);
 
         if (doctor != null) {
-            JsonResponseEntity<String> response = new JsonResponseEntity<>();
             DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
             doctorServiceEntity.setDoctorId(doctorId);
             doctorServiceEntity.setServiceId(serviceId);
             doctorServiceEntity.setCreateDate(new Date());
             doctorServiceEntity.setUpdateDate(new Date());
             doctorServiceRepository.saveAndFlush(doctorServiceEntity);
-            response.setMsg("保存成功");
-            return response;
+            return new JsonResponseEntity(0, "保存成功");
         }
         throw new ErrorDoctorAccountNoneException();
     }

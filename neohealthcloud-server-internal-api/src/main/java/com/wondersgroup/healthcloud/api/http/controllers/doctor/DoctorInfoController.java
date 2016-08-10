@@ -27,17 +27,13 @@ public class DoctorInfoController {
      * @return
      */
     @PostMapping(path = "/doctorInfo/save")
-    public JsonResponseEntity<String> saveDoctorInfo(@RequestBody Map para){
-        JsonResponseEntity<String> response = new JsonResponseEntity<>();
-
+    public JsonResponseEntity saveDoctorInfo(@RequestBody Map para){
         DoctorInfo doctorInfo = new MapToBeanUtil<DoctorInfo>().fromMapToBean(DoctorInfo.class, para);
         doctorInfo.setCreateDate(new Date());
         doctorInfo.setUpdateDate(new Date());
         doctorInfoRepository.saveAndFlush(doctorInfo);
 
-        response.setMsg("保存成功");
-
-        return response;
+        return new JsonResponseEntity(0, "保存成功");
     }
 
     /**
