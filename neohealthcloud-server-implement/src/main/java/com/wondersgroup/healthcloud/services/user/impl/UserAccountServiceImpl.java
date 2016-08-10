@@ -380,6 +380,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         } else {
             registerInfo.setGender(fromThirdParty ? thirdPartyUser.gender : null);
         }
+        registerInfo.setDelFlag("0");
         registerInfo.setCreateDate(new Date());
         registerInfo = saveRegisterInfo(registerInfo);
         return registerInfo;
