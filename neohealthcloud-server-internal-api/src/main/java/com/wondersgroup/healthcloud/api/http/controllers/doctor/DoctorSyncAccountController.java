@@ -5,7 +5,6 @@ import com.wondersgroup.healthcloud.api.http.dto.doctor.SyncResponseDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
-import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorSyncAccountService;
 import com.wondersgroup.healthcloud.services.doctor.exception.SyncDoctorAccountException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -19,7 +18,7 @@ import java.util.Date;
  * Created by longshasha on 16/8/2.
  */
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/doctor")
 public class DoctorSyncAccountController {
 
     @Autowired
