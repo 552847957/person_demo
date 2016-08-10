@@ -16,4 +16,6 @@ public interface DoctorInfoRepository extends JpaRepository<DoctorInfo,String> {
     @Modifying
     @Query(" update DoctorInfo a set a.delFlag = '1' where a.id = ?1 ")
     void closeWonderCloudAccount(String registerId);
+
+    DoctorInfo findById(String id);
 }
