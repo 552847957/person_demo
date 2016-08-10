@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.user;
 
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
@@ -25,4 +26,8 @@ public interface UserService {
     UserInfo getUserInfo(String uid);
 
     void updateAvatar(String id, String avatar);
+
+    Address updateAddress(String id, String province, String city, String county, String town, String committee, String other);
+
+    Address getAddress(String uid);
 }

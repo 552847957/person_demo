@@ -1,6 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
-import com.wondersgroup.healthcloud.api.http.dto.UserAccountAndSessionDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;

@@ -1,7 +1,10 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
+import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.user.UserService;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private JdbcTemplate jt;
@@ -123,5 +130,34 @@ public class UserServiceImpl implements UserService {
         RegisterInfo register = getOneNotNull(uid);
         register.setHeadphoto(avatar);
         registerInfoRepository.saveAndFlush(register);
+    }
+
+    @Override
+    public Address updateAddress(String userId, String province, String city, String county, String town, String committee, String other) {
+        Address address = getAddress(userId);
+        Date date = new Date();
+        if (address == null) {
+            address = new Address();
+            address.setUserId(userId);
+            address.setId(IdGen.uuid());
+            address.setDelFlag("0");
+            address.setCreateBy(userId);
+            address.setCreateDate(date);
+        }
+        address.setProvince(province);
+        address.setCity(city);
+        address.setCounty(county);
+        address.setTown(town);
+        address.setCommittee(committee);
+        address.setOther(other);
+        address.setUpdateBy(userId);
+        address.setUpdateDate(date);
+        return addressRepository.save(address);
+    }
+
+    @Override
+    public Address getAddress(String userId) {
+        List<Address> addressList = addressRepository.findByUserId(userId);
+        return addressList.isEmpty() ? null : addressList.get(0);
     }
 }

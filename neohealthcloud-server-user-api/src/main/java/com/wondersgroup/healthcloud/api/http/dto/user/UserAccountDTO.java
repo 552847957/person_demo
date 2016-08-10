@@ -1,8 +1,10 @@
-package com.wondersgroup.healthcloud.api.http.dto;
+package com.wondersgroup.healthcloud.api.http.dto.user;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -42,6 +44,9 @@ public class UserAccountDTO {
     private String height;
     private String weight;
     private String waist;
+
+    @JsonUnwrapped(prefix = "address_")
+    private AddressDTO addressDTO;
 
 
     public UserAccountDTO(Map<String, Object> user) {
@@ -239,5 +244,13 @@ public class UserAccountDTO {
 
     public void setWaist(String waist) {
         this.waist = waist;
+    }
+
+    public AddressDTO getAddressDTO() {
+        return addressDTO;
+    }
+
+    public void setAddressDTO(AddressDTO addressDTO) {
+        this.addressDTO = addressDTO;
     }
 }
