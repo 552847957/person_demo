@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceEntity;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by shenbin on 16/8/9.
@@ -33,18 +36,24 @@ public class DoctorServiceTbController {
      * @param serviceId
      * @return
      */
-    @RequestMapping(value = "/doctorService/save", method = RequestMethod.GET)
+    @RequestMapping(value = "/doctorService/save", method = RequestMethod.POST)
     public JsonResponseEntity saveDoctorService(@RequestParam String doctorId,
-                                                @RequestParam String serviceId){
+                                                @RequestParam List<String> serviceId){
         DoctorInfo doctor = doctorInfoRepository.findById(doctorId);
 
         if (doctor != null) {
-            DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
-            doctorServiceEntity.setDoctorId(doctorId);
-            doctorServiceEntity.setServiceId(serviceId);
-            doctorServiceEntity.setCreateDate(new Date());
-            doctorServiceEntity.setUpdateDate(new Date());
-            doctorServiceRepository.saveAndFlush(doctorServiceEntity);
+            doctorServiceRepository.removeServiceByUid(doctorId);
+            List<DoctorServiceEntity> doctorServiceEntityList = new ArrayList<>();
+            for (String id : serviceId) {
+                DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
+                doctorServiceEntity.setId(IdGen.uuid());
+                doctorServiceEntity.setDoctorId(doctorId);
+                doctorServiceEntity.setServiceId(id);
+                doctorServiceEntity.setCreateDate(new Date());
+                doctorServiceEntity.setUpdateDate(new Date());
+                doctorServiceEntityList.add(doctorServiceEntity);
+            }
+            doctorServiceRepository.save(doctorServiceEntityList);
             return new JsonResponseEntity(0, "保存成功");
         }
         throw new ErrorDoctorAccountNoneException();
