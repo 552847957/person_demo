@@ -34,7 +34,7 @@ public class Application extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(Application.class);
+        return application.bannerMode(Banner.Mode.OFF).listeners(buildListener()).sources(Application.class);
     }
 
     public static void main(String[] args) throws Exception {
@@ -50,11 +50,15 @@ public class Application extends SpringBootServletInitializer {
         APIVersionChecker.check();
     }
 
-    private static JailStartListener buildListener() throws Exception {
-        ResourceLoader resourceLoader = new DefaultResourceLoader();
-        Resource resource = resourceLoader.getResource("config/application-de.properties");
-        Properties properties = new Properties();
-        properties.load(resource.getInputStream());
-        return new JailStartListener(new OkHttpClient(), properties.getProperty("jail.host"), properties.getProperty("jail.group"));
+    private static JailStartListener buildListener() {
+        try {
+            ResourceLoader resourceLoader = new DefaultResourceLoader();
+            Resource resource = resourceLoader.getResource("config/application-de.properties");
+            Properties properties = new Properties();
+            properties.load(resource.getInputStream());
+            return new JailStartListener(new OkHttpClient(), properties.getProperty("jail.host"), properties.getProperty("jail.group"));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
