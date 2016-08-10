@@ -57,7 +57,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<QuestionInfoForm> queryQuerstionList(String userId, int pageNo) {
         String sql="SELECT t1.id, t1.status, t1.content, t2.name,date_format(t1.create_time,'%Y-%c-%d %H:%i') date,"
-                + "t1.comment_count FROM question_tb t1 LEFT JOIN doctor_account_tb t2 ON t1.newest_answer_id=t2.id"
+                + "t1.comment_count FROM app_tb_neoquestion t1 LEFT JOIN doctor_account_tb t2 ON t1.newest_answer_id=t2.id"
                 + " WHERE t1.asker_id='"+userId+"' ORDER BY t1.has_noread_comment desc, t1.status asc, t1.create_time desc"
                 + " LIMIT "+pageNo*10+","+10;
         List<Map<String, Object>> list=getJt().queryForList(sql);
@@ -91,10 +91,10 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<QuestionGroup> getQuestionGroup(String questionId, Boolean from_user) {
         String sql="SELECT t1.id, t1.answer_id as doctorId, t2.name, t2.avatar, t4.duty_name "
-                + " FROM comment_group_tb t1 "
+                + " FROM app_tb_neogroup t1 "
                 + " LEFT JOIN doctor_account_tb t2 ON t1.answer_id=t2.id "
-                + " LEFT JOIN doctor_infor_tb t3 ON t2.id=t3.id "
-                + " LEFT JOIN duty_dic t4 ON t3.duty_id=t4.duty_id "
+                + " LEFT JOIN doctor_info_tb t3 ON t2.id=t3.id "
+                + " LEFT JOIN t_dic_duty t4 ON t3.duty_id=t4.duty_id "
                 + " WHERE t1.question_id='"+questionId+"' order by t1.new_comment_time DESC";
         List<Map<String, Object>> list=getJt().queryForList(sql);
         List<QuestionGroup> groups=new ArrayList<>();
@@ -117,7 +117,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<QuestionComment> getQuestionComment(String groupId) {
         String sql="SELECT comment_group_id,content,content_imgs,is_user_reply,date_format(create_time,'%m-%d %H:%i') date"
-                + " FROM comment_tb WHERE comment_group_id='"+groupId+"' ORDER BY create_time";
+                + " FROM app_tb_neoreply WHERE comment_group_id='"+groupId+"' ORDER BY create_time";
         List<Map<String, Object>> list=getJt().queryForList(sql);
         List<QuestionComment> comments=new ArrayList<>();
         for(Map<String, Object> map:list){
