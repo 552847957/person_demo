@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping(value = "/api")
-public class DoctorServiceController {
+public class DoctorServiceTbController {
 
     @Autowired
     private DoctorServiceRepository doctorServiceRepository;

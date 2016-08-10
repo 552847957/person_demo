@@ -26,7 +26,7 @@ public class DoctorServiceEntity {
     private String serviceId;
 
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag = "0";
 
     @Column(name = "source_id")
     private String sourceId;

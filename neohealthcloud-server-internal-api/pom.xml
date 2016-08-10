@@ -38,6 +38,7 @@
                     <profiles>
                         <profile>de</profile>
                     </profiles>
+                    <finalName>neohealthcloud-internal</finalName>
                 </configuration>
             </plugin>
             <plugin>
@@ -60,14 +61,14 @@
                     <path>/neohealthcloud-internal</path>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <warName>neohealthcloud-internal</warName>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-war-plugin</artifactId>-->
+                <!--<version>2.5</version>-->
+                <!--<configuration>-->
+                    <!--<warName>neohealthcloud-internal</warName>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

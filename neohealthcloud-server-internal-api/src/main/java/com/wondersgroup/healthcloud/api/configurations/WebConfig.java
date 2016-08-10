@@ -1,6 +1,12 @@
 package com.wondersgroup.healthcloud.api.configurations;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Charsets;
+import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
@@ -12,15 +18,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.DispatcherType;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -61,10 +67,22 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(Charsets.UTF_8);
                 stringHttpMessageConverter.setWriteAcceptCharset(false);
                 converters.set(i, stringHttpMessageConverter);
+            }
+            if (converters.get(i) instanceof MappingJackson2HttpMessageConverter) {
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                SimpleModule simpleModule = new SimpleModule("JsonMapSerializer", Version.unknownVersion());
+                simpleModule.addKeyDeserializer(Object.class, new MapToBeanUtil.JsonMapDeSerializer());
+                objectMapper.registerModule(simpleModule);
+                objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategy.SnakeCaseStrategy());
+                MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+                converter.setObjectMapper(objectMapper);
+                converters.set(i, converter);
                 break;
             }
         }
     }
+
 
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
@@ -86,24 +104,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return registration;
     }
 
-    @Bean
-    public FilterRegistrationBean corsFilterRegistration() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("OPTIONS");
-        config.addAllowedMethod("HEAD");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("PATCH");
-        source.registerCorsConfiguration("/**", config);
-        final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("HEAD", "GET", "POST", "PUT", "DELETE");
     }
 
 }

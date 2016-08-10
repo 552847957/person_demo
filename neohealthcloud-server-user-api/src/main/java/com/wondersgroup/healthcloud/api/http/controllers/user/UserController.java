@@ -31,13 +31,13 @@ public class UserController {
 
     /**
      * 获取用户信息
-     * @param id
+     * @param uid
      * @return
      */
     @VersionRange
     @GetMapping(path = "/info")
-    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String id) {
-        RegisterInfo registerInfo = userService.getOneNotNull(id);
+    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid) {
+        RegisterInfo registerInfo = userService.getOneNotNull(uid);
 
         JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
         response.setData(new UserAccountDTO(registerInfo));
@@ -60,10 +60,10 @@ public class UserController {
         userAccountService.getVerifyCode(mobile, type);
         String msg = "短信验证码发送成功";
 
-        if("1".equals(type)){
+        if(type==1){
             msg = "验证码已发送，请注意查看短信";
-        }else if("3".equals(type)){
-            msg = "验证码已发送至+"+mobile;
+        }else if(type==3){
+            msg = "验证码已发送至"+mobile;
         }
         response.setMsg(msg);
 

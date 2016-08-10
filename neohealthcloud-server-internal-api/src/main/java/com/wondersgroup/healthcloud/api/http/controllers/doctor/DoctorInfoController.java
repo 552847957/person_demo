@@ -1,15 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
-import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorInfoDTO;
+import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
-import com.wondersgroup.healthcloud.utils.IdcardUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by shenbin on 16/8/5.
@@ -24,28 +23,14 @@ public class DoctorInfoController {
 
     /**
      * 保存医生信息
-     * @param doctorInfoDTO
+     * @param para
      * @return
      */
     @PostMapping(path = "/doctorInfo/save")
-    public JsonResponseEntity<String> saveDoctorInfo(@RequestBody DoctorInfoDTO doctorInfoDTO){
+    public JsonResponseEntity<String> saveDoctorInfo(@RequestBody Map para){
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
 
-        DoctorInfo doctorInfo = new DoctorInfo();
-        doctorInfo.setId(doctorInfoDTO.getId());
-        doctorInfo.setHospitalId(doctorInfoDTO.getHospitalId());
-        doctorInfo.setNo(doctorInfoDTO.getNo());
-        doctorInfo.setDepartStandard(doctorInfoDTO.getDepartStandard());
-        doctorInfo.setIdcard(doctorInfoDTO.getIdcard());
-        if(StringUtils.isNotBlank(doctorInfoDTO.getIdcard())){
-            doctorInfo.setGender(IdcardUtils.getGenderByIdCard(doctorInfoDTO.getIdcard()));
-        }
-        doctorInfo.setDutyId(doctorInfoDTO.getDutyId());
-        doctorInfo.setExpertin(doctorInfoDTO.getExpertin());
-        doctorInfo.setIntroduction(doctorInfoDTO.getIntroduction());
-        doctorInfo.setActcode(doctorInfoDTO.getActcode());
-        doctorInfo.setDelFlag(doctorInfoDTO.getDelFlag());
-        doctorInfo.setSourceId(doctorInfoDTO.getSourceId());
+        DoctorInfo doctorInfo = new MapToBeanUtil<DoctorInfo>().fromMapToBean(DoctorInfo.class, para);
         doctorInfo.setCreateDate(new Date());
         doctorInfo.setUpdateDate(new Date());
         doctorInfoRepository.saveAndFlush(doctorInfo);
