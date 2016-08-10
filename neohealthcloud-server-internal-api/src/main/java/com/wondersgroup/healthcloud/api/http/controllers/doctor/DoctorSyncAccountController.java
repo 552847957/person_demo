@@ -39,7 +39,11 @@ public class DoctorSyncAccountController {
         DoctorAccount doctorAccount = doctorSyncAccountService.findDoctorByMobileWithOutDelfag(syncRequest.getMobile());
 
         if(doctorAccount != null && "0".equals(doctorAccount.getDelFlag())){
-            throw new SyncDoctorAccountException("该医生手机号已经开通过万达云账号");
+            SyncResponseDTO syncResponseDTO = new SyncResponseDTO(doctorAccount);
+            response.setCode(1);
+            response.setMsg("该手机号已经开通过万达云账号");
+            response.setData(syncResponseDTO);
+            return response;
         }
 
 
@@ -64,11 +68,8 @@ public class DoctorSyncAccountController {
 
         doctorAccount = doctorSyncAccountService.openWonderCloudAccount(doctorAccount,doctorInfo,syncRequest.getRoles());
 
-        SyncResponseDTO syncResponseDTO = new SyncResponseDTO();
-        syncResponseDTO.setRegisterId(doctorAccount.getId());
-        syncResponseDTO.setTalkid(doctorAccount.getTalkid());
-        syncResponseDTO.setTalkpwd(doctorAccount.getTalkpwd());
-        syncResponseDTO.setTalkgroupid(doctorAccount.getTalkgroupid());
+        SyncResponseDTO syncResponseDTO = new SyncResponseDTO(doctorAccount);
+
 
         response.setData(syncResponseDTO);
 
