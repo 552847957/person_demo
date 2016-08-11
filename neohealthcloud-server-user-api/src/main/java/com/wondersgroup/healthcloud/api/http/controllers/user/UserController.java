@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.user.AddressDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.VerificationInfoDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -15,6 +16,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -194,6 +196,30 @@ public class UserController {
         idCard = idCard.trim();
         userAccountService.verificationSubmit(id, name, idCard, photo);
         body.setMsg("提交成功");
+        return body;
+    }
+
+    /**
+     * 根据用户Id获取实名认证信息
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo(@RequestParam("uid") String id) {
+        JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
+        RegisterInfo person = userService.getOneNotNull(id);
+        if (person.verified()) {
+            VerificationInfoDTO data = new VerificationInfoDTO();
+            data.setUid(id);
+            data.setName(person.getName());
+            data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+            data.setSuccess(true);
+            data.setCanSubmit(false);
+            body.setData(data);
+        } else {
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id,false)));
+        }
         return body;
     }
 
