@@ -5,7 +5,9 @@ import com.squareup.okhttp.*;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import com.wondersgroup.common.http.exception.ResponseParseException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -398,34 +400,30 @@ public class HttpWdUtils {
 
         MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("name",name);
-        params.put("idCardNum",idCard);
-        params.put("userid",userId);
-        params.put("token",appToken);
 
-        for (String key : params.keySet()) {
-            multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + key + "\""),
-                    RequestBody.create(null, params.get(key)));
+        String[] form = new String[]{"name",name,"idCardNum",idCard,"userid",userId,"token",appToken};
+
+        for (int i = 0; i < form.length; i += 2) {
+            multipartBuilder.addFormDataPart(form[i], form[i + 1]);
         }
 
-        multipartBuilder.addPart(
-                Headers.of("Content-Disposition", "form-data; name=\"file\""), RequestBody.create(null, photo)
-        );
+        multipartBuilder.addFormDataPart("file", "file", RequestBody.create(MediaType.parse(contentType), photo));
 
         RequestBody requestBody = multipartBuilder.build();
 
-        Request.Builder requestBuilder = new Request.Builder();
+        Request.Builder builder = new Request.Builder();
+        builder.url(url);
         for(int i = 0; i < header.length / 2; ++i) {
             if(header[i * 2 + 1] != null) {
-                requestBuilder.addHeader(header[i * 2], header[i * 2 + 1]);
+                builder.addHeader(header[i * 2], header[i * 2 + 1]);
             }
         }
 
-        Request request = requestBuilder.url(url).post(requestBody).build();
+        builder.post(requestBody);
+        Request request = builder.build();
+
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-
         return  result;
     }
 
