@@ -52,6 +52,10 @@ public class HttpWdUtils {
         this.url = url;
     }
 
+    public static String getPublicKey() {
+        return publicKey;
+    }
+
     /**
      * 1.1账号注册 根据手机号注册
      * @param mobile
@@ -65,6 +69,17 @@ public class HttpWdUtils {
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("registeApiId")};
         String[] form = new String[]{"mobile",mobile,"password",password,"token",appToken};
+        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
+        return  result;
+    }
+
+    public JsonNode registeByUsername(String username, String password){
+        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+                "octopus_sid", octopusSid,
+                "octopus_apiid", idMap.get("registeApiId")};
+        String[] form = new String[]{"username",username,"password",password,"token",appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();

@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.user;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 
 /**
@@ -32,4 +34,8 @@ public interface UserAccountService {
     Boolean verificationSubmit(String id, String name, String idCard, String photo);
 
     Boolean changeMobile(String id, String oldVerifyCode, String newMobile, String newVerifyCode);
+
+    JsonNode verficationSubmitInfo(String id,Boolean isAnonymous);
+
+    AnonymousAccount anonymousRegistration(String creator, String username, String password);
 }

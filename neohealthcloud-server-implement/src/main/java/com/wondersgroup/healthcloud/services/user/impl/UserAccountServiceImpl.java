@@ -2,7 +2,9 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
@@ -10,10 +12,7 @@ import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.exception.*;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
-import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
-import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
-import com.wondersgroup.healthcloud.utils.wonderCloud.ImageUtils;
-import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
+import com.wondersgroup.healthcloud.utils.wonderCloud.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,9 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     @Autowired
     private RegisterInfoRepository registerInfoRepository;
+
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
 
     private static final String[] smsContent = {
             "您的验证码为:code，10分钟内有效。",
@@ -274,6 +276,75 @@ public class UserAccountServiceImpl implements UserAccountService{
             return true;
         } else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
+    }
+
+    @Override
+    public JsonNode verficationSubmitInfo(String id,Boolean isAnonymous) {
+        JsonNode result = httpWdUtils.verficationSubmitInfo(id);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            JsonNode info = result.get("info");
+
+            if(!isAnonymous){
+                RegisterInfo user = registerInfoRepository.findOne(id);
+                if (user == null) {
+                    throw new ErrorUserAccountException();
+                }
+                if (info.get("status").asInt() == 1 && !user.verified()) {
+                    user.setIdentifytype("1");
+                    user.setPersoncard(info.get("idcard").asText());
+                    user.setName(info.get("name").asText());
+                    user.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.getPersoncard())));
+                    user.setGender(IdcardUtils.getGenderByIdCard(user.getPersoncard()));
+                    registerInfoRepository.saveAndFlush(user);
+                }
+            }else{
+                AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(id);
+                if (anonymousAccount == null) {
+                    throw new ErrorAnonymousAccountException("不存在的用户");
+                }
+                if (info.get("status").asInt() == 1 && anonymousAccount.getIdcard() == null) {
+                    anonymousAccount.setIdcard(info.get("idcard").asText());
+                    anonymousAccount.setName(info.get("name").asText());
+                    anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                }
+            }
+            return result.get("info");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 注册匿名账户
+     * @param creator
+     * @param username
+     * @param password
+     * @return
+     */
+    @Override
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
+        String encodedPassword;
+        try {
+            encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());
+        } catch (Exception e) {
+            throw new ErrorWondersCloudException("加密错误");
+        }
+        JsonNode result = httpWdUtils.registeByUsername(username,encodedPassword);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            Date time = new Date();
+            AnonymousAccount anonymousAccount = new AnonymousAccount();
+            anonymousAccount.setId(result.get("userid").asText());
+            anonymousAccount.setUsername(username);
+            anonymousAccount.setPassword(password);
+            anonymousAccount.setCreator(creator);
+            anonymousAccount.setCreateDate(time);
+            anonymousAccount.setUpdateDate(time);
+            return anonymousAccountRepository.saveAndFlush(anonymousAccount);
+        } else {
+            throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
         }
     }
 
