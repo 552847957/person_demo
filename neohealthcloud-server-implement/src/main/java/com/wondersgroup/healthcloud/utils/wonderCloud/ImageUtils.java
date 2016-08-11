@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.utils.wonderCloud;
 
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.entity.StringResponseWrapper;
@@ -16,6 +17,11 @@ public class ImageUtils {
 
     public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
         this.httpRequestExecutorManager = httpRequestExecutorManager;
+    }
+
+
+    public ImageUtils() {
+        this.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
     }
 
     public byte[] getImageFromURL(String urlPath) {
