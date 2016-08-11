@@ -1,6 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
+import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,13 +45,14 @@ public class DoctorInfoController {
      * @return
      */
     @GetMapping(path = "/doctorInfo/find")
-    public JsonResponseEntity<DoctorInfo> findDoctorInfo(@RequestParam String id){
-        JsonResponseEntity<DoctorInfo> response = new JsonResponseEntity<>();
-
+    public String findDoctorInfo(@RequestParam String id) throws JsonProcessingException {
         DoctorInfo doctorInfo = doctorInfoRepository.findById(id);
 
-        response.setData(doctorInfo);
+        Map<Class, Object> filterMap = new HashMap<>();
+        filterMap.put(DoctorInfo.class, new String[]{"create_by", "create_date", "update_by", "update_date"});
+        SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
+        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", doctorInfo);
 
-        return response;
+        return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
 }

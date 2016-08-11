@@ -18,5 +18,5 @@ public interface DoctorServiceDicRepository extends JpaRepository<DoctorServiceD
 
     Page<DoctorServiceDic> findByDelFlag(String s, Pageable pageable);
 
-    Page<DoctorServiceDic> findByNameLikeAndDelFlag(String key, String s, Pageable pageable);
+    Page<DoctorServiceDic> findByNameContainingAndDelFlag(String key, String s, Pageable pageable);
 }

@@ -33,7 +33,7 @@ public class DoctorServiceServiceImpl implements DoctorServiceService {
         if (StringUtils.isEmpty(key)) {
             return doctorServiceDicRepository.findByDelFlag("0", pageable);
         }
-        return doctorServiceDicRepository.findByNameLikeAndDelFlag(key, "0", pageable);
+        return doctorServiceDicRepository.findByNameContainingAndDelFlag(key, "0", pageable);
 
     }
 
