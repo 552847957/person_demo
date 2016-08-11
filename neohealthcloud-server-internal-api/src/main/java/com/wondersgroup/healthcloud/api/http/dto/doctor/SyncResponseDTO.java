@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 
 
 /**
@@ -19,6 +20,13 @@ public class SyncResponseDTO {
     private String talkpwd;
 
     private String talkgroupid;
+
+    public SyncResponseDTO(DoctorAccount doctorAccount) {
+        this.setRegisterId(doctorAccount.getId());
+        this.setTalkid(doctorAccount.getTalkid());
+        this.setTalkpwd(doctorAccount.getTalkpwd());
+        this.setTalkgroupid(doctorAccount.getTalkgroupid());
+    }
 
     public String getRegisterId() {
         return registerId;

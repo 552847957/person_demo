@@ -1,6 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
-import com.wondersgroup.healthcloud.api.http.dto.UserAccountAndSessionDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -34,6 +34,8 @@ public class UserAccessTokenController {
     public JsonResponseEntity<UserAccountAndSessionDTO> fetchToken(@RequestParam String account,
                                                                    @RequestParam String password
     ) {
+        password = "Uj95afYI6wedng49hbJXhnqiuRd5EZRtbtE+ZfdvpHwByyA895hrLwC+lRrQoY0r/5enL/9DXBWalIwHKw5IdUqZ3EcxSg/v/fTyZxgapwk4o6OEXbzBZVMbAsNU8F5pidmdPQLqAGbgcJrunUDtxFwymKS+A0SdXkKoPZ5Qdow=";
+
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.login(account,password)));
         body.setMsg("登录成功");

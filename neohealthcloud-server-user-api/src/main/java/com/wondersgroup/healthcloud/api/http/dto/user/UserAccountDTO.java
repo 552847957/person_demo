@@ -1,9 +1,12 @@
-package com.wondersgroup.healthcloud.api.http.dto;
+package com.wondersgroup.healthcloud.api.http.dto.user;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,6 +41,14 @@ public class UserAccountDTO {
     private String bindPersoncard;//医养结合绑定的身份证
 
 
+    private String height;
+    private String weight;
+    private String waist;
+
+    @JsonUnwrapped(prefix = "address_")
+    private AddressDTO addressDTO;
+
+
     public UserAccountDTO(Map<String, Object> user) {
         if(user!=null) {
             this.uid = user.get("registerid") == null ? "" : user.get("registerid").toString();
@@ -49,7 +60,13 @@ public class UserAccountDTO {
             String gender = user.get("gender") == null ? "" : user.get("gender").toString();
             if (StringUtils.isNotBlank(gender))
                 this.gender = Integer.valueOf(gender);
-            this.age = "";
+
+            this.age = user.get("age") == null ? "" : user.get("age").toString();
+
+            this.height = user.get("height") == null ? "" : user.get("height").toString();
+            this.weight = user.get("weight") == null ? "" : user.get("weight").toString();
+            this.waist = user.get("waist") == null ? "" : user.get("waist").toString();
+
             String identifytype = user.get("identifytype") == null ? "" : user.get("identifytype").toString();
             this.verified = !"0".equals(identifytype);
             if (this.verified) {
@@ -63,7 +80,7 @@ public class UserAccountDTO {
         }
     }
 
-    public UserAccountDTO(RegisterInfo registerInfo) {
+    public UserAccountDTO(RegisterInfo registerInfo,UserInfo userInfo) {
         this.uid = registerInfo.getRegisterid();
         this.name = registerInfo.getName()==null?"":registerInfo.getName();
         this.nickName = registerInfo.getNickname()==null?"":registerInfo.getNickname();
@@ -73,10 +90,19 @@ public class UserAccountDTO {
         if(StringUtils.isNotBlank(registerInfo.getGender()))
             this.gender = Integer.valueOf(registerInfo.getGender());
         this.age = "";
+
+        if(userInfo!=null){
+            this.age = userInfo.getAge()==null?"":String.valueOf(userInfo.getAge());
+            this.height = userInfo.getHeight()==null?"":String.valueOf(userInfo.getHeight());
+            this.weight = userInfo.getWeight()==null?"":String.valueOf(userInfo.getWeight());
+            this.waist = userInfo.getWaist()== null?"":String.valueOf(userInfo.getWaist());
+        }
         this.verified = !"0".equals(registerInfo.getIdentifytype());
         if(this.verified){
             this.age = StringUtils.isBlank(this.idcard)?"":String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
         }
+
+
         this.talkId = registerInfo.getTalkid()==null?"":registerInfo.getTalkid();
         this.talkPwd = registerInfo.getTalkpwd()==null?"":registerInfo.getTalkpwd();
         this.tagid = registerInfo.getTagid()==null?"":registerInfo.getTagid();
@@ -194,5 +220,37 @@ public class UserAccountDTO {
 
     public void setIdcard(String idcard) {
         this.idcard = idcard;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getWaist() {
+        return waist;
+    }
+
+    public void setWaist(String waist) {
+        this.waist = waist;
+    }
+
+    public AddressDTO getAddressDTO() {
+        return addressDTO;
+    }
+
+    public void setAddressDTO(AddressDTO addressDTO) {
+        this.addressDTO = addressDTO;
     }
 }

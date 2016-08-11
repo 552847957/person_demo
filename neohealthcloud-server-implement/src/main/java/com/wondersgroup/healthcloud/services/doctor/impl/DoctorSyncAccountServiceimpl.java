@@ -158,6 +158,11 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
     @Override
     public void closeWonderCloudAccount(String registerId) {
 
+        DoctorAccount doctorAccount = doctorAccountRepository.getOne(registerId);
+        if(doctorAccount==null || "1".equals(doctorAccount.getDelFlag())){
+            throw new SyncDoctorAccountException("该账号没有开通万达云账号");
+        }
+
         doctorAccountRepository.closeWonderCloudAccount(registerId);
         doctorInfoRepository.closeWonderCloudAccount(registerId);
 

@@ -1,15 +1,20 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.google.common.collect.Maps;
-import com.wondersgroup.healthcloud.api.http.dto.UserAccountAndSessionDTO;
-import com.wondersgroup.healthcloud.api.http.dto.UserAccountDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.AddressDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.dict.DictCache;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +33,9 @@ public class UserController {
     @Autowired
     private UserAccountService userAccountService;
 
+    @Autowired
+    private DictCache dictCache;
+
 
     /**
      * 获取用户信息
@@ -36,11 +44,24 @@ public class UserController {
      */
     @VersionRange
     @GetMapping(path = "/info")
-    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid) {
+    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid,@RequestParam(defaultValue = "false") Boolean withAddress) {
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
 
+        UserInfo userInfo = userService.getUserInfo(uid);
         JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
-        response.setData(new UserAccountDTO(registerInfo));
+
+        UserAccountDTO userAccountDTO = new UserAccountDTO(registerInfo,userInfo);
+
+        if(withAddress){
+            Address address = userService.getAddress(uid);
+            if (address != null) {
+                userAccountDTO.setAddressDTO(new AddressDTO(address, dictCache));
+                if (userAccountDTO.getAddressDTO().getDisplay() == null) {
+                    userAccountDTO.setAddressDTO(null);
+                }
+            }
+        }
+        response.setData(userAccountDTO);
         return response;
     }
 
@@ -221,6 +242,77 @@ public class UserController {
         data.put("gender", gender);
         body.setData(data);
         body.setMsg("性别修改成功");
+        return body;
+    }
+
+
+    /**
+     * 修改 性别 年龄 身高 体重 腰围
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/userInfo/update")
+    public JsonResponseEntity<String> updateUserInfo(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+
+        UserInfoForm form = new UserInfoForm();
+
+        form.registerId = reader.readString("uid", false);
+        form.age = reader.readInteger("age", true);
+        form.height = reader.readInteger("height", true);
+        form.weight = reader.readObject("weight", true, Float.class);
+        form.waist = reader.readObject("waist", true, Float.class);
+
+        form.gender = reader.readString("gender",true);
+
+        userService.updateUserInfo(form);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setMsg("信息修改成功");
+        return body;
+    }
+
+    /**
+     * 修改昵称
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/avatar/update")
+    public JsonResponseEntity<Map<String, String>> updateAvatar(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String avatar = reader.readString("avatar", false);
+
+        userService.updateAvatar(id, avatar);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("头像修改成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("avatar", avatar);
+        body.setData(data);
+        return body;
+    }
+
+
+    @VersionRange
+    @PostMapping(path = "/address/update")
+    public JsonResponseEntity<AddressDTO> updateAddress(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String province = reader.readString("province", true);
+        String city = reader.readString("city", true);
+        String county = reader.readString("county", true);
+        String town = reader.readString("town", true);
+        String committee = reader.readString("committee", true);
+        String other = reader.readString("other", true);
+
+        Address address = userService.updateAddress(id, province, city, county, town, committee, other);
+        JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
+        AddressDTO data = new AddressDTO(address, dictCache);
+        if (data.getDisplay() != null) {
+            body.setData(data);
+        }
+        body.setMsg("地址修改成功");
         return body;
     }
 

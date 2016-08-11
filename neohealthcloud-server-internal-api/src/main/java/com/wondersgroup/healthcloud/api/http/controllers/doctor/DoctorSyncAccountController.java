@@ -5,7 +5,6 @@ import com.wondersgroup.healthcloud.api.http.dto.doctor.SyncResponseDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
-import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorSyncAccountService;
 import com.wondersgroup.healthcloud.services.doctor.exception.SyncDoctorAccountException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -19,7 +18,7 @@ import java.util.Date;
  * Created by longshasha on 16/8/2.
  */
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/doctor")
 public class DoctorSyncAccountController {
 
     @Autowired
@@ -39,7 +38,11 @@ public class DoctorSyncAccountController {
         DoctorAccount doctorAccount = doctorSyncAccountService.findDoctorByMobileWithOutDelfag(syncRequest.getMobile());
 
         if(doctorAccount != null && "0".equals(doctorAccount.getDelFlag())){
-            throw new SyncDoctorAccountException("该医生手机号已经开通过万达云账号");
+            SyncResponseDTO syncResponseDTO = new SyncResponseDTO(doctorAccount);
+            response.setCode(1);
+            response.setMsg("该手机号已经开通过万达云账号");
+            response.setData(syncResponseDTO);
+            return response;
         }
 
 
@@ -64,11 +67,8 @@ public class DoctorSyncAccountController {
 
         doctorAccount = doctorSyncAccountService.openWonderCloudAccount(doctorAccount,doctorInfo,syncRequest.getRoles());
 
-        SyncResponseDTO syncResponseDTO = new SyncResponseDTO();
-        syncResponseDTO.setRegisterId(doctorAccount.getId());
-        syncResponseDTO.setTalkid(doctorAccount.getTalkid());
-        syncResponseDTO.setTalkpwd(doctorAccount.getTalkpwd());
-        syncResponseDTO.setTalkgroupid(doctorAccount.getTalkgroupid());
+        SyncResponseDTO syncResponseDTO = new SyncResponseDTO(doctorAccount);
+
 
         response.setData(syncResponseDTO);
 

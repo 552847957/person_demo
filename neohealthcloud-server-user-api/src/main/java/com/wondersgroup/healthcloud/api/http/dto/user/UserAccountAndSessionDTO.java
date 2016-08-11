@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.dto;
+package com.wondersgroup.healthcloud.api.http.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
