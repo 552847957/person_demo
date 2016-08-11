@@ -12,7 +12,7 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
  */
 @Data
 @Entity
-@Table(name = "app_tb_family_member_invitation")
+@Table(name = "app_tb_anonymous_account")
 public class AnonymousAccount extends BaseEntity {
     @Id
     private String id;
