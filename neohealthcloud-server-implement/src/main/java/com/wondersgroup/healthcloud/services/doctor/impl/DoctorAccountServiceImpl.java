@@ -30,6 +30,12 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
     private final String user_type_doctor = "0";
 
+    private final Integer CHANNEL_TYPE_JKY = 1;
+    private final Integer CHANNEL_TYPE_QQ = 2;
+    private final Integer CHANNEL_TYPE_WEIBO = 3;
+    private final Integer CHANNEL_TYPE_WECHAT = 4;
+
+
     private static final String[] smsContent = {
             "您的验证码是：:code，请在10分钟内按照提示提交验证码。切勿将验证码泄露于他人。",
             "偷偷告诉您个秘密，用:code就能在10分钟内登录。千万不要告诉别人哦。",

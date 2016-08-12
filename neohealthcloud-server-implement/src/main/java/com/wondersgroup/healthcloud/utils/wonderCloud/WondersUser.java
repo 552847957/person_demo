@@ -22,6 +22,17 @@ public class WondersUser {
     public WondersUser() {
     }
 
+    public WondersUser(JsonNode wu) {
+        this.userId = wu.get("userid").asText();
+        this.username = wu.get("username").isNull() ? null : wu.get("username").asText();
+        this.email = wu.get("email").isNull() ? null : wu.get("email").asText();
+        this.type = wu.get("type").isNull() ? null : wu.get("type").asText();
+        this.mobile = wu.get("mobile").isNull() ? null : wu.get("mobile").asText();
+        this.isVerified = !wu.get("realvalid").isNull() && wu.get("realvalid").asInt() == 1;
+        this.name = wu.get("name").isNull() ? null : wu.get("name").asText();
+        this.idCard = wu.get("idcard").isNull() ? null : wu.get("idcard").asText();
+        this.ssCard = wu.get("sscard").isNull() ? null : wu.get("sscard").asText();
+    }
     public WondersUser(JsonNode wu, int channelType) {
         this.userId = wu.get("userid").asText();
         this.username = wu.get("username").isNull() ? null : wu.get("username").asText();

@@ -239,13 +239,13 @@ public class UserController {
     public JsonResponseEntity<Map<String, String>> changeNickname(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
-        String nickname = reader.readString("nickname", false);
+        String nickname = reader.readString("nick_name", false);
 
         userService.updateNickname(id, nickname);
         JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
         body.setMsg("昵称修改成功");
         Map<String, String> data = Maps.newHashMap();
-        data.put("nickname", nickname);
+        data.put("nick_name", nickname);
         body.setData(data);
         return body;
     }
