@@ -18,6 +18,7 @@ import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitation;
@@ -317,13 +318,12 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional(readOnly = false)
     @Override
     public void anonymousRegistration(String userId, String relation, String relationName, String name, String idcard,
-            String contentType, byte[] photo) {
+            String photo) {
         checkMemberCount(userId);
-
         RegisterInfo register = findOneRegister(userId, false);
-        //        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
-        //        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
-        //        accountService.verificationSubmit(account.getId(), name, idcard, contentType, photo);
+        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
+        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
+        accountService.verificationSubmit(account.getId(), name, idcard, photo);
     }
 
     private List<FamilyMember> findByTwoUser(String userId, String memberId, Boolean nullable) {

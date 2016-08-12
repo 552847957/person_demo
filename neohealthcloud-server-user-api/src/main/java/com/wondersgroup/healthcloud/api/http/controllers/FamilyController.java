@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,6 +39,7 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
 
 /**
  * 孫海迪
@@ -283,10 +285,10 @@ public class FamilyController {
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
                 if (anonymousAccount.getIdcard() == null) {
-                    //                    JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
-                    //                    Integer status = submitInfo.get("status").asInt();
-                    //                    entity.setRedirectFlag(status - 1);
-                    //                    entity.setHealthWarning(false);
+                    JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
+                    Integer status = submitInfo.get("status").asInt();
+                    entity.setRedirectFlag(status - 1);
+                    entity.setHealthWarning(false);
                 } else {
                     entity.setRedirectFlag(0);
                     entity.setHealthWarning(false);
@@ -340,6 +342,37 @@ public class FamilyController {
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("解除成功");
         return body;
+    }
+    
+    /**
+     * 实名认证，对方无手机号  点此为其认证
+     * @param uid
+     * @param relation
+     * @param relationName
+     * @param name
+     * @param idcard
+     * @param photo
+     * @return JsonResponseEntity<String>
+     */
+    @RequestMapping(value = "/member/registration/anonym", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<String> anonymousRegistration(
+            @RequestParam String uid,
+            @RequestParam String relation,
+            @RequestParam(value = "relation_name", required = false) String relationName,
+            @RequestParam String name,
+            @RequestParam String idcard,
+            @RequestPart MultipartFile photo) {
+        try {
+            String path = null;
+            JsonResponseEntity<String> body = new JsonResponseEntity<>();
+            path = ImageUploader.upload("app", IdGen.uuid(), photo.getBytes());
+            familyService.anonymousRegistration(uid, relation, relationName, name, idcard, path);
+            body.setMsg("添加成功, 正在进行实名认证");
+            return body;
+        } catch (IOException ex) {
+            throw new ErrorAnonymousAccountException("图片读取失败");
+        }
     }
 
     /**

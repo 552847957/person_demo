@@ -259,7 +259,6 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 提交实名认证信息
-     *
      * @param id       用户Id
      * @param name     姓名
      * @param idCard   身份证号
@@ -342,6 +341,7 @@ public class UserAccountServiceImpl implements UserAccountService{
             anonymousAccount.setCreator(creator);
             anonymousAccount.setCreateDate(time);
             anonymousAccount.setUpdateDate(time);
+            anonymousAccount.setDelFlag("0");
             return anonymousAccountRepository.saveAndFlush(anonymousAccount);
         } else {
             throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
