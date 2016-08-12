@@ -40,6 +40,7 @@ import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 
 /**
  * 孫海迪
@@ -126,13 +127,13 @@ public class FamilyController {
             }
             data.put("nickname", register.getNickname());
         } catch (Exception e) {
-//            if (accountService.checkAccount(mobile)) {
-//                RegisterInfo register = accountService.fetchInfo(mobile);
-//                data.put("avatar", register.getHeadphoto() + ImagePath.avatarPostfix());
-//                data.put("nickname", register.getNickname());
-//            } else {
-                   throw e;
-//            }
+            if (accountService.checkAccount(mobile)) {
+                RegisterInfo register = accountService.fetchInfo(mobile);
+                data.put("avatar", register.getHeadphoto() + ImagePath.avatarPostfix());
+                data.put("nickname", register.getNickname());
+            } else {
+                throw new ErrorChangeMobileException(1040, "无相关账户");
+            }
         }
         body.setData(data);
         return body;
