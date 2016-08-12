@@ -1,32 +1,25 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wondersgroup.common.image.utils.ImagePath;
-import com.wondersgroup.common.image.utils.ImageUploader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -39,7 +32,6 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 
 /**
@@ -153,23 +145,16 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/registration", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<String> helpRegistration(
-            @RequestParam String uid, 
-            @RequestParam String mobile,
-            @RequestParam("verify_code") String verifyCode,
-            @RequestParam String password,
-            @RequestParam String relation,
-            @RequestParam(value = "relation_name", required = false) String relationName,
-            @RequestParam(value = "record_readable", defaultValue = "false") Boolean recordReadable,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
-        String path = null;
-        if (avatar != null) {
-            try {
-                path = ImageUploader.upload("app", IdGen.uuid(), avatar.getBytes());
-            } catch (IOException ex) {
-                //ignore
-            }
-        }
+    public JsonResponseEntity<String> helpRegistration(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String uid = reader.readString("uid", false);
+        String mobile = reader.readString("mobile", false);
+        String verifyCode = reader.readString("verify_code", false);
+        String password = reader.readString("password", false);
+        String relation = reader.readString("relation", false);
+        String relationName = reader.readString("relation_name", true);
+        String path =  reader.readString("avatar", true);
+        Boolean recordReadable = reader.readDefaultBoolean("record_readable", true);
         familyService.helpRegistration(uid, mobile, password, verifyCode, path, null, relation, relationName,
                 recordReadable);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
@@ -363,17 +348,11 @@ public class FamilyController {
             @RequestParam(value = "relation_name", required = false) String relationName,
             @RequestParam String name,
             @RequestParam String idcard,
-            @RequestPart MultipartFile photo) {
-        try {
-            String path = null;
+            @RequestParam String photo) {
             JsonResponseEntity<String> body = new JsonResponseEntity<>();
-            path = ImageUploader.upload("app", IdGen.uuid(), photo.getBytes());
-            familyService.anonymousRegistration(uid, relation, relationName, name, idcard, path);
+            familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
             body.setMsg("添加成功, 正在进行实名认证");
             return body;
-        } catch (IOException ex) {
-            throw new ErrorAnonymousAccountException("图片读取失败");
-        }
     }
 
     /**
