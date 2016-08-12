@@ -99,7 +99,7 @@ public class FamilyController {
         if (memberId == null) {
             JsonResponseEntity<Map<String, String>> info = tinyInfo(mobile);
             if (info.getCode() != 0) {
-                body.setCode(1000);
+                body.setCode(1004);
                 body.setMsg("无相关账户");
                 return body;
             }
@@ -126,13 +126,13 @@ public class FamilyController {
             }
             data.put("nickname", register.getNickname());
         } catch (Exception e) {
-            //                if (accountService.checkAccount(mobile)) {
-            //                    RegisterInfo register = accountService.fetchInfo(mobile);
-            //                    data.put("avatar", register.getHeadphoto() + ImagePath.avatarPostfix());
-            //                    data.put("nickname", register.getNickname());
-            //                } else {
-            throw e;
-            //                }
+//            if (accountService.checkAccount(mobile)) {
+//                RegisterInfo register = accountService.fetchInfo(mobile);
+//                data.put("avatar", register.getHeadphoto() + ImagePath.avatarPostfix());
+//                data.put("nickname", register.getNickname());
+//            } else {
+                   throw e;
+//            }
         }
         body.setData(data);
         return body;

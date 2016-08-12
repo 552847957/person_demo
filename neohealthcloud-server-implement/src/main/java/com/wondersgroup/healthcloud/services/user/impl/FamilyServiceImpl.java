@@ -105,6 +105,7 @@ public class FamilyServiceImpl implements FamilyService {
         invitation.setAccess(builder.build());
         invitation.setMemo(memo != null ? memo : relationName);
         invitation.setStatus("0");
+        invitation.setDelFlag("0");
         invitation.setCreateBy(userId);
         invitation.setCreateDate(new Date());
         invitation.setUpdateBy(userId);
