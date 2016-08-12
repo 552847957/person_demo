@@ -253,9 +253,9 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public AccessToken register(String mobile, String verifyCode, String password) {
         Boolean mobileIsValidate = validateCode(mobile, verifyCode, false);
-        if (!mobileIsValidate) {
-            throw new ErrorWondersCloudException("手机验证码错误");
-        }
+//        if (!mobileIsValidate) {
+//            throw new ErrorWondersCloudException("手机验证码错误");
+//        }
         if (checkAccount(mobile)) {
             throw new ErrorUserMobileHasBeenRegisteredException("该手机号码已经注册，是否直接登录");
         }

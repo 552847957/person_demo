@@ -120,11 +120,6 @@ public class FamilyServiceImpl implements FamilyService {
     public Boolean helpRegistration(String userId, String mobile, String password, String verifyCode, String avatar,
             String memo, String relation, String relationName, Boolean recordReadable) {
         checkMemberCount(userId);
-        try {
-            password = RSAUtil.encryptByPublicKey(password, HttpWdUtils.publicKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         AccessToken accessToken = accountService.register(mobile, verifyCode, password);
         userService.updateAvatar(accessToken.getUid(), avatar);
         RegisterInfo register = findOneRegister(userId, false);
