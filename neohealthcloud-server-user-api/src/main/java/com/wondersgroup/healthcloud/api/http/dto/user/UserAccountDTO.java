@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 
 /**
@@ -48,6 +49,8 @@ public class UserAccountDTO {
     @JsonUnwrapped(prefix = "address_")
     private AddressDTO addressDTO;
 
+    DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+
 
     public UserAccountDTO(Map<String, Object> user) {
         if(user!=null) {
@@ -64,8 +67,8 @@ public class UserAccountDTO {
             this.age = user.get("age") == null ? "" : user.get("age").toString();
 
             this.height = user.get("height") == null ? "" : user.get("height").toString();
-            this.weight = user.get("weight") == null ? "" : user.get("weight").toString();
-            this.waist = user.get("waist") == null ? "" : user.get("waist").toString();
+            this.weight = user.get("weight") == null ? "" : decimalFormat.format(user.get("weight")).toString();
+            this.waist = user.get("waist") == null ? "" : decimalFormat.format(user.get("waist")).toString();
 
             String identifytype = user.get("identifytype") == null ? "" : user.get("identifytype").toString();
             this.verified = !"0".equals(identifytype);
@@ -94,8 +97,8 @@ public class UserAccountDTO {
         if(userInfo!=null){
             this.age = userInfo.getAge()==null?"":String.valueOf(userInfo.getAge());
             this.height = userInfo.getHeight()==null?"":String.valueOf(userInfo.getHeight());
-            this.weight = userInfo.getWeight()==null?"":String.valueOf(userInfo.getWeight());
-            this.waist = userInfo.getWaist()== null?"":String.valueOf(userInfo.getWaist());
+            this.weight = userInfo.getWeight()==null?"":decimalFormat.format(userInfo.getWeight());
+            this.waist = userInfo.getWaist()== null?"":decimalFormat.format(userInfo.getWaist());
         }
         this.verified = !"0".equals(registerInfo.getIdentifytype());
         if(this.verified){
