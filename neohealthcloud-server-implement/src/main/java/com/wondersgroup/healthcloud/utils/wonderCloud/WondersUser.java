@@ -16,10 +16,13 @@ public class WondersUser {
     public String idCard;
     public String ssCard;
 
+    public String tagid;
+    public Integer channelType;
+
     public WondersUser() {
     }
 
-    public WondersUser(JsonNode wu) {
+    public WondersUser(JsonNode wu, int channelType) {
         this.userId = wu.get("userid").asText();
         this.username = wu.get("username").isNull() ? null : wu.get("username").asText();
         this.email = wu.get("email").isNull() ? null : wu.get("email").asText();
@@ -29,5 +32,10 @@ public class WondersUser {
         this.name = wu.get("name").isNull() ? null : wu.get("name").asText();
         this.idCard = wu.get("idcard").isNull() ? null : wu.get("idcard").asText();
         this.ssCard = wu.get("sscard").isNull() ? null : wu.get("sscard").asText();
+        JsonNode tagNode = wu.get("tagid") == null ? null : wu.get("tagid");
+        if (tagNode != null) {
+            this.tagid = tagNode.asText();
+        }
+        this.channelType = channelType;
     }
 }

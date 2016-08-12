@@ -27,6 +27,11 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     private final String user_type_patient = "1";//用户类型 0:医生,1:患者
 
+    private final Integer CHANNEL_TYPE_JKY = 1;
+    private final Integer CHANNEL_TYPE_QQ = 2;
+    private final Integer CHANNEL_TYPE_WEIBO = 3;
+    private final Integer CHANNEL_TYPE_WECHAT = 4;
+
     @Autowired
     private HttpWdUtils httpWdUtils;
 
@@ -52,7 +57,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
-            WondersUser user = new WondersUser(result.get("user"));
+            WondersUser user = new WondersUser(result.get("user"),CHANNEL_TYPE_JKY);
             RegisterInfo registerInfo = mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -88,7 +93,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.fastLogin(mobile, verify_code, onceCode);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_JKY);
             mergeRegistration(user);
             AccessToken accessToken = fetchTokenFromWondersCloud(result.get("session_token").asText());
             return accessToken;
@@ -110,7 +115,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.wechatLogin(token, openid);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_WECHAT);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -129,7 +134,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.weiboLogin(token);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_WEIBO);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -148,7 +153,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.qqLogin(token);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_QQ);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -398,7 +403,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         RegisterInfo registerInfo = registerInfoRepository.findOne(user.userId);
         //是否有本地账号 如果没有保存本地
         if (registerInfo == null) {
-            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard);
+            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard,user.type, user.tagid, user.channelType);
         } else {
             Boolean isVerified = user.isVerified;
             registerInfo.setRegisterid(user.userId);
@@ -428,7 +433,7 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @param idCard
      * @return
      */
-    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard) {
+    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard,String userSource, String tagid, Integer channelType) {
         ThirdPartyUser thirdPartyUser = thirdPartyBinding(id);
         Boolean fromThirdParty = thirdPartyUser != null;
         RegisterInfo registerInfo = new RegisterInfo();
@@ -451,6 +456,9 @@ public class UserAccountServiceImpl implements UserAccountService{
         } else {
             registerInfo.setGender(fromThirdParty ? thirdPartyUser.gender : null);
         }
+        registerInfo.setTagid(tagid);
+        registerInfo.setSourceId(userSource);
+        registerInfo.setChannelType(channelType);
         registerInfo.setDelFlag("0");
         registerInfo.setRegtime(new Date());
         registerInfo.setCreateDate(new Date());
@@ -532,11 +540,11 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @param uuid
      * @return
      */
-    private WondersUser getWondersBaseInfo(String uuid) {
+    private WondersUser getWondersBaseInfo(String uuid,Integer channelType) {
         JsonNode result = httpWdUtils.basicInfo(uuid);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            return new WondersUser(result.get("user"));
+            return new WondersUser(result.get("user"),channelType);
         } else {
             throw new ErrorUserWondersBaseInfoException();
         }
@@ -559,7 +567,8 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @param mobile
      * @return
      */
-    private boolean checkAccount(String mobile) {
+    @Override
+    public Boolean checkAccount(String mobile) {
         JsonNode result = httpWdUtils.checkAccount(mobile);
         int code = result.get("code").asInt();
         return 413 == code;
@@ -576,7 +585,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.registe(mobile, password);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_JKY);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -592,6 +601,34 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorUserAccountException();
         }
     }
+
+    @Override
+    public RegisterInfo fetchInfo(String userId) {
+        WondersUser user = getWondersBaseInfo(userId, 0);
+        if (user != null) {
+            RegisterInfo register = registerInfoRepository.findOne(user.userId);
+            if (register != null) {
+                return mergeRegistration(user);
+            } else {//TODO(zhangzhixiu):return null is not very good, but there are two type of account.
+                AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(user.userId);
+                anonymousAccount.setName(user.name);
+                anonymousAccount.setIdcard(user.idCard);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private WondersUser getWondersBaseInfo(String uuid, int channelType) {
+        JsonNode result = httpWdUtils.basicInfo(uuid);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            return new WondersUser(result.get("user"), channelType);
+        } else {
+            throw new ErrorWondersCloudException("获取用户信息失败");
+        }
+    }
+
 
 
 }
