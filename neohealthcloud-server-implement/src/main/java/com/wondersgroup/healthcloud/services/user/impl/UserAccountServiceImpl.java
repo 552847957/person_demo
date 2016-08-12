@@ -611,8 +611,13 @@ public class UserAccountServiceImpl implements UserAccountService{
                 return mergeRegistration(user);
             } else {//TODO(zhangzhixiu):return null is not very good, but there are two type of account.
                 AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(user.userId);
-                anonymousAccount.setName(user.name);
-                anonymousAccount.setIdcard(user.idCard);
+                if(anonymousAccount==null){
+                    return mergeRegistration(user);
+                }else {
+                    anonymousAccount.setName(user.name);
+                    anonymousAccount.setIdcard(user.idCard);
+                    anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                }
                 return null;
             }
         }

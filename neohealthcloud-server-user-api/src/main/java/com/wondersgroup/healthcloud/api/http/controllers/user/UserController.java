@@ -285,7 +285,7 @@ public class UserController {
         UserInfoForm form = new UserInfoForm();
 
         form.registerId = reader.readString("uid", false);
-        form.age = reader.readInteger("age", true);
+        form.age = reader.readInteger("age", false);
         form.height = reader.readInteger("height", true);
         form.weight = reader.readObject("weight", true, Float.class);
         form.waist = reader.readObject("waist", true, Float.class);
