@@ -132,7 +132,7 @@ public class FamilyController {
                 data.put("avatar", register.getHeadphoto() + ImagePath.avatarPostfix());
                 data.put("nickname", register.getNickname());
             } else {
-                throw new ErrorChangeMobileException(1040, "无相关账户");
+                throw new ErrorChangeMobileException(1004, "无相关账户");
             }
         }
         body.setData(data);
