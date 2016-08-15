@@ -41,6 +41,7 @@ public class HealthActivityAPIEntity {
 	private String isSurvey;//是否做过满意度调查 0:未做调查，1：已做调查
 	private String contentUrl;//活动内容url地址
 	private String overdue;//是否过期：0为未过期，1为过期
+	private boolean gtDay;//
 	
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
@@ -48,8 +49,21 @@ public class HealthActivityAPIEntity {
 	
 	private DateFormatter df = new DateFormatter();
 	
+	private HealthActivityInfo healthActivityInfo;
 	
-	public HealthActivityAPIEntity(){
+	public boolean isGtDay() {
+        return gtDay;
+    }
+    public void setGtDay(boolean gtDay) {
+        this.gtDay = gtDay;
+    }
+    public HealthActivityInfo getHealthActivityInfo() {
+        return healthActivityInfo;
+    }
+    public void setHealthActivityInfo(HealthActivityInfo healthActivityInfo) {
+        this.healthActivityInfo = healthActivityInfo;
+    }
+    public HealthActivityAPIEntity(){
 		
 	}
 	public HealthActivityAPIEntity(HealthActivityInfo info,String width,String height){
@@ -100,6 +114,9 @@ public class HealthActivityAPIEntity {
 			this.overdue = "1";
 		}else{
 			this.overdue = "0";
+		}
+		if("2".equals(info.getOnlineStatus())){
+		    this.gtDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}
 		if("activityMine".equals(pageType)){//我参与的活动
 			this.time= DateFormatter.yearFormat(info.getStarttime())

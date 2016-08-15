@@ -1,8 +1,14 @@
 package com.wondersgroup.healthcloud.jpa.entity.activiti;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+
 import lombok.Data;
+
 import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
@@ -14,7 +20,6 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 public class HealthActivityDetail extends BaseEntity {
 
     private static final long serialVersionUID = -1088507013792313496L;
-    private String             id;
     private String             registerid;         //'注册id',
     private String             evaluate;           // '评价1：好评 2：中评 3：差评',
     private String             signtime;           // '报名时间',
@@ -24,5 +29,8 @@ public class HealthActivityDetail extends BaseEntity {
     private String             investcontent;      //满意度调查内容
     private String             activityid;         //'活动id'
     private String             pftitle;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="activityid",referencedColumnName="activityid")
+    private HealthActivityInfo healthActivityInfo;//'活动id',
 
 }

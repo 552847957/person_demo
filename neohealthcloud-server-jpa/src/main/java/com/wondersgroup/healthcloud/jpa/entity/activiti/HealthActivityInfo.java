@@ -1,9 +1,14 @@
 package com.wondersgroup.healthcloud.jpa.entity.activiti;
 
 import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
+
 import lombok.Data;
+
 import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
@@ -13,9 +18,10 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 @Data
 @Entity
 @Table(name = "app_tb_healthactivity_info")
-public class HealthActivityInfo extends BaseEntity {
+public class HealthActivityInfo {
 
     private static final long serialVersionUID = -6988698188678786262L;
+    @Id
     private String            activityid;
     private String            host;                                    // '主办者',
     private String            type;                                    // '活动类型 1：糖尿病:2：高血压',
@@ -36,8 +42,27 @@ public class HealthActivityInfo extends BaseEntity {
     private Integer           quota;                                   // '名额',
     private Integer           style;                                   //'活动形式1：讲座 2：表演',
     private String            thumbnail;                               //活动缩略图
-    private String            online_status;                           //0 未上线 1已上线 2已下线',
-    private Date              online_time;                             //上线时间
-    private Date              offline_time;                            //下线时间
+    @Column(name = "online_status")
+    private String            onlineStatus;                            //0 未上线 1已上线 2已下线',
+    @Column(name = "online_time")
+    private Date              onlineTime;                              //上线时间
+    @Column(name = "offline_time")
+    private Date              offlineTime;                             //下线时间
+    @Column(name = "enroll_start_time")
+    private Date              enrollStartTime;                         //活动报名时间'
+    @Column(name = "enroll_end_time")
+    private Date              enrollEndTime;                           //活动借宿时间
+    @Column(name = "del_flag")
+    private String            delFlag;
+    @Column(name = "source_id")
+    private String            sourceId;
+    @Column(name = "create_by")
+    private String            createBy;
+    @Column(name = "create_date")
+    private Date              createDate;
+    @Column(name = "update_by")
+    private String            updateBy;
+    @Column(name = "update_date")
+    private Date              updateDate;
 
 }
