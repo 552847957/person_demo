@@ -128,26 +128,27 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         oldDoctorInfo.setUpdateDate(new Date());
         doctorInfoRepository.saveAndFlush(oldDoctorInfo);
 
-        //设置医生对应的服务包 根据roles 来判断医生拥有哪些服务包
-        String[] roleStr = roles.split(",");
-        Collection<String> roleList = Lists.newArrayList();
-        for(String role : roleStr){
-            roleList.add(role);
-        }
-        List<DoctorServiceRoleMap> serviceRoleMaps = roleMapRepository.findServicesByRoles(roleList);
-        if(serviceRoleMaps.size()>0){
-            for(DoctorServiceRoleMap roleMap : serviceRoleMaps){
-                DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
-                doctorServiceEntity.setId(IdGen.uuid());
-                doctorServiceEntity.setDoctorId(doctorAccount.getId());
-                doctorServiceEntity.setServiceId(roleMap.getServiceId());
-                doctorServiceEntity.setDelFlag("0");
-                doctorServiceEntity.setCreateDate(new Date());
-                doctorServiceEntity.setUpdateDate(new Date());
-                doctorServiceRepository.saveAndFlush(doctorServiceEntity);
+        if(StringUtils.isNotBlank(roles)){
+            //设置医生对应的服务包 根据roles 来判断医生拥有哪些服务包
+            String[] roleStr = roles.split(",");
+            Collection<String> roleList = Lists.newArrayList();
+            for(String role : roleStr){
+                roleList.add(role);
+            }
+            List<DoctorServiceRoleMap> serviceRoleMaps = roleMapRepository.findServicesByRoles(roleList);
+            if(serviceRoleMaps.size()>0){
+                for(DoctorServiceRoleMap roleMap : serviceRoleMaps){
+                    DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
+                    doctorServiceEntity.setId(IdGen.uuid());
+                    doctorServiceEntity.setDoctorId(doctorAccount.getId());
+                    doctorServiceEntity.setServiceId(roleMap.getServiceId());
+                    doctorServiceEntity.setDelFlag("0");
+                    doctorServiceEntity.setCreateDate(new Date());
+                    doctorServiceEntity.setUpdateDate(new Date());
+                    doctorServiceRepository.saveAndFlush(doctorServiceEntity);
+                }
             }
         }
-
         return doctorAccount;
     }
 
