@@ -38,7 +38,9 @@ public class CommonController {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
 
-        data.put("publicKey", HttpWdUtils.publicKey);
+        Map<String, Object> common = new HashMap<>();
+        common.put("publicKey", HttpWdUtils.publicKey);
+        data.put("common", common);
 
         response.setData(data);
         return response;
