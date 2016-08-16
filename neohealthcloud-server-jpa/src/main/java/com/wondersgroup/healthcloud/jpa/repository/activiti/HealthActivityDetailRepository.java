@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 
 public interface HealthActivityDetailRepository extends JpaRepository<HealthActivityDetail, String> {
     @Query(value = "select had from HealthActivityDetail as had where had.registerid=?1 and had.delFlag=0 order by ifnull(had.evaluatetime,'2999-01-01') desc ")

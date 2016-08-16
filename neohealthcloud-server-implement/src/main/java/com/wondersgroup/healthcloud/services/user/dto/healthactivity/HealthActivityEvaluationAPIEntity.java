@@ -1,7 +1,7 @@
 package com.wondersgroup.healthcloud.services.user.dto.healthactivity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthActivityEvaluationAPIEntity {

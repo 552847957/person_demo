@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityInfo;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityDetailRepository;
 import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
@@ -51,15 +51,18 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     }
 
     @Override
-    public List<HealthActivityInfo> getHealthActivityInfos(String area, String type, int pageNo, int pageSize) {
+    public List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status, int pageNo, int pageSize) {
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
-                + " from app_tb_healthactivity_info where" + " (province = '" + area + "' or city = '" + area
-                + "' or county = '" + area + "')" + " and online_status =1 and del_flag = '0'";
-        if (type.equals("0")) {
-            sql += " and type <>0";
-        } else {
-            sql += " and type = '" + type + "'";
+                + " from app_tb_healthactivity_info where" + " province = '" + province + "' and city = '" + city
+                +  "' and online_status ='" + (status == 1 ? 1 : 2 ) + "' and del_flag = '0'";
+        if (county != null) {
+            sql += " and county = '" + county + "'";
+        }
+        if(status == 1){//报名进行中
+            sql += " and (enroll_start_time < now() and enroll_end_time > now()) ";
+        }else{
+            sql += " and enroll_end_time < now() ";
         }
         sql += " ORDER BY overdue asc ,starttime desc  limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);

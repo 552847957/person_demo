@@ -1,10 +1,9 @@
 package com.wondersgroup.healthcloud.services.user;
 
 import java.util.List;
-import java.util.Map;
 
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityInfo;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 
 public interface HealthActivityInfoService {
 
@@ -20,6 +19,6 @@ public interface HealthActivityInfoService {
 
     HealthActivityDetail findActivityDetailByAidAndRid(String activityId, String registerId);
 
-    List<HealthActivityInfo> getHealthActivityInfos(String area, String type, int pageNo, int pageSize);
+    List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status , int pageNo, int pageSize);
 
 }

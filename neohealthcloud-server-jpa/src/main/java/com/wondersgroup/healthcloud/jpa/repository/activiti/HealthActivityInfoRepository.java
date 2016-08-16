@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityInfo;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 
 public interface HealthActivityInfoRepository extends JpaRepository<HealthActivityInfo, String> {
 

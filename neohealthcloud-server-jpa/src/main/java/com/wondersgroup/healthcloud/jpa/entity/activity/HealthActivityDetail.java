@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.jpa.entity.activiti;
+package com.wondersgroup.healthcloud.jpa.entity.activity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

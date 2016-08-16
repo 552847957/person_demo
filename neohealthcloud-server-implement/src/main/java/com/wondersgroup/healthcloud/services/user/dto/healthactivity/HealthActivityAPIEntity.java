@@ -1,17 +1,17 @@
 package com.wondersgroup.healthcloud.services.user.dto.healthactivity;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wondersgroup.common.image.utils.ImagePath;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityInfo;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wondersgroup.common.image.utils.ImagePath;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthActivityAPIEntity {
@@ -21,47 +21,40 @@ public class HealthActivityAPIEntity {
 	private String time;// '开始时间',
 	private String location;// '举办地点',
 	private String module; // '活动类型 1：糖尿病:2：高血压',
-	
 	private Integer totalAvailable;// '名额',
 	private String totalApplied;// 报名人数
 	private String isApplied; // 是否已报名（按钮状态）
-	
 	private String speechMaker;// '主讲人信息 姓名 科室 职务',
 	private String department;//科室
 	private String pftitle;//职称
-
 	private Integer style;// 讲座形式
 	private String description;// '活动概述',
-	
 	private String picture; // '活动图片存入attach表',
 	private String thumbnail;//活动缩略图
-	
 	private Double score;// 积分
 	private String isEvaluation;//是否可以评价 0:不能评价，1：能评价
 	private String isSurvey;//是否做过满意度调查 0:未做调查，1：已做调查
 	private String contentUrl;//活动内容url地址
 	private String overdue;//是否过期：0为未过期，1为过期
-	private boolean gtDay;//
+	private boolean ltDay;//
 	
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
 	private SimpleDateFormat hourMinute_sdf = new SimpleDateFormat("HH:mm");
+	private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-mm-dd MM:ss:dd");
 	
-	private DateFormatter df = new DateFormatter();
+	private String              starttime;                               // '开始时间',
+    private String              endtime;                                 // '结束时间',
+    private String              onlineTime;                              //上线时间
+    private String              offlineTime;                             //下线时间
+    private String              enrollStartTime;                         //活动报名时间'
+    private String              enrollEndTime;                           //活动结束时间
 	
-	private HealthActivityInfo healthActivityInfo;
-	
-	public boolean isGtDay() {
-        return gtDay;
+    public boolean isLtDay() {
+        return ltDay;
     }
-    public void setGtDay(boolean gtDay) {
-        this.gtDay = gtDay;
-    }
-    public HealthActivityInfo getHealthActivityInfo() {
-        return healthActivityInfo;
-    }
-    public void setHealthActivityInfo(HealthActivityInfo healthActivityInfo) {
-        this.healthActivityInfo = healthActivityInfo;
+    public void setLtDay(boolean ltDay) {
+        this.ltDay = ltDay;
     }
     public HealthActivityAPIEntity(){
 		
@@ -116,7 +109,7 @@ public class HealthActivityAPIEntity {
 			this.overdue = "0";
 		}
 		if("2".equals(info.getOnlineStatus())){
-		    this.gtDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
+		    this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}
 		if("activityMine".equals(pageType)){//我参与的活动
 			this.time= DateFormatter.yearFormat(info.getStarttime())
@@ -144,6 +137,12 @@ public class HealthActivityAPIEntity {
 		} else {
 			this.isEvaluation = "0";
 		}
+		this.starttime = time_adf.format(info.getStarttime());
+		this.endtime = time_adf.format(info.getEndtime());
+		this.onlineTime = time_adf.format(info.getOnlineTime());
+		this.offlineTime = time_adf.format(info.getOfflineTime());
+		this.enrollStartTime = time_adf.format(info.getEnrollStartTime());
+		this.enrollEndTime = time_adf.format(info.getEnrollEndTime());
 	}
 
 	public String getThumbnail() {
@@ -321,4 +320,41 @@ public class HealthActivityAPIEntity {
 	public void setOverdue(String overdue) {
 		this.overdue = overdue;
 	}
+    public String getStarttime() {
+        return starttime;
+    }
+    public void setStarttime(String starttime) {
+        this.starttime = starttime;
+    }
+    public String getEndtime() {
+        return endtime;
+    }
+    public void setEndtime(String endtime) {
+        this.endtime = endtime;
+    }
+    public String getOnlineTime() {
+        return onlineTime;
+    }
+    public void setOnlineTime(String onlineTime) {
+        this.onlineTime = onlineTime;
+    }
+    public String getOfflineTime() {
+        return offlineTime;
+    }
+    public void setOfflineTime(String offlineTime) {
+        this.offlineTime = offlineTime;
+    }
+    public String getEnrollStartTime() {
+        return enrollStartTime;
+    }
+    public void setEnrollStartTime(String enrollStartTime) {
+        this.enrollStartTime = enrollStartTime;
+    }
+    public String getEnrollEndTime() {
+        return enrollEndTime;
+    }
+    public void setEnrollEndTime(String enrollEndTime) {
+        this.enrollEndTime = enrollEndTime;
+    }
+	
 }

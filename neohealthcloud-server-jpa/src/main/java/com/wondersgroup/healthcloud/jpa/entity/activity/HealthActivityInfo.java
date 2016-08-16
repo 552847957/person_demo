@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.jpa.entity.activiti;
+package com.wondersgroup.healthcloud.jpa.entity.activity;
 
 import java.util.Date;
 
@@ -49,9 +49,9 @@ public class HealthActivityInfo {
     @Column(name = "offline_time")
     private Date              offlineTime;                             //下线时间
     @Column(name = "enroll_start_time")
-    private Date              enrollStartTime;                         //活动报名时间'
+    private Date              enrollStartTime;                         //活动报名开始时间'
     @Column(name = "enroll_end_time")
-    private Date              enrollEndTime;                           //活动借宿时间
+    private Date              enrollEndTime;                           //活动报名结束时间
     @Column(name = "del_flag")
     private String            delFlag;
     @Column(name = "source_id")

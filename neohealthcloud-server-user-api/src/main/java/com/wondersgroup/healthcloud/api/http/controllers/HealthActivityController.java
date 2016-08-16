@@ -4,7 +4,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,13 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityDetail;
-import com.wondersgroup.healthcloud.jpa.entity.activiti.HealthActivityInfo;
+import com.wondersgroup.healthcloud.dict.DictCache;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityDetailRepository;
 import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
@@ -34,8 +38,8 @@ public class HealthActivityController {
 	@Autowired
 	private HealthActivityInfoService haiService;
 
-//	@Autowired
-//	private ScoreCache scoreCache;
+	@Autowired
+    private DictCache dictCache; 
 
 	@Autowired
 	private HealthActivityInfoRepository healthActivityRepository;
@@ -43,8 +47,6 @@ public class HealthActivityController {
 	@Autowired
 	private HealthActivityDetailRepository healthActivityDetailRepository;
 
-//	@Autowired
-//	private DictCache dictCache; 
 	/**
 	 * 根据类型和区域查询健康活动
 	 * @param registerid
@@ -77,26 +79,27 @@ public class HealthActivityController {
 
 	/**
 	 * 根据类型和区域查询健康活动【分页功能】
-	 * @param registerid
-	 * @param area
-	 * @param type
+	 * @param uid
+	 * @param location
 	 * @return
 	 */
 	@RequestMapping(value = "/activities/page", method = RequestMethod.GET)
 	@VersionRange
 	public JsonListResponseEntity<HealthActivityAPIEntity> getHealthActivityPageList(
 			@RequestParam(value = "uid",required = false) String registerid,
-			@RequestParam(value = "location", required = true) String area,
-			@RequestParam(value = "type", required = true) String type,
+			@RequestParam(value = "province", required = true) String province,
+			@RequestParam(value = "city", required = true) String city,
+			@RequestParam(value = "county", required = true) String county,
+			@RequestParam(value = "status", defaultValue = "1") Integer status,
 			@RequestParam(value = "flag", defaultValue = "1") Integer flag,
 			@RequestHeader(value="screen-width")String width,
 			@RequestHeader(value="screen-height")String height,HttpServletRequest request) {
 
-
-		List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(area, type, flag, pageSize);
+	    
+		List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(province, city, county, status, flag, pageSize);
 		Boolean more = false;
 		if(!infoList.isEmpty() && infoList.size() == 10){
-		    List<HealthActivityInfo> list = haiService.getHealthActivityInfos(area, type, flag + 1, pageSize);
+		    List<HealthActivityInfo> list = haiService.getHealthActivityInfos(province, city, county, status, flag + 1, pageSize);
 		    more = !list.isEmpty();
 		}
 		List<HealthActivityAPIEntity> list = new ArrayList<HealthActivityAPIEntity>();
@@ -139,7 +142,7 @@ public class HealthActivityController {
 			return response;
 
 	}
-//
+
 	/**
 	 * 查询活动信息
 	 * @return
@@ -152,7 +155,7 @@ public class HealthActivityController {
 			@RequestHeader(value="screen-width")String width,
 			@RequestHeader(value="screen-height")String height,
 			HttpServletRequest request) {
-
+	        
 			JsonResponseEntity<HealthActivityAPIEntity> response = new JsonResponseEntity<HealthActivityAPIEntity>();
 
 			HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
@@ -162,7 +165,6 @@ public class HealthActivityController {
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
 				this.setDetailInfo(entity,info,registerId);
 				entity.setDescription(null);
-				entity.setHealthActivityInfo(info);
 
 				response.setData(entity);
 			}
@@ -177,14 +179,13 @@ public class HealthActivityController {
 		}else{
 			entity.setIsApplied("0");
 		}
-
-//		entity.setScore(scoreCache.getScore().get("doJoinAct"));
-//		String province = StringUtils.isEmpty(info.getProvince())?"":dictCache.queryArea(info.getProvince());
-//		String city = (province.contains("上海") || province.contains("北京") || province.contains("重庆") || province.contains("天津") ||
-//				StringUtils.isEmpty(info.getCity()))?"":dictCache.queryArea(info.getCity());
-//		String county = StringUtils.isEmpty(info.getCounty())?"":dictCache.queryArea(info.getCounty());
-//		entity.setLocation(province+city+county+info.getLocate());
-//		entity.setHost((StringUtils.isEmpty(city)?dictCache.queryArea(info.getCounty()):city)+info.getHost());
+		
+		String province = StringUtils.isEmpty(info.getProvince())?"":dictCache.queryArea(info.getProvince());
+		String city = (province.contains("上海") || province.contains("北京") || province.contains("重庆") || province.contains("天津") ||
+				StringUtils.isEmpty(info.getCity()))?"":dictCache.queryArea(info.getCity());
+		String county = StringUtils.isEmpty(info.getCounty())?"":dictCache.queryArea(info.getCounty());
+		entity.setLocation(province+city+county+info.getLocate());
+		entity.setHost((StringUtils.isEmpty(city)?dictCache.queryArea(info.getCounty()):city)+info.getHost());
 
 	}
 
@@ -209,7 +210,6 @@ public class HealthActivityController {
 				String totalApply = healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid);// 已报名人数
 				Integer quota = info.getQuota();// 活动限定名额
 
-//				Date activityTime = info.getStarttime();
 				if (info.getEnrollStartTime().after(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1620);
 					response.setMsg("活动报名尚未开始，报名失败！");
@@ -255,7 +255,7 @@ public class HealthActivityController {
 			
 		return response;
 	}
-//
+
 	/**
 	 * 取消活动报名
 	 * @param activityid
@@ -297,88 +297,6 @@ public class HealthActivityController {
 				return response;
 			}
 	}
-//
-//	/**
-//	 * 评价
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/activities/evaluation", method = RequestMethod.POST,headers = {"version=2.[234].*"})
-//	@ResponseBody
-//	public JsonResponseEntity<HealthActivityEvaluationAPIEntity> doEvaluationActivity(@RequestBody String request) {
-//
-//			JsonKeyReader reader = new JsonKeyReader(request);
-//			String activityid =  reader.readString("activityid", false);
-//			String evaluation =  reader.readString("evaluation", false);
-//			String comment =  reader.readString("comment", false);
-//			String registerId = reader.readString("uid", false);
-//
-//			JsonResponseEntity<HealthActivityEvaluationAPIEntity> response = new JsonResponseEntity<HealthActivityEvaluationAPIEntity>();
-//			HealthActivityInfo info = healthActivityRepository.findOne(activityid);
-//			if (info.getEndtime().after(new Timestamp(System.currentTimeMillis()))) {
-//				response.setCode(1613);
-//				response.setMsg("活动未结束不能进行评价！");
-//				return response;
-//			} else {
-//				HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-//				if (detail != null) {
-//					detail.setEvaluate(evaluation);
-//					detail.setEvalatememo(comment);
-//					detail.setEvaluatetime(DateFormatter.dateTimeFormat(new Date()));
-//					detail.setId(detail.getId());
-//					int result = healthActivityDetailRepository.updateActivityDetailByAidAndRid(evaluation,
-//									comment, DateFormatter.dateTimeFormat(new Date()),detail.getId());
-//					if (result < 1) {
-//						response.setCode(1614);
-//						response.setMsg("评价失败！");
-//						return response;
-//					}
-//				}
-//			}
-//
-//		response.setMsg("评价成功");
-//		return response;
-//	}
-//
-//	/**
-//	 * 满意度调查评价
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/activities/survey", method = RequestMethod.POST,headers = {"version=2.[234].*"})
-//	@ResponseBody
-//	public JsonResponseEntity<HealthActivityAPIEntity> doActivitySurvey(@RequestBody String request) {
-//
-//		JsonKeyReader reader = new JsonKeyReader(request);
-//		String activityid =  reader.readString("activityid", false);
-//		String content =  reader.readString("content", false);
-//		String registerId = reader.readString("uid", false);
-//
-//		JsonResponseEntity<HealthActivityAPIEntity> response = new JsonResponseEntity<HealthActivityAPIEntity>();
-//		HealthActivityDetail detail = healthActivityDetailRepository
-//				.findActivityDetailByAidAndRid(activityid, registerId);
-//		HealthActivityInfo info = detail.getHealthActivityInfo();
-//		
-//		if (detail.getEvaluatetime() != null) {
-//			detail.setInvesttime(DateFormatter.dateTimeFormat(new Date()));
-//			detail.setInvestcontent(content);
-//			detail = healthActivityDetailRepository.save(detail);
-//			if(!detail.getInvesttime().equals("")){
-//				response.setCode(0);
-//				response.setMsg("满意度调查成功");
-//			}else{
-//				response.setCode(1615);
-//				response.setMsg("满意度调查失败");
-//			}
-//
-//		} else {// 如果评价时间为空
-//			HealthActivityAPIEntity entity = new HealthActivityAPIEntity();
-//			entity.setEvaluation(null);
-//			response.setData(entity);
-//			response.setCode(0);
-//		}
-//			
-//		return response;
-//	}
-	
 
 }
 
