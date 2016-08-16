@@ -43,7 +43,7 @@ admin权限的可以插入`main_area='' and spec_area=''`的文章
 
 服务端以用户最后登录的app为准, 所有对用户的推送都推到最后登录的app上
 
-### 推送登录表
+### 推送登录表 `app_tb_user_push_info`
 
 列名     | 类型    | 含义
 ---------|---------|-------
@@ -52,6 +52,21 @@ uid      | uuid    | 用户id
 clientid | varchar | 个推clientid
 area     | varchar | 用户最后登录的app
 platform | varchar | 0:ios, 1:android
+
+### app配置信息表 `app_tb_configuration_info`
+
+列名               | 类型 | 含义
+-------------------|------|-----
+id                 |      |
+name               |      |
+main_area          |      |
+push_id_user       |      |
+push_key_user      |      |
+push_secret_user   |      |
+push_id_doctor     |      |
+push_key_doctor    |      |
+push_secret_doctor |      |
+
 
 ### 推送key
 

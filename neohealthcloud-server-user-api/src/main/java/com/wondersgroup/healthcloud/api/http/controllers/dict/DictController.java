@@ -30,18 +30,14 @@ public class DictController {
 	private static final String AREA_VERSION="1.0";
 	private static final String SPORT_VERSION="1.0";
 	private static final String FOOD_VERSION="1.0";
-	
+
+	@Autowired
 	private JdbcTemplate jt;
 	@Autowired
 	private DataSource ds;
 
 	@Autowired
 	private DiseaseRepository diseaseRepository;
-	
-	private JdbcTemplate getJt(){
-		jt =new JdbcTemplate(ds);
-		return jt;
-	}
 	
 	private class Sport {
 		private String sportName;
@@ -195,7 +191,7 @@ public class DictController {
 		if(islist) {
 			sqlwhere="upper_code";
 		}
-		List<Map<String, Object>> resultList = getJt().queryForList(String.format("select code, explain_memo  from t_dic_area where "+sqlwhere+"='%s' ", code));
+		List<Map<String, Object>> resultList = jt.queryForList(String.format("select code, explain_memo  from t_dic_area where "+sqlwhere+"='%s' ", code));
 
 		for(Map<String,Object> result:resultList){
 			Area area = new Area(result);
@@ -205,7 +201,7 @@ public class DictController {
 				tmp.put("code", "");
 				tmp.put("explain_memo", "");
 				resultList2.add(tmp);
-				List<Map<String, Object>> resultList2_more = getJt().queryForList(String.format("select code, explain_memo  from t_dic_area where upper_code ='%s' ", (String) result.get("code")));
+				List<Map<String, Object>> resultList2_more = jt.queryForList(String.format("select code, explain_memo  from t_dic_area where upper_code ='%s' ", (String) result.get("code")));
 				resultList2.addAll(resultList2_more);
 				area.setAreas(resultList2);
 			}
@@ -231,7 +227,7 @@ public class DictController {
     public JsonListResponseEntity<Sport> getSportsDict(HttpServletRequest request){
 		JsonListResponseEntity<Sport> sportJsonListResponseEntity = new JsonListResponseEntity<>();
 		List<Sport> list = new ArrayList<Sport>();
-    	List<Map<String,Object>> resultList = getJt().queryForList("select SportName,CatalogName,consume,picture  from app_dic_sport where SportName is not NULL and CatalogName is not null and consume is not null and picture is not null");
+    	List<Map<String,Object>> resultList = jt.queryForList("select SportName,CatalogName,consume,picture  from app_dic_sport where SportName is not NULL and CatalogName is not null and consume is not null and picture is not null");
     	for(Map<String,Object> result:resultList){
     		list.add(new Sport(result,request));
     	}
@@ -244,7 +240,7 @@ public class DictController {
     public JsonListResponseEntity<Area> getAreasDict(HttpServletRequest request){
 		JsonListResponseEntity<Area> areaJsonListResponseEntity = new JsonListResponseEntity<>();
 		List<Area> list = new ArrayList<Area>();
-    	List<Map<String,Object>> resultList =getJt().queryForList("select code, explain_memo,upper_code  from t_dic_area where 1=1");
+    	List<Map<String,Object>> resultList =jt.queryForList("select code, explain_memo,upper_code  from t_dic_area where 1=1");
     	for(Map<String,Object> result:resultList){
     		list.add(new Area(result));
     	}
@@ -257,7 +253,7 @@ public class DictController {
     public JsonListResponseEntity<Food> getFoodsDict(HttpServletRequest request){
 		JsonListResponseEntity<Food> foodJsonListResponseEntity = new JsonListResponseEntity<>();
 		List<Food> list = new ArrayList<Food>();
-    	List<Map<String,Object>> resultList = getJt().queryForList("select name,catalog,calorie,picture  from app_dic_food where name is not null and catalog is not null and calorie is not null and picture is not null");
+    	List<Map<String,Object>> resultList = jt.queryForList("select name,catalog,calorie,picture  from app_dic_food where name is not null and catalog is not null and calorie is not null and picture is not null");
     	for(Map<String,Object> result:resultList){
     		list.add(new Food(result,request));
     	}

@@ -32,7 +32,7 @@ public class PushController {
                             @RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
-        String reg = reader.readString("clientid", false);
+        String cid = reader.readString("cid", false);
 
         return String.format(pushResponseTemplate, uid);
     }

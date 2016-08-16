@@ -33,6 +33,7 @@ public class DictCache {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
     private JdbcTemplate jt;
 
     private LoadingCache<String, Map<String, String>> caches = CacheBuilder.newBuilder().maximumSize(10).expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<String, Map<String, String>>() {
@@ -44,7 +45,7 @@ public class DictCache {
             String meaningColName = s[2];
             String dictTable = s[0];
             Map<String, String> map = Maps.newConcurrentMap();
-            List<Map<String, Object>> result = getJt().queryForList(String.format("select %s as code, %s as meaning from %s", codeColName, meaningColName, dictTable));
+            List<Map<String, Object>> result = jt.queryForList(String.format("select %s as code, %s as meaning from %s", codeColName, meaningColName, dictTable));
             for (Map<String, Object> row : result) {
                 map.put((String) row.get("code"), (String) row.get("meaning"));
             }
@@ -156,21 +157,8 @@ public class DictCache {
     }
 
     /**
-     * 获取jdbc template
-     *
-     * @return
-     */
-    private JdbcTemplate getJt() {
-        if (jt == null) {
-            jt = new JdbcTemplate(dataSource);
-        }
-        return jt;
-    }
-
-    /**
      * 从字典表中获取下级列表（没有缓存）
      *
-     * @param map
      * @param dictTable
      * @param codeColName
      * @param meaningColName
@@ -179,7 +167,7 @@ public class DictCache {
      */
     private Map<String, String> fetchUnderData(String dictTable, String codeColName, String meaningColName, String upperCodeColName, String upperCodeName) {
         Map<String, String> map = new HashMap<>();
-        List<Map<String, Object>> result = getJt().queryForList(
+        List<Map<String, Object>> result = jt.queryForList(
                 String.format("select %s as code, %s as meaning from %s where %s = '%s'",
                         codeColName, meaningColName, dictTable, upperCodeColName, upperCodeName));
         for (Map<String, Object> row : result) {
