@@ -26,7 +26,7 @@ public class PushController {
     @Autowired
     private PushAreaService pushAreaService;
 
-    @PostMapping(path = "/api/user/push/alias", produces = "application/json")
+    @PostMapping(path = "/api/utils/push/alias", produces = "application/json")
     @VersionRange
     public String pushAlias(@RequestHeader("main-area") String mainArea,
                             @RequestBody String request) {
@@ -40,7 +40,7 @@ public class PushController {
         return String.format(pushResponseTemplate, uid);
     }
 
-    @DeleteMapping(path = "/api/user/push", produces = "application/json")
+    @DeleteMapping(path = "/api/utils/push", produces = "application/json")
     @VersionRange
     public String unbindPush(@RequestHeader("main-area") String mainArea,
                              @RequestParam String uid) {
