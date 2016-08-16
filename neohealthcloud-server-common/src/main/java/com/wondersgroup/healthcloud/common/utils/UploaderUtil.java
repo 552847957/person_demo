@@ -30,7 +30,7 @@ public class UploaderUtil {
     }
 
     public static String getUpToken() {
-        return auth.uploadToken(buckets()[0], null, expires, null);
+        return auth.uploadToken("healthcloud2", null, expires, null);
     }
 
     public static String getUpTokenUEditor(String key) {
