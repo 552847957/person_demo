@@ -11,7 +11,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuestionDetail {
 	
-	private String sax;
+	private String sex;
 	private int age;
 	private int status;//1:进行中(含有未读信息的),2:进行中(不含有未读信息的),3：已关闭的
 	private String content;
@@ -20,7 +20,7 @@ public class QuestionDetail {
 	private List<QuestionGroup> group;
 
 	public QuestionDetail(Question question) {
-		this.sax = question.getSax() == 1 ? "男" : "女";
+		this.sex = question.getSex() == 1 ? "男" : "女";
 		this.age = question.getAge();
 		this.status = question.getStatus();
 		this.content = question.getContent();

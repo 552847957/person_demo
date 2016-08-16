@@ -24,7 +24,7 @@ public class Question {
     private String askerId;
     @Column(name="assign_answer_id")
     private String answerId="";
-    private int sax;
+    private int sex;
     private int age;
     private int is_new_question=1;//医生未读消息
     private Integer comment_count;//回复的医生数量

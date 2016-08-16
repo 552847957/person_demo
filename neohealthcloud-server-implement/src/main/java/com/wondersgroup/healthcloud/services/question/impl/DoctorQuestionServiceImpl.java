@@ -139,7 +139,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public List<DoctorQuestionMsg> getDoctorNoReadQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
         String sql="SELECT q.id,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i:%s') as date "
-                + " FROM question_tb q "
+                + " FROM app_tb_neoquestion q "
                 + " WHERE q.assign_answer_id=? and q.status=1 and q.is_valid=1 and q.is_new_question=1 ORDER BY q.create_time DESC limit ?,?";
         elementType.add(doctorId);
         elementType.add((page-1)*pageSize);
@@ -162,7 +162,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         String sql="SELECT question_id as id, content, date_format(create_time,'%Y-%m-%d %H:%i:%s') as date "
                 + " FROM " +
                         "(  select g.`id`, g.question_id, c.id AS comment_id, c.content, c.create_time " +
-                        " from comment_group_tb g left join comment_tb c on c.comment_group_id=g.id "
+                        " from app_tb_neogroup g left join comment_tb c on c.comment_group_id=g.id "
                         + " WHERE g.answer_id=? and g.is_valid=1 and g.has_new_user_comment=1 order by c.create_time DESC ) g"
                 + " group by g.id ORDER BY g.create_time DESC limit ?,?";
         elementType.add(doctorId);
@@ -183,7 +183,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public Boolean hasNewQuestionForDoctor(String doctorId) {
-        String sqlQuestion = "SELECT q.id FROM question_tb q WHERE q.assign_answer_id=? and status=1 and is_new_question=1 and is_valid=1 limit 1";
+        String sqlQuestion = "SELECT q.id FROM app_tb_neoquestion q WHERE q.assign_answer_id=? and status=1 and is_new_question=1 and is_valid=1 limit 1";
         List<Map<String, Object>> noReadQ = getJt().queryForList(sqlQuestion, new Object[]{doctorId});
 
         return null != noReadQ && !noReadQ.isEmpty();
@@ -191,7 +191,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public Boolean hasNewCommentForDoctor(String doctorId) {
-        String sqlCommon = "SELECT g.id FROM comment_group_tb g WHERE g.answer_id=? and g.has_new_user_comment=1 and is_valid=1 limit 1";
+        String sqlCommon = "SELECT g.id FROM app_tb_neogroup g WHERE g.answer_id=? and g.has_new_user_comment=1 and is_valid=1 limit 1";
         List<Map<String, Object>> noReadC = getJt().queryForList(sqlCommon, new Object[]{doctorId});
         return null != noReadC && !noReadC.isEmpty();
     }

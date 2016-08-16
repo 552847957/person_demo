@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.api.http.controllers.question;
 
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
@@ -28,13 +30,14 @@ public class UserQuestionController {
 	 * @return
 	 */
 	@VersionRange
+	@WithoutToken
 	@RequestMapping(value="/ask",method= RequestMethod.POST)
 	public Object ask(@RequestBody Question question){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
 		String id="";
-
-			question.setAnswerId("");
-			id=questionService.saveQuestion(question);
+		question.setAnswerId("");
+		id=questionService.saveQuestion(question);
+		//PropertiesUtils.get("");
 
 		response.setMsg("您的问题已提交，请耐心等待医生回复");
 		return response;
