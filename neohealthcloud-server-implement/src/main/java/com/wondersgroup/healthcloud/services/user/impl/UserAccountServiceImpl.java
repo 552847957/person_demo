@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -271,6 +272,7 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @return
      */
     @Override
+    @Transactional
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
         //根据图片的url获取图片的byte
         byte[] photo = new ImageUtils().getImageFromURL(photoUrl);

@@ -496,7 +496,7 @@ public class HttpWdUtils {
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-        httpWdUtils.basicInfo("18625530249");
+//        httpWdUtils.basicInfo("18625530249");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -535,7 +535,7 @@ public class HttpWdUtils {
 
 //        httpWdUtils.getSession("034386ef208f4704897fd31b41c82dcf");
 //        httpWdUtils.logout("15639763552");
-//        httpWdUtils.verficationSubmitInfo("3a24cb5b173e4d6597f62a95d04e3340");
+        httpWdUtils.verficationSubmitInfo("580422deb19e4befaa856c8ec94d83e4");
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);
