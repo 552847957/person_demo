@@ -6,6 +6,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 
@@ -29,8 +30,7 @@ public class HealthActivityDetail extends BaseEntity {
     private String             investcontent;      //满意度调查内容
     private String             activityid;         //'活动id'
     private String             pftitle;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="activityid",referencedColumnName="activityid")
+    @Transient
     private HealthActivityInfo healthActivityInfo;//'活动id',
 
 }
