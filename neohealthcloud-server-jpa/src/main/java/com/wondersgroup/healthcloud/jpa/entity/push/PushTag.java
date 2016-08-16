@@ -1,6 +1,8 @@
-package com.wondersgroup.healthcloud.helper.push.getui;
+package com.wondersgroup.healthcloud.jpa.entity.push;
 
-import java.util.List;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.Date;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -14,11 +16,13 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/12/16.
+ * Created by zhangzhixiu on 8/16/16.
  */
-public interface PushAdminClient {
+public class PushTag {
 
-    void overrideTagToClient(String cid, List<String> tags);
-
-    void getPushResult(String taskId);
+    @Id
+    @GeneratedValue
+    private String id;
+    private String tagName;
+    private Date createTime;
 }

@@ -5,6 +5,7 @@ import com.squareup.okhttp.ConnectionPool;
 import com.squareup.okhttp.Dispatcher;
 import com.squareup.okhttp.OkHttpClient;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.healthcloud.helper.push.area.PushAdminSelector;
 import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
 import com.wondersgroup.healthcloud.jpa.repository.app.AppConfigurationInfoRepository;
 import com.wondersgroup.healthcloud.utils.sms.SMS;
@@ -136,9 +137,15 @@ public class BeanFactory {
     }
 
     @Bean
-    @Profile({"de", "te"})
     public PushClientSelector pushClientSelector(AppConfigurationInfoRepository repository) {
         PushClientSelector selector = new PushClientSelector();
+        selector.init(repository.getAll());
+        return selector;
+    }
+
+    @Bean
+    public PushAdminSelector pushAdminSelector(AppConfigurationInfoRepository repository) {
+        PushAdminSelector selector = new PushAdminSelector();
         selector.init(repository.getAll());
         return selector;
     }

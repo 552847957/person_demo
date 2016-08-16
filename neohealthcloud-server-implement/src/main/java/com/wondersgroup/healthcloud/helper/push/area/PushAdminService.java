@@ -1,4 +1,7 @@
-package com.wondersgroup.healthcloud.helper.push.getui;
+package com.wondersgroup.healthcloud.helper.push.area;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -14,11 +17,15 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/12/16.
+ * Created by zhangzhixiu on 8/16/16.
  */
-public interface PushAdminClient {
+@Component
+public class PushAdminService {
 
-    void overrideTagToClient(String cid, List<String> tags);
+    @Autowired
+    private PushAdminSelector selector;
 
-    void getPushResult(String taskId);
+    public void setTags(String cid, String area, List<String> tags){
+
+    }
 }
