@@ -32,7 +32,7 @@ public class DoctorInfoController {
      */
     @PostMapping(path = "/doctorInfo/save")
     public JsonResponseEntity saveDoctorInfo(@RequestBody Map para){
-        DoctorInfo doctorInfo = new MapToBeanUtil<DoctorInfo>().fromMapToBean(DoctorInfo.class, para);
+        DoctorInfo doctorInfo = MapToBeanUtil.fromMapToBean(DoctorInfo.class, para);
         doctorInfo.setCreateDate(new Date());
         doctorInfo.setUpdateDate(new Date());
         doctorInfoRepository.saveAndFlush(doctorInfo);

@@ -15,9 +15,9 @@ import java.util.Map;
 /**
  * Created by jimmy on 16/8/5.
  */
-public class MapToBeanUtil<T> {
+public class MapToBeanUtil{
 
-    public T fromMapToBean(Class<T> type, Map<Object, Object> paraMap) {
+    public static <T> T fromMapToBean(Class<T> type, Map<Object, Object> paraMap) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
             T bean = type.newInstance();
@@ -28,15 +28,11 @@ public class MapToBeanUtil<T> {
                     Object propertyValue = paraMap.get(propertyName);
                     Object[] args = new Object[1];
                     args[0] = propertyValue;
-                    try {
-                        propertyDescriptor.getWriteMethod().invoke(bean, args);
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    propertyDescriptor.getWriteMethod().invoke(bean, args);
                 }
             }
             return bean;
-        } catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
+        } catch (IntrospectionException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("map convert to Bean is error", e);
         }
     }
