@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -43,6 +44,8 @@ public class DoctorAccountDTO {
 
     private String actcode;//医生推广邀请码
 
+    private Boolean isAttention;
+
     public DoctorAccountDTO(Map<String, Object> doctor) {
         this.uid = doctor.get("id")==null?"":doctor.get("id").toString();
         this.mobile = doctor.get("mobile")==null?"":doctor.get("mobile").toString();
@@ -69,6 +72,13 @@ public class DoctorAccountDTO {
         this.talkgroupid = doctor.get("talkgroupid")==null?"":doctor.get("talkgroupid").toString();
 
         this.actcode = doctor.get("actcode")==null?"":doctor.get("actcode").toString();
+
+        String attentionId = doctor.get("attentionId")==null?"":doctor.get("attentionId").toString();
+
+        this.isAttention = false;
+        if(StringUtils.isNotBlank(attentionId)){
+            this.isAttention = true;
+        }
 
     }
 
@@ -222,5 +232,13 @@ public class DoctorAccountDTO {
 
     public void setDutyName(String dutyName) {
         this.dutyName = dutyName;
+    }
+
+    public Boolean getIsAttention() {
+        return isAttention;
+    }
+
+    public void setIsAttention(Boolean isAttention) {
+        this.isAttention = isAttention;
     }
 }

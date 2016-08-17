@@ -10,7 +10,9 @@ import java.util.Map;
  */
 public interface DoctorService {
 
-    Map<String,Object> findDoctorInfoByUid(String id);
+    Map<String,Object> findDoctorInfoByUidAndDoctorId(String uid,String doctorId);
+
+    Map<String,Object> findDoctorInfoByUid(String uid);
 
     Map<String,Object> findDoctorInfoByActcode(String actcode);
 

@@ -37,11 +37,11 @@ public class DoctorServiceImpl implements DoctorService {
                           " left join doctor_info_tb i on a.id = i.id " +
                           " left join t_dic_duty d on i.duty_id = d.duty_id " +
                           " left join t_dic_depart_gb gb on i.depart_standard = gb.id " +
-                          " left join t_dic_hospital_info hi on i.hospital_id = hi.hospital_id";
+                          " left join t_dic_hospital_info hi on i.hospital_id = hi.hospital_id ";
 
     /**
      * 根据医生uid查询医生信息
-     * @param uid
+     * @param
      * @return
      */
     @Override
@@ -49,6 +49,30 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where a.id = '%s'";
         sql = String.format(sql,uid);
+        return jt.queryForMap(sql);
+    }
+
+    /**
+     * 根据医生uid查询医生信息
+     * @param
+     * @return
+     */
+    @Override
+    public Map<String, Object> findDoctorInfoByUidAndDoctorId(String uid,String doctorId) {
+        String query = "select a.id,a.`name` ,a.mobile,a.nickname ,a.login_name as 'loginName',a.avatar , " +
+                " a.talkid ,a.talkpwd ,a.talkgroupid,i.`no`, "+
+                " i.actcode,i.expertin,i.introduction,i.idcard,i.gender,i.hospital_id as 'hospitalId', " +
+                " d.duty_name as 'dutyName',gb.`name` as 'departName',hi.hospital_name as 'hospitalName',pa.attention_id as 'attentionId' " +
+                " from doctor_account_tb a " +
+                " left join doctor_info_tb i on a.id = i.id " +
+                " left join t_dic_duty d on i.duty_id = d.duty_id " +
+                " left join t_dic_depart_gb gb on i.depart_standard = gb.id " +
+                " left join t_dic_hospital_info hi on i.hospital_id = hi.hospital_id " +
+                " left join app_tb_patient_attention pa on a.id = pa.attention_id and pa.register_id = '%s' ";
+
+        String sql =query +
+                " where a.id = '%s'";
+        sql = String.format(sql,uid,doctorId);
         return jt.queryForMap(sql);
     }
 
