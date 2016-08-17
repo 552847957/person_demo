@@ -37,6 +37,7 @@ public class HealthActivityAPIEntity {
 	private String overdue;//活动是否过期：0为未过期，1为过期
 	private String enrollOverdue;//报名时间是否过期：0为未过期，1为过期
 	private boolean ltDay; //再报名时间未过期的情况下，报名剩余时间是否只剩一天
+	private String dateTime;
 	
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
@@ -95,7 +96,7 @@ public class HealthActivityAPIEntity {
 		String endHourMin = hourMinute_sdf.format(info.getEndtime());
 		
 		this.overdue = info.getEndtime().getTime() < new Date().getTime() ? "1" : "0";
-		this.enrollOverdue = info.getEnrollStartTime().getTime() < new Date().getTime() ? "1" : "0";
+		this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
 		if("0".equals(this.enrollOverdue)){
 		    this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}
@@ -142,6 +143,9 @@ public class HealthActivityAPIEntity {
 		if(info.getEnrollEndTime() != null){ 
 		    this.enrollEndTime = time_adf.format(info.getEnrollEndTime());
         }
+		if("0".equals(enrollOverdue)){
+	        this.dateTime = getDateTimeStr(info);
+		}
 	}
 
     public String getId() {
@@ -376,6 +380,31 @@ public class HealthActivityAPIEntity {
         this.enrollEndTime = enrollEndTime;
     }
 
-	
-	
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
+    
+    public String getDateTimeStr(HealthActivityInfo info){
+        long quot = 0;
+        quot = info.getEnrollEndTime().getTime() - info.getEnrollStartTime().getTime();
+        quot = quot / 1000 / 60;
+        quot = quot < 0 ? quot * -1 : quot;
+
+        String str = "";
+        int a = 2000;
+        int dat = a/(60*24);
+        a = a - (dat * (60 * 24));
+        str = str + (String.valueOf(dat).length() > 1 ? dat : "0" + dat) + " : " + "天 ";
+        
+        int hour = a/(60);
+        
+        a = a - (hour * 60);
+        str = str + (String.valueOf(hour).length() > 1 ? hour : "0" + hour) + " : ";
+        str = str + (String.valueOf(a).length() > 1 ? a : "0" + a);
+        return str;
+    }
 }
