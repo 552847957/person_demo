@@ -60,9 +60,9 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
             sql += " and county = '" + county + "'";
         }
         if(status == 1){//活动进行中
-            sql += " and endtime < now() ";
+            sql += " and endtime > now() ";
         }else{
-            sql += " and endtime > now()";
+            sql += " and endtime < now()";
         }
         sql += " ORDER BY overdue asc ,starttime desc  limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
