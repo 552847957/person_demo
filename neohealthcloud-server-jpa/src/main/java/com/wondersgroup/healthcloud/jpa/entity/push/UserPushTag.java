@@ -2,11 +2,7 @@ package com.wondersgroup.healthcloud.jpa.entity.push;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
+import javax.persistence.*;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -20,16 +16,17 @@ import java.util.Date;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/16/16.
+ * Created by zhangzhixiu on 8/17/16.
  */
 @Data
 @Entity
-@Table(name = "app_tb_push_tag")
-public class PushTag {
+@Table(name = "app_tb_tag_user")
+public class UserPushTag {
 
     @Id
     @GeneratedValue
     private Integer id;
-    private String tagname;
-    private Date updatetime;
+    private Integer tagid;
+    @Column(name = "registerid")
+    private String uid;
 }

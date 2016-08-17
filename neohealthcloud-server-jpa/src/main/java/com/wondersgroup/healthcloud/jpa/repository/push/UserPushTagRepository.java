@@ -1,12 +1,10 @@
-package com.wondersgroup.healthcloud.jpa.entity.push;
+package com.wondersgroup.healthcloud.jpa.repository.push;
 
-import lombok.Data;
+import com.wondersgroup.healthcloud.jpa.entity.push.UserPushTag;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
+import java.util.List;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -20,16 +18,16 @@ import java.util.Date;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/16/16.
+ * Created by zhangzhixiu on 8/17/16.
  */
-@Data
-@Entity
-@Table(name = "app_tb_push_tag")
-public class PushTag {
+public interface UserPushTagRepository extends JpaRepository<UserPushTag, Integer> {
 
-    @Id
-    @GeneratedValue
-    private Integer id;
-    private String tagname;
-    private Date updatetime;
+    @Query("select upt from UserPushTag upt where upt.uid=?1")
+    List<UserPushTag> getByUid(String uid);
+
+    @Query("select upt from UserPushTag upt where upt.tagid=?1")
+    List<UserPushTag> getByTag(Integer tag);
+
+    @Query("select count(0) from UserPushTag upt where upt.tagid=?1")
+    Integer tagCount(Integer tag);
 }

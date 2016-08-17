@@ -1,12 +1,8 @@
-package com.wondersgroup.healthcloud.jpa.entity.push;
+package com.wondersgroup.healthcloud.jpa.repository.push;
 
-import lombok.Data;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
+import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -20,16 +16,10 @@ import java.util.Date;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/16/16.
+ * Created by zhangzhixiu on 8/17/16.
  */
-@Data
-@Entity
-@Table(name = "app_tb_push_tag")
-public class PushTag {
+public interface PushTagRepository extends JpaRepository<PushTag, Integer> {
 
-    @Id
-    @GeneratedValue
-    private Integer id;
-    private String tagname;
-    private Date updatetime;
+    @Query("select pt from PushTag pt where pt.tagname=?1")
+    PushTag findByName(String name);
 }

@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.configurations;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.wondersgroup.common.jail.property.JailStartListener;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,8 +12,6 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import java.util.Properties;
 
 /**
@@ -44,10 +43,18 @@ public class Application extends SpringBootServletInitializer {
         app.run(args);
     }
 
+    private static String getProfile() {
+        String env = System.getProperty("spring.profiles.active");
+        if (env == null) {
+            env = System.getenv("spring.profiles.active");
+        }
+        return StringUtils.defaultString(env, "de");
+    }
+
     private static JailStartListener buildListener() {
         try {
             ResourceLoader resourceLoader = new DefaultResourceLoader();
-            Resource resource = resourceLoader.getResource("config/application-de.properties");
+            Resource resource = resourceLoader.getResource(String.format("config/application-%s.properties", getProfile()));
             Properties properties = new Properties();
             properties.load(resource.getInputStream());
             return new JailStartListener(new OkHttpClient(), properties.getProperty("jail.host"),
