@@ -2,6 +2,8 @@ package com.wondersgroup.healthcloud.services.foodStore;
 
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreCategory;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ public interface FoodStoreService {
      * @param pageSize
      * @return
      */
-    public List<FoodStoreItem> findFoodStoreItemBaseListByCateId(int category_id, int page, int pageSize);
+    List<FoodStoreItem> findFoodStoreItemBaseListByCateId(int category_id, int page, int pageSize);
 
     /**
      * 搜索关键字 下 可以显示 的食物
@@ -28,16 +30,24 @@ public interface FoodStoreService {
      * @param pageSize
      * @return
      */
-    public List<FoodStoreItem> findFoodStoreItemBaseListByKw(String keyword, int page, int pageSize);
+    List<FoodStoreItem> findFoodStoreItemBaseListByKw(String keyword, int page, int pageSize);
 
-    public FoodStoreItem findHomeStoreItemInfoById(int id);
+    FoodStoreItem findHomeStoreItemInfoById(int id);
 
-    public Integer countFoodStoreItemByKw(String keyword);
+    Integer countFoodStoreItemByKw(String keyword);
 
-    public Boolean updateFoodStoreItem(FoodStoreItem foodStoreItem);
+    Boolean updateFoodStoreItem(FoodStoreItem foodStoreItem);
 
-    public Boolean multSettingFoodStoreStatus(List<Integer> ids, Boolean is_show);
+    Boolean multSettingFoodStoreStatus(List<Integer> ids, Boolean is_show);
 
-    public String getServiceVersion();
+    String getServiceVersion();
+
+    FoodStoreCategory findById(int id);
+
+    Page<FoodStoreCategory> findAllListByIsShow(Integer isShow, Pageable pageable);
+
+    Page<FoodStoreCategory> findAllList(Pageable pageable);
+
+    void saveFoodStoreCategory(FoodStoreCategory foodStoreCategory);
 
 }

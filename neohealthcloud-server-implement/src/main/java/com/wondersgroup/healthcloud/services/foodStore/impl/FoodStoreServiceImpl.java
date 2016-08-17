@@ -6,7 +6,9 @@ import com.wondersgroup.healthcloud.jpa.repository.foodStore.FoodStoreCategoryRe
 import com.wondersgroup.healthcloud.jpa.repository.foodStore.FoodStoreItemRepository;
 import com.wondersgroup.healthcloud.services.foodStore.FoodStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -92,6 +94,26 @@ public class FoodStoreServiceImpl implements FoodStoreService {
     @Override
     public String getServiceVersion() {
         return "2016010401";
+    }
+
+    @Override
+    public FoodStoreCategory findById(int id) {
+        return foodStoreCategoryRepository.findById(id);
+    }
+
+    @Override
+    public Page<FoodStoreCategory> findAllListByIsShow(Integer isShow, Pageable pageable){
+        return foodStoreCategoryRepository.findByIsShowOrderByRankDescUpdateTimeDesc(isShow, pageable);
+    }
+
+    @Override
+    public Page<FoodStoreCategory> findAllList(Pageable pageable) {
+        return foodStoreCategoryRepository.findAll(pageable);
+    }
+
+    @Override
+    public void saveFoodStoreCategory(FoodStoreCategory foodStoreCategory) {
+        foodStoreCategoryRepository.saveAndFlush(foodStoreCategory);
     }
 
 }

@@ -2,10 +2,7 @@ package com.wondersgroup.healthcloud.jpa.entity.foodStore;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +17,7 @@ import java.util.Map;
 public class FoodStoreItem {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;//
 
     @Column(name = "category_id")
@@ -55,7 +53,7 @@ public class FoodStoreItem {
     @Column(name = "create_time")
     private Date createTime;
 
-    public static Map<String, String> foodlevelConf = new HashMap<String, String>();
+    public static Map<String, String> foodlevelConf = new HashMap<>();
     static {
         foodlevelConf.put("适宜吃", "1");
         foodlevelConf.put("少量吃", "2");
