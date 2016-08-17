@@ -89,7 +89,7 @@ public class HealthActivityController {
 			@RequestParam(value = "uid",required = false) String registerid,
 			@RequestParam(value = "province", required = true) String province,
 			@RequestParam(value = "city", required = true) String city,
-			@RequestParam(value = "county", required = true) String county,
+			@RequestParam(value = "county", required = false) String county,
 			@RequestParam(value = "status", defaultValue = "1") Integer status,
 			@RequestParam(value = "flag", defaultValue = "1") Integer flag,
 			@RequestHeader(value="screen-width")String width,
@@ -132,7 +132,7 @@ public class HealthActivityController {
 			
 			List<HealthActivityDetail> detailList = healthActivityDetailRepository.findActivitiesByRegisterId(registerId);
 			for (HealthActivityDetail detail : detailList) {
-				HealthActivityInfo info = detail.getHealthActivityInfo();
+				HealthActivityInfo info =  healthActivityRepository.findOne(detail.getActivityid());
 				
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info, detail ,"activityMine",width,height);
 				this.setDetailInfo(entity,info,registerId);
@@ -194,7 +194,7 @@ public class HealthActivityController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/activities/participation", method = RequestMethod.POST,headers = {"version=2.[234].*"})
+	@RequestMapping(value = "/activities/participation", method = RequestMethod.POST)
 	@VersionRange
 	public JsonResponseEntity<String> doParticipationActivity(@RequestBody String request) {
 	        
@@ -229,6 +229,7 @@ public class HealthActivityController {
 					detailInfo.setRegisterid(registerId);
 					detailInfo.setActivityid(activityid);
 					detailInfo.setId(IdGen.uuid());
+					detailInfo.setDelFlag("0");
 					healthActivityDetailRepository.save(detailInfo);
 					response.setCode(0);//1：报名成功
 					response.setMsg("报名成功");
@@ -261,7 +262,7 @@ public class HealthActivityController {
 	 * @param activityid
 	 * @return
 	 */
-	@RequestMapping(value = "/activities/participation", method = RequestMethod.DELETE,headers = {"version=2.[234].*"})
+	@RequestMapping(value = "/activities/participation", method = RequestMethod.DELETE)
 	@VersionRange
 	public JsonResponseEntity<String> doCancelParticipation(
 			@RequestParam(value="uid",required=true) String registerId,
@@ -271,7 +272,7 @@ public class HealthActivityController {
 			JsonResponseEntity<String> response = new JsonResponseEntity<String>();
 			HealthActivityDetail detail = healthActivityDetailRepository
 					.findActivityDetailByAidAndRid(activityid, registerId);
-			HealthActivityInfo info = detail.getHealthActivityInfo();
+			HealthActivityInfo info = healthActivityRepository.findOne(activityid);
 			
 			Date activityTime = info.getStarttime();
 			if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {

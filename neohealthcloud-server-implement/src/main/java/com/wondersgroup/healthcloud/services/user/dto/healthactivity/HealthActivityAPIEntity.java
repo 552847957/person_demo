@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.Data;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,13 +16,13 @@ import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
 public class HealthActivityAPIEntity {
 	private String id;//活动id
 	private String host;// 主办方
 	private String name; // '主题',
 	private String time;// '开始时间',
 	private String location;// '举办地点',
-	private String module; // '活动类型 1：糖尿病:2：高血压',
 	private Integer totalAvailable;// '名额',
 	private String totalApplied;// 报名人数
 	private String isApplied; // 是否已报名（按钮状态）
@@ -35,14 +37,13 @@ public class HealthActivityAPIEntity {
 	private String isEvaluation;//是否可以评价 0:不能评价，1：能评价
 	private String isSurvey;//是否做过满意度调查 0:未做调查，1：已做调查
 	private String contentUrl;//活动内容url地址
-	private String overdue;//是否过期：0为未过期，1为过期
-	private boolean ltDay;//
-	
+	private String overdue;//活动是否过期：0为未过期，1为过期
+	private String enrollOverdue;//报名时间是否过期：0为未过期，1为过期
+	private boolean ltDay; //
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
 	private SimpleDateFormat hourMinute_sdf = new SimpleDateFormat("HH:mm");
-	private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-mm-dd MM:ss:dd");
-	
+	private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-MM-dd MM:ss:dd");
 	private String              starttime;                               // '开始时间',
     private String              endtime;                                 // '结束时间',
     private String              onlineTime;                              //上线时间
@@ -50,15 +51,7 @@ public class HealthActivityAPIEntity {
     private String              enrollStartTime;                         //活动报名时间'
     private String              enrollEndTime;                           //活动结束时间
 	
-    public boolean isLtDay() {
-        return ltDay;
-    }
-    public void setLtDay(boolean ltDay) {
-        this.ltDay = ltDay;
-    }
-    public HealthActivityAPIEntity(){
-		
-	}
+  
 	public HealthActivityAPIEntity(HealthActivityInfo info,String width,String height){
 		init(info  ,"activityList",width,height);
 	}
@@ -96,19 +89,15 @@ public class HealthActivityAPIEntity {
 		this.id = info.getActivityid();
 		this.host = info.getHost();
 		this.name = info.getTitle();
-		Date stratTime = info.getStarttime();
-		Date endTime = info.getEndtime();
 		
 		String startMonDay = monthDay_sdf.format(info.getStarttime());
 		String endMonDay = monthDay_sdf.format(info.getEndtime());
 		String startHourMin = hourMinute_sdf.format(info.getStarttime());
 		String endHourMin = hourMinute_sdf.format(info.getEndtime());
-		if(info.getEndtime().getTime()<new Date().getTime()){
-			this.overdue = "1";
-		}else{
-			this.overdue = "0";
-		}
-		if("2".equals(info.getOnlineStatus())){
+		
+		this.overdue = info.getEndtime().getTime() < new Date().getTime() ? "1" : "0";
+		this.enrollOverdue = info.getEnrollStartTime().getTime() < new Date().getTime() ? "1" : "0";
+		if("0".equals(this.enrollOverdue)){
 		    this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}
 		if("activityMine".equals(pageType)){//我参与的活动
@@ -119,7 +108,6 @@ public class HealthActivityAPIEntity {
 			this.time= startMonDay+(startMonDay.equals(endMonDay)?"":"～" + endMonDay)
 					+ " "+startHourMin+(startHourMin.equals(endHourMin)?"":"--"+endHourMin);
 		} 
-		this.module = info.getType();
 		this.totalAvailable = info.getQuota();
 
 		
@@ -137,224 +125,26 @@ public class HealthActivityAPIEntity {
 		} else {
 			this.isEvaluation = "0";
 		}
-		this.starttime = time_adf.format(info.getStarttime());
-		this.endtime = time_adf.format(info.getEndtime());
-		this.onlineTime = time_adf.format(info.getOnlineTime());
-		this.offlineTime = time_adf.format(info.getOfflineTime());
-		this.enrollStartTime = time_adf.format(info.getEnrollStartTime());
-		this.enrollEndTime = time_adf.format(info.getEnrollEndTime());
-	}
-
-	public String getThumbnail() {
-		return thumbnail;
-	}
-
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
-
-	public String getIsSurvey() {
-		return isSurvey;
-	}
-
-	public void setIsSurvey(String isSurvey) {
-		this.isSurvey = isSurvey;
+		if(info.getStarttime() != null){ 
+		    this.starttime = time_adf.format(info.getStarttime());
+		}
+		if(info.getEndtime() != null){ 
+		    this.endtime = time_adf.format(info.getEndtime());
+        }
+		if(info.getOnlineTime() != null){ 
+		    this.onlineTime = time_adf.format(info.getOnlineTime());
+        }
+		if(info.getOfflineTime() != null){ 
+		    this.offlineTime = time_adf.format(info.getOfflineTime());
+        }
+		if(info.getEnrollStartTime() != null){ 
+		    this.enrollStartTime = time_adf.format(info.getEnrollStartTime());
+        }
+		if(info.getEnrollEndTime() != null){ 
+		    this.enrollEndTime = time_adf.format(info.getEnrollEndTime());
+        }
 	}
 
 	
-	public String getIsEvaluation() {
-		return isEvaluation;
-	}
-
-	public void setIsEvaluation(String isEvaluation) {
-		this.isEvaluation = isEvaluation;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-	public Integer getStyle() {
-		return style;
-	}
-
-	public void setStyle(Integer style) {
-		this.style = style;
-	}
-
-	public Double getScore() {
-		return score;
-	}
-
-	public void setScore(Double score) {
-		this.score = score;
-	}
-
-	public HealthActivityEvaluationAPIEntity getEvaluation() {
-		return evaluation;
-	}
-
-	public void setEvaluation(HealthActivityEvaluationAPIEntity evaluation) {
-		this.evaluation = evaluation;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getModule() {
-		return module;
-	}
-
-	public void setModule(String module) {
-		this.module = module;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getTime() {
-		return time;
-	}
-
-	public void setTime(String time) {
-		this.time = time;
-	}
-
-	public Integer getTotalAvailable() {
-		return totalAvailable;
-	}
-
-	public void setTotalAvailable(Integer totalAvailable) {
-		this.totalAvailable = totalAvailable;
-	}
-
-	public String getSpeechMaker() {
-		return speechMaker;
-	}
-
-	public void setSpeechMaker(String speechMaker) {
-		this.speechMaker = speechMaker;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getPicture() {
-		return picture;
-	}
-
-	public void setPicture(String picture) {
-		this.picture = picture;
-	}
-
-	public String getIsApplied() {
-		return isApplied;
-	}
-
-	public void setIsApplied(String isApplied) {
-		this.isApplied = isApplied;
-	}
-
-	public String getTotalApplied() {
-		return totalApplied;
-	}
-
-	public void setTotalApplied(String totalApplied) {
-		this.totalApplied = totalApplied;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
-	public String getPftitle() {
-		return pftitle;
-	}
-
-	public void setPftitle(String pftitle) {
-		this.pftitle = pftitle;
-	}
-
-	public String getContentUrl() {
-		return contentUrl;
-	}
-
-	public void setContentUrl(String contentUrl) {
-		this.contentUrl = contentUrl;
-	}
-
-	public String getOverdue() {
-		return overdue;
-	}
-
-	public void setOverdue(String overdue) {
-		this.overdue = overdue;
-	}
-    public String getStarttime() {
-        return starttime;
-    }
-    public void setStarttime(String starttime) {
-        this.starttime = starttime;
-    }
-    public String getEndtime() {
-        return endtime;
-    }
-    public void setEndtime(String endtime) {
-        this.endtime = endtime;
-    }
-    public String getOnlineTime() {
-        return onlineTime;
-    }
-    public void setOnlineTime(String onlineTime) {
-        this.onlineTime = onlineTime;
-    }
-    public String getOfflineTime() {
-        return offlineTime;
-    }
-    public void setOfflineTime(String offlineTime) {
-        this.offlineTime = offlineTime;
-    }
-    public String getEnrollStartTime() {
-        return enrollStartTime;
-    }
-    public void setEnrollStartTime(String enrollStartTime) {
-        this.enrollStartTime = enrollStartTime;
-    }
-    public String getEnrollEndTime() {
-        return enrollEndTime;
-    }
-    public void setEnrollEndTime(String enrollEndTime) {
-        this.enrollEndTime = enrollEndTime;
-    }
 	
 }

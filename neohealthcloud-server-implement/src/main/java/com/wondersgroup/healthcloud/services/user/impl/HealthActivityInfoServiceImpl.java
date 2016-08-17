@@ -55,14 +55,14 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
                 + " from app_tb_healthactivity_info where" + " province = '" + province + "' and city = '" + city
-                +  "' and online_status ='" + (status == 1 ? 1 : 2 ) + "' and del_flag = '0'";
+                +  "' and online_status ='" + status + "' and del_flag = '0'";
         if (county != null) {
             sql += " and county = '" + county + "'";
         }
-        if(status == 1){//报名进行中
-            sql += " and (enroll_start_time < now() and enroll_end_time > now()) ";
+        if(status == 1){//活动进行中
+            sql += " and endtime < now() ";
         }else{
-            sql += " and enroll_end_time < now() ";
+            sql += " and endtime > now()";
         }
         sql += " ORDER BY overdue asc ,starttime desc  limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
