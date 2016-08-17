@@ -59,6 +59,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 			entity.setType("1");
 			entity.setResult(info);
 			entity.setTesttime(new Date());
+			entity.setDelFlag("0");
 			entity.setId(list==null||list.size()==0? IdGen.uuid():list.get(0).getId());
 			healthQuestionRepo.save(entity);
 		}
