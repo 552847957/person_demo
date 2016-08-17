@@ -8,8 +8,8 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
-import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
-import com.wondersgroup.healthcloud.services.config.AppConfigService;
+/*import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;*/
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +32,8 @@ import java.util.Map;
 public class CommonController {
     private static final Logger log = Logger.getLogger(CommonController.class);
 
-    @Autowired
-    private AppConfigService appConfigService;
+    /*@Autowired
+    private AppConfigService appConfigService;*/
     /**
      * APP获取启动数据
      */
@@ -62,7 +62,7 @@ public class CommonController {
         ads.put("isShow", true);
         data.put("ads", ads);
 
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("app.common.appUpdate");
+        //AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("app.common.appUpdate");
         Map appUpdate = new HashMap();
         appUpdate.put("hasUpdate", true);
         appUpdate.put("forceUpdate", false);
