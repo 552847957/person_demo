@@ -3,7 +3,7 @@ package com.wondersgroup.healthcloud.helper.push.area;
 import com.google.common.collect.ImmutableMap;
 import com.wondersgroup.healthcloud.helper.push.getui.PushAdminClient;
 import com.wondersgroup.healthcloud.helper.push.getui.PushGetuiAdminClientImpl;
-import com.wondersgroup.healthcloud.jpa.entity.app.AppConfigurationInfo;
+import com.wondersgroup.healthcloud.jpa.entity.app.AppKeyConfigurationInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +26,9 @@ public class PushAdminSelector {
 
     private Map<String, PushAdminClient> map;
 
-    public void init(List<AppConfigurationInfo> appInfos) {
+    public void init(List<AppKeyConfigurationInfo> appInfos) {
         ImmutableMap.Builder<String, PushAdminClient> builder = ImmutableMap.builder();
-        for (AppConfigurationInfo appInfo : appInfos) {
+        for (AppKeyConfigurationInfo appInfo : appInfos) {
             if (appInfo.getPushIdUser() != null) {
                 builder.put(key(appInfo.getMainArea(), false), new PushGetuiAdminClientImpl(appInfo.getPushIdUser(), appInfo.getPushKeyUser(), appInfo.getPushSecretUser()));
             }

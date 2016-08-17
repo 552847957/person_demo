@@ -23,8 +23,8 @@ import javax.persistence.Table;
  */
 @Data
 @Entity
-@Table(name = "app_tb_configuration_info")
-public class AppConfigurationInfo {
+@Table(name = "app_tb_key_configuration_info")
+public class AppKeyConfigurationInfo {
 
     @Id
     private String id;

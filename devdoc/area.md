@@ -53,7 +53,7 @@ clientid | varchar | 个推clientid
 area     | varchar | 用户最后登录的app
 platform | varchar | 0:ios, 1:android
 
-### app配置信息表 `app_tb_configuration_info`
+### app配置信息表 `app_tb_key_configuration_info`
 
 列名               | 类型 | 含义
 -------------------|------|-----
