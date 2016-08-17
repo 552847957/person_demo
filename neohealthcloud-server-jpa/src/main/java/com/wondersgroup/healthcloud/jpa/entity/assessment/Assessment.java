@@ -21,8 +21,7 @@ public class Assessment extends BaseEntity{
     private String id;
     private String uid;
     private String gender;
-    private Integer year;
-    private Integer month;
+    private Integer age;
     private Integer height;
     private Float weight;
     private Float waist;

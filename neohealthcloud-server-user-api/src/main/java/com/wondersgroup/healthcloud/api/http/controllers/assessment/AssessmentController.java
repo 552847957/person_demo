@@ -69,7 +69,7 @@ public class AssessmentController {
             entity.setId(assessment.getId());
             entity.setRisk(assessmentService.getResult(assessment));
             entity.setAssesstime(TimeAgoUtils.assessAgo(assessment.getCreateDate()));
-            entity.setAge(new DateTime().getYear() - assessment.getYear());
+            entity.setAge(assessment.getAge());
             entity.setIsFat(assessmentService.isFat(assessment.getGender(),assessment.getWaist()));
             entity.setIsOverWeight(assessmentService.overWeight(assessment.getHeight(),assessment.getWeight()));
             entity.setIsHypertension(assessmentService.isHypertension(3,assessment.getPressure()));
@@ -107,8 +107,7 @@ public class AssessmentController {
         JsonKeyReader reader = new JsonKeyReader(result);
         String uid = reader.readString("uid", false);
         String gender = reader.readString("gender", false);
-        Integer year = reader.readInteger("year", false);
-        Integer month = reader.readInteger("month", false);
+        Integer age = reader.readInteger("age", false);
         Integer height = reader.readInteger("height", false);
         Float weight = reader.readObject("weight", false,Float.class);
         Float waist = reader.readObject("waist", true, Float.class);
@@ -131,8 +130,7 @@ public class AssessmentController {
         Assessment assessment = new Assessment();
         assessment.setUid(uid);
         assessment.setGender(gender);
-        assessment.setYear(year);
-        assessment.setMonth(month);
+        assessment.setAge(age);
         assessment.setHeight(height);
         assessment.setWeight(weight);
         assessment.setWaist(waist);
@@ -161,7 +159,7 @@ public class AssessmentController {
         JsonResponseEntity<AssessmentAPIEntity> response = new JsonResponseEntity<>();
         if(assessment!=null) {
             AssessmentAPIEntity assessmentAPIEntity = new AssessmentAPIEntity();
-            assessmentAPIEntity.setAge(new DateTime().getYear() - assessment.getYear());
+            assessmentAPIEntity.setAge(assessment.getAge());
             assessmentAPIEntity.setPressure(assessment.getPressure());
             assessmentAPIEntity.setHeight(assessment.getHeight());
             assessmentAPIEntity.setWeight(assessment.getWeight());
