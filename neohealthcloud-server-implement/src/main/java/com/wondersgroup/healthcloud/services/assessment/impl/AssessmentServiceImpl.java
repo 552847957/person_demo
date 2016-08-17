@@ -245,7 +245,7 @@ public class AssessmentServiceImpl implements AssessmentService {
             if(assessment.getMedicalHistory().contains(AssessmentConstrains.MEDICAL_HISTORY_TIA)){
                 return true;
             }
-            if((new DateTime().getYear() - assessment.getYear())>=40){
+            if(assessment.getAge()>=40){
                 Boolean[] conditions = new Boolean[8];
                 conditions[0] = isHypertension(1,assessment.getPressure())||assessment.getTakeAntihypertensiveDrugs()==AssessmentConstrains.CHOISE_TRUE;
                 conditions[1] = assessment.getMedicalHistory().contains(AssessmentConstrains.MEDICAL_HISTORY_AF);
@@ -312,7 +312,7 @@ public class AssessmentServiceImpl implements AssessmentService {
      */
     private Boolean diabetesRiskCheck(Assessment assessment){
         if(assessment!=null) {
-            return (new DateTime().getYear() - assessment.getYear()) >= 40 ||
+            return (assessment.getAge()) >= 40 ||
                     assessment.getMedicalHistory().contains(AssessmentConstrains.MEDICAL_HISTORY_IGR) ||
                     assessment.getSport()==AssessmentConstrains.SPORT_NONE||
                     isFirstDegreeRelative(assessment.getDiabetesRelatives()) ||
