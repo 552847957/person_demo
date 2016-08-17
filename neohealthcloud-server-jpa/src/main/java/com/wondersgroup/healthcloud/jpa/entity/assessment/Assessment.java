@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @Data
 @Entity
-@Table(name = "assessment_tb")
+@Table(name = "app_tb_patient_assessment")
 public class Assessment extends BaseEntity{
     @Id
     private String id;
