@@ -21,7 +21,7 @@ public class HealthActivityAPIEntity {
 	private String time;// '开始时间',
 	private String location;// '举办地点',
 	private Integer totalAvailable;// '名额',
-	private String totalApplied;// 报名人数
+	private Integer totalApplied;// 报名人数
 	private String isApplied; // 是否已报名（按钮状态）
 	private String speechMaker;// '主讲人信息 姓名 科室 职务',
 	private String department;//科室
@@ -173,11 +173,11 @@ public class HealthActivityAPIEntity {
         this.totalAvailable = totalAvailable;
     }
 
-    public String getTotalApplied() {
+    public Integer getTotalApplied() {
         return totalApplied;
     }
 
-    public void setTotalApplied(String totalApplied) {
+    public void setTotalApplied(Integer totalApplied) {
         this.totalApplied = totalApplied;
     }
 

@@ -14,7 +14,7 @@ public interface HealthActivityDetailRepository extends JpaRepository<HealthActi
     List<HealthActivityDetail> findActivitiesByRegisterId(String registerId);
 
     @Query(value = "select count(1) from HealthActivityDetail as had where had.activityid=?1 and had.delFlag=0")
-    String findActivityRegistrationByActivityId(String activityId);
+    Integer findActivityRegistrationByActivityId(String activityId);
 
     @Query(value = "select count(1) from HealthActivityDetail as h where h.activityid=?1 and h.registerid=?2 and h.delFlag=0")
     String findActivityDetailByActivityIdAndRegisterid(String activityId, String registerId);

@@ -39,7 +39,7 @@ public class HealthActivityController {
             ){
         JsonListResponseEntity<HealthActivityInfo> entity = new JsonListResponseEntity<HealthActivityInfo>();
         List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(null, null, null, null, flag, pageSize);
-        entity.setContent(infos, infos.size() == 10, null, flag.toString());
+        entity.setContent(infos, infos.size() == 10, null, String.valueOf((flag + 1)));
         return entity;
     }
 
@@ -60,7 +60,9 @@ public class HealthActivityController {
         if(StringUtils.isEmpty(info.getActivityid())){
             info.setActivityid(IdGen.uuid());
             info.setDelFlag("0");
-            activityRepo.saveAndFlush(info);
+            info.setStyle(1);
+            info.setOnlineStatus("1");//已上线
+            activityRepo.save(info);
         }else{
             activityRepo.saveAndFlush(info);
         }
@@ -76,14 +78,16 @@ public class HealthActivityController {
     public JsonResponseEntity<String> copyActivity(@RequestParam String activityId){
         JsonResponseEntity<String> entity = new JsonResponseEntity<String>();
         HealthActivityInfo info = activityRepo.findOne(activityId);
+        info.setActivityid(null);
         info.setActivityid(IdGen.uuid());
         info.setTitle(info.getTitle() + "1");
-        activityRepo.saveAndFlush(info);
+        activityRepo.save(info);
+        System.out.println(new Gson().toJson(info));
         return entity;
     }
 
     /**
-     * 根据activityId删除一个活动
+     * 根据activityId删除一个活动   
      * @param activityId
      * @return
      */

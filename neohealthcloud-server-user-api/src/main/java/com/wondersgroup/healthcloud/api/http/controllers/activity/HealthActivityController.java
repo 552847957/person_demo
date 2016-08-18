@@ -206,7 +206,7 @@ public class HealthActivityController {
 			if (detail == null) {
 				HealthActivityInfo info = healthActivityRepository.findOne(activityid);
 				
-				String totalApply = healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid);// 已报名人数
+				Integer totalApply = healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid);// 已报名人数
 				Integer quota = info.getQuota();// 活动限定名额
 
 				if (info.getEnrollStartTime().after(new Timestamp(System.currentTimeMillis()))) {
@@ -239,7 +239,7 @@ public class HealthActivityController {
 						response.setMsg("不能重复报名，报名失败！");
 						return response;
 					}
-					if(Integer.parseInt(healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid)) > quota){
+					if(healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid) > quota){
 						healthActivityDetailRepository.delete(detailInfo);
 						response.setCode(1609);
 						response.setMsg("超过活动限定名额，报名失败！");
