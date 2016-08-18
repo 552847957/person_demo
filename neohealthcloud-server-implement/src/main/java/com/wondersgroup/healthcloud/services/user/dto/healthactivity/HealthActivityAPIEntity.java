@@ -89,8 +89,7 @@ public class HealthActivityAPIEntity {
 		this.totalAvailable = info.getQuota();
 
 		
-		this.speechMaker = info.getSpeaker()+ (StringUtils.isEmpty(info.getDepartment())?"":" "+info.getDepartment())+
-				(StringUtils.isEmpty(info.getPftitle())?"":" "+info.getPftitle());
+		this.speechMaker = info.getSpeaker();
 		this.style = info.getStyle();
 		this.description = info.getSummary();
 		this.picture = info.getPhoto();

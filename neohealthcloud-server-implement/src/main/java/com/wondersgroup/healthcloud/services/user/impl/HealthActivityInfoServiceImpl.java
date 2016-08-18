@@ -73,7 +73,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
             sql += " and county = '" + county + "'";
         }
         
-        sql += " ORDER BY overdue asc ,starttime desc  limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
         for (Map<String, Object> map : resourceList) {
