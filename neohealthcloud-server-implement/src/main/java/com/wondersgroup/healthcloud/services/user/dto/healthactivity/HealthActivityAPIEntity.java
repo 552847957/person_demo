@@ -57,31 +57,7 @@ public class HealthActivityAPIEntity {
 	}
 	
 	public HealthActivityAPIEntity(HealthActivityInfo info , HealthActivityDetail detail , String pageType,String width,String height){
-		
 		init(info  ,pageType,width,height);
-		
-		Timestamp nowTime = new Timestamp(System.currentTimeMillis());
-		
-		if (null != detail) {
-
-			this.evaluation = new HealthActivityEvaluationAPIEntity(detail);
-
-			if (info.getStarttime().before(nowTime) && info.getEndtime().before(nowTime) && null == detail.getEvaluatetime()) {
-				this.isEvaluation = "1";//能评价
-				this.evaluation = null;
-			}else{
-				this.isEvaluation = "0";//不能评价
-			}
-			
-			if (null != detail.getEvaluatetime() && detail.getInvesttime() != null) {
-				this.isSurvey = "1";// 是否做过满意度调查 0:未做调查，1：已做调查
-			} else {
-				this.isSurvey = "0";
-			}
-		}else{
-			this.isEvaluation = "0";
-			this.isSurvey = "0";
-		}
 	}
 	
 	public void init(HealthActivityInfo info,String pageType,String width,String height){
@@ -96,7 +72,9 @@ public class HealthActivityAPIEntity {
 		String endHourMin = hourMinute_sdf.format(info.getEndtime());
 		
 		this.overdue = info.getEndtime().getTime() < new Date().getTime() ? "1" : "0";
-		this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
+		if("0".equals(this.overdue)){
+		    this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
+		}
 		if("0".equals(this.enrollOverdue)){
 		    this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}

@@ -110,7 +110,7 @@ public class HealthActivityController {
 		}
 
 		JsonListResponseEntity<HealthActivityAPIEntity> response = new JsonListResponseEntity<HealthActivityAPIEntity>();
-		response.setContent(list, more, null, flag.toString());
+		response.setContent(list, more, null, String.valueOf((flag + 1)));
 		return response;
 	}
 
@@ -164,7 +164,6 @@ public class HealthActivityController {
 			if (null != info) {
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
 				this.setDetailInfo(entity,info,registerId);
-				entity.setDescription(null);
 
 				response.setData(entity);
 			}

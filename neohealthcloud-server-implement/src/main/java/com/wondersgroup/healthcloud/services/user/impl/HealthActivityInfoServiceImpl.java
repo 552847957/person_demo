@@ -54,16 +54,25 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     public List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status, int pageNo, int pageSize) {
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
-                + " from app_tb_healthactivity_info where" + " province = '" + province + "' and city = '" + city
-                +  "' and online_status ='" + status + "' and del_flag = '0'";
+                + " from app_tb_healthactivity_info where del_flag = '0'";
+        if(status != null){
+            sql +=  " and online_status ='" + status + "'";
+            if(status == 1){//活动进行中
+                sql += " and endtime > now() ";
+            }else if(status == 2){
+                sql += " and endtime < now()";
+            }
+        }
+        if(province != null){
+            sql += " and province = '" + province + "'";
+        }
+        if(city != null){
+            sql +=  " and city = '" + city + "'";
+        }
         if (county != null) {
             sql += " and county = '" + county + "'";
         }
-        if(status == 1){//活动进行中
-            sql += " and endtime > now() ";
-        }else{
-            sql += " and endtime < now()";
-        }
+        
         sql += " ORDER BY overdue asc ,starttime desc  limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
