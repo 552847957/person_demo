@@ -91,6 +91,7 @@ public class FoodStroeCategoryController {
     public JsonResponseEntity updateFoodStoreCategory(@RequestBody Map para){
         FoodStoreCategory foodStoreCategory = MapToBeanUtil.fromMapToBean(FoodStoreCategory.class, para);
         foodStoreCategory.setUpdateTime(new Date());
+        foodStoreCategory.setCreateTime(new Date());
         foodStoreService.saveFoodStoreCategory(foodStoreCategory);
 
         return new JsonResponseEntity(0, "修改成功");

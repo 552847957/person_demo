@@ -23,4 +23,6 @@ public interface FoodStoreItemService {
     List<String[]> findCategoryName();
 
     Integer updateIsShowByIds(int isShow, Date nowTime, List<Integer> ids);
+
+    Boolean updateFoodStoreItem(FoodStoreItem foodStoreItem);
 }

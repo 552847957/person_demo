@@ -72,4 +72,11 @@ public class FoodStoreItemServiceImpl implements FoodStoreItemService {
         return foodStoreItemRepository.updateIsShowByIds(isShow, nowTime, ids);
     }
 
+    @Override
+    public Boolean updateFoodStoreItem(FoodStoreItem foodStoreItem) {
+        foodStoreItem.setUpdateTime(new Date());
+        foodStoreItem.setCreateTime(new Date());
+        return foodStoreItemRepository.save(foodStoreItem) != null ? true : false;
+    }
+
 }
