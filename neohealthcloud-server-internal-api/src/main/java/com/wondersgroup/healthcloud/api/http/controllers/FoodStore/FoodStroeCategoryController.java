@@ -34,7 +34,7 @@ public class FoodStroeCategoryController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "foodStoreCategory/list", method = RequestMethod.GET)
-    public String findFoodStoreCategoryList(Integer isShow, @PageableDefault Pageable pageable) throws JsonProcessingException {
+    public String findFoodStoreCategoryList(Integer isShow, @PageableDefault(size = 20) Pageable pageable) throws JsonProcessingException {
         Page<FoodStoreCategory> foodStoreCategoryList;
         if (isShow == null) {
             foodStoreCategoryList = foodStoreService.findAllList(pageable);
@@ -94,6 +94,17 @@ public class FoodStroeCategoryController {
         foodStoreService.saveFoodStoreCategory(foodStoreCategory);
 
         return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 查询状态
+     * @return
+     */
+    @RequestMapping(value = "findIsShow/category", method = RequestMethod.GET)
+    public Object findIsShow(){
+        Map<String, Object> map = new HashMap<>();
+        map.put("is_show", foodStoreService.findIsShow());
+        return map;
     }
 
 }

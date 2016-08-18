@@ -20,4 +20,10 @@ public interface FoodStoreCategoryRepository extends JpaRepository<FoodStoreCate
     FoodStoreCategory findById(int id);
 
     Page<FoodStoreCategory> findByIsShowOrderByRankDescUpdateTimeDesc(Integer isShow, Pageable pageable);
+
+    @Query("select categoryName from FoodStoreCategory group by categoryName")
+    List<String[]> findCategoryName();
+
+    @Query("select isShow from FoodStoreCategory group by isShow ")
+    List<Integer[]> findIsShow();
 }

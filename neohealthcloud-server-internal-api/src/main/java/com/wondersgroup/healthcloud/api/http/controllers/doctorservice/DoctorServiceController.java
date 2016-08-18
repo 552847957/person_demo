@@ -54,7 +54,7 @@ public class DoctorServiceController {
         Page<DoctorServiceDic> doctorServiceDices = doctorServiceService.queryDoctorServiceDices(key, pageable);
 
         Map<Class, Object> filterMap = new HashMap();
-        filterMap.put(DoctorServiceDic.class, new String[]{"create_by", "create_date", "update_by", "update_date"});
+//        filterMap.put(DoctorServiceDic.class, new String[]{"create_by", "create_date", "update_by", "update_date"});
         filterMap.put(PageImpl.class, new String[]{"number_of_elements", "sort", "first"});
         SimpleFilterProvider filter = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
         JsonResponseEntity result = new JsonResponseEntity(0, "查询成功", doctorServiceDices);

@@ -13,14 +13,14 @@ import java.util.List;
 /**
  * Created by longshasha on 16/8/10.
  */
-public interface FoodStoreItemRepository  extends JpaRepository<FoodStoreItem,Integer>{
+public interface FoodStoreItemRepository extends JpaRepository<FoodStoreItem, Integer>{
 
 
     @Query("select a from FoodStoreItem a where a.categoryId=?1 and a.isShow=1 ")
     List<FoodStoreItem> findListByCateId(int cate_id, Pageable pageable);
 
     @Query("select a from FoodStoreItem a where a.foodName like ?1 and a.isShow = ?2 ")
-    List<FoodStoreItem> findListByFoodNameContainingAndIsShow(String keyword,int isShow ,Pageable pageable);
+    List<FoodStoreItem> findListByFoodNameContainingAndIsShow(String keyword, int isShow, Pageable pageable);
 
     @Query(" select a from FoodStoreItem a where a.id in ?1")
     List<FoodStoreItem> findByIds(List<Integer> ids);
@@ -33,4 +33,10 @@ public interface FoodStoreItemRepository  extends JpaRepository<FoodStoreItem,In
 
     @Query("select count(a) from FoodStoreItem a where a.isShow = 1  and  a.foodName like ?1 ")
     Integer countByKw(String keyword);
+
+    FoodStoreItem findById(int id);
+
+    @Query("select isShow from FoodStoreItem group by isShow ")
+    List<Integer[]> findIsShow();
+
 }

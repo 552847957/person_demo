@@ -20,6 +20,10 @@ public class FoodStoreItem {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;//
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", updatable = false, insertable = false)
+    private FoodStoreCategory category;
+
     @Column(name = "category_id")
     private int categoryId;// 食物分类的id
 

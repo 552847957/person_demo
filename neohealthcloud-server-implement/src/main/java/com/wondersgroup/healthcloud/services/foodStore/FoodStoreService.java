@@ -50,4 +50,6 @@ public interface FoodStoreService {
 
     void saveFoodStoreCategory(FoodStoreCategory foodStoreCategory);
 
+    List<Integer[]> findIsShow();
+
 }

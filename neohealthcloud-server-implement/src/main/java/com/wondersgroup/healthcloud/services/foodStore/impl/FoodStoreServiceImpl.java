@@ -116,4 +116,9 @@ public class FoodStoreServiceImpl implements FoodStoreService {
         foodStoreCategoryRepository.saveAndFlush(foodStoreCategory);
     }
 
+    @Override
+    public List<Integer[]> findIsShow() {
+        return foodStoreCategoryRepository.findIsShow();
+    }
+
 }
