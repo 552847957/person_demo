@@ -37,7 +37,7 @@ public class HealthActivityAPIEntity {
 	private String overdue;//活动是否过期：0为未过期，1为过期
 	private String enrollOverdue;//报名时间是否过期：0为未过期，1为过期
 	private boolean ltDay; //再报名时间未过期的情况下，报名剩余时间是否只剩一天
-	private String dateTime;
+	private String enrollCountdown;//报名倒计时
 	
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
@@ -144,7 +144,7 @@ public class HealthActivityAPIEntity {
 		    this.enrollEndTime = time_adf.format(info.getEnrollEndTime());
         }
 		if("0".equals(enrollOverdue)){
-	        this.dateTime = getDateTimeStr(info);
+	        this.enrollCountdown = getDateTimeStr(info);
 		}
 	}
 
@@ -380,14 +380,14 @@ public class HealthActivityAPIEntity {
         this.enrollEndTime = enrollEndTime;
     }
 
-    public String getDateTime() {
-        return dateTime;
+    public String getEnrollCountdown() {
+        return enrollCountdown;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+    public void setEnrollCountdown(String enrollCountdown) {
+        this.enrollCountdown = enrollCountdown;
     }
-    
+
     public String getDateTimeStr(HealthActivityInfo info){
         long quot = 0;
         quot = info.getEnrollEndTime().getTime() - info.getEnrollStartTime().getTime();
@@ -398,12 +398,12 @@ public class HealthActivityAPIEntity {
         int a = 2000;
         int dat = a/(60*24);
         a = a - (dat * (60 * 24));
-        str = str + (String.valueOf(dat).length() > 1 ? dat : "0" + dat) + " : " + "天 ";
+        str = str + (String.valueOf(dat).length() > 1 ? dat : "0" + dat) + ":";
         
         int hour = a/(60);
         
         a = a - (hour * 60);
-        str = str + (String.valueOf(hour).length() > 1 ? hour : "0" + hour) + " : ";
+        str = str + (String.valueOf(hour).length() > 1 ? hour : "0" + hour) + ":";
         str = str + (String.valueOf(a).length() > 1 ? a : "0" + a);
         return str;
     }
