@@ -74,7 +74,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
     @Override
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize) {
-        List<NewsArticle> list=newsArticleRepo.queryNewsArticleByAreaId(areaId,pageNo,pageSize);
+        List<NewsArticle> list=newsArticleRepo.queryNewsArticleByAreaId(areaId,pageNo*pageSize,pageSize);
 
         return getArticleEntityList(list);
     }
