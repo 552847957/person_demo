@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.dto.article;
+package com.wondersgroup.healthcloud.services.article.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;

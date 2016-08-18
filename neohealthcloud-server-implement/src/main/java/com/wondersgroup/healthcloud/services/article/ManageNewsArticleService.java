@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.article;
 
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -59,5 +60,12 @@ public interface ManageNewsArticleService {
      * @return List
      */
     public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize);
+
+    /**
+     * 搜页展示文章
+     * @param areaId
+     * @return List
+     */
+    public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize);
 
 }

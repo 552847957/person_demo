@@ -3,10 +3,12 @@ package com.wondersgroup.healthcloud.services.article.impl;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,5 +70,24 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     @Override
     public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize) {
         return newsArticleRepo.queryNewsArticleByTitle(title,pageNo,pageSize);
+    }
+
+    @Override
+    public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize) {
+        List<NewsArticle> list=newsArticleRepo.queryNewsArticleByAreaId(areaId,pageNo,pageSize);
+
+        return getArticleEntityList(list);
+    }
+
+    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
+
+        if(null == resourceList || resourceList.size() == 0){
+            return null;
+        }
+        List<NewsArticleListAPIEntity> list = new ArrayList<>();
+        for (NewsArticle article : resourceList){
+            list.add(new NewsArticleListAPIEntity(article));
+        }
+        return list;
     }
 }

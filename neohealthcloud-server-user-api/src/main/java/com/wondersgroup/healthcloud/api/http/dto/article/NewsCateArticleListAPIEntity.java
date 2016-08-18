@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.dto.article;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 
 import java.util.List;
 

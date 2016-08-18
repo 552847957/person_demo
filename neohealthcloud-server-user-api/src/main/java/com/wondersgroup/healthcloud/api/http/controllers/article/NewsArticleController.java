@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
-import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleListAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsCateArticleListAPIEntity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -10,6 +9,7 @@ import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
