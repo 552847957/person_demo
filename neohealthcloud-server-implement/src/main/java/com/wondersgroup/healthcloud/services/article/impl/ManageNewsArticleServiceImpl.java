@@ -33,14 +33,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         return null;
     }
 
-    @Override
-    public int addNewsAritile(NewsArticle da) {
-        return 0;
-    }
 
     @Override
     public int updateNewsAritile(NewsArticle da) {
-        return 0;
+        return newsArticleRepo.saveAndFlush(da).getId();
     }
 
     @Override
@@ -67,5 +63,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     @Override
     public int addViewPv(Integer id) {
         return 0;
+    }
+
+    @Override
+    public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize) {
+        return newsArticleRepo.queryNewsArticleByTitle(title,pageNo,pageSize);
     }
 }

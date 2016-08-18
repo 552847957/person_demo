@@ -16,8 +16,6 @@ public interface ManageNewsArticleService {
 
     public List<NewsArticle> findArtileListByKeys(Map<String, Object> parm);
 
-    public int addNewsAritile(NewsArticle da);
-
     public int updateNewsAritile(NewsArticle da);
 
     /**
@@ -54,5 +52,12 @@ public interface ManageNewsArticleService {
      * @return
      */
     public int addViewPv(Integer id);
+
+    /**
+     * 根据分类查询改分类下面的所有有效的文章
+     * @param title
+     * @return List
+     */
+    public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize);
 
 }

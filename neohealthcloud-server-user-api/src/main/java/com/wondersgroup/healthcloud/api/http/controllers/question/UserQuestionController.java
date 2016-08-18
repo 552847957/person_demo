@@ -4,7 +4,6 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
@@ -12,6 +11,7 @@ import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,8 @@ public class UserQuestionController {
 
 	@Autowired
 	private QuestionService questionService;
-
+	@Autowired
+	private Environment env;
 	/**
 	 * 提问
 	 * @param question
@@ -37,7 +38,7 @@ public class UserQuestionController {
 		String id="";
 		question.setAnswerId("");
 		id=questionService.saveQuestion(question);
-		//PropertiesUtils.get("");
+		//env.getProperty("JOB_CONNECTION_URL");
 
 		response.setMsg("您的问题已提交，请耐心等待医生回复");
 		return response;

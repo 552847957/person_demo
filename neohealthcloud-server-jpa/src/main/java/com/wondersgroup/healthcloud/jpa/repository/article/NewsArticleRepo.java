@@ -12,5 +12,6 @@ import java.util.List;
 public interface NewsArticleRepo extends JpaRepository<NewsArticle,String> {
     @Query(nativeQuery = true,value = "select * from app_tb_news_article where is_visable = '1' and CONCAT(',',category_ids,',')  like %?1% order by update_time desc limit ?2,?3")
     List<NewsArticle> queryNewsArticleByCatId(String categoryId,int pageNo,int pageSize);
-
+    @Query(nativeQuery = true,value = "select * from app_tb_news_article where is_visable = '1' and title like %?1% order by update_time desc limit ?2,?3")
+    List<NewsArticle> queryNewsArticleByTitle(String title,int pageNo,int pageSize);
 }

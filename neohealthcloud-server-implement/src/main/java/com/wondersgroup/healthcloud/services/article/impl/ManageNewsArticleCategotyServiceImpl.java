@@ -20,8 +20,6 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     @Autowired
     private NewsArticleCategoryRepo newsArticleCategoryRepo;
 
-    @Autowired
-    private NewsArticleRepo newsArticleRepo;
 
     @Override
     public int addNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
@@ -30,7 +28,8 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
 
     @Override
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
-        return 0;
+
+        return newsArticleCategoryRepo.saveAndFlush(newsArticleCategory).getId();
     }
 
     @Override
@@ -42,5 +41,10 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     @Override
     public int countRow(Map<String, Object> parm) {
         return 0;
+    }
+
+    @Override
+    public List<NewsArticleCategory> findNewsCategory() {
+        return newsArticleCategoryRepo.findAll();
     }
 }

@@ -53,13 +53,12 @@ public class NewsArticleController {
     @VersionRange
     public JsonListResponseEntity<NewsArticleListAPIEntity> articleList(
             @RequestParam(required = true) String cat_id,
-            @RequestParam(required = false, defaultValue = "1") String flag,
-            @RequestParam(required = false) String order){
+            @RequestParam(required = false, defaultValue = "1") String flag){
 
         int pageNo = Integer.valueOf(flag);
         int pageSize = 10;
-
-        List<NewsArticleListAPIEntity> list = this.getArticleEntityList(cat_id, (pageNo-1) * pageSize, pageSize+1);
+        List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cat_id, (pageNo-1) * pageSize, pageSize+1);//获取文章分类下面的文章
+        List<NewsArticleListAPIEntity> list = this.getArticleEntityList(resourceList);//获取文章分类下面的文章
         Boolean hasMore = false;
         if (null != list  && list.size() > pageSize){
             list = list.subList(0, pageSize);
@@ -73,6 +72,69 @@ public class NewsArticleController {
 
         JsonListResponseEntity<NewsArticleListAPIEntity> response = new JsonListResponseEntity<>();
         response.setContent(list, hasMore, null, flag);
+        return response;
+    }
+
+    /**
+     *热词搜索
+     * @return
+     */
+    @RequestMapping(value="/getHotWords", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(){
+        Map<String, Object> map = new HashMap<>();//获取分类
+        map.put("is_visable", 1);
+        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findNewsCategoryByKeys(map);
+        List<NewsCateArticleListAPIEntity> data=new ArrayList<>();
+        for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
+            NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
+            data.add(cateEntity);
+        }
+        JsonResponseEntity<List<NewsCateArticleListAPIEntity>> response = new JsonResponseEntity<>();
+        response.setData(data);
+        return response;
+    }
+    /**
+     *文章搜索
+     */
+
+    @RequestMapping(value="/searchArticle", method = RequestMethod.GET)
+    @VersionRange
+    public JsonListResponseEntity<NewsArticleListAPIEntity> searchArticle(@RequestParam(required = false) String cat_id
+            ,@RequestParam(required = false) String word,
+            @RequestParam(required = false, defaultValue = "0") String flag){
+        int pageNo = Integer.valueOf(flag);
+        int pageSize = 10;
+
+        JsonListResponseEntity<NewsArticleListAPIEntity> response=new JsonListResponseEntity<>();
+        List<NewsCateArticleListAPIEntity> list = new ArrayList<>();
+        Boolean hasMore = false;
+        List<NewsArticleListAPIEntity> articleList=null;
+        if(null != cat_id&&!"".equals(cat_id)){
+
+            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cat_id, pageNo, pageSize+1);//获取文章分类下面的文章
+            articleList = this.getArticleEntityList(resourceList);
+
+            if (null != articleList && articleList.size() > 10){
+                articleList = articleList.subList(0, 10);
+                hasMore = true;
+            }
+
+
+        }else{
+            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByTitle(word,pageNo, pageSize+1);
+            articleList =  this.getArticleEntityList(resourceList);
+            if (null != articleList && articleList.size() > 10){
+                articleList = articleList.subList(0, 10);
+                hasMore = true;
+            }
+        }
+
+        if(hasMore){
+            response.setContent(articleList, true, null, String.valueOf(pageNo + 1));
+        }else{
+            response.setContent(articleList, false, null, null);
+        }
         return response;
     }
 
@@ -96,8 +158,8 @@ public class NewsArticleController {
         List<NewsCateArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
             NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
-
-            List<NewsArticleListAPIEntity> articleList = this.getArticleEntityList(cateEntity.getCat_id(), 0, 11);//获取文章分类下面的文章
+            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cateEntity.getCat_id(), 0, 11);//获取文章分类下面的文章
+            List<NewsArticleListAPIEntity> articleList = this.getArticleEntityList(resourceList);//获取文章分类下面的文章
                 Boolean hasMore = false;
                 if (null != articleList && articleList.size() > 10){
                 articleList = articleList.subList(0, 10);
@@ -116,11 +178,11 @@ public class NewsArticleController {
 
     /**
      * 获取分类下面的文章
-     * @param cat_id 学苑文章的分类id
+     * @param resourceList 学苑文章的分类id
      * @return List
      */
-    private List<NewsArticleListAPIEntity> getArticleEntityList(String cat_id, int startSize, int endSize){
-        List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cat_id, startSize, endSize);//获取文章分类下面的文章
+    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
+
         if(null == resourceList || resourceList.size() == 0){
             return null;
         }
@@ -130,6 +192,4 @@ public class NewsArticleController {
         }
         return list;
     }
-
-
 }
