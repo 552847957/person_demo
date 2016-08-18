@@ -30,10 +30,10 @@ public class PushClientSelector {
         ImmutableMap.Builder<String, PushClient> builder = ImmutableMap.builder();
         for (AppKeyConfigurationInfo appInfo : appInfos) {
             if (appInfo.getPushIdUser() != null) {
-                builder.put(key(appInfo.getMainArea(), false), new PushGetuiClientImpl(appInfo.getPushIdUser(), appInfo.getPushKeyUser(), appInfo.getPushSecretUser()));
+                builder.put(key(appInfo.getMainArea(), false), new PushGetuiClientImpl(key(appInfo.getMainArea(), false), appInfo.getPushIdUser(), appInfo.getPushKeyUser(), appInfo.getPushSecretUser()));
             }
             if (appInfo.getPushIdDoctor() != null) {
-                builder.put(key(appInfo.getMainArea(), true), new PushGetuiClientImpl(appInfo.getPushIdDoctor(), appInfo.getPushKeyDoctor(), appInfo.getPushSecretDoctor()));
+                builder.put(key(appInfo.getMainArea(), true), new PushGetuiClientImpl(key(appInfo.getMainArea(), true), appInfo.getPushIdDoctor(), appInfo.getPushKeyDoctor(), appInfo.getPushSecretDoctor()));
             }
         }
         map = builder.build();

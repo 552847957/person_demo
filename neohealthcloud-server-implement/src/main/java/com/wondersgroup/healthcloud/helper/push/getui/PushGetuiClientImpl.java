@@ -33,14 +33,21 @@ public class PushGetuiClientImpl implements PushClient {
 
     private static final Logger logger = LoggerFactory.getLogger(PushGetuiClientImpl.class);
 
+    private String area;
     private String appId;
     private String appKey;
     private IGtPush push;
 
-    public PushGetuiClientImpl(String appId, String appKey, String masterSecret) {
+    public PushGetuiClientImpl(String area, String appId, String appKey, String masterSecret) {
+        this.area = area;
         this.appId = appId;
         this.appKey = appKey;
         this.push = new IGtPush("http://sdk.open.api.igexin.com/apiex.htm", appKey, masterSecret);
+    }
+
+    @Override
+    public String identityName() {
+        return area;
     }
 
     @Override
@@ -104,7 +111,7 @@ public class PushGetuiClientImpl implements PushClient {
     }
 
     public static void main(String... args) {
-        PushGetuiClientImpl client = new PushGetuiClientImpl("nEff3Tt7WbAtkHr0GZhgv4", "1DwS7XE9qN8hqmxRvYXk68", "mtKDMHtLGB9pXgNQkzm014");
+        PushGetuiClientImpl client = new PushGetuiClientImpl("4401", "nEff3Tt7WbAtkHr0GZhgv4", "1DwS7XE9qN8hqmxRvYXk68", "mtKDMHtLGB9pXgNQkzm014");
 //        client.pushToAll(PushMessage.Builder.init().title("测试").content("内容").param("aaa", "bbb").build());
         client.pushToAlias(PushMessage.Builder.init().title("测试别名").content("内容别名").url("com.wondersgroup.healthcloud.4401://user/test").param("aaa", "bbb").build(), "8a81c01a4ed91559014edd85bd4a000a");
 //        System.out.println(JsonConverter.toJson(PushMessage.Builder.init().title("测试").content("内容").param("aaa", "bbb").build()));

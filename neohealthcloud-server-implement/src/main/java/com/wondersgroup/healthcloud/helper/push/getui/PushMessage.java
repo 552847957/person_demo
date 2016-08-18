@@ -29,7 +29,7 @@ public class PushMessage {
     public final String url;
     public final Map<String, String> params;
 
-    private PushMessage(String title, String content, String url, Map<String, String> params) {
+    public PushMessage(String title, String content, String url, Map<String, String> params) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.content = content;

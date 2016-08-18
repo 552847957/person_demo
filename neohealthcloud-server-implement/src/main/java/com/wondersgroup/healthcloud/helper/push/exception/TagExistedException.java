@@ -1,6 +1,6 @@
-package com.wondersgroup.healthcloud.helper.push.getui;
+package com.wondersgroup.healthcloud.helper.push.exception;
 
-import java.util.List;
+import com.wondersgroup.healthcloud.exceptions.BaseException;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -14,15 +14,11 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/12/16.
+ * Created by zhangzhixiu on 8/17/16.
  */
-public interface PushClient {
+public class TagExistedException extends BaseException {
 
-    String identityName();
-
-    void pushToAll(PushMessage message);
-
-    void pushToAlias(PushMessage message, String alias);
-
-    void pushToTags(PushMessage message, List<String> tags);
+    public TagExistedException() {
+        super(2000, "tag已经存在");
+    }
 }

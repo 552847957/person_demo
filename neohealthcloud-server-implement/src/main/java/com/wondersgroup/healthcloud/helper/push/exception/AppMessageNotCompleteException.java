@@ -1,6 +1,4 @@
-package com.wondersgroup.healthcloud.helper.push.getui;
-
-import java.util.List;
+package com.wondersgroup.healthcloud.helper.push.exception;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -14,15 +12,11 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/12/16.
+ * Created by zhangzhixiu on 8/18/16.
  */
-public interface PushClient {
+public class AppMessageNotCompleteException extends RuntimeException {
 
-    String identityName();
-
-    void pushToAll(PushMessage message);
-
-    void pushToAlias(PushMessage message, String alias);
-
-    void pushToTags(PushMessage message, List<String> tags);
+    public AppMessageNotCompleteException(String msg) {
+        super(msg);
+    }
 }
