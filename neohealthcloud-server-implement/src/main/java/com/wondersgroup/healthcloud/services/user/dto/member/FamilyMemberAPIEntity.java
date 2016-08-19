@@ -38,6 +38,7 @@ public class FamilyMemberAPIEntity {
     @JsonProperty("redirect_flag")
     private Integer redirectFlag;
     private String label;
+    private String labelColor;
     private String gender;
 
     public FamilyMemberAPIEntity() {
