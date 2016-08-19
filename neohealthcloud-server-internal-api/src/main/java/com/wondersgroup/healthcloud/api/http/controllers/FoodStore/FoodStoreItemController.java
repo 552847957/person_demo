@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by shenbin on 16/8/17.
@@ -128,8 +125,16 @@ public class FoodStoreItemController {
      */
     @RequestMapping(value = "findCategoryName", method = RequestMethod.GET)
     public Object findCategoryName(){
-        Map<String, Object> map = new HashMap<>();
-        map.put("category_name", foodStoreItemService.findCategoryName());
+        List<Object[]> objects = foodStoreItemService.findCategoryName();
+        List<Object> ids = new ArrayList<>();
+        List<Object> names = new ArrayList<>();
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (Object[] object : objects) {
+            ids.add(object[0]);
+            names.add(object[1]);
+        }
+        map.put("id", ids);
+        map.put("category_name", names);
         return map;
     }
 
@@ -216,7 +221,8 @@ public class FoodStoreItemController {
     /**
      * 解析url 的get参数
      * @param url
-     * @return Map<String, String>
+     * @param key
+     * @return
      */
     private String getUrlQueryParms(String url, String key) {
         String[] splitUrl = url.split("[?]");

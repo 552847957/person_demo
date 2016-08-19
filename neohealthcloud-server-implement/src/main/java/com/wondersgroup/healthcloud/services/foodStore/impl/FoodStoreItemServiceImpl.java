@@ -63,7 +63,7 @@ public class FoodStoreItemServiceImpl implements FoodStoreItemService {
     }
 
     @Override
-    public List<String[]> findCategoryName() {
+    public List<Object[]>  findCategoryName() {
         return foodStoreCategoryRepository.findCategoryName();
     }
 
