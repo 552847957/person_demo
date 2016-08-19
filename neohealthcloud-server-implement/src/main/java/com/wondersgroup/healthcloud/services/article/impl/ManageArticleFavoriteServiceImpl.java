@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.services.article.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.article.ArticleFavorite;
+import com.wondersgroup.healthcloud.jpa.repository.article.ArticleFavoriteRepository;
 import com.wondersgroup.healthcloud.services.article.ManageArticleFavoriteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -12,10 +14,11 @@ import java.util.Map;
 @Service("manageArticleFavoriteService")
 public class ManageArticleFavoriteServiceImpl implements ManageArticleFavoriteService {
 
-
+    @Autowired
+    private ArticleFavoriteRepository articleFavoriteRepository;
     @Override
     public Integer addFavorite(ArticleFavorite favorite) {
-        return null;
+        return articleFavoriteRepository.saveAndFlush(favorite).getId();
     }
 
     @Override
@@ -40,7 +43,7 @@ public class ManageArticleFavoriteServiceImpl implements ManageArticleFavoriteSe
 
     @Override
     public List<ArticleFavorite> queryAllArticleFavListByUserId(String uid) {
-        return null;
+        return articleFavoriteRepository.queryByUid(uid);
     }
 
     @Override
@@ -66,5 +69,20 @@ public class ManageArticleFavoriteServiceImpl implements ManageArticleFavoriteSe
     @Override
     public ArticleFavorite queryArticleFavoriteByArticleId(int articleId) {
         return null;
+    }
+
+    @Override
+    public ArticleFavorite queryByUidAndArticleId(String uid, int articleId) {
+        List<ArticleFavorite> articleFavorites = articleFavoriteRepository.queryByUidAndArticleId(uid, articleId);
+        if(null != articleFavorites || articleFavorites.size()>0){
+            return articleFavoriteRepository.queryByUidAndArticleId(uid,articleId).get(0);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteArticleFavorite(ArticleFavorite articleFavorite) {
+        articleFavoriteRepository.delete(articleFavorite);
     }
 }

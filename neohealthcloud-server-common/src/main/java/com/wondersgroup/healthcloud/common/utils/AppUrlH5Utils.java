@@ -20,4 +20,13 @@ public class AppUrlH5Utils {
         return basePath + "web/article/new/articleView?from=newsArticle&for_type=article&id="+articleId+"&isToken=1";
     }
 
+    public static String buildDiseaseArticleView(int articleId) {
+
+        return "";
+    }
+
+    public static String buildFoodStoreView(int id) {
+
+        return "";
+    }
 }

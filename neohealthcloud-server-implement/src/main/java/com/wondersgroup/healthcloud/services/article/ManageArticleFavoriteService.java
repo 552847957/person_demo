@@ -34,4 +34,8 @@ public interface ManageArticleFavoriteService {
     public ArticleFavorite queryArticleFavoriteByObj(ArticleFavorite favorite);
 
     public ArticleFavorite queryArticleFavoriteByArticleId(int articleId);
+
+    public ArticleFavorite queryByUidAndArticleId(String uid,int articleId);
+
+    public void deleteArticleFavorite(ArticleFavorite articleFavorite);
 }
