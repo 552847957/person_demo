@@ -54,13 +54,4 @@ public class PushClientWrapper {
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
     }
-
-    public static void main(String... args) {
-        PushClientWrapper wrapper = new PushClientWrapper();
-        wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        AppMessage message = AppMessage.Builder.init().title("tttt").isDoctor(false).content("neirong").param("aaa", "bbb").urlFragment("/aaaa").build();
-        System.out.println(message.toPushMessage().url);
-        wrapper.pushToAlias(message, "8a81c1fb555cab53015672342b410133");
-//        wrapper.pushToAll(message, "4401");
-    }
 }

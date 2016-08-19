@@ -39,19 +39,7 @@ admin权限的可以插入`main_area='' and spec_area=''`的文章
 `310105`权限的可以插入`main_area='3101' and spec_area='310105'`的文章  
 
 
-## 推送相关
 
-服务端以用户最后登录的app为准, 所有对用户的推送都推到最后登录的app上
-
-### 推送登录表 `app_tb_user_push_info`
-
-列名     | 类型    | 含义
----------|---------|-------
-id       | uuid    |
-uid      | uuid    | 用户id
-clientid | varchar | 个推clientid
-area     | varchar | 用户最后登录的app
-platform | varchar | 0:ios, 1:android
 
 ### app配置信息表 `app_tb_key_configuration_info`
 
