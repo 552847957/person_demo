@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.services.article.ManageArticleFavoriteServic
 import com.wondersgroup.healthcloud.services.article.ManageArticleService;
 
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,37 +33,30 @@ public class ArticleFavoriteController {
 	@Resource
 	private ManageArticleFavoriteService manageArticleFavoriteService;
 
-	@Resource
-	private ManageArticleService manageArticleService;
 
     @Resource
     private ManageNewsArticleService manageNewsArticleServiceImpl;
 
-	@RequestMapping("/list")
+	@RequestMapping(value = "/list",method = RequestMethod.GET)
     @VersionRange
-	public JsonListResponseEntity<ArticleFavorite> articleFavoriteList(@RequestParam(required=false) String uid,
-                                                                       @RequestParam(required=false) Integer flag){
+	public JsonListResponseEntity<NewsArticleListAPIEntity> articleFavoriteList(@RequestParam(required=false) String uid,
+                                                                       @RequestParam(required=false, defaultValue = "0") String flag){
 
-		JsonListResponseEntity<ArticleFavorite> body = new JsonListResponseEntity<>();
-		try{
-			Integer position = 0;
-			if(flag!=null){
-				position = flag;
-			}
-            List<ArticleFavorite> favoriteList = manageArticleFavoriteService.queryAllArticleFavListByUserId(uid);
-            if(favoriteList!=null){
-                body = new Page<ArticleFavorite>().handleResponseEntity(body, position, (position+PAGE_SIZE),
-                        PAGE_SIZE, favoriteList);
-            }else{
-                body.setContent((List) Collections.emptyList());
-            }
-		}catch(Exception e){
-			e.printStackTrace();
-			log.error("get favorite list occured error " + e.getMessage());
-			body.setCode(1001);
-			body.setMsg("调用失败");
-			body.setContent((List) Collections.emptyList());
+		JsonListResponseEntity<NewsArticleListAPIEntity> body = new JsonListResponseEntity<>();
+		int pageSize=10;
+		int pageNo=Integer.valueOf(flag);
+		List<NewsArticleListAPIEntity> collectionArticle = manageNewsArticleServiceImpl.findCollectionArticle(uid, pageNo, pageSize + 1);
+		Boolean hasMore = false;
+		if (null != collectionArticle  && collectionArticle.size() > pageSize){
+			collectionArticle = collectionArticle.subList(0, pageSize);
+			hasMore = true;
+		}else{
+			flag = null;
 		}
+		if (hasMore){
+			flag = String.valueOf(pageNo+1);
+		}
+		body.setContent(collectionArticle,hasMore, null, flag);
 		return body;
 	}
     @VersionRange
@@ -90,40 +84,20 @@ public class ArticleFavoriteController {
 		return body;
 	}
 
-    @RequestMapping("/checkIsFavor")
+    @RequestMapping(value = "/checkIsFavor",method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<Map> checkIsFavor(@RequestParam(required = true) int id,
-                                                @RequestParam(required=false, defaultValue="") String for_type,
-                                                @RequestParam(required=false, defaultValue="") String from,
-												@RequestParam(required=false, defaultValue="") String uid){
-        JsonResponseEntity<Map> body = new JsonResponseEntity<>();
+    public JsonResponseEntity<Boolean> checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=true) String uid){
+        JsonResponseEntity<Boolean> body = new JsonResponseEntity<>();
 
+		ArticleFavorite articleFavorite = manageArticleFavoriteService.queryByUidAndArticleId(uid, id);
 
+		boolean has=false;
+
+		if(null != articleFavorite){
+			has=true;
+		}
+		body.setData(has);
         return body;
     }
 
-	private static class Page<ArticleFavorite>{
-		public List<ArticleFavorite> pageObject(List<ArticleFavorite> origin, int fromIndex, int toIndex){
-			if(origin==null){
-				return null;
-			}
-			if(toIndex>=origin.size())
-				toIndex = origin.size();
-
-			return new ArrayList<>(origin.subList(fromIndex, toIndex));
-		}
-
-		public JsonListResponseEntity<ArticleFavorite> handleResponseEntity(JsonListResponseEntity<ArticleFavorite> body,
-				int fromIndex, int toIndex, int pageSize, List<ArticleFavorite> favorList){
-			if(body==null)
-				return null;
-			List<ArticleFavorite> temp = pageObject(favorList,fromIndex,toIndex);
-			if(favorList.size()>pageSize&&fromIndex<favorList.size()&&temp.size()==PAGE_SIZE){
-				body.setContent(temp, true, "updateTime", String.valueOf(fromIndex+temp.size()));
-			}else{
-				body.setContent(temp, false, "updateTime", String.valueOf(favorList.size()));
-			}
-			return body;
-		}
-	}
 }

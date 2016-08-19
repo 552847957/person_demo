@@ -68,4 +68,5 @@ public interface ManageNewsArticleService {
      */
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize);
 
+    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize);
 }
