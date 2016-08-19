@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -29,18 +30,22 @@ public class FoodStoreItemServiceImpl implements FoodStoreItemService {
     @Override
     public Page<FoodStoreItem> findByExample(FoodStoreItem item, Pageable pageable) {
 
+        String[] str = {"id", "rank"};
+        if (item.getIsShow() == -1) {
+            str = Arrays.copyOf(str, str.length + 1);
+            str[str.length - 1] = "isShow";
+        }
+        if (item.getCategoryId() == -1) {
+            str = Arrays.copyOf(str, str.length + 1);
+            str[str.length - 1] = "categoryId";
+        }
+
         ExampleMatcher exampleMatcher = ExampleMatcher
                 .matching()
-                .withIgnorePaths("id", "rank")
+                .withIgnorePaths(str)
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
                 .withIgnoreNullValues();
 
-        if (item.getIsShow() == -1) {
-            exampleMatcher.withIgnorePaths("isShow");
-        }
-        if (item.getCategoryId() == -1) {
-            exampleMatcher.withIgnorePaths("categoryId");
-        }
 
         Example<FoodStoreItem> example = Example.of(item, exampleMatcher);
 

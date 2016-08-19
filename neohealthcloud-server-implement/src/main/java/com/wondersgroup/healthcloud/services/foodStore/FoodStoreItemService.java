@@ -20,7 +20,7 @@ public interface FoodStoreItemService {
 
     List<Integer[]> findIsShow();
 
-    List<Object[]> findCategoryName();;
+    List<Object[]> findCategoryName();
 
     Integer updateIsShowByIds(int isShow, Date nowTime, List<Integer> ids);
 

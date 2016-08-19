@@ -42,14 +42,22 @@ public class FoodStoreItemController {
 
     /**
      * 查询食物库列表
-     * @param item
+     * @param categoryId
+     * @param foodName
+     * @param isShow
      * @param pageable
      * @return
      * @throws JsonProcessingException
      */
-    @RequestMapping(value = "foodStoreItem/list", method = RequestMethod.POST)
-    public String findFoodStoreItemList(@RequestBody FoodStoreItem item,
+    @RequestMapping(value = "foodStoreItem/list", method = RequestMethod.GET)
+    public String findFoodStoreItemList(@RequestParam Integer categoryId,
+                                        String foodName,
+                                        @RequestParam Integer isShow,
                                         @PageableDefault(size = 20) Pageable pageable) throws JsonProcessingException {
+        FoodStoreItem item = new FoodStoreItem();
+        item.setCategoryId(categoryId);
+        item.setFoodName(foodName);
+        item.setIsShow(isShow);
         Page<FoodStoreItem> foodStoreItems = foodStoreItemService.findByExample(item, pageable);
         Map<Class, Object> filterMap = new HashMap<>();
         filterMap.put(FoodStoreItem.class,
