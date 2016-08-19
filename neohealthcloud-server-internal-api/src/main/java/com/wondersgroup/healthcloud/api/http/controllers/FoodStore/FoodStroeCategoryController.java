@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.FoodStore;
+package com.wondersgroup.healthcloud.api.http.controllers.foodStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;

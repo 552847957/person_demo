@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.FoodStore;
+package com.wondersgroup.healthcloud.api.http.controllers.foodStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -75,8 +75,8 @@ public class FoodStoreItemController {
      * @return
      * @throws JsonProcessingException
      */
-    @RequestMapping(value = "foodStoreItem/{id}", method = RequestMethod.GET)
-    public String findFoodStoreItem(@PathVariable int id) throws JsonProcessingException {
+    @RequestMapping(value = "foodStoreItem", method = RequestMethod.GET)
+    public String findFoodStoreItem(@RequestParam int id) throws JsonProcessingException {
         FoodStoreItem foodStoreItem = foodStoreItemService.findById(id);
         Map<Class, Object> filterMap = new HashMap<>();
         filterMap.put(FoodStoreItem.class, new String[]{"update_time", "create_time"});

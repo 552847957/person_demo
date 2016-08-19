@@ -31,7 +31,7 @@ public class FoodStoreController {
     private AppConfigService appConfigService;
 
 
-    public static String keyWord = "com.hot.search.foodstore";
+    public static String keyWord = "com.hot.search.foodStore";
 
     /**
      * 食物库分类
