@@ -126,16 +126,15 @@ public class FoodStoreItemController {
     @RequestMapping(value = "findCategoryName", method = RequestMethod.GET)
     public Object findCategoryName(){
         List<Object[]> objects = foodStoreItemService.findCategoryName();
-        List<Object> ids = new ArrayList<>();
-        List<Object> names = new ArrayList<>();
-        Map<String, Object> map = new LinkedHashMap<>();
+        List<Object> list = new ArrayList<>();
         for (Object[] object : objects) {
-            ids.add(object[0]);
-            names.add(object[1]);
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", object[0]);
+            map.put("category_name", object[1]);
+            list.add(map);
         }
-        map.put("id", ids);
-        map.put("category_name", names);
-        return map;
+
+        return list;
     }
 
     /**
