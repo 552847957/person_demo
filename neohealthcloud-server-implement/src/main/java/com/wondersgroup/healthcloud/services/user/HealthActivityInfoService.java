@@ -20,5 +20,6 @@ public interface HealthActivityInfoService {
     HealthActivityDetail findActivityDetailByAidAndRid(String activityId, String registerId);
 
     List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status , int pageNo, int pageSize);
+    List<HealthActivityInfo> getHealthActivityInfos(String onlineTime, String offlineTime, int pageNo, int pageSize);
 
 }

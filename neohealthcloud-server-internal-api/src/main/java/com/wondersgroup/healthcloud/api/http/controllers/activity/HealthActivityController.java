@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
@@ -33,26 +34,27 @@ public class HealthActivityController {
     HealthActivityInfoRepository   activityRepo;
 
     @RequestMapping(value = "/listdata")
-    public JsonListResponseEntity<HealthActivityInfo> searchActivity(
+    public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(
             @RequestParam(required=false) String onlineTime,
             @RequestParam(required=false) String offlineTime,
             @RequestParam(defaultValue = "1") Integer flag,
             @RequestParam(defaultValue = "10") Integer pageSize
             ){
-        JsonListResponseEntity<HealthActivityInfo> entity = new JsonListResponseEntity<HealthActivityInfo>();
-        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(null, null, null, null, flag, pageSize);
-        entity.setContent(infos, infos.size() == 10, null, String.valueOf((flag + 1)));
+        JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
+        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(onlineTime, offlineTime, flag, pageSize);
+        List<HealthActivityInfoDTO> infoDTOs = HealthActivityInfoDTO.infoDTO(infos);
+        entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((flag + 1)));
         entity.setMsg("查询成功");
         return entity;
     }
 
     @RequestMapping("/findActivity")
-    public JsonResponseEntity<HealthActivityInfo> findActivitie(
+    public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(
             @RequestParam() String acitivityId
             ){
-        JsonResponseEntity<HealthActivityInfo> entity = new JsonResponseEntity<HealthActivityInfo>();
+        JsonResponseEntity<HealthActivityInfoDTO> entity = new JsonResponseEntity<HealthActivityInfoDTO>();
         HealthActivityInfo info = activityRepo.findOne(acitivityId);
-        entity.setData(info);
+        entity.setData(new HealthActivityInfoDTO(info));
         entity.setMsg("查询成功");
         return entity;
     }
