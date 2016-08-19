@@ -74,7 +74,7 @@ public class ManageArticleFavoriteServiceImpl implements ManageArticleFavoriteSe
     @Override
     public ArticleFavorite queryByUidAndArticleId(String uid, int articleId) {
         List<ArticleFavorite> articleFavorites = articleFavoriteRepository.queryByUidAndArticleId(uid, articleId);
-        if(null != articleFavorites || articleFavorites.size()>0){
+        if(articleFavorites.size()>0){
             return articleFavoriteRepository.queryByUidAndArticleId(uid,articleId).get(0);
         }else{
             return null;
