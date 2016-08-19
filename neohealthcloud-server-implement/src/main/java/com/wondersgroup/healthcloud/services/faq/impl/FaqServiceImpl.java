@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -116,6 +117,7 @@ public class FaqServiceImpl implements FaqService {
     }
 
     @Override
+    @Transactional
     public int showSet(String qId, Integer isShow) {
         return faqRepository.showSetByQid( qId, isShow);
 
@@ -129,6 +131,7 @@ public class FaqServiceImpl implements FaqService {
     }
 
     @Override
+    @Transactional
     public int TopSet(String qId, Integer isTop) {
         return faqRepository.topSetByQid(qId, isTop);
     }
@@ -144,12 +147,14 @@ public class FaqServiceImpl implements FaqService {
     }
 
     @Override
+    @Transactional
     public int updateRootQuestion(Faq faq) {
         int result = faqRepository.updateRootQuestion(faq.getAskerName(),faq.getGender(),faq.getAge(),faq.getAskContent(),faq.getAskDate(),faq.getQId());
         return result;
     }
 
     @Override
+    @Transactional
     public int saveFirstAnswerByDoctorId(Faq faq) {
         int result = faqRepository.saveFirstAnswerByDoctorId(faq.getDoctorId(),faq.getAnswerContent(),faq.getAnswerDate(),faq.getId());
         return result;

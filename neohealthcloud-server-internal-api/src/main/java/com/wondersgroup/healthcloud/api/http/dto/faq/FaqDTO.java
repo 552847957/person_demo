@@ -22,6 +22,9 @@ public class FaqDTO {
 
     private String id;
 
+    @JsonProperty("q_id")
+    private String qId;
+
     @JsonProperty("asker_name")
     private String askerName;
     private Integer gender;
@@ -41,15 +44,17 @@ public class FaqDTO {
 
     public FaqDTO(Faq faq) {
         this.id = faq.getId();
+        this.qId = faq.getQId();
         this.askerName = faq.getAskerName();
         this.gender = faq.getGender();
         this.age = faq.getAge();
         this.askContent = faq.getAskContent();
-        this.askTime = DateFormatter.questionDateFormat(faq.getAskDate());
+        this.askTime = DateFormatter.dateTimeFormat(faq.getAskDate());
     }
 
     public FaqDTO(Map<String, Object> faq) {
         this.id = faq.get("id")==null?"":faq.get("id").toString();
+        this.qId = faq.get("qId")==null?"":faq.get("qId").toString();
         this.askerName = faq.get("askerName")==null?"":faq.get("askerName").toString();
         String gender = faq.get("gender")==null?"":faq.get("gender").toString();
         if(StringUtils.isNotBlank(gender)){
@@ -63,7 +68,7 @@ public class FaqDTO {
         this.askContent = faq.get("askContent")==null?"":faq.get("askContent").toString();
         Date askDate = (Date)faq.get("askDate");
         if(askDate!=null){
-            this.askTime = DateFormatter.questionDateFormat(askDate);
+            this.askTime = DateFormatter.dateTimeFormat(askDate);
         }
     }
 
@@ -129,5 +134,13 @@ public class FaqDTO {
 
     public void setGender(Integer gender) {
         this.gender = gender;
+    }
+
+    public String getqId() {
+        return qId;
+    }
+
+    public void setqId(String qId) {
+        this.qId = qId;
     }
 }

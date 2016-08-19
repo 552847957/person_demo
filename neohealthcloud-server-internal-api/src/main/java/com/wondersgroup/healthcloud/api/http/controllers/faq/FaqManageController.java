@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.api.http.dto.faq.QuestionClosely;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -54,14 +55,16 @@ public class FaqManageController {
 
     /**
      * 设置显示不显示
-     * @param qId
-     * @param isShow
+     * @param
+     * @param
      * @return
      */
     @Admin
-    @GetMapping(path = "/showSet")
-    public JsonResponseEntity<String> showSet(@RequestParam String qId,
-                                              @RequestParam String isShow){
+    @PostMapping(path = "/showSet")
+    public JsonResponseEntity<String> showSet(@RequestBody String request ){
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String qId = reader.readString("qId",true);
+        String isShow = reader.readString("isShow",true);
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
 
         int result = faqService.showSet(qId,Integer.valueOf(isShow));
@@ -76,14 +79,14 @@ public class FaqManageController {
 
     /**
      * 设置是否置顶
-     * @param qId
-     * @param isTop
      * @return
      */
     @Admin
-    @GetMapping(path = "/topSet")
-    public JsonResponseEntity<String> topSet(@RequestParam String qId,
-                                              @RequestParam String isTop){
+    @PostMapping(path = "/topSet")
+    public JsonResponseEntity<String> topSet(@RequestBody String request){
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String qId = reader.readString("qId",true);
+        String isTop = reader.readString("isTop",true);
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
         if("1".equals(isTop)){
             int topCount = faqService.countTopQuestion();
@@ -105,13 +108,13 @@ public class FaqManageController {
 
     /**
      * 查询问答集锦详情
-     * @param id
+     * @param
      * @return
      */
     @GetMapping(value = "/detail")
-    public JsonResponseEntity<FaqDTO> getFaqDetail(@RequestParam(required = true) String id){
+    public JsonResponseEntity<FaqDTO> getFaqDetail(@RequestParam(required = true) String qId){
         JsonResponseEntity<FaqDTO> response = new JsonResponseEntity<>();
-        List<Map<String, Object>> faqList = faqService.findFaqListByQid(id);
+        List<Map<String, Object>> faqList = faqService.findFaqListByQid(qId);
         if(faqList == null){
             throw new ErrorNoneFaqException();
         }
@@ -166,6 +169,9 @@ public class FaqManageController {
             faq.setDelFlag("0");
             faq.setCreateDate(new Date());
             faq.setCreateBy("admin");//todo 保存登录人的id
+            if(faq.getAskDate()==null){
+                faq.setAskDate(new Date());
+            }
             faqService.save(faq);
             response.setMsg("保存成功");
             return response;
@@ -175,6 +181,9 @@ public class FaqManageController {
             response.setCode(2001);
             response.setMsg("保存失败-保存主问题需传qId");
             return response;
+        }
+        if(faq.getAskDate()==null){
+            faq.setAskDate(new Date());
         }
         int result = faqService.updateRootQuestion(faq);
         if(result<=0){

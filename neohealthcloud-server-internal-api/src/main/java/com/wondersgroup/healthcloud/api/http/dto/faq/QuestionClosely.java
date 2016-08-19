@@ -44,11 +44,11 @@ public class QuestionClosely {
         this.gender = faqClosely.getGender();
         this.age = faqClosely.getAge();
         this.questionContent = faqClosely.getAskContent();
-        this.askTime = DateFormatter.questionDateFormat(faqClosely.getAskDate());
+        this.askTime = DateFormatter.dateTimeFormat(faqClosely.getAskDate());
         this.answerContent = faqClosely.getAnswerContent()==null?"":faqClosely.getAnswerContent();
         this.answerTime = "";
         if(faqClosely.getAnswerDate()!=null){
-            this.answerTime = DateFormatter.questionDateFormat(faqClosely.getAnswerDate());
+            this.answerTime = DateFormatter.dateTimeFormat(faqClosely.getAnswerDate());
         }
 
     }
