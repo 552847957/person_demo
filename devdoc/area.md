@@ -54,6 +54,8 @@ push_secret_user   |      |
 push_id_doctor     |      |
 push_key_doctor    |      |
 push_secret_doctor |      |
+user_secret_key    |      |
+doctor_secret_key  |      |
 
 
 ### 推送key

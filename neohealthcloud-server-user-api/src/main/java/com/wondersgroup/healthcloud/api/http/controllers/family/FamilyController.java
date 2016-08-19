@@ -280,8 +280,10 @@ public class FamilyController {
                     entity.setHealthWarning(false);
                 }
             }
+            entity.setLabelColor("#666666");
             switch (entity.getRedirectFlag()) {
             case 0:
+//                                  entity.setLabelColor("#CC0000");
                 //                if (0 != anomalyIndexRepo.findByUidAndDay(entity.getUid(), DateFormatter.dateFormat(new Date())).size()) {
                 //                    entity.setLabel("有新的异常指标");
                 //                    entity.setHealthWarning(true);

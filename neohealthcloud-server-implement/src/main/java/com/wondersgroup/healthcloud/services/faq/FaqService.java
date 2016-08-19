@@ -24,4 +24,22 @@ public interface FaqService {
     List<Map<String, Object>> findFaqListByQid(String id);
 
     List<Faq> findQCloseliesByQpidAndDoctorId(String qPid, String doctorId);
+
+    List<Map<String,Object>> findFaqListByPager(int pageNum, int size, Map parameter);
+
+    int countFaqByParameter(Map parameter);
+
+    int showSet(String qId, Integer isShow);
+
+    int countTopQuestion();
+
+    int TopSet(String qId, Integer integer);
+
+    Faq findFaqById(String id);
+
+    void save(Faq faq);
+
+    int updateRootQuestion(Faq faq);
+
+    int saveFirstAnswerByDoctorId(Faq faq);
 }

@@ -93,4 +93,24 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         return jt;
     }
 
+    @Override
+    public List<HealthActivityInfo> getHealthActivityInfos(String onlineTime, String offlineTime, int pageNo, int pageSize) {
+        String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
+                + " from app_tb_healthactivity_info where del_flag = '0'";
+        if(onlineTime != null){
+            sql += " and online_time > '" + onlineTime + "'";
+        }
+        if(offlineTime != null){
+            sql += " and offline_time < '" + offlineTime + "'";
+        }
+        
+        sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        List<Map<String, Object>> resourceList = getJt().queryForList(sql);
+        List<HealthActivityInfo> list = Lists.newArrayList();
+        for (Map<String, Object> map : resourceList) {
+            list.add(new Gson().fromJson(new Gson().toJson(map), HealthActivityInfo.class));
+        }
+        return list;
+    }
+
 }

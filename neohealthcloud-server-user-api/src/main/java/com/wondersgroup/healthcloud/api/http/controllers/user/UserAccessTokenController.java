@@ -34,7 +34,6 @@ public class UserAccessTokenController {
     public JsonResponseEntity<UserAccountAndSessionDTO> fetchToken(@RequestParam String account,
                                                                    @RequestParam String password
     ) {
-        password = "Uj95afYI6wedng49hbJXhnqiuRd5EZRtbtE+ZfdvpHwByyA895hrLwC+lRrQoY0r/5enL/9DXBWalIwHKw5IdUqZ3EcxSg/v/fTyZxgapwk4o6OEXbzBZVMbAsNU8F5pidmdPQLqAGbgcJrunUDtxFwymKS+A0SdXkKoPZ5Qdow=";
 
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.login(account,password)));

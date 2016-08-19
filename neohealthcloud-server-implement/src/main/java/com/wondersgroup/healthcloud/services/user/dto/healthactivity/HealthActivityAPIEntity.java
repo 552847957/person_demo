@@ -5,8 +5,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
@@ -38,6 +36,7 @@ public class HealthActivityAPIEntity {
 	private String enrollOverdue;//报名时间是否过期：0为未过期，1为过期
 	private boolean ltDay; //再报名时间未过期的情况下，报名剩余时间是否只剩一天
 	private String enrollCountdown;//报名倒计时
+	private String enrollColor;//报名倒计时字体显示颜色
 	
 	private HealthActivityEvaluationAPIEntity evaluation;
 	private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
@@ -72,9 +71,7 @@ public class HealthActivityAPIEntity {
 		String endHourMin = hourMinute_sdf.format(info.getEndtime());
 		
 		this.overdue = info.getEndtime().getTime() < new Date().getTime() ? "1" : "0";
-		if("0".equals(this.overdue)){
-		    this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
-		}
+	    this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
 		if("0".equals(this.enrollOverdue)){
 		    this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
 		}
@@ -123,6 +120,7 @@ public class HealthActivityAPIEntity {
 		if("0".equals(enrollOverdue)){
 	        this.enrollCountdown = getDateTimeStr(info);
 		}
+	    this.enrollColor = ltDay ? "#CC0000" : "#666666";
 	}
 
     public String getId() {
@@ -363,6 +361,14 @@ public class HealthActivityAPIEntity {
 
     public void setEnrollCountdown(String enrollCountdown) {
         this.enrollCountdown = enrollCountdown;
+    }
+    
+    public String getEnrollColor() {
+        return enrollColor;
+    }
+
+    public void setEnrollColor(String enrollColor) {
+        this.enrollColor = enrollColor;
     }
 
     public String getDateTimeStr(HealthActivityInfo info){

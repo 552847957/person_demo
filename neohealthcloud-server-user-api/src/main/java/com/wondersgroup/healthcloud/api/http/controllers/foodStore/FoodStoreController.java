@@ -1,12 +1,17 @@
 package com.wondersgroup.healthcloud.api.http.controllers.foodStore;
 
+import com.google.common.collect.Lists;
+import com.google.common.net.HostAndPort;
 import com.wondersgroup.healthcloud.api.http.dto.foodStore.FoodStoreCategoryListAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.foodStore.FoodStoreItemListAPIEntity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreCategory;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.foodStore.FoodStoreService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,12 @@ public class FoodStoreController {
 
     @Autowired
     private FoodStoreService manageFoodStoreService;
+
+    @Autowired
+    private AppConfigService appConfigService;
+
+
+    public static String keyWord = "com.hot.search.foodstore";
 
     /**
      * 食物库分类
@@ -120,6 +131,27 @@ public class FoodStoreController {
         }
         result.setContent(foodStoreItemListAPIEntities, hasMore, null, String.valueOf(page+1));
         return result;
+    }
+
+    @WithoutToken
+    @VersionRange
+    @GetMapping(path =  "/hotWords")
+    public JsonListResponseEntity<String> getSearch(){
+        JsonListResponseEntity<String> response = new JsonListResponseEntity<>();
+        List<String> hotWords = Lists.newArrayList();
+        AppConfig config = appConfigService.findSingleAppConfigByKeyWord("","",keyWord);
+        config = new AppConfig();
+        config.setData("土豆,燕麦片,鸡蛋,牛奶,蜂蜜,苹果");
+
+        if(config!=null && StringUtils.isNotBlank(config.getData())){
+            String[] data = config.getData().split(",");
+            for(String str : data){
+                hotWords.add(str);
+            }
+        }
+
+        response.setContent(hotWords);
+        return response;
     }
 
 }

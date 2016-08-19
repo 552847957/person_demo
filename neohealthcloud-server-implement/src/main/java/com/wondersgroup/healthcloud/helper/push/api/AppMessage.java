@@ -54,6 +54,9 @@ public class AppMessage {
     }
 
     private String buildUrl() {
+        if (urlFragment == null) {
+            return null;
+        }
         if (isHttpUrl == null || !isHttpUrl) {
             return "com.wondersgroup.healthcloud." + area + "://" + (isDoctor ? "doctor" : "user") + urlFragment;
         } else {
