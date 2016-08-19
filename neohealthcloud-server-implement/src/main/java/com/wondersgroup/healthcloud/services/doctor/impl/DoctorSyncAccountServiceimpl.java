@@ -76,7 +76,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         String registerId = "";
         String loginName = "";
         Boolean success = result.get("success").asBoolean();
-        if(success = false){
+        if(!success){
             JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),"initPwd2016");
             if (success) {
                 registerId = jsonNode.get("userid").asText();

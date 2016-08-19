@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.doctor;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,4 +22,6 @@ public interface DoctorService {
     DoctorAccount updateDoctorAvatar(String uid, String avatar);
 
     DoctorInfo updateIntro(String uid, String intro);
+
+    List<Map<String,Object>> findAllFaqDoctors(String kw);
 }

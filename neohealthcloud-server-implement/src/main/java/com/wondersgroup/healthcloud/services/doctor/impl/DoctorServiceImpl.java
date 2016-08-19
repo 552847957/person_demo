@@ -6,11 +6,13 @@ import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepositor
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -101,6 +103,7 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorInfoRepository.saveAndFlush(doctorInfo);
     }
 
+
     @Override
     public DoctorInfo updateExpertin(String uid, String expertin) {
         DoctorInfo doctorInfo = doctorInfoRepository.findOne(uid);
@@ -123,6 +126,21 @@ public class DoctorServiceImpl implements DoctorService {
         doctorAccount.setUpdateDate(new Date());
         doctorAccount.setUpdateBy(uid);
         return doctorAccountRepository.saveAndFlush(doctorAccount);
+    }
+
+    /**
+     * 查询所有的问答的医生
+     * @param kw
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> findAllFaqDoctors(String kw) {
+        String sql = " select a.id , a.name from doctor_account_tb a where a.is_available = '0' ";
+
+        if(StringUtils.isNotBlank(kw)){
+            sql = sql + " and a.name like '%"+kw+"%' ";
+        }
+        return jt.queryForList(sql);
     }
 
 

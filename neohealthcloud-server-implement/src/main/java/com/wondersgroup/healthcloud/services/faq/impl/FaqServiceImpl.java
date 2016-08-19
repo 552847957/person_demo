@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.faq.impl;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.repository.faq.FaqRepository;
 import com.wondersgroup.healthcloud.services.faq.FaqService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -45,7 +46,7 @@ public class FaqServiceImpl implements FaqService {
     @Override
     public List<Map<String,Object>> findFaqListByQid(String id) {
 
-        String sql = " select a.q_id as 'qId',a.asker_name as 'askerName' ,a.gender ,a.age,a.ask_content as 'askContent',a.ask_date as 'askDate', " +
+        String sql = " select a.id, a.q_id as 'qId',a.asker_name as 'askerName' ,a.gender ,a.age,a.ask_content as 'askContent',a.ask_date as 'askDate', " +
                 " a.doctor_id as 'doctorId',d.avatar as 'doctorAvatar',d.`name` as 'doctorName', dd.duty_name as 'dutyName', " +
                 " a.answer_content as 'answerContent' , a.answer_date as 'answerDate' " +
                 " from faq_question_tb a  " +
@@ -68,4 +69,91 @@ public class FaqServiceImpl implements FaqService {
     public List<Faq> findQCloseliesByQpidAndDoctorId(String qPid, String doctorId) {
         return faqRepository.findQCloseliesByQpidAndDoctorId(qPid, doctorId);
     }
+
+
+
+    //----------------------后台使用----------------------
+    private String faqSql = " select a.id, a.q_id as 'qId', a.asker_name as 'askerName' ,a.gender ,a.age ,a.is_show  as 'isShow', a.is_top as 'isTop'  \n" +
+            " from  faq_question_tb a ";
+
+    @Override
+    public List<Map<String, Object>> findFaqListByPager(int pageNum, int size, Map parameter) {
+
+        String sql = faqSql + " where a.q_pid is null "+
+                getWhereSqlByParameter(parameter)
+                + " GROUP BY a.q_id order by a.is_top ,a.ask_date desc ";
+        return jt.queryForList(sql);
+    }
+    @Override
+    public int countFaqByParameter(Map parameter) {
+        String sql = "select count(DISTINCT(q_id))  from faq_question_tb a where a.q_pid is null "+
+                getWhereSqlByParameter(parameter);
+        Integer count = jt.queryForObject(sql, Integer.class);
+        return count == null ? 0 : count;
+    }
+
+
+    private String getWhereSqlByParameter(Map parameter) {
+        StringBuffer bf = new StringBuffer();
+        if(parameter.size()>0){
+            if(parameter.containsKey("askerName") &&  StringUtils.isNotBlank(parameter.get("askerName").toString())){
+                bf.append(" and a.asker_name like '%"+parameter.get("askerName").toString()+"%' ");
+            }
+            if(parameter.containsKey("gender") && StringUtils.isNotBlank(parameter.get("gender").toString())){
+                bf.append(" and a.gender = "+parameter.get("gender").toString());
+            }
+            if(parameter.containsKey("age") && StringUtils.isNotBlank(parameter.get("age").toString())){
+                bf.append(" and a.age = "+parameter.get("age").toString());
+            }
+            if(parameter.containsKey("isShow") && StringUtils.isNotBlank(parameter.get("isShow").toString())){
+                bf.append(" and a.is_show = "+parameter.get("isShow").toString());
+            }
+            if(parameter.containsKey("isTop") && StringUtils.isNotBlank(parameter.get("isTop").toString())){
+                bf.append(" and a.is_top = "+parameter.get("isTop").toString());
+            }
+        }
+        return bf.toString();
+    }
+
+    @Override
+    public int showSet(String qId, Integer isShow) {
+        return faqRepository.showSetByQid( qId, isShow);
+
+    }
+
+    @Override
+    public int countTopQuestion() {
+        String sql = " select count(distinct(a.q_id) ) from faq_question_tb a where a.is_top = 1 and a.q_pid is null";
+        Integer count = jt.queryForObject(sql, Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    @Override
+    public int TopSet(String qId, Integer isTop) {
+        return faqRepository.topSetByQid(qId, isTop);
+    }
+
+    @Override
+    public Faq findFaqById(String id) {
+        return faqRepository.findOne(id);
+    }
+
+    @Override
+    public void save(Faq faq) {
+        faqRepository.saveAndFlush(faq);
+    }
+
+    @Override
+    public int updateRootQuestion(Faq faq) {
+        int result = faqRepository.updateRootQuestion(faq.getAskerName(),faq.getGender(),faq.getAge(),faq.getAskContent(),faq.getAskDate(),faq.getQId());
+        return result;
+    }
+
+    @Override
+    public int saveFirstAnswerByDoctorId(Faq faq) {
+        int result = faqRepository.saveFirstAnswerByDoctorId(faq.getDoctorId(),faq.getAnswerContent(),faq.getAnswerDate(),faq.getId());
+        return result;
+    }
+
+
 }
