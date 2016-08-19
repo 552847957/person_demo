@@ -26,7 +26,7 @@ public class MeasureController {
 
     private static final Logger log = LoggerFactory.getLogger(MeasureController.class);
 
-    private static final String requestFamilyPath = "%s/measure/nearest?%s";
+    private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
 
     private RestTemplate template = new RestTemplate();
 
@@ -42,12 +42,14 @@ public class MeasureController {
             String url = String.format(requestFamilyPath, env.getProperty("measure.server.host"), parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
-                return new JsonResponseEntity<>(0, null, response.getBody().get("data"));
+                Map<String, Object> responseBody = response.getBody();
+                if (0 == (int)responseBody.get("code"))
+                    return new JsonResponseEntity<>(0, null, responseBody.get("data"));
             }
         } catch (RestClientException e) {
             log.info("请求测量数据异常", e);
         }
-        return new JsonResponseEntity<>(1000, "获取数据失败");
+        return new JsonResponseEntity<>(1000, "内部错误");
     }
 
 }
