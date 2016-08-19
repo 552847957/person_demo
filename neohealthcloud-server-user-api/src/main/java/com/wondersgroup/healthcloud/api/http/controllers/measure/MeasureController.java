@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +24,8 @@ public class MeasureController {
     private static final Logger log = LoggerFactory.getLogger(MeasureController.class);
 
     private static final String requestFamilyPath = "%s/measure/nearest?%s";
+
+    private static final String requestUploadPath = "%s/api/measure/upload?%s";
 
     private RestTemplate template = new RestTemplate();
 
@@ -49,5 +48,22 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "获取数据失败");
     }
+
+    @VersionRange
+    @GetMapping("upload/{type}")
+    public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
+
+        try {
+            String url = String.format(requestUploadPath, env.getProperty("measure.server.host"), type);
+            ResponseEntity<Map> response = template.postForEntity(url, paras, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                return new JsonResponseEntity<>(0, null, response.getBody().get("data"));
+            }
+        } catch (RestClientException e) {
+            log.info("上传体征数据失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "数据上传失败");
+    }
+
 
 }
