@@ -3,9 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.measure;
 import com.wondersgroup.healthcloud.api.http.dto.measure.MeasureTypeDTO;
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +37,9 @@ public class MeasureController {
     private Environment env;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonResponseEntity<Map> measureHome(@AccessToken Session session) {
+    public JsonResponseEntity<Map> measureHome() {
 
-        System.out.println("session.getUserId() = " + session.getUserId());
+//        System.out.println("session.getUserId() = " + session.getUserId());
 
         MeasureTypeDTO bmi = new MeasureTypeDTO();
         bmi.setTitle("BMI");
@@ -85,9 +83,13 @@ public class MeasureController {
         measure.setTestTime("2016-08-19");
         measure.setValue("21.7");
         measure.setFlag("0");
+
+        List<SimpleMeasure> histories = Collections.singletonList(measure);
+
         Map<String, Object> homeMap = new HashMap<>();
         homeMap.put("types", measures);
-        homeMap.put("histories", Collections.singletonList(measure));
+        homeMap.put("more", histories.size() > 3);
+        homeMap.put("histories", histories);
         JsonResponseEntity<Map> result = new JsonResponseEntity<>(0, null);
         result.setData(homeMap);
         return result;
