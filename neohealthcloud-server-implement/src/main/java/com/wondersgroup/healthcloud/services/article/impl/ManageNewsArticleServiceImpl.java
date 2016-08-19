@@ -79,6 +79,14 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         return getArticleEntityList(list);
     }
 
+    @Override
+    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize) {
+
+        List<NewsArticle> newsArticles = newsArticleRepo.queryCollectionNewsArticle(uid, pageNo * pageSize, pageSize);
+
+        return getArticleEntityList(newsArticles);
+    }
+
     private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
 
         if(null == resourceList || resourceList.size() == 0){
