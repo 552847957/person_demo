@@ -1,8 +1,11 @@
 package com.wondersgroup.healthcloud.api.http.controllers.question;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import com.wondersgroup.common.http.entity.ResponseWrapper;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -44,9 +47,10 @@ public class UserQuestionController {
 		String id="";
 		question.setAnswerId("");
 		id=questionService.saveQuestion(question);
-		String url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question?questionId="+id;
+		String url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeQuestion?questionId="+id;
 		//定时任务
 		Request request= new RequestBuilder().get().url(url).build();
+		httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
 		response.setMsg("您的问题已提交，请耐心等待医生回复");
 		return response;
 	}
