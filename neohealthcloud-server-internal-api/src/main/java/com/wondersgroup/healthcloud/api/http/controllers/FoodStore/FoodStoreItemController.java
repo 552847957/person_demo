@@ -83,7 +83,12 @@ public class FoodStoreItemController {
         Map<Class, Object> filterMap = new HashMap<>();
         filterMap.put(FoodStoreItem.class, new String[]{"update_time", "create_time"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", foodStoreItem);
+        JsonResponseEntity response;
+        if (foodStoreItem != null) {
+            response = new JsonResponseEntity(0, "查询成功", foodStoreItem);
+        } else {
+            response = new JsonResponseEntity(-1, "查询失败");
+        }
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
