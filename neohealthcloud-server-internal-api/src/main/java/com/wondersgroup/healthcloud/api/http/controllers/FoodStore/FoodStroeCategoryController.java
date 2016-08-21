@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,9 @@ public class FoodStroeCategoryController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "foodStoreCategory/list", method = RequestMethod.GET)
-    public String findFoodStoreCategoryList(Integer isShow, @PageableDefault(size = 20) Pageable pageable) throws JsonProcessingException {
+    public String findFoodStoreCategoryList(Integer isShow,
+                                            @PageableDefault(size = 20, sort = "updateTime", direction = Sort.Direction.DESC)
+                                            Pageable pageable) throws JsonProcessingException {
         Page<FoodStoreCategory> foodStoreCategoryList;
         if (isShow == null) {
             foodStoreCategoryList = foodStoreService.findAllList(pageable);

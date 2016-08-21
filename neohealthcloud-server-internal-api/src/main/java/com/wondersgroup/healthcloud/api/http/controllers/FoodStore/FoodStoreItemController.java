@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +54,8 @@ public class FoodStoreItemController {
     public String findFoodStoreItemList(@RequestParam Integer categoryId,
                                         String foodName,
                                         @RequestParam Integer isShow,
-                                        @PageableDefault(size = 20) Pageable pageable) throws JsonProcessingException {
+                                        @PageableDefault(size = 20, sort = "updateTime", direction = Sort.Direction.DESC)
+                                        Pageable pageable) throws JsonProcessingException {
         FoodStoreItem item = new FoodStoreItem();
         item.setCategoryId(categoryId);
         item.setFoodName(foodName);
