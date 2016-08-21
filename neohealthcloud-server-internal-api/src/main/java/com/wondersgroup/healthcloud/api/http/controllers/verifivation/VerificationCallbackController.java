@@ -43,7 +43,7 @@ public class VerificationCallbackController {
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
                 .urlFragment(AppMessageUrlUtil.verificationCallback(success))
-                .persistence(true).build();
+                .persistence().build();
         pushClientWrapper.pushToAlias(message, id);
 
         return "{\"success\":" + success + "}";

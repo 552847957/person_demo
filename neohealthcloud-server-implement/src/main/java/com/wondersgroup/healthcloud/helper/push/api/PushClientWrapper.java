@@ -59,7 +59,7 @@ public class PushClientWrapper {
         PushClientWrapper wrapper = new PushClientWrapper();
         wrapper.baseUrl = "http://localhost:8000/neohealthcloud-internal/message";
         wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        AppMessage message = AppMessage.Builder.init().title("实名认证").content("您的实名认证已经有结果了, 请点击查看").type(AppMessageUrlUtil.Type.SYSTEM).areaSpecial().urlFragment(AppMessageUrlUtil.verificationCallback()).persistence().build();
+        AppMessage message = AppMessage.Builder.init().title("实名认证").content("您的实名认证已经有结果了, 请点击查看").type(AppMessageUrlUtil.Type.SYSTEM).areaSpecial().urlFragment(AppMessageUrlUtil.verificationCallback(true)).persistence().build();
         System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
     }
 }
