@@ -3,13 +3,15 @@ package com.wondersgroup.healthcloud.api.http.controllers.common;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
-import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
-/*import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
-import com.wondersgroup.healthcloud.services.config.AppConfigService;*/
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,11 @@ import java.util.Map;
 public class CommonController {
     private static final Logger log = Logger.getLogger(CommonController.class);
 
-    /*@Autowired
-    private AppConfigService appConfigService;*/
+    @Autowired
+    private AppConfigService appConfigService;
+
+    @Autowired
+    private ImageTextService imageTextService;
     /**
      * APP获取启动数据
      */
@@ -43,34 +48,79 @@ public class CommonController {
     public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = false) String platform,
                                                              @RequestHeader(value = "screen-width", required = false) String width,
                                                              @RequestHeader(value = "screen-height", required = false) String height,
-                                                             @RequestHeader(value = "app-version", required = false) String appVersion) {
+                                                             @RequestHeader(value = "app-version", required = false) String appVersion,
+                                                             @RequestHeader(value = "main-area", required = true) String mainArea,
+                                                             @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
 
-        // todo zzx
+        List<String> keyWords = new ArrayList<>();
+        keyWords.add("app.common.consumer.hotline");//客服热线
+        keyWords.add("app.common.help.center");// 帮助中心
+        keyWords.add("app.common.userAgreement");// 用户协议
+        keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
+
+        keyWords.add("app.common.appUpdate");// APP更新
+        String [] keyWordArr = new String [keyWords.size()];
+        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords.toArray(keyWordArr));
+
         Map<String, Object> common = new HashMap<>();
         common.put("publicKey", HttpWdUtils.publicKey);
-        common.put("consumerHotline", "123456");
-        common.put("helpCenter", "http://www.wondersgroup.com/");
-        data.put("common", common);
+        if (cfgMap != null) {
+            if (cfgMap.get("app.common.consumer.hotline") != null) {
+                common.put("consumerHotline", cfgMap.get("app.common.consumer.hotline"));
+            }
+            if (cfgMap.get("app.common.help.center") != null) {
+                common.put("helpCenter", cfgMap.get("app.common.help.center"));
+            }
+            if (cfgMap.get("app.common.userAgreement") != null) {
+                common.put("userAgreement", cfgMap.get("app.common.userAgreement"));
+            }
+            if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
+                common.put("ipa", cfgMap.get("app.common.help.center"));
+            }
+            data.put("common", common);
 
-        Map ads = new HashMap();
-        ads.put("imgUrl", "http://www.wondersgroup.com/");
-        ads.put("hoplink", "http://www.wondersgroup.com/");
-        ads.put("duration", 2500);
-        ads.put("isSkip", true);
-        ads.put("isShow", true);
-        data.put("ads", ads);
+            if (cfgMap.get("app.common.appUpdate") != null) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode content = objectMapper.readTree(cfgMap.get("app.common.appUpdate").toString());
+                    String lastVersion = content.get("lastVersion") == null ? "" : content.get("lastVersion").asText();
+                    Boolean hasUpdate = compareVersion(appVersion, lastVersion);
+                    if (hasUpdate) {
+                        Boolean forceUpdate = false;
+                        String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
+                        if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
+                            forceUpdate = compareVersion(forceUpdateVersion.split(",")[0], appVersion) && compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
+                        }
+                        String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
+                        String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
 
-        //AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("app.common.appUpdate");
-        Map appUpdate = new HashMap();
-        appUpdate.put("hasUpdate", true);
-        appUpdate.put("forceUpdate", false);
-        appUpdate.put("appVersion", "3.0.1");
-        appUpdate.put("updateMsg", "1.更新信息1,2.更新信息2,3.bug修复");
-        appUpdate.put("iosUrl", "http://www.wondersgroup.com/");
-        appUpdate.put("androidUrl", "http://www.wondersgroup.com/");
-        data.put("appUpdate", appUpdate);
+                        Map appUpdate = new HashMap();
+                        appUpdate.put("hasUpdate", hasUpdate);
+                        appUpdate.put("forceUpdate", forceUpdate);
+                        appUpdate.put("lastVersion", lastVersion);
+                        appUpdate.put("updateMsg", updateMsg);
+                        appUpdate.put("androidUrl", downloadUrl);
+                        data.put("appUpdate", appUpdate);
+                    }
+                } catch (Exception ex) {
+                    log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+                }
+            }
+        }
+
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.LOADING_IMAGE);
+        if (imageTexts != null && imageTexts.size() > 0) {
+            ImageText imageText = imageTexts.get(0);
+            Map ads = new HashMap();
+            ads.put("imgUrl", imageText.getImgUrl());
+            ads.put("hoplink", imageText.getHoplink());
+            ads.put("duration", imageText.getDurations());
+            ads.put("isSkip", imageText.getAllowClose() == 1 ? true : false);
+            ads.put("isShow", imageText.getDelFlag() == 0 ? true : false);
+            data.put("ads", ads);
+        }
 
         response.setData(data);
         return response;
@@ -81,7 +131,6 @@ public class CommonController {
     @VersionRange
     public JsonResponseEntity<Map<String, Object>> qiniuConfig() {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<Map<String, Object>>();
-        // todo zzx
         Map<String, Object> map = Maps.newHashMap();
         map.put("token", UploaderUtil.getUpToken());
         map.put("expires", UploaderUtil.expires);
@@ -92,35 +141,53 @@ public class CommonController {
 
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity getNavigationBar() {
+    public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        // todo zzx
-        List<String> navigationBars = new ArrayList<>();
-        navigationBars.add("http://img.wdjky.com/b83024f11452254894886.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/6d3df5171452408025730.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/c5a1d7091452408035998.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/0f3bccf21452408043475.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/e3b9a88f1452408049464.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/b0544d041452157387796.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/ab1ac8b71452157428739.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/49e26f5a1452157439591.png?imageView2");
-        navigationBars.add("http://img.wdjky.com/80f784041452157447526.png?imageView2");
-        result.setData(navigationBars);
-
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.NAVIGATION_BAR);
+        if (imageTexts != null && imageTexts.size() > 0) {
+            List<String> navigationBars = new ArrayList<>();
+            for (ImageText imageText : imageTexts) {
+                navigationBars.add(imageText.getImgUrl());
+            }
+            result.setData(navigationBars);
+            result.setData(navigationBars);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置信息！");
+        }
         return result;
     }
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity aboutApp() {
+    public JsonResponseEntity aboutApp(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        // todo zzx
-        Map map = new HashMap();
-        map.put("appDesc", "健康云");
-        map.put("newVersion", "1.0");
-        map.put("appExplanation", "万达信息股份有限公司");
-        result.setData(map);
+        try {
+            AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.aboutApp");
+            if (appConfig != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode aboutApp = objectMapper.readTree(appConfig.getData());
+                result.setData(aboutApp);
+            } else {
+                result.setCode(1000);
+                result.setMsg("未查询到相关配置信息！");
+            }
+        } catch (Exception ex) {
+            log.error("CommonController.aboutApp Error -->" + ex.getLocalizedMessage());
+            result.setCode(1000);
+            result.setMsg("获取配置信息失败！");
+        }
         return result;
+    }
+
+    @RequestMapping(value = "/services", method = RequestMethod.GET)
+    public JsonResponseEntity services(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
+        JsonResponseEntity result = new JsonResponseEntity();
+
+        return null;
     }
 
     /**
