@@ -50,7 +50,7 @@ public class MessageDTO {
         this.type = message.getType();
         this.url = "-1".equals(type) ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
         this.time = message.getCreateTime();
-        this.isRead = false;
+        this.isRead = message.getIsRead();
         this.nativeMessage = message;
     }
 }

@@ -1,6 +1,5 @@
-package com.wondersgroup.healthcloud.services.user;
+package com.wondersgroup.healthcloud.services.user.message;
 
-import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 
 import java.util.List;
@@ -17,13 +16,17 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/21/16.
+ * Created by zhangzhixiu on 16/4/6.
  */
-public interface UserPrivateMessageService {
+public interface MessageReadService {
 
-    void saveOneMessage(AppMessage appMessage, String uid);
+    void newMessage(UserPrivateMessage message);
 
-    List<UserPrivateMessage> findRoot(String area, String uid);
+    void setAsRead(UserPrivateMessage message);
 
-    List<UserPrivateMessage> findType(String area, String uid, String typeId, Long flag);
+    Boolean hasUnread(String userId);
+
+    int unreadCountByType(String userId, String... type);
+
+    void isRead(List<UserPrivateMessage> privateMessages);
 }

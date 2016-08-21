@@ -9,7 +9,8 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
-import com.wondersgroup.healthcloud.services.user.UserPrivateMessageService;
+import com.wondersgroup.healthcloud.services.user.message.MessageReadService;
+import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,9 @@ public class MessageController {
     @Autowired
     private UserPrivateMessageService messageService;
 
+    @Autowired
+    private MessageReadService messageReadService;
+
     @GetMapping(path = "/root")
     @VersionRange
     public JsonListResponseEntity<MessageDTO> rootList(@RequestHeader("main-area") String area,
@@ -50,6 +54,7 @@ public class MessageController {
             message.id = null;
             message.url = null;
             message.title = AppMessageUrlUtil.Type.getById(message.type).name;
+            message.isRead = messageReadService.unreadCountByType(uid, message.type) == 0;
             messages.add(message);
         }
         response.setContent(messages);
@@ -63,6 +68,7 @@ public class MessageController {
                                                        @RequestParam String type,
                                                        @RequestParam(required = false) Long flag) {
         List<UserPrivateMessage> results = messageService.findType(area, uid, type, flag);
+        messageReadService.isRead(results);
         JsonListResponseEntity<MessageDTO> response = new JsonListResponseEntity<>();
         LinkedList<MessageDTO> messages = Lists.newLinkedList();
         int count = 0;
@@ -89,7 +95,7 @@ public class MessageController {
     @VersionRange
     public JsonResponseEntity<Map<String, Object>> prompt(@RequestParam String uid) {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("has_unread", true);
+        map.put("has_unread", messageReadService.hasUnread(uid));
 
         return new JsonResponseEntity<>(0, null, map);
     }
@@ -99,6 +105,9 @@ public class MessageController {
     public JsonResponseEntity<Map<String, Object>> status(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
         String messageId = reader.readString("message_id", false);
+
+        messageReadService.setAsRead(messageService.findOne(messageId));
+
         Map<String, Object> map = Maps.newHashMap();
         map.put("read", true);
 

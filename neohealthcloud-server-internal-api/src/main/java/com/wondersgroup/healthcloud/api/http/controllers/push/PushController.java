@@ -3,7 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.push;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
-import com.wondersgroup.healthcloud.services.user.UserPrivateMessageService;
+import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,12 +1,10 @@
-package com.wondersgroup.healthcloud.services.user.impl;
+package com.wondersgroup.healthcloud.services.user.message;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserPrivateMessageRepository;
-import com.wondersgroup.healthcloud.services.user.UserPrivateMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -33,7 +31,16 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     private UserPrivateMessageRepository messageRepository;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private MessageReadService messageReadService;
+
+    @Override
+    public UserPrivateMessage findOne(String id) {
+        UserPrivateMessage message = messageRepository.findOne(id);
+        if (message == null) {
+            throw new RuntimeException("message not exist " + id);
+        }
+        return message;
+    }
 
     @Override
     public void saveOneMessage(AppMessage message, String uid) {
@@ -50,7 +57,9 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
             userPrivateMessage.setType(message.type.id);
             userPrivateMessage.setCreateTime(new Date());
 
-            messageRepository.save(userPrivateMessage);
+            userPrivateMessage = messageRepository.save(userPrivateMessage);
+
+            messageReadService.newMessage(userPrivateMessage);
         }
     }
 
