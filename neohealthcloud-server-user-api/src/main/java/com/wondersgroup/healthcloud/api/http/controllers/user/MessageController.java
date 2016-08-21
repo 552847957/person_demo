@@ -7,6 +7,9 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
+import com.wondersgroup.healthcloud.services.user.UserPrivateMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -31,28 +34,32 @@ import java.util.Map;
 @RequestMapping(path = "/api/message")
 public class MessageController {
 
+    @Autowired
+    private UserPrivateMessageService messageService;
+
     @GetMapping(path = "/root")
     @VersionRange
-    public JsonListResponseEntity<MessageDTO> rootList(@RequestHeader("main-area") String area,
-                                                       @RequestParam String uid) {
-        JsonListResponseEntity<MessageDTO> response = new JsonListResponseEntity<>();
-        List<MessageDTO> messages = Lists.newLinkedList();
-        MessageDTO m1 = new MessageDTO();
-        m1.title = "系统消息";
-        m1.content = "实名认证成功";
-        m1.isRead = false;
-        m1.type = "system";
-        m1.time = new Date();
-        messages.add(m1);
-        MessageDTO m2 = new MessageDTO();
-        m2.title = "轻问诊";
-        m2.content = "你好.....";
-        m2.isRead = true;
-        m2.type = "question";
-        m2.time = new Date();
-        messages.add(m2);
-        response.setContent(messages);
-        return response;
+    public List<UserPrivateMessage> rootList(@RequestHeader("main-area") String area,
+                                             @RequestParam String uid) {
+        return messageService.findRoot(uid);
+//        JsonListResponseEntity<MessageDTO> response = new JsonListResponseEntity<>();
+//        List<MessageDTO> messages = Lists.newLinkedList();
+//        MessageDTO m1 = new MessageDTO();
+//        m1.title = "系统消息";
+//        m1.content = "实名认证成功";
+//        m1.isRead = false;
+//        m1.type = "system";
+//        m1.time = new Date();
+//        messages.add(m1);
+//        MessageDTO m2 = new MessageDTO();
+//        m2.title = "轻问诊";
+//        m2.content = "你好.....";
+//        m2.isRead = true;
+//        m2.type = "question";
+//        m2.time = new Date();
+//        messages.add(m2);
+//        response.setContent(messages);
+//        return response;
     }
 
     @GetMapping(path = "/type")

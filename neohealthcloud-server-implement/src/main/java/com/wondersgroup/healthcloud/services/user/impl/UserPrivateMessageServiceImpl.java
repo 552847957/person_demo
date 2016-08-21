@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
@@ -56,20 +57,16 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
 
     @Override
     public List<UserPrivateMessage> findRoot(String uid) {
-//        String caseSql = " case type when '4' then 'report' when '6' then 'report' when '3' then 'report' when '2H' then 'questionnaire' else 'system' end ";
-//        String query = String.format(" select a.id,a.type,a.time,a.content,a.title,a.args,a.newtype from  "
-//                + " ( select id,time,type,content,title,args, " + caseSql + " as newtype from user_private_message_tb where (uid= '%s' or uid is null) and time>FROM_UNIXTIME(%d)) a  "
-//                + " inner join "
-//                + " (select max(id) id,time," + caseSql + " as newtype from user_private_message_tb where (uid= '%s' or uid is null) and time>FROM_UNIXTIME(%d) group by " + caseSql + " ,time) b on a.id=b.id "
-//                + " INNER JOIN (select max(time) as time, " + caseSql + " as newtype from user_private_message_tb where (uid= '%s' or uid is null) and time>FROM_UNIXTIME(%d) "
-//                + " group by " + caseSql + ") c on a.time=c.time and a.newtype=c.newtype order by newtype", uid, startTime, uid, startTime, uid, startTime);
-//        List<Map<String, Object>> results = jdbcTemplate.queryForList(query);
+        if (uid.length() != 32) {
+            return Lists.newLinkedList();
+        }
+        String sql = "select *,max(create_time) from app_tb_user_private_message where uid=?1 group by type";
+        List<UserPrivateMessage> results = jdbcTemplate.queryForList(sql, UserPrivateMessage.class, uid);
 //        List<PrivateMessage> messages = Lists.newLinkedList();
 //        for (Map<String, Object> result : results) {
 //            messages.add(buildFrom(uid, result));
 //        }
-//        return messages;
-        return null;
+        return results;
     }
 
     @Override
