@@ -29,6 +29,8 @@ public class AppMessage {
     public String content;
     public Boolean persistence;
     public String area;
+    @JsonProperty("area_special")
+    public Boolean areaSpecial;
     public AppMessageUrlUtil.Type type;
     @JsonProperty("is_doctor")
     public Boolean isDoctor;
@@ -39,11 +41,12 @@ public class AppMessage {
     public AppMessage() {
     }
 
-    private AppMessage(String title, String content, Boolean persistence, String area, AppMessageUrlUtil.Type type, Boolean isDoctor, String urlFragment, Map<String, String> params) {
+    private AppMessage(String title, String content, Boolean persistence, String area, Boolean areaSpecial, AppMessageUrlUtil.Type type, Boolean isDoctor, String urlFragment, Map<String, String> params) {
         this.title = title;
         this.content = content;
         this.persistence = persistence;
         this.area = area;
+        this.areaSpecial = areaSpecial;
         this.type = type;
         this.isDoctor = isDoctor;
         this.urlFragment = urlFragment;
@@ -70,6 +73,7 @@ public class AppMessage {
         private String content;
         private boolean persistence;
         private String area;
+        private boolean areaSpecial;
         private AppMessageUrlUtil.Type type;
         private boolean isDoctor;
         private String urlFragment;
@@ -89,8 +93,13 @@ public class AppMessage {
             return this;
         }
 
-        public Builder persistence(Boolean persistence) {
-            this.persistence = persistence;
+        public Builder persistence() {
+            this.persistence = true;
+            return this;
+        }
+
+        public Builder areaSpecial() {
+            this.areaSpecial = true;
             return this;
         }
 
@@ -99,8 +108,8 @@ public class AppMessage {
             return this;
         }
 
-        public Builder isDoctor(boolean isDoctor) {
-            this.isDoctor = isDoctor;
+        public Builder isDoctor() {
+            this.isDoctor = true;
             return this;
         }
 
@@ -118,7 +127,7 @@ public class AppMessage {
         }
 
         public AppMessage build() {
-            return new AppMessage(title, content, persistence, area, type, isDoctor, urlFragment, params);
+            return new AppMessage(title, content, persistence, area, areaSpecial, type, isDoctor, urlFragment, params);
         }
 
         private void check() {
