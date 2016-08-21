@@ -2,8 +2,10 @@ package com.wondersgroup.healthcloud.services.doctor.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.faq.FaqRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.apache.commons.lang3.StringUtils;
@@ -134,8 +136,15 @@ public class DoctorServiceImpl implements DoctorService {
      * @return
      */
     @Override
-    public List<Map<String, Object>> findAllFaqDoctors(String kw) {
+    public List<Map<String, Object>> findAllFaqDoctors(String kw,String rootQid,String doctorAnswerId) {
+
         String sql = " select a.id , a.name from doctor_account_tb a where a.is_available = '0' ";
+
+        if(StringUtils.isNotBlank(doctorAnswerId)){
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"'  and id != '"+doctorAnswerId+"' ) ";
+        }else {
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"' ) ";
+        }
 
         if(StringUtils.isNotBlank(kw)){
             sql = sql + " and a.name like '%"+kw+"%' ";
