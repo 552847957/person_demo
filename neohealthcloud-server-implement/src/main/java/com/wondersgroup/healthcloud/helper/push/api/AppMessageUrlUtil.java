@@ -48,7 +48,7 @@ public class AppMessageUrlUtil {
             this.urlPrefix = urlPrefix;
         }
 
-        public Type getById(String id) {
+        public static Type getById(String id) {
             return idTypeMap.get(id);
         }
     }

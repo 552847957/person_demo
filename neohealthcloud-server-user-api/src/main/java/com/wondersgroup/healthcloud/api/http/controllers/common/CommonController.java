@@ -183,6 +183,7 @@ public class CommonController {
     }
 
     @RequestMapping(value = "/services", method = RequestMethod.GET)
+    @VersionRange
     public JsonResponseEntity services(@RequestHeader(value = "main-area", required = true) String mainArea,
                                        @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();

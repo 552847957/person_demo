@@ -57,9 +57,9 @@ public class PushClientWrapper {
 
     public static void main(String... args) {
         PushClientWrapper wrapper = new PushClientWrapper();
-        wrapper.baseUrl = "http://localhost:8000/neohealthcloud-internal/message";
+        wrapper.baseUrl = "http://10.1.64.90:8080/neohealthcloud-internal/message";
         wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭").type(AppMessageUrlUtil.Type.QUESTION).areaSpecial().urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
+        AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭10").type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
         System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
     }
 }

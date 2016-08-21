@@ -62,10 +62,17 @@ public class AppMessage {
             return null;
         }
         if (type != AppMessageUrlUtil.Type.HTTP) {
-            return "com.wondersgroup.healthcloud." + area + "://" + (isDoctor ? "doctor" : "user") + urlFragment;
+            return buildAppUrl(area, isDoctor, urlFragment);
         } else {
             return urlFragment;
         }
+    }
+
+    public static String buildAppUrl(String area, Boolean isDoctor, String urlFragment) {
+        if (urlFragment == null) {
+            return null;
+        }
+        return "com.wondersgroup.healthcloud." + area + "://" + (isDoctor ? "doctor" : "user") + urlFragment;
     }
 
     public static class Builder {

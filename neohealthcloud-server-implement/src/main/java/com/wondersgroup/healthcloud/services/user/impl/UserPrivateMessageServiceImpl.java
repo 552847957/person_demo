@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
-import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
@@ -56,21 +55,15 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     }
 
     @Override
-    public List<UserPrivateMessage> findRoot(String uid) {
-        if (uid.length() != 32) {
-            return Lists.newLinkedList();
-        }
-        String sql = "select *,max(create_time) from app_tb_user_private_message where uid=?1 group by type";
-        List<UserPrivateMessage> results = jdbcTemplate.queryForList(sql, UserPrivateMessage.class, uid);
-//        List<PrivateMessage> messages = Lists.newLinkedList();
-//        for (Map<String, Object> result : results) {
-//            messages.add(buildFrom(uid, result));
-//        }
-        return results;
+    public List<UserPrivateMessage> findRoot(String area, String uid) {
+        return messageRepository.findRootMessages(area, uid);
     }
 
     @Override
-    public List<UserPrivateMessage> findType(String uid, String typeId) {
-        return null;
+    public List<UserPrivateMessage> findType(String area, String uid, String typeId, Long flag) {
+        if (flag == null) {
+            flag = System.currentTimeMillis() / 1000L;
+        }
+        return messageRepository.findTypeMessages(area, uid, typeId, flag);
     }
 }

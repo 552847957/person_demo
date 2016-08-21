@@ -23,7 +23,7 @@ public interface UserPrivateMessageService {
 
     void saveOneMessage(AppMessage appMessage, String uid);
 
-    List<UserPrivateMessage> findRoot(String uid);
+    List<UserPrivateMessage> findRoot(String area, String uid);
 
-    List<UserPrivateMessage> findType(String uid, String typeId);
+    List<UserPrivateMessage> findType(String area, String uid, String typeId, Long flag);
 }
