@@ -26,7 +26,7 @@ import java.util.List;
  * Created by zhangzhixiu on 8/17/16.
  */
 @Component
-public class PushClientWrapper {
+public class PushClientWrapper {//todo(zzx) can convert the blocked request to async request to imporve the performance.
 
     @Value("${internal.api.service.message.url}")
     private String baseUrl;
