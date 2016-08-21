@@ -20,4 +20,6 @@ public interface ManageNewsArticleCategotyService {
     public int countRow(Map<String, Object> parm);
 
     public List<NewsArticleCategory> findNewsCategory();
+
+    public NewsArticleCategory findNewsCategory(int id);
 }

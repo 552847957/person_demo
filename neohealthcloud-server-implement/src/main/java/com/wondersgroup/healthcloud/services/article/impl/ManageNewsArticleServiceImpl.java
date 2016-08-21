@@ -22,7 +22,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     private NewsArticleRepo newsArticleRepo;
     @Override
     public NewsArticle findArticleInfoById(int id) {
-        return null;
+        return newsArticleRepo.queryArticleById(id);
     }
 
     @Override

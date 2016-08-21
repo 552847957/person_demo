@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotySe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,8 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
 
     @Override
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
-
+        Date date=new Date();
+        newsArticleCategory.setUpdate_time(date);
         return newsArticleCategoryRepo.saveAndFlush(newsArticleCategory).getId();
     }
 
@@ -46,5 +48,11 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     @Override
     public List<NewsArticleCategory> findNewsCategory() {
         return newsArticleCategoryRepo.findAll();
+    }
+
+    @Override
+    public NewsArticleCategory findNewsCategory(int id) {
+
+        return newsArticleCategoryRepo.ArticleCategoryById(id);
     }
 }
