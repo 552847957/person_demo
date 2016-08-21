@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
-import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityDetailRepository;
-import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityDetailRepository;
+import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
