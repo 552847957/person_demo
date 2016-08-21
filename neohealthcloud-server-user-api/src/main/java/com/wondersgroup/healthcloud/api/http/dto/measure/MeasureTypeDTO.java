@@ -1,6 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.dto.measure;
 
-import com.wondersgroup.healthcloud.api.http.controllers.measure.HealthType;
+import com.wondersgroup.healthcloud.jpa.enums.MeasureType;
 
 /**
  * Created by Jeffrey on 16/8/19.
@@ -13,7 +13,7 @@ public class MeasureTypeDTO {
 
     private String iconUrl;
 
-    private HealthType type;
+    private MeasureType type;
 
     public String getTitle() {
         return title;
@@ -43,7 +43,7 @@ public class MeasureTypeDTO {
         return type.ordinal();
     }
 
-    public void setType(HealthType type) {
+    public void setType(MeasureType type) {
         this.type = type;
     }
 }

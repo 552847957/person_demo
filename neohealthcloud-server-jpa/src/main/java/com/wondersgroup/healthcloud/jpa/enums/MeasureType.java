@@ -1,9 +1,9 @@
-package com.wondersgroup.healthcloud.api.http.controllers.measure;
+package com.wondersgroup.healthcloud.jpa.enums;
 
 /**
  * Created by Jeffrey on 16/8/16.
  */
-public enum HealthType {
+public enum MeasureType {
     BMI,
     BloodOxygen,
     BloodPressure,
