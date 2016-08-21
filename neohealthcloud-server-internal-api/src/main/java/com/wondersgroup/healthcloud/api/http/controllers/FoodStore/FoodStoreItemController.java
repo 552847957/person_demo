@@ -66,7 +66,12 @@ public class FoodStoreItemController {
                 new String[]{"id", "category", "rank", "food_name", "icon", "use_suggest", "heat", "is_show", "update_time"});
         filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", foodStoreItems);
+        JsonResponseEntity response;
+        if (foodStoreItems.getContent() != null && !foodStoreItems.getContent().isEmpty()) {
+            response = new JsonResponseEntity(0, "查询成功", foodStoreItems);
+        } else {
+            response = new JsonResponseEntity(-1, "查询失败");
+        }
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
