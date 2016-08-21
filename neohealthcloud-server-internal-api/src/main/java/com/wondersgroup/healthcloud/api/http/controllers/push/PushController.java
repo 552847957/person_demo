@@ -3,6 +3,8 @@ package com.wondersgroup.healthcloud.api.http.controllers.push;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/message")
 public class PushController {
+
+    public static final Logger logger = LoggerFactory.getLogger(PushController.class);
 
     @Autowired
     private PushAreaService pushAreaService;

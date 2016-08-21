@@ -54,4 +54,12 @@ public class PushClientWrapper {
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
     }
+
+    public static void main(String... args) {
+        PushClientWrapper wrapper = new PushClientWrapper();
+        wrapper.baseUrl = "http://localhost:8000/neohealthcloud-internal/message";
+        wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
+        AppMessage message = AppMessage.Builder.init().title("title").content("content").type(AppMessageUrlUtil.Type.SYSTEM).urlFragment(AppMessageUrlUtil.verificationCallback()).persistence(true).build();
+        System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
+    }
 }

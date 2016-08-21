@@ -136,17 +136,4 @@ public class BeanFactory {
         return httpWdUtils;
     }
 
-    @Bean
-    public PushClientSelector pushClientSelector(AppConfigurationInfoRepository repository) {
-        PushClientSelector selector = new PushClientSelector();
-        selector.init(repository.getAll());
-        return selector;
-    }
-
-    @Bean
-    public PushAdminSelector pushAdminSelector(AppConfigurationInfoRepository repository) {
-        PushAdminSelector selector = new PushAdminSelector();
-        selector.init(repository.getAll());
-        return selector;
-    }
 }
