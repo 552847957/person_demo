@@ -3,7 +3,6 @@ package com.wondersgroup.healthcloud.api.http.controllers.verifivation;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
-import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
