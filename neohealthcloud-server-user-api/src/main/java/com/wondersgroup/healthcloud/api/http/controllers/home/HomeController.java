@@ -1,7 +1,22 @@
 package com.wondersgroup.healthcloud.api.http.controllers.home;
 
+import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
+import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
+import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
+import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import com.wondersgroup.healthcloud.services.faq.FaqService;
+import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
+import com.wondersgroup.healthcloud.services.notice.NoticeService;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,77 +33,124 @@ import java.util.Map;
 @RequestMapping("/api/home")
 public class HomeController {
 
+    private static final Logger log = Logger.getLogger(HomeController.class);
+
+    @Autowired
+    private ImageTextService imageTextService;
+
+    @Autowired
+    private NoticeService noticeService;
+
+    @Autowired
+    private ManageNewsArticleService manageNewsArticleService;
+
+    @Autowired
+    private FaqService faqService;
+
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity bannerFunctionAds() {
-        // todo zzx
+    public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
-        List banners = new ArrayList();
-        Map map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        banners.add(map);
-        map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        banners.add(map);
-        data.put("banners", banners);
 
-        List functionIcons = new ArrayList();
-        map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        map.put("mainTitle", "体征测量");
-        map.put("subTitle", "记录您的体征数据");
-        functionIcons.add(map);
-        map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        map.put("mainTitle", "在线咨询");
-        map.put("subTitle", "三甲医院,随时解惑");
-        functionIcons.add(map);
-        data.put("functionIcons", functionIcons);
+        // 首页Banner
+        List<ImageText> imageTextsB = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_BANNER);
+        if (imageTextsB != null && imageTextsB.size() > 0) {
+            List banners = new ArrayList();
+            for (ImageText imageText : imageTextsB) {
+                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+                banners.add(bit);
+            }
+            data.put("banners", banners);
+        }
 
-        Map advertisements = new HashMap();
-        advertisements.put("allowClose", true);
-        List adImages = new ArrayList();
-        map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        adImages.add(map);
-        map = new HashMap();
-        map.put("imgUrl", "http://www.wondersgroup.com/");
-        map.put("hoplink", "http://www.wondersgroup.com/");
-        adImages.add(map);
-        advertisements.put("adImages", adImages);
-        data.put("advertisements", advertisements);
-        result.setData(data);
+        // 首页功能栏
+        List<ImageText> imageTextsF = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
+        if (imageTextsF != null && imageTextsF.size() > 0) {
+            List functionIcons = new ArrayList();
+            Map map = null;
+            for (ImageText imageText : imageTextsF) {
+                map = new HashMap();
+                map.put("imgUrl", imageText.getImgUrl());
+                map.put("hoplink", imageText.getHoplink());
+                map.put("mainTitle", imageText.getMainTitle());
+                map.put("subTitle", imageText.getSubTitle());
+                functionIcons.add(map);
+            }
+            data.put("functionIcons", functionIcons);
+        }
+
+        // 首页广告
+        List<ImageText> imageTextsAD = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
+        if (imageTextsAD != null && imageTextsAD.size() > 0) {
+            List adImages = new ArrayList();
+            for (ImageText imageText : imageTextsAD) {
+                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+                adImages.add(bit);
+            }
+            data.put("advertisements", adImages);
+        }
+        if (data.size() > 0) {
+            result.setData(data);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关数据！");
+        }
         return result;
     }
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity appTips() {
-        // todo zzx
+    public JsonResponseEntity appTips(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                      @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        Map data = new HashMap();
-        data.put("content","热烈庆祝万达信息成立20周年，期待万达信息的明天越来越好！");
-        data.put("hoplink", "https://www.wondersgroup.com");
-        result.setData(data);
+        Notice notice = noticeService.findNoticeByAreaForApp(mainArea, specArea);
+        if (notice != null) {
+            Map data = new HashMap();
+            data.put("content", notice.getContent());
+            data.put("hoplink", notice.getHoplink());
+            result.setData(data);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置信息");
+        }
+
         return result;
     }
 
     @RequestMapping(value = "/newsAndQuestions", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity newsAndQuestions() {
-        // todo zzx
+    public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
-        List news = new ArrayList<>();
-        data.put("news", news);
-        List questions = new ArrayList<>();
-        data.put("questions", questions);
+        try {
+            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 1, 10);
+            if (newsArticleList != null && newsArticleList.size() > 0) {
+                data.put("news", newsArticleList);
+            }
+        } catch (Exception ex) {
+            log.error("HomeController.newsAndQuestions Error --> manageNewsArticleService.findArticleForFirst -->" + ex.getLocalizedMessage());
+        }
+
+        try {
+            List<Faq> faqList = faqService.findHomeFaqList();
+            if (faqList != null) {
+                List<FaqDTO> questions = Lists.newArrayList();
+                for (Faq faq : faqList) {
+                    FaqDTO faqDTO = new FaqDTO(faq);
+                    //查询回答数
+                    int commentCount = faqService.countCommentByQid(faq.getQId());
+                    faqDTO.setCommentCount(commentCount);
+                    questions.add(faqDTO);
+                }
+                data.put("questions", questions);
+            }
+        } catch (Exception ex) {
+            log.error("HomeController.newsAndQuestions Error --> faqService.findHomeFaqList -->" + ex.getLocalizedMessage());
+        }
+
         result.setData(data);
         return result;
     }

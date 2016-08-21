@@ -48,7 +48,12 @@ public class FoodStroeCategoryController {
         filterMap.put(FoodStoreCategory.class, new String[]{"tags", "create_time"});
         filterMap.put(PageImpl.class, new String[]{"number_of_elements", "sort", "first"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", foodStoreCategoryList);
+        JsonResponseEntity response;
+        if (foodStoreCategoryList.getContent() != null && !foodStoreCategoryList.getContent().isEmpty()) {
+            response = new JsonResponseEntity(0, "查询成功", foodStoreCategoryList);
+        } else {
+            response = new JsonResponseEntity(-1, "查询失败");
+        }
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
@@ -65,7 +70,12 @@ public class FoodStroeCategoryController {
         Map<Class, Object> filterMap = new HashMap<>();
         filterMap.put(FoodStoreCategory.class, new String[]{"update_time", "create_time"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", foodStoreCategory);
+        JsonResponseEntity response;
+        if (foodStoreCategory != null) {
+            response = new JsonResponseEntity(0, "查询成功", foodStoreCategory);
+        } else {
+            response = new JsonResponseEntity(-1, "查询失败");
+        }
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }

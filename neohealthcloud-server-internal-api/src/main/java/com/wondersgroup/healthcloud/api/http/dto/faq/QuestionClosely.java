@@ -38,7 +38,7 @@ public class QuestionClosely {
 
     public QuestionClosely(Faq faqClosely) {
         this.id = faqClosely.getId();
-        this.qId = faqClosely.getId();
+        this.qId = faqClosely.getQId();
         this.qPid = faqClosely.getQPid();
         this.askerName = faqClosely.getAskerName();
         this.gender = faqClosely.getGender();

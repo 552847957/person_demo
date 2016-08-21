@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by dukuanxin on 2016/8/17.
@@ -21,6 +22,6 @@ public class NewsArticleCategory implements Serializable {
     private int rank;// 排序
     private int is_visable;// 是否有效(1:有效,0:无效)
     private String update_by;// 更新人
-    private int update_time;// 更新时间
+    private Date update_time;// 更新时间
 
 }

@@ -21,4 +21,7 @@ public interface NewsArticleRepo extends JpaRepository<NewsArticle,String> {
     @Query(nativeQuery = true,value = "SELECT t1.* FROM app_tb_news_article t1 LEFT JOIN app_tb_neoarticle_favorite t2 ON t1.id=t2.article_id WHERE t1.is_visable = '1' and t2.user_id=?1 order by t1.update_time desc limit ?2,?3")
     List<NewsArticle> queryCollectionNewsArticle(String areaId,int pageNo,int pageSize);
 
+    @Query(nativeQuery = true,value = "SELECT * FROM app_tb_news_article where id=?1")
+    NewsArticle queryArticleById(int id);
+
 }

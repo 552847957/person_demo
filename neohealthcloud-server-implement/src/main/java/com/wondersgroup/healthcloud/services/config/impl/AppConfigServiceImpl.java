@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.repository.config.AppConfigRepository;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -59,7 +60,7 @@ public class AppConfigServiceImpl implements AppConfigService {
                     sql.append(" AND key_word in (").append(kws.toString()).append(")");
                 }
             }
-            List<AppConfig> appConfigList = getJt().queryForList(sql.toString(), AppConfig.class);
+            List<AppConfig> appConfigList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
 
             if (appConfigList != null && appConfigList.size() > 0) {
                 cfgMap = new HashMap<>();
@@ -85,7 +86,7 @@ public class AppConfigServiceImpl implements AppConfigService {
                 sql.append(" AND spec_area = '").append(specArea).append("'");
             }
 
-            List<AppConfig> appConfigList = getJt().queryForList(sql.toString(), AppConfig.class);
+            List<AppConfig> appConfigList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
 
             if (appConfigList != null && appConfigList.size() > 0) {
                 return appConfigList;
@@ -111,7 +112,7 @@ public class AppConfigServiceImpl implements AppConfigService {
                 sql.append(" AND key_word = '").append(keyWord).append("'");
             }
 
-            AppConfig appConfig = getJt().queryForObject(sql.toString(), AppConfig.class);
+            AppConfig appConfig = getJt().queryForObject(sql.toString(), new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
 
             if (appConfig != null) {
                 return appConfig;

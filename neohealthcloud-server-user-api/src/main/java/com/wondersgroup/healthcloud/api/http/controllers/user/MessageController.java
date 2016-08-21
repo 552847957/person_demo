@@ -7,9 +7,14 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
+import com.wondersgroup.healthcloud.services.user.message.MessageReadService;
+import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,26 +36,27 @@ import java.util.Map;
 @RequestMapping(path = "/api/message")
 public class MessageController {
 
+    @Autowired
+    private UserPrivateMessageService messageService;
+
+    @Autowired
+    private MessageReadService messageReadService;
+
     @GetMapping(path = "/root")
     @VersionRange
     public JsonListResponseEntity<MessageDTO> rootList(@RequestHeader("main-area") String area,
                                                        @RequestParam String uid) {
+        List<UserPrivateMessage> results = messageService.findRoot(area, uid);
         JsonListResponseEntity<MessageDTO> response = new JsonListResponseEntity<>();
         List<MessageDTO> messages = Lists.newLinkedList();
-        MessageDTO m1 = new MessageDTO();
-        m1.title = "系统消息";
-        m1.content = "实名认证成功";
-        m1.isRead = false;
-        m1.type = "system";
-        m1.time = new Date();
-        messages.add(m1);
-        MessageDTO m2 = new MessageDTO();
-        m2.title = "轻问诊";
-        m2.content = "你好.....";
-        m2.isRead = true;
-        m2.type = "question";
-        m2.time = new Date();
-        messages.add(m2);
+        for (UserPrivateMessage result : results) {
+            MessageDTO message = new MessageDTO(result, area);
+            message.id = null;
+            message.url = null;
+            message.title = AppMessageUrlUtil.Type.getById(message.type).name;
+            message.isRead = messageReadService.unreadCountByType(uid, message.type) == 0;
+            messages.add(message);
+        }
         response.setContent(messages);
         return response;
     }
@@ -60,31 +66,28 @@ public class MessageController {
     public JsonListResponseEntity<MessageDTO> typeList(@RequestHeader("main-area") String area,
                                                        @RequestParam String uid,
                                                        @RequestParam String type,
-                                                       @RequestParam(required = false) String flag) {
+                                                       @RequestParam(required = false) Long flag) {
+        List<UserPrivateMessage> results = messageService.findType(area, uid, type, flag);
+        messageReadService.isRead(results);
         JsonListResponseEntity<MessageDTO> response = new JsonListResponseEntity<>();
-        List<MessageDTO> messages = Lists.newLinkedList();
-        MessageDTO m1 = new MessageDTO();
-        if ("system".equals(type)) {
-            m1.id = "1";
-            m1.title = "实名认证结果";
-            m1.content = "实名认证成功";
-            m1.isRead = false;
-            m1.type = "system";
-            m1.url = "com.wondersgroup.healthcloud." + area + "://user/verification";
-            m1.time = new Date();
-            messages.add(m1);
-        } else {
-            MessageDTO m2 = new MessageDTO();
-            m2.id = "2";
-            m2.title = "轻问诊";
-            m2.content = "你好.....";
-            m2.isRead = true;
-            m2.type = "question";
-            m2.url = "com.wondersgroup.healthcloud." + area + "://user/question?id=222";
-            m2.time = new Date();
-            messages.add(m2);
+        LinkedList<MessageDTO> messages = Lists.newLinkedList();
+        int count = 0;
+        String newFlag = null;
+        for (UserPrivateMessage result : results) {
+            if (count < 10) {
+                MessageDTO message = new MessageDTO(result, area);
+                messages.add(message);
+            } else {
+                newFlag = String.valueOf(messages.getLast().nativeMessage.getCreateTime().getTime() / 1000L);
+                break;
+            }
+            count++;
         }
-        response.setContent(messages);
+        if (newFlag != null) {
+            response.setContent(messages, true, "time_desc", newFlag);
+        } else {
+            response.setContent(messages);
+        }
         return response;
     }
 
@@ -92,7 +95,7 @@ public class MessageController {
     @VersionRange
     public JsonResponseEntity<Map<String, Object>> prompt(@RequestParam String uid) {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("has_unread", true);
+        map.put("has_unread", messageReadService.hasUnread(uid));
 
         return new JsonResponseEntity<>(0, null, map);
     }
@@ -102,6 +105,9 @@ public class MessageController {
     public JsonResponseEntity<Map<String, Object>> status(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
         String messageId = reader.readString("message_id", false);
+
+        messageReadService.setAsRead(messageService.findOne(messageId));
+
         Map<String, Object> map = Maps.newHashMap();
         map.put("read", true);
 
