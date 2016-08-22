@@ -31,7 +31,7 @@ public interface FoodStoreItemRepository extends JpaRepository<FoodStoreItem, In
     @Query(" update FoodStoreItem a set a.isShow = ?1 ,a.createTime = ?2 where a.id in ?3")
     Integer updateIsShowByIds(int isShow, Date nowTime, List<Integer> ids);
 
-    @Query("select count(a) from FoodStoreItem a where a.isShow = 1  and  a.foodName like ?1 ")
+    @Query("select count(a) from FoodStoreItem a where a.isShow = 1  and  a.foodName like %?1% ")
     Integer countByKw(String keyword);
 
     FoodStoreItem findById(int id);

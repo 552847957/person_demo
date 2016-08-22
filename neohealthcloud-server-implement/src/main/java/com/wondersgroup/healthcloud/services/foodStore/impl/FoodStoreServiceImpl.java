@@ -59,7 +59,7 @@ public class FoodStoreServiceImpl implements FoodStoreService {
 
     @Override
     public Integer countFoodStoreItemByKw(String keyword) {
-        Integer num = foodStoreItemRepository.countByKw("%"+keyword+"%");
+        Integer num = foodStoreItemRepository.countByKw(keyword);
         return num;
     }
 
