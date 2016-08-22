@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface NewsArticleRepo extends JpaRepository<NewsArticle,String> {
     @Query(nativeQuery = true,value = "SELECT  t1.* FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_orm_category t2 ON t1.id=t2.article_id LEFT JOIN" +
-            " app_tb_neoarticle_category t3 ON t2.category_id=t3.id ORDER BY t1.update_time desc limit ?2,?3")
+            " app_tb_neoarticle_category t3 ON t2.category_id=t3.id WHERE t3.id=?1 ORDER BY t1.update_time desc limit ?2,?3")
     List<NewsArticle> queryNewsArticleByCatId(String categoryId,int pageNo,int pageSize);
     @Query(nativeQuery = true,value = "select * from app_tb_neoarticle where title like %?1% order by update_time desc limit ?2,?3")
     List<NewsArticle> queryNewsArticleByTitle(String title,int pageNo,int pageSize);
