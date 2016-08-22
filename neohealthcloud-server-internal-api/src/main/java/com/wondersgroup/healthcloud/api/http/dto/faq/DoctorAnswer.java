@@ -36,7 +36,7 @@ public class DoctorAnswer {
     @JsonProperty("answer_content")
     private String answerContent;
 
-    @JsonProperty("answer_time")
+    @JsonProperty("answer_date")
     private String answerTime;
 
     @JsonProperty("question_closely")
@@ -55,7 +55,7 @@ public class DoctorAnswer {
         this.answerContent = faq.get("answerContent")==null?"":faq.get("answerContent").toString();
         Date answerDate = (Date)faq.get("answerDate");
         if(answerDate !=null){
-            this.answerTime = DateFormatter.questionDateFormat(answerDate);
+            this.answerTime = DateFormatter.dateTimeFormat(answerDate);
         }
     }
 

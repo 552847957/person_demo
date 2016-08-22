@@ -191,6 +191,7 @@ public class FaqManageController {
             response.setMsg("保存失败");
             return response;
         }
+        response.setData(faq.getId());
         response.setMsg("保存成功");
         return response;
     }
