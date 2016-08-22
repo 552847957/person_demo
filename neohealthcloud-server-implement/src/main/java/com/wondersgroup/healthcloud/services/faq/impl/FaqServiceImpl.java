@@ -84,7 +84,7 @@ public class FaqServiceImpl implements FaqService {
         String sql = faqSql + " where a.q_pid is null "+
                 getWhereSqlByParameter(parameter)
                 + " GROUP BY a.q_id order by a.is_top ,a.ask_date desc "
-                + " LIMIT " +(pageNum-1) +"," + pageNum*size;
+                + " LIMIT " +(pageNum-1)*size +"," + size;
         return jt.queryForList(sql);
     }
     @Override
