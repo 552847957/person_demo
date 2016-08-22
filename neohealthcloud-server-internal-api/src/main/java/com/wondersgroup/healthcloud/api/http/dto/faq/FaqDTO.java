@@ -36,7 +36,7 @@ public class FaqDTO {
     @JsonProperty("comment_count")
     private Integer commentCount;
 
-    @JsonProperty("asker_time")
+    @JsonProperty("ask_date")
     private String askTime;
 
     @JsonProperty("doctor_answers")

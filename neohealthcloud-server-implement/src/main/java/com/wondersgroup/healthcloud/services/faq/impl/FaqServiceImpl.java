@@ -157,7 +157,11 @@ public class FaqServiceImpl implements FaqService {
     @Override
     @Transactional
     public int saveFirstAnswerByDoctorId(Faq faq) {
+        Faq oldFaq = faqRepository.findOne(faq.getId());
         int result = faqRepository.saveFirstAnswerByDoctorId(faq.getDoctorId(),faq.getAnswerContent(),faq.getAnswerDate(),faq.getId());
+
+        int st = faqRepository.updateAllDoctorIdByQpidAndDoctorId(faq.getDoctorId(),oldFaq.getQId(),oldFaq.getDoctorId());
+
         return result;
     }
 

@@ -42,4 +42,7 @@ public interface FaqRepository extends JpaRepository<Faq,String> {
     @Query(" update Faq a set a.doctorId=?1 ,a.answerContent=?2,a.answerDate=?3  where a.id = ?4  ")
     int saveFirstAnswerByDoctorId(String doctorId, String answerContent, Date answerDate, String id);
 
+    @Modifying
+    @Query(" update Faq a set a.doctorId=?1 where a.qPid = ?2 and a.doctorId = ?3  ")
+    int updateAllDoctorIdByQpidAndDoctorId(String newDoctorId, String qId, String oldDoctorId);
 }
