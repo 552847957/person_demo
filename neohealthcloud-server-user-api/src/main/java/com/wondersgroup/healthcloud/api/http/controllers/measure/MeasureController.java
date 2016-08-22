@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
+import com.wondersgroup.healthcloud.api.utils.JacksonHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class MeasureController {
     private MeasureManagementService managementService;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonResponseEntity<Map> measureHome() {
+    public String measureHome() {
 
         SimpleMeasure measure = new SimpleMeasure();
         measure.setName("BMI指数");
@@ -56,7 +58,9 @@ public class MeasureController {
         homeMap.put("histories", histories);
         JsonResponseEntity<Map> result = new JsonResponseEntity<>(0, null);
         result.setData(homeMap);
-        return result;
+        Map<Class, String[]> filters = new HashMap<>();
+        filters.put(MeasureManagement.class, new String[]{"id","createdDate","lastModifiedDate", "createdBy", "lastModifiedBy", "display"});
+        return JacksonHelper.getInstance().serializeExclude(filters).writeAsString(result);
     }
 
     @VersionRange

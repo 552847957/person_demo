@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.jpa.entity.measure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.jpa.enums.MeasureType;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
@@ -59,5 +60,10 @@ public class MeasureManagement extends AbstractPersistable<Long> {
 
     @LastModifiedBy
     private String lastModifiedBy;
+
+    @JsonProperty("type")
+    public int getTypeOrdinal() {
+        return type.ordinal();
+    }
 
 }
