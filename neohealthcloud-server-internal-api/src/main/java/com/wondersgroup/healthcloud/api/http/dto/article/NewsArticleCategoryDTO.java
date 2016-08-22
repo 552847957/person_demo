@@ -25,7 +25,7 @@ public class NewsArticleCategoryDTO {
 
         if(null == category)  return;
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.id=category.getId();
         this.c_name=category.getC_name();
         this.rank=category.getRank();
