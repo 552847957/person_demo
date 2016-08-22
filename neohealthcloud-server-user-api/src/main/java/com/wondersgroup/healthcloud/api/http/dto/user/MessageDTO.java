@@ -32,7 +32,7 @@ public class MessageDTO {
     public String url;
     public String icon;
     public String type;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC+08:00")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     public Date time;
     @JsonProperty("is_read")
     public Boolean isRead;
