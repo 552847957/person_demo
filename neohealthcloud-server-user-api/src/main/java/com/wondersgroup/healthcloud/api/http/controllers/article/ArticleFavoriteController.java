@@ -7,7 +7,6 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.article.ArticleFavorite;
 
 import com.wondersgroup.healthcloud.services.article.ManageArticleFavoriteService;
-import com.wondersgroup.healthcloud.services.article.ManageArticleService;
 
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;

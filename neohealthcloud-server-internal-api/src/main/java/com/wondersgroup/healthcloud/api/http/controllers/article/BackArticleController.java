@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.article;
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleCategoryDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.article.ArticleArea;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
@@ -34,10 +35,11 @@ public class BackArticleController {
      * @param articleCategory
      */
     @PostMapping("/categorySave")
+    @VersionRange
     public JsonResponseEntity updateArticleCategory(@RequestBody NewsArticleCategory articleCategory){
         JsonResponseEntity response=new JsonResponseEntity();
         manageNewsArticleCategotyService.updateNewsArticleCategory(articleCategory);
-        response.setMsg("添加成功");
+        response.setMsg("成功");
         return response;
     }
 
@@ -46,11 +48,12 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/categoryList")
-    public JsonListResponseEntity putArticle(){
-        JsonListResponseEntity response=new JsonListResponseEntity();
-        List<NewsArticleCategory> newsCategory = manageNewsArticleCategotyService.findNewsCategory();
+    @VersionRange
+    public JsonResponseEntity categoryList(@RequestParam String area){
+        JsonResponseEntity response=new JsonResponseEntity();
+        List<NewsArticleCategory> newsCategory = manageNewsArticleCategotyService.findNewsCategoryByArea(area);
         List<NewsArticleCategoryDTO> newsArticleCategoryDTOs = NewsArticleCategoryDTO.infoDTO(newsCategory);
-        response.setContent(newsArticleCategoryDTOs);
+        response.setData(newsArticleCategoryDTOs);
         return response;
     }
 
@@ -59,6 +62,7 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/categoryInfo")
+    @VersionRange
     public JsonResponseEntity categoryInfo(@RequestParam int id){
         JsonResponseEntity response=new JsonResponseEntity();
         NewsArticleCategory newsCategory = manageNewsArticleCategotyService.findNewsCategory(id);
@@ -72,8 +76,22 @@ public class BackArticleController {
      * @param article
      */
     @PostMapping("/save")
-    public void updateArticle(@RequestBody NewsArticle article){
+    @VersionRange
+    public JsonResponseEntity updateArticle(@RequestBody NewsArticle article){
+        JsonResponseEntity response=new JsonResponseEntity();
+        if(article.getTitle().length()>30){
+            response.setCode(-1);
+            response.setMsg("字数过多，限制30个字");
+            return response;
+        }
+        if(article.getBrief().length()>30){
+            response.setCode(-1);
+            response.setMsg("字数过多，限制30个字");
+            return response;
+        }
         manageNewsArticleServiceImpl.updateNewsAritile(article);
+        response.setMsg("成功");
+        return response;
     }
 
     /**
@@ -81,6 +99,7 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/info")
+    @VersionRange
     public JsonResponseEntity articleInfo(@RequestParam(required = true) Integer id){
         JsonResponseEntity response=new JsonResponseEntity();
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
@@ -93,6 +112,7 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/list")
+    @VersionRange
     public JsonListResponseEntity articleList(){
         JsonListResponseEntity response=new JsonListResponseEntity();
 
@@ -101,7 +121,9 @@ public class BackArticleController {
     }
 
     @GetMapping("/putArticle")
+    @VersionRange
     public void putArticle(@RequestBody ArticleArea articleArea){
         articleAreaRepository.saveAndFlush(articleArea);
     }
+
 }

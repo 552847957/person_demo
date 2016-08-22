@@ -1,9 +1,7 @@
 package com.wondersgroup.healthcloud.services.article.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
-import com.wondersgroup.healthcloud.jpa.repository.article.ArticleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleCategoryRepo;
-import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +19,6 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     @Autowired
     private NewsArticleCategoryRepo newsArticleCategoryRepo;
 
-
-    @Override
-    public int addNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
-        return 0;
-    }
-
     @Override
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
         Date date=new Date();
@@ -41,13 +33,8 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     }
 
     @Override
-    public int countRow(Map<String, Object> parm) {
-        return 0;
-    }
-
-    @Override
-    public List<NewsArticleCategory> findNewsCategory() {
-        return newsArticleCategoryRepo.findAll();
+    public List<NewsArticleCategory> findNewsCategoryByArea(String area) {
+        return newsArticleCategoryRepo.findNewsCategoryByArea(area);
     }
 
     @Override

@@ -52,6 +52,7 @@ public class NewsArticleController {
     @RequestMapping(value="/articleList", method = RequestMethod.GET)
     @VersionRange
     public JsonListResponseEntity<NewsArticleListAPIEntity> articleList(
+            @RequestHeader("main-area") String area,
             @RequestParam(required = true) String cat_id,
             @RequestParam(required = false, defaultValue = "1") String flag){
 

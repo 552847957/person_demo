@@ -11,15 +11,11 @@ import java.util.Map;
  */
 public interface ManageNewsArticleCategotyService {
 
-    public int addNewsArticleCategory(NewsArticleCategory newsArticleCategory);
-
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory);
 
     public List<NewsArticleCategory> findNewsCategoryByKeys(Map<String, Object> parm);
 
-    public int countRow(Map<String, Object> parm);
-
-    public List<NewsArticleCategory> findNewsCategory();
+    public List<NewsArticleCategory> findNewsCategoryByArea(String area);
 
     public NewsArticleCategory findNewsCategory(int id);
 }

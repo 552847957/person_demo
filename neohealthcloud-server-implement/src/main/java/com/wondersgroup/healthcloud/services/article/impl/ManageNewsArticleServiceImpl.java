@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +38,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
 
     @Override
-    public int updateNewsAritile(NewsArticle da) {
-        return newsArticleRepo.saveAndFlush(da).getId();
+    public int updateNewsAritile(NewsArticle article) {
+        Date date=new Date();
+        article.setUpdate_time(date);
+        return newsArticleRepo.saveAndFlush(article).getId();
     }
 
     @Override
@@ -56,11 +59,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     public int countArticleByCategoryId(String categoryId) {
         return 0;
     }
-
-    @Override
-    public int countRow() {
-        return 0;
-    }
+    
 
     @Override
     public int addViewPv(Integer id) {

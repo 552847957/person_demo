@@ -2,9 +2,7 @@ package com.wondersgroup.healthcloud.jpa.entity.article;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,15 +11,16 @@ import java.util.Date;
  */
 @Data
 @Entity
-@Table(name="app_tb_news_article_category")
+@Table(name="app_tb_neoarticle_category")
 public class NewsArticleCategory implements Serializable {
     private static final long serialVersionUID = -4051859403776354544L;
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;// 分类ID
     private String c_name;// 分类名称
     private int rank;// 排序
-    private int is_visable;// 是否有效(1:有效,0:无效)
     private String update_by;// 更新人
     private Date update_time;// 更新时间
-
+    private String by_area;//创建区域
+    private int is_visable;//是否禁用0-是，1-否
 }

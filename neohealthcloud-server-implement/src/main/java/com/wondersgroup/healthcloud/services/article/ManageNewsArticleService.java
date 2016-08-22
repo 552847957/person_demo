@@ -17,7 +17,7 @@ public interface ManageNewsArticleService {
 
     public List<NewsArticle> findArtileListByKeys(Map<String, Object> parm);
 
-    public int updateNewsAritile(NewsArticle da);
+    public int updateNewsAritile(NewsArticle article);
 
     /**
      * 根据分类查询改分类下面的所有文章
@@ -40,12 +40,6 @@ public interface ManageNewsArticleService {
      * @return int
      */
     public int countArticleByCategoryId(String categoryId);
-
-    /**
-     * 查询文章总条数
-     * @return
-     */
-    public int countRow();
 
     /**
      * 追加访问量
