@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreCategory;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
@@ -29,6 +30,9 @@ public class FoodStoreController {
 
     @Autowired
     private AppConfigService appConfigService;
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
 
 
     public static String keyWord = "com.hot.search.foodStore";
@@ -99,7 +103,8 @@ public class FoodStoreController {
         }
         if (foodStoreItemList != null) {
             for (FoodStoreItem foodStoreItem : foodStoreItemList) {
-                foodStoreItemListAPIEntities.add(new FoodStoreItemListAPIEntity(foodStoreItem));
+                FoodStoreItemListAPIEntity foodStoreItemListAPIEntity = new FoodStoreItemListAPIEntity(foodStoreItem,appUrlH5Utils);
+                foodStoreItemListAPIEntities.add(foodStoreItemListAPIEntity);
             }
         }
         result.setContent(foodStoreItemListAPIEntities, hasMore, null, String.valueOf(page+1));
@@ -126,7 +131,7 @@ public class FoodStoreController {
         }
         if (foodStoreItemList != null) {
             for (FoodStoreItem foodStoreItem : foodStoreItemList) {
-                foodStoreItemListAPIEntities.add(new FoodStoreItemListAPIEntity(foodStoreItem));
+                foodStoreItemListAPIEntities.add(new FoodStoreItemListAPIEntity(foodStoreItem,appUrlH5Utils));
             }
         }
         result.setContent(foodStoreItemListAPIEntities, hasMore, null, String.valueOf(page+1));
