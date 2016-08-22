@@ -74,6 +74,7 @@ public class HealthActivityController {
         }
         if(StringUtils.isEmpty(info.getActivityid())){
             info.setActivityid(IdGen.uuid());
+            info.setCreateDate(new Date());
             activityRepo.save(info);
             entity.setMsg("添加成功");
         }else{
