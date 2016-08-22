@@ -61,6 +61,8 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
         wrapper.baseUrl = "http://localhost:8001/neohealthcloud-internal/message";
         wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
         AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭11").type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
-        System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
+        message.area = "4401";
+        System.out.println(JsonConverter.toJson(message.toPushMessage()));
+//        System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
     }
 }

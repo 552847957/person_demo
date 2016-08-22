@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -29,8 +28,8 @@ public class PushMessage {
     public final String url;
     public final Map<String, String> params;
 
-    public PushMessage(String title, String content, String url, Map<String, String> params) {
-        this.id = UUID.randomUUID().toString();
+    public PushMessage(String id, String title, String content, String url, Map<String, String> params) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.url = url;
@@ -38,6 +37,7 @@ public class PushMessage {
     }
 
     public static class Builder {
+        private String id;
         private String title;
         private String content;
         private String url;
@@ -49,6 +49,11 @@ public class PushMessage {
 
         public Builder title(String title) {
             this.title = title;
+            return this;
+        }
+
+        public Builder id(String id) {
+            this.id = id;
             return this;
         }
 
@@ -71,7 +76,7 @@ public class PushMessage {
         }
 
         public PushMessage build() {
-            return new PushMessage(title, content, url, params);
+            return new PushMessage(id, title, content, url, params);
         }
     }
 }

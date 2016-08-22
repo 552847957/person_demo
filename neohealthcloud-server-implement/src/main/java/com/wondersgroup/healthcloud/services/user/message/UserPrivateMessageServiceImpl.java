@@ -46,7 +46,7 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     public void saveOneMessage(AppMessage message, String uid) {
         if (message.persistence) {
             UserPrivateMessage userPrivateMessage = new UserPrivateMessage();
-            userPrivateMessage.setId(IdGen.uuid());
+            userPrivateMessage.setId(message.id == null ? IdGen.uuid() : message.id);
             userPrivateMessage.setUid(uid);
             userPrivateMessage.setTitle(message.title);
             userPrivateMessage.setContent(message.content);

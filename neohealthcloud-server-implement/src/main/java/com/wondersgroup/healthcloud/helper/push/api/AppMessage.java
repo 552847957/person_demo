@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.helper.push.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.exception.AppMessageNotCompleteException;
 import com.wondersgroup.healthcloud.helper.push.getui.PushMessage;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppMessage {
 
+    public String id;
     public String title;
     public String content;
     public Boolean persistence;
@@ -41,7 +43,8 @@ public class AppMessage {
     public AppMessage() {
     }
 
-    private AppMessage(String title, String content, Boolean persistence, String area, Boolean areaSpecial, AppMessageUrlUtil.Type type, Boolean isDoctor, String urlFragment, Map<String, String> params) {
+    private AppMessage(String id, String title, String content, Boolean persistence, String area, Boolean areaSpecial, AppMessageUrlUtil.Type type, Boolean isDoctor, String urlFragment, Map<String, String> params) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.persistence = persistence;
@@ -54,7 +57,7 @@ public class AppMessage {
     }
 
     public PushMessage toPushMessage() {
-        return new PushMessage(title, content, buildUrl(), params);
+        return new PushMessage(id, title, content, buildUrl(), params);
     }
 
     private String buildUrl() {
@@ -76,6 +79,7 @@ public class AppMessage {
     }
 
     public static class Builder {
+        private String id;
         private String title;
         private String content;
         private boolean persistence;
@@ -88,6 +92,11 @@ public class AppMessage {
 
         public static Builder init() {
             return new Builder();
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder title(String title) {
@@ -134,7 +143,10 @@ public class AppMessage {
         }
 
         public AppMessage build() {
-            return new AppMessage(title, content, persistence, area, areaSpecial, type, isDoctor, urlFragment, params);
+            if (id == null && persistence) {
+                this.id = IdGen.uuid();
+            }
+            return new AppMessage(id, title, content, persistence, area, areaSpecial, type, isDoctor, urlFragment, params);
         }
 
         private void check() {
