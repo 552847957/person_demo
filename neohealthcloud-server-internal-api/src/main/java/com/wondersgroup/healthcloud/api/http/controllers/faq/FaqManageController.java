@@ -214,6 +214,9 @@ public class FaqManageController {
         }
         faq.setUpdateDate(new Date());
         faq.setUpdateBy("admin"); //todo 保存登录人Id
+        if(faq.getAnswerDate()==null){
+            faq.setAnswerDate(new Date());
+        }
         int result = faqService.saveFirstAnswerByDoctorId(faq);
         if(result<=0){
             response.setCode(2001);
@@ -234,25 +237,47 @@ public class FaqManageController {
     public JsonResponseEntity<String> saveQuestionClosely(@RequestBody Faq faq){
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
 
-        if(StringUtils.isBlank(faq.getQPid()) || StringUtils.isBlank(faq.getDoctorId())){
+        if(StringUtils.isBlank(faq.getDoctor_answer_id())){
             response.setCode(2001);
-            response.setMsg("保存失败-qPid/doctorId不能为空");
+            response.setMsg("保存失败-Doctor_answer_id不能为空");
             return response;
         }
+
+        Faq doctorAnswerFaq = faqService.findFaqById(faq.getDoctor_answer_id());
+
         if(StringUtils.isBlank(faq.getId())){
             faq.setId(IdGen.uuid());
             faq.setQId(IdGen.uuid());
-            faq.setIsShow(0);
-            faq.setIsTop(0);
+            faq.setQPid(doctorAnswerFaq.getQId());
+            faq.setIsShow(doctorAnswerFaq.getIsShow());
+            faq.setIsTop(doctorAnswerFaq.getIsTop());
             faq.setType(1);
             faq.setDelFlag("0");
             faq.setCreateDate(new Date());
             faq.setCreateBy("admin");//todo 保存登录人的id
+            faq.setAskerName(doctorAnswerFaq.getAskerName());
+            faq.setGender(doctorAnswerFaq.getGender());
+            faq.setAge(doctorAnswerFaq.getAge());
+            faq.setDoctorId(doctorAnswerFaq.getDoctorId());
+        }else{
+            Faq closelyFaq = faqService.findFaqById(faq.getId());
+            closelyFaq.setAskContent(faq.getAskContent());
+            closelyFaq.setAskDate(faq.getAskDate());
+            closelyFaq.setAnswerContent(faq.getAnswerContent());
+            closelyFaq.setAnswerDate(faq.getAnswerDate());
+            faq = closelyFaq;
         }
+
         faq.setUpdateDate(new Date());
         faq.setUpdateBy("admin"); //todo 保存登录人Id
-        faqService.save(faq);
+        if(faq.getAskDate()==null){
+            faq.setAskDate(new Date());
+        }
+        if(faq.getAnswerDate() == null){
+            faq.setAnswerDate(new Date());
+        }
 
+        faqService.save(faq);
         response.setMsg("保存成功");
         return response;
     }
@@ -265,10 +290,12 @@ public class FaqManageController {
      */
     @Admin
     @GetMapping(path = "/doctorList")
-    public JsonResponseEntity<List<Map<String,Object>>> getDoctorList(@RequestParam(required = false) String kw){
+    public JsonResponseEntity<List<Map<String,Object>>> getDoctorList(@RequestParam(required = false) String kw,
+                                                                      @RequestParam(required = true) String rootQid,
+                                                                      @RequestParam(required = false) String doctorAnswerId){
         JsonResponseEntity<List<Map<String,Object>>> response = new JsonResponseEntity<>();
 
-        List<Map<String,Object>> doctorList = doctorService.findAllFaqDoctors(kw);
+        List<Map<String,Object>> doctorList = doctorService.findAllFaqDoctors(kw,rootQid,doctorAnswerId);
 
         response.setData(doctorList);
         return response;

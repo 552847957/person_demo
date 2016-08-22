@@ -2,10 +2,7 @@ package com.wondersgroup.healthcloud.jpa.entity.faq;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -74,5 +71,6 @@ public class Faq {
     @Column(name = "update_date")
     private Date updateDate;
 
-
+    @Transient
+    private String doctor_answer_id;
 }

@@ -3,10 +3,10 @@ package com.wondersgroup.healthcloud.api.http.dto.activity;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import lombok.Data;
+
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
-
-import lombok.Data;
 
 @Data
 public class HealthActivityInfoDTO {

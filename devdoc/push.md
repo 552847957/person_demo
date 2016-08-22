@@ -52,3 +52,27 @@ is_user     |      |
 is_standard |      |
 url         |      |
 params      |      |
+
+### 个人消息表 `app_tb_user_private_message`
+
+列名        | 类型 | 含义
+------------|------|-----
+id          |      |
+title       |      |
+content     |      |
+type        |      |
+main_area   |      |
+url         |      |
+create_time |      |
+
+### 医生消息表 `app_tb_doctor_private_message`
+
+列名        | 类型 | 含义
+------------|------|-----
+id          |      |
+title       |      |
+content     |      |
+type        |      |
+main_area   |      |
+url         |      |
+create_time |      |

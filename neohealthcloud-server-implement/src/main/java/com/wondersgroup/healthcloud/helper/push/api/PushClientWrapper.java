@@ -26,7 +26,7 @@ import java.util.List;
  * Created by zhangzhixiu on 8/17/16.
  */
 @Component
-public class PushClientWrapper {
+public class PushClientWrapper {//todo(zzx) can convert the blocked request to async request to imporve the performance.
 
     @Value("${internal.api.service.message.url}")
     private String baseUrl;
@@ -53,5 +53,15 @@ public class PushClientWrapper {
         builder.url(HttpUrl.parse(baseUrl + "/push/tags").newBuilder().addQueryParameter("area", area).addQueryParameter("tags", StringUtils.join(tags, ",")).build()).post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonConverter.toJson(message)));
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
+    }
+
+    public static void main(String... args) {
+        PushClientWrapper wrapper = new PushClientWrapper();
+        wrapper.baseUrl = "http://10.1.64.90:8080/neohealthcloud-internal/message";
+//        wrapper.baseUrl = "http://localhost:8001/neohealthcloud-internal/message";
+        wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
+        AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭12").type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
+//        System.out.println(JsonConverter.toJson(message.toPushMessage()));
+        System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
     }
 }

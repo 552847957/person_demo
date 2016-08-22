@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.helper.push.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.exception.AppMessageNotCompleteException;
 import com.wondersgroup.healthcloud.helper.push.getui.PushMessage;
 
@@ -25,11 +26,14 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppMessage {
 
+    public String id;
     public String title;
     public String content;
+    public Boolean persistence;
     public String area;
-    @JsonProperty("is_http_url")
-    public Boolean isHttpUrl;
+    @JsonProperty("area_special")
+    public Boolean areaSpecial;
+    public AppMessageUrlUtil.Type type;
     @JsonProperty("is_doctor")
     public Boolean isDoctor;
     @JsonProperty("url_fragment")
@@ -39,42 +43,60 @@ public class AppMessage {
     public AppMessage() {
     }
 
-    private AppMessage(String title, String content, String area, Boolean isHttpUrl, Boolean isDoctor, String urlFragment, Map<String, String> params) {
+    private AppMessage(String id, String title, String content, Boolean persistence, String area, Boolean areaSpecial, AppMessageUrlUtil.Type type, Boolean isDoctor, String urlFragment, Map<String, String> params) {
+        this.id = id;
         this.title = title;
-        this.area = area;
         this.content = content;
-        this.isHttpUrl = isHttpUrl;
+        this.persistence = persistence;
+        this.area = area;
+        this.areaSpecial = areaSpecial;
+        this.type = type;
         this.isDoctor = isDoctor;
         this.urlFragment = urlFragment;
         this.params = params;
     }
 
     public PushMessage toPushMessage() {
-        return new PushMessage(title, content, buildUrl(), params);
+        return new PushMessage(id, title, content, buildUrl(), params);
     }
 
     private String buildUrl() {
         if (urlFragment == null) {
             return null;
         }
-        if (isHttpUrl == null || !isHttpUrl) {
-            return "com.wondersgroup.healthcloud." + area + "://" + (isDoctor ? "doctor" : "user") + urlFragment;
+        if (type != AppMessageUrlUtil.Type.HTTP) {
+            return buildAppUrl(area, isDoctor, urlFragment);
         } else {
             return urlFragment;
         }
     }
 
+    public static String buildAppUrl(String area, Boolean isDoctor, String urlFragment) {
+        if (urlFragment == null) {
+            return null;
+        }
+        return "com.wondersgroup.healthcloud." + area + "://" + (isDoctor ? "doctor" : "user") + urlFragment;
+    }
+
     public static class Builder {
+        private String id;
         private String title;
         private String content;
+        private boolean persistence;
         private String area;
-        private boolean isHttpUrl;
+        private boolean areaSpecial;
+        private AppMessageUrlUtil.Type type;
         private boolean isDoctor;
         private String urlFragment;
         private Map<String, String> params;
 
         public static Builder init() {
             return new Builder();
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder title(String title) {
@@ -86,19 +108,24 @@ public class AppMessage {
             this.content = content;
             return this;
         }
-//
-//        public Builder area(String area) {
-//            this.area = area;
-//            return this;
-//        }
 
-        public Builder isHttpUrl(boolean isHttpUrl) {
-            this.isHttpUrl = isHttpUrl;
+        public Builder persistence() {
+            this.persistence = true;
             return this;
         }
 
-        public Builder isDoctor(boolean isDoctor) {
-            this.isDoctor = isDoctor;
+        public Builder areaSpecial() {
+            this.areaSpecial = true;
+            return this;
+        }
+
+        public Builder type(AppMessageUrlUtil.Type type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder isDoctor() {
+            this.isDoctor = true;
             return this;
         }
 
@@ -116,11 +143,14 @@ public class AppMessage {
         }
 
         public AppMessage build() {
-            return new AppMessage(title, content, area, isHttpUrl, isDoctor, urlFragment, params);
+            if (id == null && persistence) {
+                this.id = IdGen.uuid();
+            }
+            return new AppMessage(id, title, content, persistence, area, areaSpecial, type, isDoctor, urlFragment, params);
         }
 
         private void check() {
-            if (title == null || content == null) {
+            if (title == null || content == null || type == null) {
                 throw new AppMessageNotCompleteException("");
             }
         }

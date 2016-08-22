@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.jpa.repository.activiti;
+package com.wondersgroup.healthcloud.jpa.repository.activity;
 
 import java.util.List;
 

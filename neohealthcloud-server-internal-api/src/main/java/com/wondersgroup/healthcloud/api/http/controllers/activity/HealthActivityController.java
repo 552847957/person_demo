@@ -19,7 +19,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
-import com.wondersgroup.healthcloud.jpa.repository.activiti.HealthActivityInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 
 @RestController
@@ -65,7 +65,13 @@ public class HealthActivityController {
         HealthActivityInfo info = new Gson().fromJson(request, HealthActivityInfo.class);
         info.setDelFlag("0");
         info.setStyle(1);
-        info.setOnlineStatus("1");//已上线
+        if(info.getOnlineTime().after(new Date())){
+            info.setOnlineStatus("0");//未上线
+        }else if(info.getOfflineTime().before(new Date())){
+            info.setOnlineStatus("2");//已下线
+        }else{
+            info.setOnlineStatus("1");//已上线
+        }
         if(StringUtils.isEmpty(info.getActivityid())){
             info.setActivityid(IdGen.uuid());
             activityRepo.save(info);

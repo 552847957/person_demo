@@ -1,7 +1,7 @@
 package com.wondersgroup.healthcloud.helper.push.getui;
 
-import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.impl.AppMessage;
+import com.gexin.rp.sdk.base.impl.PushResult;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
 import com.gexin.rp.sdk.base.impl.Target;
 import com.gexin.rp.sdk.base.payload.APNPayload;
@@ -10,6 +10,7 @@ import com.gexin.rp.sdk.http.IGtPush;
 import com.gexin.rp.sdk.template.TransmissionTemplate;
 import com.google.common.collect.Lists;
 import com.wondersgroup.common.http.utils.JsonConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +58,8 @@ public class PushGetuiClientImpl implements PushClient {
         appMessage.setData(template);
         appMessage.setOffline(true);
         appMessage.setAppIdList(Lists.newArrayList(appId));
-        IPushResult result = push.pushMessageToApp(appMessage);
-        System.out.println(result.getResponse().toString());
+        PushResult result = (PushResult) push.pushMessageToApp(appMessage);
+        logger.info(String.format("cli[%s] msg[%s][%s] all result[%s]", area, result.getMessageId(), message.title, message.content), result.getResponse().toString());
     }
 
     @Override
@@ -72,8 +73,8 @@ public class PushGetuiClientImpl implements PushClient {
         Target target = new Target();
         target.setAppId(appId);
         target.setAlias(alias);
-        IPushResult result = push.pushMessageToSingle(singleMessage, target);
-        System.out.println(result.getResponse().toString());
+        PushResult result = (PushResult) push.pushMessageToSingle(singleMessage, target);
+        logger.info(String.format("cli[%s] msg[%s][%s] alias[%s] result[%s]", area, message.title, message.content, alias, result.getResponse().toString()));
     }
 
     @Override
@@ -85,8 +86,8 @@ public class PushGetuiClientImpl implements PushClient {
         appMessage.setAppIdList(Lists.newArrayList(appId));
         AppConditions cdt = new AppConditions();
         cdt.addCondition(AppConditions.TAG, tags);
-        IPushResult result = push.pushMessageToApp(appMessage);
-        System.out.println(result.getResponse().toString());
+        PushResult result = (PushResult) push.pushMessageToApp(appMessage);
+        logger.info(String.format("cli[%s] msg[%s][%s] tags[%s] result[%s]", area, message.title, message.content, StringUtils.join(tags, ","), result.getResponse().toString()));
     }
 
     private TransmissionTemplate buildTemplate(PushMessage pushMessage) {
@@ -106,14 +107,6 @@ public class PushGetuiClientImpl implements PushClient {
         payload.addCustomMsg("content", jsonContent);
 
         template.setAPNInfo(payload);
-        System.out.println(jsonContent);
         return template;
-    }
-
-    public static void main(String... args) {
-        PushGetuiClientImpl client = new PushGetuiClientImpl("4401", "nEff3Tt7WbAtkHr0GZhgv4", "1DwS7XE9qN8hqmxRvYXk68", "mtKDMHtLGB9pXgNQkzm014");
-//        client.pushToAll(PushMessage.Builder.init().title("测试").content("内容").param("aaa", "bbb").build());
-        client.pushToAlias(PushMessage.Builder.init().title("测试别名").content("内容别名").url("com.wondersgroup.healthcloud.4401://user/test").param("aaa", "bbb").build(), "8a81c01a4ed91559014edd85bd4a000a");
-//        System.out.println(JsonConverter.toJson(PushMessage.Builder.init().title("测试").content("内容").param("aaa", "bbb").build()));
     }
 }

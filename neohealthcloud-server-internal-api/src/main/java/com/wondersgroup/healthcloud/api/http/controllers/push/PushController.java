@@ -3,6 +3,9 @@ package com.wondersgroup.healthcloud.api.http.controllers.push;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
+import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +27,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/message")
 public class PushController {
 
+    public static final Logger logger = LoggerFactory.getLogger(PushController.class);
+
     @Autowired
     private PushAreaService pushAreaService;
+
+    @Autowired
+    private UserPrivateMessageService userPrivateMessageService;
 
     @PostMapping(path = "/push/single", produces = "application/json")
     public String pushToAlias(@RequestBody AppMessage pushMessage,
@@ -40,6 +48,7 @@ public class PushController {
             pushMessage.area = client.identityName();
         }
         client.pushToAlias(pushMessage.toPushMessage(), alias);
+        userPrivateMessageService.saveOneMessage(pushMessage, alias);
         return "{\"code\":0}";
     }
 

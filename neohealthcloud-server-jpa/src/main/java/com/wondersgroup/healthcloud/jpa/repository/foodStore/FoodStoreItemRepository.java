@@ -19,7 +19,7 @@ public interface FoodStoreItemRepository extends JpaRepository<FoodStoreItem, In
     @Query("select a from FoodStoreItem a where a.categoryId=?1 and a.isShow=1 ")
     List<FoodStoreItem> findListByCateId(int cate_id, Pageable pageable);
 
-    @Query("select a from FoodStoreItem a where a.foodName like ?1 and a.isShow = ?2 ")
+    @Query("select a from FoodStoreItem a where a.foodName like %?1% and a.isShow = ?2 ")
     List<FoodStoreItem> findListByFoodNameContainingAndIsShow(String keyword, int isShow, Pageable pageable);
 
     @Query(" select a from FoodStoreItem a where a.id in ?1")
@@ -31,7 +31,7 @@ public interface FoodStoreItemRepository extends JpaRepository<FoodStoreItem, In
     @Query(" update FoodStoreItem a set a.isShow = ?1 ,a.createTime = ?2 where a.id in ?3")
     Integer updateIsShowByIds(int isShow, Date nowTime, List<Integer> ids);
 
-    @Query("select count(a) from FoodStoreItem a where a.isShow = 1  and  a.foodName like ?1 ")
+    @Query("select count(a) from FoodStoreItem a where a.isShow = 1  and  a.foodName like %?1% ")
     Integer countByKw(String keyword);
 
     FoodStoreItem findById(int id);

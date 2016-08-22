@@ -1,16 +1,15 @@
 package com.wondersgroup.healthcloud.api.configurations;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Charsets;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
-import com.wondersgroup.healthcloud.common.http.filters.interceptor.GateInterceptor;
+import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalGateInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +25,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.DispatcherType;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -92,7 +90,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new GateInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new InternalGateInterceptor()).addPathPatterns("/**");
         super.addInterceptors(registry);
     }
 

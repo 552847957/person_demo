@@ -74,7 +74,8 @@ public class FaqServiceImpl implements FaqService {
 
 
     //----------------------后台使用----------------------
-    private String faqSql = " select a.id, a.q_id as 'qId', a.asker_name as 'askerName' ,a.gender ,a.age ,a.is_show  as 'isShow', a.is_top as 'isTop'  \n" +
+    private String faqSql = " select a.id, a.q_id as 'qId', a.asker_name as 'askerName' , a.ask_content as 'askContent', " +
+            " a.ask_date as 'askDate',a.gender ,a.age ,a.is_show  as 'isShow', a.is_top as 'isTop'  " +
             " from  faq_question_tb a ";
 
     @Override

@@ -42,4 +42,5 @@ public interface FaqService {
     int updateRootQuestion(Faq faq);
 
     int saveFirstAnswerByDoctorId(Faq faq);
+
 }
