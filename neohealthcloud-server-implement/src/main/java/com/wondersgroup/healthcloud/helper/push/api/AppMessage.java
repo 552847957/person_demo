@@ -21,6 +21,7 @@ import java.util.Map;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
+ *     app message 封装类
  * Created by zhangzhixiu on 8/17/16.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,10 +30,10 @@ public class AppMessage {
     public String id;
     public String title;
     public String content;
-    public Boolean persistence;
-    public String area;
+    public Boolean persistence;//是否保存到消息表中
+    public String area;//指定的地区
     @JsonProperty("area_special")
-    public Boolean areaSpecial;
+    public Boolean areaSpecial;//是否为地区独有内容相关的信息
     public AppMessageUrlUtil.Type type;
     @JsonProperty("is_doctor")
     public Boolean isDoctor;

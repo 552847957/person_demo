@@ -1,8 +1,6 @@
-package com.wondersgroup.healthcloud.helper.push.area;
+package com.wondersgroup.healthcloud.api.http.controllers.push;
 
-import com.wondersgroup.healthcloud.helper.push.getui.PushAdminClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,20 +16,35 @@ import java.util.List;
  * ▌▓▓▓▄▄▀▀▓▓▓▀▓▓▓▓▓▓▓▓█▓█▓█▓▓▌█▌
  * █▐▓▓▓▓▓▓▄▄▄▓▓▓▓▓▓█▓█▓█▓█▓▓▓▐█
  * <p>
- * Created by zhangzhixiu on 8/16/16.
+ * Created by zhangzhixiu on 8/22/16.
  */
-@Component
-public class PushAdminService {
+@RestController
+@RequestMapping(path = "/push/tag")
+public class PushTagController {
 
-    private PushAdminSelector selector;
-
-    public void setTags(String cid, String area, List<String> tags) {
-        PushAdminClient adminClient = selector.getByArea(area, false);
-        adminClient.overrideTagToClient(cid, tags);
+    @GetMapping(path = "/user")
+    public List<String> userTags(@RequestParam String uid) {
+        return null;
     }
 
-    @Autowired
-    public void setSelector(PushAdminSelector selector) {
-        this.selector = selector;
+    @PostMapping(path = "/user")
+    public void addTagsToUser(@RequestBody String request) {
+
+    }
+
+    @GetMapping(path = "")
+    public void tags() {
+
+    }
+
+    @PostMapping(path = "")
+    public void addTag(@RequestBody String request) {
+
+    }
+
+    @GetMapping(path = "/movement")
+    public void moveClientTag(@RequestParam String uid,
+                              @RequestParam String cid) {
+
     }
 }

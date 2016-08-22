@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.article.impl;
 
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
@@ -21,6 +22,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
     @Autowired
     private NewsArticleRepo newsArticleRepo;
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
+
     @Override
     public NewsArticle findArticleInfoById(int id) {
         return newsArticleRepo.queryArticleById(id);
@@ -93,7 +98,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         }
         List<NewsArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticle article : resourceList){
-            list.add(new NewsArticleListAPIEntity(article));
+            list.add(new NewsArticleListAPIEntity(article, appUrlH5Utils));
         }
         return list;
     }

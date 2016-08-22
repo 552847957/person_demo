@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,13 +114,8 @@ public class CommonController {
         List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.LOADING_IMAGE);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
-            Map ads = new HashMap();
-            ads.put("imgUrl", imageText.getImgUrl());
-            ads.put("hoplink", imageText.getHoplink());
-            ads.put("duration", imageText.getDurations());
-            ads.put("isSkip", imageText.getAllowClose() == 1 ? true : false);
-            ads.put("isShow", imageText.getDelFlag() == 0 ? true : false);
-            data.put("ads", ads);
+            LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
+            data.put("ads", loadingImageDTO);
         }
 
         response.setData(data);
@@ -180,15 +176,6 @@ public class CommonController {
             result.setMsg("获取配置信息失败！");
         }
         return result;
-    }
-
-    @RequestMapping(value = "/services", method = RequestMethod.GET)
-    @VersionRange
-    public JsonResponseEntity services(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
-        JsonResponseEntity result = new JsonResponseEntity();
-
-        return null;
     }
 
     /**

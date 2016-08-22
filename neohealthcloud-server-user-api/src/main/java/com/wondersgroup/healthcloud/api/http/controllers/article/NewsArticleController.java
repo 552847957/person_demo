@@ -5,11 +5,13 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +32,9 @@ public class NewsArticleController {
 
     @Resource
     private ManageNewsArticleService manageNewsArticleServiceImpl;
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
 
     private final int showCatNum = 4;
     /**
@@ -189,7 +194,7 @@ public class NewsArticleController {
         }
         List<NewsArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticle article : resourceList){
-            list.add(new NewsArticleListAPIEntity(article));
+            list.add(new NewsArticleListAPIEntity(article,appUrlH5Utils));
         }
         return list;
     }
