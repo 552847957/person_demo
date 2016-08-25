@@ -133,7 +133,6 @@ public class BackArticleController {
     @PostMapping("/list")
     @VersionRange
     public Pager articleList(@RequestBody Pager pager){
-        JsonListResponseEntity response=new JsonListResponseEntity();
         Map param = new HashMap();
         param.putAll(pager.getParameter());
         int pageSize = pager.getSize();
