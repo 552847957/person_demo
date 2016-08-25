@@ -48,7 +48,8 @@ public class NoticeServiceImpl implements NoticeService {
                 sql.append(" AND spec_area = '").append(specArea).append("'");
             }
             sql.append(" ORDER BY update_time DESC");
-            List<Notice> notices = getJt().queryForList(sql.toString(), Notice.class);
+            List<Notice> notices = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<Notice>(Notice.class));
+
             if (notices != null && notices.size() > 0) {
                 return notices;
             }
