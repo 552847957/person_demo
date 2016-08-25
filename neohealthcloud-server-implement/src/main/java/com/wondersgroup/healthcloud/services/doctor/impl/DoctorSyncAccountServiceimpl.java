@@ -81,7 +81,8 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
             try {
                 String psw = RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
                 JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),psw);
-                if (success) {
+                Boolean isRegisteSuccess = jsonNode.get("success").asBoolean();
+                if (isRegisteSuccess) {
                     registerId = jsonNode.get("userid").asText();
                 }else{
                     throw new SyncDoctorAccountException("万达云账号注册失败,"+jsonNode.get("msg").asText());
@@ -109,7 +110,9 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
 
 
         doctorAccount.setId(registerId);
-        doctorAccount.setLoginName(loginName);
+        if(StringUtils.isNotBlank(loginName)){
+            doctorAccount.setLoginName(loginName);
+        }
         doctorAccount.setIsAvailable("1");
         doctorAccount.setDelFlag("0");
         doctorAccount.setUpdateDate(new Date());
