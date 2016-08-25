@@ -11,7 +11,7 @@ public class Pager {
     private int totalPages;//总页数
     private int totalElements;//总条数
     private int size;//页大小
-    private int number;//页码
+    private int number=1;//页码
     private Map parameter;//参数
     private List data;//对象数据集合
 

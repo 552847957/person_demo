@@ -44,9 +44,9 @@ public class NewsArticleController {
     @WithoutToken
     @RequestMapping(value="/articleCategoty", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getArticleCategoty(){
+    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getArticleCategoty(@RequestHeader("main-area") String area){
         JsonResponseEntity<List<NewsCateArticleListAPIEntity>> response = new JsonResponseEntity<>();
-        response.setData(this.getCatArticleEntityList());
+        response.setData(this.getCatArticleEntityList(area));
         return response;
     }
 
@@ -147,7 +147,7 @@ public class NewsArticleController {
     /**
      * 获取医生下面的分类文章
      */
-    private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(){
+    private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(String area){
 
         Map<String, Object> map = new HashMap<>();//获取分类
         map.put("is_visable", 1);

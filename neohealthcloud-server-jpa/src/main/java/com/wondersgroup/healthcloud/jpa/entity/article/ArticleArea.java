@@ -16,9 +16,10 @@ public class ArticleArea {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private String id;
+    private int category_id;
     private int article_id;
     private String main_area;
     private String spec_area;
     private String is_visable;
-    private Date create_time;
+    private Date update_time;
 }

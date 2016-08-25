@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleCategoryDTO;
+import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -14,7 +15,10 @@ import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntit
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dukuanxin on 2016/8/12.
@@ -31,7 +35,7 @@ public class BackArticleController {
     private ManageNewsArticleService manageNewsArticleServiceImpl;
 
     /**
-     *  添加/编辑资讯文章分类
+     *  添加/编辑资讯分类
      * @param articleCategory
      */
     @PostMapping("/categorySave")
@@ -44,7 +48,7 @@ public class BackArticleController {
     }
 
     /**
-     * 资讯文章分类列表
+     * 资讯分类列表
      * @return
      */
     @GetMapping("/categoryList")
@@ -58,7 +62,7 @@ public class BackArticleController {
     }
 
     /**
-     * 资讯文章分类详情
+     * 资讯分类详情
      * @return
      */
     @GetMapping("/categoryInfo")
@@ -72,7 +76,7 @@ public class BackArticleController {
     }
 
     /**
-     * 添加/编辑资讯文章
+     * 添加/编辑资讯
      * @param article
      */
     @PostMapping("/save")
@@ -95,7 +99,22 @@ public class BackArticleController {
     }
 
     /**
-     * 资讯文章详情
+     * 区域引入资讯
+     * @param articleArea
+     */
+    @PostMapping("/areaArticleUpdate")
+    @VersionRange
+    public JsonResponseEntity updateArticle(@RequestBody ArticleArea articleArea){
+        JsonResponseEntity response=new JsonResponseEntity();
+        Date date=new Date();
+        articleArea.setUpdate_time(date);
+        articleAreaRepository.saveAndFlush(articleArea);
+        response.setMsg("成功");
+        return response;
+    }
+
+    /**
+     * 资讯详情
      * @return
      */
     @GetMapping("/info")
@@ -107,23 +126,31 @@ public class BackArticleController {
         return response;
     }
 
+
     /**
-     * 资讯文章列表
+     * 资讯列表
      * @return
      */
-    @GetMapping("/list")
+    @PostMapping("/list")
     @VersionRange
-    public JsonListResponseEntity articleList(){
+    public Pager articleList(@RequestBody Pager pager){
         JsonListResponseEntity response=new JsonListResponseEntity();
-
-
-        return response;
-    }
-
-    @GetMapping("/putArticle")
-    @VersionRange
-    public void putArticle(@RequestBody ArticleArea articleArea){
-        articleAreaRepository.saveAndFlush(articleArea);
+        Map param = new HashMap();
+        param.putAll(pager.getParameter());
+        int pageSize = pager.getSize();
+        if(0==pager.getSize()){
+            param.put("pageSize",10);
+        }else {
+            param.put("pageSize", pager.getSize());
+        }
+        param.put("pageNo",pager.getNumber());
+        List list = manageNewsArticleServiceImpl.queryArticleList(param);
+        pager.setData(list);
+        int total=manageNewsArticleServiceImpl.getCount(param);
+        int totalPage=total % pageSize == 0 ? total / pageSize : (total / pageSize) + 1;
+        pager.setTotalElements(total);
+        pager.setTotalPages(totalPage);
+        return pager;
     }
 
 }

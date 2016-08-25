@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.article;
 
+import com.wondersgroup.healthcloud.jpa.entity.article.ArticleArea;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 
@@ -63,4 +64,20 @@ public interface ManageNewsArticleService {
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize);
 
     public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize);
+
+    /**
+     * 分页查询文章
+     * @param param
+     * @return
+     */
+    List<Map<String,Object>> queryArticleList(Map<String,Object> param);
+
+    /**\
+     * 查询总记录数
+     * @param param
+     * @return
+     */
+    public int getCount(Map param);
+
+
 }

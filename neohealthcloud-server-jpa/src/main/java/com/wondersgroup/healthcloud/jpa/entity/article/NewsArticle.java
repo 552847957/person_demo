@@ -30,5 +30,6 @@ public class NewsArticle implements Serializable {
     private String keyword;// 关键字
     private  String by_area;//创建区域
     private int type;//文章类型
-
+    @Transient
+    private String url;
 }
