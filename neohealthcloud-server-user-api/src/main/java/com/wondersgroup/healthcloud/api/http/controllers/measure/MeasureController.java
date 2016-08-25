@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Jeffrey on 16/8/19.
@@ -45,6 +42,8 @@ public class MeasureController {
 
     private static final String requestYearHistoryPath = "%s/api/measure/yearHistory/%s?%s";
 
+    private static final String requestDayHistoriesListPath = "%s/api/measure/topHistories/?%s";
+
     private RestTemplate template = new RestTemplate();
 
     @Autowired
@@ -54,25 +53,28 @@ public class MeasureController {
     private MeasureManagementService managementService;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String measureHome() {
+    public String measureHome(String registerId) {
 
-        SimpleMeasure measure = new SimpleMeasure();
-        measure.setName("BMI指数");
-        measure.setTestTime("2016-08-19");
-        measure.setValue("21.7");
-        measure.setFlag("0");
-
-        List<SimpleMeasure> histories = Collections.singletonList(measure);
-
+        List histories = new ArrayList();
+        String parameters = "registerId=".concat(registerId);
+        String URL = String.format(requestDayHistoriesListPath, env.getProperty("measure.server.host"), parameters);
+        ResponseEntity<Map> response = template.getForEntity(URL, Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            Map body = response.getBody();
+            if (0 == (int) body.get("code")) {
+                histories = (List) body.get("data");
+            }
+        }
+        boolean hashMore = histories.size() > 4;
         Map<String, Object> homeMap = new HashMap<>();
         homeMap.put("types", managementService.displays());
-        homeMap.put("more", histories.size() > 3);
-        homeMap.put("histories", histories);
+        homeMap.put("more", hashMore);
+        homeMap.put("histories", hashMore ? histories.subList(0, 4) : histories);
         JsonResponseEntity<Map> result = new JsonResponseEntity<>(0, null);
         result.setData(homeMap);
         Map<Class, String[]> filters = new HashMap<>();
         filters.put(MeasureManagement.class, new String[]{"id","createdDate","lastModifiedDate", "createdBy", "lastModifiedBy", "display"});
-        return JacksonHelper.getInstance().serializeExclude(filters).writeAsString(result);
+        return JacksonHelper.getInstance().serializeExclude(filters).writeValueAsString(result);
     }
 
     @VersionRange

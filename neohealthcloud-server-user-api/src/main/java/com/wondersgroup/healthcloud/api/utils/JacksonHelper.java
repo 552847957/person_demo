@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Jeffrey on 15/11/5.
@@ -22,9 +23,17 @@ public class JacksonHelper {
         return new JacksonHelper();
     }
 
+    public static JacksonHelper getInstance(ObjectMapper objectMapper) {
+        return new JacksonHelper(objectMapper);
+    }
+
     private JacksonHelper() {
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    private JacksonHelper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
     public JacksonHelper filter(String filterName, SimpleBeanPropertyFilter propertyFilter) {
@@ -48,9 +57,25 @@ public class JacksonHelper {
         return filterProvider(provider);
     }
 
+    public JacksonHelper serializeExcludeSet(Map<Class, Set<String>> properties) {
+        SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+        for (Map.Entry<Class, Set<String>> entry : properties.entrySet()) {
+            provider.addFilter(entry.getKey().getName(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue()));
+        }
+        return filterProvider(provider);
+    }
+
     public JacksonHelper serializeInclude(Map<Class, String[]> properties) {
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
         for (Map.Entry<Class, String[]> entry : properties.entrySet()) {
+            provider.addFilter(entry.getKey().getName(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
+        }
+        return filterProvider(provider);
+    }
+
+    public JacksonHelper serializeIncludeSet(Map<Class, Set<String>> properties) {
+        SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+        for (Map.Entry<Class, Set<String>> entry : properties.entrySet()) {
             provider.addFilter(entry.getKey().getName(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
         }
         return filterProvider(provider);
@@ -65,7 +90,7 @@ public class JacksonHelper {
         }
     }
 
-    public String writeAsString(Object obj) {
+    public String writeValueAsString(Object obj) {
         try {
             return mapper.writeValueAsString(obj);
         } catch (Exception e) {
@@ -86,16 +111,6 @@ public class JacksonHelper {
 
     private void annotationIntrospector() {
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-            @Override
-            public Object findFilterId(Annotated a) {
-                Object id = super.findFilterId(a);
-                return generateFilter(a, id);
-            }
-        });
-    }
-
-    public static void setAnnotationIntrospector(ObjectMapper objectMapper) {
-        objectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
             @Override
             public Object findFilterId(Annotated a) {
                 Object id = super.findFilterId(a);
