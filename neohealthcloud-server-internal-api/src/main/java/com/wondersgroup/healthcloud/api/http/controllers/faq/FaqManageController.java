@@ -209,7 +209,7 @@ public class FaqManageController {
     @PostMapping(path = "/saveFirstAnswer")
     public JsonResponseEntity<String> saveFirstAnswer(@RequestBody Faq faq){
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
-        if(StringUtils.isBlank(faq.getId()) || StringUtils.isBlank(faq.getQId()) || StringUtils.isBlank(faq.getDoctorId())){
+        if(StringUtils.isBlank(faq.getQId()) || StringUtils.isBlank(faq.getDoctorId())){
             response.setCode(2001);
             response.setMsg("保存失败-id/qId/doctorId不能为空");
             return response;
@@ -219,6 +219,27 @@ public class FaqManageController {
         if(faq.getAnswerDate()==null){
             faq.setAnswerDate(new Date());
         }
+        if(StringUtils.isBlank(faq.getId())){
+            //查询根问题
+            Faq oneFaq = faqService.findOneFaqByQid(faq.getQId());
+            faq.setId(IdGen.uuid());
+            faq.setQId(faq.getQId());
+            faq.setIsShow(oneFaq.getIsShow());
+            faq.setIsTop(oneFaq.getIsTop());
+            faq.setType(0);
+            faq.setDelFlag("0");
+            faq.setCreateDate(new Date());
+            faq.setCreateBy("admin");//todo 保存登录人的id
+            faq.setAskerName(oneFaq.getAskerName());
+            faq.setAskDate(oneFaq.getAskDate());
+            faq.setGender(oneFaq.getGender());
+            faq.setAge(oneFaq.getAge());
+
+            faqService.save(faq);
+            response.setMsg("保存成功");
+            return response;
+        }
+
         int result = faqService.saveFirstAnswerByDoctorId(faq);
         if(result<=0){
             response.setCode(2001);

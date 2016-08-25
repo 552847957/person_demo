@@ -166,5 +166,10 @@ public class FaqServiceImpl implements FaqService {
         return result;
     }
 
+    @Override
+    public Faq findOneFaqByQid(String qId) {
+        return faqRepository.findOneFaqByQid(qId);
+    }
+
 
 }

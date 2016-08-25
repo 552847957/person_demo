@@ -43,4 +43,5 @@ public interface FaqService {
 
     int saveFirstAnswerByDoctorId(Faq faq);
 
+    Faq findOneFaqByQid(String qId);
 }

@@ -45,4 +45,7 @@ public interface FaqRepository extends JpaRepository<Faq,String> {
     @Modifying
     @Query(" update Faq a set a.doctorId=?1 where a.qPid = ?2 and a.doctorId = ?3  ")
     int updateAllDoctorIdByQpidAndDoctorId(String newDoctorId, String qId, String oldDoctorId);
+
+    @Query(" select  a from Faq a where a.qPid is null and a.qId = ?1  group by a.qId order by a.askDate desc")
+    Faq findOneFaqByQid(String qId);
 }
