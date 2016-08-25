@@ -51,17 +51,22 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> findUserInfoByUid(String uid) {
 
         String sql = query + " where i.registerid = '%s'";
-        sql = String.format(sql,uid);
+        sql = String.format(sql, uid);
         return jt.queryForMap(sql);
     }
 
     @Override
     public RegisterInfo getOneNotNull(String id) {
         RegisterInfo registerInfo = registerInfoRepository.findOne(id);
-        if(registerInfo == null){
+        if (registerInfo == null) {
             throw new ErrorUserAccountException();
         }
         return registerInfo;
+    }
+
+    @Override
+    public List<RegisterInfo> findRegisterInfoByIdcard(String idcard) {
+        return registerInfoRepository.findByPersoncard(idcard);
     }
 
     @Override
@@ -95,15 +100,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserInfo(UserInfoForm form) {
         RegisterInfo registerInfo = getOneNotNull(form.registerId);
-        if(registerInfo.verified() && form.age !=null){
+        if (registerInfo.verified() && form.age != null) {
             throw new ErrorUpdateUserInfoException("实名认证后不能修改年龄");
         }
-        if(registerInfo.verified() && StringUtils.isNotBlank(form.gender)){
+        if (registerInfo.verified() && StringUtils.isNotBlank(form.gender)) {
             throw new ErrorUpdateUserInfoException("实名认证后不能修改性别");
         }
 
         UserInfo userInfo = userInfoRepository.findOne(form.registerId);
-        if (userInfo == null){
+        if (userInfo == null) {
             userInfo = new UserInfo();
             userInfo.setRegisterid(form.registerId);
             userInfo.setDelFlag("0");
@@ -112,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
         userInfoRepository.saveAndFlush(merged);
 
-        if(StringUtils.isNotBlank(form.gender)){
+        if (StringUtils.isNotBlank(form.gender)) {
             registerInfo.setGender(form.gender);
             registerInfoRepository.saveAndFlush(registerInfo);
         }

@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
@@ -38,23 +39,27 @@ public class UserController {
     @Autowired
     private DictCache dictCache;
 
+    @Autowired
+    private SigningVerficationService signingVerficationService;
+
 
     /**
      * 获取用户信息
+     *
      * @param uid
      * @return
      */
     @VersionRange
     @GetMapping(path = "/info")
-    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid,@RequestParam(defaultValue = "false") Boolean withAddress) {
+    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid, @RequestParam(defaultValue = "false") Boolean withAddress) {
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
 
         UserInfo userInfo = userService.getUserInfo(uid);
         JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
 
-        UserAccountDTO userAccountDTO = new UserAccountDTO(registerInfo,userInfo);
+        UserAccountDTO userAccountDTO = new UserAccountDTO(registerInfo, userInfo);
 
-        if(withAddress){
+        if (withAddress) {
             Address address = userService.getAddress(uid);
             if (address != null) {
                 userAccountDTO.setAddressDTO(new AddressDTO(address, dictCache));
@@ -70,6 +75,7 @@ public class UserController {
 
     /**
      * 获取验证码 type : `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码 ,4 :修改手机号 ,5:绑定手机号
+     *
      * @param mobile
      * @param type
      * @return
@@ -78,15 +84,15 @@ public class UserController {
     @VersionRange
     @GetMapping(path = "/code")
     public JsonResponseEntity<String> getVerificationCodes(@RequestParam String mobile,
-                                                           @RequestParam(defaultValue = "0") Integer type)  {
+                                                           @RequestParam(defaultValue = "0") Integer type) {
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
         userAccountService.getVerifyCode(mobile, type);
         String msg = "短信验证码发送成功";
 
-        if(type==1){
+        if (type == 1) {
             msg = "验证码已发送，请注意查看短信";
-        }else if(type==3){
-            msg = "验证码已发送至"+mobile;
+        } else if (type == 3) {
+            msg = "验证码已发送至" + mobile;
         }
         response.setMsg(msg);
 
@@ -95,6 +101,7 @@ public class UserController {
 
     /**
      * 验证验证码
+     *
      * @param mobile
      * @param code
      * @return
@@ -113,6 +120,7 @@ public class UserController {
 
     /**
      * 重置密码
+     *
      * @param request
      * @return
      */
@@ -138,6 +146,7 @@ public class UserController {
 
     /**
      * 修改手机号
+     *
      * @param request
      * @return
      */
@@ -160,6 +169,7 @@ public class UserController {
 
     /**
      * 注册账号
+     *
      * @param request
      * @return
      */
@@ -173,7 +183,7 @@ public class UserController {
 
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
 
-        body.setData(new UserAccountAndSessionDTO(userAccountService.register(mobile, verifyCode,password)));
+        body.setData(new UserAccountAndSessionDTO(userAccountService.register(mobile, verifyCode, password)));
         body.getData().setInfo(getInfo(body.getData().getUid()));
         body.setMsg("注册成功");
         return body;
@@ -181,16 +191,17 @@ public class UserController {
 
     /**
      * 提交实名认证信息
+     *
      * @return
      */
     @VersionRange
     @PostMapping(path = "/verification/submit")
     public JsonResponseEntity<String> verificationSubmit(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
-        String id = reader.readString("uid",false);
-        String name = reader.readString("name",false);
-        String idCard = reader.readString("idcard",false);
-        String photo = reader.readString("photo",false);
+        String id = reader.readString("uid", false);
+        String name = reader.readString("name", false);
+        String idCard = reader.readString("idcard", false);
+        String photo = reader.readString("photo", false);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         name = name.trim();//去除空字符串
         idCard = idCard.trim();
@@ -199,8 +210,23 @@ public class UserController {
         return body;
     }
 
+    @GetMapping(path = "/verification/invitation/offline")
+    @VersionRange
+    public JsonResponseEntity<String> offlineInvitation(@RequestParam("uid") String uid,
+                                                        @RequestParam("name") String name,
+                                                        @RequestParam("idcard") String idCard,
+                                                        @RequestParam("mobile") String mobile,
+                                                        @RequestParam("code") String code) {
+        Boolean result = signingVerficationService.doctorInvitation(uid, mobile, name, idCard, code);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setCode(result ? 0 : 1024);
+        body.setMsg(result ? "核实成功" : "核实失败");
+        return body;
+    }
+
     /**
      * 根据用户Id获取实名认证信息
+     *
      * @param id
      * @return
      */
@@ -218,7 +244,7 @@ public class UserController {
             data.setCanSubmit(false);
             body.setData(data);
         } else {
-            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id,false)));
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
         }
         return body;
     }
@@ -226,11 +252,12 @@ public class UserController {
     public UserAccountDTO getInfo(String uid) {
         Map<String, Object> user = userService.findUserInfoByUid(uid);
         UserAccountDTO accountDto = new UserAccountDTO(user);
-        return  accountDto;
+        return accountDto;
     }
 
     /**
      * 修改昵称
+     *
      * @param request
      * @return
      */
@@ -252,6 +279,7 @@ public class UserController {
 
     /**
      * 修改性别
+     *
      * @param request
      * @return
      */
@@ -274,6 +302,7 @@ public class UserController {
 
     /**
      * 修改 性别 年龄 身高 体重 腰围
+     *
      * @param request
      * @return
      */
@@ -287,11 +316,11 @@ public class UserController {
         form.registerId = reader.readString("uid", false);
 
         form.age = reader.readObject("age", true, Integer.class);
-        form.height = reader.readObject("height", true,Integer.class);
+        form.height = reader.readObject("height", true, Integer.class);
         form.weight = reader.readObject("weight", true, Float.class);
         form.waist = reader.readObject("waist", true, Float.class);
 
-        form.gender = reader.readString("gender",true);
+        form.gender = reader.readString("gender", true);
 
         userService.updateUserInfo(form);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
@@ -301,6 +330,7 @@ public class UserController {
 
     /**
      * 修改昵称
+     *
      * @param request
      * @return
      */
