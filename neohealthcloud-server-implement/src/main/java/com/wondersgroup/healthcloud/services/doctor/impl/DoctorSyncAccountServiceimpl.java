@@ -17,6 +17,7 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.RSAUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,11 +78,16 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         String loginName = "";
         Boolean success = result.get("success").asBoolean();
         if(!success){
-            JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),"initPwd2016");
-            if (success) {
-                registerId = jsonNode.get("userid").asText();
-            }else{
-                throw new SyncDoctorAccountException("万达云账号注册失败,"+jsonNode.get("msg").asText());
+            try {
+                String psw = RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
+                JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),psw);
+                if (success) {
+                    registerId = jsonNode.get("userid").asText();
+                }else{
+                    throw new SyncDoctorAccountException("万达云账号注册失败,"+jsonNode.get("msg").asText());
+                }
+            }catch (Exception e){
+                throw new SyncDoctorAccountException(e.getMessage());
             }
         }else{
             registerId = result.get("user").get("userid").asText();

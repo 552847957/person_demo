@@ -173,7 +173,7 @@ public class FaqManageController {
                 faq.setAskDate(new Date());
             }
             faqService.save(faq);
-            response.setData(faq.getId());
+            response.setData(faq.getQId());
             response.setMsg("保存成功");
             return response;
         }
@@ -192,7 +192,7 @@ public class FaqManageController {
             response.setMsg("保存失败");
             return response;
         }
-        response.setData(faq.getId());
+        response.setData(faq.getQId());
         response.setMsg("保存成功");
         return response;
     }
