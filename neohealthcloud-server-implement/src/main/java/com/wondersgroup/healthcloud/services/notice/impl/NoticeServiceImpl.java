@@ -40,7 +40,7 @@ public class NoticeServiceImpl implements NoticeService {
     public List<Notice> findAllNoticeByArea(String mainArea, String specArea) {
         try {
             StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neonotice WHERE del_flag = '0' ");
+            sql.append("SELECT * FROM app_tb_neonotice WHERE 1 = 1 ");
             if (!StringUtils.isEmpty(mainArea)) {
                 sql.append(" AND main_area = '").append(mainArea).append("'");
             }
