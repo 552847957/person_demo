@@ -140,18 +140,16 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         }else {
             sql.append(" * ");
         }
-        if(null==searchParam.get("area_code")){
+        if(null==searchParam.get("areaCode")){
             sql.append(" from app_tb_neoarticle where 1=1");
             Iterator it = searchParam.keySet().iterator();
             while (it.hasNext()) {
 
                 String key = (String) it.next();
 
-                if ("is_visable".equals(key)) {
-                    sql.append(" and "+key+"="+searchParam.get(key));
-                }if("start_time".equals(key)){
+                if("startTime".equals(key)){
                     sql.append(" and update_time"+">=,"+searchParam.get(key)+"'");
-                }if("end_time".equals(key)){
+                }if("endTime".equals(key)){
                     sql.append(" and update_time"+"=<'"+searchParam.get(key)+"'");
                 }if("title".equals(key)){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
@@ -166,14 +164,16 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
                 String key = (String) it.next();
 
-                if ("is_visable".equals(key)) {
-                    sql.append(" and t2."+key+"="+searchParam.get(key));
-                }if("start_time".equals(key)){
-                    sql.append(" and t2.update_time"+">="+searchParam.get(key));
-                }if("end_time".equals(key)){
-                    sql.append(" and t2.update_time"+"=<"+searchParam.get(key));
-                }if("title".equals(key)){
+                if("startTime".equals(key)){
+                    sql.append(" and t2.update_time"+">='"+searchParam.get(key)+"'");
+                }else if("endTme".equals(key)){
+                    sql.append(" and t2.update_time"+"=<'"+searchParam.get(key)+"'");
+                }else if("title".equals(key)){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
+                }else if("isVisable".equals(key)){
+                    sql.append(" and t2.is_visable="+searchParam.get(key));
+                }else if("categoryId".equals(key)){
+                    sql.append(" and t2.category_id="+searchParam.get(key));
                 }
             }
             sql.append(" order by t2.update_time limit "+(pageNo-1)*pageSize+","+pageSize);

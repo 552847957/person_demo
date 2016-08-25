@@ -18,4 +18,5 @@ public interface ManageNewsArticleCategotyService {
     public List<NewsArticleCategory> findNewsCategoryByArea(String area);
 
     public NewsArticleCategory findNewsCategory(int id);
+
 }

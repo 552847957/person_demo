@@ -60,7 +60,6 @@ public class BackArticleController {
         response.setData(newsArticleCategoryDTOs);
         return response;
     }
-
     /**
      * 资讯分类详情
      * @return
