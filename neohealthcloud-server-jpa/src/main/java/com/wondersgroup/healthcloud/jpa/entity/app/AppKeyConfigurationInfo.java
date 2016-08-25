@@ -45,6 +45,8 @@ public class AppKeyConfigurationInfo {
     private String pushSecretDoctor;
     @Column(name = "app_secret_key_user")
     private String appSerectKeyUser;
+    @Column(name = "app_secret_key_doctor")
+    private String appSecretKeyDoctor;
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 }

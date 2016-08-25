@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.common.http.support.session.AccessTokenResol
 import com.wondersgroup.healthcloud.common.http.support.session.SessionExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionedRequestMappingHandlerMapping;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
+import com.wondersgroup.healthcloud.utils.security.AppSecretKeySelector;
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -73,7 +74,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+    public RequestMappingHandlerMapping requestMappingHandlerMapping(AppSecretKeySelector appSecretKeySelector) {
         Boolean isSandbox = "de".equals(getActiveProfile()) || "te".equals(getActiveProfile());
         RequestMappingHandlerMapping handlerMapping = new VersionedRequestMappingHandlerMapping();
         List<Object> interceptorList = Lists.newLinkedList();
@@ -83,7 +84,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
             interceptorList.add(new RequestHeaderInterceptor(isSandbox));
             interceptorList.add(new RequestReplayDefenderInterceptor(defender, isSandbox));
             interceptorList.add(new RequestAccessTokenInterceptor(sessionService, isSandbox));
-            interceptorList.add(new RequestSignatureInterceptor(sessionService, isSandbox, ""));//todo
+            interceptorList.add(new RequestSignatureInterceptor(sessionService, isSandbox, appSecretKeySelector));
         }
         handlerMapping.setInterceptors(interceptorList.toArray());
         return handlerMapping;
