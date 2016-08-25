@@ -34,12 +34,11 @@ public class ImageTextServiceImpl implements ImageTextService {
     @Autowired
     private ImageTextRepository imageTextRepository;
 
+    @Override
     public List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageTextEnum adcode) {
         try {
             StringBuffer sql = new StringBuffer();
-            sql.append("SELECT *")
-
-                    .append(" FROM app_tb_neoimage_text WHERE del_flag = '0'");
+            sql.append("SELECT * FROM app_tb_neoimage_text WHERE del_flag = '0'");
 
             if (!StringUtils.isEmpty(mainArea)) {
                 sql.append(" AND main_area = '").append(mainArea).append("'");
