@@ -141,9 +141,9 @@ public class DoctorServiceImpl implements DoctorService {
         String sql = " select a.id , a.name from doctor_account_tb a where a.is_available = '0' ";
 
         if(StringUtils.isNotBlank(doctorAnswerId)){
-            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"'  and id != '"+doctorAnswerId+"' ) ";
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"'  and id != '"+doctorAnswerId+"' and doctor_id is not null ) ";
         }else {
-            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"' ) ";
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"' and doctor_id is not null ) ";
         }
 
         if(StringUtils.isNotBlank(kw)){
