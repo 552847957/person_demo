@@ -28,4 +28,15 @@ public enum ImageTextEnum {
     public String toString() {
         return this.name;
     }
+
+    public static ImageTextEnum fromValue(Integer type) {
+        if (type != null) {
+            for (ImageTextEnum imageTextEnum : ImageTextEnum.values()) {
+                if (imageTextEnum.type.equals(type)) {
+                    return imageTextEnum;
+                }
+            }
+        }
+        return null;
+    }
 }

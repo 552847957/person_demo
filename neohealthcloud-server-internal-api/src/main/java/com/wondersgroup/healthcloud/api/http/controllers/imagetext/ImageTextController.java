@@ -24,14 +24,20 @@ public class ImageTextController {
     @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.GET)
     public JsonResponseEntity findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                    @RequestParam ImageTextEnum imageTextEnum) {
+                                                    @RequestParam(required = true) Integer adcode) {
         JsonResponseEntity result = new JsonResponseEntity();
-        List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(mainArea, specArea, imageTextEnum);
-        if (imageTextList != null && imageTextList.size() > 0) {
-            result.setData(imageTextList);
+        ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(adcode);
+        if (imageTextEnum != null) {
+            List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(mainArea, specArea, imageTextEnum);
+            if (imageTextList != null && imageTextList.size() > 0) {
+                result.setData(imageTextList);
+            } else {
+                result.setCode(1000);
+                result.setMsg("未查询到相关配置数据");
+            }
         } else {
             result.setCode(1000);
-            result.setMsg("未查询到相关配置数据");
+            result.setMsg("广告类型参数异常");
         }
         return result;
     }
@@ -40,12 +46,18 @@ public class ImageTextController {
     @RequestMapping(value = "/saveImageText", method = RequestMethod.POST)
     public JsonResponseEntity saveImageText(@RequestBody ImageText imageText) {
         JsonResponseEntity result = new JsonResponseEntity();
-        ImageText advertisement = imageTextService.saveImageText(imageText);
-        if (advertisement != null) {
-            result.setMsg("广告信息保存成功！");
+        ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(imageText.getAdcode());
+        if (imageTextEnum != null) {
+            ImageText advertisement = imageTextService.saveImageText(imageText);
+            if (advertisement != null) {
+                result.setMsg("广告信息保存成功！");
+            } else {
+                result.setCode(1001);
+                result.setMsg("广告信息保存失败！");
+            }
         } else {
-            result.setCode(1001);
-            result.setMsg("广告信息保存失败！");
+            result.setCode(1000);
+            result.setMsg("广告类型参数异常");
         }
         return result;
     }
