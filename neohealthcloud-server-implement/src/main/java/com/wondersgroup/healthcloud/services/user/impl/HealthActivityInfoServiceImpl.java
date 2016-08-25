@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 
@@ -94,16 +95,21 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     }
 
     @Override
-    public List<HealthActivityInfo> getHealthActivityInfos(String onlineTime, String offlineTime, int pageNo, int pageSize) {
+    public List<HealthActivityInfo> getHealthActivityInfos(String status, String title, String onlineTime, String offlineTime, int pageNo, int pageSize) {
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
                 + " from app_tb_healthactivity_info where del_flag = '0'";
-        if(onlineTime != null){
-            sql += " and online_time > '" + onlineTime + "'";
+        if(!StringUtils.isEmpty(status)){
+            sql += " and online_status = '" + status + "'";
         }
-        if(offlineTime != null){
-            sql += " and offline_time < '" + offlineTime + "'";
+        if(!StringUtils.isEmpty(onlineTime)){
+            sql += " and online_time >= '" + onlineTime + "'";
         }
-        
+        if(!StringUtils.isEmpty(offlineTime)){
+            sql += " and offline_time <= '" + offlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(title)){
+            sql += " and title like '%" + title + "%'";
+        }
         sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();

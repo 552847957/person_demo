@@ -35,13 +35,15 @@ public class HealthActivityController {
 
     @RequestMapping(value = "/listdata")
     public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(
+            @RequestParam(required=false) String status,
+            @RequestParam(required=false) String title,
             @RequestParam(required=false) String onlineTime,
             @RequestParam(required=false) String offlineTime,
             @RequestParam(defaultValue = "1") Integer flag,
             @RequestParam(defaultValue = "10") Integer pageSize
             ){
         JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
-        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(onlineTime, offlineTime, flag, pageSize);
+        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(status, title, onlineTime, offlineTime, flag, pageSize);
         List<HealthActivityInfoDTO> infoDTOs = HealthActivityInfoDTO.infoDTO(infos);
         entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((flag + 1)));
         entity.setMsg("查询成功");
