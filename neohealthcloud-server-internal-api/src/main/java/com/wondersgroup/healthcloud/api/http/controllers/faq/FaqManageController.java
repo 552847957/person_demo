@@ -173,6 +173,7 @@ public class FaqManageController {
                 faq.setAskDate(new Date());
             }
             faqService.save(faq);
+            response.setData(faq.getId());
             response.setMsg("保存成功");
             return response;
         }
