@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
@@ -59,6 +60,17 @@ public class PushController {
         PushClient client = pushAreaService.getByArea(area, isDoctor);
         pushMessage.area = area;
         client.pushToAll(pushMessage.toPushMessage());
+        return "{\"code\":0}";
+    }
+
+    @PostMapping(path = "/push/tag", produces = "application/json")
+    public String pushToTag(@RequestBody AppMessage pushMessage,
+                            @RequestParam String area,
+                            @RequestParam String tags,
+                            @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
+        PushClient client = pushAreaService.getByArea(area, isDoctor);
+        pushMessage.area = area;
+        client.pushToTags(pushMessage.toPushMessage(), Lists.newArrayList(tags.split(",")));
         return "{\"code\":0}";
     }
 }

@@ -62,6 +62,6 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
         wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
         AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭12").type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
 //        System.out.println(JsonConverter.toJson(message.toPushMessage()));
-        System.out.println(wrapper.pushToAlias(message, "ff808081549ff5d20154c2f8fb7b000a"));
+        System.out.println(wrapper.pushToAlias(message, "6438fed1d504443ebab553222f8fe161"));
     }
 }
