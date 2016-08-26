@@ -1,16 +1,16 @@
 package com.wondersgroup.healthcloud.api.http.controllers.administer;
 
-import com.google.common.collect.Maps;
-import com.wondersgroup.healthcloud.api.helper.UserHelper;
+/*import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.api.helper.UserHelper;*/
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.jpa.entity.permission.User;
+/*import com.wondersgroup.healthcloud.jpa.entity.permission.User;*/
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
-import org.apache.shiro.SecurityUtils;
+/*import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;*/
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
