@@ -122,9 +122,15 @@ public class HealthActivityController {
     @RequestMapping(value = "/deleteActivity", method = RequestMethod.DELETE)
     public JsonResponseEntity<String> deleteActivity(@RequestParam String activityId) {
         JsonResponseEntity<String> entity = new JsonResponseEntity<String>();
-        HealthActivityInfo info = activityRepo.findOne(activityId);
-        info.setDelFlag("1");
-        activityRepo.saveAndFlush(info);
+        String[] ids = activityId.split(",");
+        for (String id : ids) {
+            if(StringUtils.isEmpty(id)){
+               continue; 
+            }
+            HealthActivityInfo info = activityRepo.findOne(id);
+            info.setDelFlag("1");
+            activityRepo.saveAndFlush(info);
+        }
         entity.setMsg("删除成功");
         return entity;
     }
