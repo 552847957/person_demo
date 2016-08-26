@@ -30,7 +30,10 @@ public class ForwardArticleController {
         }
         int pageNo=pager.getNumber();
         int pageSize = pager.getSize();
-        int status= (int) param.get("status");
+        int status=0;//默认查全部
+        if(null!=param.get("status")){
+           status= (int) param.get("status");
+        }
         String areaCode=param.get("mainArea").toString();
         pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize,areaCode));
         int total=forwardArticleService.getCount(status,areaCode);

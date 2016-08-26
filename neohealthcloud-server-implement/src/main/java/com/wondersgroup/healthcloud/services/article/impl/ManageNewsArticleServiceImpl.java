@@ -152,11 +152,11 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
                 String key = (String) it.next();
 
-                if("startTime".equals(key)){
+                if("startTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+">='"+searchParam.get(key)+"'");
-                }if("endTime".equals(key)){
+                }if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
-                }if("title".equals(key)){
+                }if("title".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
                 }
             }
@@ -168,15 +168,15 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
                 String key = (String) it.next();
 
-                if("startTime".equals(key)){
+                if("startTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.update_time"+">='"+searchParam.get(key)+"'");
-                }else if("endTme".equals(key)){
+                }else if("endTme".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.update_time"+"<='"+searchParam.get(key)+"'");
-                }else if("title".equals(key)){
+                }else if("title".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
-                }else if("isVisable".equals(key)){
+                }else if("isVisable".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.is_visable="+searchParam.get(key));
-                }else if("categoryId".equals(key)){
+                }else if("categoryId".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.category_id="+searchParam.get(key));
                 }
             }
