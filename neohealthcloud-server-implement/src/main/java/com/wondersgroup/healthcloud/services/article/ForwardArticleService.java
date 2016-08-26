@@ -41,23 +41,23 @@ public class ForwardArticleService {
 
     }
 
-    public List<ForwardArticleAPIEntity> queryPageForWardArticle(int status,int pageNo,int pageSize){
-        String sql=makeSql(status,1);
+    public List<ForwardArticleAPIEntity> queryPageForWardArticle(int status,int pageNo,int pageSize,String areaCode){
+        String sql=makeSql(status,1,areaCode);
         sql+=" order by t2.rank desc limit "+(pageNo-1)*pageSize+","+pageSize;
         List<Map<String, Object>> maps = getJt().queryForList(sql);
         return mapTOforwardArticle(maps);
     }
-    public int getCount(int status){
-        String sql = makeSql(status,2);
+    public int getCount(int status,String areaCode){
+        String sql = makeSql(status,2,areaCode);
         return this.getJt().queryForObject(sql,Integer.class);
     }
-    public String makeSql(int status,int type){
+    public String makeSql(int status,int type,String areaCode){
         StringBuffer sql = new StringBuffer();
         if(type==1){
-            sql.append("SELECT t1.id,t2.rank,t1.title,t2.article_id,t2.start_time,t2.end_time FROM app_tb_neoarticle t1 " +
-                    "LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where 1=1");
+            sql.append("SELECT t2.id,t2.rank,t1.title,t2.article_id,t2.start_time,t2.end_time,t2.is_visable FROM app_tb_neoarticle t1 " +
+                    "LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where main_area='"+areaCode+"'");
         }else{
-            sql.append("SELECT count(1) FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where 1=1");
+            sql.append("SELECT count(1) FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where  main_area='"+areaCode+"'");
         }
         if(status==1){//未开始
             sql.append(" and start_time<NOW()");

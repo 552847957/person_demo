@@ -107,7 +107,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         String sql=makeSql(param,1);
         int pageSize = (Integer) param.get("pageSize");
         int pageNo = (Integer) param.get("pageNo");
-        sql+=" order by t2.update_time limit "+(pageNo-1)*pageSize+","+pageSize;
+        sql+=" limit "+(pageNo-1)*pageSize+","+pageSize;
         List<Map<String,Object>> results = this.getJt().queryForList(sql);
         return results;
     }
@@ -159,8 +159,8 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }if("title".equals(key)){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
                 }
-
             }
+            sql.append(" order by update_time desc");
         }else {//分区域查询文章
             sql.append(" from app_tb_neoarticle t1 left join app_tb_neoarticle_area t2 on t1.id=t2.article_id left join app_tb_neoarticle_category t3 on t2.category_id=t3.id where 1=1");
             Iterator it = searchParam.keySet().iterator();
@@ -180,6 +180,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                     sql.append(" and t2.category_id="+searchParam.get(key));
                 }
             }
+            sql.append(" order by t2.update_time desc");
         }
 
         return sql.toString();

@@ -31,8 +31,9 @@ public class ForwardArticleController {
         int pageNo=pager.getNumber();
         int pageSize = pager.getSize();
         int status= (int) param.get("status");
-        pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize));
-        int total=forwardArticleService.getCount(status);
+        String areaCode=param.get("mainArea").toString();
+        pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize,areaCode));
+        int total=forwardArticleService.getCount(status,areaCode);
         int totalPage = total % pageSize == 0 ? total / pageSize : (total / pageSize) + 1;
         pager.setTotalElements(total);
         pager.setTotalPages(totalPage);
