@@ -39,7 +39,6 @@ public class BackArticleController {
      * @param articleCategory
      */
     @PostMapping("/categorySave")
-    @VersionRange
     public JsonResponseEntity updateArticleCategory(@RequestBody NewsArticleCategory articleCategory){
         JsonResponseEntity response=new JsonResponseEntity();
         manageNewsArticleCategotyService.updateNewsArticleCategory(articleCategory);
@@ -52,7 +51,6 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/categoryList")
-    @VersionRange
     public JsonResponseEntity categoryList(@RequestParam String area){
         JsonResponseEntity response=new JsonResponseEntity();
         List<NewsArticleCategory> newsCategory = manageNewsArticleCategotyService.findNewsCategoryByArea(area);
@@ -65,7 +63,6 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/categoryInfo")
-    @VersionRange
     public JsonResponseEntity categoryInfo(@RequestParam int id){
         JsonResponseEntity response=new JsonResponseEntity();
         NewsArticleCategory newsCategory = manageNewsArticleCategotyService.findNewsCategory(id);
@@ -79,7 +76,6 @@ public class BackArticleController {
      * @param article
      */
     @PostMapping("/save")
-    @VersionRange
     public JsonResponseEntity updateArticle(@RequestBody NewsArticle article){
         JsonResponseEntity response=new JsonResponseEntity();
         if(article.getTitle().length()>30){
@@ -102,7 +98,6 @@ public class BackArticleController {
      * @param articleArea
      */
     @PostMapping("/areaArticleUpdate")
-    @VersionRange
     public JsonResponseEntity updateArticle(@RequestBody ArticleArea articleArea){
         JsonResponseEntity response=new JsonResponseEntity();
         Date date=new Date();
@@ -117,7 +112,6 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/info")
-    @VersionRange
     public JsonResponseEntity articleInfo(@RequestParam(required = true) Integer id){
         JsonResponseEntity response=new JsonResponseEntity();
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
@@ -131,16 +125,13 @@ public class BackArticleController {
      * @return
      */
     @PostMapping("/list")
-    @VersionRange
     public Pager articleList(@RequestBody Pager pager){
         Map param = new HashMap();
         param.putAll(pager.getParameter());
         int pageSize = pager.getSize();
-        if(0==pager.getSize()){
-            param.put("pageSize",10);
-        }else {
-            param.put("pageSize", pager.getSize());
-        }
+
+        param.put("pageSize", pager.getSize());
+
         param.put("pageNo",pager.getNumber());
         List list = manageNewsArticleServiceImpl.queryArticleList(param);
         pager.setData(list);

@@ -87,10 +87,9 @@ public class NewsArticleController {
      */
     @RequestMapping(value="/getHotWords", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(){
-        Map<String, Object> map = new HashMap<>();//获取分类
-        map.put("is_visable", 1);
-        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findNewsCategoryByKeys(map);
+    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(@RequestHeader("main-area") String area){
+
+        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
         List<NewsCateArticleListAPIEntity> data=new ArrayList<>();
         for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
             NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
@@ -145,13 +144,22 @@ public class NewsArticleController {
     }
 
     /**
-     * 获取医生下面的分类文章
+     * 获取首页资讯
+     * @return
+     */
+    @GetMapping("/homePage")
+    public JsonResponseEntity getHomePageArticle(@RequestHeader("main-area") String area){
+        JsonResponseEntity response=new JsonResponseEntity();
+        List<NewsArticleListAPIEntity> articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(area, 0, 10);
+        response.setData(articleForFirst);
+        return response;
+    }
+    /**
+     * 获取资讯分类文章
      */
     private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(String area){
 
-        Map<String, Object> map = new HashMap<>();//获取分类
-        map.put("is_visable", 1);
-        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findNewsCategoryByKeys(map);
+        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
 
         if (null == resourList || resourList.isEmpty()){
             return null;
@@ -182,11 +190,7 @@ public class NewsArticleController {
         return list;
     }
 
-    /**
-     * 获取分类下面的文章
-     * @param resourceList 学苑文章的分类id
-     * @return List
-     */
+
     private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
 
         if(null == resourceList || resourceList.size() == 0){

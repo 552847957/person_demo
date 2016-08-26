@@ -13,7 +13,7 @@ public interface ManageNewsArticleCategotyService {
 
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory);
 
-    public List<NewsArticleCategory> findNewsCategoryByKeys(Map<String, Object> parm);
+    public List<NewsArticleCategory> findAppNewsCategoryByArea(String area);
 
     public List<NewsArticleCategory> findNewsCategoryByArea(String area);
 
