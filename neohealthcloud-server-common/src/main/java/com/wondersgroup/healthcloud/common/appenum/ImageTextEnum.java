@@ -9,7 +9,8 @@ public enum ImageTextEnum {
     HOME_FUNCTION("首页功能图标", 1),
     LOADING_IMAGE("启动页广告", 2),
     NAVIGATION_BAR("导航按钮", 3),
-    SERVICE_BTN("服务功能列表", 4);
+    SERVICE_BTN("服务功能列表", 4),
+    HOME_ADVERTISEMENT("首页广告位", 5);
 
 
     private String name;

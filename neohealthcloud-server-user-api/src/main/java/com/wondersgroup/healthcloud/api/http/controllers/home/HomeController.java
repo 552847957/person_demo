@@ -82,7 +82,7 @@ public class HomeController {
         }
 
         // 首页广告
-        List<ImageText> imageTextsAD = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
+        List<ImageText> imageTextsAD = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_ADVERTISEMENT);
         if (imageTextsAD != null && imageTextsAD.size() > 0) {
             List adImages = new ArrayList();
             for (ImageText imageText : imageTextsAD) {
