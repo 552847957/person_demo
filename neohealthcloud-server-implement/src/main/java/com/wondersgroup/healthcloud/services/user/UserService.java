@@ -37,4 +37,6 @@ public interface UserService {
     List<Map<String,Object>> findUserListByPager(int pageNum, int size, Map parameter);
 
     int countUserByParameter(Map parameter);
+
+    Map<String,Object> findUserDetailByUid(String registerid);
 }

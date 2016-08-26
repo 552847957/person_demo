@@ -174,9 +174,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
 
-        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,GROUP_CONCAT(tagname) as  tagList " +
+        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
                 "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
-                ",tag.tagid,dt.tagname,r.create_date  " +
+                ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
                 "left join app_dic_tag dt on tag.tagid = dt.charid "+getTagListLike(parameter)+" ) d ";
@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService {
         String sql = sqlQuery + " where 1=1 "+
                 getWhereSqlByParameter(parameter)
                 + " group by registerid "
-                + " ORDER BY create_date  desc "
+                + " ORDER BY regtime  desc "
                 + " LIMIT " +(pageNum-1)*size +"," + size;
         return jt.queryForList(sql);
 
@@ -202,6 +202,19 @@ public class UserServiceImpl implements UserService {
                 getWhereSqlByParameter(parameter) ;
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
+    }
+
+    @Override
+    public Map<String, Object> findUserDetailByUid(String registerid) {
+        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
+                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
+                ",tag.tagid,dt.tagname,r.regtime  " +
+                " from app_tb_register_info r " +
+                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "left join app_dic_tag dt on tag.tagid = dt.charid ) d ";
+        String sql = sqlQuery + " where d.registerid = '%s' group by registerid";
+        sql = String.format(sql, registerid);
+        return jt.queryForMap(sql);
     }
 
     private String getTagListLike(Map parameter){
