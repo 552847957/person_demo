@@ -232,6 +232,7 @@ public class FaqManageController {
             faq.setCreateBy("admin");//todo 保存登录人的id
             faq.setAskerName(oneFaq.getAskerName());
             faq.setAskDate(oneFaq.getAskDate());
+            faq.setAskContent(oneFaq.getAskContent());
             faq.setGender(oneFaq.getGender());
             faq.setAge(oneFaq.getAge());
 
