@@ -119,4 +119,22 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         return list;
     }
 
+    @Override
+    public int getHealthActivityInfoCount(String status, String title, String onlineTime, String offlineTime) {
+        String sql = "select count(*) from app_tb_healthactivity_info where del_flag = '0'";
+        if(!StringUtils.isEmpty(status)){
+            sql += " and online_status = '" + status + "'";
+        }
+        if(!StringUtils.isEmpty(onlineTime)){
+            sql += " and online_time >= '" + onlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(offlineTime)){
+            sql += " and offline_time <= '" + offlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(title)){
+            sql += " and title like '%" + title + "%'";
+        }
+        return getJt().queryForObject(sql,Integer.class);
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
@@ -48,8 +49,14 @@ public class HealthActivityController {
         JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
         List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(status, title, onlineTime, offlineTime,
                 flag, pageSize);
+        int count = infoService.getHealthActivityInfoCount(status, title, onlineTime, offlineTime);
         List<HealthActivityInfoDTO> infoDTOs = HealthActivityInfoDTO.infoDTO(infos);
         entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((flag + 1)));
+        Map<String, Object> extras = new HashMap<String, Object>();
+        int ps = count / pageSize;
+        extras.put("total_pages", count % pageSize == 0 ? ps : ps + 1);
+        extras.put("total_elements", count);
+        entity.setExtras(extras);
         entity.setMsg("查询成功");
         return entity;
     }
@@ -121,7 +128,12 @@ public class HealthActivityController {
         entity.setMsg("删除成功");
         return entity;
     }
-
+    
+    /**
+     * 查询省市区字段表数据
+     * @param upperCode
+     * @return JsonListResponseEntity<DicArea>
+     */
     @RequestMapping(value = "/firstAddressInfo", method = RequestMethod.GET)
     public JsonListResponseEntity<DicArea> getFirstAddressInfo(@RequestParam(required = false) String upperCode) {
         JsonListResponseEntity<DicArea> entity = new JsonListResponseEntity<DicArea>();
