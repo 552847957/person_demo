@@ -206,8 +206,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, Object> findUserDetailByUid(String registerid) {
-        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
-                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
+        String sqlQuery = "SELECT registerid,userid,`name`,headphoto,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
+                "from (select r.registerid,r.userid,r.`name`,r.headphoto,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
                 ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
