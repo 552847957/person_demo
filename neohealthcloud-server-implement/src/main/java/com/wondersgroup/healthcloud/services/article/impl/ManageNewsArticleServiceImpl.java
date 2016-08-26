@@ -82,8 +82,8 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     }
 
     @Override
-    public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize) {
-        return newsArticleRepo.queryNewsArticleByTitle(title,pageNo,pageSize);
+    public List<NewsArticle> findAppShowListByTitle(String word, int pageNo, int pageSize) {
+        return newsArticleRepo.queryNewsArticleByTitle(word,pageNo,pageSize);
     }
 
     @Override
@@ -105,7 +105,9 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     public List<Map<String, Object>> queryArticleList(Map<String, Object> param) {
 
         String sql=makeSql(param,1);
-
+        int pageSize = (Integer) param.get("pageSize");
+        int pageNo = (Integer) param.get("pageNo");
+        sql+=" order by t2.update_time limit "+(pageNo-1)*pageSize+","+pageSize;
         List<Map<String,Object>> results = this.getJt().queryForList(sql);
         return results;
     }
@@ -132,13 +134,16 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     //组装sql
     private String makeSql(Map searchParam,int type) {
         StringBuffer sql = new StringBuffer();
-        int pageSize = (Integer) searchParam.get("pageSize");
-        int pageNo = (Integer) searchParam.get("pageNo");
+
         sql.append("select ");
         if(type == 2){
             sql.append(" count(*) ");
         }else {
-            sql.append(" * ");
+            if(null==searchParam.get("areaCode")){
+                sql.append(" * ");
+            }else{
+                sql.append(" t1.*,t2.is_visable,t3.c_name ");
+            }
         }
         if(null==searchParam.get("areaCode")){
             sql.append(" from app_tb_neoarticle where 1=1");
@@ -156,9 +161,8 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }
 
             }
-            sql.append(" order by update_time limit "+(pageNo-1)*pageSize+","+pageSize);
         }else {//分区域查询文章
-            sql.append(" from app_tb_neoarticle t1 left join app_tb_neoarticle_area t2 on t1.id=t2.article_id where 1=1");
+            sql.append(" from app_tb_neoarticle t1 left join app_tb_neoarticle_area t2 on t1.id=t2.article_id left join app_tb_neoarticle_category t3 on t2.category_id=t3.id where 1=1");
             Iterator it = searchParam.keySet().iterator();
             while (it.hasNext()) {
 
@@ -176,7 +180,6 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                     sql.append(" and t2.category_id="+searchParam.get(key));
                 }
             }
-            sql.append(" order by t2.update_time limit "+(pageNo-1)*pageSize+","+pageSize);
         }
 
         return sql.toString();

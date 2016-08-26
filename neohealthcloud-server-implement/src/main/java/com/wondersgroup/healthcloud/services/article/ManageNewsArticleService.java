@@ -51,10 +51,10 @@ public interface ManageNewsArticleService {
 
     /**
      * 根据分类查询改分类下面的所有有效的文章
-     * @param title
+     * @param word
      * @return List
      */
-    public List<NewsArticle> findAppShowListByTitle(String title, int pageNo, int pageSize);
+    public List<NewsArticle> findAppShowListByTitle(String word, int pageNo, int pageSize);
 
     /**
      * 搜页展示文章

@@ -33,9 +33,9 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     }
 
     @Override
-    public List<NewsArticleCategory> findNewsCategoryByKeys(Map<String, Object> parm) {
+    public List<NewsArticleCategory> findAppNewsCategoryByArea(String area) {
 
-        return newsArticleCategoryRepo.queryNewsArticleCategory();
+        return newsArticleCategoryRepo.queryAppNewsArticleCategory(area);
     }
 
     @Override
