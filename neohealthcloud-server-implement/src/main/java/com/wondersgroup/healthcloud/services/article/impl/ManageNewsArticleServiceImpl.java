@@ -157,7 +157,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
                 }if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and "+key+"='"+searchParam.get(key)+"'");
+                    sql.append(" and "+key+"='%"+searchParam.get(key)+"%'");
                 }
             }
             sql.append(" order by update_time desc");
@@ -170,10 +170,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
                 if("startTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.update_time"+">='"+searchParam.get(key)+"'");
-                }else if("endTme".equals(key)&&!"".equals(searchParam.get(key))){
+                }else if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.update_time"+"<='"+searchParam.get(key)+"'");
                 }else if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and "+key+"='"+searchParam.get(key)+"'");
+                    sql.append(" and "+key+"='%"+searchParam.get(key)+"%'");
                 }else if("isVisable".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.is_visable="+searchParam.get(key));
                 }else if("categoryId".equals(key)&&!"".equals(searchParam.get(key))){
