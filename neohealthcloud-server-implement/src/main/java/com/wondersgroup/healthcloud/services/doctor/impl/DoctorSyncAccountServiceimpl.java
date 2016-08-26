@@ -181,5 +181,16 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
 
     }
 
+    @Override
+    public DoctorInfo findDoctorByPersoncardWithOutDelflag(String idcard) {
+
+        return doctorInfoRepository.findDoctorByPersoncardWithOutDelflag(idcard);
+    }
+
+    @Override
+    public DoctorAccount findDoctorById(String id) {
+        return doctorAccountRepository.findOne(id);
+    }
+
 
 }
