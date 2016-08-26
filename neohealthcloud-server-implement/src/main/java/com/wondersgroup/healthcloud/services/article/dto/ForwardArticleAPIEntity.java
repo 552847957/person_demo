@@ -17,6 +17,7 @@ public class ForwardArticleAPIEntity {
     private int article_id;
     private int is_visable;
     private int rank;
+    private String title;
     private String start_time;
     private String end_time;
     private String status;
@@ -27,6 +28,7 @@ public class ForwardArticleAPIEntity {
         this.article_id = (int) param.get("article_id");
         this.is_visable = (int) param.get("is_visable");
         this.rank = (int) param.get("rank");
+        this.title= (String) param.get("title");
         this.start_time = format.format((Date) param.get("start_time"));
         this.end_time = format.format((Date) param.get("end_time"));
         Date nowDate=new Date();

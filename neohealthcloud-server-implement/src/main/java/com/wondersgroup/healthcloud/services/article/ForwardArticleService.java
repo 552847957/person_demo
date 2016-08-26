@@ -33,8 +33,8 @@ public class ForwardArticleService {
     }
 
     public List<ForwardArticleAPIEntity> queryById(int id){
-        String sql="SELECT t1.id,t2.rank,t1.title,t2.article_id,t2.start_time,t2.end_time FROM app_tb_neoarticle t1 " +
-                "LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where id="+id;
+        String sql="SELECT t1.id,t2.rank,t1.title,t2.article_id,t2.start_time,t2.end_time,t2.is_visable FROM app_tb_neoarticle t1 " +
+                "LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where t1.id="+id;
         List<Map<String, Object>> maps = getJt().queryForList(sql);
 
         return mapTOforwardArticle(maps);
@@ -60,13 +60,13 @@ public class ForwardArticleService {
             sql.append("SELECT count(1) FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where  main_area='"+areaCode+"'");
         }
         if(status==1){//未开始
-            sql.append(" and start_time<NOW()");
+            sql.append(" and start_time>NOW()");
         }
         if(status==2){//进行中
-            sql.append(" and start_time>=OW() and end_time<=now()");
+            sql.append(" and start_time<=NOW() and end_time>=NOW()");
         }
         if(status==3){//已结束
-            sql.append(" and end_tiem_time>NOW()");
+            sql.append(" and end_time<NOW()");
         }
         return sql.toString();
     }

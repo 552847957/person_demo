@@ -88,7 +88,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
     @Override
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize) {
-        List<NewsArticle> list=newsArticleRepo.queryNewsArticleByAreaId(areaId,pageNo*pageSize,pageSize);
+        List<NewsArticle> list=newsArticleRepo.queryNewsArticleForHomePage(areaId,pageNo*pageSize,pageSize);
 
         return getArticleEntityList(list);
     }
@@ -153,9 +153,9 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 String key = (String) it.next();
 
                 if("startTime".equals(key)){
-                    sql.append(" and update_time"+">=,"+searchParam.get(key)+"'");
+                    sql.append(" and update_time"+">='"+searchParam.get(key)+"'");
                 }if("endTime".equals(key)){
-                    sql.append(" and update_time"+"=<'"+searchParam.get(key)+"'");
+                    sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
                 }if("title".equals(key)){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
                 }
@@ -171,7 +171,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 if("startTime".equals(key)){
                     sql.append(" and t2.update_time"+">='"+searchParam.get(key)+"'");
                 }else if("endTme".equals(key)){
-                    sql.append(" and t2.update_time"+"=<'"+searchParam.get(key)+"'");
+                    sql.append(" and t2.update_time"+"<='"+searchParam.get(key)+"'");
                 }else if("title".equals(key)){
                     sql.append(" and "+key+"='"+searchParam.get(key)+"'");
                 }else if("isVisable".equals(key)){

@@ -23,8 +23,8 @@ public class ForwardArticleController {
     public Pager findHomeArticleList(@RequestBody Pager pager) {
         Map param = new HashMap();
         param.putAll(pager.getParameter());
-        if(param.get("id")!=null&&!param.get("id").equals("")){
-            int id= (int) param.get("id");
+        if(param.get("articleId")!=null&&!param.get("articleId").equals("")){
+            int id= (int) param.get("articleId");
             pager.setData(forwardArticleService.queryById(id));
             return pager;
         }

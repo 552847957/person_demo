@@ -144,6 +144,17 @@ public class NewsArticleController {
     }
 
     /**
+     * 获取首页资讯
+     * @return
+     */
+    @GetMapping("/homePage")
+    public JsonResponseEntity getHomePageArticle(@RequestHeader("main-area") String area){
+        JsonResponseEntity response=new JsonResponseEntity();
+        List<NewsArticleListAPIEntity> articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(area, 0, 10);
+        response.setData(articleForFirst);
+        return response;
+    }
+    /**
      * 获取资讯分类文章
      */
     private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(String area){
@@ -179,11 +190,7 @@ public class NewsArticleController {
         return list;
     }
 
-    /**
-     * 获取分类下面的文章
-     * @param resourceList 学苑文章的分类id
-     * @return List
-     */
+
     private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
 
         if(null == resourceList || resourceList.size() == 0){
