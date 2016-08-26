@@ -21,4 +21,5 @@ public interface DoctorInfoRepository extends JpaRepository<DoctorInfo,String> {
 
     @Query(" select a from DoctorInfo a where a.idcard = ?1 ")
     DoctorInfo findDoctorByPersoncardWithOutDelflag(String idcard);
+
 }

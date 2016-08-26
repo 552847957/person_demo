@@ -56,6 +56,14 @@ public class DoctorServiceImpl implements DoctorService {
         return jt.queryForMap(sql);
     }
 
+    @Override
+    public Map<String, Object> findDoctorInfoByIdcard(String doctorIdcard) {
+        String sql =query +
+                " where i.idcard = '%s' and a.del_flag = '0' and a.is_available = '0' ";
+        sql = String.format(sql,doctorIdcard);
+        return jt.queryForMap(sql);
+    }
+
     /**
      * 根据医生uid查询医生信息
      * @param
@@ -151,6 +159,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return jt.queryForList(sql);
     }
+
 
 
 }
