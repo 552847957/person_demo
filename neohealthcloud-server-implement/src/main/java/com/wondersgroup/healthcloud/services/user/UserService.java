@@ -12,9 +12,11 @@ import java.util.Map;
  * Created by longshasha on 16/8/4.
  */
 public interface UserService {
-    Map<String,Object> findUserInfoByUid(String uid);
+    Map<String, Object> findUserInfoByUid(String uid);
 
     RegisterInfo getOneNotNull(String id);
+
+    List<RegisterInfo> findRegisterInfoByIdcard(String idcard);
 
     Boolean updateNickname(String id, String nickname);
 

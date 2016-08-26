@@ -46,8 +46,8 @@ public class ConfigController {
      */
     @Admin
     @RequestMapping(value = "/findAllDiscreteAppConfig", method = RequestMethod.GET)
-    public JsonResponseEntity<List<AppConfig>> findAllDiscreteAppConfig(@RequestHeader(required = true) String mainArea,
-                                                                        @RequestHeader(required = false) String specArea) {
+    public JsonResponseEntity<List<AppConfig>> findAllDiscreteAppConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                                                        @RequestHeader(name = "spec-area", required = false) String specArea) {
         JsonResponseEntity<List<AppConfig>> result = new JsonResponseEntity<>();
         List<AppConfig> appConfigs = appConfigService.findAllDiscreteAppConfig(mainArea, specArea);
         if (appConfigs != null && appConfigs.size() > 0) {
