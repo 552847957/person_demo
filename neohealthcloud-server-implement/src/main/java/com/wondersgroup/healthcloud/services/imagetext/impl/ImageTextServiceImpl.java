@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -66,6 +67,20 @@ public class ImageTextServiceImpl implements ImageTextService {
             imageText.setId(IdGen.uuid());
         }
         return imageTextRepository.saveAndFlush(imageText);
+    }
+
+    @Override
+    @Transactional
+    public int saveBatchImageText(List<ImageText> imageTextList) {
+        int flag = 0;
+        for (ImageText imageText : imageTextList) {
+            if (StringUtils.isBlank(imageText.getId())) {
+                imageText.setId(IdGen.uuid());
+            }
+            imageTextRepository.saveAndFlush(imageText);
+            flag++;
+        }
+        return flag;
     }
 
     /**

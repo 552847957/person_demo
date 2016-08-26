@@ -11,5 +11,7 @@ import java.util.List;
 public interface ImageTextService {
     ImageText saveImageText(ImageText imageText);
 
+    int saveBatchImageText(List<ImageText> imageTextList);
+
     List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageTextEnum adcode);
 }
