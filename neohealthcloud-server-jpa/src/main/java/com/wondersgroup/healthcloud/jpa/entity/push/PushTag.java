@@ -29,7 +29,8 @@ public class PushTag {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer tagid;
     private String tagname;
     private Date updatetime;
+    private Integer id;
 }
