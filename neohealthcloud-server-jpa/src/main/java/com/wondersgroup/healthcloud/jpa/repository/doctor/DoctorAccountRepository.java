@@ -26,4 +26,9 @@ public interface DoctorAccountRepository extends JpaRepository<DoctorAccount, St
     @Modifying
     @Query(" update DoctorAccount a set a.delFlag = '1' where a.id = ?1 ")
     void closeWonderCloudAccount(String registerId);
+
+    @Transactional
+    @Modifying
+    @Query("update DoctorAccount set isAvailable = ?1 where id in ?2")
+    void updateIsAvailable(String isAvailable, List<String> id);
 }

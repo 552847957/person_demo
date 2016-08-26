@@ -11,11 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +43,20 @@ public class DoctorAccountController {
         JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", doctorAccounts);
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+    }
+
+    /**
+     * 批量修改医生账号可用状态
+     * @param ids
+     * @param isAvailable
+     * @return
+     */
+    @PostMapping(path = "/doctor/available")
+    public JsonResponseEntity updateIsAvailable(@RequestParam List<String> ids,
+                                                @RequestParam String isAvailable){
+        doctorAccountRepository.updateIsAvailable(isAvailable, ids);
+
+        return new JsonResponseEntity(0, "修改成功");
     }
 
 }
