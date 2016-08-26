@@ -20,6 +20,7 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 
 /**
@@ -37,6 +38,8 @@ public class UserController {
 
     @Autowired
     private DictCache dictCache;
+
+    DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
 
 
     /**
@@ -279,7 +282,7 @@ public class UserController {
      */
     @VersionRange
     @PostMapping(path = "/userInfo/update")
-    public JsonResponseEntity<String> updateUserInfo(@RequestBody String request) {
+    public JsonResponseEntity<Map<String, Object>> updateUserInfo(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
 
         UserInfoForm form = new UserInfoForm();
@@ -294,7 +297,20 @@ public class UserController {
         form.gender = reader.readString("gender",true);
 
         userService.updateUserInfo(form);
-        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        JsonResponseEntity<Map<String, Object>> body = new JsonResponseEntity<>();
+        Map<String, Object> data = Maps.newHashMap();
+        if(form.age!=null)
+            data.put("age", form.age);
+        if(form.height!=null)
+            data.put("height", form.height);
+        if(form.weight!=null)
+            data.put("weight", decimalFormat.format(form.weight).toString());
+        if(form.waist!=null)
+            data.put("waist", decimalFormat.format(form.waist).toString());
+        if(form.gender!=null)
+            data.put("gender", form.gender);
+
+        body.setData(data);
         body.setMsg("信息修改成功");
         return body;
     }

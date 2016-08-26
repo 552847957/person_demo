@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,4 +31,8 @@ public interface UserService {
     Address updateAddress(String id, String province, String city, String county, String town, String committee, String other);
 
     Address getAddress(String uid);
+
+    List<Map<String,Object>> findUserListByPager(int pageNum, int size, Map parameter);
+
+    int countUserByParameter(Map parameter);
 }

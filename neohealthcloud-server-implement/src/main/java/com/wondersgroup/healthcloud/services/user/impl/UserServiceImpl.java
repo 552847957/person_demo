@@ -160,4 +160,84 @@ public class UserServiceImpl implements UserService {
         List<Address> addressList = addressRepository.findByUserId(userId);
         return addressList.isEmpty() ? null : addressList.get(0);
     }
+
+
+
+    //----------------------后台使用----------------------
+
+
+    @Override
+    public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
+
+        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,GROUP_CONCAT(tagname) as  tagList " +
+                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
+                ",tag.tagid,dt.tagname,r.create_date  " +
+                " from app_tb_register_info r " +
+                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "left join app_dic_tag dt on tag.tagid = dt.charid "+getTagListLike(parameter)+" ) d ";
+
+        String sql = sqlQuery + " where 1=1 "+
+                getWhereSqlByParameter(parameter)
+                + " group by registerid "
+                + " ORDER BY create_date  desc "
+                + " LIMIT " +(pageNum-1)*size +"," + size;
+        return jt.queryForList(sql);
+
+    }
+
+    @Override
+    public int countUserByParameter(Map parameter) {
+        String sqlQuery = "SELECT count(DISTINCT(registerid)) " +
+                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
+                ",tag.tagid,dt.tagname,r.create_date  " +
+                " from app_tb_register_info r " +
+                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "left join app_dic_tag dt on tag.tagid = dt.charid "+getTagListLike(parameter)+" ) d ";
+        String sql = sqlQuery + " where 1=1 "+
+                getWhereSqlByParameter(parameter) ;
+        Integer count = jt.queryForObject(sql, Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    private String getTagListLike(Map parameter){
+        StringBuffer bf = new StringBuffer();
+        if(parameter.size()>0 && parameter.containsKey("tagList") &&  StringUtils.isNotBlank(parameter.get("tagList").toString())){
+            String tagList = parameter.get("tagList").toString();
+            String[] tags = tagList.split(",");
+            bf.append(" where  ");
+            int size = tags.length;
+            int i = 0;
+            for (String tag :tags){
+                i++;
+                if(i<size){
+                    bf.append(" dt.tagname like '%"+tag+"%' or ");
+                }else{
+                    bf.append(" dt.tagname like '%"+tag+"%'  ");
+                }
+
+            }
+        }
+        return bf.toString();
+    }
+    private String getWhereSqlByParameter(Map parameter) {
+        StringBuffer bf = new StringBuffer();
+        if(parameter.size()>0){
+            if(parameter.containsKey("nickname") &&  StringUtils.isNotBlank(parameter.get("nickname").toString())){
+                bf.append(" and d.nickname like '%"+parameter.get("nickname").toString()+"%' ");
+            }
+            if(parameter.containsKey("name") && StringUtils.isNotBlank(parameter.get("name").toString())){
+                bf.append(" and d.name like '%"+parameter.get("name").toString()+"%' ");
+            }
+            if(parameter.containsKey("regmobilephone") && StringUtils.isNotBlank(parameter.get("regmobilephone").toString())){
+                bf.append(" and d.regmobilephone like '%"+parameter.get("regmobilephone").toString()+"%' ");
+            }
+            if(parameter.containsKey("personcard") && StringUtils.isNotBlank(parameter.get("personcard").toString())){
+                bf.append(" and d.personcard like '%"+parameter.get("personcard").toString()+"%' ");
+            }
+            if(parameter.containsKey("userid") && StringUtils.isNotBlank(parameter.get("userid").toString())){
+                bf.append(" and d.userid like '%"+parameter.get("userid").toString()+"%' ");
+            }
+        }
+        return bf.toString();
+    }
 }
