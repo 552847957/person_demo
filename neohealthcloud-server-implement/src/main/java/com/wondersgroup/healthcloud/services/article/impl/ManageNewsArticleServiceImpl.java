@@ -157,12 +157,12 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
                 }if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and "+key+"='%"+searchParam.get(key)+"%'");
+                    sql.append(" and title LIKE='%"+searchParam.get(key)+"%'");
                 }
             }
             sql.append(" order by update_time desc");
         }else {//分区域查询文章
-            sql.append(" from app_tb_neoarticle t1 left join app_tb_neoarticle_area t2 on t1.id=t2.article_id left join app_tb_neoarticle_category t3 on t2.category_id=t3.id where 1=1");
+            sql.append(" from app_tb_neoarticle t1 left join app_tb_neoarticle_area t2 on t1.id=t2.article_id left join app_tb_neoarticle_category t3 on t2.category_id=t3.id where t2.main_area='"+searchParam.get("areaCode")+"'");
             Iterator it = searchParam.keySet().iterator();
             while (it.hasNext()) {
 
@@ -173,7 +173,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }else if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.update_time"+"<='"+searchParam.get(key)+"'");
                 }else if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and "+key+"='%"+searchParam.get(key)+"%'");
+                    sql.append(" and t1.title LIKE '%"+searchParam.get(key)+"%'");
                 }else if("isVisable".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and t2.is_visable="+searchParam.get(key));
                 }else if("categoryId".equals(key)&&!"".equals(searchParam.get(key))){
