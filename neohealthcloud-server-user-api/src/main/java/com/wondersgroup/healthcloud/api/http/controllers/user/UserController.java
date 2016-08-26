@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
@@ -39,7 +40,11 @@ public class UserController {
     @Autowired
     private DictCache dictCache;
 
+    @Autowired
+    private SigningVerficationService signingVerficationService;
+
     DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+
 
 
     /**
@@ -199,6 +204,21 @@ public class UserController {
         idCard = idCard.trim();
         userAccountService.verificationSubmit(id, name, idCard, photo);
         body.setMsg("提交成功");
+        return body;
+    }
+
+
+    @GetMapping(path = "/verification/invitation/offline")
+    @VersionRange
+    public JsonResponseEntity<String> offlineInvitation(@RequestParam("uid") String uid,
+                                                        @RequestParam("name") String name,
+                                                        @RequestParam("idcard") String idCard,
+                                                        @RequestParam("mobile") String mobile,
+                                                        @RequestParam("code") String code) {
+        Boolean result = signingVerficationService.doctorInvitation(uid, mobile, name, idCard, code);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setCode(result ? 0 : 1024);
+        body.setMsg(result ? "核实成功" : "核实失败");
         return body;
     }
 
