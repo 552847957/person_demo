@@ -2,17 +2,20 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import java.util.Date;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
@@ -29,8 +32,6 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 
 @Service
 public class FamilyServiceImpl implements FamilyService {
-    //
-    //    private static final String appToken = PropertiesUtils.get("WONDERS_CLOUD_API_TOKEN");
     private static final int                 maxMemberCount = 5;
 
     @Autowired
@@ -45,9 +46,6 @@ public class FamilyServiceImpl implements FamilyService {
     @Autowired
     private FamilyMemberInvitationRepository invitationRepository;
 
-    //    @Autowired
-    //    private HealthBankService healthBankService;
-
     @Autowired
     private UserAccountService               accountService;
 
@@ -57,7 +55,12 @@ public class FamilyServiceImpl implements FamilyService {
     @Autowired
     private HttpWdUtils httpWdUtils;
     
-
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+    
+    @Autowired
+    private PushClientWrapper pushClientWrapper;
+    
     @Transactional(readOnly = false)
     @Override
     public Boolean inviteMember(String userId, String memberId, String mobile, String memo, String relation,
@@ -109,7 +112,7 @@ public class FamilyServiceImpl implements FamilyService {
         invitation.setUpdateBy(userId);
         invitation.setUpdateDate(invitation.getCreateDate());
         invitationRepository.saveAndFlush(invitation);
-        //    push(other.getRegisterId(), "您收到一条家庭成员邀请, 请查收", PushPayloadUtils.build("open_page", AppUrlPatientUtils.buildMemberInvitation(invitation.getId())));
+        push(other.getRegisterid(), "亲情账户邀请", "您收到一条家庭成员邀请, 请查收");
         return true;
     }
 
@@ -165,7 +168,7 @@ public class FamilyServiceImpl implements FamilyService {
                     register.getGender(), invitation.getRelationName(), relationName,
                     FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false);
         }
-        //        push(invitation.getUid(), "您的一条家庭成员邀请已被处理, 请查收", PushPayloadUtils.build("open_page", AppUrlPatientUtils.buildMemberInvitation(invitationId)));
+        push(invitation.getUid(), "亲情账户邀请", "您的一条家庭成员邀请已被处理, 请查收");
         return true;
     }
 
@@ -242,8 +245,7 @@ public class FamilyServiceImpl implements FamilyService {
         }
         RegisterInfo register = findOneRegister(userId, false);
         String message = register.getNickname() + "已与您解除亲情账户绑定";
-        //        PushService pushService = new XiaomiPushImpl();
-        //        pushService.singlePush(memberId, "亲情账户解除绑定", message, PushPayloadUtils.build("open_dialog", AppUrlPatientUtils.buildMemberUnbind(message)), null);
+        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
 
@@ -300,11 +302,6 @@ public class FamilyServiceImpl implements FamilyService {
                 + (StringUtils.equals("0", relation) ? "家人" : FamilyMemberRelation.getName(FamilyMemberRelation
                         .getOppositeRelation(relation, register.getGender()))) + mobileMessage
                 + "为您创建了健康云账户，以便于更好的管理您的家人健康。请点击http://www.wdjky.com/healthcloud2 进行APP下载。";
-//        String[] params = new String[] { "mobile", mobile, "message", message, "token", getAppToken() };
-//        Request request = new RequestBuilder().url(getSmsPath()).params(params).get().build();
-//        HttpRequestExecutorManager manager = new HttpRequestExecutorManager(new OkHttpClient());
-//        StringResponseWrapper response = (StringResponseWrapper) manager.newCall(request).callback(null).run()
-//                .as(StringResponseWrapper.class);
       
         JsonNode node = httpWdUtils.sendCode(mobile, message);
         System.out.println("sendRegistrationCode() response1.body():" + node.toString());
@@ -330,10 +327,19 @@ public class FamilyServiceImpl implements FamilyService {
         return exist;
     }
 
-    private Boolean push(String userId, String description, String payload) {
-        //        PushService pushService = new XiaomiPushImpl();
-        //        return pushService.singlePush(userId, "家庭成员邀请", description, payload, null);
-        return true;
+    private Boolean push(String userId, String title, String content) {
+        boolean result = false;
+        try {
+            AppMessage message = AppMessage.Builder.init().title(title).content(content).type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).persistence().build();
+            System.out.println(JsonConverter.toJson(message.toPushMessage()));
+            result = pushClientWrapper.pushToAlias(message, userId);
+            System.out.println("push result " + result + ", userId:" + userId +", title:"+title+", content:"+content);
+        } catch (Exception e) {
+            System.out.println("push exception " + ", userId:" + userId +", title:"+title+", content:"+content);
+            e.printStackTrace();
+            return false;
+        }
+        return result;
     }
 
     private RegisterInfo findOneRegister(String id, Boolean nullable) {
