@@ -1,10 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.dto.push;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import lombok.Data;
 import org.joda.time.DateTime;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by zhuchunliu on 2016/8/27.
@@ -27,5 +31,12 @@ public class PushPlanDTO {
         this.articleId = plan.getArticleId();
         this.createTime = new DateTime(plan.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss");
         this.planTime = new DateTime(plan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss");
+
+        Set permission = Sets.newHashSet();
+        switch (plan.getStatus()){
+            case 0:
+
+
+        }
     }
 }

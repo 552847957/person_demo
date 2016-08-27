@@ -1,13 +1,11 @@
-package com.wondersgroup.healthcloud.services.push.impl;
+package com.wondersgroup.healthcloud.helper.push.plan;
 
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
-import com.wondersgroup.healthcloud.services.push.PushPlanService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,12 +23,11 @@ import java.util.Map;
  * Created by zhuchunliu on 2016/8/27.
  */
 @Service
-public class PushPlanServiceImpl implements PushPlanService{
+public class PushPlanService {
 
     @Autowired
     private PushPlanRepository pushPlanRepo;
 
-    @Override
     public Page<PushPlan> findAll(int number, int size, final Map parameter) {
         Specification<PushPlan> specification = new Specification<PushPlan>() {
             @Override

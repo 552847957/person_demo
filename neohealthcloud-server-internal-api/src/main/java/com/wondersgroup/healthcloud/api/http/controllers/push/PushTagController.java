@@ -1,23 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.helper.push.tag.UserPushTagService;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
-import com.wondersgroup.healthcloud.jpa.entity.push.UserPushTag;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
-import com.wondersgroup.healthcloud.jpa.repository.push.UserPushTagRepository;
-import com.wondersgroup.healthcloud.services.push.PushTagService;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.jpa.criteria.OrderImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -25,9 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -48,7 +35,7 @@ import java.util.Map;
 public class PushTagController {
 
     @Autowired
-    private PushTagService pushTagService;
+    private UserPushTagService userPushTagService;
 
     @Autowired
     private PushTagRepository pushTagRepo;
@@ -59,33 +46,38 @@ public class PushTagController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String tagname = reader.readString("tagname", false);
         String uids = reader.readString("uids", false);
-        Boolean flag = pushTagService.bindTag(tagname, uids);
-        if(flag) {
-            response.setMsg("绑定成功");
-        }else{
-            response.setCode(1001);
-            response.setMsg("绑定失败");
-        }
+        userPushTagService.bindTag(uids.split(","), tagname);
+        response.setMsg("绑定成功");
         return response;
     }
 
     @GetMapping(path = "/list")
-    public String list() throws Exception{
-
-        List<PushTag> list =  pushTagService.findAll();
-        Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(PushTag.class, new String[]{"tagid","tagname"});
-        SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功",list );
-        return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+    public JsonResponseEntity list() throws Exception{
+        Specification<PushTag> specification = new Specification<PushTag>() {
+            @Override
+            public Predicate toPredicate(Root<PushTag> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updatetime").as(Date.class)));
+                return criteriaQuery.getRestriction();
+            }
+        };
+        List<PushTag> list =  pushTagRepo.findAll(specification);
+        JsonResponseEntity json = new JsonResponseEntity();
+        json.setData(list);
+        return json;
     }
 
     @PostMapping(path = "update")
     public JsonResponseEntity update(@RequestBody PushTag pushTag) {
         JsonResponseEntity response  = new JsonResponseEntity();
-        pushTag.setUpdatetime(new Date());
-        pushTagRepo.save(pushTag);
-        response.setMsg("保存成功");
+        PushTag previous = pushTagRepo.findByName(pushTag.getTagname());
+        if(null == previous){
+            pushTag.setUpdatetime(new Date());
+            pushTag = pushTagRepo.save(pushTag);
+            response.setData(pushTag);
+        }else{
+            response.setData(previous);
+        }
+
         return response;
     }
 }
