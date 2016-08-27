@@ -87,8 +87,8 @@ public class HealthActivityController {
 	@VersionRange
 	public JsonListResponseEntity<HealthActivityAPIEntity> getHealthActivityPageList(
 			@RequestParam(value = "uid",required = false) String registerid,
-			@RequestParam(value = "province", required = true) String province,
-			@RequestParam(value = "city", required = true) String city,
+			@RequestParam(value = "province", required = false) String province,
+			@RequestParam(value = "city", required = false) String city,
 			@RequestParam(value = "county", required = false) String county,
 			@RequestParam(value = "status", defaultValue = "1") Integer status,
 			@RequestParam(value = "flag", defaultValue = "1") Integer flag,
