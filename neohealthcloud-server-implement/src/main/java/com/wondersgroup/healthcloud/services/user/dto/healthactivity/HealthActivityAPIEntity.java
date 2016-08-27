@@ -41,7 +41,7 @@ public class HealthActivityAPIEntity {
     private HealthActivityEvaluationAPIEntity evaluation;
     private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
     private SimpleDateFormat hourMinute_sdf = new SimpleDateFormat("HH:mm");
-    private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-MM-dd MM:ss:dd");
+    private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     private String              starttime;                               // '开始时间',
     private String              endtime;                                 // '结束时间',
@@ -374,17 +374,17 @@ public class HealthActivityAPIEntity {
 
     public String getDateTimeStr(HealthActivityInfo info){
         long quot = 0;
-        quot = info.getEnrollEndTime().getTime() - info.getEnrollStartTime().getTime();
+        quot = info.getEnrollEndTime().getTime() - new Date().getTime();
         quot = quot / 1000 / 60;
         quot = quot < 0 ? quot * -1 : quot;
 
         String str = "";
-        int a = 2000;
-        int dat = a/(60*24);
-        a = a - (dat * (60 * 24));
-        str = str + (String.valueOf(dat).length() > 1 ? dat : "0" + dat) + ":";
+        long a = quot;
+        long day = a/(60*24);
+        a = a - (day * (60 * 24));
+        str = str + (String.valueOf(day).length() > 1 ? day : "0" + day) + ":";
         
-        int hour = a/(60);
+        long hour = a/(60);
         
         a = a - (hour * 60);
         str = str + (String.valueOf(hour).length() > 1 ? hour : "0" + hour) + ":";
