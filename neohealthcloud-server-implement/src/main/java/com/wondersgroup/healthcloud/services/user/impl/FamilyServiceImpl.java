@@ -112,7 +112,7 @@ public class FamilyServiceImpl implements FamilyService {
         invitation.setUpdateBy(userId);
         invitation.setUpdateDate(invitation.getCreateDate());
         invitationRepository.saveAndFlush(invitation);
-        push(other.getRegisterid(), "亲情账户邀请", "您收到一条家庭成员邀请, 请查收");
+        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         return true;
     }
 
@@ -168,7 +168,7 @@ public class FamilyServiceImpl implements FamilyService {
                     register.getGender(), invitation.getRelationName(), relationName,
                     FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false);
         }
-        push(invitation.getUid(), "亲情账户邀请", "您的一条家庭成员邀请已被处理, 请查收");
+//        push(invitation.getUid(), "家庭成员邀请", "您的一条家庭成员邀请已被处理, 请查收");
         return true;
     }
 
@@ -244,8 +244,8 @@ public class FamilyServiceImpl implements FamilyService {
             invitationRepository.save(familyMemberInvitation);
         }
         RegisterInfo register = findOneRegister(userId, false);
-        String message = register.getNickname() + "已与您解除亲情账户绑定";
-        push(memberId, "亲情账户解除绑定", message);
+//        String message = register.getNickname() + "已与您解除亲情账户绑定";
+//        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
 
