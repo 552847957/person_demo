@@ -54,6 +54,7 @@ public class MeasureController {
     private MeasureManagementService managementService;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
+    @VersionRange
     public String measureHome(String registerId) {
 
         List histories = new ArrayList();
