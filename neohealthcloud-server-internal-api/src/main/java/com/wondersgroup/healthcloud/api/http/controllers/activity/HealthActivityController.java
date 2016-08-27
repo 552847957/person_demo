@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
 import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
-import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.area.DicArea;
@@ -94,6 +92,9 @@ public class HealthActivityController {
         info.setEnrollStartTime(DateFormatter.parseIdCardDate(reader.readString("enroll_start_time", false)));
         info.setEnrollEndTime(DateFormatter.parseIdCardDate(reader.readString("enroll_end_time", false)));
         info.setLocate(reader.readString("locate", true));
+        info.setProvince(reader.readString("province", false));
+        info.setCity(reader.readString("city", false));
+        info.setCounty(reader.readString("county", false));
         info.setQuota(reader.readInteger("quota", true));
         info.setOnlineTime(DateFormatter.parseIdCardDate(reader.readString("online_time", false)));
         info.setOfflineTime(DateFormatter.parseIdCardDate(reader.readString("offline_time", false)));
