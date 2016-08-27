@@ -1,9 +1,5 @@
 package com.wondersgroup.healthcloud.services.imagetext.impl;
 
-//import com.vaccine.api.implement.dto.advertisement.HomeDiscoveryDTO;
-//import com.vaccine.api.implement.dto.advertisement.LoadingImageDTO;
-
-import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
@@ -11,12 +7,13 @@ import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,29 +25,12 @@ public class ImageTextServiceImpl implements ImageTextService {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ImageTextServiceImpl.class);
 
     @Autowired
-    private DataSource dataSource;
-
-    private JdbcTemplate jt;
-
-    @Autowired
     private ImageTextRepository imageTextRepository;
 
     @Override
-    public List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageTextEnum adcode) {
+    public List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageText imageText) {
         try {
-            StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neoimage_text WHERE del_flag = '0'");
-
-            if (!StringUtils.isEmpty(mainArea)) {
-                sql.append(" AND main_area = '").append(mainArea).append("'");
-            }
-            if (!StringUtils.isEmpty(specArea)) {
-                sql.append(" AND spec_area = '").append(specArea).append("'");
-            }
-            if (adcode != null) {
-                sql.append(" AND adcode = ").append(adcode.getType());
-            }
-            List<ImageText> appAdsList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
+            List<ImageText> appAdsList = findAll(imageText);
 
             if (appAdsList != null && appAdsList.size() > 0) {
                 return appAdsList;
@@ -83,15 +63,38 @@ public class ImageTextServiceImpl implements ImageTextService {
         return flag;
     }
 
-    /**
-     * 获取jdbc template
-     *
-     * @return
-     */
-    private JdbcTemplate getJt() {
-        if (jt == null) {
-            jt = new JdbcTemplate(dataSource);
-        }
-        return jt;
+    List<ImageText> findAll(final ImageText imgText) {
+        return imageTextRepository.findAll(new Specification<ImageText>() {
+            @Override
+            public Predicate toPredicate(Root<ImageText> rt, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+                List<Predicate> pdList = new ArrayList<Predicate>();
+                if (imgText.getDelFlag() != null) {
+                    pdList.add(cb.equal(rt.<String>get("delFlag"), imgText.getDelFlag()));
+                }
+                if (imgText.getMainArea() != null) {
+                    pdList.add(cb.equal(rt.<String>get("mainArea"), imgText.getMainArea()));
+                }
+                if (imgText.getSpecArea() != null) {
+                    pdList.add(cb.equal(rt.<String>get("specArea"), imgText.getSpecArea()));
+                }
+                if (imgText.getAdcode() != null) {
+                    pdList.add(cb.equal(rt.<String>get("adcode"), imgText.getAdcode()));
+                }
+                if (imgText.getVersion() != null) {
+                    pdList.add(cb.equal(rt.<String>get("version"), imgText.getVersion()));
+                }
+                if (imgText.getStartTime() != null) {
+                    pdList.add(cb.greaterThanOrEqualTo(rt.<Date>get("startTime"), imgText.getStartTime()));
+                }
+                if (imgText.getEndTime() != null) {
+                    pdList.add(cb.lessThanOrEqualTo(rt.<Date>get("endTime"), imgText.getEndTime()));
+                }
+                if (pdList.size() > 0) {
+                    Predicate[] predicates = new Predicate[pdList.size()];
+                    cq.where(pdList.toArray(predicates));
+                }
+                return null;
+            }
+        });
     }
 }

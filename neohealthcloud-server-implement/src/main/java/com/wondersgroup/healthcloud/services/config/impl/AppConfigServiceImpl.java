@@ -6,16 +6,11 @@ import com.wondersgroup.healthcloud.jpa.repository.config.AppConfigRepository;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import javax.sql.DataSource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.criteria.*;
+import java.util.*;
 
 /**
  * Created by zhaozhenxing on 2016/8/16.
@@ -28,39 +23,14 @@ public class AppConfigServiceImpl implements AppConfigService {
     @Autowired
     private AppConfigRepository appConfigRepository;
 
-    @Autowired
-    private DataSource dataSource;
-
-    private JdbcTemplate jt;
-
     @Override
-    public Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, String[] keyWords) {
+    public Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, List<String> keyWords) {
         Map<String, String> cfgMap = null;
         try {
-            StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neoconfiguration WHERE del_flag = '0'");
-            if (!StringUtils.isEmpty(mainArea)) {
-                sql.append(" AND main_area = '").append(mainArea).append("'");
-            }
-            if (!StringUtils.isEmpty(specArea)) {
-                sql.append(" AND spec_area = '").append(specArea).append("'");
-            }
-            if (keyWords != null && keyWords.length > 0) {
-                StringBuffer kws = new StringBuffer();
-                for (int i = 0; i < keyWords.length; i++) {
-                    if (!StringUtils.isEmpty(keyWords[i])) {
-                        if (i == 0) {
-                            kws.append("'").append(keyWords[i]).append("'");
-                        } else {
-                            kws.append(",'").append(keyWords[i]).append("'");
-                        }
-                    }
-                }
-                if (kws.length() > 0) {
-                    sql.append(" AND key_word in (").append(kws.toString()).append(")");
-                }
-            }
-            List<AppConfig> appConfigList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
+            AppConfig appConfig = new AppConfig();
+            appConfig.setDelFlag("0");
+
+            List<AppConfig> appConfigList = findAll(appConfig, keyWords);
 
             if (appConfigList != null && appConfigList.size() > 0) {
                 cfgMap = new HashMap<>();
@@ -77,16 +47,12 @@ public class AppConfigServiceImpl implements AppConfigService {
     @Override
     public List<AppConfig> findAllDiscreteAppConfig(String mainArea, String specArea) {
         try {
-            StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neoconfiguration WHERE del_flag = '0' AND discrete = 1");
-            if (!StringUtils.isEmpty(mainArea)) {
-                sql.append(" AND main_area = '").append(mainArea).append("'");
-            }
-            if (!StringUtils.isEmpty(specArea)) {
-                sql.append(" AND spec_area = '").append(specArea).append("'");
-            }
-
-            List<AppConfig> appConfigList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
+            AppConfig appConfig = new AppConfig();
+            appConfig.setDelFlag("0");
+            appConfig.setDiscrete(1);
+            appConfig.setMainArea(mainArea);
+            appConfig.setSpecArea(specArea);
+            List<AppConfig> appConfigList = findAll(appConfig, null);
 
             if (appConfigList != null && appConfigList.size() > 0) {
                 return appConfigList;
@@ -100,22 +66,15 @@ public class AppConfigServiceImpl implements AppConfigService {
     @Override
     public AppConfig findSingleAppConfigByKeyWord(String mainArea, String specArea, String keyWord) {
         try {
-            StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neoconfiguration WHERE del_flag = '0'");
-            if (!StringUtils.isEmpty(mainArea)) {
-                sql.append(" AND main_area = '").append(mainArea).append("'");
-            }
-            if (!StringUtils.isEmpty(specArea)) {
-                sql.append(" AND spec_area = '").append(specArea).append("'");
-            }
-            if (!StringUtils.isEmpty(keyWord)) {
-                sql.append(" AND key_word = '").append(keyWord).append("'");
-            }
+            AppConfig appConfig = new AppConfig();
+            appConfig.setDelFlag("0");
+            appConfig.setMainArea(mainArea);
+            appConfig.setSpecArea(specArea);
+            appConfig.setKeyWord(keyWord);
+            List<AppConfig> appConfigs = findAll(appConfig, null);
 
-            AppConfig appConfig = getJt().queryForObject(sql.toString(), new BeanPropertyRowMapper<AppConfig>(AppConfig.class));
-
-            if (appConfig != null) {
-                return appConfig;
+            if (appConfigs != null && appConfigs.size() > 0) {
+                return appConfigs.get(0);
             }
         } catch (Exception ex) {
             logger.error("AppConfigServiceImpl.findSingleAppConfigByKeyWord\t-->\t" + ex.getLocalizedMessage());
@@ -140,15 +99,33 @@ public class AppConfigServiceImpl implements AppConfigService {
         return rtnAppConfig;
     }
 
-    /**
-     * 获取jdbc template
-     *
-     * @return
-     */
-    private JdbcTemplate getJt() {
-        if (jt == null) {
-            jt = new JdbcTemplate(dataSource);
-        }
-        return jt;
+    List<AppConfig> findAll(final AppConfig appConfig, final List<String> keyWords) {
+        return appConfigRepository.findAll(new Specification<AppConfig>() {
+            @Override
+            public Predicate toPredicate(Root<AppConfig> rt, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+                List<Predicate> predicateList = new ArrayList<Predicate>();
+                if (appConfig.getMainArea() != null) {
+                    predicateList.add(cb.equal(rt.<String>get("mainArea"), appConfig.getMainArea()));
+                }
+                if (appConfig.getSpecArea() != null) {
+                    predicateList.add(cb.equal(rt.<String>get("specArea"), appConfig.getSpecArea()));
+                }
+                // 单关键字查询与多关键字查询互斥
+                if (appConfig.getKeyWord() != null) {
+                    predicateList.add(cb.equal(rt.<String>get("keyWord"), appConfig.getKeyWord()));
+                } else if (keyWords != null && keyWords.size() > 0) {
+                    Expression<String> expression = rt.<String>get("keyWord");
+                    predicateList.add(expression.in(keyWords));
+                }
+                if (appConfig.getDiscrete() != null) {
+                    predicateList.add(cb.equal(rt.<String>get("discrete"), appConfig.getDiscrete()));
+                }
+                if (predicateList.size() > 0) {
+                    Predicate[] predicates = new Predicate[predicateList.size()];
+                    cq.where(predicateList.toArray(predicates));
+                }
+                return null;
+            }
+        });
     }
 }

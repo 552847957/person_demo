@@ -13,5 +13,5 @@ public interface ImageTextService {
 
     int saveBatchImageText(List<ImageText> imageTextList);
 
-    List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageTextEnum adcode);
+    List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageText imageText);
 }

@@ -55,10 +55,12 @@ public class HomeController {
         Map data = new HashMap();
 
         // 首页Banner
-        List<ImageText> imageTextsB = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_BANNER);
-        if (imageTextsB != null && imageTextsB.size() > 0) {
+        ImageText imgTextA = new ImageText();
+        imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
+        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextA);
+        if (imageTextsA != null && imageTextsA.size() > 0) {
             List banners = new ArrayList();
-            for (ImageText imageText : imageTextsB) {
+            for (ImageText imageText : imageTextsA) {
                 BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
                 banners.add(bit);
             }
@@ -66,11 +68,13 @@ public class HomeController {
         }
 
         // 首页功能栏
-        List<ImageText> imageTextsF = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
-        if (imageTextsF != null && imageTextsF.size() > 0) {
+        ImageText imgTextB = new ImageText();
+        imgTextB.setAdcode(ImageTextEnum.HOME_FUNCTION.getType());
+        List<ImageText> imageTextsB = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextB);
+        if (imageTextsB != null && imageTextsB.size() > 0) {
             List functionIcons = new ArrayList();
             Map map = null;
-            for (ImageText imageText : imageTextsF) {
+            for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
                 map.put("hoplink", imageText.getHoplink());
@@ -82,10 +86,12 @@ public class HomeController {
         }
 
         // 首页广告
-        List<ImageText> imageTextsAD = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_ADVERTISEMENT);
-        if (imageTextsAD != null && imageTextsAD.size() > 0) {
+        ImageText imgTextC = new ImageText();
+        imgTextC.setAdcode(ImageTextEnum.HOME_FUNCTION.getType());
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextC);
+        if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
-            for (ImageText imageText : imageTextsAD) {
+            for (ImageText imageText : imageTextsC) {
                 BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
                 adImages.add(bit);
             }

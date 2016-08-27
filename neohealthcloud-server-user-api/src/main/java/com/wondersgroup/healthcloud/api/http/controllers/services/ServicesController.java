@@ -33,7 +33,9 @@ public class ServicesController {
                                    @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
 
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.SERVICE_BTN);
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.SERVICE_BTN.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List funcList = new ArrayList<>();
             Map map = null;

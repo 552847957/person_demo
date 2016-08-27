@@ -62,8 +62,7 @@ public class CommonController {
         keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
 
         keyWords.add("app.common.appUpdate");// APP更新
-        String [] keyWordArr = new String [keyWords.size()];
-        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords.toArray(keyWordArr));
+        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
 
         Map<String, Object> common = new HashMap<>();
         common.put("publicKey", HttpWdUtils.publicKey);
@@ -111,7 +110,9 @@ public class CommonController {
             }
         }
 
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.LOADING_IMAGE);
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
@@ -140,7 +141,9 @@ public class CommonController {
     public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.NAVIGATION_BAR);
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {

@@ -27,14 +27,20 @@ public class ImageTextController {
     private ImageTextService imageTextService;
 
     @Admin
-    @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.GET)
+    @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.POST)
     public JsonResponseEntity findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                    @RequestParam(required = true) Integer adcode) {
+                                                    @RequestBody(required = true) ImageText imageText) {
         JsonResponseEntity result = new JsonResponseEntity();
-        ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(adcode);
+        if (imageText == null || imageText.getAdcode() == null) {
+            result.setCode(1000);
+            result.setMsg("[adcode]字段不能为空");
+        }
+        ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(imageText.getAdcode());
         if (imageTextEnum != null) {
-            List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(mainArea, specArea, imageTextEnum);
+            imageText.setMainArea(mainArea);
+            imageText.setSpecArea(specArea);
+            List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(mainArea, specArea, imageText);
             if (imageTextList != null && imageTextList.size() > 0) {
                 result.setData(imageTextList);
             } else {
@@ -43,7 +49,7 @@ public class ImageTextController {
             }
         } else {
             result.setCode(1000);
-            result.setMsg("广告类型参数异常");
+            result.setMsg("[adcode]属性值异常");
         }
         return result;
     }
