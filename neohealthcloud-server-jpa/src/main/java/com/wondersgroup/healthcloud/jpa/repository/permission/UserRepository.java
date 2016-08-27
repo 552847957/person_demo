@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by zhuchunliu on 2015/11/11.
@@ -28,5 +29,8 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
 
     @Query("select u from User u  where loginname = ?1 and password = ?2 and  delFlag = '0'")
     User findOne(String loginname, String password);
+
+    @Query("select u.userId from User u  where u.mainArea = ?1 and  u.delFlag = '0'")
+    Set<String> findByMainArea(String mainArea);
 
 }
