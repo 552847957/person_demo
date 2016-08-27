@@ -30,6 +30,8 @@ public class PushController {
 
     public static final Logger logger = LoggerFactory.getLogger(PushController.class);
 
+    private static final String error = "{\"code\":1000,\"msg\":\"未找到对应推送客户端\"}";
+
     @Autowired
     private PushAreaService pushAreaService;
 
@@ -43,10 +45,18 @@ public class PushController {
         PushClient client;
         if (isDoctor) {
             client = pushAreaService.getByDoctor(alias);
-            pushMessage.area = client.identityName().substring(0, client.identityName().length() - 1);
+            if (client == null) {
+                pushMessage.area = client.identityName().substring(0, client.identityName().length() - 1);
+            } else {
+                return error;
+            }
         } else {
             client = pushAreaService.getByUser(alias);
-            pushMessage.area = client.identityName();
+            if (client == null) {
+                pushMessage.area = client.identityName();
+            } else {
+                return error;
+            }
         }
         client.pushToAlias(pushMessage.toPushMessage(), alias);
         userPrivateMessageService.saveOneMessage(pushMessage, alias);
@@ -58,6 +68,9 @@ public class PushController {
                             @RequestParam String area,
                             @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
         PushClient client = pushAreaService.getByArea(area, isDoctor);
+        if (client == null) {
+            return error;
+        }
         pushMessage.area = area;
         client.pushToAll(pushMessage.toPushMessage());
         return "{\"code\":0}";
@@ -69,6 +82,9 @@ public class PushController {
                             @RequestParam String tags,
                             @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
         PushClient client = pushAreaService.getByArea(area, isDoctor);
+        if (client == null) {
+            return error;
+        }
         pushMessage.area = area;
         client.pushToTags(pushMessage.toPushMessage(), Lists.newArrayList(tags.split(",")));
         return "{\"code\":0}";

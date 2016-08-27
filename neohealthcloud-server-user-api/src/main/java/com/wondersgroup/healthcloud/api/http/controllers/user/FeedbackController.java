@@ -38,4 +38,10 @@ public class FeedbackController {
         response.setData("反馈成功");
         return response;
     }
+
+    @GetMapping(path = "/user/chinese")
+    @VersionRange
+    public String testString(@RequestParam String a) {
+        return "中文" + a;
+    }
 }
