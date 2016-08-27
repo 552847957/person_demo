@@ -56,7 +56,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
                 + " from app_tb_healthactivity_info where del_flag = '0'";
-        if(status != null){
+        if(!StringUtils.isEmpty(status)){
             sql +=  " and online_status ='" + status + "'";
             if(status == 1){//活动进行中
                 sql += " and endtime > now() ";
@@ -64,17 +64,17 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
                 sql += " and endtime < now()";
             }
         }
-        if(province != null){
+        if(!StringUtils.isEmpty(province)){
             sql += " and province = '" + province + "'";
         }
-        if(city != null){
+        if(!StringUtils.isEmpty(city)){
             sql +=  " and city = '" + city + "'";
         }
-        if (county != null) {
+        if (!StringUtils.isEmpty(county)) {
             sql += " and county = '" + county + "'";
         }
         
-        sql += " ORDER BY overdue " + ((status != null && status == 1) ? "asc" : "desc") + " ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        sql += " ORDER BY overdue " + ((!StringUtils.isEmpty(status) && status == 1) ? "asc" : "desc") + " ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
         for (Map<String, Object> map : resourceList) {

@@ -72,7 +72,7 @@ public class HealthActivityAPIEntity {
         
         this.overdue = info.getEndtime().getTime() < new Date().getTime() ? "1" : "0";
         this.enrollOverdue = info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0";
-        if("0".equals(this.enrollOverdue) || "0".equals(this.overdue)){
+        if("0".equals(this.enrollOverdue)){
             this.ltDay = (info.getEndtime().getTime() - new Date().getTime()) < 86400000;
             this.enrollCountdown = getDateTimeStr(info);
         }
