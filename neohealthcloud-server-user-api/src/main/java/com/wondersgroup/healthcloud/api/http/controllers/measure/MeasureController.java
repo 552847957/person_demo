@@ -48,9 +48,6 @@ public class MeasureController {
     private RestTemplate template = new RestTemplate();
 
     @Autowired
-    private Environment env;
-
-    @Autowired
     private MeasureManagementService managementService;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)

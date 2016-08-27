@@ -1,6 +1,9 @@
 package com.wondersgroup.healthcloud.helper.push.api;
 
-import com.squareup.okhttp.*;
+import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.utils.JsonConverter;
@@ -53,15 +56,5 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
         builder.url(HttpUrl.parse(baseUrl + "/push/tags").newBuilder().addQueryParameter("area", area).addQueryParameter("tags", StringUtils.join(tags, ",")).build()).post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonConverter.toJson(message)));
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
-    }
-
-    public static void main(String... args) {
-        PushClientWrapper wrapper = new PushClientWrapper();
-        wrapper.baseUrl = "http://10.1.64.90:8080/neohealthcloud-internal/message";
-//        wrapper.baseUrl = "http://localhost:8001/neohealthcloud-internal/message";
-        wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        AppMessage message = AppMessage.Builder.init().title("轻问诊").content("您的问题已被关闭12").type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build();
-//        System.out.println(JsonConverter.toJson(message.toPushMessage()));
-        System.out.println(wrapper.pushToAlias(message, "6438fed1d504443ebab553222f8fe161"));
     }
 }
