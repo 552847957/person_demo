@@ -25,3 +25,4 @@ public class DoctorServiceDicController {
         return doctorServiceDicRepository.findAllDoctorService();
     }
 }
+
