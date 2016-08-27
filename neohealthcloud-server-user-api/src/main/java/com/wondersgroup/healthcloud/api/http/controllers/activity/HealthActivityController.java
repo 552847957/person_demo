@@ -46,7 +46,7 @@ public class HealthActivityController {
 
 	@Autowired
 	private HealthActivityDetailRepository healthActivityDetailRepository;
-
+	
 	/**
 	 * 根据类型和区域查询健康活动
 	 * @param registerid
