@@ -87,7 +87,7 @@ public class HomeController {
 
         // 首页广告
         ImageText imgTextC = new ImageText();
-        imgTextC.setAdcode(ImageTextEnum.HOME_FUNCTION.getType());
+        imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
         List<ImageText> imageTextsC = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextC);
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
