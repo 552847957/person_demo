@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.wondersgroup.healthcloud.api.http.dto.help.HelpCenterDto;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -18,7 +17,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by shenbin on 16/8/12.
@@ -136,12 +138,12 @@ public class HelpCenterController {
 
     /**
      * 批量删除问题
-     * @param helpCenterDto
+     * @param ids
      * @return
      */
     @RequestMapping(value = "deleteHelpCenter", method = RequestMethod.DELETE)
-    public JsonResponseEntity deleteHelpCenter(@RequestBody HelpCenterDto helpCenterDto) {
-        helpCenterService.batchRemoveHelpCenter(helpCenterDto.getIds());
+    public JsonResponseEntity deleteHelpCenter(@RequestParam List<String> ids) {
+        helpCenterService.batchRemoveHelpCenter(ids);
 
         return new JsonResponseEntity(0, "删除成功");
     }
