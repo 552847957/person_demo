@@ -126,7 +126,7 @@ public class HomeController {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
         try {
-            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 1, 10);
+            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 0, 10);
             if (newsArticleList != null && newsArticleList.size() > 0) {
                 data.put("news", newsArticleList);
             }
