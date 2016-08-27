@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.area.DicArea;
@@ -43,27 +44,16 @@ public class HealthActivityController {
     @Autowired
     private DicAreaRepository dicAreaRepository;
     
-    @RequestMapping(value = "/listdata")
-    public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String title, 
-            @RequestParam(required = false) String onlineTime,
-            @RequestParam(required = false) String offlineTime, 
-            @RequestParam(defaultValue = "1") Integer flag,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        try {
-            if(!StringUtils.isEmpty(title)){
-                title = URLDecoder.decode(title, "UTF-8");
-            }
-            if(!StringUtils.isEmpty(onlineTime)){
-                onlineTime = URLDecoder.decode(onlineTime, "UTF-8");
-            }
-            if(!StringUtils.isEmpty(offlineTime)){
-                offlineTime = URLDecoder.decode(offlineTime, "UTF-8");
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    @RequestMapping(value = "/listdata", method = RequestMethod.POST)
+    public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String status =  reader.readString("status", true);
+        String title =  reader.readString("title", true);
+        String onlineTime =  reader.readString("onlineTime", true);
+        String offlineTime =  reader.readString("offlineTime", true);
+        int flag =  reader.readDefaultInteger("flag", 1);
+        int pageSize =  reader.readDefaultInteger("pageSize", 10);
+        
         JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
         List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(status, title, onlineTime, offlineTime,
                 flag, pageSize);
