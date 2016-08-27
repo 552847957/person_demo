@@ -28,6 +28,11 @@ public class ImageTextServiceImpl implements ImageTextService {
     private ImageTextRepository imageTextRepository;
 
     @Override
+    public ImageText findImageTextById(String id) {
+        return imageTextRepository.findOne(id);
+    }
+
+    @Override
     public List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageText imageText) {
         try {
             List<ImageText> appAdsList = findAll(imageText);
@@ -45,6 +50,8 @@ public class ImageTextServiceImpl implements ImageTextService {
     public ImageText saveImageText(ImageText imageText) {
         if (StringUtils.isBlank(imageText.getId())) {
             imageText.setId(IdGen.uuid());
+            imageText.setCreateTime(new Date());
+            imageText.setUpdate_time(new Date());
         }
         return imageTextRepository.saveAndFlush(imageText);
     }

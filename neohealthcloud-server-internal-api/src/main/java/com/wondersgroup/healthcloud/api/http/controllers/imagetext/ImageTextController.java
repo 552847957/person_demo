@@ -27,6 +27,20 @@ public class ImageTextController {
     private ImageTextService imageTextService;
 
     @Admin
+    @GetMapping(value = "/findImageTextById")
+    public JsonResponseEntity<ImageText> findImageTextById(@RequestParam(required = true) String id) {
+        JsonResponseEntity<ImageText> result = new JsonResponseEntity<>();
+        ImageText imageText = imageTextService.findImageTextById(id);
+        if (imageText != null) {
+            result.setData(imageText);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置数据！");
+        }
+        return result;
+    }
+
+    @Admin
     @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.POST)
     public JsonResponseEntity findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
