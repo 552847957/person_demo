@@ -20,12 +20,14 @@ import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.area.DicArea;
 import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.area.DicAreaRepository;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 @RestController
 @RequestMapping("/healthActivity")
@@ -79,9 +81,28 @@ public class HealthActivityController {
     @RequestMapping(value = "/saveActivity", method = RequestMethod.POST)
     public JsonResponseEntity<String> saveActivity(@RequestBody String request) {
         JsonResponseEntity<String> entity = new JsonResponseEntity<String>();
-        HealthActivityInfo info = new Gson().fromJson(request, HealthActivityInfo.class);
+        JsonKeyReader reader = new JsonKeyReader(request);
+        HealthActivityInfo info = new HealthActivityInfo();
+        info.setActivityid(reader.readString("activityid", true));
+        info.setHost(reader.readString("host", true));
+        info.setTitle(reader.readString("title", true));
+        info.setSpeaker(reader.readString("speaker", true));
+        info.setDepartment(reader.readString("department", true));
+        info.setPftitle(reader.readString("pftitle", true));
+        info.setStarttime(DateFormatter.parseIdCardDate(reader.readString("starttime", false)));
+        info.setEndtime(DateFormatter.parseIdCardDate(reader.readString("endtime", false)));
+        info.setEnrollStartTime(DateFormatter.parseIdCardDate(reader.readString("enroll_start_time", false)));
+        info.setEnrollEndTime(DateFormatter.parseIdCardDate(reader.readString("enroll_end_time", false)));
+        info.setLocate(reader.readString("locate", true));
+        info.setQuota(reader.readInteger("quota", true));
+        info.setOnlineTime(DateFormatter.parseIdCardDate(reader.readString("online_time", false)));
+        info.setOfflineTime(DateFormatter.parseIdCardDate(reader.readString("offline_time", false)));
+        info.setSummary(reader.readString("summary", true));
+        info.setPhoto(reader.readString("photo", true));
+        info.setThumbnail(reader.readString("thumbnail", true));
         info.setDelFlag("0");
         info.setStyle(1);
+        info.setUpdateDate(new Date());
         if (info.getOnlineTime().after(new Date())) {
             info.setOnlineStatus("0");//未上线
         } else if (info.getOfflineTime().before(new Date())) {
