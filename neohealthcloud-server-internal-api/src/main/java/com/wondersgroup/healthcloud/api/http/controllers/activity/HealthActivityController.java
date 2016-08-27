@@ -1,7 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
