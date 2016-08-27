@@ -1,14 +1,20 @@
 package com.wondersgroup.healthcloud.api.http.dto.article;
 
+public class ShareH5APIDTO {
 
-import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
-
-public class ShareH5APIEntity {
-
-    private String thumb = PropertiesUtils.get("SHARE.THUMB.URL");
+    private int id;
+    private String thumb = "";
     private String title;
     private String desc;
     private String url;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getThumb() {
         return thumb;

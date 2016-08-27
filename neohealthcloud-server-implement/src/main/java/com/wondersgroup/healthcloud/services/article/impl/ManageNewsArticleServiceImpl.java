@@ -38,7 +38,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
         if (newsArticle==null) return null;
         String url=appUrlH5Utils.buildNewsArticleView(id);
         newsArticle.setUrl(url);
-        return newsArticleRepo.queryArticleById(id);
+        return newsArticle;
     }
 
     @Override
