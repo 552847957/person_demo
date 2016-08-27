@@ -31,3 +31,4 @@ public class UserPushInfo {
     private String cid;
     private String area;
 }
+

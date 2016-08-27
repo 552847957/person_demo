@@ -36,6 +36,9 @@ public interface UserPushTagRepository extends JpaRepository<UserPushTag, Intege
     @Query("select count(0) from UserPushTag upt where upt.tagid=?1")
     Integer tagCount(Integer tag);
 
+    @Query("select count(0) from UserPushTag upt where upt.tagid=?1 AND upt.uid = ?2")
+    Integer getCount(Integer tag,String uid);
+
     @Modifying
     @Query("delete from UserPushTag upt where upt.tagid=?1")
     Integer deleteByTag(Integer tag);

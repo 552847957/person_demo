@@ -32,5 +32,4 @@ public class PushTag {
     private Integer tagid;
     private String tagname;
     private Date updatetime;
-    private Integer id;
 }
