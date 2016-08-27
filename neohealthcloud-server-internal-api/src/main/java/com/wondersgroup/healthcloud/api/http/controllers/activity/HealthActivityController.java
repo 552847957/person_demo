@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +44,26 @@ public class HealthActivityController {
     private DicAreaRepository dicAreaRepository;
     
     @RequestMapping(value = "/listdata")
-    public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(@RequestParam(required = false) String status,
-            @RequestParam(required = false) String title, @RequestParam(required = false) String onlineTime,
-            @RequestParam(required = false) String offlineTime, @RequestParam(defaultValue = "1") Integer flag,
+    public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String title, 
+            @RequestParam(required = false) String onlineTime,
+            @RequestParam(required = false) String offlineTime, 
+            @RequestParam(defaultValue = "1") Integer flag,
             @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            if(!StringUtils.isEmpty(title)){
+                title = URLDecoder.decode(title, "UTF-8");
+            }
+            if(!StringUtils.isEmpty(onlineTime)){
+                onlineTime = URLDecoder.decode(onlineTime, "UTF-8");
+            }
+            if(!StringUtils.isEmpty(offlineTime)){
+                offlineTime = URLDecoder.decode(offlineTime, "UTF-8");
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
         List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(status, title, onlineTime, offlineTime,
                 flag, pageSize);
