@@ -354,9 +354,13 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/registration/anonym", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<String> anonymousRegistration(@RequestParam String uid, @RequestParam String relation,
-            @RequestParam(value = "relation_name", required = false) String relationName, @RequestParam String name,
-            @RequestParam String idcard, @RequestParam String photo) {
+    public JsonResponseEntity<String> anonymousRegistration(
+            @RequestParam String uid, 
+            @RequestParam String relation,
+            @RequestParam(value = "relation_name", required = false) String relationName,
+            @RequestParam String name,
+            @RequestParam String idcard, 
+            @RequestParam String photo) {
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
         body.setMsg("添加成功, 正在进行实名认证");
@@ -413,21 +417,27 @@ public class FamilyController {
      * @return boolean
      */
     public boolean haveMeasureException(String registerId, String date, int isNew) {
-        String url = environment.getProperty("measure.server.host");
-        url += isNew == 1 ? "/api/measure/abnormal/afterDate" : "/api/measure/abnormal/byDate";
-        String[] header = new String[] { "version", "3.0" };
-        String[] form = new String[] { "registerId", registerId, "date", date};
-        OkHttpClient client = new OkHttpClient();
-        HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(client);
-        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
-        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
-                .as(JsonNodeResponseWrapper.class);
-        JsonNode result = response.convertBody();
-
         boolean res = false;
-        if (result.get("code").asInt() == 0 && result.get("data").get("hashAbnormal").asBoolean()) {
-            res = true;
+        try {
+            String url = environment.getProperty("measure.server.host");
+            url += isNew == 1 ? "/api/measure/abnormal/afterDate" : "/api/measure/abnormal/byDate";
+            String[] header = new String[] { "version", "3.0" };
+            String[] form = new String[] { "registerId", registerId, "date", date};
+            OkHttpClient client = new OkHttpClient();
+            HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(client);
+            Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
+                    .as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+
+            if (result.get("code").asInt() == 0 && result.get("data").get("hashAbnormal").asBoolean()) {
+                res = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("haveMeasureException exception " + e.getMessage());
         }
+        
         return res;
     }
 

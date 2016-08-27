@@ -59,7 +59,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         if(!StringUtils.isEmpty(status)){
             sql +=  " and online_status ='" + status + "'";
             if(status == 1){//活动进行中
-                sql += " and endtime > now() ";
+                sql += " and endtime >= now() ";
             }else if(status == 2){
                 sql += " and endtime < now()";
             }
