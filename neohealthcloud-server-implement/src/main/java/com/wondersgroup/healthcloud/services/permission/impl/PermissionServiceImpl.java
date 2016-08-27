@@ -70,6 +70,15 @@ public class PermissionServiceImpl implements PermissionService {
         });
     }
 
+    @Override
+    public Boolean hasPermission(String userId, String permission) {
+        String sql = " select count(1) as num from tb_neopermission_user_role ur " +
+                " left join tb_neopermission_role_menu rm on ur.role_id = rm.role_id" +
+                " left join tb_neopermission_menu menu on rm.menu_id = menu.menu_id  " +
+                " where ur.user_id = '"+userId+"' and menu.permission = '"+permission+"'";
+        return Integer.parseInt(getJt().queryForMap(sql).get("num").toString()) == 0?false:true;
+    }
+
     private String getUserMenu(String userId){
         return  " select role_menu.menu_id from tb_neopermission_user us " +
                 " join tb_neopermission_user_role us_role on us.user_id = us_role.user_id " +

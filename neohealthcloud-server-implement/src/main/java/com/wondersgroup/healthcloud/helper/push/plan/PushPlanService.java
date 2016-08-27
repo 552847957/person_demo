@@ -1,9 +1,12 @@
 package com.wondersgroup.healthcloud.helper.push.plan;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
+import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,13 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by zhuchunliu on 2016/8/27.
@@ -28,7 +29,17 @@ public class PushPlanService {
     @Autowired
     private PushPlanRepository pushPlanRepo;
 
+    @Autowired
+    private UserRepository userRepo;
+
     public Page<PushPlan> findAll(int number, int size, final Map parameter) {
+
+        //将pushtime到期，但是未审核的推送设置为过期
+        pushPlanRepo.updateOverDuePlan(new Date());
+
+        User user = userRepo.getOne(parameter.get("uid").toString());
+        final Set<String> uids = userRepo.findByMainArea(user.getMainArea());
+
         Specification<PushPlan> specification = new Specification<PushPlan>() {
             @Override
             public Predicate toPredicate(Root<PushPlan> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -46,6 +57,7 @@ public class PushPlanService {
                     if (parameter.containsKey("endTime") && StringUtils.isNotEmpty(parameter.get("endTime").toString())) {
                         list.add(criteriaBuilder.lessThanOrEqualTo(root.get("planTime").as(String.class), parameter.get("endTime").toString()));
                     }
+                    list.add(root.get("creator").in(uids));
                 }
                 criteriaQuery.where(list.toArray(new Predicate[list.size()]));
                 criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
