@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.api.helper.UserHelper;
 import com.wondersgroup.healthcloud.api.http.dto.push.PushPlanDTO;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -8,6 +9,7 @@ import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.exceptions.BaseException;
 import com.wondersgroup.healthcloud.helper.push.plan.PushPlanService;
+import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
@@ -40,18 +42,18 @@ public class PushPlanController {
     private PermissionService permissionService;
 
     @Autowired
-    private UserRepository userRepo;
+    private UserHelper userHelper;
 
-    private final String uid = "d8222c3f5f9e11e6bb08000c2918b89b";
 
     @PostMapping(path = "/list")
     public Pager list(@RequestBody Pager pager) throws Exception{
-        pager.getParameter().put("uid",uid);
-        Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter());
+
+        User user = userHelper.getCurrentUser();
+        Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter(),user);
 
         List<PushPlanDTO> list = Lists.newArrayList();
         for(PushPlan push : page.getContent()){
-            PushPlanDTO dto = new PushPlanDTO(push,uid,permissionService.hasPermission(uid,"push:audit"));
+            PushPlanDTO dto = new PushPlanDTO(push,user.getUserId(),permissionService.hasPermission(user.getUserId(),"push:audit"));
             dto.setTargetName(pushTagRepo.getOne(Integer.parseInt(push.getTarget())).getTagname());
             list.add(dto);
         }
@@ -62,8 +64,10 @@ public class PushPlanController {
 
     @PostMapping(path = "/update")
     public JsonResponseEntity list(@RequestBody PushPlan pushPlan) throws Exception{
-        pushPlan.setArea(userRepo.findOne(uid).getMainArea());
-        pushPlan.setCreator(uid);
+        User user = userHelper.getCurrentUser();
+
+        pushPlan.setArea(user.getMainArea());
+        pushPlan.setCreator(user.getUserId());
         pushPlan.setTarget_type(1);
         pushPlan.setCreateTime(new Date());
         pushPlan.setUpdateTime(new Date());
@@ -91,7 +95,7 @@ public class PushPlanController {
         String id = reader.readString("id", false);
         this.updatPlan(id,1);
         JsonResponseEntity entity = new JsonResponseEntity();
-        entity.setMsg("通过成功");
+        entity.setMsg("审核通过");
         return entity;
     }
 
@@ -124,7 +128,7 @@ public class PushPlanController {
     private void updatPlan(String id ,Integer status){
         PushPlan pushPlan = pushPlanRepo.findOne(Integer.parseInt(id));
         if((1 == status || 4 == status) && 0 != pushPlan.getStatus()){//通过
-            throw new BadRequestException(1,"问题非待审核状态");
+            throw new BadRequestException(1001,"问题非待审核状态");
         }
         pushPlan.setStatus(status);
         pushPlan.setUpdateTime(new Date());
