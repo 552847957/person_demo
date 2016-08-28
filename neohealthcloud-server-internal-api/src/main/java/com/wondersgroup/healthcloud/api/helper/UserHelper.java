@@ -22,7 +22,8 @@ public class UserHelper {
      */
     public User getCurrentUser(){
         String username = (String) SecurityUtils.getSubject().getPrincipal();
-        if(true){//后期登录上线，此段代码注释掉
+        // todo
+        if(true){//
             return userRepo.findOne("d8222c3f5f9e11e6bb08000c2918b89b");
         }
         if(StringUtils.isEmpty(username)){
