@@ -1,13 +1,12 @@
 package com.wondersgroup.healthcloud.jpa.entity.medicalcircle;
 
-import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
+import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 import lombok.Data;
 
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 医生圈信息
@@ -26,5 +25,9 @@ public class MedicalCircle extends BaseEntity {
     private Long    views;     //阅读数
     private Long    praisenum; //点赞数
     private String  transmitid;
+    private String  tagnames;
+
+    @Column(name = "is_visible")
+    private String  isVisible; //是否冻结
 
 }

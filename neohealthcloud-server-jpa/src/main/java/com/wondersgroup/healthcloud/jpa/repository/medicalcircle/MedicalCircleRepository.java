@@ -31,4 +31,6 @@ public interface MedicalCircleRepository extends JpaRepository<MedicalCircle,Str
 
     @Query(value = "select m from MedicalCircle m,MedicalCircleCollect c where m.id=c.circleid and c.doctorid=?1 and m.type in ?2 and c.collecttime<?3 and m.delFlag='0' and c.delFlag='0' order by c.collecttime desc ")
     Page<MedicalCircle> findUserCollectMedicalCircle(String doctorId,Integer[] type, Date flag, Pageable pageable);
+
+    MedicalCircle findById(String id);
 }
