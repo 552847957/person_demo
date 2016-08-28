@@ -330,7 +330,7 @@ public class FamilyServiceImpl implements FamilyService {
     private Boolean push(String userId, String title, String content) {
         boolean result = false;
         try {
-            AppMessage message = AppMessage.Builder.init().title(title).content(content).type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).persistence().build();
+            AppMessage message = AppMessage.Builder.init().title(title).content(content).type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
             System.out.println(JsonConverter.toJson(message.toPushMessage()));
             result = pushClientWrapper.pushToAlias(message, userId);
             System.out.println("push result " + result + ", userId:" + userId +", title:"+title+", content:"+content);
