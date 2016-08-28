@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.address;
 
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class AddressController {
      * @param upperCode
      * @return JsonListResponseEntity<DicArea>
      */
+    @VersionRange
     @RequestMapping(value = "/address/firstAddressInfo", method = RequestMethod.GET)
     public JsonListResponseEntity<DicArea> getFirstAddressInfo(@RequestParam(required = false) String upperCode) {
         JsonListResponseEntity<DicArea> entity = new JsonListResponseEntity<DicArea>();

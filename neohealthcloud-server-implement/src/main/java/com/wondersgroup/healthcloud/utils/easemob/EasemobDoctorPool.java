@@ -34,4 +34,15 @@ public class EasemobDoctorPool {
       return null;
     }
   }
+
+  public EasemobAccount fetchOneUser() {
+    String id = IdGen.uuid();
+    String pwd = IdGen.uuid();
+    Boolean result = util.register(id, pwd, id);
+    if (result) {
+      return new EasemobAccount(id, pwd);
+    } else {
+      return null;
+    }
+  }
 }
