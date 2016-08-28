@@ -11,7 +11,6 @@ import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,13 +74,12 @@ public class DoctorQuestionController {
         JsonListResponseEntity<QuestionInfoForm> response=new JsonListResponseEntity<>();
         List<QuestionInfoForm> list;
         if (tab == 1){
-            //全部－显示问答广场里面的所有未关闭的问题
-            list = doctorQuestionService.getQuestionSquareList(flag, doctor_question_list_size);
-        }else if (tab == 2){
-            //点我提问 - 我签约的用户的提问
+            //已回答
             list = doctorQuestionService.getDoctorPrivateQuestionLivingList(doctorId, flag, doctor_question_list_size);
-        }else {
-            list = doctorQuestionService.getDoctorReplyQuestionList(doctorId, flag, doctor_question_list_size);
+
+        }else{
+            //问题汇总
+            list = doctorQuestionService.getQuestionSquareList(doctorId,flag, doctor_question_list_size);
         }
         Boolean hasMore = false;
         if (list != null && list.size() > doctor_question_list_size){

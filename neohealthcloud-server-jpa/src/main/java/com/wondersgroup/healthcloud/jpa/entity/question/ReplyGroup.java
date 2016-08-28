@@ -33,6 +33,7 @@ public class ReplyGroup {
     @Column(name="is_valid")
     private Integer is_valid;
 
+    private Integer status;
     @Column(name="create_time")
     private Date createTime;
 

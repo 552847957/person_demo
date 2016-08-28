@@ -22,7 +22,7 @@ public interface DoctorQuestionService {
      * 返回数据为pageSize+1(用以判断是否有更多)
      * 使用方需要截取长度
      */
-    List<QuestionInfoForm> getQuestionSquareList(int page, int pageSize);
+    List<QuestionInfoForm> getQuestionSquareList(String doctorId,int page, int pageSize);
 
     /**
      * 查询医生的问诊列表
