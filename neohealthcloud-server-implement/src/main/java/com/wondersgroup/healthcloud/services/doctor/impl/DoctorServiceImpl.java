@@ -67,9 +67,14 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public List<Map<String, Object>> findDoctorServicesById(String uid) {
 
-        String query = "";
+        String query = " select sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
+                " from doctor_account_tb a " +
+                " left join doctor_service_tb s on a.id = s.doctor_id " +
+                " left join doctor_service_dic sd on s.service_id = sd.id " +
+                " where sd.is_available = '0' and a.id = '%s'";
 
-        return null;
+        String sql =  String.format(query,uid);
+        return jt.queryForList(sql);
     }
 
     /**
