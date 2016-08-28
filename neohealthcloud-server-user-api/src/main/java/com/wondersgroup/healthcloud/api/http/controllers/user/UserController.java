@@ -408,7 +408,7 @@ public class UserController {
      * @param uid
      * @return
      */
-    @RequestMapping(value = "/user/isSignDoctor", method = RequestMethod.GET)
+    @RequestMapping(value = "/isSignDoctor", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<Map<String,String>> isSignDoctor (@RequestParam(value = "uid",required = true) String uid) {
         JsonResponseEntity<Map<String,String>> body = new JsonResponseEntity<>();
@@ -445,7 +445,7 @@ public class UserController {
      * @param uid
      * @return
      */
-    @RequestMapping(value = "/user/familyDoctor", method = RequestMethod.GET)
+    @RequestMapping(value = "/familyDoctor", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<DoctorAccountDTO> familyDoctor(@RequestParam(value = "uid",required = true) String uid) {
         JsonResponseEntity<DoctorAccountDTO> body = new JsonResponseEntity<>();
