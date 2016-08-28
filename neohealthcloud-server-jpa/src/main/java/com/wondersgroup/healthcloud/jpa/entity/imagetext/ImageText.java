@@ -18,6 +18,7 @@ import java.util.Date;
 public class ImageText {
     @Id
     private String id;
+    private String gid;
     @Column(name = "main_title")
     private String mainTitle;
     @Column(name = "sub_title")

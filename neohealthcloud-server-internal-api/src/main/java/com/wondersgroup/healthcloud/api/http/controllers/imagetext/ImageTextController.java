@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import org.apache.log4j.Logger;
@@ -25,6 +26,65 @@ public class ImageTextController {
 
     @Autowired
     private ImageTextService imageTextService;
+
+    @Admin
+    @GetMapping("/findGImageTextVersions")
+    public JsonResponseEntity<List<String>> findGImageTextVersions(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                                                   @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                                   @RequestParam(required = true) Integer gadcode) {
+        JsonResponseEntity<List<String>> result = new JsonResponseEntity<>();
+        List<String> versions = imageTextService.findGImageTextVersions(mainArea, specArea, gadcode);
+        if (versions != null && versions.size() > 0) {
+            result.setData(versions);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关数据！");
+        }
+        return result;
+    }
+
+    @Admin
+    @GetMapping("/findGImageTextList")
+    public JsonResponseEntity<List<GImageText>> findGImageTextList(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                                 @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                 @RequestParam(required = true) Integer gadcode) {
+        JsonResponseEntity<List<GImageText>> result = new JsonResponseEntity<>();
+        List<GImageText> gImageTexts = imageTextService.findGImageTextList(mainArea, specArea, gadcode);
+        if (gImageTexts != null && gImageTexts.size() > 0) {
+            result.setData(gImageTexts);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关数据！");
+        }
+        return result;
+    }
+
+    @Admin
+    @GetMapping("/findGImageTextById")
+    public JsonResponseEntity<GImageText> findGImageTextById(@RequestParam String gid) {
+        JsonResponseEntity<GImageText> result = new JsonResponseEntity<>();
+        GImageText gImageText = imageTextService.findGImageTextById(gid);
+        if (gImageText != null) {
+            result.setData(gImageText);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关数据！");
+        }
+        return result;
+    }
+
+    @Admin
+    @PostMapping("/saveGImageText")
+    public JsonResponseEntity saveGImageText(@RequestBody GImageText gImageText) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        if (imageTextService.saveGImageText(gImageText)){
+            result.setMsg("数据保存成功");
+        } else {
+            result.setCode(1000);
+            result.setMsg("数据保存失败！");
+        }
+        return result;
+    }
 
     @Admin
     @GetMapping(value = "/findImageTextById")
@@ -69,14 +129,14 @@ public class ImageTextController {
     }
 
     @Admin
-    @PostMapping(value = "saveBatchImageText")
+    @PostMapping(value = "/saveBatchImageText")
     public JsonResponseEntity saveBatchImageText(@RequestBody String imageTexts) {
         JsonResponseEntity result = new JsonResponseEntity();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
             JavaType javaType = objectMapper.getTypeFactory().constructParametricType(List.class, ImageText.class);
-            List<ImageText> imageTextList =  objectMapper.readValue(imageTexts, javaType);
+            List<ImageText> imageTextList = objectMapper.readValue(imageTexts, javaType);
             if (imageTextList != null && imageTextList.size() > 0) {
                 int flag = imageTextService.saveBatchImageText(imageTextList);
                 if (flag == imageTextList.size()) {

@@ -6,10 +6,10 @@ package com.wondersgroup.healthcloud.common.appenum;
 public enum ImageTextEnum {
 
     HOME_BANNER("首页Banner", 0),
-    HOME_FUNCTION("首页功能图标", 1),
+    G_HOME_FUNCTION("首页功能图标", 1),// 组图
     LOADING_IMAGE("启动页广告", 2),
     NAVIGATION_BAR("导航按钮", 3),
-    SERVICE_BTN("服务功能列表", 4),
+    G_SERVICE_BTN("服务功能列表", 4),// 组图
     HOME_ADVERTISEMENT("首页广告位", 5);
 
 
