@@ -8,10 +8,7 @@ import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +84,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return questionDetail;
     }
 
+
     @Override
     public List<QuestionInfoForm> getQuestionSquareList(String doctor_id,int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
@@ -127,7 +125,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public List<QuestionInfoForm> getDoctorReplyQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
         String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,cg.has_new_user_comment as isNoRead,"
-                + "q.comment_count FROM question_tb q LEFT JOIN comment_group_tb cg ON q.id=cg.question_id "
+                + "q.comment_count FROM app_tb_neoquestion q LEFT JOIN app_tb_neogroup cg ON q.id=cg.question_id "
                 + " WHERE cg.answer_id=? AND q.status>1 and q.is_valid=1 ORDER BY cg.has_new_user_comment DESC, q.status asc, q.create_time DESC limit ?,?";
         elementType.add(doctorId);
         elementType.add((page-1)*pageSize);
@@ -234,6 +232,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         }else {
             replyGroup = replyGroupRepository.findOne(lastReply.getGroupId());
             replyGroup.setNewCommentTime(nowDate);
+            replyGroup.setHasNewUserComment(0);
             replyGroup.setStatus(2);
             replyGroupRepository.saveAndFlush(replyGroup);
         }

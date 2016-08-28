@@ -135,6 +135,7 @@ public class QuestionServiceImpl implements QuestionService {
         ReplyGroup group=replyGroupRepository.findOne(reply.getGroupId());
         group.setNewCommentTime(new Date());
         group.setHasNewUserComment(1);
+        group.setStatus(1);
         replyGroupRepository.saveAndFlush(group);
     }
 
