@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QuestionService {
     /**
@@ -37,7 +38,15 @@ public interface QuestionService {
      */
     void saveReplay(Reply reply);
 
+
     List<QuestionGroup> getQuestionGroup(String questionId, Boolean from_user);
+    /**
+     * 通过doctorId查询问答组
+     * @param questionId
+     * @param doctorId
+     * @return
+     */
+    QuestionGroup getQuestionGroup(String questionId, String doctorId);
 
     List<QuestionComment> getQuestionComment(String groupId);
     /**

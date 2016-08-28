@@ -17,21 +17,20 @@ public class DoctorQuestionDetail {
     private String content;
     private String date;
     private String contentImgs;
-    private List<QuestionGroup> group;
+    private QuestionGroup group;
 
     public DoctorQuestionDetail(Question question) {
         this.sex = question.getSex() == 1 ? "男" : "女";
         this.age = question.getAge();
-        this.status = question.getStatus();
         this.content = question.getContent();
         this.contentImgs = question.getContentImgs();
         this.date = (new SimpleDateFormat("MM-dd HH:mm")).format(question.getCreateTime());
     }
 
-    public List<QuestionGroup> getGroup() {
+    public QuestionGroup getGroup() {
         return group;
     }
-    public void setGroup(List<QuestionGroup> group) {
+    public void setGroup(QuestionGroup group) {
         this.group = group;
     }
 }

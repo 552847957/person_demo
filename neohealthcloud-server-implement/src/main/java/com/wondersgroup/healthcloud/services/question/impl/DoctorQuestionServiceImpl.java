@@ -58,27 +58,13 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         }
         DoctorQuestionDetail questionDetail = new DoctorQuestionDetail(question);
 
-        Boolean isCloseQuestion = question.getStatus() == 3;
         //获取问题组
-        List<QuestionGroup> groups = questionService.getQuestionGroup(questionId, false);
-        if (null != groups && !groups.isEmpty()){
-            //需要把当天医生的消息组放到最上面
-            List<QuestionGroup> orderGroups = new ArrayList<>();//排序后的问题组
-            List<QuestionGroup> otherComment = new ArrayList<>();//非当前医生的问题组
-            for (QuestionGroup questionGroup : groups){
-                if (questionGroup.getDoctorId().equals(doctorId)){
-                    if (isCloseQuestion){
-                        questionGroup.setIsReply(false);
-                    }
-                    orderGroups.add(questionGroup);
-                }else {
-                    //其他医生回复的只能,看不能回复
-                    questionGroup.setIsReply(false);
-                    otherComment.add(questionGroup);
-                }
-            }
-            orderGroups.addAll(otherComment);
-            questionDetail.setGroup(orderGroups);
+        QuestionGroup group = questionService.getQuestionGroup(questionId, doctorId);
+        if (null!=group){
+            questionDetail.setStatus(group.getStatus());
+            questionDetail.setGroup(group);
+        }else{
+            questionDetail.setStatus(1);
         }
 
         return questionDetail;

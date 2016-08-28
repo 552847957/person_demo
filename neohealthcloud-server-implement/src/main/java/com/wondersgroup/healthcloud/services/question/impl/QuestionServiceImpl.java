@@ -16,12 +16,10 @@ import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyExcept
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("questionService")
 public class QuestionServiceImpl implements QuestionService {
@@ -112,6 +110,29 @@ public class QuestionServiceImpl implements QuestionService {
             groups.add(group);
         }
         return groups;
+    }
+
+    @Override
+    public QuestionGroup getQuestionGroup(String questionId, String doctorId) {
+        String sql="SELECT t1.id, t1.answer_id as doctorId, t1.status,t2.name, t2.avatar, t4.duty_name "
+                + " FROM app_tb_neogroup t1 "
+                + " LEFT JOIN doctor_account_tb t2 ON t1.answer_id=t2.id "
+                + " LEFT JOIN doctor_info_tb t3 ON t2.id=t3.id "
+                + " LEFT JOIN t_dic_duty t4 ON t3.duty_id=t4.duty_id "
+                + " WHERE t1.question_id='"+questionId+"' AND t1.answer_id='"+doctorId+"'order by t1.new_comment_time DESC";
+        Map<String, Object> map=getJt().queryForMap(sql);
+
+            QuestionGroup group=null;
+            if(map.isEmpty()){
+                group=new QuestionGroup(map);
+                String groupId=(String) map.get("id");
+                List<QuestionComment> comments=getQuestionComment(groupId);
+                int size=comments.size();
+                if(size>0){
+                    group.setQuestionComment(comments);
+                }
+            }
+        return group;
     }
 
     @Override

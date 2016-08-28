@@ -13,6 +13,7 @@ public class QuestionGroup {
 	private String doctorName;
 	private String doctorId;
 	private String title;
+	private Integer status;
 	private List<QuestionComment> questionComment;
 	public QuestionGroup(Map<String,Object> map) {
 		this.id = (String) map.get("id");
@@ -20,5 +21,6 @@ public class QuestionGroup {
 		this.doctorName = map.containsKey("name") ? (String) map.get("name") : null;
 		this.doctorId = map.containsKey("doctorId") ? map.get("doctorId").toString() : null;
 		this.title = map.containsKey("duty_name") ? (String) map.get("duty_name") : null;
+		this.status = map.containsKey("status") ? (int) map.get("status") : null;
 	}
 }
