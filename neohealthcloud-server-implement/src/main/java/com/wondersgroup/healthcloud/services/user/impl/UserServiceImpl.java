@@ -179,7 +179,7 @@ public class UserServiceImpl implements UserService {
                 ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_dic_tag dt on tag.tagid = dt.charid "+getTagListLike(parameter)+" ) d ";
+                "left join app_tb_push_tag dt on tag.tagid = dt.tagid "+getTagListLike(parameter)+" ) d ";
 
         String sql = sqlQuery + " where 1=1 "+
                 getWhereSqlByParameter(parameter)
@@ -197,7 +197,7 @@ public class UserServiceImpl implements UserService {
                 ",tag.tagid,dt.tagname,r.create_date  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_dic_tag dt on tag.tagid = dt.charid "+getTagListLike(parameter)+" ) d ";
+                "left join app_tb_push_tag dt on tag.tagid = dt.tagid "+getTagListLike(parameter)+" ) d ";
         String sql = sqlQuery + " where 1=1 "+
                 getWhereSqlByParameter(parameter) ;
         Integer count = jt.queryForObject(sql, Integer.class);
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
                 ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_dic_tag dt on tag.tagid = dt.charid ) d ";
+                "left join app_tb_push_tag dt on tag.tagid = dt.tagid ) d ";
         String sql = sqlQuery + " where d.registerid = '%s' group by registerid";
         sql = String.format(sql, registerid);
         return jt.queryForMap(sql);
