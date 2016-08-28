@@ -20,8 +20,7 @@ public class AssessmentPreDataAPIEntity {
     private Integer age;
     private Integer height;
     private Integer weight;
-    private String systolic;//收缩压
-    private String diastolic;//舒张压
+    private String pressure;
 
     public AssessmentPreDataAPIEntity(RegisterInfo register,UserInfo userInfo) {
         if(null != register && null != register.getPersoncard()){
@@ -65,19 +64,11 @@ public class AssessmentPreDataAPIEntity {
         this.weight = weight;
     }
 
-    public String getSystolic() {
-        return systolic;
+    public String getPressure() {
+        return pressure;
     }
 
-    public void setSystolic(String systolic) {
-        this.systolic = systolic;
-    }
-
-    public String getDiastolic() {
-        return diastolic;
-    }
-
-    public void setDiastolic(String diastolic) {
-        this.diastolic = diastolic;
+    public void setPressure(String pressure) {
+        this.pressure = pressure;
     }
 }
