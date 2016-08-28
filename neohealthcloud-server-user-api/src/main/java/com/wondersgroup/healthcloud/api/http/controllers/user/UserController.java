@@ -236,7 +236,7 @@ public class UserController {
     }
 
 
-    @GetMapping(path = "/verification/invitation/offline")
+    @GetMapping(path = "/verification/signing")
     @VersionRange
     public JsonResponseEntity<String> offlineInvitation(@RequestParam("uid") String uid,
                                                         @RequestParam("name") String name,
