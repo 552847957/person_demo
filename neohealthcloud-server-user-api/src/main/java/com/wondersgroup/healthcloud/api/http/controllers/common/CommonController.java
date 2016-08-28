@@ -77,7 +77,7 @@ public class CommonController {
                 common.put("userAgreement", cfgMap.get("app.common.userAgreement"));
             }
             if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
-                common.put("ipa", cfgMap.get("app.common.help.center"));
+                common.put("ipa", cfgMap.get("app.common.intellectualPropertyAgreement"));
             }
             data.put("common", common);
 
