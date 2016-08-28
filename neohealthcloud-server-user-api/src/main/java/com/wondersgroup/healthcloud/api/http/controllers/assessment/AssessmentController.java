@@ -2,6 +2,11 @@ package com.wondersgroup.healthcloud.api.http.controllers.assessment;
 
 
 import com.google.common.collect.Maps;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutor;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentHistoryAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentPreDataAPIEntity;
@@ -12,11 +17,14 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,15 +45,27 @@ public class AssessmentController {
     @Autowired
     private RegisterInfoRepository registerInfoRepo;
 
+    @Autowired
+    private UserInfoRepository userInfoRepo;
+
+    @Autowired
+    private Environment env;
+
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+
     @RequestMapping(value = "/predata",method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<AssessmentPreDataAPIEntity> predata(@RequestParam("uid") String uid){
         JsonResponseEntity<AssessmentPreDataAPIEntity> response = new JsonResponseEntity<>();
         RegisterInfo register = registerInfoRepo.findOne(uid);
-        AssessmentPreDataAPIEntity entity = null;
-        if(null != register && null != register.getIdentifytype() && "1".equals(register.getIdentifytype())) {//实名认证过
-            entity = new AssessmentPreDataAPIEntity(register);
-        }
+        UserInfo userInfo = userInfoRepo.findOne(uid);
+        AssessmentPreDataAPIEntity entity = new AssessmentPreDataAPIEntity(register,userInfo);
+
+        String url=env.getProperty("internal.api.service.measure.url")+"/api/measure/2/nearest?registerId="+uid;
+        Request build= new RequestBuilder().get().url(url).build();
+        String body = httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class).body();
+
         response.setData(entity);
         return response;
     }
@@ -184,5 +204,11 @@ public class AssessmentController {
             response.setData(assessmentAPIEntity);
         }
         return response;
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public JsonResponseEntity<AssessmentAPIEntity> get(@RequestParam("id") String id){
+        Assessment assessment = assessmentService.getAssessment(id);
+        return getResult(assessment,false);
     }
 }

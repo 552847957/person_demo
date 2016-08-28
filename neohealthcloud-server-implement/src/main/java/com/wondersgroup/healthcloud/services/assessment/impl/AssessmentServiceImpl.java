@@ -184,6 +184,11 @@ public class AssessmentServiceImpl implements AssessmentService {
         return assessmentRepository.getAssessmentHistory(uid,flag,pageable).getContent();
     }
 
+    @Override
+    public Assessment getAssessment(String assessId){
+        return  assessmentRepository.findOne(assessId);
+    }
+
     private static Boolean isFirstDegreeRelative(String relatives){
         return  relatives.contains(AssessmentConstrains.RELATIVES_BRANDSR)||
                 relatives.contains(AssessmentConstrains.RELATIVES_DAD)||

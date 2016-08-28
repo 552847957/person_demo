@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
@@ -87,6 +89,14 @@ public class PushController {
         }
         pushMessage.area = area;
         client.pushToTags(pushMessage.toPushMessage(), Lists.newArrayList(tags.split(",")));
+        return "{\"code\":0}";
+    }
+
+    @PostMapping(path = "/plan", produces = "application/json")
+    public String plan(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String planId = reader.readString("planId", false);
+
         return "{\"code\":0}";
     }
 }

@@ -28,7 +28,7 @@ public class PushPlanDTO {
     private String createTime; // 创建时间
     @JsonProperty("planTime")
     private String planTime; //计划推送时间
-    private String operate;//操作 0:新增、1：编辑、2：通过、3：驳回、4：复制、5：查看、6：取消
+    private String operate;//操作 1：编辑、2：通过、3：驳回、4：复制、5：查看、6：取消
 
     public PushPlanDTO(PushPlan plan,String uid,Boolean audit){
         this.id = plan.getId();
@@ -38,7 +38,7 @@ public class PushPlanDTO {
         this.createTime = new DateTime(plan.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss");
         this.planTime = new DateTime(plan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss");
 
-        Set permission = Sets.newHashSet(0,4,5);
+        Set permission = Sets.newHashSet(4,5);
         switch (plan.getStatus()){
             case 1: //待推送
                 if(StringUtils.equalsIgnoreCase(uid,plan.getCreator()) || audit){

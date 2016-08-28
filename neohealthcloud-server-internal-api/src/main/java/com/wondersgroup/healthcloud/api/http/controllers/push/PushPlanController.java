@@ -1,6 +1,10 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
 import com.google.common.collect.Lists;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.helper.UserHelper;
 import com.wondersgroup.healthcloud.api.http.dto.push.PushPlanDTO;
 import com.wondersgroup.healthcloud.api.utils.Pager;
@@ -11,11 +15,14 @@ import com.wondersgroup.healthcloud.exceptions.BaseException;
 import com.wondersgroup.healthcloud.helper.push.plan.PushPlanService;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
+import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +51,11 @@ public class PushPlanController {
     @Autowired
     private UserHelper userHelper;
 
+    @Autowired
+    private Environment env;
+
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
 
     @PostMapping(path = "/list")
     public Pager list(@RequestBody Pager pager) throws Exception{
@@ -54,7 +66,10 @@ public class PushPlanController {
         List<PushPlanDTO> list = Lists.newArrayList();
         for(PushPlan push : page.getContent()){
             PushPlanDTO dto = new PushPlanDTO(push,user.getUserId(),permissionService.hasPermission(user.getUserId(),"push:audit"));
-            dto.setTargetName(pushTagRepo.getOne(Integer.parseInt(push.getTarget())).getTagname());
+            if(null != push.getTarget() && 1 == push.getTarget_type()){
+                PushTag pushTag = pushTagRepo.getOne(Integer.parseInt(push.getTarget()));
+                dto.setTargetName(pushTag.getTagname());
+            }
             list.add(dto);
         }
         pager.setData(list);
@@ -92,8 +107,15 @@ public class PushPlanController {
     @PostMapping(path = "/pass")
     public JsonResponseEntity pass(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
-        String id = reader.readString("id", false);
+        Integer id = Integer.parseInt(reader.readString("id", false));
         this.updatPlan(id,1);
+
+        //创建定时任务
+        String url=env.getProperty("JOB_CONNECTION_URL")+"/api/healthcloud/push";
+        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlanRepo.findOne(id).getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
+        Request build= new RequestBuilder().post().url(url).body(param).build();
+        httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("审核通过");
         return entity;
@@ -105,7 +127,7 @@ public class PushPlanController {
     @PostMapping(path = "/reject")
     public JsonResponseEntity reject(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
-        String id = reader.readString("id", false);
+        Integer id = Integer.parseInt(reader.readString("id", false));
         this.updatPlan(id, 4);
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("驳回成功");
@@ -118,15 +140,21 @@ public class PushPlanController {
     @PostMapping(path = "/cancel")
     public JsonResponseEntity cancel(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
-        String id = reader.readString("id", false);
+        Integer id = Integer.parseInt(reader.readString("id", false));
         this.updatPlan(id,3);
+
+        //取消定时任务
+        String url=env.getProperty("JOB_CONNECTION_URL")+"/api/healthcloud/push";
+        Request build= new RequestBuilder().delete().url(url).param("planId", id.toString()).build();
+        httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("取消成功");
         return entity;
     }
 
-    private void updatPlan(String id ,Integer status){
-        PushPlan pushPlan = pushPlanRepo.findOne(Integer.parseInt(id));
+    private void updatPlan(Integer id ,Integer status){
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
         if((1 == status || 4 == status) && 0 != pushPlan.getStatus()){//通过
             throw new BadRequestException(1001,"问题非待审核状态");
         }

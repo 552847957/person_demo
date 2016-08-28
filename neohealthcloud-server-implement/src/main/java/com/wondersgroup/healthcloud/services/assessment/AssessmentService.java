@@ -43,4 +43,5 @@ public interface AssessmentService {
 
     List<Assessment> getAssessHistory(String uid, Date flag);
 
+    Assessment getAssessment(String id);
 }
