@@ -26,7 +26,6 @@ public class AddressController {
      * @param upperCode
      * @return JsonListResponseEntity<DicArea>
      */
-    @VersionRange
     @RequestMapping(value = "/address/firstAddressInfo", method = RequestMethod.GET)
     @VersionRange
     public JsonListResponseEntity<DicArea> getFirstAddressInfo(@RequestParam(required = false) String upperCode) {
