@@ -32,13 +32,10 @@ public class PushPlanService {
     @Autowired
     private UserRepository userRepo;
 
-    public Page<PushPlan> findAll(int number, int size, final Map parameter) {
+    public Page<PushPlan> findAll(int number, int size, final Map parameter, final User user) {
 
         //将pushtime到期，但是未审核的推送设置为过期
         pushPlanRepo.updateOverDuePlan(new Date());
-
-        User user = userRepo.getOne(parameter.get("uid").toString());
-        final Set<String> uids = userRepo.findByMainArea(user.getMainArea());
 
         Specification<PushPlan> specification = new Specification<PushPlan>() {
             @Override
@@ -57,7 +54,7 @@ public class PushPlanService {
                     if (parameter.containsKey("endTime") && StringUtils.isNotEmpty(parameter.get("endTime").toString())) {
                         list.add(criteriaBuilder.lessThanOrEqualTo(root.get("planTime").as(String.class), parameter.get("endTime").toString()));
                     }
-                    list.add(root.get("creator").in(uids));
+                    list.add(criteriaBuilder.equal(root.get("area").as(String.class),user.getMainArea()));//查找同意区域的
                 }
                 criteriaQuery.where(list.toArray(new Predicate[list.size()]));
                 criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
