@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import java.util.Collection;
 import java.util.Date;
@@ -104,7 +103,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
             EasemobAccount easemobAccount = easemobDoctorPool.fetchOne();
             if (easemobAccount!=null) {//注册环信
                 doctorAccount.setTalkid(easemobAccount.id);
-                doctorAccount.setTalkpwd(DigestUtils.md5DigestAsHex(easemobAccount.pwd.getBytes()));
+                doctorAccount.setTalkpwd(easemobAccount.pwd);
             }
         }
 

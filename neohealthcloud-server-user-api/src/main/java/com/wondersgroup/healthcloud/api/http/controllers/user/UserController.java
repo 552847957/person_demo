@@ -463,7 +463,6 @@ public class UserController {
                 throw new ErrorUserAccountException(result.get("msg").asText());
             }
             doctorIdcard = result.get("data").get("personcard")==null?"":result.get("data").get("personcard").asText();
-            doctorIdcard = "410527198903056225";
             if(StringUtils.isBlank(doctorIdcard)||"-1".equals(doctorIdcard) ){
                 throw new ErrorUserAccountException("该用户没有签约的家庭医生");
             }

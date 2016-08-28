@@ -38,7 +38,7 @@ public class FoodStoreServiceImpl implements FoodStoreService {
     public List<FoodStoreItem> findFoodStoreItemBaseListByCateId(int category_id, int page, int pageSize) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC,"rank"),new Sort.Order(Sort.Direction.DESC,"updateTime"));
 
-        List<FoodStoreItem> rt = foodStoreItemRepository.findListByCateId(category_id, new PageRequest(page,pageSize,sort));
+        List<FoodStoreItem> rt = foodStoreItemRepository.findListByCateId(category_id, new PageRequest(page-1,pageSize,sort));
         return rt;
     }
 
@@ -47,7 +47,7 @@ public class FoodStoreServiceImpl implements FoodStoreService {
 
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC,"rank"),new Sort.Order(Sort.Direction.DESC,"updateTime"));
         int isShow = 1;
-        List<FoodStoreItem> rt = foodStoreItemRepository.findListByFoodNameContainingAndIsShow(keyword, isShow, new PageRequest(page, pageSize, sort));
+        List<FoodStoreItem> rt = foodStoreItemRepository.findListByFoodNameContainingAndIsShow(keyword, isShow, new PageRequest(page-1, pageSize, sort));
         return rt;
     }
 

@@ -260,9 +260,9 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public AccessToken register(String mobile, String verifyCode, String password) {
         Boolean mobileIsValidate = validateCode(mobile, verifyCode, false);
-//        if (!mobileIsValidate) {
-//            throw new ErrorWondersCloudException("手机验证码错误");
-//        }
+        if (!mobileIsValidate) {
+            throw new ErrorWondersCloudException("手机验证码错误");
+        }
         if (checkAccount(mobile)) {
             throw new ErrorUserMobileHasBeenRegisteredException("该手机号码已经注册，是否直接登录");
         }
@@ -427,7 +427,7 @@ public class UserAccountServiceImpl implements UserAccountService{
                 EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
                 if (easemobAccount!=null) {//注册环信
                     registerInfo.setTalkid(easemobAccount.id);
-                    registerInfo.setTalkpwd(DigestUtils.md5DigestAsHex(easemobAccount.pwd.getBytes()));
+                    registerInfo.setTalkpwd(easemobAccount.pwd);
                 }
             }
 
@@ -475,7 +475,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
         if (easemobAccount!=null) {//注册环信
             registerInfo.setTalkid(easemobAccount.id);
-            registerInfo.setTalkpwd(DigestUtils.md5DigestAsHex(easemobAccount.pwd.getBytes()));
+            registerInfo.setTalkpwd(easemobAccount.pwd);
         }
 
         registerInfo.setTagid(tagid);

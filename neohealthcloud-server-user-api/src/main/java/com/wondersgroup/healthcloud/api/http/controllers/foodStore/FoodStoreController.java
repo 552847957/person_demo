@@ -144,9 +144,7 @@ public class FoodStoreController {
     public JsonListResponseEntity<String> getSearch(){
         JsonListResponseEntity<String> response = new JsonListResponseEntity<>();
         List<String> hotWords = Lists.newArrayList();
-        AppConfig config = appConfigService.findSingleAppConfigByKeyWord("","",keyWord);
-        config = new AppConfig();
-        config.setData("土豆,燕麦片,鸡蛋,牛奶,蜂蜜,苹果");
+        AppConfig config = appConfigService.findSingleAppConfigByKeyWord(null,null,keyWord);
 
         if(config!=null && StringUtils.isNotBlank(config.getData())){
             String[] data = config.getData().split(",");

@@ -64,6 +64,14 @@ public class DoctorServiceImpl implements DoctorService {
         return jt.queryForMap(sql);
     }
 
+    @Override
+    public List<Map<String, Object>> findDoctorServicesById(String uid) {
+
+        String query = "";
+
+        return null;
+    }
+
     /**
      * 根据医生uid查询医生信息
      * @param
