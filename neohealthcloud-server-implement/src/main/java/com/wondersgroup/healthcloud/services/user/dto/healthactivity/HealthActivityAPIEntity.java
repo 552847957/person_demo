@@ -50,7 +50,9 @@ public class HealthActivityAPIEntity {
     private String              enrollStartTime;                         //活动报名时间'
     private String              enrollEndTime;                           //活动结束时间
     
-  
+    private String partakeActivityDesc;//离参与活动时间最近的一条信息
+    private String partakeActivityId;//离参与活动时间最近的一条id
+    
     public HealthActivityAPIEntity(HealthActivityInfo info,String width,String height){
         init(info  ,"activityList",width,height);
     }
@@ -370,6 +372,22 @@ public class HealthActivityAPIEntity {
 
     public void setEnrollColor(String enrollColor) {
         this.enrollColor = enrollColor;
+    }
+
+    public String getPartakeActivityDesc() {
+        return partakeActivityDesc;
+    }
+
+    public void setPartakeActivityDesc(String partakeActivityDesc) {
+        this.partakeActivityDesc = partakeActivityDesc;
+    }
+
+    public String getPartakeActivityId() {
+        return partakeActivityId;
+    }
+
+    public void setPartakeActivityId(String partakeActivityId) {
+        this.partakeActivityId = partakeActivityId;
     }
 
     public String getDateTimeStr(HealthActivityInfo info){

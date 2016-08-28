@@ -1,19 +1,12 @@
 package com.wondersgroup.healthcloud.jpa.entity.activity;
 
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import lombok.Data;
-
-import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
  * 
