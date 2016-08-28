@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -160,9 +161,14 @@ public class HealthActivityController {
 
 			HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
 			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-			
+			HealthActivityInfo de = healthActivityRepository.findOneActivityByRegId(detail.getRegisterid());
 			if (null != info) {
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
+				if(de != null && de.getActivityid() != null){
+				    HealthActivityInfo in = haiService.getHealthActivityInfo(de.getActivityid());
+				    entity.setPartakeActivityDesc("您关注的活动" + in.getTitle() + "将于" + new SimpleDateFormat("MM月dd号").format(in.getStarttime()) + "开始，点击查看活动详情");
+				    entity.setPartakeActivityId(de.getActivityid());
+				}
 				this.setDetailInfo(entity,info,registerId);
 
 				response.setData(entity);
