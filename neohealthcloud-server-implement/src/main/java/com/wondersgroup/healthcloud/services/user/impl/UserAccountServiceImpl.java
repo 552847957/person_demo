@@ -12,11 +12,14 @@ import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.exception.*;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
+import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
 import java.util.Date;
 
@@ -41,6 +44,9 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
+
+    @Autowired
+    private EasemobDoctorPool easemobDoctorPool;
 
     private static final String[] smsContent = {
             "您的验证码为:code，10分钟内有效。",
@@ -254,9 +260,9 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public AccessToken register(String mobile, String verifyCode, String password) {
         Boolean mobileIsValidate = validateCode(mobile, verifyCode, false);
-//        if (!mobileIsValidate) {
-//            throw new ErrorWondersCloudException("手机验证码错误");
-//        }
+        if (!mobileIsValidate) {
+            throw new ErrorWondersCloudException("手机验证码错误");
+        }
         if (checkAccount(mobile)) {
             throw new ErrorUserMobileHasBeenRegisteredException("该手机号码已经注册，是否直接登录");
         }
@@ -417,6 +423,13 @@ public class UserAccountServiceImpl implements UserAccountService{
                 registerInfo.setGender(IdcardUtils.getGenderByIdCard(user.idCard));
                 registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
             }
+            if(StringUtils.isBlank(registerInfo.getTalkid())){
+                EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
+                if (easemobAccount!=null) {//注册环信
+                    registerInfo.setTalkid(easemobAccount.id);
+                    registerInfo.setTalkpwd(easemobAccount.pwd);
+                }
+            }
 
             registerInfo = saveRegisterInfo(registerInfo);
 
@@ -458,6 +471,13 @@ public class UserAccountServiceImpl implements UserAccountService{
         } else {
             registerInfo.setGender(fromThirdParty ? thirdPartyUser.gender : null);
         }
+
+        EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
+        if (easemobAccount!=null) {//注册环信
+            registerInfo.setTalkid(easemobAccount.id);
+            registerInfo.setTalkpwd(easemobAccount.pwd);
+        }
+
         registerInfo.setTagid(tagid);
         registerInfo.setSourceId(userSource);
         registerInfo.setChannelType(channelType);

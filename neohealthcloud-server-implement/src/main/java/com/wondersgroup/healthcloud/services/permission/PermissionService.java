@@ -15,4 +15,6 @@ public interface PermissionService {
     List<Map<String,Object>> getMenuPermissionByUser(String userId, Boolean admin);
 
     List<Menu> getMenuByParentId(String userId, String parentId, Boolean admin);
+
+    Boolean hasPermission(String userId, String permission);
 }

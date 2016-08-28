@@ -9,14 +9,15 @@ import org.springframework.stereotype.Component;
  * Created by longshasha on 16/08/26.
  */
 @Component
-public class GwWebSignedUrlUtils {
+public class JailPropertiesUtils {
+
 
 
     @Value("${gw-web.signed.connection.url}")
-    private String basePath;
+    private String gwWebSignedUrl;//签约配置地址
 
-    public String getBasePath(){
-        return basePath;
+    public String getGwWebSignedUrl(){
+        return gwWebSignedUrl;
     }
 
 }

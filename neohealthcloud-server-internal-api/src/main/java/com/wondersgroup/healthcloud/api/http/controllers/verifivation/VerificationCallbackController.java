@@ -41,7 +41,7 @@ public class VerificationCallbackController {
         AppMessage message = AppMessage.Builder.init().title("实名认证")
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(success))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(id,success))
                 .persistence().build();
         pushClientWrapper.pushToAlias(message, id);
 

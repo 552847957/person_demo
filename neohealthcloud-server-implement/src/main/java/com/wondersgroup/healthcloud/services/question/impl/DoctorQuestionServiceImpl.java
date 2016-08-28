@@ -88,12 +88,14 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     }
 
     @Override
-    public List<QuestionInfoForm> getQuestionSquareList(int page, int pageSize) {
+    public List<QuestionInfoForm> getQuestionSquareList(String doctor_id,int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date, q.is_new_question as isNoRead, q.comment_count "
-                + "FROM question_tb q "
-                + "WHERE q.assign_answer_id='' and q.is_valid=1 and q.status!=3  "
-                + "ORDER BY q.create_time DESC limit ?,?";
+        String sql="SELECT t1.id,t1.content,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
+                " FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                "WHERE (t1.assign_answer_id='' OR t1.assign_answer_id=?) AND t1.status<>3 AND ifnull(t2.answer_id,'')<>? " +
+                "GROUP BY id ORDER BY date DESC limit ?,?";
+        elementType.add(doctor_id);
+        elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
         elementType.add(pageSize+1);
         List<Map<String, Object>> list=getJt().queryForList(sql, elementType.toArray());
@@ -106,9 +108,11 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getDoctorPrivateQuestionLivingList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,q.is_new_question as isNoRead,"
-                + "q.comment_count FROM question_tb q LEFT JOIN comment_group_tb cg ON q.id=cg.question_id "
-                + " WHERE q.assign_answer_id=?  and q.status=1 and q.is_valid=1 ORDER BY q.is_new_question DESC, q.create_time DESC limit ?,?";
+        String sql="SELECT t1.id,t1.content,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date," +
+                "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.create_time,'%Y-%m-%d %H:%i') as date2 " +
+                "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                "WHERE answer_id=? " +
+                "ORDER BY status,date2 limit ?,?";
         elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
         elementType.add(pageSize+1);
@@ -225,10 +229,12 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             replyGroup.setNewCommentTime(nowDate);
             replyGroup.setQuestion_id(question_id);
             replyGroup.setIs_valid(1);
+            replyGroup.setStatus(2);
             replyGroup = replyGroupRepository.saveAndFlush(replyGroup);
         }else {
             replyGroup = replyGroupRepository.findOne(lastReply.getGroupId());
             replyGroup.setNewCommentTime(nowDate);
+            replyGroup.setStatus(2);
             replyGroupRepository.saveAndFlush(replyGroup);
         }
 

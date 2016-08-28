@@ -419,7 +419,7 @@ public class FamilyController {
     public boolean haveMeasureException(String registerId, String date, int isNew) {
         boolean res = false;
         try {
-            String url = environment.getProperty("measure.server.host");
+            String url = environment.getProperty("internal.api.service.measure.url");
             url += isNew == 1 ? "/api/measure/abnormal/afterDate" : "/api/measure/abnormal/byDate";
             String[] header = new String[] { "version", "3.0" };
             String[] form = new String[] { "registerId", registerId, "date", date};

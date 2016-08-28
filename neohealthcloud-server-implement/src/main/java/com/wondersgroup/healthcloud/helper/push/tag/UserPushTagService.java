@@ -89,4 +89,18 @@ public class UserPushTagService {
             client.overrideTagToClient(userPushInfo.getCid(), new LinkedList<>(tags));
         }
     }
+
+    public void bindTag(String[] uids, String tagname) {
+        PushTag pushTag = tagRepository.findByName(tagname);
+        if(null == pushTag){
+            pushTag = new PushTag();
+            pushTag.setTagname(tagname);
+            pushTag.setUpdatetime(new Date());
+            pushTag = tagRepository.save(pushTag);
+        }
+
+        for(String uid : uids){
+            this.bindTagsToOneUser(uid,pushTag.getTagid().toString());
+        }
+    }
 }

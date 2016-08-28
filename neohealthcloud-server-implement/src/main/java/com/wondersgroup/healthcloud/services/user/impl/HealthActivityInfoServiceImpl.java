@@ -96,8 +96,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
 
     @Override
     public List<HealthActivityInfo> getHealthActivityInfos(String status, String title, String onlineTime, String offlineTime, int pageNo, int pageSize) {
-        String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
-                + " from app_tb_healthactivity_info where del_flag = '0'";
+        String sql = "select * from app_tb_healthactivity_info where del_flag = '0'";
         if(!StringUtils.isEmpty(status)){
             sql += " and online_status = '" + status + "'";
         }
@@ -110,7 +109,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         if(!StringUtils.isEmpty(title)){
             sql += " and title like '%" + title + "%'";
         }
-        sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        sql += " ORDER BY update_date desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
         for (Map<String, Object> map : resourceList) {

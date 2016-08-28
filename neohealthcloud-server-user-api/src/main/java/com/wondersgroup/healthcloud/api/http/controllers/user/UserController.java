@@ -3,10 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.user;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
-import com.wondersgroup.common.http.builder.RequestBuilder;
-import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.http.controllers.doctor.DoctorController;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.AddressDTO;
@@ -18,9 +15,8 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.GwWebSignedUrlUtils;
+import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.dict.DictCache;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -31,7 +27,6 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
-import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +61,7 @@ public class UserController {
     private DoctorController doctorController;
 
     @Autowired
-    private GwWebSignedUrlUtils gwWebSignedUrlUtils;
+    private JailPropertiesUtils jailPropertiesUtils;
 
     private FamilyDoctorUtil familyDoctorUtil = new FamilyDoctorUtil();
 
@@ -236,7 +231,7 @@ public class UserController {
     }
 
 
-    @GetMapping(path = "/verification/invitation/offline")
+    @GetMapping(path = "/verification/signing")
     @VersionRange
     public JsonResponseEntity<String> offlineInvitation(@RequestParam("uid") String uid,
                                                         @RequestParam("name") String name,
@@ -422,7 +417,7 @@ public class UserController {
         RegisterInfo userInfo = userService.getOneNotNull(uid);
         if(userInfo.verified() && StringUtils.isNotBlank(userInfo.getPersoncard())) {
             familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
-            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(gwWebSignedUrlUtils.getBasePath(),userInfo.getPersoncard());
+            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),userInfo.getPersoncard());
             if (result.get("code").asInt() == 0) {
                 String doctorIdcard = result.get("data").get("personcard") == null ? "" : result.get("data").get("personcard").asText();
                 if (StringUtils.isNotBlank(doctorIdcard) && !"-1".equals(doctorIdcard)) {
@@ -458,7 +453,7 @@ public class UserController {
         RegisterInfo userInfo = userService.getOneNotNull(uid);
         if(userInfo.verified() && StringUtils.isNotBlank(userInfo.getPersoncard())) {
             familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
-            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(gwWebSignedUrlUtils.getBasePath(),userInfo.getPersoncard());
+            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),userInfo.getPersoncard());
             if(result.get("code").asInt()!=0){
                 throw new ErrorUserAccountException(result.get("msg").asText());
             }

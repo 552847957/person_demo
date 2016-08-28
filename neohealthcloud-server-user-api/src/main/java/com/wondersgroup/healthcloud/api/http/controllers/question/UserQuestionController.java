@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
 import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,9 @@ public class UserQuestionController {
 	public Object ask(@RequestBody Question question){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
 		String id="";
-		question.setAnswerId("");
+		if(question.getId()==null ){
+			question.setAnswerId("");
+		}
 		id=questionService.saveQuestion(question);
 		String url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeQuestion?questionId="+id;
 		//定时任务
@@ -99,6 +102,7 @@ public class UserQuestionController {
 	@RequestMapping(value="/reply",method= RequestMethod.POST)
 	public Object reply(@RequestBody Reply reply){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
+
 		questionService.saveReplay(reply);		
 		ReplyGroup group=questionService.queryAnswerId(reply.getGroupId());
 		String doctorId=group.getAnswer_id();

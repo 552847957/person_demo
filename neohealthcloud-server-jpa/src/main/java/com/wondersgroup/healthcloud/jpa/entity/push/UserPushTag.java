@@ -29,4 +29,12 @@ public class UserPushTag {
     private Integer tagid;
     @Column(name = "registerid")
     private String uid;
+
+    public UserPushTag(){
+
+    }
+    public UserPushTag(Integer tagid,String uid){
+        this.tagid = tagid;
+        this.uid = uid;
+    }
 }
