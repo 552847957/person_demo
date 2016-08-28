@@ -161,7 +161,7 @@ public class HealthActivityController {
 
 			HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
 			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-			HealthActivityInfo de = healthActivityRepository.findOneActivityByRegId(detail.getRegisterid());
+			HealthActivityInfo de = detail != null ? healthActivityRepository.findOneActivityByRegId(detail.getRegisterid()) : null;
 			if (null != info) {
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
 				if(de != null && de.getActivityid() != null){
