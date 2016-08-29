@@ -120,7 +120,13 @@ public class ImageTextServiceImpl implements ImageTextService {
 
     @Override
     public List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode) {
-        return gImageTextRepository.findGImageTextVersions(mainArea, specArea, gadcode);
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT version FROM app_tb_neo_g_image_text WHERE  main_area = '").append(mainArea).append("'")
+                .append(" AND gadcode = ").append(gadcode);
+        if (StringUtils.isNotEmpty(specArea)) {
+            sql.append(" AND spec_area = '").append(specArea).append("'");
+        }
+        return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<String>(String.class));
     }
 
     @Override
