@@ -140,6 +140,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (StringUtils.isNotEmpty(version)) {
             sql.append(" AND version = '").append(version).append("'");
         }
+        sql.append(" ORDER BY update_time DESC");
         return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<GImageText>(GImageText.class));
     }
 
@@ -169,8 +170,8 @@ public class ImageTextServiceImpl implements ImageTextService {
         try {
             List<ImageText> imageTexts = gImageText.getImages();
 
+            Date now = new Date();
             if (gImageText.getId() == null) {
-                Date now = new Date();
                 String gid = IdGen.uuid();
                 gImageText.setId(gid);
                 gImageText.setCreateTime(now);
@@ -181,6 +182,11 @@ public class ImageTextServiceImpl implements ImageTextService {
                     imageTexts.get(i).setCreateTime(now);
                     imageTexts.get(i).setUpdate_time(now);
                     imageTexts.get(i).setDelFlag(0);
+                }
+            } else {
+                gImageText.setUpdateTime(now);
+                for (int i = 0; i < imageTexts.size(); i++) {
+                    imageTexts.get(i).setUpdate_time(now);
                 }
             }
             gImageTextRepository.save(gImageText);
