@@ -44,4 +44,6 @@ public interface UserService {
     JsonNode getFamilyDoctorByUserPersoncard(String personcard);
 
     Map<String, Object>  findSignDoctorByUid(String uid);
+
+    Boolean updateMedicarecard(String uid, String medicareCard);
 }

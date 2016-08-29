@@ -5,6 +5,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -264,6 +265,20 @@ public class UserServiceImpl implements UserService {
         }catch (EmptyResultDataAccessException e){
             return null;
         }
+    }
+
+    @Override
+    public Boolean updateMedicarecard(String uid, String medicareCard) {
+        RegisterInfo register = getOneNotNull(uid);
+        if (!register.verified()) {
+            throw new CommonException(1020, "非实名认证不能绑定医保卡");
+        }
+        if (null != register.getMedicarecard() && register.getMedicarecard().length()>0){
+            throw new CommonException(1021, "已绑定医保卡");
+        }
+        register.setMedicarecard(medicareCard);
+        registerInfoRepository.saveAndFlush(register);
+        return true;
     }
 
     private String getTagListLike(Map parameter){
