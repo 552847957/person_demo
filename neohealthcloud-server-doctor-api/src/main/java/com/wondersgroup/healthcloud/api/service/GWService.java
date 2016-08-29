@@ -18,7 +18,7 @@ public class GWService extends HttpBaseService {
 	@Autowired
 	private UserService userService;
 
-	Logger logger = LoggerFactory.getLogger("EX");
+	Logger logger = LoggerFactory.getLogger(GWService.class);
 
 	/**
 	 * 签约居民列表

@@ -21,6 +21,7 @@ import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +68,11 @@ public class UserServiceImpl implements UserService {
 
         String sql = query + " where i.registerid = '%s'";
         sql = String.format(sql, uid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
@@ -254,7 +259,11 @@ public class UserServiceImpl implements UserService {
                 "left join app_tb_push_tag dt on tag.tagid = dt.tagid ) d ";
         String sql = sqlQuery + " where d.registerid = '%s' group by registerid";
         sql = String.format(sql, registerid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     private String getTagListLike(Map parameter){

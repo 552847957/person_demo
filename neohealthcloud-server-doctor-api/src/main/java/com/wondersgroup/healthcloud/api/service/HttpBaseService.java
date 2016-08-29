@@ -32,13 +32,13 @@ public abstract class HttpBaseService {
 
 	protected static String SIGNED_CONNECTION_URL;
 
-	protected static String ARCH_CONNECTION_URL;
+//	protected static String ARCH_CONNECTION_URL;
 
 	@PostConstruct
 	public void init() {
 
 		SIGNED_CONNECTION_URL = jailPropertiesUtils.getGwWebSignedUrl();
-		ARCH_CONNECTION_URL = jailPropertiesUtils.getGwWebSignedUrl();//todo 改地址
+//		ARCH_CONNECTION_URL = jailPropertiesUtils.getGwWebSignedUrl();//todo 改地址
 
 		ClientHttpRequestInterceptor httpRequestInterceptor = new HttpRequestInterceptor();
 		restTemplate.setInterceptors(ImmutableList.of(httpRequestInterceptor));
