@@ -22,7 +22,7 @@ public interface ImageTextService {
     List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode);
 
     // 根据区域,广告位获取广告组列表
-    List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode);
+    List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode, String version);
 
     // 根据广告组ID查询广告组详情
     GImageText findGImageTextById(String gid);

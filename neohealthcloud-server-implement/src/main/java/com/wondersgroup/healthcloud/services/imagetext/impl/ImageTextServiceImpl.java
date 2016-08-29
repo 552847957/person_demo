@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.imagetext.impl;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.GImageTextRepository;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
@@ -10,10 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +35,10 @@ public class ImageTextServiceImpl implements ImageTextService {
 
     @Autowired
     private GImageTextRepository gImageTextRepository;
+
+    @Autowired
+    private DataSource dataSource;
+    private JdbcTemplate jt;
 
     @Override
     public ImageText findImageTextById(String id) {
@@ -116,8 +124,17 @@ public class ImageTextServiceImpl implements ImageTextService {
     }
 
     @Override
-    public List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode) {
-        return gImageTextRepository.findGImageTextList(mainArea, specArea, gadcode);
+    public List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode, String version) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT * FROM app_tb_neo_g_image_text WHERE  main_area = '").append(mainArea).append("'")
+                .append(" AND gadcode = ").append(gadcode);
+        if (StringUtils.isNotEmpty(specArea)) {
+            sql.append(" AND spec_area = '").append(specArea).append("'");
+        }
+        if (StringUtils.isNotEmpty(version)) {
+            sql.append(" AND version = '").append(version).append("'");
+        }
+        return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<GImageText>(GImageText.class));
     }
 
     @Override
@@ -153,6 +170,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                 gImageText.setCreateTime(now);
                 gImageText.setUpdateTime(now);
                 for (int i = 0; i < imageTexts.size(); i++) {
+                    imageTexts.get(i).setId(IdGen.uuid());
                     imageTexts.get(i).setGid(gid);
                     imageTexts.get(i).setCreateTime(now);
                     imageTexts.get(i).setUpdate_time(now);
@@ -165,5 +183,12 @@ public class ImageTextServiceImpl implements ImageTextService {
             return false;
         }
         return true;
+    }
+
+    private JdbcTemplate getJt() {
+        if (jt == null) {
+            jt = new JdbcTemplate(dataSource);
+        }
+        return jt;
     }
 }

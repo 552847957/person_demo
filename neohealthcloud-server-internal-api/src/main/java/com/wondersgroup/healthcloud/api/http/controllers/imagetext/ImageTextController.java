@@ -46,10 +46,11 @@ public class ImageTextController {
     @Admin
     @GetMapping("/findGImageTextList")
     public JsonResponseEntity<List<GImageText>> findGImageTextList(@RequestHeader(name = "main-area", required = true) String mainArea,
-                                                 @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                 @RequestParam(required = true) Integer gadcode) {
+                                                                   @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                                   @RequestParam(required = true) Integer gadcode,
+                                                                   @RequestParam(required = false) String version) {
         JsonResponseEntity<List<GImageText>> result = new JsonResponseEntity<>();
-        List<GImageText> gImageTexts = imageTextService.findGImageTextList(mainArea, specArea, gadcode);
+        List<GImageText> gImageTexts = imageTextService.findGImageTextList(mainArea, specArea, gadcode, version);
         if (gImageTexts != null && gImageTexts.size() > 0) {
             result.setData(gImageTexts);
         } else {
@@ -77,7 +78,7 @@ public class ImageTextController {
     @PostMapping("/saveGImageText")
     public JsonResponseEntity saveGImageText(@RequestBody GImageText gImageText) {
         JsonResponseEntity result = new JsonResponseEntity();
-        if (imageTextService.saveGImageText(gImageText)){
+        if (imageTextService.saveGImageText(gImageText)) {
             result.setMsg("数据保存成功");
         } else {
             result.setCode(1000);
