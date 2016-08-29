@@ -1,6 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.controllers.assessment;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutor;
@@ -23,6 +26,9 @@ import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +44,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/assessment")
 public class AssessmentController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssessmentController.class);
 
     @Autowired
     private AssessmentService assessmentService;
@@ -65,6 +73,23 @@ public class AssessmentController {
         String url=env.getProperty("internal.api.service.measure.url")+"/api/measure/2/nearest?registerId="+uid;
         Request build= new RequestBuilder().get().url(url).build();
         String body = httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class).body();
+
+        try {
+            JsonNode jsonNode = new ObjectMapper().readTree(body);
+            if(jsonNode.get("code").intValue() == 0){
+                JsonNode child = jsonNode.get("data");
+                String date = child.get("testTime").asText();
+                if(!StringUtils.isEmpty(date)){
+                    Date testTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(date).toDate();
+                    if(DateTime.now().plusDays(-3).isBefore(new DateTime(testTime).getMillis())){
+                        entity.setPressure(child.get("systolic").asText()+"/"+child.get("diastolic").asText());
+                    }
+                }
+            }
+
+        }catch (Exception ex){
+            LOGGER.error(ex.getMessage(),ex);
+        }
 
         response.setData(entity);
         return response;
