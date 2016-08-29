@@ -16,12 +16,13 @@ public class SignedPersonDTO {
     private String addressText;
     private String addressOther;
 
-    private Boolean isRisk;//是否是"危"
-    private Boolean isJky;//是否是 "云"
+    private Boolean isRisk;//是否是"危" 危“是指用户已经实名的情况下，在风险评估中检测下来可能是（糖尿病、脑卒中的患者或高血压的易患人群）（记录用户风险评估的最后一次状态，新检测的结果替换服务器的数据，以最后一次为准！）
+    private Boolean isJky;//是否是 "实" 健康云注册并实名认证的
     private Boolean isHyp;//是否是高血压 "高"
     private Boolean isDiabetes;//是否是糖尿病 "糖"
     private Boolean isApo;//是否是脑卒中 "脑"
 
+    private String uid;
     private String avatar;
 
 
@@ -127,5 +128,13 @@ public class SignedPersonDTO {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

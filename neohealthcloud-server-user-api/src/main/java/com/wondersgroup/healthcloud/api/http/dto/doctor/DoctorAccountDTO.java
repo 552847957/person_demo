@@ -46,6 +46,9 @@ public class DoctorAccountDTO {
 
     private Boolean isAttention;
 
+    public DoctorAccountDTO() {
+    }
+
     public DoctorAccountDTO(Map<String, Object> doctor) {
         this.uid = doctor.get("id")==null?"":doctor.get("id").toString();
         this.mobile = doctor.get("mobile")==null?"":doctor.get("mobile").toString();

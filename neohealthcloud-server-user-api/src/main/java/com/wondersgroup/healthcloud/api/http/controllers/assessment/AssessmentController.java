@@ -232,6 +232,7 @@ public class AssessmentController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
+    @VersionRange
     public JsonResponseEntity<AssessmentAPIEntity> get(@RequestParam("id") String id){
         Assessment assessment = assessmentService.getAssessment(id);
         return getResult(assessment,false);

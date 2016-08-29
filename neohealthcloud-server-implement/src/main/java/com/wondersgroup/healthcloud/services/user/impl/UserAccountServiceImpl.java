@@ -2,8 +2,10 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
@@ -44,6 +46,9 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
+
+    @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
 
     @Autowired
     private EasemobDoctorPool easemobDoctorPool;
@@ -379,13 +384,17 @@ public class UserAccountServiceImpl implements UserAccountService{
             if (register.getRegmobilephone().equals(newMobile)) {
                 throw new ErrorChangeMobileException("手机号码相同, 无需更换");
             }
-            if (!validateCode(register.getRegmobilephone(), oldVerifyCode, true)) {
+            if (!validateCode(register.getRegmobilephone(), oldVerifyCode, false)) {
                 throw new ErrorChangeMobileException("验证码错误");
             }
         }
         if (!validateCode(newMobile, newVerifyCode, true)) {
             throw new ErrorChangeMobileException("验证码错误");
         }
+
+        //为了使旧手机的验证码失效
+        validateCode(register.getRegmobilephone(), oldVerifyCode, true);
+
 
         JsonNode result = httpWdUtils.updateMobile(uid,newMobile);
         Boolean success = result.get("success").asBoolean();
@@ -394,6 +403,16 @@ public class UserAccountServiceImpl implements UserAccountService{
             register.setUpdateBy(register.getRegisterid());
             register.setUpdateDate(new Date());
             registerInfoRepository.saveAndFlush(register);
+
+            //如果有医生账号的话修改医生账号的手机号
+            DoctorAccount doctorAccount = doctorAccountRepository.findOne(register.getRegisterid());
+            if(doctorAccount!=null){
+                doctorAccount.setMobile(newMobile);
+                doctorAccount.setUpdateDate(new Date());
+                doctorAccount.setUpdateBy(register.getRegisterid());
+                doctorAccountRepository.saveAndFlush(doctorAccount);
+            }
+
             return true;
         } else {
             throw new ErrorChangeMobileException(1002,result.get("msg").asText());

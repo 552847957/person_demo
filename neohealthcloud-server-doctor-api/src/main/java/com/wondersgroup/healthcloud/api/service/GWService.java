@@ -3,8 +3,11 @@ package com.wondersgroup.healthcloud.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.signedPerson.SignedPersonDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,10 +15,13 @@ import java.util.List;
 @Service
 public class GWService extends HttpBaseService {
 
+	@Autowired
+	private UserService userService;
+
 	Logger logger = LoggerFactory.getLogger("EX");
 
 	/**
-	 * 居民列表
+	 * 签约居民列表
 	 * @param famId
 	 * @param name
 	 * @param flag
@@ -44,12 +50,22 @@ public class GWService extends HttpBaseService {
 						jsonMapper.contructCollectionType(List.class, SignedPersonDTO.class));
 
 				for(SignedPersonDTO signedPersonDTO : personList){//todo
+					Boolean isJky = false;
+					Boolean isRisk = false;
 					signedPersonDTO.setAvatar("");
+					signedPersonDTO.setUid("");
+					List<RegisterInfo> registerInfos = userService.findRegisterInfoByIdcard(signedPersonDTO.getPersoncard());
+					if(registerInfos.size()>0){
+						isJky = true;
+						signedPersonDTO.setAvatar(registerInfos.get(0).getHeadphoto());
+						signedPersonDTO.setUid(registerInfos.get(0).getRegisterid());
+						//判断是否是 "危" //todo 等朱春柳的接口
 
-					signedPersonDTO.setIsRisk(false);
-					signedPersonDTO.setIsJky(false);
+					}
+
+					signedPersonDTO.setIsJky(isJky);
+					signedPersonDTO.setIsRisk(isRisk);
 					signedPersonDTO.setIsApo(false);
-
 					signedPersonDTO.setIsDiabetes(false);
 					signedPersonDTO.setIsHyp(false);
 

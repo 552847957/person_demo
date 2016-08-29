@@ -2,15 +2,13 @@ package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
-import com.squareup.okhttp.OkHttpClient;
-import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.api.http.controllers.doctor.DoctorController;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.FamilyDcotorDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.AddressDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.VerificationInfoDTO;
-import com.wondersgroup.healthcloud.api.utils.FamilyDoctorUtil;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -27,12 +25,12 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -59,11 +57,6 @@ public class UserController {
 
     @Autowired
     private DoctorController doctorController;
-
-    @Autowired
-    private JailPropertiesUtils jailPropertiesUtils;
-
-    private FamilyDoctorUtil familyDoctorUtil = new FamilyDoctorUtil();
 
 
     DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
@@ -403,42 +396,6 @@ public class UserController {
     }
 
 
-    /**
-     * 查询是否有家庭医生
-     * @param uid
-     * @return
-     */
-    @RequestMapping(value = "/isSignDoctor", method = RequestMethod.GET)
-    @VersionRange
-    public JsonResponseEntity<Map<String,String>> isSignDoctor (@RequestParam(value = "uid",required = true) String uid) {
-        JsonResponseEntity<Map<String,String>> body = new JsonResponseEntity<>();
-        Map<String,String> map = new HashMap<>();
-        Boolean hasSignDoctor = false;
-        RegisterInfo userInfo = userService.getOneNotNull(uid);
-        if(userInfo.verified() && StringUtils.isNotBlank(userInfo.getPersoncard())) {
-            familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
-            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),userInfo.getPersoncard());
-            if (result.get("code").asInt() == 0) {
-                String doctorIdcard = result.get("data").get("personcard") == null ? "" : result.get("data").get("personcard").asText();
-                if (StringUtils.isNotBlank(doctorIdcard) && !"-1".equals(doctorIdcard)) {
-                    Map<String,Object> doctorInfor = doctorService.findDoctorInfoByIdcard(doctorIdcard);
-                    if(doctorInfor!=null){
-                        hasSignDoctor = true;
-                    }else{
-                        body.setMsg("您所签约的家庭医生暂未开通健康云账号");
-                    }
-                }
-            } else {
-                body.setMsg(result.get("msg").asText());
-            }
-        }else{
-            body.setMsg("该用户没有实名认证");
-        }
-        map.put("isSignDoctor",hasSignDoctor.toString());
-        body.setData(map);
-        return body;
-    }
-
 
     /**
      * 获取家庭医生信息
@@ -447,29 +404,41 @@ public class UserController {
      */
     @RequestMapping(value = "/familyDoctor", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<DoctorAccountDTO> familyDoctor(@RequestParam(value = "uid",required = true) String uid) {
-        JsonResponseEntity<DoctorAccountDTO> body = new JsonResponseEntity<>();
+    public JsonResponseEntity<FamilyDcotorDTO> familyDoctor(@RequestParam(value = "uid",required = true) String uid) {
+        JsonResponseEntity<FamilyDcotorDTO> body = new JsonResponseEntity<>();
+        FamilyDcotorDTO familyDcotorDTO = new FamilyDcotorDTO();
+
+        Boolean isSignDoctor = false;
+        Boolean hasOpenWonder = false;
+        DoctorAccountDTO doctorAccountDTO = new DoctorAccountDTO();
+
         String doctorIdcard = "";
         RegisterInfo userInfo = userService.getOneNotNull(uid);
         if(userInfo.verified() && StringUtils.isNotBlank(userInfo.getPersoncard())) {
-            familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
-            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),userInfo.getPersoncard());
-            if(result.get("code").asInt()!=0){
-                throw new ErrorUserAccountException(result.get("msg").asText());
+
+            JsonNode result = userService.getFamilyDoctorByUserPersoncard(userInfo.getPersoncard());
+
+            if(result.get("code").asInt()==0){
+                doctorIdcard = result.get("data").get("personcard")==null?"":result.get("data").get("personcard").asText();
+                if(!(StringUtils.isBlank(doctorIdcard)||"-1".equals(doctorIdcard) )){
+                    isSignDoctor = true;
+
+                    Map<String,Object> doctorInfor  = doctorService.findDoctorInfoByIdcard(doctorIdcard);
+                    if(doctorInfor!=null){
+                        hasOpenWonder = true;
+                        String doctorId = doctorInfor.get("id").toString();
+                        doctorAccountDTO = doctorController.getDoctorInfo(uid,doctorId);
+                    }
+                }
+
             }
-            doctorIdcard = result.get("data").get("personcard")==null?"":result.get("data").get("personcard").asText();
-            if(StringUtils.isBlank(doctorIdcard)||"-1".equals(doctorIdcard) ){
-                throw new ErrorUserAccountException("该用户没有签约的家庭医生");
-            }
-        }else{
-            throw new ErrorUserAccountException("该用户没有实名认证");
+
         }
-        Map<String,Object> doctorInfor  = doctorService.findDoctorInfoByIdcard(doctorIdcard);
-        if(doctorInfor==null)
-            throw new ErrorUserAccountException("您所签约的家庭医生暂未健康云账号");
-        String doctorId = doctorInfor.get("id").toString();
-        DoctorAccountDTO doctorAccountDTO = doctorController.getDoctorInfo(uid,doctorId);
-        body.setData(doctorAccountDTO);
+
+        familyDcotorDTO.setIsSignDoctor(isSignDoctor);
+        familyDcotorDTO.setHasOpenWonder(hasOpenWonder);
+        familyDcotorDTO.setDoctorDetail(doctorAccountDTO);
+        body.setData(familyDcotorDTO);
         return body;
     }
 
