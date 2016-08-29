@@ -525,20 +525,13 @@ public class UserController {
         form.put("zjhm", cardNum);
         form.put("zjlx", islocal ? "21" : "22");
         form.put("token", token);
-        try {
-            Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
-            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-            JsonNode jsonNode = response.convertBody();
-            String userName = jsonNode.get("grjbxx").get("xm").asText().trim();
-            rt.put("name", userName);
-            rt.put("sex", jsonNode.get("grjbxx").get("xb").asText().equals("男") ? "1" : "2");
-        } catch (Exception e) {
-            return null;
-        }
-        if (rt.containsKey("name")) {
-            return rt;
-        }
-        return null;
+        Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode jsonNode = response.convertBody();
+        String userName = jsonNode.get("grjbxx").get("xm").asText().trim();
+        rt.put("name", userName);
+        rt.put("sex", jsonNode.get("grjbxx").get("xb").asText().equals("男") ? "1" : "2");
+        return rt;
     }
 
     /**
@@ -558,15 +551,11 @@ public class UserController {
         form.put("loginid", "logssinid");
         form.put("areacode", "310104");
         form.put("loginidentity", "310104198412042019");
-        try {
-            Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
-            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-            JsonNode jsonNode = response.convertBody();
-            if (jsonNode.get("result").asInt() == 0) {
-                token = jsonNode.get("token").asText();
-            }
-        } catch (Exception e) {
-            return null;
+        Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode jsonNode = response.convertBody();
+        if (jsonNode.get("result").asInt() == 0) {
+            token = jsonNode.get("token").asText();
         }
         return token;
     }
