@@ -112,7 +112,7 @@ public class CommonController {
 
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
@@ -143,7 +143,7 @@ public class CommonController {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {

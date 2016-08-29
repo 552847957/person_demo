@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/6/12.
@@ -16,13 +17,18 @@ public interface ImageTextService {
 
     int saveBatchImageText(List<ImageText> imageTextList);
 
-    List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageText imageText);
+    List<ImageText> findImageTextByAdcodeForApp(String mainArea, String specArea, ImageText imageText);
+
+    public int countImageTextByAdcode(Map params);
+
+    List<ImageText> findImageTextByAdcode(Integer pageNum, Integer pageSize, Map params);
 
     // 根据区域,广告位获取版本列表
     List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode);
 
+    public int countGImageTextList(Map params);
     // 根据区域,广告位获取广告组列表
-    List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode, String version);
+    List<GImageText> findGImageTextList(Integer pageNum, Integer pageSize, Map params);
 
     // 根据广告组ID查询广告组详情
     GImageText findGImageTextById(String gid);
