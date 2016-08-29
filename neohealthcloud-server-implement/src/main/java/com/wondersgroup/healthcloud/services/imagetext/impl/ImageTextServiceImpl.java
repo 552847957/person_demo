@@ -54,7 +54,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                 return appAdsList;
             }
         } catch (Exception ex) {
-            logger.error("ImageTextServiceImpl.findImageTextByAdcode\t-->\t" + ex.getLocalizedMessage());
+            logger.error("ImageTextServiceImpl.findImageTextByAdcodeForApp\t-->\t" + ex.getLocalizedMessage());
         }
         return null;
     }
@@ -263,31 +263,31 @@ public class ImageTextServiceImpl implements ImageTextService {
     private String getWhereSqlByParameter(Map parameter) {
         StringBuffer bf = new StringBuffer();
         if (parameter.size() > 0) {
-            Object tmpObj = parameter.get("main_area");
+            Object tmpObj = parameter.get("mainArea");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and main_area = '" + tmpObj.toString() + "' ");
+                bf.append(" and mainArea = '" + tmpObj + "' ");
             }
-            tmpObj = parameter.get("spec_area");
+            tmpObj = parameter.get("specArea");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and (spec_area is null or spec_area = '" + tmpObj.toString() + "')");
+                bf.append(" and (spec_area is null or spec_area = '" + tmpObj + "')");
             }
             tmpObj = parameter.get("adcode");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and adcode = " + tmpObj.toString());
+                bf.append(" and adcode = " + tmpObj);
             }
             tmpObj = parameter.get("version");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and version = '" + tmpObj.toString() + "'");
+                bf.append(" and version = '" + tmpObj + "'");
             }
-            tmpObj = parameter.get("del_flag");
+            tmpObj = parameter.get("delFlag");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and del_flag = '" + tmpObj.toString() + "'");
+                bf.append(" and del_flag = '" + tmpObj + "'");
             }
-            tmpObj = parameter.get("start_time");
-            Object tmpObja = parameter.get("end_time");
+            tmpObj = parameter.get("startTime");
+            Object tmpObja = parameter.get("endTime");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString()) && tmpObja != null && StringUtils.isNotBlank(tmpObja.toString())) {
-                bf.append(" and (start_time between '" + tmpObj.toString() + "' and '" + tmpObja + "')");
-                bf.append(" and (end_time between '" + tmpObj.toString() + "' and '" + tmpObja + "')");
+                bf.append(" and (start_time between '" + tmpObj + "' and '" + tmpObja + "')");
+                bf.append(" and (end_time between '" + tmpObj + "' and '" + tmpObja + "')");
             }
         }
         return bf.toString();
