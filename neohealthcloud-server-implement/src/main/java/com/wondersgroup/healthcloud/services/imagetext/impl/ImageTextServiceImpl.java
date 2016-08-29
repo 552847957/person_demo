@@ -126,7 +126,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (StringUtils.isNotEmpty(specArea)) {
             sql.append(" AND spec_area = '").append(specArea).append("'");
         }
-        return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<String>(String.class));
+        return getJt().queryForList(sql.toString(), new Object[]{}, String.class);
     }
 
     @Override
