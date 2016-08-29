@@ -57,4 +57,5 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
     }
+
 }

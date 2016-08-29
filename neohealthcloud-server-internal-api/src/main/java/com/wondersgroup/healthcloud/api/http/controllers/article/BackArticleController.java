@@ -112,8 +112,16 @@ public class BackArticleController {
      * @return
      */
     @GetMapping("/info")
-    public JsonResponseEntity articleInfo(@RequestParam(required = true) Integer id){
+    public JsonResponseEntity articleInfo(@RequestParam(required = true) Integer id,@RequestParam(required = false) String source){
         JsonResponseEntity response=new JsonResponseEntity();
+
+        if (!source.isEmpty()&&"h5".equals(source)){
+            NewsArticle articleInfoById = manageNewsArticleServiceImpl.findArticleInfoById(id);
+            int pvNum=articleInfoById.getPv()+1;
+            articleInfoById.setPv(pvNum);
+            manageNewsArticleServiceImpl.updateNewsAritile(articleInfoById);
+        }
+
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
         response.setData(articleInfo);
         return response;

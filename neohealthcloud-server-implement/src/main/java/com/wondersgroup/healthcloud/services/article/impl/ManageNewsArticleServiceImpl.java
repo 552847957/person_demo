@@ -157,7 +157,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
                 }if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and title LIKE='%"+searchParam.get(key)+"%'");
+                    sql.append(" and title LIKE '%"+searchParam.get(key)+"%'");
                 }
             }
             sql.append(" order by update_time desc");

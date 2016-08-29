@@ -30,9 +30,9 @@ public class ForwardArticleController {
         }
         int pageNo=pager.getNumber();
         int pageSize = pager.getSize();
-        int status=0;//默认查全部
+        String status="0";//默认查全部
         if(null!=param.get("status")){
-           status= (int) param.get("status");
+           status=(String)param.get("status");
         }
         String areaCode=param.get("mainArea").toString();
         pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize,areaCode));
@@ -56,5 +56,11 @@ public class ForwardArticleController {
         response.setMsg("成功");
         return response;
     }
-
+    @GetMapping("/detail")
+    public  JsonResponseEntity getHomePageArticle(int id){
+        JsonResponseEntity response=new JsonResponseEntity();
+        Object homePageArticle = forwardArticleService.getHomePageArticle(id);
+        response.setData(homePageArticle);
+        return response;
+    }
 }
