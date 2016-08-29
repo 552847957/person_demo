@@ -254,7 +254,7 @@ public class HealthActivityController {
 				}
 			} else {
 				response.setCode(1610);
-				response.setMsg("不能重复报名，报名失败！");
+				response.setMsg("不能重复报名");
 				return response;
 			}
 		response.setMsg("报名成功");
