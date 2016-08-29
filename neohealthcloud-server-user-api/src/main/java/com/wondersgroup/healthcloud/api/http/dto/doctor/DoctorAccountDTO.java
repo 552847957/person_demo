@@ -50,38 +50,41 @@ public class DoctorAccountDTO {
     }
 
     public DoctorAccountDTO(Map<String, Object> doctor) {
-        this.uid = doctor.get("id")==null?"":doctor.get("id").toString();
-        this.mobile = doctor.get("mobile")==null?"":doctor.get("mobile").toString();
-        this.name = doctor.get("name")==null?"":doctor.get("name").toString();
-        this.nickname = doctor.get("nickname")==null?"":doctor.get("nickname").toString();
-        this.loginName = doctor.get("loginName")==null?"":doctor.get("loginName").toString();
+        if(doctor!=null){
+            this.uid = doctor.get("id")==null?"":doctor.get("id").toString();
+            this.mobile = doctor.get("mobile")==null?"":doctor.get("mobile").toString();
+            this.name = doctor.get("name")==null?"":doctor.get("name").toString();
+            this.nickname = doctor.get("nickname")==null?"":doctor.get("nickname").toString();
+            this.loginName = doctor.get("loginName")==null?"":doctor.get("loginName").toString();
 
-        this.idcard = doctor.get("idcard")==null?"":doctor.get("idcard").toString();
-        this.gender = doctor.get("gender")==null?"":doctor.get("gender").toString();
+            this.idcard = doctor.get("idcard")==null?"":doctor.get("idcard").toString();
+            this.gender = doctor.get("gender")==null?"":doctor.get("gender").toString();
 
-        this.hospitalId = doctor.get("hospitalId")==null?"":doctor.get("hospitalId").toString();
-        this.hospitalName = doctor.get("hospitalName")==null?"":doctor.get("hospitalName").toString();
-        this.dutyName = doctor.get("dutyName")==null?"":doctor.get("dutyName").toString();
-        this.departName = doctor.get("departName")==null?"":doctor.get("departName").toString();
-        this.no = doctor.get("no")==null?"":doctor.get("no").toString();
+            this.hospitalId = doctor.get("hospitalId")==null?"":doctor.get("hospitalId").toString();
+            this.hospitalName = doctor.get("hospitalName")==null?"":doctor.get("hospitalName").toString();
+            this.dutyName = doctor.get("dutyName")==null?"":doctor.get("dutyName").toString();
+            this.departName = doctor.get("departName")==null?"":doctor.get("departName").toString();
+            this.no = doctor.get("no")==null?"":doctor.get("no").toString();
 
-        this.introduction = doctor.get("introduction")==null?"":doctor.get("introduction").toString();
-        this.expertin = doctor.get("expertin")==null?"":doctor.get("expertin").toString();
-        this.avatar = doctor.get("avatar")==null?"":doctor.get("avatar").toString();
+            this.introduction = doctor.get("introduction")==null?"":doctor.get("introduction").toString();
+            this.expertin = doctor.get("expertin")==null?"":doctor.get("expertin").toString();
+            this.avatar = doctor.get("avatar")==null?"":doctor.get("avatar").toString();
 
 
-        this.talkid = doctor.get("talkid")==null?"":doctor.get("talkid").toString();
-        this.talkpwd = doctor.get("talkpwd")==null?"":doctor.get("talkpwd").toString();
-        this.talkgroupid = doctor.get("talkgroupid")==null?"":doctor.get("talkgroupid").toString();
+            this.talkid = doctor.get("talkid")==null?"":doctor.get("talkid").toString();
+            this.talkpwd = doctor.get("talkpwd")==null?"":doctor.get("talkpwd").toString();
+            this.talkgroupid = doctor.get("talkgroupid")==null?"":doctor.get("talkgroupid").toString();
 
-        this.actcode = doctor.get("actcode")==null?"":doctor.get("actcode").toString();
+            this.actcode = doctor.get("actcode")==null?"":doctor.get("actcode").toString();
 
-        String attentionId = doctor.get("attentionId")==null?"":doctor.get("attentionId").toString();
+            String attentionId = doctor.get("attentionId")==null?"":doctor.get("attentionId").toString();
 
-        this.isAttention = false;
-        if(StringUtils.isNotBlank(attentionId)){
-            this.isAttention = true;
+            this.isAttention = false;
+            if(StringUtils.isNotBlank(attentionId)){
+                this.isAttention = true;
+            }
         }
+
 
     }
 
