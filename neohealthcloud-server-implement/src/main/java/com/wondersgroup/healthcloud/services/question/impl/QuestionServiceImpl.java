@@ -120,12 +120,12 @@ public class QuestionServiceImpl implements QuestionService {
                 + " LEFT JOIN doctor_info_tb t3 ON t2.id=t3.id "
                 + " LEFT JOIN t_dic_duty t4 ON t3.duty_id=t4.duty_id "
                 + " WHERE t1.question_id='"+questionId+"' AND t1.answer_id='"+doctorId+"'order by t1.new_comment_time DESC";
-        Map<String, Object> map=getJt().queryForMap(sql);
+        List<Map<String, Object>> list=getJt().queryForList(sql);
 
             QuestionGroup group=null;
-            if(map.isEmpty()){
-                group=new QuestionGroup(map);
-                String groupId=(String) map.get("id");
+            if(!list.isEmpty()){
+                group=new QuestionGroup(list.get(0));
+                String groupId=(String) list.get(0).get("id");
                 List<QuestionComment> comments=getQuestionComment(groupId);
                 int size=comments.size();
                 if(size>0){
