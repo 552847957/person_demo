@@ -30,12 +30,11 @@ public class ServicesController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity list(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                   @RequestHeader(value = "spec-area", required = false) String specArea) {
+                                   @RequestHeader(value = "spec-area", required = false) String specArea,
+                                   @RequestHeader(value = "app-version", required = true) String version) {
         JsonResponseEntity result = new JsonResponseEntity();
 
-        ImageText imgText = new ImageText();
-        imgText.setAdcode(ImageTextEnum.SERVICE_BTN.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);
         if (imageTexts != null && imageTexts.size() > 0) {
             List funcList = new ArrayList<>();
             Map map = null;

@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.services.imagetext.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.repository.imagetext.GImageTextRepository;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,9 @@ public class ImageTextServiceImpl implements ImageTextService {
 
     @Autowired
     private ImageTextRepository imageTextRepository;
+
+    @Autowired
+    private GImageTextRepository gImageTextRepository;
 
     @Override
     public ImageText findImageTextById(String id) {
@@ -103,5 +108,62 @@ public class ImageTextServiceImpl implements ImageTextService {
                 return null;
             }
         });
+    }
+
+    @Override
+    public List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode) {
+        return gImageTextRepository.findGImageTextVersions(mainArea, specArea, gadcode);
+    }
+
+    @Override
+    public List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode) {
+        return gImageTextRepository.findGImageTextList(mainArea, specArea, gadcode);
+    }
+
+    @Override
+    public GImageText findGImageTextById(String gid) {
+        GImageText gImageText = gImageTextRepository.findOne(gid);
+        if (gImageText != null) {
+            List<ImageText> imageTextList = imageTextRepository.findByGid(gid);
+            gImageText.setImages(imageTextList);
+        }
+        return gImageText;
+    }
+
+    @Override
+    public List<ImageText> findGImageTextForApp(String mainArea, String specArea, Integer gadcode, String version) {
+        GImageText gImageText = gImageTextRepository.findGImageTextForApp(mainArea, specArea, gadcode, version);
+        if (gImageText != null) {
+            List<ImageText> imageTextList = imageTextRepository.findByGid(gImageText.getId());
+            return imageTextList;
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public boolean saveGImageText(GImageText gImageText) {
+        try {
+            List<ImageText> imageTexts = gImageText.getImages();
+
+            if (gImageText.getId() == null) {
+                Date now = new Date();
+                String gid = IdGen.uuid();
+                gImageText.setId(gid);
+                gImageText.setCreateTime(now);
+                gImageText.setUpdateTime(now);
+                for (int i = 0; i < imageTexts.size(); i++) {
+                    imageTexts.get(i).setGid(gid);
+                    imageTexts.get(i).setCreateTime(now);
+                    imageTexts.get(i).setUpdate_time(now);
+                    imageTexts.get(i).setDelFlag(0);
+                }
+            }
+            gImageTextRepository.save(gImageText);
+            imageTextRepository.save(imageTexts);
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
     }
 }

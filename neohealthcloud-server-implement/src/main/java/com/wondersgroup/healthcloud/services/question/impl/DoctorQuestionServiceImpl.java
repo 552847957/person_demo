@@ -8,10 +8,7 @@ import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,31 +58,18 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         }
         DoctorQuestionDetail questionDetail = new DoctorQuestionDetail(question);
 
-        Boolean isCloseQuestion = question.getStatus() == 3;
         //获取问题组
-        List<QuestionGroup> groups = questionService.getQuestionGroup(questionId, false);
-        if (null != groups && !groups.isEmpty()){
-            //需要把当天医生的消息组放到最上面
-            List<QuestionGroup> orderGroups = new ArrayList<>();//排序后的问题组
-            List<QuestionGroup> otherComment = new ArrayList<>();//非当前医生的问题组
-            for (QuestionGroup questionGroup : groups){
-                if (questionGroup.getDoctorId().equals(doctorId)){
-                    if (isCloseQuestion){
-                        questionGroup.setIsReply(false);
-                    }
-                    orderGroups.add(questionGroup);
-                }else {
-                    //其他医生回复的只能,看不能回复
-                    questionGroup.setIsReply(false);
-                    otherComment.add(questionGroup);
-                }
-            }
-            orderGroups.addAll(otherComment);
-            questionDetail.setGroup(orderGroups);
+        QuestionGroup group = questionService.getQuestionGroup(questionId, doctorId);
+        if (null!=group){
+            questionDetail.setStatus(group.getStatus());
+            questionDetail.setGroup(group);
+        }else{
+            questionDetail.setStatus(1);
         }
 
         return questionDetail;
     }
+
 
     @Override
     public List<QuestionInfoForm> getQuestionSquareList(String doctor_id,int page, int pageSize) {
@@ -127,7 +111,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public List<QuestionInfoForm> getDoctorReplyQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
         String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,cg.has_new_user_comment as isNoRead,"
-                + "q.comment_count FROM question_tb q LEFT JOIN comment_group_tb cg ON q.id=cg.question_id "
+                + "q.comment_count FROM app_tb_neoquestion q LEFT JOIN app_tb_neogroup cg ON q.id=cg.question_id "
                 + " WHERE cg.answer_id=? AND q.status>1 and q.is_valid=1 ORDER BY cg.has_new_user_comment DESC, q.status asc, q.create_time DESC limit ?,?";
         elementType.add(doctorId);
         elementType.add((page-1)*pageSize);
@@ -234,6 +218,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         }else {
             replyGroup = replyGroupRepository.findOne(lastReply.getGroupId());
             replyGroup.setNewCommentTime(nowDate);
+            replyGroup.setHasNewUserComment(0);
             replyGroup.setStatus(2);
             replyGroupRepository.saveAndFlush(replyGroup);
         }

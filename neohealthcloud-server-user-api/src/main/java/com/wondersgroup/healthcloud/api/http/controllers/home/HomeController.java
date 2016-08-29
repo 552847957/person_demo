@@ -50,7 +50,8 @@ public class HomeController {
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
+                                                @RequestHeader(value = "spec-area", required = false) String specArea,
+                                                @RequestHeader(value = "app-version", required = true) String version) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
@@ -68,9 +69,7 @@ public class HomeController {
         }
 
         // 首页功能栏
-        ImageText imgTextB = new ImageText();
-        imgTextB.setAdcode(ImageTextEnum.HOME_FUNCTION.getType());
-        List<ImageText> imageTextsB = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextB);
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_FUNCTION.getType(), version);
         if (imageTextsB != null && imageTextsB.size() > 0) {
             List functionIcons = new ArrayList();
             Map map = null;
