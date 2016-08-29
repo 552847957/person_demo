@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.utils.PageFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -333,6 +334,44 @@ public class AssessmentServiceImpl implements AssessmentService {
                     assessment.getIsDyslipidemia() == AssessmentConstrains.CHOISE_TRUE ||
                     isHypertension(1,assessment.getPressure());
 
+        }
+        return false;
+    }
+
+    /**
+     * 用户是否有慢性疾病
+     * @param uid 用户主键
+     * @return 只要用户用糖尿病、高血压、脑卒中中一种即为true，否则为false
+     */
+    @Override
+    public Boolean hasDiseases(String uid){
+        Page<Assessment> page = assessmentRepository.getAssessmentHistory(uid, new Date(), PageFactory.create(1, 1, "createDate:desc"));
+        if(null== page || null == page.getContent() || 0 == page.getContent().size()){
+            return false;
+        }
+        Assessment assessment = page.getContent().get(0);
+
+        if(isDiabetesHighRisk(assessment)){
+            return true;
+        }else{
+            if(diabetesRiskCheck(assessment)) {
+                return true;
+            }
+        }
+
+        if(isHypertensionHighRisk(assessment)) {
+            return true;
+        }else{
+            if(hypertensionRiskCheck(assessment)){
+                return true;
+            }
+        }
+        if(isStrokeHighRisk(assessment)) {
+            return true;
+        }else{
+            if(strokeRiskCheck(assessment)){
+                return true;
+            }
         }
         return false;
     }
