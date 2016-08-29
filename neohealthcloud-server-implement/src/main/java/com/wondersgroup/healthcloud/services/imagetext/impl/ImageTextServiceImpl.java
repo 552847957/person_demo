@@ -3,7 +3,6 @@ package com.wondersgroup.healthcloud.services.imagetext.impl;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
-import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.GImageTextRepository;
 import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
@@ -21,6 +20,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/6/12.
@@ -46,10 +46,37 @@ public class ImageTextServiceImpl implements ImageTextService {
     }
 
     @Override
-    public List<ImageText> findImageTextByAdcode(String mainArea, String specArea, ImageText imageText) {
+    public List<ImageText> findImageTextByAdcodeForApp(String mainArea, String specArea, ImageText imageText) {
         try {
             List<ImageText> appAdsList = findAll(imageText);
 
+            if (appAdsList != null && appAdsList.size() > 0) {
+                return appAdsList;
+            }
+        } catch (Exception ex) {
+            logger.error("ImageTextServiceImpl.findImageTextByAdcode\t-->\t" + ex.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public int countImageTextByAdcode(Map params) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT count(1) FROM app_tb_neoimage_text WHERE 1 = 1 ")
+                .append(getWhereSqlByParameter(params));
+        Integer count = getJt().queryForObject(sql.toString(), Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    @Override
+    public List<ImageText> findImageTextByAdcode(Integer pageNum, Integer pageSize, Map params) {
+        try {
+            StringBuffer sql = new StringBuffer();
+            sql.append("SELECT * FROM app_tb_neoimage_text WHERE 1 = 1 ")
+                    .append(getWhereSqlByParameter(params))
+                    .append(" ORDER BY update_time DESC")
+                    .append(" LIMIT " + (pageNum - 1) * pageSize + "," + pageSize);
+            List<ImageText> appAdsList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
             if (appAdsList != null && appAdsList.size() > 0) {
                 return appAdsList;
             }
@@ -130,17 +157,22 @@ public class ImageTextServiceImpl implements ImageTextService {
     }
 
     @Override
-    public List<GImageText> findGImageTextList(String mainArea, String specArea, Integer gadcode, String version) {
+    public List<GImageText> findGImageTextList(Integer pageNum, Integer pageSize, Map params) {
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT * FROM app_tb_neo_g_image_text WHERE  main_area = '").append(mainArea).append("'")
-                .append(" AND gadcode = ").append(gadcode);
-        if (StringUtils.isNotEmpty(specArea)) {
-            sql.append(" AND spec_area = '").append(specArea).append("'");
-        }
-        if (StringUtils.isNotEmpty(version)) {
-            sql.append(" AND version = '").append(version).append("'");
-        }
+        sql.append("SELECT * FROM app_tb_neo_g_image_text WHERE   1 = 1 ")
+                .append(getGWhereSqlByParameter(params))
+                .append(" ORDER BY update_time DESC")
+                .append(" LIMIT " + (pageNum - 1) * pageSize + "," + pageSize);
         return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<GImageText>(GImageText.class));
+    }
+
+    @Override
+    public int countGImageTextList(Map params) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT count(1) FROM app_tb_neo_g_image_text WHERE   1 = 1 ")
+                .append(getGWhereSqlByParameter(params));
+        Integer count = getJt().queryForObject(sql.toString(), Integer.class);
+        return count == null ? 0 : count;
     }
 
     @Override
@@ -169,8 +201,8 @@ public class ImageTextServiceImpl implements ImageTextService {
         try {
             List<ImageText> imageTexts = gImageText.getImages();
 
+            Date now = new Date();
             if (gImageText.getId() == null) {
-                Date now = new Date();
                 String gid = IdGen.uuid();
                 gImageText.setId(gid);
                 gImageText.setCreateTime(now);
@@ -181,6 +213,11 @@ public class ImageTextServiceImpl implements ImageTextService {
                     imageTexts.get(i).setCreateTime(now);
                     imageTexts.get(i).setUpdate_time(now);
                     imageTexts.get(i).setDelFlag(0);
+                }
+            } else {
+                gImageText.setUpdateTime(now);
+                for (int i = 0; i < imageTexts.size(); i++) {
+                    imageTexts.get(i).setUpdate_time(now);
                 }
             }
             gImageTextRepository.save(gImageText);
@@ -196,5 +233,63 @@ public class ImageTextServiceImpl implements ImageTextService {
             jt = new JdbcTemplate(dataSource);
         }
         return jt;
+    }
+
+    // 生成组图SQL
+    private String getGWhereSqlByParameter(Map parameter) {
+        StringBuffer bf = new StringBuffer();
+        if (parameter.size() > 0) {
+            Object tmpObj = parameter.get("main_area");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and main_area = '" + tmpObj + "'");
+            }
+            tmpObj = parameter.get("spec_area");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and (spec_area is null or spec_area = '" + tmpObj + "')");
+            }
+            tmpObj = parameter.get("gadcode");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and gadcode = " + tmpObj);
+            }
+            tmpObj = parameter.get("version");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and version = '" + tmpObj + "'");
+            }
+        }
+        return bf.toString();
+    }
+
+    // 生成单图SQL
+    private String getWhereSqlByParameter(Map parameter) {
+        StringBuffer bf = new StringBuffer();
+        if (parameter.size() > 0) {
+            Object tmpObj = parameter.get("main_area");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and main_area = '" + tmpObj.toString() + "' ");
+            }
+            tmpObj = parameter.get("spec_area");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and (spec_area is null or spec_area = '" + tmpObj.toString() + "')");
+            }
+            tmpObj = parameter.get("adcode");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and adcode = " + tmpObj.toString());
+            }
+            tmpObj = parameter.get("version");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and version = '" + tmpObj.toString() + "'");
+            }
+            tmpObj = parameter.get("del_flag");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and del_flag = '" + tmpObj.toString() + "'");
+            }
+            tmpObj = parameter.get("start_time");
+            Object tmpObja = parameter.get("end_time");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString()) && tmpObja != null && StringUtils.isNotBlank(tmpObja.toString())) {
+                bf.append(" and (start_time between '" + tmpObj.toString() + "' and '" + tmpObja + "')");
+                bf.append(" and (end_time between '" + tmpObj.toString() + "' and '" + tmpObja + "')");
+            }
+        }
+        return bf.toString();
     }
 }

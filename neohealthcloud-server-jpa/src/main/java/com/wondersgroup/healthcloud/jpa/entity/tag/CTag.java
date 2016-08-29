@@ -14,6 +14,8 @@ import javax.persistence.Table;
 @Table(name = "app_dic_tag")
 public class CTag extends BaseEntity{
 
+    private String charid;
+
     private String tagname;
 
     private String tagmemo;

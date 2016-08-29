@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
@@ -12,6 +13,9 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.exceptions.BaseException;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.helper.push.plan.PushPlanService;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
@@ -22,10 +26,12 @@ import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,10 +58,16 @@ public class PushPlanController {
     private UserHelper userHelper;
 
     @Autowired
-    private Environment env;
+    private HttpRequestExecutorManager httpRequestExecutorManager;
 
     @Autowired
-    private HttpRequestExecutorManager httpRequestExecutorManager;
+    private PushClientWrapper pushClientWrapper;
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
+
+    @Value("${h5-web.connection.url}")
+    private String h5Url;
 
     @PostMapping(path = "/list")
     public Pager list(@RequestBody Pager pager) throws Exception{
@@ -111,9 +123,8 @@ public class PushPlanController {
         this.updatPlan(id,1);
 
         //创建定时任务
-        String url=env.getProperty("JOB_CONNECTION_URL")+"/api/healthcloud/push";
         String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlanRepo.findOne(id).getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
-        Request build= new RequestBuilder().post().url(url).body(param).build();
+        Request build= new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
         httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
 
         JsonResponseEntity entity = new JsonResponseEntity();
@@ -144,13 +155,33 @@ public class PushPlanController {
         this.updatPlan(id,3);
 
         //取消定时任务
-        String url=env.getProperty("JOB_CONNECTION_URL")+"/api/healthcloud/push";
-        Request build= new RequestBuilder().delete().url(url).param("planId", id.toString()).build();
+        Request build= new RequestBuilder().delete().url(jobClientUrl+"/api/healthcloud/push").param("planId", id.toString()).build();
         httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
 
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("取消成功");
         return entity;
+    }
+
+    @PostMapping(path = "/send")
+    public String send(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        Integer planId = reader.readDefaultInteger("planId", 0);
+        PushPlan pushPlan = pushPlanRepo.findOne(planId);
+        if(null != pushPlan){
+            AppMessage message = AppMessage.Builder.init().title(pushPlan.getTitle()).content(pushPlan.getContent()).
+                    urlFragment(h5Url+"/article/detail?id="+pushPlan.getArticleId()).
+                    type(AppMessageUrlUtil.Type.HTTP).build();
+            if(null == pushPlan.getTarget()){
+                pushClientWrapper.pushToAll(message,pushPlan.getArea());
+            }else{
+                pushClientWrapper.pushToTags(message,pushPlan.getArea(), ImmutableList.of(pushPlan.getTarget()));
+            }
+        }
+        pushPlan.setStatus(2);
+        pushPlan.setUpdateTime(new Date());
+        pushPlanRepo.save(pushPlan);
+        return "{\"code\":0}";
     }
 
     private void updatPlan(Integer id ,Integer status){

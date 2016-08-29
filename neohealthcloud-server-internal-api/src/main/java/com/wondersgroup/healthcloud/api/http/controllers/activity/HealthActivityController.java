@@ -104,6 +104,7 @@ public class HealthActivityController {
         info.setDelFlag("0");
         info.setStyle(1);
         info.setUpdateDate(new Date());
+        info.setIscancel("0");
         if (info.getOnlineTime().after(new Date())) {
             info.setOnlineStatus("0");//未上线
         } else if (info.getOfflineTime().before(new Date())) {

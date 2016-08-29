@@ -47,14 +47,14 @@ public class PushController {
         PushClient client;
         if (isDoctor) {
             client = pushAreaService.getByDoctor(alias);
-            if (client == null) {
+            if (client != null) {
                 pushMessage.area = client.identityName().substring(0, client.identityName().length() - 1);
             } else {
                 return error;
             }
         } else {
             client = pushAreaService.getByUser(alias);
-            if (client == null) {
+            if (client != null) {
                 pushMessage.area = client.identityName();
             } else {
                 return error;

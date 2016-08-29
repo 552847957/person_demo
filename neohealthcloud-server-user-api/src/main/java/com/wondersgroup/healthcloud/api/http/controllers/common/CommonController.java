@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
@@ -40,6 +41,10 @@ public class CommonController {
 
     @Autowired
     private ImageTextService imageTextService;
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
+
     /**
      * APP获取启动数据
      */
@@ -71,13 +76,13 @@ public class CommonController {
                 common.put("consumerHotline", cfgMap.get("app.common.consumer.hotline"));
             }
             if (cfgMap.get("app.common.help.center") != null) {
-                common.put("helpCenter", cfgMap.get("app.common.help.center"));
+                common.put("helpCenter", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.help.center")));
             }
             if (cfgMap.get("app.common.userAgreement") != null) {
-                common.put("userAgreement", cfgMap.get("app.common.userAgreement"));
+                common.put("userAgreement", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
             }
             if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
-                common.put("ipa", cfgMap.get("app.common.intellectualPropertyAgreement"));
+                common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
             }
             data.put("common", common);
 
@@ -95,6 +100,7 @@ public class CommonController {
                         }
                         String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
                         String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
+                        String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();
 
                         Map appUpdate = new HashMap();
                         appUpdate.put("hasUpdate", hasUpdate);
@@ -102,6 +108,7 @@ public class CommonController {
                         appUpdate.put("lastVersion", lastVersion);
                         appUpdate.put("updateMsg", updateMsg);
                         appUpdate.put("androidUrl", downloadUrl);
+                        appUpdate.put("iosUrl", iosDownloadUrl);
                         data.put("appUpdate", appUpdate);
                     }
                 } catch (Exception ex) {
@@ -112,7 +119,7 @@ public class CommonController {
 
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
@@ -143,7 +150,7 @@ public class CommonController {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {

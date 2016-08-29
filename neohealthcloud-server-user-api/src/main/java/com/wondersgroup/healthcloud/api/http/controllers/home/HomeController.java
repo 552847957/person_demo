@@ -58,7 +58,7 @@ public class HomeController {
         // 首页Banner
         ImageText imgTextA = new ImageText();
         imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
-        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextA);
+        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
         if (imageTextsA != null && imageTextsA.size() > 0) {
             List banners = new ArrayList();
             for (ImageText imageText : imageTextsA) {
@@ -87,7 +87,7 @@ public class HomeController {
         // 首页广告
         ImageText imgTextC = new ImageText();
         imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
-        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextC);
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextC);
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
             for (ImageText imageText : imageTextsC) {

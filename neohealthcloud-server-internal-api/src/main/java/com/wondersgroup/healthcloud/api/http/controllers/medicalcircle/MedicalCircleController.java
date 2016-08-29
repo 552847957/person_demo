@@ -14,9 +14,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,5 +48,50 @@ public class MedicalCircleController {
         JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", medicalCircles);
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+    }
+
+    /**
+     * 修改医学圈标签
+     * @param id
+     * @param tagnames
+     * @return
+     */
+    @RequestMapping(value = "medicalCircleTag/update", method = RequestMethod.POST)
+    public JsonResponseEntity updateMedicalCircleTag(@RequestParam String id,
+                                                     @RequestParam(required = false) String tagnames) {
+        MedicalCircle medicalCircle = medicalCircleRepository.findById(id);
+        if (medicalCircle != null) {
+            medicalCircle.setTagnames(tagnames);
+        }
+        medicalCircleRepository.save(medicalCircle);
+        return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 批量修改冻结/解冻
+     * @param ids
+     * @param isVisible
+     * @return
+     */
+    @RequestMapping(value = "medicalCircleIsVisible/update", method = RequestMethod.POST)
+    public JsonResponseEntity updateMedicalCircleIsVisible(@RequestParam List<String> ids,
+                                                           @RequestParam String isVisible) {
+        medicalCircleRepository.updateIsVisible(ids, isVisible);
+
+        return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 批量修改医学圈标签
+     * @param ids
+     * @param tagnames
+     * @return
+     */
+    @RequestMapping(value = "medicalCircleTag/batchUpdate", method = RequestMethod.POST)
+    public JsonResponseEntity batchUpdateMedicalCircleTag(@RequestParam List<String> ids,
+                                                          @RequestParam(required = false) String tagnames) {
+        medicalCircleRepository.batchUpdateMedicalCircleTag(ids, tagnames);
+
+        return new JsonResponseEntity(0, "修改成功");
     }
 }
