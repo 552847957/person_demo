@@ -64,6 +64,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT count(1) FROM app_tb_neoimage_text WHERE 1 = 1 ")
                 .append(getWhereSqlByParameter(params));
+        logger.info("countImageTextByAdcode --> " + sql);
         Integer count = getJt().queryForObject(sql.toString(), Integer.class);
         return count == null ? 0 : count;
     }
@@ -76,6 +77,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                     .append(getWhereSqlByParameter(params))
                     .append(" ORDER BY update_time DESC")
                     .append(" LIMIT " + (pageNum - 1) * pageSize + "," + pageSize);
+            logger.info("findImageTextByAdcode --> " + sql);
             List<ImageText> appAdsList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
             if (appAdsList != null && appAdsList.size() > 0) {
                 return appAdsList;
@@ -265,7 +267,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (parameter.size() > 0) {
             Object tmpObj = parameter.get("mainArea");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and mainArea = '" + tmpObj + "' ");
+                bf.append(" and main_area = '" + tmpObj + "' ");
             }
             tmpObj = parameter.get("specArea");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
