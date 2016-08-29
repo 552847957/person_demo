@@ -34,4 +34,7 @@ public class AppUrlH5Utils {
         return basePath + "/foodstore/detail?id="+id;
     }
 
+    public String buildBasicUrl (String url) {
+        return basePath + url;
+    }
 }
