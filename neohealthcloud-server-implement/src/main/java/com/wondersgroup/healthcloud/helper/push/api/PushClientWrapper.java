@@ -53,7 +53,7 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
 
     public Boolean pushToTags(AppMessage message, String area, List<String> tags) {
         Request.Builder builder = new Request.Builder();
-        builder.url(HttpUrl.parse(baseUrl + "/push/tags").newBuilder().addQueryParameter("area", area).addQueryParameter("tags", StringUtils.join(tags, ",")).build()).post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonConverter.toJson(message)));
+        builder.url(HttpUrl.parse(baseUrl + "/push/tag").newBuilder().addQueryParameter("area", area).addQueryParameter("tags", StringUtils.join(tags, ",")).build()).post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonConverter.toJson(message)));
         JsonNodeResponseWrapper wrapper = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(builder.build()).run().as(JsonNodeResponseWrapper.class);
         return wrapper.convertBody().get("code").asInt() == 0;
     }
