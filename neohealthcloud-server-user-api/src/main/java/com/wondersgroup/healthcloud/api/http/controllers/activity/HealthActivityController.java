@@ -217,15 +217,15 @@ public class HealthActivityController {
 
 				if (info.getEnrollStartTime().after(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1620);
-					response.setMsg("活动报名尚未开始，报名失败！");
+					response.setMsg("活动报名尚未开始");
 					return response;
 				}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1608);
-					response.setMsg("活动报名结束，报名失败！");
+					response.setMsg("活动报名结束");
 					return response;
 				}else if (totalApply != null && Integer.valueOf(totalApply) >= quota) {
 					response.setCode(1609);
-					response.setMsg("超过活动限定名额，报名失败！");
+					response.setMsg("名额已满");
 					return response;
 
 				}else {
@@ -242,13 +242,13 @@ public class HealthActivityController {
 					if(healthActivityDetailRepository.findActivityDetailByAidAndRidNum(activityid, registerId) > 1){
 						healthActivityDetailRepository.delete(detailInfo);
 						response.setCode(1610);
-						response.setMsg("不能重复报名，报名失败！");
+						response.setMsg("不能重复报名");
 						return response;
 					}
 					if(healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid) > quota){
 						healthActivityDetailRepository.delete(detailInfo);
 						response.setCode(1609);
-						response.setMsg("超过活动限定名额，报名失败！");
+						response.setMsg("名额已满");
 						return response;
 					}
 				}
