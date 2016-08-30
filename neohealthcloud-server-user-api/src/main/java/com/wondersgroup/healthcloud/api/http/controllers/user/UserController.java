@@ -217,6 +217,29 @@ public class UserController {
         return body;
     }
 
+
+    /**
+     * 添加注册方法 不需要设置密码
+     * @param request
+     * @param channel
+     * @return
+     */
+    @RequestMapping(value = "/registeByCode", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<UserAccountAndSessionDTO> register(@RequestBody String request,
+                                                             @RequestHeader(required = false) String channel) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String mobile = reader.readString("mobile", false);
+        String verifyCode = reader.readString("verify_code", false);
+
+        JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
+
+        body.setData(new UserAccountAndSessionDTO(userAccountService.register(mobile, verifyCode)));
+        body.getData().setInfo(getInfo(body.getData().getUid()));
+        body.setMsg("注册成功");
+        return body;
+    }
+
     /**
      * 提交实名认证信息
      *

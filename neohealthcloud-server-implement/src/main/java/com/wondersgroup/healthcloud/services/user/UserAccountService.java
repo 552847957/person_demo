@@ -32,6 +32,8 @@ public interface UserAccountService {
 
     AccessToken register(String mobile, String verifyCode, String password);
 
+    AccessToken register(String mobile, String verifyCode);
+
     Boolean verificationSubmit(String id, String name, String idCard, String photo);
 
     Boolean changeMobile(String id, String oldVerifyCode, String newMobile, String newVerifyCode);

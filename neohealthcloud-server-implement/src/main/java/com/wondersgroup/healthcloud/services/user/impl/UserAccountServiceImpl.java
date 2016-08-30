@@ -274,6 +274,18 @@ public class UserAccountServiceImpl implements UserAccountService{
         return registe(mobile, password);
     }
 
+    @Override
+    public AccessToken register(String mobile, String verifyCode) {
+        Boolean mobileIsValidate = validateCode(mobile, verifyCode, false);
+        if (!mobileIsValidate) {
+            throw new ErrorWondersCloudException("手机验证码错误");
+        }
+        if (checkAccount(mobile)) {
+            throw new ErrorUserMobileHasBeenRegisteredException("该手机号码已经注册，是否直接登录");
+        }
+        return fastLogin(mobile, verifyCode, false);
+    }
+
     /**
      * 提交实名认证信息
      * @param id       用户Id
