@@ -79,7 +79,7 @@ public class BackArticleController {
         JsonResponseEntity response=new JsonResponseEntity();
         if(article.getTitle().length()>30){
             response.setCode(-1);
-            response.setMsg("字数过多，限制30个字");
+            response.setMsg("字数过多，限制10个字");
             return response;
         }
         if(article.getBrief().length()>30){
