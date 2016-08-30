@@ -28,4 +28,6 @@ public interface DoctorService {
     Map<String,Object> findDoctorInfoByIdcard(String doctorIdcard);
 
     List<Map<String,Object>> findDoctorServicesById(String uid);
+
+    Boolean checkDoctorHasService(String doctorId, String keyword);
 }

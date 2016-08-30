@@ -56,7 +56,7 @@ public class LoginController {
         JsonResponseEntity result = new JsonResponseEntity();
         Map<String, Object> map = new HashMap<>();
         map.put("mainArea", "4401");
-        map.put("specArea", "0");
+        map.put("specArea", null);
         map.put("userName", "admin");
         map.put("publicKey", HttpWdUtils.publicKey);
         result.setData(map);

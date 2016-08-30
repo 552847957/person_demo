@@ -31,7 +31,7 @@ public class HomeController {
         List<Map<String,Object>> services = doctorService.findDoctorServicesById(uid);
         if(services.size()>0){
             for(Map<String,Object> service :services){
-                if(service.containsKey("keyword") && service.get("keyword")!=null && service.get("keyword").equals("ask")){
+                if(service.containsKey("keyword") && service.get("keyword")!=null && service.get("keyword").equals("Q&A")){
                     int unread = 2;// todo 等杜宽心的接口
                     service.put("unread",unread);
                 }

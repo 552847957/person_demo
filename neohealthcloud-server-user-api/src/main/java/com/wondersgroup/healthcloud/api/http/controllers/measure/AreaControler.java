@@ -25,7 +25,7 @@ public class AreaControler {
 
     private RestTemplate template = new RestTemplate();
 
-    @GetMapping(value = "public/exam/area/dictionary", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "api/exam/area/dictionary", produces = MediaType.APPLICATION_JSON_VALUE)
     public JsonResponseEntity areaDictionary() {
         ResponseEntity<Map> response = template.getForEntity(String.format(requestAreaDictionaryPath, host), Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -38,5 +38,4 @@ public class AreaControler {
         }
         return new JsonResponseEntity(500, "区域字典获取失败");
     }
-
 }

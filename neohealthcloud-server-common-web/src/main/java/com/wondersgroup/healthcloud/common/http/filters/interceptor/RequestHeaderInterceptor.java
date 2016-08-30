@@ -51,8 +51,8 @@ public final class RequestHeaderInterceptor extends AbstractHeaderInterceptor {
 
     private void buildResponse(HttpServletResponse response, HeaderCode headerChecked) {
         try {
-            PrintWriter writer = response.getWriter();
             response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
             writer.write(String.format("{\"code\":%d,\"msg\":\"%s\"}", headerChecked.errorCode, defaultErrorMsg));
             writer.close();
         } catch (IOException e) {

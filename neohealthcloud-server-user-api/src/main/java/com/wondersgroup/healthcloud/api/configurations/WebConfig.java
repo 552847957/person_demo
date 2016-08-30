@@ -79,7 +79,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         RequestMappingHandlerMapping handlerMapping = new VersionedRequestMappingHandlerMapping();
         List<Object> interceptorList = Lists.newLinkedList();
         interceptorList.add(new GateInterceptor());
-        if (!isSandbox) {
+        if (!"de".equals(getActiveProfile())) {
             interceptorList.add(new RequestTimeInterceptor(isSandbox));
             interceptorList.add(new RequestHeaderInterceptor(isSandbox));
             interceptorList.add(new RequestReplayDefenderInterceptor(defender, isSandbox));

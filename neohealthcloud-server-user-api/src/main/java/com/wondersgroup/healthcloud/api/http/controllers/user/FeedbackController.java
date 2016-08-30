@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -26,6 +27,7 @@ public class FeedbackController {
      * 意见反馈
      */
     @PostMapping(path = "/user/feedback")
+    @WithoutToken
     @VersionRange
     public JsonResponseEntity<String> saveFeedback(@RequestHeader("main-area") String mainArea, @RequestBody String request) {
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
@@ -37,11 +39,5 @@ public class FeedbackController {
         feedbackService.saveFeedback(uid, comments, contact, mainArea, "0");
         response.setData("反馈成功");
         return response;
-    }
-
-    @GetMapping(path = "/user/chinese")
-    @VersionRange
-    public String testString(@RequestParam String a) {
-        return "中文" + a;
     }
 }
