@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
@@ -32,19 +31,13 @@ public class MeasureController {
 
     @Value("${internal.api.service.measure.url}")
     private String host;
-
     private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
-
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
-
     private static final String requestChartPath = "%s/api/measure/chart/%s?%s";
-
     private static final String requestDayHistoryPath = "%s/api/measure/dayHistory/?%s";
-
     private static final String requestYearHistoryPath = "%s/api/measure/yearHistory/%s?%s";
-
     private static final String requestDayHistoriesListPath = "%s/api/measure/topHistories/?%s";
-
+    private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     private RestTemplate template = new RestTemplate();
 
     @Autowired
@@ -181,6 +174,35 @@ public class MeasureController {
             String param = "registerId=".concat(registerId);
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
             String url = String.format(requestDayHistoryPath, host, params);
+            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "近期数据查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (Exception e) {
+            log.info("近期历史数据获取失败", e);
+        }
+        return new JsonResponseEntity(1000, "近期历史数据获取失败");
+    }
+
+    /**
+     * 查询历史记录
+     * 根据天的维度展示
+     *
+     * @param type       0－BMI 1－血氧 2－血压 3－血糖 4－记步 5－腰臀比
+     * @param registerId 注册认证码
+     * @param flag       分页 页号
+     * @return
+     * @throws JsonProcessingException
+     */
+    @VersionRange
+    @GetMapping("recentHistory/{type}")
+    public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
+        try {
+            String param = "registerId=".concat(registerId);
+            String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
+            String url = String.format(recentMeasureHistory, host, type, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {

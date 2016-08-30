@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.squareup.okhttp.Request;
@@ -25,6 +26,8 @@ import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -41,6 +44,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/push/plan")
 public class PushPlanController {
+
+    private Logger logger = LoggerFactory.getLogger(PushPlanController.class);
 
     @Autowired
     private PushPlanRepository pushPlanRepo;
@@ -68,6 +73,7 @@ public class PushPlanController {
 
     @Value("${h5-web.connection.url}")
     private String h5Url;
+
 
     @PostMapping(path = "/list")
     public Pager list(@RequestBody Pager pager) throws Exception{
@@ -125,10 +131,19 @@ public class PushPlanController {
         //创建定时任务
         String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlanRepo.findOne(id).getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
         Request build= new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
-        httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
 
         JsonResponseEntity entity = new JsonResponseEntity();
-        entity.setMsg("审核通过");
+        if(0 == result.get("code").asInt()){
+            entity.setMsg("审核通过");
+        }else{
+            this.updatPlan(id,0);
+            logger.error("定时任务(id = "+id+")创建错误，返回结果"+result);
+            entity.setMsg("定时任务创建出错，适合失败");
+        }
+
+
         return entity;
     }
 

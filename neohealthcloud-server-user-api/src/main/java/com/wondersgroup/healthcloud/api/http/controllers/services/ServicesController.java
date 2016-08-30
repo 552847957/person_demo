@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.services;
 
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
@@ -29,6 +30,7 @@ public class ServicesController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity list(@RequestHeader(value = "main-area", required = true) String mainArea,
                                    @RequestHeader(value = "spec-area", required = false) String specArea,
                                    @RequestHeader(value = "app-version", required = true) String version) {

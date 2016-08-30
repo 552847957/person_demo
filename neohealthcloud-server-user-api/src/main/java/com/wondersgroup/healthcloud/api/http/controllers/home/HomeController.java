@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
@@ -49,6 +50,7 @@ public class HomeController {
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
                                                 @RequestHeader(value = "app-version", required = true) String version) {
@@ -107,6 +109,7 @@ public class HomeController {
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity appTips(@RequestHeader(value = "main-area", required = true) String mainArea,
                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -126,6 +129,7 @@ public class HomeController {
 
     @RequestMapping(value = "/newsAndQuestions", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();

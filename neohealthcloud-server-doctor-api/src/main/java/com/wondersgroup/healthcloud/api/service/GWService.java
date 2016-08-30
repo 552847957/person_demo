@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.signedPerson.SignedPersonDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,9 @@ public class GWService extends HttpBaseService {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private AssessmentService assessmentService;
 
 	Logger logger = LoggerFactory.getLogger(GWService.class);
 
@@ -59,8 +63,8 @@ public class GWService extends HttpBaseService {
 						isJky = true;
 						signedPersonDTO.setAvatar(registerInfos.get(0).getHeadphoto());
 						signedPersonDTO.setUid(registerInfos.get(0).getRegisterid());
-						//判断是否是 "危" //todo 等朱春柳的接口
-
+						//判断是否是 "危" 朱春柳的接口
+						signedPersonDTO.setIsRisk(assessmentService.hasDiseases(registerInfos.get(0).getRegisterid()));
 					}
 
 					signedPersonDTO.setIsJky(isJky);

@@ -4,6 +4,9 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
@@ -21,6 +24,8 @@ public class DoctorQuestionController {
 
     @Autowired
     private DoctorQuestionService doctorQuestionService;
+    @Autowired
+    private PushClientWrapper pushClientWrapper;
 
     private final int doctor_question_list_size = 10;
 
@@ -39,11 +44,13 @@ public class DoctorQuestionController {
         //回复成功push用户端
         Question question=doctorQuestionService.queryQuestion(questionId);
         String userId=question.getAskerId();
-        Map<String,String> extras=new HashMap<>();
-        String url=String.format("com.wondersgroup.hs.healthja://patient/question_detail?question_id=%s", questionId);
-        extras.put("page",url);
 
-        
+        String scam=String.format("com.wondersgroup.hs.neohealthcloud://patient/question_detail?question_id=%s", questionId);
+        AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的问诊提问，点击查看").isDoctor().param("page",scam)
+                .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
+        Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
+
+
         response.setMsg("回复成功!");
         return response;
     }

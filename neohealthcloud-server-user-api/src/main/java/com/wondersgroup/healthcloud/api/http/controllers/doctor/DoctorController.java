@@ -70,7 +70,10 @@ public class DoctorController {
         List<Map<String,Object>> doctorList = patientAttentionService.findAttentionDoctorList(uid,pageSize,flag);
 
         for (Map<String,Object> docMap : doctorList){
-            list.add(new DoctorAccountDTO(docMap));
+            DoctorAccountDTO doctorAccountDTO = new DoctorAccountDTO(docMap);
+            Boolean hasQA = doctorService.checkDoctorHasService(doctorAccountDTO.getUid(),"Q&A");
+            doctorAccountDTO.setHasQA(hasQA);
+            list.add(doctorAccountDTO);
         }
 
         if(null != doctorList && doctorList.size() == pageSize){
@@ -149,6 +152,8 @@ public class DoctorController {
             throw new ErrorDoctorAccountNoneException();
         }
         DoctorAccountDTO doctorAccountDTO = new DoctorAccountDTO(doctor);
+        Boolean hasQA = doctorService.checkDoctorHasService(doctorId,"Q&A");
+        doctorAccountDTO.setHasQA(hasQA);
 
         return doctorAccountDTO;
     }

@@ -96,8 +96,8 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
 
     private void buildGuestResponseBody(HttpServletResponse response, int code, String msg) {//return a guest token when token check failed.
         try {
-            PrintWriter writer = response.getWriter();
             response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
             JsonResponseEntity<SessionDTO> result = new JsonResponseEntity<>();
             result.setCode(code);
             result.setMsg(msg);

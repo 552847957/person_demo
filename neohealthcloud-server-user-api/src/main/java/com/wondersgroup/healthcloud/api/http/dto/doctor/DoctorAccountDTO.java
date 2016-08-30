@@ -46,6 +46,8 @@ public class DoctorAccountDTO {
 
     private Boolean isAttention;
 
+    private Boolean hasQA = false;//医生是否有问答服务
+
     public DoctorAccountDTO() {
     }
 
@@ -246,5 +248,13 @@ public class DoctorAccountDTO {
 
     public void setIsAttention(Boolean isAttention) {
         this.isAttention = isAttention;
+    }
+
+    public Boolean getHasQA() {
+        return hasQA;
+    }
+
+    public void setHasQA(Boolean hasQA) {
+        this.hasQA = hasQA;
     }
 }

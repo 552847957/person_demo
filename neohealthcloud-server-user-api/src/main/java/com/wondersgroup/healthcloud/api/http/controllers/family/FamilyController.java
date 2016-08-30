@@ -281,8 +281,12 @@ public class FamilyController {
                 entity.setRecordReadable(true);
                 if (anonymousAccount.getIdcard() == null) {
                     JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
-                    Integer status = submitInfo.get("status").asInt();
-                    entity.setRedirectFlag(status - 1);
+                    if(submitInfo != null){
+                        Integer status = submitInfo.get("status").asInt();
+                        entity.setRedirectFlag(status - 1);
+                    }else{
+                        entity.setRedirectFlag(0);
+                    }
                     entity.setHealthWarning(false);
                 } else {
                     entity.setRedirectFlag(0);

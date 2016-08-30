@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,14 +77,35 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public List<Map<String, Object>> findDoctorServicesById(String uid) {
 
-        String query = " select sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
+        String sql = " select sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
                 " from doctor_account_tb a " +
                 " left join doctor_service_tb s on a.id = s.doctor_id " +
                 " left join doctor_service_dic sd on s.service_id = sd.id " +
                 " where sd.is_available = '0' and a.id = '%s'";
 
-        String sql =  String.format(query,uid);
+        sql =  String.format(sql,uid);
         return jt.queryForList(sql);
+    }
+
+    @Override
+    public Boolean checkDoctorHasService(String doctorId, String keyword) {
+
+        String sql = " select s.doctor_id,d.keyword from doctor_service_tb s " +
+                " left join doctor_service_dic d on s.service_id = d.id " +
+                " where s.del_flag = '0' and d.del_flag = '0'  and s.doctor_id = '%s' and d.keyword = '%s' ";
+
+        sql =  String.format(sql,doctorId,keyword);
+
+        Map<String,Object> service = new HashMap<>();
+        try {
+            service = jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return false;
+        }
+        if(service!=null){
+            return true;
+        }
+        return false;
     }
 
     /**

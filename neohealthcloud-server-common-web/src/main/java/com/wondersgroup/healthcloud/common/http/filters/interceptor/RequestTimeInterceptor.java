@@ -41,8 +41,8 @@ public final class RequestTimeInterceptor extends AbstractHeaderInterceptor {
         String timestamp = request.getHeader("client-request-time");
         if (StringUtils.isBlank(timestamp)) {
             try {
-                PrintWriter writer = response.getWriter();
                 response.setContentType("application/json;charset=UTF-8");
+                PrintWriter writer = response.getWriter();
                 writer.write("{\"code\":15,\"msg\":\"数据获取异常, 请再刷新一次\"}");
                 writer.close();
             } catch (IOException e) {
@@ -60,8 +60,8 @@ public final class RequestTimeInterceptor extends AbstractHeaderInterceptor {
         long diff = timeToCompare.getMillis() - System.currentTimeMillis();
         if (Math.abs(diff) > maxTimeDiff) {
             try {
-                PrintWriter writer = response.getWriter();
                 response.setContentType("application/json;charset=UTF-8");
+                PrintWriter writer = response.getWriter();
                 writer.write(String.format("{\"code\":16,\"msg\":\"时间误差过大, 请重试\", \"time_diff\":%d}", clientTime.getMillis() - System.currentTimeMillis()));
                 writer.close();
             } catch (IOException e) {
