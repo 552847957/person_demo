@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.article.ForwardArticle;
 import com.wondersgroup.healthcloud.services.article.ForwardArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,16 +24,16 @@ public class ForwardArticleController {
     public Pager findHomeArticleList(@RequestBody Pager pager) {
         Map param = new HashMap();
         param.putAll(pager.getParameter());
-        if(param.get("articleId")!=null&&!param.get("articleId").equals("")){
-            int id= (int) param.get("articleId");
+        if(param.containsKey("articleId")&&!StringUtils.isEmpty(param.get("articleId"))){
+            String id= (String) param.get("articleId");
             pager.setData(forwardArticleService.queryById(id));
             return pager;
         }
         int pageNo=pager.getNumber();
         int pageSize = pager.getSize();
-        int status=0;//默认查全部
+        String status="0";//默认查全部
         if(null!=param.get("status")){
-           status= (int) param.get("status");
+           status=(String)param.get("status");
         }
         String areaCode=param.get("mainArea").toString();
         pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize,areaCode));
@@ -56,5 +57,11 @@ public class ForwardArticleController {
         response.setMsg("成功");
         return response;
     }
-
+    @GetMapping("/detail")
+    public  JsonResponseEntity getHomePageArticle(int id){
+        JsonResponseEntity response=new JsonResponseEntity();
+        Object homePageArticle = forwardArticleService.getHomePageArticle(id);
+        response.setData(homePageArticle);
+        return response;
+    }
 }

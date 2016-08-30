@@ -1,24 +1,34 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.squareup.okhttp.OkHttpClient;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateGenderException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateUserInfoException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
+import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
+import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +48,14 @@ public class UserServiceImpl implements UserService {
     private AddressRepository addressRepository;
 
     @Autowired
+    private DoctorService doctorService;
+
+    @Autowired
     private JdbcTemplate jt;
+
+    @Autowired
+    private JailPropertiesUtils jailPropertiesUtils;
+
 
 
     private String query = "select i.registerid ,i.`name`,i.nickname ,i.regmobilephone ,i.headphoto , " +
@@ -52,7 +69,11 @@ public class UserServiceImpl implements UserService {
 
         String sql = query + " where i.registerid = '%s'";
         sql = String.format(sql, uid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
@@ -167,6 +188,31 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public Map<String, Object>  findSignDoctorByUid(String uid) {
+        Map<String,Object> doctorInfor = new HashMap<>();
+        String doctorIdcard = "";
+        RegisterInfo account = getOneNotNull(uid);
+        if(account.verified() && StringUtils.isNotBlank(account.getPersoncard())){
+            JsonNode result = getFamilyDoctorByUserPersoncard(account.getPersoncard());
+            if(result.get("code").asInt()==0){
+                doctorIdcard = result.get("data").get("personcard")==null?"":result.get("data").get("personcard").asText();
+                if(StringUtils.isNotBlank(doctorIdcard))
+                    doctorInfor = doctorService.findDoctorInfoByIdcard(doctorIdcard);
+            }
+        }
+        return doctorInfor;
+    }
+
+    @Override
+    public JsonNode getFamilyDoctorByUserPersoncard(String personcard){
+        FamilyDoctorUtil familyDoctorUtil = new FamilyDoctorUtil();
+        familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
+        JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),personcard);
+        return result;
+    }
+
+
 
     //----------------------后台使用----------------------
 
@@ -214,7 +260,25 @@ public class UserServiceImpl implements UserService {
                 "left join app_tb_push_tag dt on tag.tagid = dt.tagid ) d ";
         String sql = sqlQuery + " where d.registerid = '%s' group by registerid";
         sql = String.format(sql, registerid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean updateMedicarecard(String uid, String medicareCard) {
+        RegisterInfo register = getOneNotNull(uid);
+        if (!register.verified()) {
+            throw new CommonException(1020, "非实名认证不能绑定医保卡");
+        }
+        if (null != register.getMedicarecard() && register.getMedicarecard().length()>0){
+            throw new CommonException(1021, "已绑定医保卡");
+        }
+        register.setMedicarecard(medicareCard);
+        registerInfoRepository.saveAndFlush(register);
+        return true;
     }
 
     private String getTagListLike(Map parameter){

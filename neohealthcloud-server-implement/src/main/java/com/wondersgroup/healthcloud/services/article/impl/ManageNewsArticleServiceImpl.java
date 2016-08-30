@@ -142,7 +142,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
             if(null==searchParam.get("areaCode")){
                 sql.append(" * ");
             }else{
-                sql.append(" t1.*,t2.is_visable,t3.c_name ");
+                sql.append(" t1.id as article_id,t2.id,t1.title,t1.keyword,t1.update_time,t2.is_visable,t3.c_name ");
             }
         }
         if(null==searchParam.get("areaCode")){
@@ -157,7 +157,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
                 }if("endTime".equals(key)&&!"".equals(searchParam.get(key))){
                     sql.append(" and update_time"+"<='"+searchParam.get(key)+"'");
                 }if("title".equals(key)&&!"".equals(searchParam.get(key))){
-                    sql.append(" and title LIKE='%"+searchParam.get(key)+"%'");
+                    sql.append(" and title LIKE '%"+searchParam.get(key)+"%'");
                 }
             }
             sql.append(" order by update_time desc");

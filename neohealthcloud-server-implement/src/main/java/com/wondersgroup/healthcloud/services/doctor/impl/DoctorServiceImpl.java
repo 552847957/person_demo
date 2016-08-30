@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,11 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where a.id = '%s'";
         sql = String.format(sql,uid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
@@ -61,7 +66,11 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where i.idcard = '%s' and a.del_flag = '0' and a.is_available = '0' ";
         sql = String.format(sql,doctorIdcard);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
@@ -98,7 +107,12 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where a.id = '%s'";
         sql = String.format(sql,uid,doctorId);
-        return jt.queryForMap(sql);
+
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     /**
@@ -111,7 +125,12 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where i.actcode = '%s'";
         sql = String.format(sql,actcode);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
 import com.wondersgroup.healthcloud.api.http.dto.article.ShareH5APIDTO;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -87,6 +88,7 @@ public class ArticleFavoriteController {
 
     @RequestMapping(value = "/checkIsFavor",method = RequestMethod.GET)
     @VersionRange
+	@WithoutToken
     public JsonResponseEntity checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=true) String uid){
         JsonResponseEntity body = new JsonResponseEntity<>();
 

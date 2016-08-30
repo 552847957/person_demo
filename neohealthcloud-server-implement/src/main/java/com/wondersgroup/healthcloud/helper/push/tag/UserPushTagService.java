@@ -6,14 +6,17 @@ import com.wondersgroup.healthcloud.helper.push.getui.PushAdminClient;
 import com.wondersgroup.healthcloud.jpa.entity.app.UserPushInfo;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
 import com.wondersgroup.healthcloud.jpa.entity.push.UserPushTag;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.UserPushTagRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,6 +47,9 @@ public class UserPushTagService {
 
     @Autowired
     private PushAdminSelector pushAdminSelector;
+
+    @Autowired
+    private RegisterInfoRepository registerInfoRepo;
 
 
     public PushTag createNewTag(String tagName) {
@@ -102,5 +108,22 @@ public class UserPushTagService {
         for(String uid : uids){
             this.bindTagsToOneUser(uid,pushTag.getTagid().toString());
         }
+    }
+
+    public List<RegisterInfo> bindPerson(String info, String tagname) {
+        PushTag pushTag = tagRepository.findByName(tagname);
+        if(null == pushTag){
+            pushTag = new PushTag();
+            pushTag.setTagname(tagname);
+            pushTag.setUpdatetime(new Date());
+            pushTag = tagRepository.save(pushTag);
+        }
+
+        List<RegisterInfo> list = registerInfoRepo.getByCardOrPhone(info);
+        for(RegisterInfo register  : list){
+            this.bindTagsToOneUser(register.getRegisterid(),pushTag.getTagid().toString());
+        }
+        return list;
+
     }
 }

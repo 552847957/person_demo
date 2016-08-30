@@ -48,7 +48,7 @@ public class HealthActivityInfoDTO {
         if(info == null){
             return;
         }
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.activityid = info.getActivityid();
         this.host = info.getHost();
         this.type = info.getType();

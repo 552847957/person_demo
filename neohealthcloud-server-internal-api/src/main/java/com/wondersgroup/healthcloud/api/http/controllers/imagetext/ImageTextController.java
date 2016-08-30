@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.imagetext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -44,19 +45,23 @@ public class ImageTextController {
     }
 
     @Admin
-    @GetMapping("/findGImageTextList")
-    public JsonResponseEntity<List<GImageText>> findGImageTextList(@RequestHeader(name = "main-area", required = true) String mainArea,
-                                                 @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                 @RequestParam(required = true) Integer gadcode) {
-        JsonResponseEntity<List<GImageText>> result = new JsonResponseEntity<>();
-        List<GImageText> gImageTexts = imageTextService.findGImageTextList(mainArea, specArea, gadcode);
-        if (gImageTexts != null && gImageTexts.size() > 0) {
-            result.setData(gImageTexts);
-        } else {
-            result.setCode(1000);
-            result.setMsg("未查询到相关数据！");
+    @PostMapping("/findGImageTextList")
+    public Pager findGImageTextList(@RequestHeader(name = "main-area", required = true) String main_area,
+                                    @RequestHeader(name = "spec-area", required = false) String spec_area,
+                                    @RequestBody Pager pager) {
+        int pageNum = 1;
+        if (pager.getNumber() != 0) {
+            pageNum = pager.getNumber();
         }
-        return result;
+        pager.getParameter().put("main_area", main_area);
+        pager.getParameter().put("spec_area", spec_area);
+        List<GImageText> gImageTexts = imageTextService.findGImageTextList(pageNum, pager.getSize(), pager.getParameter());
+        if (gImageTexts != null && gImageTexts.size() > 0) {
+            int totalSize = imageTextService.countGImageTextList(pager.getParameter());
+            pager.setTotalElements(totalSize);
+            pager.setData(gImageTexts);
+        }
+        return pager;
     }
 
     @Admin
@@ -77,7 +82,7 @@ public class ImageTextController {
     @PostMapping("/saveGImageText")
     public JsonResponseEntity saveGImageText(@RequestBody GImageText gImageText) {
         JsonResponseEntity result = new JsonResponseEntity();
-        if (imageTextService.saveGImageText(gImageText)){
+        if (imageTextService.saveGImageText(gImageText)) {
             result.setMsg("数据保存成功");
         } else {
             result.setCode(1000);
@@ -102,30 +107,24 @@ public class ImageTextController {
 
     @Admin
     @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.POST)
-    public JsonResponseEntity findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
+    public Pager findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                    @RequestBody(required = true) ImageText imageText) {
+                                                    @RequestBody(required = true) Pager pager) {
         JsonResponseEntity result = new JsonResponseEntity();
-        if (imageText == null || imageText.getAdcode() == null) {
-            result.setCode(1000);
-            result.setMsg("[adcode]字段不能为空");
+        int pageNum = 1;
+        if (pager.getNumber() != 0) {
+            pageNum = pager.getNumber();
         }
-        ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(imageText.getAdcode());
-        if (imageTextEnum != null) {
-            imageText.setMainArea(mainArea);
-            imageText.setSpecArea(specArea);
-            List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(mainArea, specArea, imageText);
-            if (imageTextList != null && imageTextList.size() > 0) {
-                result.setData(imageTextList);
-            } else {
-                result.setCode(1000);
-                result.setMsg("未查询到相关配置数据");
-            }
-        } else {
-            result.setCode(1000);
-            result.setMsg("[adcode]属性值异常");
+        pager.getParameter().put("mainArea", mainArea);
+        pager.getParameter().put("specArea", specArea);
+
+        List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(pageNum, pager.getSize(), pager.getParameter());
+        if (imageTextList != null && imageTextList.size() > 0) {
+            int totalSize = imageTextService.countImageTextByAdcode(pager.getParameter());
+            pager.setTotalElements(totalSize);
+            pager.setData(imageTextList);
         }
-        return result;
+        return pager;
     }
 
     @Admin

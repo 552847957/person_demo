@@ -26,7 +26,7 @@ public class QuestionInfoForm {
 		this.doctorName = map.containsKey("name") ? (String) map.get("name") : null;
 		this.contentCount = map.containsKey("comment_count") ? (int) map.get("comment_count") : null;
 		this.isRead =map.containsKey("isNoRead") ?(int) map.get("isNoRead"):null;
-		if(map.containsKey("status")&&status==3){
+		if((map.containsKey("status")&&status==3)||status==null){
 			this.date = map.containsKey("date") ? (String) map.get("date") : "";
 		}else{
 			this.date = map.containsKey("date2") ? (String) map.get("date2") : "";

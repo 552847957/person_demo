@@ -19,10 +19,15 @@ public class AssessmentPreDataAPIEntity {
 
     private Integer age;
     private Integer height;
-    private Integer weight;
+    private Float weight;
     private String pressure;
+    private String gender;
+    private Float waist;
 
     public AssessmentPreDataAPIEntity(RegisterInfo register,UserInfo userInfo) {
+        if(null != register){
+            this.gender = register.getGender();
+        }
         if(null != register && null != register.getPersoncard()){
             Date birthday = DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(register.getPersoncard()));
             this.age = new DateTime().getYear() - new DateTime(birthday).getYear();
@@ -33,9 +38,14 @@ public class AssessmentPreDataAPIEntity {
         }
         if(null != userInfo){
             this.height = userInfo.getHeight();
-            if(null != userInfo.getWeight()){
-                this.weight = Integer.parseInt(String.format("%.0f", userInfo.getWeight()));
-            }
+            this.weight = userInfo.getWeight();
+            this.waist = userInfo.getWaist();
+//            if(null != userInfo.getWeight()){
+//                this.weight = Integer.parseInt(String.format("%.0f", userInfo.getWeight()));
+//            }
+//            if(null != userInfo.getWaist()){
+//
+//            }
         }
 
     }
@@ -56,11 +66,11 @@ public class AssessmentPreDataAPIEntity {
         this.height = height;
     }
 
-    public Integer getWeight() {
+    public Float getWeight() {
         return weight;
     }
 
-    public void setWeight(Integer weight) {
+    public void setWeight(Float weight) {
         this.weight = weight;
     }
 
@@ -70,5 +80,21 @@ public class AssessmentPreDataAPIEntity {
 
     public void setPressure(String pressure) {
         this.pressure = pressure;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Float getWaist() {
+        return waist;
+    }
+
+    public void setWaist(Float waist) {
+        this.waist = waist;
     }
 }

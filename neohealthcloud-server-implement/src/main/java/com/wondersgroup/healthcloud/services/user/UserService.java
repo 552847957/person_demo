@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.user;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -39,4 +40,10 @@ public interface UserService {
     int countUserByParameter(Map parameter);
 
     Map<String,Object> findUserDetailByUid(String registerid);
+
+    JsonNode getFamilyDoctorByUserPersoncard(String personcard);
+
+    Map<String, Object>  findSignDoctorByUid(String uid);
+
+    Boolean updateMedicarecard(String uid, String medicareCard);
 }

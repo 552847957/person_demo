@@ -44,4 +44,11 @@ public interface AssessmentService {
     List<Assessment> getAssessHistory(String uid, Date flag);
 
     Assessment getAssessment(String id);
+
+    /**
+     * 用户是否有慢性疾病
+     * @param uid 用户主键
+     * @return 只要用户用糖尿病、高血压、脑卒中中一种即为true，否则为false
+     */
+    Boolean hasDiseases(String uid);
 }

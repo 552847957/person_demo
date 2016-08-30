@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
@@ -49,6 +50,7 @@ public class HomeController {
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
                                                 @RequestHeader(value = "app-version", required = true) String version) {
@@ -58,7 +60,7 @@ public class HomeController {
         // 首页Banner
         ImageText imgTextA = new ImageText();
         imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
-        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextA);
+        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
         if (imageTextsA != null && imageTextsA.size() > 0) {
             List banners = new ArrayList();
             for (ImageText imageText : imageTextsA) {
@@ -87,7 +89,7 @@ public class HomeController {
         // 首页广告
         ImageText imgTextC = new ImageText();
         imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
-        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcode(mainArea, specArea, imgTextC);
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextC);
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
             for (ImageText imageText : imageTextsC) {
@@ -107,6 +109,7 @@ public class HomeController {
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity appTips(@RequestHeader(value = "main-area", required = true) String mainArea,
                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -126,6 +129,7 @@ public class HomeController {
 
     @RequestMapping(value = "/newsAndQuestions", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
