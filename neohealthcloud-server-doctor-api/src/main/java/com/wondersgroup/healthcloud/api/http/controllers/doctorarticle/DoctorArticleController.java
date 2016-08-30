@@ -1,8 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctorarticle;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
@@ -10,19 +7,12 @@ import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticleCatego
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleCategoryRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by shenbin on 16/8/30.
@@ -45,29 +35,27 @@ public class DoctorArticleController {
     @RequestMapping(value = "doctorArticleCategory/find", method = RequestMethod.GET)
     public JsonResponseEntity findDoctorArticleCategory(){
         List<DoctorArticleCategory> doctorArticleCategories = doctorArticleCategoryRepository.findAll();
-
-        return new JsonResponseEntity(0, "查询成功", doctorArticleCategories);
+        if (doctorArticleCategories != null && !doctorArticleCategories.isEmpty()) {
+            return new JsonResponseEntity(0, "查询成功", doctorArticleCategories);
+        } else {
+            return new JsonResponseEntity(-1, "查询失败");
+        }
     }
 
     /**
      * 查询学苑分类文章
      * @param categoryId
-     * @param pageable
      * @return
-     * @throws JsonProcessingException
      */
     @VersionRange
-    @RequestMapping(value = "doctorArticle/find", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String findDoctorArticle(@RequestParam int categoryId,
-                                    @PageableDefault Pageable pageable) throws JsonProcessingException {
-        Page<DoctorArticle> doctorArticles = doctorArticleRepository.findByCategoryId(categoryId, pageable);
-
-        Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
-        SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", doctorArticles);
-
-        return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+    @RequestMapping(value = "doctorArticle/find", method = RequestMethod.GET)
+    public JsonResponseEntity findDoctorArticle(@RequestParam String categoryId){
+        List<DoctorArticle> doctorArticles = doctorArticleRepository.findByCategoryIdsContaining(categoryId);
+        if (doctorArticles != null && !doctorArticles.isEmpty()) {
+            return new JsonResponseEntity(0, "查询成功", doctorArticles);
+        } else {
+            return new JsonResponseEntity(-1, "查询失败");
+        }
     }
 
 
