@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.article.ForwardArticle;
 import com.wondersgroup.healthcloud.services.article.ForwardArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,8 +24,8 @@ public class ForwardArticleController {
     public Pager findHomeArticleList(@RequestBody Pager pager) {
         Map param = new HashMap();
         param.putAll(pager.getParameter());
-        if(param.get("articleId")!=null&&!param.get("articleId").equals("")){
-            int id= (int) param.get("articleId");
+        if(param.containsKey("articleId")&&!StringUtils.isEmpty(param.get("articleId"))){
+            String id= (String) param.get("articleId");
             pager.setData(forwardArticleService.queryById(id));
             return pager;
         }

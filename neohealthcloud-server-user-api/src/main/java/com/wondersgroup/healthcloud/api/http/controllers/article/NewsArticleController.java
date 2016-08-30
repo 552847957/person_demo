@@ -56,6 +56,7 @@ public class NewsArticleController {
      */
     @RequestMapping(value="/articleList", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonListResponseEntity<NewsArticleListAPIEntity> articleList(
             @RequestHeader("main-area") String area,
             @RequestParam(required = true) String cat_id,
@@ -87,6 +88,7 @@ public class NewsArticleController {
      */
     @RequestMapping(value="/getHotWords", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(@RequestHeader("main-area") String area){
 
         List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
@@ -105,6 +107,7 @@ public class NewsArticleController {
 
     @RequestMapping(value="/searchArticle", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonListResponseEntity<NewsArticleListAPIEntity> searchArticle(@RequestParam(required = false) String cat_id
             ,@RequestParam(required = false) String word,
             @RequestParam(required = false, defaultValue = "0") String flag){
@@ -148,6 +151,7 @@ public class NewsArticleController {
      * @return
      */
     @GetMapping("/homePage")
+    @WithoutToken
     public JsonResponseEntity getHomePageArticle(@RequestHeader("main-area") String area){
         JsonResponseEntity response=new JsonResponseEntity();
         List<NewsArticleListAPIEntity> articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(area, 0, 10);

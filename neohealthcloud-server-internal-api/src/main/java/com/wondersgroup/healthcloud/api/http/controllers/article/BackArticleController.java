@@ -126,7 +126,7 @@ public class BackArticleController {
     public JsonResponseEntity articleInfo(@RequestParam(required = true) Integer id,@RequestParam(required = false) String source){
         JsonResponseEntity response=new JsonResponseEntity();
 
-        if (!source.isEmpty()&&"h5".equals(source)){
+        if (!StringUtils.isEmpty(source)&&"h5".equals(source)){
             NewsArticle articleInfoById = manageNewsArticleServiceImpl.findArticleInfoById(id);
             int pvNum=articleInfoById.getPv()+1;
             articleInfoById.setPv(pvNum);
@@ -134,6 +134,21 @@ public class BackArticleController {
         }
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
+        response.setData(articleInfo);
+        return response;
+    }
+
+    /**
+     * 资讯详情
+     * @return
+     */
+    @GetMapping("/areaInfo")
+    public JsonResponseEntity articleInfoByArea(@RequestParam(required = true) Integer id,@RequestParam(required = true) String areaCode){
+        JsonResponseEntity response=new JsonResponseEntity();
+
+
+        NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
+
         response.setData(articleInfo);
         return response;
     }
