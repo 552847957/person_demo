@@ -74,6 +74,7 @@ public class UserAccountDTO {
             this.verified = !"0".equals(identifytype);
             if (this.verified) {
                 this.age = StringUtils.isBlank(this.idcard) ? "" : String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
+                this.gender = Integer.valueOf(IdcardUtils.getGenderByIdCard(this.idcard));
             }
             this.talkId = user.get("talkid") == null ? "" : user.get("talkid").toString();
             this.talkPwd = user.get("talkpwd") == null ? "" : user.get("talkpwd").toString();
