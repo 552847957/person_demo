@@ -33,6 +33,7 @@ public class MeasureController {
     private String host;
     private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
+    private static final String requestModifyPath = "%s/api/measure/3.0/modify/%s";
     private static final String requestChartPath = "%s/api/measure/chart/%s?%s";
     private static final String requestDayHistoryPath = "%s/api/measure/dayHistory/?%s";
     private static final String requestYearHistoryPath = "%s/api/measure/yearHistory/%s?%s";
@@ -105,6 +106,26 @@ public class MeasureController {
             log.info("上传体征数据失败", e);
         }
         return new JsonResponseEntity<>(1000, "数据上传失败");
+    }
+
+    @VersionRange
+    @PostMapping("modify/{type}")
+    public JsonResponseEntity<?> updateMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
+        try {
+            String url = String.format(requestModifyPath, host, type);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            headers.add("access-token", "version3.0");
+            ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "数据更新成功");
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("体征数据更新失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "数据更新失败");
     }
 
     /**
