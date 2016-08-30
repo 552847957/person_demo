@@ -40,8 +40,8 @@ public class RequestReplayDefenderInterceptor extends AbstractHeaderInterceptor 
         String requestId = request.getHeader("request-id");
         if (!defender.check(requestId)) {
             try {
-                PrintWriter writer = response.getWriter();
                 response.setContentType("application/json;charset=UTF-8");
+                PrintWriter writer = response.getWriter();
                 writer.write("{\"code\":17,\"msg\":\"请勿进行重放攻击\"}");
                 writer.close();
             } catch (IOException e) {

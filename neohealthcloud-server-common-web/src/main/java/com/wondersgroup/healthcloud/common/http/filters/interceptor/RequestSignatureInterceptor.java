@@ -139,8 +139,8 @@ public final class RequestSignatureInterceptor extends AbstractHeaderInterceptor
 
     private void buildResponse(HttpServletResponse response, int code, String msg) {
         try {
-            PrintWriter writer = response.getWriter();
             response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
             writer.write(String.format("{\"code\":%d,\"msg\":\"%s\"}", code, msg));
             writer.close();
         } catch (IOException e) {
