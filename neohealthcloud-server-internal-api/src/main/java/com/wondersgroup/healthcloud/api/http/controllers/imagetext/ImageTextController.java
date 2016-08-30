@@ -108,8 +108,8 @@ public class ImageTextController {
     @Admin
     @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.POST)
     public Pager findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
-                                                    @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                    @RequestBody(required = true) Pager pager) {
+                                       @RequestHeader(name = "spec-area", required = false) String specArea,
+                                       @RequestBody(required = true) Pager pager) {
         JsonResponseEntity result = new JsonResponseEntity();
         int pageNum = 1;
         if (pager.getNumber() != 0) {

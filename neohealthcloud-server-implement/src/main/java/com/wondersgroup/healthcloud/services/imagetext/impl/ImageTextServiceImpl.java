@@ -48,6 +48,9 @@ public class ImageTextServiceImpl implements ImageTextService {
     @Override
     public List<ImageText> findImageTextByAdcodeForApp(String mainArea, String specArea, ImageText imageText) {
         try {
+            imageText.setDelFlag(0);
+            imageText.setMainArea(mainArea);
+            imageText.setSpecArea(specArea);
             List<ImageText> appAdsList = findAll(imageText);
 
             if (appAdsList != null && appAdsList.size() > 0) {
@@ -142,6 +145,8 @@ public class ImageTextServiceImpl implements ImageTextService {
                     Predicate[] predicates = new Predicate[pdList.size()];
                     cq.where(pdList.toArray(predicates));
                 }
+                Order order = cb.asc(rt.<String>get("sequence"));
+                cq.orderBy(order);
                 return null;
             }
         });

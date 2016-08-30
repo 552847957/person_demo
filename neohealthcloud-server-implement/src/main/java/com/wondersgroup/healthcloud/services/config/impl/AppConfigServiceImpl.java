@@ -29,7 +29,8 @@ public class AppConfigServiceImpl implements AppConfigService {
         try {
             AppConfig appConfig = new AppConfig();
             appConfig.setDelFlag("0");
-
+            appConfig.setMainArea(mainArea);
+            appConfig.setSpecArea(specArea);
             List<AppConfig> appConfigList = findAll(appConfig, keyWords);
 
             if (appConfigList != null && appConfigList.size() > 0) {

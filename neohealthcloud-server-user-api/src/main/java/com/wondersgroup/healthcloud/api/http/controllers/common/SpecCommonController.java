@@ -18,10 +18,7 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,12 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by longshasha on 16/8/12.
+ * Created by zhaozhenxing on 2016/8/30.
  */
-
 @RestController
-@RequestMapping("/api/common")
-public class CommonController {
+@RequestMapping("/api/spec/common")
+public class SpecCommonController {
     private static final Logger log = Logger.getLogger(CommonController.class);
 
     @Autowired
@@ -46,21 +42,12 @@ public class CommonController {
     @Autowired
     private AppUrlH5Utils appUrlH5Utils;
 
-    /**
-     * APP获取启动数据
-     */
-    @RequestMapping(value = "/appConfig", method = RequestMethod.GET)
-    @VersionRange
-    @WithoutToken
-    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = false) String platform,
-                                                             @RequestHeader(value = "screen-width", required = false) String width,
-                                                             @RequestHeader(value = "screen-height", required = false) String height,
-                                                             @RequestHeader(value = "app-version", required = false) String appVersion,
-                                                             @RequestHeader(value = "main-area", required = true) String mainArea,
-                                                             @RequestHeader(value = "spec-area", required = false) String specArea) {
-        JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<>();
+    @GetMapping(value = "/appConfig")
+    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                                             @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                             @RequestHeader(value = "app-version", required = false) String appVersion) {
+        JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
-
         List<String> keyWords = new ArrayList<>();
         keyWords.add("app.common.consumer.hotline");//客服热线
         keyWords.add("app.common.help.center");// 帮助中心
@@ -126,10 +113,8 @@ public class CommonController {
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
             data.put("ads", loadingImageDTO);
         }
-
-        response.setData(data);
-        return response;
-
+        result.setData(data);
+        return result;
     }
 
     @RequestMapping(value = "/getQiniuToken", method = RequestMethod.GET)
@@ -191,5 +176,4 @@ public class CommonController {
         }
         return result;
     }
-
 }
