@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepositor
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.faq.FaqRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,12 @@ public class DoctorServiceImpl implements DoctorService {
         }catch (EmptyResultDataAccessException e){
             return null;
         }
+    }
+
+    @Override
+    public Doctor findDoctorByUid(String uid) {
+        Map<String,Object> doctorInfo = findDoctorInfoByUid(uid);
+        return new Doctor(doctorInfo);
     }
 
     @Override
@@ -143,15 +150,17 @@ public class DoctorServiceImpl implements DoctorService {
      * @return
      */
     @Override
-    public Map<String, Object> findDoctorInfoByActcode(String actcode) {
+    public Doctor findDoctorInfoByActcode(String actcode) {
         String sql =query +
                 " where i.actcode = '%s'";
         sql = String.format(sql,actcode);
+        Map<String,Object> doctorInfo = new HashMap<>();
         try {
-            return jt.queryForMap(sql);
+            doctorInfo =  jt.queryForMap(sql);
         }catch (EmptyResultDataAccessException e){
-            return null;
+
         }
+        return  new Doctor(doctorInfo);
 
     }
 

@@ -221,7 +221,7 @@ public class HealthActivityController {
 					return response;
 				}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1608);
-					response.setMsg("活动报名结束");
+					response.setMsg("活动报名已结束");
 					return response;
 				}else if (totalApply != null && Integer.valueOf(totalApply) >= quota) {
 					response.setCode(1609);
@@ -282,14 +282,17 @@ public class HealthActivityController {
 			Date activityTime = info.getStarttime();
 			if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {
 				response.setCode(1616);
-				response.setMsg("活动已结束不能取消报名！");
+				response.setMsg("活动已结束不能取消报名");
 				return response;
-			}
-			else if (activityTime.before(new Timestamp(System.currentTimeMillis()))) {
+			}else if (activityTime.before(new Timestamp(System.currentTimeMillis()))) {
 				response.setCode(1611);
-				response.setMsg("活动已开始不能取消报名！");
+				response.setMsg("活动已开始不能取消报名");
 				return response;
-			} else {
+			}if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
+                response.setCode(1617);
+                response.setMsg("活动报名已结束");
+                return response;
+            }else {
 				detail.setDelFlag("1");
 				detail = healthActivityDetailRepository.save(detail);
 				int result = detail.getDelFlag().equals("1") ? 1 : 0;// 0:取消报名失败，1：取消报名成功
