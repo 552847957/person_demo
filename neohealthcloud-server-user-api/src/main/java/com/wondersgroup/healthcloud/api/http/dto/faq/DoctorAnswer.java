@@ -49,7 +49,10 @@ public class DoctorAnswer {
         if(answerDate !=null){
             this.answerTime = DateFormatter.questionDateFormat(answerDate);
         }
-        this.answerTime = DateFormatter.questionDateFormat(answerDate);
+        if(answerDate!=null){
+            this.answerTime = DateFormatter.questionDateFormat(answerDate);
+        }
+
     }
 
     public String getDoctorId() {

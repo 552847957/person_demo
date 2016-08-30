@@ -441,6 +441,9 @@ public class UserAccountServiceImpl implements UserAccountService{
                 registerInfo.setPersoncard(user.idCard);
                 registerInfo.setGender(IdcardUtils.getGenderByIdCard(user.idCard));
                 registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
+            }else if(registerInfo.verified()){//解决数据库中已实名认证的性别为0的数据
+                registerInfo.setGender(IdcardUtils.getGenderByIdCard(registerInfo.getPersoncard()));
+                registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(registerInfo.getPersoncard())));
             }
             if(StringUtils.isBlank(registerInfo.getTalkid())){
                 EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
