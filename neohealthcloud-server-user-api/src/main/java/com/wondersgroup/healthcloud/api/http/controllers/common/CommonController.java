@@ -133,6 +133,7 @@ public class CommonController {
 
     @RequestMapping(value = "/getQiniuToken", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<Map<String, Object>> qiniuConfig() {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<Map<String, Object>>();
         Map<String, Object> map = Maps.newHashMap();
@@ -145,6 +146,7 @@ public class CommonController {
 
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -167,6 +169,7 @@ public class CommonController {
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity aboutApp(@RequestHeader(value = "main-area", required = true) String mainArea,
                                        @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
