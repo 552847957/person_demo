@@ -118,4 +118,34 @@ public class DateUtils {
 
         return Integer.parseInt(String.valueOf(between_days));
     }
+    
+    public static int getAgeByBirthday(Date birthday) {
+		Calendar cal = Calendar.getInstance();
+
+		if (cal.before(birthday)) {
+			throw new IllegalArgumentException("出生日期小于当前时间");
+		}
+
+		int yearNow = cal.get(Calendar.YEAR);
+		int monthNow = cal.get(Calendar.MONTH) + 1;
+		int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);
+
+		cal.setTime(birthday);
+		int yearBirth = cal.get(Calendar.YEAR);
+		int monthBirth = cal.get(Calendar.MONTH) + 1;
+		int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
+
+		int age = yearNow - yearBirth;
+
+		if (monthNow <= monthBirth) {
+			if (monthNow == monthBirth) {
+				if (dayOfMonthNow < dayOfMonthBirth) {
+					age--;
+				}
+			} else {
+				age--;
+			}
+		}
+		return age;
+	}
 }
