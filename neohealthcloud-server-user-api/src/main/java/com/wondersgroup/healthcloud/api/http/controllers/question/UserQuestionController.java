@@ -53,20 +53,36 @@ public class UserQuestionController {
 	@RequestMapping(value="/ask",method= RequestMethod.POST)
 	public Object ask(@RequestHeader("main-area") String area,@RequestBody Question question){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
-		String id="";
-		if(question.getId()==null ){
-			question.setAnswerId("");
+		String id="";//问题ID
+
+		String url="";//定时任务
+
+		String doctorId="";//定时任务
+
+		if(question.getAnswerId()!=null){
+			doctorId=question.getAnswerId();
+			url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeOneToOneQuestion?questionId=";
+		}else{
+			if(area.equals("3101")){
+				Map<String, Object> signDoctorByUid = userService.findSignDoctorByUid(question.getAskerId());
+				if(signDoctorByUid!=null&&signDoctorByUid.get("id")!=null){
+					doctorId=(String)signDoctorByUid.get("id");
+					question.setAnswerId(doctorId);
+				}
+			}
+			url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeQuestion?questionId=";
 		}
 
 		id=questionService.saveQuestion(question);
+		url+=id;
 
-		//AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的问诊提问，点击查看").isDoctor()
-				//.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("")).persistence().build();
-		//pushClientWrapper.pushToAlias(message,"");
-
-
-		String url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeQuestion?questionId="+id;
-		//定时任务
+		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
+			String scam=String.format("com.wondersgroup.hs.neohealthcloud://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, id);
+			AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的问诊提问，点击查看").isDoctor().param("page",scam)
+					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
+			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+		}
+		
 		Request request= new RequestBuilder().get().url(url).build();
 		httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
 		response.setMsg("您的问题已提交，请耐心等待医生回复");
@@ -122,10 +138,12 @@ public class UserQuestionController {
 		ReplyGroup group=questionService.queryAnswerId(reply.getGroupId());
 		String doctorId=group.getAnswer_id();
 
-		Map<String,String> extras=new HashMap<>();
-		String scam=String.format("com.wondersgroup.hs.healthja://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, group.getQuestion_id());
-		extras.put("page",scam);
-		extras.put("for_type", "question_detail");
+		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
+			String scam=String.format("com.wondersgroup.hs.neohealthcloud://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, group.getQuestion_id());
+			AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的回复，点击查看").isDoctor().param("page",scam)
+					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
+			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+		}
 		response.setMsg("回复成功");
 		return response;
 	}
