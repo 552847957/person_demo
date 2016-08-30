@@ -33,8 +33,6 @@ public class DictController {
 
 	@Autowired
 	private JdbcTemplate jt;
-	@Autowired
-	private DataSource ds;
 
 	@Autowired
 	private DiseaseRepository diseaseRepository;
