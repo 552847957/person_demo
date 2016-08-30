@@ -55,12 +55,11 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     public List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status, int pageNo, int pageSize) {
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
-                + " from app_tb_healthactivity_info where del_flag = '0'";
+                + " from app_tb_healthactivity_info where del_flag = '0' and online_status <> 2 ";
         if(!StringUtils.isEmpty(status)){
-            sql +=  " and online_status ='" + status + "'";
             if(status == 1){//活动进行中
                 sql += " and endtime >= now() ";
-            }else if(status == 2){
+            }else if(status == 2){//活动已结束
                 sql += " and endtime < now()";
             }
         }
