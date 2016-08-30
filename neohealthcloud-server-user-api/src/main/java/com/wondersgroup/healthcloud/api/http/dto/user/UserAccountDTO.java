@@ -104,6 +104,7 @@ public class UserAccountDTO {
         this.verified = !"0".equals(registerInfo.getIdentifytype());
         if(this.verified){
             this.age = StringUtils.isBlank(this.idcard)?"":String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
+            this.gender = Integer.valueOf(IdcardUtils.getGenderByIdCard(this.idcard));
         }
 
 
