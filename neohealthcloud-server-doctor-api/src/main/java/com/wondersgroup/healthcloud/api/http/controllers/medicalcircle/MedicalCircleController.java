@@ -1,42 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.google.common.collect.Lists;
 import com.wondersgroup.common.image.utils.ImageUploader;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DocSearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicSearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ImageAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDependence;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDetailAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteCaseSearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.SearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ShareAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.*;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleAttach;
@@ -51,6 +22,16 @@ import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
 import com.wondersgroup.healthcloud.utils.ImageUtils;
 import com.wondersgroup.healthcloud.utils.TimeAgoUtils;
 import com.wondersgroup.healthcloud.utils.circle.CircleLikeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/medicalcircle")
@@ -193,6 +174,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(method = RequestMethod.GET)
     public JsonListResponseEntity<MedicalCircleAPIEntity> getAllCircle(
             @RequestHeader(value = "screen-width") String screen_width,
@@ -208,6 +190,7 @@ public class MedicalCircleController {
      * @param circle_id
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
             @RequestHeader(value = "access-token") String token,
@@ -233,6 +216,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
     public JsonListResponseEntity<CommentAPIEntity> getCommentList(
             @RequestParam(value = "circle_id", required = true) String circle_id,
@@ -314,6 +298,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comments/reply", method = RequestMethod.GET)
     public JsonListResponseEntity<CommentAPIEntity> getCommentReplyList(
             @RequestParam(value = "comment_id") String comment_id,
@@ -372,6 +357,7 @@ public class MedicalCircleController {
      * @return
      * @throws IOException
      */
+    @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
     public JsonResponseEntity<String> publish(@RequestParam("doctor_id") String doctor_id,
             @RequestParam("circle_type") Integer circle_type,
@@ -405,6 +391,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
     public JsonResponseEntity<CommentAPIEntity> comment(@RequestHeader("access-token") String token,
             @RequestBody String body) {
@@ -440,6 +427,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comment/reply", method = RequestMethod.POST)
     public JsonResponseEntity<CommentAPIEntity> reply(@RequestHeader("access-token") String token,
             @RequestBody String body) {
@@ -479,6 +467,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/like", method = RequestMethod.POST)
     public JsonResponseEntity<String> like(@RequestBody String body) {
        
@@ -505,6 +494,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/unlike", method = RequestMethod.POST)
     public JsonResponseEntity<String> unlike(@RequestBody String body) {
        
@@ -531,6 +521,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/forward", method = RequestMethod.POST)
     public JsonResponseEntity<String> forward(@RequestBody String body) {
         
@@ -552,6 +543,7 @@ public class MedicalCircleController {
      * @param body
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/report", method = RequestMethod.POST)
     public JsonResponseEntity<String> report(@RequestBody String body) {
         
@@ -575,6 +567,7 @@ public class MedicalCircleController {
      * 删除帖子
      * @return
      */
+    @VersionRange
     @RequestMapping(method = RequestMethod.DELETE)
     public JsonResponseEntity<String> delCircle(@RequestParam("doctor_id") String doctor_id,
             @RequestParam("circle_id") String circle_id) {
@@ -594,6 +587,7 @@ public class MedicalCircleController {
      * 删除评论
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comment", method = RequestMethod.DELETE)
     public JsonResponseEntity<String> delComment(@RequestParam("doctor_id") String doctor_id,
             @RequestParam("comment_id") String comment_id) {
@@ -613,6 +607,7 @@ public class MedicalCircleController {
      * 删除回复
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/comment/reply", method = RequestMethod.DELETE)
     public JsonResponseEntity<String> delReply(@RequestParam("doctor_id") String doctor_id,
             @RequestParam("reply_id") String reply_id) {
@@ -633,6 +628,7 @@ public class MedicalCircleController {
      * @param query
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public JsonResponseEntity<SearchResultAPIEntity> search(@RequestParam("query") String query) {
 
@@ -712,6 +708,7 @@ public class MedicalCircleController {
      * @param query
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/search/doctor", method = RequestMethod.GET)
     public JsonListResponseEntity<DocSearchResultAPIEntity> searchDoc(@RequestParam("query") String query,
             @RequestParam(value = "order", required = false) String order,
@@ -736,6 +733,7 @@ public class MedicalCircleController {
      * @param query
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/search/notecase", method = RequestMethod.GET)
     public JsonListResponseEntity<NoteCaseSearchResultAPIEntity> searchNotecase(@RequestParam("query") String query,
             @RequestParam(value = "order", required = false) String order,
@@ -779,6 +777,7 @@ public class MedicalCircleController {
      * @param query
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/search/dynamic", method = RequestMethod.GET)
     public JsonListResponseEntity<DynamicSearchResultAPIEntity> searchDynamic(@RequestParam("query") String query,
             @RequestParam(value = "order", required = false) String order,
@@ -824,6 +823,7 @@ public class MedicalCircleController {
     /**
      * 收藏
      */
+    @VersionRange
     @RequestMapping(value = "/collect", method = RequestMethod.POST)
     public JsonResponseEntity<String> collect(@RequestBody String body) {
 
@@ -844,6 +844,7 @@ public class MedicalCircleController {
     /**
      * 取消收藏
      */
+    @VersionRange
     @RequestMapping(value = "/cancelCollect", method = RequestMethod.POST)
     public JsonResponseEntity<String> collectDel(@RequestBody String body) {
 
@@ -865,6 +866,7 @@ public class MedicalCircleController {
     /**
      * 关注
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/follow", method = RequestMethod.POST)
     public JsonResponseEntity<String> follow(@RequestBody String body) {
 
@@ -885,6 +887,7 @@ public class MedicalCircleController {
     /**
      * 取消关注
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/unfollow", method = RequestMethod.POST)
     public JsonResponseEntity<String> unfollow(@RequestBody String body) {
 
@@ -908,6 +911,7 @@ public class MedicalCircleController {
      * @param doctor_id
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/doctor", method = RequestMethod.GET)
     public JsonResponseEntity<DoctorAPIEntity> doctorinfo(@RequestParam("uid") String uid,
             @RequestParam("doctor_id") String doctor_id) {
@@ -940,6 +944,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/notecase", method = RequestMethod.GET)
     public JsonListResponseEntity<MedicalCircleAPIEntity> getOneNoteCaseCircle(
             @RequestHeader(value = "screen-width") String screen_width,
@@ -960,6 +965,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/dynamic", method = RequestMethod.GET)
     public JsonListResponseEntity<MedicalCircleAPIEntity> getOneDynamicCircle(
             @RequestHeader(value = "screen-width") String screen_width,
@@ -979,6 +985,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/attention", method = RequestMethod.GET)
     public JsonListResponseEntity<DoctorAPIEntity> getOneAttentionList(@RequestParam("uid") String uid,
             @RequestParam(value = "doctor_id") String doctor_id,
@@ -1025,6 +1032,7 @@ public class MedicalCircleController {
      * @param flag
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/doctor/fans", method = RequestMethod.GET)
     public JsonListResponseEntity<DoctorAPIEntity> getOneFansList(@RequestParam("uid") String uid,
             @RequestParam(value = "doctor_id") String doctor_id,
