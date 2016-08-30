@@ -15,5 +15,5 @@ public class NewsArticleEditDTO {
     private String category_ids;
     private  int article_id;
     private String is_visable;
-
+    private String main_area;
 }

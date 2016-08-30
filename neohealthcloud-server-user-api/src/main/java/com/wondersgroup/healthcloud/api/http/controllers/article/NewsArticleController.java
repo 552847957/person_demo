@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsCateArticleListAPIEntity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -8,9 +9,12 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +39,9 @@ public class NewsArticleController {
 
     @Autowired
     private AppUrlH5Utils appUrlH5Utils;
+
+    @Autowired
+    private AppConfigService appConfigService;
 
     private final int showCatNum = 4;
     /**
@@ -89,16 +96,20 @@ public class NewsArticleController {
     @RequestMapping(value="/getHotWords", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(@RequestHeader("main-area") String area){
+    public JsonListResponseEntity<String> getHotSearch(@RequestHeader("main-area") String area){
 
-        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
-        List<NewsCateArticleListAPIEntity> data=new ArrayList<>();
-        for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
-            NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
-            data.add(cateEntity);
+        JsonListResponseEntity<String> response = new JsonListResponseEntity<>();
+        List<String> hotWords = Lists.newArrayList();
+        AppConfig config = appConfigService.findSingleAppConfigByKeyWord(area,null,"com.hot.search.article");
+
+        if(config!=null && StringUtils.isNotBlank(config.getData())){
+            String[] data = config.getData().split(",");
+            for(String str : data){
+                hotWords.add(str);
+            }
         }
-        JsonResponseEntity<List<NewsCateArticleListAPIEntity>> response = new JsonResponseEntity<>();
-        response.setData(data);
+
+        response.setContent(hotWords);
         return response;
     }
     /**
@@ -108,35 +119,23 @@ public class NewsArticleController {
     @RequestMapping(value="/searchArticle", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
-    public JsonListResponseEntity<NewsArticleListAPIEntity> searchArticle(@RequestParam(required = false) String cat_id
+    public JsonListResponseEntity<NewsArticleListAPIEntity> searchArticle( @RequestHeader("main-area") String area
             ,@RequestParam(required = false) String word,
             @RequestParam(required = false, defaultValue = "0") String flag){
         int pageNo = Integer.valueOf(flag);
         int pageSize = 10;
 
         JsonListResponseEntity<NewsArticleListAPIEntity> response=new JsonListResponseEntity<>();
-        List<NewsCateArticleListAPIEntity> list = new ArrayList<>();
         Boolean hasMore = false;
         List<NewsArticleListAPIEntity> articleList=null;
-        if(null != cat_id&&!"".equals(cat_id)){
 
-            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cat_id, pageNo, pageSize+1);//获取文章分类下面的文章
-            articleList = this.getArticleEntityList(resourceList);
-
-            if (null != articleList && articleList.size() > 10){
-                articleList = articleList.subList(0, 10);
-                hasMore = true;
-            }
-
-
-        }else{
-            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByTitle(word,pageNo, pageSize+1);
+            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByKeyword(area,word,pageNo, pageSize+1);
             articleList =  this.getArticleEntityList(resourceList);
             if (null != articleList && articleList.size() > 10){
                 articleList = articleList.subList(0, 10);
                 hasMore = true;
             }
-        }
+
 
         if(hasMore){
             response.setContent(articleList, true, null, String.valueOf(pageNo + 1));

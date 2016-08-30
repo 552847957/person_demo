@@ -82,8 +82,8 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     }
 
     @Override
-    public List<NewsArticle> findAppShowListByTitle(String word, int pageNo, int pageSize) {
-        return newsArticleRepo.queryNewsArticleByTitle(word,pageNo,pageSize);
+    public List<NewsArticle> findAppShowListByKeyword(String area,String word, int pageNo, int pageSize) {
+        return newsArticleRepo.findAppShowListByKeyword(area,word,pageNo,pageSize);
     }
 
     @Override

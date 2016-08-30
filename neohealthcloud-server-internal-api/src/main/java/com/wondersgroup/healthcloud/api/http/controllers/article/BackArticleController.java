@@ -110,6 +110,7 @@ public class BackArticleController {
             articleArea.setArticle_id(newsArticleEditDTO.getArticle_id());
             articleArea.setCategory_id(categoryid);
             articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
+            articleArea.setMain_area(newsArticleEditDTO.getMain_area());
             articleArea.setUpdate_time(date);
             articleAreaRepository.saveAndFlush(articleArea);
         }
@@ -139,7 +140,7 @@ public class BackArticleController {
     }
 
     /**
-     * 资讯详情
+     * 区域资讯详情
      * @return
      */
     @GetMapping("/areaInfo")
@@ -148,7 +149,7 @@ public class BackArticleController {
 
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
-
+        //articleAreaRepository
         response.setData(articleInfo);
         return response;
     }

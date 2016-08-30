@@ -54,7 +54,7 @@ public interface ManageNewsArticleService {
      * @param word
      * @return List
      */
-    public List<NewsArticle> findAppShowListByTitle(String word, int pageNo, int pageSize);
+    public List<NewsArticle> findAppShowListByKeyword(String area,String word, int pageNo, int pageSize);
 
     /**
      * 搜页展示文章
