@@ -68,10 +68,13 @@ public class ForwardArticleService {
         if(status.equals("3")){//已结束
             sql.append(" and end_time<NOW()");
         }
+        if(status.equals("4")){//已结束
+            sql.append(" and t2.is_visable=0");
+        }
         return sql.toString();
     }
     public  Object getHomePageArticle(int id){
-        String sql="SELECT t1.id,t2.rank,t1.title,t1.thumb,t1.brief,t1.content,t2.article_id,t2.start_time,t2.end_time,t2.is_visable " +
+        String sql="SELECT t1.id,t2.rank,t1.title,t1.thumb,t1.brief,t1.content,t1.fake_pv,.article_id,t2.start_time,t2.end_time,t2.is_visable " +
                 "FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id WHERE t2.id="+id;
         return getJt().queryForList(sql);
     }

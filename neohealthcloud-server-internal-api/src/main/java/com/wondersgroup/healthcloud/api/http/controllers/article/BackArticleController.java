@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleCategoryDTO;
+import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleEditDTO;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -12,13 +13,11 @@ import com.wondersgroup.healthcloud.jpa.repository.article.ArticleAreaRepository
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by dukuanxin on 2016/8/12.
@@ -95,14 +94,26 @@ public class BackArticleController {
 
     /**
      * 区域引入资讯
-     * @param articleArea
+     * @param newsArticleEditDTO
      */
     @PostMapping("/areaArticleUpdate")
-    public JsonResponseEntity updateArticle(@RequestBody ArticleArea articleArea){
+    public JsonResponseEntity updateArticle(@RequestBody NewsArticleEditDTO newsArticleEditDTO){
         JsonResponseEntity response=new JsonResponseEntity();
         Date date=new Date();
-        articleArea.setUpdate_time(date);
-        articleAreaRepository.saveAndFlush(articleArea);
+        String categoryids []=newsArticleEditDTO.getCategory_ids().split(",");
+
+        for(String categoryid:categoryids){
+            ArticleArea articleArea=new ArticleArea();
+            if(StringUtils.isEmpty(newsArticleEditDTO.getId())){
+                articleArea.setId(newsArticleEditDTO.getId());
+            }
+            articleArea.setArticle_id(newsArticleEditDTO.getArticle_id());
+            articleArea.setCategory_id(categoryid);
+            articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
+            articleArea.setUpdate_time(date);
+            articleAreaRepository.saveAndFlush(articleArea);
+        }
+
         response.setMsg("成功");
         return response;
     }

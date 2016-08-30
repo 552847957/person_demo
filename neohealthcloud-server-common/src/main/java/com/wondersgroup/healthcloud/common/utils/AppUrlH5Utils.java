@@ -21,7 +21,7 @@ public class AppUrlH5Utils {
      */
     public String buildNewsArticleView(int articleId) {
         //for_type 用于判断 app进入h5页面的时候，是否需要去请求 检查改h5用户时候收藏过,以及分享信息等
-        return basePath + "article/detail?id="+articleId+"&source=h5";
+        return basePath + "/article/detail?id="+articleId+"&source=h5";
     }
 
     public String buildDiseaseArticleView(int articleId) {
