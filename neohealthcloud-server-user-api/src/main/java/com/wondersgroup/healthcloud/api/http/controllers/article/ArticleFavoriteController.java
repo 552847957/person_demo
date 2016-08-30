@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.services.article.ManageArticleFavoriteServic
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import org.apache.log4j.Logger;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -89,18 +90,20 @@ public class ArticleFavoriteController {
     @RequestMapping(value = "/checkIsFavor",method = RequestMethod.GET)
     @VersionRange
 	@WithoutToken
-    public JsonResponseEntity checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=true) String uid){
+    public JsonResponseEntity checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=false) String uid){
         JsonResponseEntity body = new JsonResponseEntity<>();
-
-		ArticleFavorite articleFavorite = manageArticleFavoriteService.queryByUidAndArticleId(uid, id);
-		ShareH5APIDTO h5APIDTO = new ShareH5APIDTO();
 
 		//是否可以收藏
 		Boolean is_fav = false;
-
-		if(null != articleFavorite){
-			is_fav=true;
+		if(!StringUtils.isEmpty(uid)){
+			ArticleFavorite articleFavorite = manageArticleFavoriteService.queryByUidAndArticleId(uid, id);
+			if(null != articleFavorite){
+				is_fav=true;
+			}
 		}
+
+		ShareH5APIDTO h5APIDTO = new ShareH5APIDTO();
+
 		NewsArticle article = manageNewsArticleServiceImpl.findArticleInfoById(id);
 
 		if (null != article ){
