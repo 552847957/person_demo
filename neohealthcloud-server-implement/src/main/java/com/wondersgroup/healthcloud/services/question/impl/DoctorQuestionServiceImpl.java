@@ -182,7 +182,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public Boolean hasNewCommentForDoctor(String doctorId) {
         String sqlCommon = "SELECT t1.id FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id "+
-                "WHERE t1.assign_answer_id=? and t2.status=1 and t1.is_new_question=1 and t1.is_valid=1 limit 1";
+                "WHERE t1.assign_answer_id=? and t2.status=1 and t2.has_new_user_comment=1 and t1.is_valid=1 limit 1";
         List<Map<String, Object>> noReadC = getJt().queryForList(sqlCommon, new Object[]{doctorId});
         return null != noReadC && !noReadC.isEmpty();
     }
