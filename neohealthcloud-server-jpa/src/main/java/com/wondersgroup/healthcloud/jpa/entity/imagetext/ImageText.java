@@ -18,6 +18,7 @@ import java.util.Date;
 public class ImageText {
     @Id
     private String id;
+    private String gid;
     @Column(name = "main_title")
     private String mainTitle;
     @Column(name = "sub_title")
@@ -26,8 +27,10 @@ public class ImageText {
     private String imgUrl;
     private String hoplink;
     @Column(name = "start_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
     @Column(name = "end_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
     private Integer durations;
     @Column(name = "allow_close")
@@ -47,4 +50,6 @@ public class ImageText {
     private String mainArea;
     @Column(name = "spec_area")
     private String specArea;
+    private String remark;
+    private String version;
 }

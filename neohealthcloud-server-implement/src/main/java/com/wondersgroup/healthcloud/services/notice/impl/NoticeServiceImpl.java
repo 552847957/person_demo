@@ -40,7 +40,7 @@ public class NoticeServiceImpl implements NoticeService {
     public List<Notice> findAllNoticeByArea(String mainArea, String specArea) {
         try {
             StringBuffer sql = new StringBuffer();
-            sql.append("SELECT * FROM app_tb_neonotice WHERE del_flag = '0' ");
+            sql.append("SELECT * FROM app_tb_neonotice WHERE 1 = 1 ");
             if (!StringUtils.isEmpty(mainArea)) {
                 sql.append(" AND main_area = '").append(mainArea).append("'");
             }
@@ -48,7 +48,8 @@ public class NoticeServiceImpl implements NoticeService {
                 sql.append(" AND spec_area = '").append(specArea).append("'");
             }
             sql.append(" ORDER BY update_time DESC");
-            List<Notice> notices = getJt().queryForList(sql.toString(), Notice.class);
+            List<Notice> notices = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<Notice>(Notice.class));
+
             if (notices != null && notices.size() > 0) {
                 return notices;
             }

@@ -22,6 +22,18 @@ public class DoctorServiceDic {
 
     private String name;
 
+    //服务图标
+    private String icon;
+
+    //副标题
+    private String subtitle;
+
+    //关键字
+    private String keyword;
+
+    //跳转地址
+    private String url;
+
     @Column(name = "is_available")
     private String isAvailable;
 

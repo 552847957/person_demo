@@ -1,13 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers.article;
 
+import com.wondersgroup.healthcloud.api.http.dto.article.ShareH5APIDTO;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.article.ArticleFavorite;
 
+import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.services.article.ManageArticleFavoriteService;
-import com.wondersgroup.healthcloud.services.article.ManageArticleService;
 
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
@@ -86,18 +88,45 @@ public class ArticleFavoriteController {
 
     @RequestMapping(value = "/checkIsFavor",method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<Boolean> checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=true) String uid){
-        JsonResponseEntity<Boolean> body = new JsonResponseEntity<>();
+	@WithoutToken
+    public JsonResponseEntity checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=true) String uid){
+        JsonResponseEntity body = new JsonResponseEntity<>();
 
 		ArticleFavorite articleFavorite = manageArticleFavoriteService.queryByUidAndArticleId(uid, id);
+		ShareH5APIDTO h5APIDTO = new ShareH5APIDTO();
 
-		boolean has=false;
+		//是否可以收藏
+		Boolean is_fav = false;
 
 		if(null != articleFavorite){
-			has=true;
+			is_fav=true;
 		}
-		body.setData(has);
-        return body;
+		NewsArticle article = manageNewsArticleServiceImpl.findArticleInfoById(id);
+
+		if (null != article ){
+			h5APIDTO.setDesc(article.getBrief());
+			String thumb = "";
+			if (null != article.getThumb() && !"".equals(article.getThumb())){
+				thumb = article.getThumb() + "?/1/w/200/h/200";
+			}
+			h5APIDTO.setThumb(thumb);
+			h5APIDTO.setTitle(article.getTitle());
+			h5APIDTO.setUrl(article.getUrl());
+			h5APIDTO.setId(id);
+		}
+
+		Map<String, Object> data = new HashMap<>();
+		if (null == h5APIDTO.getTitle()){
+			h5APIDTO = null;
+		}
+		data.put("is_favorite", is_fav);
+		data.put("can_favorite", true);
+		data.put("share", h5APIDTO);
+
+		body.setCode(0);
+		body.setData(data);
+
+		return body;
     }
 
 }

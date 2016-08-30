@@ -1,19 +1,29 @@
 package com.wondersgroup.healthcloud.api.http.controllers.family;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -33,6 +43,7 @@ import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 /**
  * 孫海迪
@@ -55,8 +66,8 @@ public class FamilyController {
     @Autowired
     private AnonymousAccountService anonymousAccountService;
 
-    //    @Autowired
-    //    private AnomalyIndexRepository anomalyIndexRepo;
+    @Autowired
+    private Environment environment;
 
     /**
      * 申请添加为亲情账户
@@ -153,7 +164,7 @@ public class FamilyController {
         String password = reader.readString("password", false);
         String relation = reader.readString("relation", false);
         String relationName = reader.readString("relation_name", true);
-        String path =  reader.readString("avatar", true);
+        String path = reader.readString("avatar", true);
         Boolean recordReadable = reader.readDefaultBoolean("record_readable", true);
         familyService.helpRegistration(uid, mobile, password, verifyCode, path, null, relation, relationName,
                 recordReadable);
@@ -215,12 +226,10 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/invitation", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<String> agreeInvitation(@RequestBody String request
-            , @AccessToken Session session
-            ) {
+    public JsonResponseEntity<String> agreeInvitation(@RequestBody String request, @AccessToken Session session) {
         String uid = session.getUserId();
         JsonKeyReader reader = new JsonKeyReader(request);
-//        String uid = reader.readString("uid", false);
+        //        String uid = reader.readString("uid", false);
         String id = reader.readString("invitation_id", false);
         Boolean agree = reader.readBoolean("agree", false);
         String relationName = reader.readString("relation_name", true);
@@ -283,17 +292,18 @@ public class FamilyController {
             entity.setLabelColor("#666666");
             switch (entity.getRedirectFlag()) {
             case 0:
-//                                  entity.setLabelColor("#CC0000");
-                //                if (0 != anomalyIndexRepo.findByUidAndDay(entity.getUid(), DateFormatter.dateFormat(new Date())).size()) {
-                //                    entity.setLabel("有新的异常指标");
-                //                    entity.setHealthWarning(true);
-                //                } else if (0 != anomalyIndexRepo.findByUidandDayBefore(entity.getUid(),
-                //                        new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd")).size()) {
-                //                    entity.setLabel("最近有异常指标");
-                //                    entity.setHealthWarning(true);
-                //                } else {
-                entity.setLabel("最近无异常指标");
-                //                }
+                if (haveMeasureException(entity.getUid(), DateFormatter.dateFormat(new Date()), 2)) {
+                    entity.setLabel("有新的异常指标");
+                    entity.setHealthWarning(true);
+                    entity.setLabelColor("#CC0000");
+                } else if (haveMeasureException(entity.getUid(), new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd"), 1)) {
+                    entity.setLabel("最近有异常指标");
+                    entity.setHealthWarning(true);
+                    entity.setLabelColor("#CC0000");
+                } else {
+                    entity.setLabel("最近无异常指标");
+                    entity.setHealthWarning(false);
+                }
                 break;
             case 1:
                 entity.setLabel("申请身份核实中");
@@ -331,9 +341,9 @@ public class FamilyController {
         body.setMsg("解除成功");
         return body;
     }
-    
+
     /**
-     * 实名认证，对方无手机号  点此为其认证
+     * 实名认证，对方无手机号 点此为其认证
      * @param uid
      * @param relation
      * @param relationName
@@ -345,16 +355,16 @@ public class FamilyController {
     @RequestMapping(value = "/member/registration/anonym", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity<String> anonymousRegistration(
-            @RequestParam String uid,
+            @RequestParam String uid, 
             @RequestParam String relation,
             @RequestParam(value = "relation_name", required = false) String relationName,
             @RequestParam String name,
-            @RequestParam String idcard,
+            @RequestParam String idcard, 
             @RequestParam String photo) {
-            JsonResponseEntity<String> body = new JsonResponseEntity<>();
-            familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
-            body.setMsg("添加成功, 正在进行实名认证");
-            return body;
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
+        body.setMsg("添加成功, 正在进行实名认证");
+        return body;
     }
 
     /**
@@ -397,6 +407,38 @@ public class FamilyController {
         body.setData(data);
         body.setMsg("修改成功");
         return body;
+    }
+
+    /**
+     * 是否有异常指标
+     * @param registerId
+     * @param date
+     * @param isNew  1 最近是否有，2 是否有新的
+     * @return boolean
+     */
+    public boolean haveMeasureException(String registerId, String date, int isNew) {
+        boolean res = false;
+        try {
+            String url = environment.getProperty("internal.api.service.measure.url");
+            url += isNew == 1 ? "/api/measure/abnormal/afterDate" : "/api/measure/abnormal/byDate";
+            String[] header = new String[] { "version", "3.0" };
+            String[] form = new String[] { "registerId", registerId, "date", date};
+            OkHttpClient client = new OkHttpClient();
+            HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(client);
+            Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
+                    .as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+
+            if (result.get("code").asInt() == 0 && result.get("data").get("hashAbnormal").asBoolean()) {
+                res = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("haveMeasureException exception " + e.getMessage());
+        }
+        
+        return res;
     }
 
 }

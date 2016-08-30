@@ -8,10 +8,7 @@ import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,39 +58,28 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         }
         DoctorQuestionDetail questionDetail = new DoctorQuestionDetail(question);
 
-        Boolean isCloseQuestion = question.getStatus() == 3;
         //获取问题组
-        List<QuestionGroup> groups = questionService.getQuestionGroup(questionId, false);
-        if (null != groups && !groups.isEmpty()){
-            //需要把当天医生的消息组放到最上面
-            List<QuestionGroup> orderGroups = new ArrayList<>();//排序后的问题组
-            List<QuestionGroup> otherComment = new ArrayList<>();//非当前医生的问题组
-            for (QuestionGroup questionGroup : groups){
-                if (questionGroup.getDoctorId().equals(doctorId)){
-                    if (isCloseQuestion){
-                        questionGroup.setIsReply(false);
-                    }
-                    orderGroups.add(questionGroup);
-                }else {
-                    //其他医生回复的只能,看不能回复
-                    questionGroup.setIsReply(false);
-                    otherComment.add(questionGroup);
-                }
-            }
-            orderGroups.addAll(otherComment);
-            questionDetail.setGroup(orderGroups);
+        QuestionGroup group = questionService.getQuestionGroup(questionId, doctorId);
+        if (null!=group){
+            questionDetail.setStatus(group.getStatus());
+            questionDetail.setGroup(group);
+        }else{
+            questionDetail.setStatus(1);
         }
 
         return questionDetail;
     }
 
+
     @Override
-    public List<QuestionInfoForm> getQuestionSquareList(int page, int pageSize) {
+    public List<QuestionInfoForm> getQuestionSquareList(String doctor_id,int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date, q.is_new_question as isNoRead, q.comment_count "
-                + "FROM question_tb q "
-                + "WHERE q.assign_answer_id='' and q.is_valid=1 and q.status!=3  "
-                + "ORDER BY q.create_time DESC limit ?,?";
+        String sql="SELECT t1.id,t1.content,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
+                " FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                "WHERE (t1.assign_answer_id='' OR t1.assign_answer_id=?) AND t1.status<>3 AND ifnull(t2.answer_id,'')<>? " +
+                "GROUP BY id ORDER BY date DESC limit ?,?";
+        elementType.add(doctor_id);
+        elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
         elementType.add(pageSize+1);
         List<Map<String, Object>> list=getJt().queryForList(sql, elementType.toArray());
@@ -106,9 +92,11 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getDoctorPrivateQuestionLivingList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,q.is_new_question as isNoRead,"
-                + "q.comment_count FROM question_tb q LEFT JOIN comment_group_tb cg ON q.id=cg.question_id "
-                + " WHERE q.assign_answer_id=?  and q.status=1 and q.is_valid=1 ORDER BY q.is_new_question DESC, q.create_time DESC limit ?,?";
+        String sql="SELECT t1.id,t1.content,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date," +
+                "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.create_time,'%Y-%m-%d %H:%i') as date2 " +
+                "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                "WHERE answer_id=? " +
+                "ORDER BY status,date2 limit ?,?";
         elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
         elementType.add(pageSize+1);
@@ -123,7 +111,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public List<QuestionInfoForm> getDoctorReplyQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
         String sql="SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,cg.has_new_user_comment as isNoRead,"
-                + "q.comment_count FROM question_tb q LEFT JOIN comment_group_tb cg ON q.id=cg.question_id "
+                + "q.comment_count FROM app_tb_neoquestion q LEFT JOIN app_tb_neogroup cg ON q.id=cg.question_id "
                 + " WHERE cg.answer_id=? AND q.status>1 and q.is_valid=1 ORDER BY cg.has_new_user_comment DESC, q.status asc, q.create_time DESC limit ?,?";
         elementType.add(doctorId);
         elementType.add((page-1)*pageSize);
@@ -183,7 +171,9 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public Boolean hasNewQuestionForDoctor(String doctorId) {
-        String sqlQuestion = "SELECT q.id FROM app_tb_neoquestion q WHERE q.assign_answer_id=? and status=1 and is_new_question=1 and is_valid=1 limit 1";
+
+        String sqlQuestion = "SELECT t1.id FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id "+
+                             "WHERE t1.assign_answer_id=? and t2.status IS NULL and t1.is_new_question=1 and t1.is_valid=1 limit 1";
         List<Map<String, Object>> noReadQ = getJt().queryForList(sqlQuestion, new Object[]{doctorId});
 
         return null != noReadQ && !noReadQ.isEmpty();
@@ -191,7 +181,8 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public Boolean hasNewCommentForDoctor(String doctorId) {
-        String sqlCommon = "SELECT g.id FROM app_tb_neogroup g WHERE g.answer_id=? and g.has_new_user_comment=1 and is_valid=1 limit 1";
+        String sqlCommon = "SELECT t1.id FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id "+
+                "WHERE t2.answer_id=? and t2.status=1 and t2.has_new_user_comment=1 and t1.is_valid=1 limit 1";
         List<Map<String, Object>> noReadC = getJt().queryForList(sqlCommon, new Object[]{doctorId});
         return null != noReadC && !noReadC.isEmpty();
     }
@@ -225,10 +216,13 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             replyGroup.setNewCommentTime(nowDate);
             replyGroup.setQuestion_id(question_id);
             replyGroup.setIs_valid(1);
+            replyGroup.setStatus(2);
             replyGroup = replyGroupRepository.saveAndFlush(replyGroup);
         }else {
             replyGroup = replyGroupRepository.findOne(lastReply.getGroupId());
             replyGroup.setNewCommentTime(nowDate);
+            replyGroup.setHasNewUserComment(0);
+            replyGroup.setStatus(2);
             replyGroupRepository.saveAndFlush(replyGroup);
         }
 

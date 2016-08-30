@@ -5,11 +5,13 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -31,6 +33,9 @@ public class NewsArticleController {
     @Resource
     private ManageNewsArticleService manageNewsArticleServiceImpl;
 
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
+
     private final int showCatNum = 4;
     /**
      * 资讯列表
@@ -39,9 +44,9 @@ public class NewsArticleController {
     @WithoutToken
     @RequestMapping(value="/articleCategoty", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getArticleCategoty(){
+    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getArticleCategoty(@RequestHeader("main-area") String area){
         JsonResponseEntity<List<NewsCateArticleListAPIEntity>> response = new JsonResponseEntity<>();
-        response.setData(this.getCatArticleEntityList());
+        response.setData(this.getCatArticleEntityList(area));
         return response;
     }
 
@@ -51,7 +56,9 @@ public class NewsArticleController {
      */
     @RequestMapping(value="/articleList", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonListResponseEntity<NewsArticleListAPIEntity> articleList(
+            @RequestHeader("main-area") String area,
             @RequestParam(required = true) String cat_id,
             @RequestParam(required = false, defaultValue = "1") String flag){
 
@@ -81,10 +88,10 @@ public class NewsArticleController {
      */
     @RequestMapping(value="/getHotWords", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(){
-        Map<String, Object> map = new HashMap<>();//获取分类
-        map.put("is_visable", 1);
-        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findNewsCategoryByKeys(map);
+    @WithoutToken
+    public JsonResponseEntity<List<NewsCateArticleListAPIEntity>> getHotSearch(@RequestHeader("main-area") String area){
+
+        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
         List<NewsCateArticleListAPIEntity> data=new ArrayList<>();
         for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
             NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
@@ -100,6 +107,7 @@ public class NewsArticleController {
 
     @RequestMapping(value="/searchArticle", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonListResponseEntity<NewsArticleListAPIEntity> searchArticle(@RequestParam(required = false) String cat_id
             ,@RequestParam(required = false) String word,
             @RequestParam(required = false, defaultValue = "0") String flag){
@@ -139,13 +147,23 @@ public class NewsArticleController {
     }
 
     /**
-     * 获取医生下面的分类文章
+     * 获取首页资讯
+     * @return
      */
-    private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(){
+    @GetMapping("/homePage")
+    @WithoutToken
+    public JsonResponseEntity getHomePageArticle(@RequestHeader("main-area") String area){
+        JsonResponseEntity response=new JsonResponseEntity();
+        List<NewsArticleListAPIEntity> articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(area, 0, 10);
+        response.setData(articleForFirst);
+        return response;
+    }
+    /**
+     * 获取资讯分类文章
+     */
+    private List<NewsCateArticleListAPIEntity> getCatArticleEntityList(String area){
 
-        Map<String, Object> map = new HashMap<>();//获取分类
-        map.put("is_visable", 1);
-        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findNewsCategoryByKeys(map);
+        List<NewsArticleCategory> resourList = this.manageNewsArticleCategotyService.findAppNewsCategoryByArea(area);
 
         if (null == resourList || resourList.isEmpty()){
             return null;
@@ -176,11 +194,7 @@ public class NewsArticleController {
         return list;
     }
 
-    /**
-     * 获取分类下面的文章
-     * @param resourceList 学苑文章的分类id
-     * @return List
-     */
+
     private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
 
         if(null == resourceList || resourceList.size() == 0){
@@ -188,7 +202,7 @@ public class NewsArticleController {
         }
         List<NewsArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticle article : resourceList){
-            list.add(new NewsArticleListAPIEntity(article));
+            list.add(new NewsArticleListAPIEntity(article,appUrlH5Utils));
         }
         return list;
     }

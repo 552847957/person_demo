@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by zhaozhenxing on 2016/8/16.
  */
 public interface AppConfigService {
-    Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, String[] keyWords);
+    Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, List<String> keyWords);
 
     List<AppConfig> findAllDiscreteAppConfig(String mainArea, String specArea);
 

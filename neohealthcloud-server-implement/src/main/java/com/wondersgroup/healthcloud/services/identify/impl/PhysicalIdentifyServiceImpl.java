@@ -34,7 +34,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 		}
 		
 		String info = null;
-		int gentlePhysical = 24-items[0]+items[1]+items[3]+items[4]+items[12];
+		int gentlePhysical = (24+items[0])-(items[1]+items[3]+items[4]+items[12]);
 		if(gentlePhysical >= 17 && scores[0].point <= 8){//平和体质
 			info ="平和质";
 		}else if(gentlePhysical >= 17 && scores[0].point <= 10){//基本平和体质

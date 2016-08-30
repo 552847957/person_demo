@@ -1,11 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
+import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountNoneException;
@@ -15,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +49,43 @@ public class DoctorController {
         JsonResponseEntity<DoctorAccountDTO> response = new JsonResponseEntity<>();
         response.setData(doctorAccountDTO);
         return response;
+    }
+
+    /**
+     * 医生关注列表
+     * @param uid
+     * @param flag
+     * @return
+     */
+    @VersionRange
+    @GetMapping(path = "/user/attentionDoctor/list")
+    public JsonListResponseEntity getAttentionDoctorList(
+            @RequestParam(required = true) String  uid,
+            @RequestParam(required = false, defaultValue = "1") Integer flag){
+        JsonListResponseEntity<DoctorAccountDTO> body = new JsonListResponseEntity<>();
+        int pageSize = 10;
+        boolean has_more = false;
+        List<DoctorAccountDTO> list = Lists.newArrayList();
+
+        List<Map<String,Object>> doctorList = patientAttentionService.findAttentionDoctorList(uid,pageSize,flag);
+
+        for (Map<String,Object> docMap : doctorList){
+            list.add(new DoctorAccountDTO(docMap));
+        }
+
+        if(null != doctorList && doctorList.size() == pageSize){
+            if(null != patientAttentionService.findAttentionDoctorList(uid,pageSize,flag+1)){
+                has_more = true;
+                flag = flag +1;
+            }
+        }
+
+        if (has_more) {
+            body.setContent(list, true, null, String.valueOf(flag));
+        } else {
+            body.setContent(list, false, null, null);
+        }
+        return body;
     }
 
 

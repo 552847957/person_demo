@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.push;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -29,7 +30,8 @@ public class PushTag {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer tagid;
     private String tagname;
+    @JsonIgnore
     private Date updatetime;
 }

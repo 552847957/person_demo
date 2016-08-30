@@ -1,9 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.dto.assessment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
+
+import java.util.Date;
 
 /**
  * Created by zhuchunliu on 2015/12/31.
@@ -11,37 +17,69 @@ import org.springframework.util.StringUtils;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AssessmentPreDataAPIEntity {
 
-    private String year;
-    private String month;
+    private Integer age;
+    private Integer height;
+    private Float weight;
+    private String pressure;
     private String gender;
+    private Float waist;
 
-
-    public AssessmentPreDataAPIEntity(RegisterInfo register) {
-        this.gender = register.getGender();
-        if(!StringUtils.isEmpty(register.getPersoncard()) && 18 == register.getPersoncard().length()){
-            this.year = register.getPersoncard().substring(6,10);
-            this.month = Integer.parseInt(register.getPersoncard().substring(10,12))+"";
-        }else if(null != register.getBirthday()){
-            this.year = new DateTime(register.getBirthday()).getYear()+"";
-            this.month = new DateTime(register.getBirthday()).getMonthOfYear()+"";
+    public AssessmentPreDataAPIEntity(RegisterInfo register,UserInfo userInfo) {
+        if(null != register){
+            this.gender = register.getGender();
+        }
+        if(null != register && null != register.getPersoncard()){
+            Date birthday = DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(register.getPersoncard()));
+            this.age = new DateTime().getYear() - new DateTime(birthday).getYear();
+        }else if(null != userInfo){
+            this.age = userInfo.getAge();
+        }else if(null != register && null != register.getBirthday()){
+            this.age = new DateTime().getYear() - new DateTime(register.getBirthday()).getYear();
+        }
+        if(null != userInfo){
+            this.height = userInfo.getHeight();
+            this.weight = userInfo.getWeight();
+            this.waist = userInfo.getWaist();
+//            if(null != userInfo.getWeight()){
+//                this.weight = Integer.parseInt(String.format("%.0f", userInfo.getWeight()));
+//            }
+//            if(null != userInfo.getWaist()){
+//
+//            }
         }
 
     }
 
-    public String getYear() {
-        return year;
+    public Integer getAge() {
+        return age;
     }
 
-    public void setYear(String year) {
-        this.year = year;
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
-    public String getMonth() {
-        return month;
+    public Integer getHeight() {
+        return height;
     }
 
-    public void setMonth(String month) {
-        this.month = month;
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Float weight) {
+        this.weight = weight;
+    }
+
+    public String getPressure() {
+        return pressure;
+    }
+
+    public void setPressure(String pressure) {
+        this.pressure = pressure;
     }
 
     public String getGender() {
@@ -50,5 +88,13 @@ public class AssessmentPreDataAPIEntity {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Float getWaist() {
+        return waist;
+    }
+
+    public void setWaist(Float waist) {
+        this.waist = waist;
     }
 }

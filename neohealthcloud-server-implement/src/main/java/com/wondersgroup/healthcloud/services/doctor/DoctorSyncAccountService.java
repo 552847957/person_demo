@@ -13,4 +13,8 @@ public interface DoctorSyncAccountService {
     DoctorAccount openWonderCloudAccount(DoctorAccount doctorAccount, DoctorInfo doctorInfo,String roles);
 
     void closeWonderCloudAccount(String register_id);
+
+    DoctorInfo findDoctorByPersoncardWithOutDelflag(String idcard);
+
+    DoctorAccount findDoctorById(String id);
 }

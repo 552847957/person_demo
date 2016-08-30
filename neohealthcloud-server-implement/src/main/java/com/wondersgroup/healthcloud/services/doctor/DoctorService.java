@@ -24,4 +24,8 @@ public interface DoctorService {
     DoctorInfo updateIntro(String uid, String intro);
 
     List<Map<String,Object>> findAllFaqDoctors(String kw,String rootQid,String doctorAnswerId);
+
+    Map<String,Object> findDoctorInfoByIdcard(String doctorIdcard);
+
+    List<Map<String,Object>> findDoctorServicesById(String uid);
 }

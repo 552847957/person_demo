@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +47,7 @@ public class HealthActivityController {
 
 	@Autowired
 	private HealthActivityDetailRepository healthActivityDetailRepository;
-
+	
 	/**
 	 * 根据类型和区域查询健康活动
 	 * @param registerid
@@ -87,8 +88,8 @@ public class HealthActivityController {
 	@VersionRange
 	public JsonListResponseEntity<HealthActivityAPIEntity> getHealthActivityPageList(
 			@RequestParam(value = "uid",required = false) String registerid,
-			@RequestParam(value = "province", required = true) String province,
-			@RequestParam(value = "city", required = true) String city,
+			@RequestParam(value = "province", required = false) String province,
+			@RequestParam(value = "city", required = false) String city,
 			@RequestParam(value = "county", required = false) String county,
 			@RequestParam(value = "status", defaultValue = "1") Integer status,
 			@RequestParam(value = "flag", defaultValue = "1") Integer flag,
@@ -160,9 +161,14 @@ public class HealthActivityController {
 
 			HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
 			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-			
+			HealthActivityInfo de = detail != null ? healthActivityRepository.findOneActivityByRegId(detail.getRegisterid()) : null;
 			if (null != info) {
 				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
+				if(de != null && de.getActivityid() != null){
+				    HealthActivityInfo in = haiService.getHealthActivityInfo(de.getActivityid());
+				    entity.setPartakeActivityDesc("您关注的活动" + in.getTitle() + "将于" + new SimpleDateFormat("MM月dd号").format(in.getStarttime()) + "开始，点击查看活动详情");
+				    entity.setPartakeActivityId(de.getActivityid());
+				}
 				this.setDetailInfo(entity,info,registerId);
 
 				response.setData(entity);
@@ -211,15 +217,15 @@ public class HealthActivityController {
 
 				if (info.getEnrollStartTime().after(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1620);
-					response.setMsg("活动报名尚未开始，报名失败！");
+					response.setMsg("活动报名尚未开始");
 					return response;
 				}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
 					response.setCode(1608);
-					response.setMsg("活动报名结束，报名失败！");
+					response.setMsg("活动报名结束");
 					return response;
 				}else if (totalApply != null && Integer.valueOf(totalApply) >= quota) {
 					response.setCode(1609);
-					response.setMsg("超过活动限定名额，报名失败！");
+					response.setMsg("名额已满");
 					return response;
 
 				}else {
@@ -236,19 +242,19 @@ public class HealthActivityController {
 					if(healthActivityDetailRepository.findActivityDetailByAidAndRidNum(activityid, registerId) > 1){
 						healthActivityDetailRepository.delete(detailInfo);
 						response.setCode(1610);
-						response.setMsg("不能重复报名，报名失败！");
+						response.setMsg("不能重复报名");
 						return response;
 					}
 					if(healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid) > quota){
 						healthActivityDetailRepository.delete(detailInfo);
 						response.setCode(1609);
-						response.setMsg("超过活动限定名额，报名失败！");
+						response.setMsg("名额已满");
 						return response;
 					}
 				}
 			} else {
 				response.setCode(1610);
-				response.setMsg("不能重复报名，报名失败！");
+				response.setMsg("不能重复报名");
 				return response;
 			}
 		response.setMsg("报名成功");

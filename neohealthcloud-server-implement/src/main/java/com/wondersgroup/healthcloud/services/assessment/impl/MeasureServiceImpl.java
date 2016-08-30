@@ -58,20 +58,20 @@ public class MeasureServiceImpl implements MeasureService {
 	@Override
 	public String checkBMI(Double height,Double weight){
 		Double bmi =calculateBMI(height,weight);
-		if(bmi<18.5){
+		if(bmi<=18.5){
 			return MEASURE_FLAG_LOW;
-		}else if(bmi>=18.5&&bmi<23.9){
+		}else if(bmi>18.5&&bmi<24){
 			return MEASURE_FLAG_NORMAL;
-		}else if(bmi>=23.9&&bmi<27.9){
+		}else if(bmi>=24&&bmi<28){
 			return MEASURE_FLAG_HIGH;
-		}else if(bmi>=27.9){
+		}else if(bmi>=28){
 			return MEASURE_FLAG_ULTRAHIGH;
 		}
 		return null;
 	}
 
 	@Override
-	public Double calculateBMI(Double height,Double weight){
+	public Double   calculateBMI(Double height,Double weight){
 		return Double.valueOf(d.format(weight/Math.pow((height/100), 2)));
 	}
 

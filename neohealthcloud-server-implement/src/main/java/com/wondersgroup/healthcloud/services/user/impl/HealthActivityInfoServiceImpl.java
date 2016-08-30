@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 
@@ -55,25 +56,25 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
                 + " from app_tb_healthactivity_info where del_flag = '0'";
-        if(status != null){
+        if(!StringUtils.isEmpty(status)){
             sql +=  " and online_status ='" + status + "'";
             if(status == 1){//活动进行中
-                sql += " and endtime > now() ";
+                sql += " and endtime >= now() ";
             }else if(status == 2){
                 sql += " and endtime < now()";
             }
         }
-        if(province != null){
+        if(!StringUtils.isEmpty(province)){
             sql += " and province = '" + province + "'";
         }
-        if(city != null){
+        if(!StringUtils.isEmpty(city)){
             sql +=  " and city = '" + city + "'";
         }
-        if (county != null) {
+        if (!StringUtils.isEmpty(county)) {
             sql += " and county = '" + county + "'";
         }
         
-        sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        sql += " ORDER BY overdue " + ((!StringUtils.isEmpty(status) && status == 1) ? "asc" : "desc") + " ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
         for (Map<String, Object> map : resourceList) {
@@ -94,23 +95,45 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     }
 
     @Override
-    public List<HealthActivityInfo> getHealthActivityInfos(String onlineTime, String offlineTime, int pageNo, int pageSize) {
-        String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue "
-                + " from app_tb_healthactivity_info where del_flag = '0'";
-        if(onlineTime != null){
-            sql += " and online_time > '" + onlineTime + "'";
+    public List<HealthActivityInfo> getHealthActivityInfos(String status, String title, String onlineTime, String offlineTime, int pageNo, int pageSize) {
+        String sql = "select * from app_tb_healthactivity_info where del_flag = '0'";
+        if(!StringUtils.isEmpty(status)){
+            sql += " and online_status = '" + status + "'";
         }
-        if(offlineTime != null){
-            sql += " and offline_time < '" + offlineTime + "'";
+        if(!StringUtils.isEmpty(onlineTime)){
+            sql += " and online_time >= '" + onlineTime + "'";
         }
-        
-        sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        if(!StringUtils.isEmpty(offlineTime)){
+            sql += " and offline_time <= '" + offlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(title)){
+            sql += " and title like '%" + title + "%'";
+        }
+        sql += " ORDER BY update_date desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
         List<Map<String, Object>> resourceList = getJt().queryForList(sql);
         List<HealthActivityInfo> list = Lists.newArrayList();
         for (Map<String, Object> map : resourceList) {
             list.add(new Gson().fromJson(new Gson().toJson(map), HealthActivityInfo.class));
         }
         return list;
+    }
+
+    @Override
+    public int getHealthActivityInfoCount(String status, String title, String onlineTime, String offlineTime) {
+        String sql = "select count(*) from app_tb_healthactivity_info where del_flag = '0'";
+        if(!StringUtils.isEmpty(status)){
+            sql += " and online_status = '" + status + "'";
+        }
+        if(!StringUtils.isEmpty(onlineTime)){
+            sql += " and online_time >= '" + onlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(offlineTime)){
+            sql += " and offline_time <= '" + offlineTime + "'";
+        }
+        if(!StringUtils.isEmpty(title)){
+            sql += " and title like '%" + title + "%'";
+        }
+        return getJt().queryForObject(sql,Integer.class);
     }
 
 }

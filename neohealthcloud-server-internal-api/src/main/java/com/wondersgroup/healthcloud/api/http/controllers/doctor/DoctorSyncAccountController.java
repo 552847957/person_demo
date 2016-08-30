@@ -45,6 +45,15 @@ public class DoctorSyncAccountController {
             return response;
         }
 
+        DoctorInfo idcardDoctor = doctorSyncAccountService.findDoctorByPersoncardWithOutDelflag(syncRequest.getIdcard());
+        if(idcardDoctor !=null && "0".equals(idcardDoctor.getDelFlag())){
+            DoctorAccount account = doctorSyncAccountService.findDoctorById(idcardDoctor.getId());
+            SyncResponseDTO syncResponseDTO = new SyncResponseDTO(account);
+            response.setCode(2);
+            response.setMsg("该身份证号已经开通过万达云账号");
+            response.setData(syncResponseDTO);
+            return response;
+        }
 
         if(doctorAccount==null){
             doctorAccount = new DoctorAccount();

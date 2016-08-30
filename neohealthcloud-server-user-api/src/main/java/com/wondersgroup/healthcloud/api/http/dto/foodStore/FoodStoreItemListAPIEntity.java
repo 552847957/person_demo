@@ -1,13 +1,16 @@
 package com.wondersgroup.healthcloud.api.http.dto.foodStore;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by yanshuai on 15/6/26.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FoodStoreItemListAPIEntity {
+
 
     private String id;
     private String food_name;// 作者
@@ -19,13 +22,13 @@ public class FoodStoreItemListAPIEntity {
     public FoodStoreItemListAPIEntity() {
     }
 
-    public FoodStoreItemListAPIEntity(FoodStoreItem foodStoreItem) {
+    public FoodStoreItemListAPIEntity(FoodStoreItem foodStoreItem,AppUrlH5Utils appUrlH5Utils) {
         this.id = String.valueOf(foodStoreItem.getId());
         this.food_name = foodStoreItem.getFoodName();
         this.icon = foodStoreItem.getIcon();
         this.kcal = foodStoreItem.getHeat() + "kcal/100克";
         this.use_suggest = FoodStoreItem.getFoodUseSuggest(foodStoreItem.getUseSuggest());
-//        this.url = AppUrlH5Utils.buildFoodStoreView(foodStoreItem.getId());
+        this.url = appUrlH5Utils.buildFoodStoreView(foodStoreItem.getId());
     }
 
     public String getId() {

@@ -22,4 +22,7 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
 
     @Query("select r from RegisterInfo r where r.registerid =?1 and r.delFlag='0'")
     RegisterInfo findByRegisterid(String registerId);
+
+    @Query("select r from RegisterInfo r where (r.personcard =?1 or r.regmobilephone = ?1) and r.delFlag='0'")
+    List<RegisterInfo> getByCardOrPhone(String info);
 }

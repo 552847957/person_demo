@@ -1,13 +1,13 @@
 package com.wondersgroup.healthcloud.services.article.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
-import com.wondersgroup.healthcloud.jpa.repository.article.ArticleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleCategoryRepo;
-import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +21,9 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     @Autowired
     private NewsArticleCategoryRepo newsArticleCategoryRepo;
 
-
-    @Override
-    public int addNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
-        return 0;
-    }
+    @Autowired
+    private DataSource dataSource;
+    private JdbcTemplate jt;
 
     @Override
     public int updateNewsArticleCategory(NewsArticleCategory newsArticleCategory) {
@@ -35,24 +33,27 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     }
 
     @Override
-    public List<NewsArticleCategory> findNewsCategoryByKeys(Map<String, Object> parm) {
+    public List<NewsArticleCategory> findAppNewsCategoryByArea(String area) {
 
-        return newsArticleCategoryRepo.queryNewsArticleCategory();
+        return newsArticleCategoryRepo.queryAppNewsArticleCategory(area);
     }
 
     @Override
-    public int countRow(Map<String, Object> parm) {
-        return 0;
-    }
-
-    @Override
-    public List<NewsArticleCategory> findNewsCategory() {
-        return newsArticleCategoryRepo.findAll();
+    public List<NewsArticleCategory> findNewsCategoryByArea(String area) {
+        return newsArticleCategoryRepo.findNewsCategoryByArea(area);
     }
 
     @Override
     public NewsArticleCategory findNewsCategory(int id) {
 
         return newsArticleCategoryRepo.ArticleCategoryById(id);
+    }
+
+
+    private JdbcTemplate getJt() {
+        if (jt == null) {
+            jt = new JdbcTemplate(dataSource);
+        }
+        return jt;
     }
 }

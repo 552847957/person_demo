@@ -16,13 +16,14 @@ public class NewsArticleListAPIEntity {
     private String pv;
     private String url;
 
-    public NewsArticleListAPIEntity(NewsArticle article){
+
+    public NewsArticleListAPIEntity(NewsArticle article,AppUrlH5Utils appUrlH5Utils){
         this.id = String.valueOf(article.getId());
         this.title = article.getTitle();
         this.desc= article.getBrief();
         this.pv = String.valueOf(article.getPv() + article.getFake_pv());
         this.thumb = article.getThumb();
-        this.url = AppUrlH5Utils.buildNewsArticleView(article.getId());
+        this.url = appUrlH5Utils.buildNewsArticleView(article.getId());
 
     }
     public String getPv() {

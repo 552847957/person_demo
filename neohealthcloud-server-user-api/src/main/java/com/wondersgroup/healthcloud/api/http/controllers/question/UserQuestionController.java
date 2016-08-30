@@ -10,12 +10,17 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
 import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +36,10 @@ public class UserQuestionController {
 	private QuestionService questionService;
 	@Autowired
 	private Environment env;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private PushClientWrapper pushClientWrapper;
 
 	@Autowired
 	private HttpRequestExecutorManager httpRequestExecutorManager;
@@ -42,11 +51,20 @@ public class UserQuestionController {
 	@VersionRange
 	@WithoutToken
 	@RequestMapping(value="/ask",method= RequestMethod.POST)
-	public Object ask(@RequestBody Question question){
+	public Object ask(@RequestHeader("main-area") String area,@RequestBody Question question){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
 		String id="";
-		question.setAnswerId("");
+		if(question.getId()==null ){
+			question.setAnswerId("");
+		}
+
 		id=questionService.saveQuestion(question);
+
+		//AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的问诊提问，点击查看").isDoctor()
+				//.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("")).persistence().build();
+		//pushClientWrapper.pushToAlias(message,"");
+
+
 		String url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeQuestion?questionId="+id;
 		//定时任务
 		Request request= new RequestBuilder().get().url(url).build();
@@ -99,6 +117,7 @@ public class UserQuestionController {
 	@RequestMapping(value="/reply",method= RequestMethod.POST)
 	public Object reply(@RequestBody Reply reply){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
+
 		questionService.saveReplay(reply);		
 		ReplyGroup group=questionService.queryAnswerId(reply.getGroupId());
 		String doctorId=group.getAnswer_id();

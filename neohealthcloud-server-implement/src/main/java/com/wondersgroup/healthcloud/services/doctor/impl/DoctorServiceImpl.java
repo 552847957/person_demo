@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,36 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where a.id = '%s'";
         sql = String.format(sql,uid);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public Map<String, Object> findDoctorInfoByIdcard(String doctorIdcard) {
+        String sql =query +
+                " where i.idcard = '%s' and a.del_flag = '0' and a.is_available = '0' ";
+        sql = String.format(sql,doctorIdcard);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> findDoctorServicesById(String uid) {
+
+        String query = " select sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
+                " from doctor_account_tb a " +
+                " left join doctor_service_tb s on a.id = s.doctor_id " +
+                " left join doctor_service_dic sd on s.service_id = sd.id " +
+                " where sd.is_available = '0' and a.id = '%s'";
+
+        String sql =  String.format(query,uid);
+        return jt.queryForList(sql);
     }
 
     /**
@@ -77,7 +107,12 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where a.id = '%s'";
         sql = String.format(sql,uid,doctorId);
-        return jt.queryForMap(sql);
+
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     /**
@@ -90,7 +125,12 @@ public class DoctorServiceImpl implements DoctorService {
         String sql =query +
                 " where i.actcode = '%s'";
         sql = String.format(sql,actcode);
-        return jt.queryForMap(sql);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+
     }
 
     @Override
@@ -141,9 +181,9 @@ public class DoctorServiceImpl implements DoctorService {
         String sql = " select a.id , a.name from doctor_account_tb a where a.is_available = '0' ";
 
         if(StringUtils.isNotBlank(doctorAnswerId)){
-            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"'  and id != '"+doctorAnswerId+"' ) ";
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"'  and id != '"+doctorAnswerId+"' and doctor_id is not null ) ";
         }else {
-            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"' ) ";
+            sql = sql + " and a.id not in ( select doctor_id from faq_question_tb where q_id = '"+rootQid+"' and doctor_id is not null ) ";
         }
 
         if(StringUtils.isNotBlank(kw)){
@@ -151,6 +191,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return jt.queryForList(sql);
     }
+
 
 
 }

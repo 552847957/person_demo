@@ -83,7 +83,8 @@ public class FaqServiceImpl implements FaqService {
 
         String sql = faqSql + " where a.q_pid is null "+
                 getWhereSqlByParameter(parameter)
-                + " GROUP BY a.q_id order by a.is_top ,a.ask_date desc ";
+                + " GROUP BY a.q_id order by a.is_top ,a.ask_date desc "
+                + " LIMIT " +(pageNum-1)*size +"," + size;
         return jt.queryForList(sql);
     }
     @Override
@@ -157,8 +158,17 @@ public class FaqServiceImpl implements FaqService {
     @Override
     @Transactional
     public int saveFirstAnswerByDoctorId(Faq faq) {
+        Faq oldFaq = faqRepository.findOne(faq.getId());
         int result = faqRepository.saveFirstAnswerByDoctorId(faq.getDoctorId(),faq.getAnswerContent(),faq.getAnswerDate(),faq.getId());
+
+        int st = faqRepository.updateAllDoctorIdByQpidAndDoctorId(faq.getDoctorId(),oldFaq.getQId(),oldFaq.getDoctorId());
+
         return result;
+    }
+
+    @Override
+    public Faq findOneFaqByQid(String qId) {
+        return faqRepository.findOneFaqByQid(qId);
     }
 
 

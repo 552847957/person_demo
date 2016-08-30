@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
@@ -49,16 +50,20 @@ public class HomeController {
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
+                                                @RequestHeader(value = "spec-area", required = false) String specArea,
+                                                @RequestHeader(value = "app-version", required = true) String version) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
         // 首页Banner
-        List<ImageText> imageTextsB = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_BANNER);
-        if (imageTextsB != null && imageTextsB.size() > 0) {
+        ImageText imgTextA = new ImageText();
+        imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
+        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
+        if (imageTextsA != null && imageTextsA.size() > 0) {
             List banners = new ArrayList();
-            for (ImageText imageText : imageTextsB) {
+            for (ImageText imageText : imageTextsA) {
                 BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
                 banners.add(bit);
             }
@@ -66,11 +71,11 @@ public class HomeController {
         }
 
         // 首页功能栏
-        List<ImageText> imageTextsF = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
-        if (imageTextsF != null && imageTextsF.size() > 0) {
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_FUNCTION.getType(), version);
+        if (imageTextsB != null && imageTextsB.size() > 0) {
             List functionIcons = new ArrayList();
             Map map = null;
-            for (ImageText imageText : imageTextsF) {
+            for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
                 map.put("hoplink", imageText.getHoplink());
@@ -82,10 +87,12 @@ public class HomeController {
         }
 
         // 首页广告
-        List<ImageText> imageTextsAD = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.HOME_FUNCTION);
-        if (imageTextsAD != null && imageTextsAD.size() > 0) {
+        ImageText imgTextC = new ImageText();
+        imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextC);
+        if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
-            for (ImageText imageText : imageTextsAD) {
+            for (ImageText imageText : imageTextsC) {
                 BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
                 adImages.add(bit);
             }
@@ -102,6 +109,7 @@ public class HomeController {
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity appTips(@RequestHeader(value = "main-area", required = true) String mainArea,
                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -121,12 +129,13 @@ public class HomeController {
 
     @RequestMapping(value = "/newsAndQuestions", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
         try {
-            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 1, 10);
+            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 0, 10);
             if (newsArticleList != null && newsArticleList.size() > 0) {
                 data.put("news", newsArticleList);
             }

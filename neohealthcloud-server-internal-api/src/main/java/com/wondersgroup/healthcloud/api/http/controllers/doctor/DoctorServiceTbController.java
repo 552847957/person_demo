@@ -44,18 +44,48 @@ public class DoctorServiceTbController {
         if (doctor != null) {
             doctorServiceRepository.removeServiceByUid(doctorId);
             List<DoctorServiceEntity> doctorServiceEntityList = new ArrayList<>();
-            for (String id : serviceId) {
-                DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
-                doctorServiceEntity.setId(IdGen.uuid());
-                doctorServiceEntity.setDoctorId(doctorId);
-                doctorServiceEntity.setServiceId(id);
-                doctorServiceEntity.setCreateDate(new Date());
-                doctorServiceEntity.setUpdateDate(new Date());
-                doctorServiceEntityList.add(doctorServiceEntity);
-            }
+            iteratorDoctorService(serviceId, doctorId, doctorServiceEntityList);
             doctorServiceRepository.save(doctorServiceEntityList);
             return new JsonResponseEntity(0, "保存成功");
         }
         throw new ErrorDoctorAccountNoneException();
+    }
+
+    /**
+     * 批量保存医生服务
+     * @param doctorId
+     * @param serviceId
+     * @return
+     */
+    @RequestMapping(value = "/doctorService/batchSave", method = RequestMethod.POST)
+    public JsonResponseEntity batchSaveDoctorService(@RequestParam List<String> doctorId,
+                                                     @RequestParam List<String> serviceId) {
+        for (String id : doctorId) {
+            DoctorInfo doctor = doctorInfoRepository.findById(id);
+
+            if (doctor != null) {
+                doctorServiceRepository.removeServiceByUid(id);
+                List<DoctorServiceEntity> doctorServiceEntityList = new ArrayList<>();
+                iteratorDoctorService(serviceId, id, doctorServiceEntityList);
+                doctorServiceRepository.save(doctorServiceEntityList);
+            } else {
+                throw new ErrorDoctorAccountNoneException();
+            }
+        }
+        return new JsonResponseEntity(0, "保存成功");
+    }
+
+    private void iteratorDoctorService(List<String> serviceId,
+                                       String id,
+                                       List<DoctorServiceEntity> doctorServiceEntityList) {
+        for (String service : serviceId) {
+            DoctorServiceEntity doctorServiceEntity = new DoctorServiceEntity();
+            doctorServiceEntity.setId(IdGen.uuid());
+            doctorServiceEntity.setDoctorId(id);
+            doctorServiceEntity.setServiceId(service);
+            doctorServiceEntity.setCreateDate(new Date());
+            doctorServiceEntity.setUpdateDate(new Date());
+            doctorServiceEntityList.add(doctorServiceEntity);
+        }
     }
 }

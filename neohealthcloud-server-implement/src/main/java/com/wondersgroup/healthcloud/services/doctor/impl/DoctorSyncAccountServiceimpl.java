@@ -17,11 +17,11 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.RSAUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import java.util.Collection;
 import java.util.Date;
@@ -77,11 +77,17 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         String loginName = "";
         Boolean success = result.get("success").asBoolean();
         if(!success){
-            JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),"initPwd2016");
-            if (success) {
-                registerId = jsonNode.get("userid").asText();
-            }else{
-                throw new SyncDoctorAccountException("万达云账号注册失败,"+jsonNode.get("msg").asText());
+            try {
+                String psw = RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
+                JsonNode jsonNode =  httpWdUtils.registe(doctorAccount.getMobile(),psw);
+                Boolean isRegisteSuccess = jsonNode.get("success").asBoolean();
+                if (isRegisteSuccess) {
+                    registerId = jsonNode.get("userid").asText();
+                }else{
+                    throw new SyncDoctorAccountException("万达云账号注册失败,"+jsonNode.get("msg").asText());
+                }
+            }catch (Exception e){
+                throw new SyncDoctorAccountException(e.getMessage());
             }
         }else{
             registerId = result.get("user").get("userid").asText();
@@ -97,13 +103,15 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
             EasemobAccount easemobAccount = easemobDoctorPool.fetchOne();
             if (easemobAccount!=null) {//注册环信
                 doctorAccount.setTalkid(easemobAccount.id);
-                doctorAccount.setTalkpwd(DigestUtils.md5DigestAsHex(easemobAccount.pwd.getBytes()));
+                doctorAccount.setTalkpwd(easemobAccount.pwd);
             }
         }
 
 
         doctorAccount.setId(registerId);
-        doctorAccount.setLoginName(loginName);
+        if(StringUtils.isNotBlank(loginName)){
+            doctorAccount.setLoginName(loginName);
+        }
         doctorAccount.setIsAvailable("1");
         doctorAccount.setDelFlag("0");
         doctorAccount.setUpdateDate(new Date());
@@ -170,6 +178,17 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         //物理删除医生对应的服务
         doctorServiceRepository.removeServiceByUid(registerId);
 
+    }
+
+    @Override
+    public DoctorInfo findDoctorByPersoncardWithOutDelflag(String idcard) {
+
+        return doctorInfoRepository.findDoctorByPersoncardWithOutDelflag(idcard);
+    }
+
+    @Override
+    public DoctorAccount findDoctorById(String id) {
+        return doctorAccountRepository.findOne(id);
     }
 
 

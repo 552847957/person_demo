@@ -7,11 +7,13 @@ import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,10 @@ public class CommonController {
 
     @Autowired
     private ImageTextService imageTextService;
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
+
     /**
      * APP获取启动数据
      */
@@ -61,8 +67,7 @@ public class CommonController {
         keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
 
         keyWords.add("app.common.appUpdate");// APP更新
-        String [] keyWordArr = new String [keyWords.size()];
-        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords.toArray(keyWordArr));
+        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
 
         Map<String, Object> common = new HashMap<>();
         common.put("publicKey", HttpWdUtils.publicKey);
@@ -71,13 +76,13 @@ public class CommonController {
                 common.put("consumerHotline", cfgMap.get("app.common.consumer.hotline"));
             }
             if (cfgMap.get("app.common.help.center") != null) {
-                common.put("helpCenter", cfgMap.get("app.common.help.center"));
+                common.put("helpCenter", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.help.center")));
             }
             if (cfgMap.get("app.common.userAgreement") != null) {
-                common.put("userAgreement", cfgMap.get("app.common.userAgreement"));
+                common.put("userAgreement", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
             }
             if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
-                common.put("ipa", cfgMap.get("app.common.help.center"));
+                common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
             }
             data.put("common", common);
 
@@ -95,6 +100,7 @@ public class CommonController {
                         }
                         String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
                         String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
+                        String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();
 
                         Map appUpdate = new HashMap();
                         appUpdate.put("hasUpdate", hasUpdate);
@@ -102,6 +108,7 @@ public class CommonController {
                         appUpdate.put("lastVersion", lastVersion);
                         appUpdate.put("updateMsg", updateMsg);
                         appUpdate.put("androidUrl", downloadUrl);
+                        appUpdate.put("iosUrl", iosDownloadUrl);
                         data.put("appUpdate", appUpdate);
                     }
                 } catch (Exception ex) {
@@ -110,16 +117,13 @@ public class CommonController {
             }
         }
 
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.LOADING_IMAGE);
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
-            Map ads = new HashMap();
-            ads.put("imgUrl", imageText.getImgUrl());
-            ads.put("hoplink", imageText.getHoplink());
-            ads.put("duration", imageText.getDurations());
-            ads.put("isSkip", imageText.getAllowClose() == 1 ? true : false);
-            ads.put("isShow", imageText.getDelFlag() == 0 ? true : false);
-            data.put("ads", ads);
+            LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
+            data.put("ads", loadingImageDTO);
         }
 
         response.setData(data);
@@ -129,6 +133,7 @@ public class CommonController {
 
     @RequestMapping(value = "/getQiniuToken", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<Map<String, Object>> qiniuConfig() {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<Map<String, Object>>();
         Map<String, Object> map = Maps.newHashMap();
@@ -141,10 +146,13 @@ public class CommonController {
 
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcode(mainArea, specArea, ImageTextEnum.NAVIGATION_BAR);
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {
@@ -161,6 +169,7 @@ public class CommonController {
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity aboutApp(@RequestHeader(value = "main-area", required = true) String mainArea,
                                        @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -180,15 +189,6 @@ public class CommonController {
             result.setMsg("获取配置信息失败！");
         }
         return result;
-    }
-
-    @RequestMapping(value = "/services", method = RequestMethod.GET)
-    @VersionRange
-    public JsonResponseEntity services(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
-        JsonResponseEntity result = new JsonResponseEntity();
-
-        return null;
     }
 
     /**

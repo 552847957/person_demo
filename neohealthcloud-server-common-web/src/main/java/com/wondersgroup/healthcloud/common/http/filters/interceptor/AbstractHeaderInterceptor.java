@@ -35,11 +35,13 @@ public abstract class AbstractHeaderInterceptor implements HandlerInterceptor {
             new HeaderCode("app-version", 8),
             new HeaderCode("channel", 3),
             new HeaderCode("device", 2),
+            new HeaderCode("main-area", 18),
             new HeaderCode("model", 5),
             new HeaderCode("os-version", 6),
             new HeaderCode("platform", 4),
             new HeaderCode("screen-height", 7),
             new HeaderCode("screen-width", 7),
+            new HeaderCode("spec-area", 18),
             new HeaderCode("version", 1)
     };
 

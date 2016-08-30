@@ -1,20 +1,21 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
+import com.wondersgroup.healthcloud.api.utils.JacksonHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,44 +29,44 @@ public class MeasureController {
 
     private static final Logger log = LoggerFactory.getLogger(MeasureController.class);
 
+    @Value("${internal.api.service.measure.url}")
+    private String host;
     private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
-
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
-
     private static final String requestChartPath = "%s/api/measure/chart/%s?%s";
-
     private static final String requestDayHistoryPath = "%s/api/measure/dayHistory/?%s";
-
     private static final String requestYearHistoryPath = "%s/api/measure/yearHistory/%s?%s";
-
+    private static final String requestDayHistoriesListPath = "%s/api/measure/topHistories/?%s";
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
-
     private RestTemplate template = new RestTemplate();
-
-    @Autowired
-    private Environment env;
 
     @Autowired
     private MeasureManagementService managementService;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonResponseEntity<Map> measureHome() {
+    @VersionRange
+    public String measureHome(String registerId) {
 
-        SimpleMeasure measure = new SimpleMeasure();
-        measure.setName("BMI指数");
-        measure.setTestTime("2016-08-19");
-        measure.setValue("21.7");
-        measure.setFlag("0");
-
-        List<SimpleMeasure> histories = Collections.singletonList(measure);
-
+        List histories = new ArrayList();
+        String parameters = "registerId=".concat(registerId);
+        String url = String.format(requestDayHistoriesListPath, host, parameters);
+        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            Map body = response.getBody();
+            if (0 == (int) body.get("code")) {
+                histories = (List) body.get("data");
+            }
+        }
+        boolean hashMore = histories.size() > 4;
         Map<String, Object> homeMap = new HashMap<>();
         homeMap.put("types", managementService.displays());
-        homeMap.put("more", histories.size() > 3);
-        homeMap.put("histories", histories);
+        homeMap.put("more", hashMore);
+        homeMap.put("histories", hashMore ? histories.subList(0, 4) : histories);
         JsonResponseEntity<Map> result = new JsonResponseEntity<>(0, null);
         result.setData(homeMap);
-        return result;
+        Map<Class, String[]> filters = new HashMap<>();
+        filters.put(MeasureManagement.class, new String[]{"id", "createdDate", "lastModifiedDate", "createdBy", "lastModifiedBy", "display"});
+        return JacksonHelper.getInstance().serializeExclude(filters).writeValueAsString(result);
     }
 
     @VersionRange
@@ -73,7 +74,7 @@ public class MeasureController {
     public JsonResponseEntity<?> nearestMeasure(@RequestParam String familyMateId) {
         try {
             String parameters = "registerId=".concat(familyMateId).concat("&personCard=0");
-            String url = String.format(requestFamilyPath, env.getProperty("measure.server.host"), parameters);
+            String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 Map<String, Object> responseBody = response.getBody();
@@ -90,7 +91,7 @@ public class MeasureController {
     @PostMapping("upload/{type}")
     public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
         try {
-            String url = String.format(requestUploadPath, env.getProperty("measure.server.host"), type);
+            String url = String.format(requestUploadPath, host, type);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
             headers.add("access-token", "version3.0");
@@ -119,7 +120,7 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureChart(@PathVariable int type, String registerId, int flag) {
         try {
             String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag));
-            String url = String.format(requestChartPath, env.getProperty("measure.server.host"), type, params);
+            String url = String.format(requestChartPath, host, type, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -145,7 +146,7 @@ public class MeasureController {
     @GetMapping("yearHistory/{type}")
     public JsonResponseEntity queryMeasureHistory(@PathVariable int type, String registerId) throws JsonProcessingException {
         try {
-            String url = String.format(requestYearHistoryPath, env.getProperty("measure.server.host"), type, "registerId=".concat(registerId));
+            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId));
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -172,7 +173,7 @@ public class MeasureController {
         try {
             String param = "registerId=".concat(registerId);
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
-            String url = String.format(requestDayHistoryPath, env.getProperty("measure.server.host"), params);
+            String url = String.format(requestDayHistoryPath, host, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -195,12 +196,13 @@ public class MeasureController {
      * @return
      * @throws JsonProcessingException
      */
+    @VersionRange
     @GetMapping("recentHistory/{type}")
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
             String param = "registerId=".concat(registerId);
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
-            String url = String.format(recentMeasureHistory, env.getProperty("measure.server.host"), type, params);
+            String url = String.format(recentMeasureHistory, host, type, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {

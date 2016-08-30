@@ -13,6 +13,8 @@ public class SimpleMeasure {
 
     private String flag;
 
+    private String source;
+
     public SimpleMeasure() {
     }
 
@@ -53,5 +55,13 @@ public class SimpleMeasure {
 
     public void setFlag(String flag) {
         this.flag = flag;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

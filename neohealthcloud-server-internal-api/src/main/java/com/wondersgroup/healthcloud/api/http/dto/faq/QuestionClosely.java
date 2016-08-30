@@ -27,13 +27,13 @@ public class QuestionClosely {
     @JsonProperty("question_content")
     private String questionContent;
 
-    @JsonProperty("ask_time")
+    @JsonProperty("ask_date")
     private String askTime;
 
     @JsonProperty("answer_content")
     private String answerContent;
 
-    @JsonProperty("answer_time")
+    @JsonProperty("answer_date")
     private String answerTime;
 
     public QuestionClosely(Faq faqClosely) {

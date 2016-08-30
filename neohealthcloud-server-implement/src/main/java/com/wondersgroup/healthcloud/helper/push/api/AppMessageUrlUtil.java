@@ -58,8 +58,8 @@ public class AppMessageUrlUtil {
      *
      * @return
      */
-    public static String verificationCallback(Boolean success) {
-        return Type.SYSTEM.urlPrefix + "/verification?success="+success;
+    public static String verificationCallback(String uid,Boolean success) {
+        return Type.SYSTEM.urlPrefix + "/verification?uid = "+uid+" &success="+success;
     }
 
     /**
