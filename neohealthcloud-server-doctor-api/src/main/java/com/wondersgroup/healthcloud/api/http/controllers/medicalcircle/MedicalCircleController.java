@@ -211,17 +211,18 @@ public class MedicalCircleController {
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
             @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
-            @RequestParam(value = "circle_id", required = true) String circle_id) {
+            @RequestParam(value = "circle_id", required = true) String circle_id,
+            @RequestParam(value = "doctor_id", required = true) String doctor_id
+            ) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);
-        String uid = null;
         if (mc.getType() == 2) {
             responseEntity.setCode(1281);
             responseEntity.setMsg("未认证医生无法查看病例");
         } else {
             responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
-                    mc, screen_width, uid));
-            mcService.view(circle_id, uid);//redis
+                    mc, screen_width, doctor_id));
+            mcService.view(circle_id, doctor_id);//redis
         }
         return responseEntity;
     }
