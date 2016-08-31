@@ -29,11 +29,13 @@ public class DoctorAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<DoctorAccountAndSessionDTO> fetchToken(@RequestParam String account,
-                                                                     @RequestParam String password
+    public JsonResponseEntity<DoctorAccountAndSessionDTO> fetchToken(
+            @RequestHeader(value = "main-area", required = true) String mainArea,
+            @RequestParam String account,
+            @RequestParam String password
     ) {
         JsonResponseEntity<DoctorAccountAndSessionDTO> body = new JsonResponseEntity<>();
-        body.setData(new DoctorAccountAndSessionDTO(doctorAccountService.login(account, password)));
+        body.setData(new DoctorAccountAndSessionDTO(doctorAccountService.login(account, password,mainArea)));
         body.setMsg("登录成功");
         attachInfo(body);
         return body;
@@ -42,10 +44,12 @@ public class DoctorAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/fastLogin", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<DoctorAccountAndSessionDTO> fastFetchToken(@RequestParam String mobile,
-                                                                       @RequestParam String verify_code) {
+    public JsonResponseEntity<DoctorAccountAndSessionDTO> fastFetchToken(
+            @RequestHeader(value = "main-area", required = true) String mainArea,
+            @RequestParam String mobile,
+            @RequestParam String verify_code) {
         JsonResponseEntity<DoctorAccountAndSessionDTO> body = new JsonResponseEntity<>();
-        body.setData(new DoctorAccountAndSessionDTO(doctorAccountService.fastLogin(mobile, verify_code,false)));//改为false
+        body.setData(new DoctorAccountAndSessionDTO(doctorAccountService.fastLogin(mobile, verify_code,false,mainArea)));//改为false
         body.setMsg("登录成功");
         attachInfo(body);
         return body;

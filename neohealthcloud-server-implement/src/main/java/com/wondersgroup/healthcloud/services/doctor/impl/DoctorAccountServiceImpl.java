@@ -59,8 +59,8 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
      * @return
      */
     @Override
-    public AccessToken login(String account, String password) {
-        DoctorAccount doctorAccount = repository.findDoctorByAccount(account);
+    public AccessToken login(String account, String password,String mainArea) {
+        DoctorAccount doctorAccount = repository.findDoctorByAccountAndMainArea(account,mainArea);
         if(doctorAccount == null){
             throw new ErrorDoctorAccountException("该账号不存在,请重新输入。");
         }
@@ -76,8 +76,8 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
     }
 
     @Override
-    public AccessToken fastLogin(String mobile, String verify_code, boolean onceCode) {
-        DoctorAccount doctorAccount = repository.findDoctorByAccount(mobile);
+    public AccessToken fastLogin(String mobile, String verify_code, boolean onceCode,String mainArea) {
+        DoctorAccount doctorAccount = repository.findDoctorByAccountAndMainArea(mobile,mainArea);
         if(doctorAccount == null){
             throw new ErrorDoctorAccountException("该账号不存在,请重新输入。");
         }

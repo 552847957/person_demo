@@ -17,7 +17,7 @@ public interface DoctorAccountService {
      * @param password
      * @return
      */
-    AccessToken login(String account,String password);
+    AccessToken login(String account,String password,String mainArea);
 
     void logout(String token);
 
@@ -29,5 +29,5 @@ public interface DoctorAccountService {
 
     WondersUser getWondersBaseInfo(String userid);
 
-    AccessToken fastLogin(String mobile, String verify_code, boolean b);
+    AccessToken fastLogin(String mobile, String verify_code, boolean onlyOne,String mainArea);
 }
