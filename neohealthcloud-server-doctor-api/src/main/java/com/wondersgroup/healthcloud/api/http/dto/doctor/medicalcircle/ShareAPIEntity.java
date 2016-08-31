@@ -3,13 +3,10 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 
-/**
- * Created by Yoda on 2015/7/13.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ShareAPIEntity {
-    private String title;
-    private String desc;
+    private String title;                                          //标题
+    private String desc;                                           //描述
     private String thumb = PropertiesUtils.get("SHARE.THUMB.URL");
     private String url;
 

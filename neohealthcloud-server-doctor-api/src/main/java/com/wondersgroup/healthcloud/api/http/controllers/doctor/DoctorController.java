@@ -114,7 +114,7 @@ public class DoctorController {
     }
 
     /**
-     * 获取验证码 type : 0 默认、1 手机动态码登录、2 重置密码
+     * 获取验证码 type : 0 默 、1 注册 、2 快速登录 3、重置密码(修改密码) 4、修改手机号 5、绑定手机号
      * @param mobile
      * @param type
      * @return

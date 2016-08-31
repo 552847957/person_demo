@@ -182,6 +182,7 @@ public class CircleServiceImpl implements CircleService {
         articleTransmit.setPic(thumb);
         articleTransmit.setCreateDate(new Date());
         articleTransmit.setUpdateDate(new Date());
+        articleTransmit.setDelFlag("0");
         return articleTransmitRepository.save(articleTransmit);
     }
 

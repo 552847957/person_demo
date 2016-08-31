@@ -4,14 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
-/**
- * Created by Yoda on 2015/9/2.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DynamicAPIEntity {
-    private String content;
-    private ShareAPIEntity share;
-    private List<ImageAPIEntity> images;
+    private String               content; //内容
+    private ShareAPIEntity       share;
+    private List<ImageAPIEntity> images;  //图片集合
 
     public String getContent() {
         return content;

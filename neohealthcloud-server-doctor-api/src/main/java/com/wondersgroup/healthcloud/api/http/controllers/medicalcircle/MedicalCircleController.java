@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.wondersgroup.common.image.utils.ImageUploader;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
@@ -37,7 +35,6 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleAttach;
 import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleTransmit;
@@ -107,7 +104,7 @@ public class MedicalCircleController {
             entity.setDoctor_id(mc.getDoctorid());
             entity.setHospital(doctorInfo.getHospitalName());
             if (StringUtils.isNotEmpty(uid)) {
-                entity.setIs_liked(CircleLikeUtils.isLikeOne(mc.getId(), uid));
+//                entity.setIs_liked(CircleLikeUtils.isLikeOne(mc.getId(), uid));//redis
             }
             entity.setLike_num(mc.getPraisenum());
             entity.setName(doctorInfo.getName());
@@ -196,7 +193,7 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(method = RequestMethod.GET, value = "allCircle")
     public JsonListResponseEntity<MedicalCircleAPIEntity> getAllCircle(
-            @RequestHeader(value = "screen-width") String screen_width,
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
             @RequestParam(value = "doctor_id", required = false) String doctor_id,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "flag", required = false) String flag) {
@@ -382,28 +379,20 @@ public class MedicalCircleController {
             @RequestParam("circle_type") Integer circle_type,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "content", required = false) String content,
-            @RequestPart(value = "images", required = false) MultipartFile[] images) {
+            @RequestParam(value = "images", required = false) String images) {
        
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
-        try {
-            List<String> imageURLs = new ArrayList<String>();
-            if(images != null){
-                for (MultipartFile image : images) {
-                    imageURLs.add(ImageUploader.upload("app", IdGen.uuid() + ".jpg", image.getBytes()));
-                    
-                }
-            }
-            mcService.publish(doctor_id, title, content, circle_type, imageURLs);
-            entity.setMsg("发布成功");
-            //        } else {
-            //            entity.setCode(1299);
-            //            entity.setMsg("内容含有敏感词汇");
-            //        }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        List<String> imageURLs = new ArrayList<String>();
+        if(!StringUtils.isBlank(images)){
+            imageURLs = Arrays.asList(images.split(","));
         }
+        mcService.publish(doctor_id, title, content, circle_type, imageURLs);
+        entity.setMsg("发布成功");
+        //        } else {
+        //            entity.setCode(1299);
+        //            entity.setMsg("内容含有敏感词汇");
+        //        }
         return entity;
     }
 
@@ -587,9 +576,11 @@ public class MedicalCircleController {
      * @return
      */
     @VersionRange
-    @RequestMapping(method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delCircle(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("circle_id") String circle_id) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "delCircle")
+    public JsonResponseEntity<String> delCircle(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("circle_id") String circle_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delMedicalCircle(doctor_id, circle_id);
@@ -608,8 +599,10 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment", method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delComment(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("comment_id") String comment_id) {
+    public JsonResponseEntity<String> delComment(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("comment_id") String comment_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delComment(doctor_id, comment_id);
@@ -628,8 +621,10 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment/reply", method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delReply(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("reply_id") String reply_id) {
+    public JsonResponseEntity<String> delReply(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("reply_id") String reply_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delReply(reply_id, doctor_id);
@@ -642,202 +637,7 @@ public class MedicalCircleController {
         return entity;
     }
 
-    /**
-     * 搜索
-     * @param query
-     * @return
-     */
-    @VersionRange
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public JsonResponseEntity<SearchResultAPIEntity> search(@RequestParam("query") String query) {
-
-        JsonResponseEntity<SearchResultAPIEntity> entity = new JsonResponseEntity<SearchResultAPIEntity>();
-        SearchResultAPIEntity searchResultAPIEntity = new SearchResultAPIEntity();
-
-        List<DocSearchResultAPIEntity> docSearchResultAPIEntities = new ArrayList<>();
-        DocSearchResultAPIEntity doc = new DocSearchResultAPIEntity();
-        doc.setName("张大锤");
-        doc.setAvatar("http://qiniu/111.jpg");
-        doc.setIs_attention(false);
-        doc.setHospital("中山医院");
-        docSearchResultAPIEntities.add(doc);
-
-        List<NoteCaseSearchResultAPIEntity> noteCaseSearchResultAPIEntities = new ArrayList<NoteCaseSearchResultAPIEntity>();
-        NoteCaseSearchResultAPIEntity notecase = new NoteCaseSearchResultAPIEntity();
-        notecase.setName("张大锤");
-        notecase.setHospital("中山医院");
-        notecase.setAvatar("http://qiniu/111.jpg");
-        notecase.setAgo("1小时前");
-        notecase.setCircle_id("11111");
-        notecase.setCircle_type(2);
-        notecase.setComment_num(11l);
-        notecase.setDoctor_id("2222");
-        notecase.setLike_num(111l);
-        notecase.setTag("推荐阅读");
-        CaseAPIEntity case1 = new CaseAPIEntity();
-        case1.setTitle("CT和MRI结果");
-        case1.setContent("病例病例病例病例病例病例病例病例");
-        List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
-        ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
-        imageAPIEntity.setRatio(1.0f);
-        imageAPIEntity.setUrl("http://qiniu/111.jgp");
-        imageAPIEntity.setThumb("http://qiniu/111.jgp");
-        imageAPIEntity.setHeight(320);
-        imageAPIEntity.setWidth(240);
-        imageAPIEntities.add(imageAPIEntity);
-        case1.setImages(imageAPIEntities);
-        notecase.setCases(case1);
-        noteCaseSearchResultAPIEntities.add(notecase);
-
-        List<DynamicSearchResultAPIEntity> dynamicSearchResultAPIEntities = new ArrayList<DynamicSearchResultAPIEntity>();
-        DynamicSearchResultAPIEntity entity3 = new DynamicSearchResultAPIEntity();
-        entity3.setAgo("3天前");
-        entity3.setAvatar("http://qiniu.com/11.jpg");
-        entity3.setCircle_id("3");
-        entity3.setComment_num(3l);
-        entity3.setLike_num(1l);
-        entity3.setHospital("瑞金医院");
-        entity3.setName("张医生");
-        entity3.setTag("经验之谈");
-        DynamicAPIEntity dynamic = new DynamicAPIEntity();
-        dynamic.setContent("动态动态动态动态动态动态动态");
-        dynamic.setImages(imageAPIEntities);
-        ShareAPIEntity share = new ShareAPIEntity();
-        share.setTitle("分享标题1");
-        share.setDesc("分享内容。。。。。");
-        share.setThumb("http://qiniu.com/11.jpg");
-        share.setUrl("http://qiniu.com/11.jpg");
-        dynamic.setShare(share);
-        entity3.setDynamic(dynamic);
-        dynamicSearchResultAPIEntities.add(entity3);
-
-        searchResultAPIEntity.setDoc_list(docSearchResultAPIEntities);
-        searchResultAPIEntity.setDoc_more(false);
-        searchResultAPIEntity.setDynamic_list(dynamicSearchResultAPIEntities);
-        searchResultAPIEntity.setDynamic_more(false);
-        searchResultAPIEntity.setNotecase_list(noteCaseSearchResultAPIEntities);
-        searchResultAPIEntity.setNotecase_more(true);
-
-        entity.setData(searchResultAPIEntity);
-        return entity;
-    }
-
-    /**
-     * 搜索(医生列表-加载更多)
-     * @param query
-     * @return
-     */
-    @VersionRange
-    @RequestMapping(value = "/search/doctor", method = RequestMethod.GET)
-    public JsonListResponseEntity<DocSearchResultAPIEntity> searchDoc(@RequestParam("query") String query,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "flag", required = false) String flag) {
-
-        JsonListResponseEntity<DocSearchResultAPIEntity> entity = new JsonListResponseEntity<>();
-
-        List<DocSearchResultAPIEntity> docSearchResultAPIEntities = new ArrayList<>();
-        DocSearchResultAPIEntity doc = new DocSearchResultAPIEntity();
-        doc.setName("张大锤");
-        doc.setAvatar("http://qiniu/111.jpg");
-        doc.setIs_attention(false);
-        doc.setHospital("中山医院");
-        docSearchResultAPIEntities.add(doc);
-
-        entity.setContent(docSearchResultAPIEntities);
-        return entity;
-    }
-
-    /**
-     * 搜索(帖子/病例-加载更多)
-     * @param query
-     * @return
-     */
-    @VersionRange
-    @RequestMapping(value = "/search/notecase", method = RequestMethod.GET)
-    public JsonListResponseEntity<NoteCaseSearchResultAPIEntity> searchNotecase(@RequestParam("query") String query,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "flag", required = false) String flag) {
-
-        JsonListResponseEntity<NoteCaseSearchResultAPIEntity> entity = new JsonListResponseEntity<>();
-
-        List<NoteCaseSearchResultAPIEntity> noteCaseSearchResultAPIEntities = new ArrayList<>();
-        NoteCaseSearchResultAPIEntity notecase = new NoteCaseSearchResultAPIEntity();
-        notecase.setName("张大锤");
-        notecase.setHospital("中山医院");
-        notecase.setAvatar("http://qiniu/111.jpg");
-        notecase.setAgo("1小时前");
-        notecase.setCircle_id("11111");
-        notecase.setCircle_type(2);
-        notecase.setComment_num(11l);
-        notecase.setDoctor_id("2222");
-        notecase.setLike_num(111l);
-        notecase.setTag("推荐阅读");
-        CaseAPIEntity case1 = new CaseAPIEntity();
-        case1.setTitle("CT和MRI结果");
-        case1.setContent("病例病例病例病例病例病例病例病例");
-        List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
-        ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
-        imageAPIEntity.setRatio(1.0f);
-        imageAPIEntity.setUrl("http://qiniu/111.jgp");
-        imageAPIEntity.setThumb("http://qiniu/111.jgp");
-        imageAPIEntity.setHeight(320);
-        imageAPIEntity.setWidth(240);
-        imageAPIEntities.add(imageAPIEntity);
-        case1.setImages(imageAPIEntities);
-        notecase.setCases(case1);
-        noteCaseSearchResultAPIEntities.add(notecase);
-
-        entity.setContent(noteCaseSearchResultAPIEntities);
-        return entity;
-    }
-
-    /**
-     * 搜索(动态-加载更多)
-     * @param query
-     * @return
-     */
-    @VersionRange
-    @RequestMapping(value = "/search/dynamic", method = RequestMethod.GET)
-    public JsonListResponseEntity<DynamicSearchResultAPIEntity> searchDynamic(@RequestParam("query") String query,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "flag", required = false) String flag) {
-
-        JsonListResponseEntity<DynamicSearchResultAPIEntity> entity = new JsonListResponseEntity<>();
-
-        List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
-        ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
-        imageAPIEntity.setRatio(1.0f);
-        imageAPIEntity.setUrl("http://qiniu/111.jgp");
-        imageAPIEntity.setThumb("http://qiniu/111.jgp");
-        imageAPIEntity.setHeight(320);
-        imageAPIEntity.setWidth(240);
-        imageAPIEntities.add(imageAPIEntity);
-
-        List<DynamicSearchResultAPIEntity> dynamicSearchResultAPIEntities = new ArrayList<DynamicSearchResultAPIEntity>();
-        DynamicSearchResultAPIEntity entity3 = new DynamicSearchResultAPIEntity();
-        entity3.setAgo("3天前");
-        entity3.setAvatar("http://qiniu.com/11.jpg");
-        entity3.setCircle_id("3");
-        entity3.setComment_num(3l);
-        entity3.setLike_num(1l);
-        entity3.setHospital("瑞金医院");
-        entity3.setName("张医生");
-        entity3.setTag("经验之谈");
-        DynamicAPIEntity dynamic = new DynamicAPIEntity();
-        dynamic.setContent("动态动态动态动态动态动态动态");
-        dynamic.setImages(imageAPIEntities);
-        ShareAPIEntity share = new ShareAPIEntity();
-        share.setTitle("分享标题1");
-        share.setDesc("分享内容。。。。。");
-        share.setThumb("http://qiniu.com/11.jpg");
-        share.setUrl("http://qiniu.com/11.jpg");
-        dynamic.setShare(share);
-        entity3.setDynamic(dynamic);
-        dynamicSearchResultAPIEntities.add(entity3);
-
-        entity.setContent(dynamicSearchResultAPIEntities);
-        return entity;
-    }
+   
 
     /**
      * 收藏
@@ -884,6 +684,8 @@ public class MedicalCircleController {
 
     /**
      * 关注
+     * attention_id 关注人id
+     * followed_id 被关注人id
      */
     @VersionRange
     @RequestMapping(value = "/doctor/follow", method = RequestMethod.POST)
@@ -932,7 +734,8 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/doctor", method = RequestMethod.GET)
-    public JsonResponseEntity<DoctorAPIEntity> doctorinfo(@RequestParam("uid") String uid,
+    public JsonResponseEntity<DoctorAPIEntity> doctorinfo(
+            @RequestParam("uid") String uid,
             @RequestParam("doctor_id") String doctor_id) {
         
         JsonResponseEntity<DoctorAPIEntity> result = new JsonResponseEntity<>();
@@ -966,7 +769,7 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/doctor/notecase", method = RequestMethod.GET)
     public JsonListResponseEntity<MedicalCircleAPIEntity> getOneNoteCaseCircle(
-            @RequestHeader(value = "screen-width") String screen_width,
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
             @RequestParam(value = "doctor_id", required = false) String doctor_id,
             @RequestParam(value = "uid", required = false) String uid,
             @RequestParam(value = "collect") Boolean collect,
@@ -987,7 +790,7 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/doctor/dynamic", method = RequestMethod.GET)
     public JsonListResponseEntity<MedicalCircleAPIEntity> getOneDynamicCircle(
-            @RequestHeader(value = "screen-width") String screen_width,
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
             @RequestParam(value = "doctor_id", required = false) String doctor_id,
             @RequestParam(value = "uid", required = false) String uid,
             @RequestParam(value = "collect") Boolean collect,

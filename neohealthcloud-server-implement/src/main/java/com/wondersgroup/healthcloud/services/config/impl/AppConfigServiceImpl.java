@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.repository.config.AppConfigRepository;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -105,14 +106,14 @@ public class AppConfigServiceImpl implements AppConfigService {
             @Override
             public Predicate toPredicate(Root<AppConfig> rt, CriteriaQuery<?> cq, CriteriaBuilder cb) {
                 List<Predicate> predicateList = new ArrayList<Predicate>();
-                if (appConfig.getMainArea() != null) {
+                if (StringUtils.isNotEmpty(appConfig.getMainArea())) {
                     predicateList.add(cb.equal(rt.<String>get("mainArea"), appConfig.getMainArea()));
                 }
-                if (appConfig.getSpecArea() != null) {
+                if (StringUtils.isNotEmpty(appConfig.getSpecArea())) {
                     predicateList.add(cb.equal(rt.<String>get("specArea"), appConfig.getSpecArea()));
                 }
                 // 单关键字查询与多关键字查询互斥
-                if (appConfig.getKeyWord() != null) {
+                if (StringUtils.isNotEmpty(appConfig.getKeyWord())) {
                     predicateList.add(cb.equal(rt.<String>get("keyWord"), appConfig.getKeyWord()));
                 } else if (keyWords != null && keyWords.size() > 0) {
                     Expression<String> expression = rt.<String>get("keyWord");

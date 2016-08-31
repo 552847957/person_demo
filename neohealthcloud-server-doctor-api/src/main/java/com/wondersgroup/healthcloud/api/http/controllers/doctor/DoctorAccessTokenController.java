@@ -39,6 +39,19 @@ public class DoctorAccessTokenController {
         return body;
     }
 
+    @WithoutToken
+    @RequestMapping(value = "/fastLogin", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<DoctorAccountAndSessionDTO> fastFetchToken(@RequestParam String mobile,
+                                                                       @RequestParam String verify_code) {
+        JsonResponseEntity<DoctorAccountAndSessionDTO> body = new JsonResponseEntity<>();
+        body.setData(new DoctorAccountAndSessionDTO(doctorAccountService.fastLogin(mobile, verify_code,false)));//改为false
+        body.setMsg("登录成功");
+        attachInfo(body);
+        return body;
+    }
+
+
     @RequestMapping(value = "/logout", method = RequestMethod.DELETE)
     @VersionRange
     public JsonResponseEntity<String> deleteToken(@RequestHeader("access-token") String token) {

@@ -4,21 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
-/**
- * Created by Yoda on 2015/9/2.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentAPIEntity {
-    private String comment_id;
-    private String doctor_id;
-    private String name;
-    private String reply_name;
-    private String avatar;
-    private String content;
-    private String floor;
-    private String ago;
-    private Boolean reply_more;
-    private List<CommentAPIEntity> reply_list;
+    private String                 comment_id; //评论id
+    private String                 doctor_id;  //医生id
+    private String                 name;       //名字
+    private String                 reply_name; //回复名称
+    private String                 avatar;     //图像
+    private String                 content;    //内容
+    private String                 floor;      //楼层
+    private String                 ago;        //时间
+    private Boolean                reply_more; //更多回复
+    private List<CommentAPIEntity> reply_list; //回复集合
 
     public String getDoctor_id() {
         return doctor_id;

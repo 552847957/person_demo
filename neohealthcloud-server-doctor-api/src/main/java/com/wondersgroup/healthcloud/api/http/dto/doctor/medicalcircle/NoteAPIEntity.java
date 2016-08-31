@@ -4,15 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
-/**
- * Created by Yoda on 2015/9/2.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NoteAPIEntity {
-    private String title;
-    private Boolean has_images;
-    private String content;
-    private List<ImageAPIEntity> images;
+    private String               title;      //标题
+    private Boolean              has_images;
+    private String               content;    //内容
+    private List<ImageAPIEntity> images;     //图片集合
 
     public String getTitle() {
         return title;
@@ -37,7 +34,6 @@ public class NoteAPIEntity {
     public void setContent(String content) {
         this.content = content;
     }
-
 
     public List<ImageAPIEntity> getImages() {
         return images;
