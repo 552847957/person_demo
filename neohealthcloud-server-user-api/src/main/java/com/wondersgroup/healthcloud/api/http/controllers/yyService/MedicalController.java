@@ -81,12 +81,8 @@ public class MedicalController {
         Object time = reader.readObject("time", false, List.class);
 
         ObjectMapper objectMapper=new ObjectMapper();
-        String jsonArray = null;
-        try {
-            jsonArray = objectMapper.writeValueAsString(time);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+
+        String jsonArray = JSONArray.fromObject(time).toString();
 
         String url = getURL()
                 + "rest/order/orderApplyInfoAction!buyOrderApplyInfo.action";

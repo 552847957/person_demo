@@ -118,7 +118,7 @@ public class VisitUserServiceImpl implements VisitUserService {
      */
     public JsonNode postRequest(String url, String[] parm){
 
-        Request request = new RequestBuilder().post().url(url).build();
+        Request request = new RequestBuilder().post().url(url).params(parm).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode body = response.convertBody();
         if (response.code() != 200){
