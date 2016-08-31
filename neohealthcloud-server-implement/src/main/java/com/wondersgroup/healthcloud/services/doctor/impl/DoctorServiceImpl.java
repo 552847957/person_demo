@@ -74,9 +74,20 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public List<Doctor> findDoctorByIds(String ids) {
+        if(StringUtils.isBlank(ids)){
+            return null;
+        }
+        String[] doctorIds = ids.split(",");
+
+        StringBuffer sb = new StringBuffer();
+        for(String str : doctorIds){
+            sb.append(" '"+str+"',  ");
+        }
+        String param = sb.toString();
+
         String sql =query +
-                " where a.id in '%s'";
-        sql = String.format(sql,ids);
+                " where a.id in  ('%s') ";
+        sql = String.format(sql,param.substring(0,param.length()-1));
         RowMapper<Doctor> rowMapper = new DoctorListRowMapper();
         List<Doctor> doctors = jt.query(sql, rowMapper);
         return doctors;
