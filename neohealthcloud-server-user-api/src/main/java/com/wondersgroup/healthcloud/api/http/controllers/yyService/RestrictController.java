@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.yyService;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -151,6 +154,8 @@ public class RestrictController {
      * @param userId
      * @param file
      * @return JsonResponseEntity<Map<String,String>>
+     * @throws IOException 
+     * @throws IllegalStateException 
      */
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @VersionRange
@@ -158,29 +163,32 @@ public class RestrictController {
     		HttpServletRequest request, 
     		@RequestParam(required = false, defaultValue = "") String response, 
     		@RequestParam String userId,
-            @RequestParam MultipartFile file) {
+            @RequestParam MultipartFile file) throws IOException {
     	
-        String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action?fileType=03&orderid={orderid}";
+    	String filePath = request.getSession().getServletContext().getRealPath("/")  + file.getOriginalFilename();
+        File f = new File(filePath);
+        file.transferTo(f);
+        
+        String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action";
         JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
         String[] header = visitUserService.getRequestHeaderByUid(userId, true);
 
-        byte[] part = null;
-        try {
-            part = file.getBytes();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("file", part);
+        param.add("file", new FileSystemResource(f));
+        param.add("fileType", 03);
+        param.add("orderid", response);
         
         HttpHeaders headers = new HttpHeaders();
         for (int i = 0; i < header.length; i += 2) {
         	headers.add(header[i], header[i + 1]);
 		}
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<MultiValueMap<String, Object>>(param, headers), JsonNode.class, response);
-        JsonNode node = responseEntity.getBody();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<MultiValueMap<String, Object>>(param, headers), String.class);
+        if(f.exists()){
+        	f.delete();
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readValue(responseEntity.getBody(), JsonNode.class);
         Map<String, String> resultMap = Maps.newHashMap();
         if (1 == node.get("status").asInt()) {
             resultMap.put("response", node.get("response").asText());
