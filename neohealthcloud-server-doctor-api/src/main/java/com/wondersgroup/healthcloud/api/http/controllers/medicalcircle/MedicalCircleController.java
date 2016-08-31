@@ -55,15 +55,16 @@ public class MedicalCircleController {
 
     @Autowired
     private MedicalCircleService    mcService;
-
     @Autowired
     private DoctorService           docinfoService;
-
     @Autowired
     private DictCache               dictCache;
-
     @Autowired
     private DoctorAccountRepository doctorAccountRepository;
+    @Autowired
+    private CircleLikeUtils circleLikeUtils;
+    
+    
 
     private JsonListResponseEntity<MedicalCircleAPIEntity> getMedicalCircleList(String screen_width,
             Integer[] circle_type, String doctor_id, String uid, String order, String flag, Boolean collect) {
@@ -104,7 +105,7 @@ public class MedicalCircleController {
             entity.setDoctor_id(mc.getDoctorid());
             entity.setHospital(doctorInfo.getHospitalName());
             if (StringUtils.isNotEmpty(uid)) {
-//                entity.setIs_liked(CircleLikeUtils.isLikeOne(mc.getId(), uid));//redis
+                entity.setIs_liked(circleLikeUtils.isLikeOne(mc.getId(), uid));//redis
             }
             entity.setLike_num(mc.getPraisenum());
             entity.setName(doctorInfo.getName());
@@ -220,7 +221,7 @@ public class MedicalCircleController {
         } else {
             responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
                     mc, screen_width, uid));
-//            mcService.view(circle_id, uid);//redis
+            mcService.view(circle_id, uid);//redis
         }
         return responseEntity;
     }
