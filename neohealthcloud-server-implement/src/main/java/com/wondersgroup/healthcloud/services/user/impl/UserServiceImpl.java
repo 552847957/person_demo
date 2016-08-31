@@ -6,6 +6,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -13,11 +14,13 @@ import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateGenderException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateUserInfoException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -279,6 +282,25 @@ public class UserServiceImpl implements UserService {
         register.setMedicarecard(medicareCard);
         registerInfoRepository.saveAndFlush(register);
         return true;
+    }
+
+    public Boolean getInvitationActived(String userId) {
+        List<Map<String, Object>> maps = jt.queryForList(String.format("select 0 from app_tb_invitation where uid='%s' limit 1", userId));
+        return !maps.isEmpty();
+    }
+
+    @Override
+    public void activeInvitation(String uid, String code) {
+        if (getInvitationActived(uid)) {
+            throw new CommonException(1071, "已经激活过, 不能重复激活");
+        }
+        Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
+        if (doctorInfo == null) {
+            throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
+        } else {
+            String doctorId = doctorInfo.getUid();
+            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(), doctorId, DateFormatter.dateTimeFormat(new Date())));
+        }
     }
 
     private String getTagListLike(Map parameter){
