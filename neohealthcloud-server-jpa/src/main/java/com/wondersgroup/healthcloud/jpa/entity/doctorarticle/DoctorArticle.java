@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.jpa.entity.doctorarticle;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by shenbin on 16/8/30.
@@ -46,7 +47,7 @@ public class DoctorArticle {
     private int onlineTime;
 
     @Column(name = "update_time")
-    private long updateTime;
+    private Date updateTime;
 
     private String keyword;
 }

@@ -11,4 +11,6 @@ import java.util.List;
 public interface DoctorArticleRepository extends JpaRepository<DoctorArticle, Integer> {
 
     List<DoctorArticle> findByCategoryIdsContaining(String categoryId);
+
+    DoctorArticle findById(int id);
 }
