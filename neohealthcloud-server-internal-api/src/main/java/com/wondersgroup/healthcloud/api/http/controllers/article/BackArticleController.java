@@ -149,7 +149,8 @@ public class BackArticleController {
 
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
-        //articleAreaRepository
+        List<NewsArticleCategory> newsCategory = manageNewsArticleCategotyService.findNewsCategoryByArea(areaCode);
+
         response.setData(articleInfo);
         return response;
     }

@@ -19,17 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DocSearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicSearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ImageAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDependence;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDetailAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteCaseSearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.SearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ShareAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -49,21 +45,26 @@ import com.wondersgroup.healthcloud.utils.ImageUtils;
 import com.wondersgroup.healthcloud.utils.TimeAgoUtils;
 import com.wondersgroup.healthcloud.utils.circle.CircleLikeUtils;
 
+/**
+ * 
+ * Created by sunhaidi on 2016.8.29
+ */
 @RestController
 @RequestMapping("/api/medicalcircle")
 public class MedicalCircleController {
 
     @Autowired
     private MedicalCircleService    mcService;
-
     @Autowired
     private DoctorService           docinfoService;
-
     @Autowired
     private DictCache               dictCache;
-
     @Autowired
     private DoctorAccountRepository doctorAccountRepository;
+    @Autowired
+    private CircleLikeUtils circleLikeUtils;
+    
+    
 
     private JsonListResponseEntity<MedicalCircleAPIEntity> getMedicalCircleList(String screen_width,
             Integer[] circle_type, String doctor_id, String uid, String order, String flag, Boolean collect) {
@@ -104,7 +105,7 @@ public class MedicalCircleController {
             entity.setDoctor_id(mc.getDoctorid());
             entity.setHospital(doctorInfo.getHospitalName());
             if (StringUtils.isNotEmpty(uid)) {
-//                entity.setIs_liked(CircleLikeUtils.isLikeOne(mc.getId(), uid));//redis
+                entity.setIs_liked(circleLikeUtils.isLikeOne(mc.getId(), uid));//redis
             }
             entity.setLike_num(mc.getPraisenum());
             entity.setName(doctorInfo.getName());
@@ -209,18 +210,19 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
-            @RequestHeader(value = "screen-width") String screen_width,
-            @RequestParam(value = "circle_id", required = true) String circle_id) {
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
+            @RequestParam(value = "circle_id", required = true) String circle_id,
+            @RequestParam(value = "doctor_id", required = true) String doctor_id
+            ) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);
-        String uid = null;
         if (mc.getType() == 2) {
             responseEntity.setCode(1281);
             responseEntity.setMsg("未认证医生无法查看病例");
         } else {
             responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
-                    mc, screen_width, uid));
-//            mcService.view(circle_id, uid);//redis
+                    mc, screen_width, doctor_id));
+            mcService.view(circle_id, doctor_id);//redis
         }
         return responseEntity;
     }

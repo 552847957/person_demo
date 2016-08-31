@@ -10,10 +10,11 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.utils.QueryMapUtils;
 import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.redis.config.RedisConfig;
 import com.wondersgroup.healthcloud.services.yyService.VisitDoctorService;
 import com.wondersgroup.healthcloud.services.yyService.dto.*;
-import com.wondersgroup.healthcloud.utils.RedisConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -27,24 +28,29 @@ import java.util.*;
 @Service("visitDoctorService")
 public class VisitDoctorServiceImpl implements VisitDoctorService {
 
-    @Value("yyservice.img.host")
+    @Autowired
+    private RedisConfig redisConfig;
+
+    @Value("${yyservice.img.host}")
     private String yyImgHost;//yyservice.img.host
+
+    @Value("${yyservice.service.host}")
+    private String yyServiceHost;
 
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
-    private static String serviceImgBaseUri = PropertiesUtils.get("api.medicineSupport.service.img.url");
-    private static String checkInUrl = PropertiesUtils.get("api.medicineSupport.service.url")+"/rest/admin/order/checkIn.action";
-    private static String getTokenUrl = PropertiesUtils.get("api.medicineSupport.service.url")+"/rest/users/JyCCDYsFmg.action";
-    private static String orderListUrl = PropertiesUtils.get("api.medicineSupport.service.url")+"/rest/users/orderAction!orderinfoList.action";
+    private String checkInUrl = yyServiceHost+"/rest/admin/order/checkIn.action";
+    private String getTokenUrl = yyServiceHost+"/rest/users/JyCCDYsFmg.action";
+    private String orderListUrl = yyServiceHost+"/rest/users/orderAction!orderinfoList.action";
 
-    private static String execDemoUrl = PropertiesUtils.get("api.medicineSupport.service.url")+"/rest/order/execDemo.action";
-    private static String execDemoResultUrl = PropertiesUtils.get("api.medicineSupport.service.url")+
+    private String execDemoUrl = yyServiceHost+"/rest/order/execDemo.action";
+    private String execDemoResultUrl = yyServiceHost+
                         "/rest/order/orderApplyInfoAction!findOrderExecInfo.action";
 
-    private static String submitExecDemoUrl = PropertiesUtils.get("api.medicineSupport.service.url")+
+    private String submitExecDemoUrl = yyServiceHost+
                         "/rest/order/orderApplyInfoAction!saveOrderExecInfo.action";
 
-    private static String getUserInfoUrl = PropertiesUtils.get("api.medicineSupport.service.url")+ "/rest/admin/order/client.action";
+    private String getUserInfoUrl = yyServiceHost+ "/rest/admin/order/client.action";
 
 
     private static final int TIME_24_HOUR = 24*60*60;
@@ -98,7 +104,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
             Gson gson = new Gson();
             userInfo = gson.fromJson(jsonNode.toString(), YYVisitUserInfo.class);
             if (StringUtils.isNotEmpty(userInfo.getHeadIcon())){
-                userInfo.setHeadIcon(serviceImgBaseUri + "/" + userInfo.getHeadIcon());
+                userInfo.setHeadIcon(yyImgHost + "/" + userInfo.getHeadIcon());
             }
         }else {
             return null;
@@ -113,7 +119,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
         parm.put("pageSize", pageSize);
         parm.put("type", type);
         List<YYVisitOrderInfo> list = new ArrayList<>();
-        serviceImgBaseUri = getServiceImgHost();
+        yyImgHost = getServiceImgHost();
         try {
             JsonNode body = this.postRequest(personcard, orderListUrl, QueryMapUtils.convert(parm));
             if (body.get("status").asText().equals("1")){
@@ -124,7 +130,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
                         try {
                             YYVisitOrderInfo orderInfo = gson.fromJson(objNode.toString(), YYVisitOrderInfo.class);
                             if (StringUtils.isNotEmpty(orderInfo.getSmallimg())){
-                                orderInfo.setSmallimg(serviceImgBaseUri + "/" + orderInfo.getSmallimg());
+                                orderInfo.setSmallimg(yyImgHost + "/" + orderInfo.getSmallimg());
                             }
                             String showTime;
                             if (StringUtils.isNotEmpty(orderInfo.getEndtime())){
@@ -136,7 +142,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
                             List<YYVisitOrderInfo.OrderPhotos> orderPhotoses = orderInfo.gettOrderPhotos();
                             if (orderPhotoses != null && !orderPhotoses.isEmpty()){
                                 for (YYVisitOrderInfo.OrderPhotos orderPhoto : orderPhotoses){
-                                    orderPhoto.setPhotoaddress(serviceImgBaseUri + "/" + orderPhoto.getPhotoaddress());
+                                    orderPhoto.setPhotoaddress(yyImgHost + "/" + orderPhoto.getPhotoaddress());
                                 }
                             }
                             orderInfo.setService_showtime(showTime);
@@ -349,7 +355,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
      * @return
      */
     private String getServiceImgHost(){
-        return StringUtils.isEmpty(yyImgHost) ? "" : yyImgHost;
+        return StringUtils.isEmpty(yyImgHost) ? yyServiceHost : yyImgHost;
     }
 
     /**
@@ -361,12 +367,12 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
         return new String[]{"userId", yyDoctorInfo.getUserId(), "token", yyDoctorInfo.getToken()};
     }
 
-    private static Jedis jedis() {
-        return RedisConnectionFactory.getConnection6379();
+    private Jedis jedis() {
+        return redisConfig.redisConnectionFactory().getResource();
     }
 
-    private static void returnResource(Jedis jedis) {
-        RedisConnectionFactory.returnResource6379(jedis);
+    private void returnResource(Jedis jedis) {
+        redisConfig.redisConnectionFactory();
     }
 
 }

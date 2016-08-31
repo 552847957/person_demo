@@ -40,7 +40,12 @@ public class CircleServiceImpl implements CircleService {
     private ArticleTransmitRepository articleTransmitRepository;
     @Autowired
     private CircleReportRepository circleReportRepository;
-
+    @Autowired
+    private CircleLikeUtils circleLikeUtils;
+    @Autowired
+    private CircleReportUtils circleReportUtils;
+    
+    
     @Override
     public List<HealthCircle> getHotArticles(String flag,Integer num,Float praiseNum) {
         String time = new DateTime().plusDays(-2).toString("yyyy-MM-dd HH:mm:ss");
@@ -87,7 +92,7 @@ public class CircleServiceImpl implements CircleService {
 
     @Override
     public Boolean like(String registerId, String articleId) {
-        Boolean success = CircleLikeUtils.likeOne(articleId, registerId);
+        Boolean success = circleLikeUtils.likeOne(articleId, registerId);
         if(success){
             HealthCircle article = healthCircleRepository.findOne(articleId);
             article.setPraisenum(article.getPraisenum() == null ? 1 : article.getPraisenum() + 1);
@@ -98,7 +103,7 @@ public class CircleServiceImpl implements CircleService {
 
     @Override
     public Boolean unlike(String registerId, String articleId) {
-        Boolean success = CircleLikeUtils.cancelLikeOne(articleId, registerId);
+        Boolean success = circleLikeUtils.cancelLikeOne(articleId, registerId);
         if(success) {
             HealthCircle article = healthCircleRepository.findOne(articleId);
             article.setPraisenum(article.getPraisenum() - 1);
@@ -218,7 +223,7 @@ public class CircleServiceImpl implements CircleService {
     public Boolean report(String uid, String reportId, Integer contentType, Integer reportType) {
         Assert.isTrue(contentType==1||contentType==2,"接收参数值："+contentType+"，举报类型错误(1.帖子 2.评论)");
         Assert.isTrue(reportType>=1&&reportType<=5,"接收参数值："+reportType+"，举报理由错误(1.色情 2.政治 3.骂人 4.广告 5.其他)");
-        Boolean success = CircleReportUtils.reportOne(reportId, uid, String.valueOf(contentType));
+        Boolean success = circleReportUtils.reportOne(reportId, uid, String.valueOf(contentType));
         if(success){
             saveReport(uid, reportId, contentType, reportType);
         }

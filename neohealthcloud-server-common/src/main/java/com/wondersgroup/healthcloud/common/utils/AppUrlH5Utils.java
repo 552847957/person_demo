@@ -14,6 +14,7 @@ public class AppUrlH5Utils {
     @Value("${h5-web.connection.url}")
     private String basePath;
 
+
     /**
      * 获取资讯文章h5页面
      * @param articleId
@@ -75,4 +76,7 @@ public class AppUrlH5Utils {
         return basePath + "/healthRecords/drugList?idc="+idc;
     }
 
+    public String buildWeiXinScan(String doctorId) {
+        return basePath + "";
+    }
 }

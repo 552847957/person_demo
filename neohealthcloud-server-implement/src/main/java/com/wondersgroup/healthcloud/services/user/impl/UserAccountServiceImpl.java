@@ -404,9 +404,6 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorChangeMobileException("验证码错误");
         }
 
-        //为了使旧手机的验证码失效
-        validateCode(register.getRegmobilephone(), oldVerifyCode, true);
-
 
         JsonNode result = httpWdUtils.updateMobile(uid,newMobile);
         Boolean success = result.get("success").asBoolean();
@@ -424,7 +421,8 @@ public class UserAccountServiceImpl implements UserAccountService{
                 doctorAccount.setUpdateBy(register.getRegisterid());
                 doctorAccountRepository.saveAndFlush(doctorAccount);
             }
-
+            //为了使旧手机的验证码失效
+            validateCode(register.getRegmobilephone(), oldVerifyCode, true);
             return true;
         } else {
             throw new ErrorChangeMobileException(1002,result.get("msg").asText());

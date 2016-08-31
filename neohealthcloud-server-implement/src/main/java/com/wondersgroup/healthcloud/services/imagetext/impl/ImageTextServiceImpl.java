@@ -123,16 +123,16 @@ public class ImageTextServiceImpl implements ImageTextService {
                 if (imgText.getDelFlag() != null) {
                     pdList.add(cb.equal(rt.<String>get("delFlag"), imgText.getDelFlag()));
                 }
-                if (imgText.getMainArea() != null) {
+                if (StringUtils.isNotEmpty(imgText.getMainArea())) {
                     pdList.add(cb.equal(rt.<String>get("mainArea"), imgText.getMainArea()));
                 }
-                if (imgText.getSpecArea() != null) {
+                if (StringUtils.isNotEmpty(imgText.getSpecArea())) {
                     pdList.add(cb.equal(rt.<String>get("specArea"), imgText.getSpecArea()));
                 }
                 if (imgText.getAdcode() != null) {
                     pdList.add(cb.equal(rt.<String>get("adcode"), imgText.getAdcode()));
                 }
-                if (imgText.getVersion() != null) {
+                if (StringUtils.isNotEmpty(imgText.getVersion())) {
                     pdList.add(cb.equal(rt.<String>get("version"), imgText.getVersion()));
                 }
                 if (imgText.getStartTime() != null) {

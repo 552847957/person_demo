@@ -54,7 +54,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public List<QuestionInfoForm> queryQuerstionList(String userId, int pageNo) {
-        String sql="SELECT t1.id, t1.status, t1.content, t2.name,date_format(t1.create_time,'%Y-%c-%d %H:%i') date,"
+        String sql="SELECT t1.id, t1.status, t1.content, t2.name,date_format(t1.create_time,'%Y-%m-%d %H:%i') date,"
                 + "t1.comment_count FROM app_tb_neoquestion t1 LEFT JOIN doctor_account_tb t2 ON t1.newest_answer_id=t2.id"
                 + " WHERE t1.asker_id='"+userId+"' ORDER BY t1.has_noread_comment desc, t1.status asc, t1.create_time desc"
                 + " LIMIT "+pageNo*10+","+10;
