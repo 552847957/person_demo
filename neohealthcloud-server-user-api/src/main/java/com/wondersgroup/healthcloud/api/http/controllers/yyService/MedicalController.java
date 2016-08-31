@@ -1,13 +1,22 @@
 package com.wondersgroup.healthcloud.api.http.controllers.yyService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wondersgroup.healthcloud.api.http.dto.medical.MedicalAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.medical.ServiceOrderAPIEntity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.services.yyService.VisitUserService;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -21,11 +30,11 @@ import java.util.*;
 @RequestMapping("/api/medicalService")
 public class MedicalController {
 
-    @Autowired
-    private VisitUserService visitUserService;
+    @Value("yyservice.img.host")
+    private String yyImgHost;//yyservice.img.host
 
     @Autowired
-    private ManageAppDescCfgService manageAppDescCfgService;
+    private VisitUserService visitUserService;
 
     private static String serviceImgBaseUri = PropertiesUtils.get("medical.service.img.url");
 
@@ -39,8 +48,7 @@ public class MedicalController {
         String[] query = { "pageIndex", "0", "pageSize", "18" };
         String url = getURL()
                 + "rest/order/orderApplyInfoAction!orderFwnrsInfo.action";
-        SimpleJsonResponse response = UrlEncodedMethod.get(url, query);
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             JsonNode data = result.get("response");
@@ -49,15 +57,7 @@ public class MedicalController {
             // 头部广告图片
             List<String> keys = new ArrayList<String>();
             keys.add("yyservice.top.banner");// 医养融合服务列表头部引导图
-            List<AppDescCfg> rtnList = manageAppDescCfgService
-                    .getAppDescCfgByKeys(keys);
-            String top_banner = "http://img.wdjky.com/ab59bc0f872661463832050826.png?imageView2";
-            if (rtnList != null && rtnList.size() > 0) {
-                AppDescCfg adc = rtnList.get(0);
-                top_banner = StringUtils.isEmpty(adc.getConfigValue()) ? top_banner
-                        : adc.getConfigValue();
-            }
-            res.addExtra("top_banner", top_banner);
+          
             res.setCode(0);
         } else {
             String msg = result.get("message").asText();
@@ -82,7 +82,13 @@ public class MedicalController {
 
         Object time = reader.readObject("time", false, List.class);
 
-        String jsonArray = JSONArray.fromObject(time).toString();
+        ObjectMapper objectMapper=new ObjectMapper();
+        String jsonArray = null;
+        try {
+            jsonArray = objectMapper.writeValueAsString(time);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         String url = getURL()
                 + "rest/order/orderApplyInfoAction!buyOrderApplyInfo.action";
@@ -95,8 +101,7 @@ public class MedicalController {
             query = new String[] { "id", id, "addressID", addressID, "time",
                     jsonArray, "source", "05", "status", "0" };
         }
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             String msg = result.get("message").asText();
@@ -120,8 +125,7 @@ public class MedicalController {
 
         String url = getURL() + "/rest/client/order/cancel.action";
         String[] query = { "orderNo", orderNo };
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);;
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             String msg = result.get("message").asText();
@@ -157,13 +161,10 @@ public class MedicalController {
         String[] query2 = { "pageIndex", String.valueOf(flag + 1), "pageSize",
                 "10", "type", status };
 
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
 
-        SimpleJsonResponse response2 = visitUserService.postRequest(userId, url, query2);
+        JsonNode result = visitUserService.postRequest(userId, url, query);
 
-        JsonNode result2 = response2.bodyAsJsonTree();
-
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result2 = visitUserService.postRequest(userId, url, query2);
         int code = result.get("status").asInt();
         if (code == 1) {
 
@@ -197,8 +198,7 @@ public class MedicalController {
         String url = getURL()
                 + "/rest/order/orderApplyInfoAction!elderAddressInfo.action";
         String[] query = {"pageIndex","0","pageSize","20"};
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1 || code == 0) {
             JsonNode data = result.get("response");
@@ -256,9 +256,7 @@ public class MedicalController {
                     "mph", mph, "addressDetail", addressDetail };
         }
 
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
-
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             String msg = result.get("message").asText();
@@ -282,9 +280,7 @@ public class MedicalController {
                 + "/rest/order/orderApplyInfoAction!saveElderAddressInfo.action";
         String[] query = {};
 
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
-
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             String msg = result.get("message").asText();
@@ -308,9 +304,7 @@ public class MedicalController {
                 + "/rest/order/orderApplyInfoAction!delElderAddressInfo.action";
         String[] query = { "id", id };
 
-        SimpleJsonResponse response = visitUserService.postRequest(userId, url, query);
-
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(userId, url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             String msg = result.get("message").asText();
@@ -332,9 +326,7 @@ public class MedicalController {
 
         JsonResponseEntity<Object> res = new JsonResponseEntity<>();
         String url = getURL() + "/rest/users/jdInfo.action";
-        SimpleJsonResponse response = UrlEncodedMethod.post(url, null, null);
-
-        JsonNode result = response.bodyAsJsonTree();
+        JsonNode result = visitUserService.postRequest(url,null);
         int code = result.get("status").asInt();
         if (code == 1) {
             JsonNode data = result.get("response");
@@ -356,9 +348,9 @@ public class MedicalController {
 
         JsonResponseEntity<Object> res = new JsonResponseEntity<>();
         String url = getURL() + "/rest/users/jwInfo.action";
-        SimpleJsonResponse response = UrlEncodedMethod.post(url, new String[] {
-                "jdId", jdId }, null);
-        JsonNode result = response.bodyAsJsonTree();
+
+        JsonNode result = visitUserService.postRequest(url, new String[]{
+                "jdId", jdId});
         int code = result.get("status").asInt();
         if (code == 1) {
             JsonNode data = result.get("response");
@@ -386,23 +378,23 @@ public class MedicalController {
     }
 
     private String getURL() {
-        return PropertiesUtils.get("medical.service.url");
+        return PropertiesUtils.get("api.medicineSupport.service.url");
     }
 
     private String getImgUrl(){
-        List<String> keys = new ArrayList<>();
-        keys.add("yyservice.img.host");
-        List<AppDescCfg> rtnList = manageAppDescCfgService.getAppDescCfgByKeys(keys);
-        if(rtnList != null && rtnList.size() > 0) {
-            AppDescCfg cfg = rtnList.get(0);
-            serviceImgBaseUri = cfg.getConfigValue();
-        }
-        return serviceImgBaseUri;
+        return this.yyImgHost;
     }
 
     private List<MedicalAPIEntity> toEntity(JsonNode data) {
         List<MedicalAPIEntity> list = new ArrayList<>();
         JSONArray arry = JSONArray.fromObject(data.toString());
+        ObjectMapper objectMapper=new ObjectMapper();
+        String jsonArray = null;
+        try {
+            jsonArray = objectMapper.writeValueAsString(data);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         serviceImgBaseUri = getImgUrl();
         for (int i = 0; i < arry.size(); i++) {
             MedicalAPIEntity entity = new MedicalAPIEntity();
