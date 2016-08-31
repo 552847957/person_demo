@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentHistoryAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.assessment.AssessmentPreDataAPIEntity;
 import com.wondersgroup.healthcloud.api.utils.TimeAgoUtils;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -138,6 +139,7 @@ public class AssessmentController {
 
     @RequestMapping(value = "/count",method= RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity count(){
         JsonResponseEntity response = new JsonResponseEntity<>();
         Map<String,Object> map = Maps.newHashMap();
@@ -148,6 +150,7 @@ public class AssessmentController {
 
     @RequestMapping(value = "/assess",method = RequestMethod.POST)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<AssessmentAPIEntity> assess(@RequestBody String result){
         JsonKeyReader reader = new JsonKeyReader(result);
         String uid = reader.readString("uid", false);
@@ -226,6 +229,7 @@ public class AssessmentController {
             assessmentAPIEntity.setNeedMovement(assessmentService.needMovement(assessment.getSport()));
             assessmentAPIEntity.setNeedAmendLife(assessmentService.needAmendLife(assessment));
             assessmentAPIEntity.setHasFamilyHistory(assessmentService.hasFamilyHistory(assessment));
+            assessmentAPIEntity.setSport(assessment.getSport());
             response.setData(assessmentAPIEntity);
         }
         return response;

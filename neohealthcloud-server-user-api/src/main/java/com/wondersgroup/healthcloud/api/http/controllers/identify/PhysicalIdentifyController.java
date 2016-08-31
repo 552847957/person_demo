@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.identify;
 
 import com.wondersgroup.healthcloud.api.http.dto.identify.HealthQuestionAPIEnity;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -23,6 +24,7 @@ public class PhysicalIdentifyController {
 
     @RequestMapping(method = RequestMethod.POST)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<List<HealthQuestionAPIEnity>> doPhysiqueIdentify(
             @RequestBody String request) {
 

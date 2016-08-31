@@ -24,6 +24,7 @@ public class AssessmentAPIEntity {
     private Boolean needMovement; //是否需要运动
     private Integer diseaseid;
     private String lastAssessTime; //上次评估时间
+    private Integer sport;
 
 
     public Integer getAge() {
@@ -145,5 +146,13 @@ public class AssessmentAPIEntity {
 
     public void setLastAssessTime(String lastAssessTime) {
         this.lastAssessTime = lastAssessTime;
+    }
+
+    public Integer getSport() {
+        return sport;
+    }
+
+    public void setSport(Integer sport) {
+        this.sport = sport;
     }
 }
