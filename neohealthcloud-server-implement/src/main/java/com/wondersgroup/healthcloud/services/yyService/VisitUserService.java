@@ -9,6 +9,8 @@ public interface VisitUserService {
 
     public JsonNode postRequest(String personcard, String url, String[] parm);
 
+    public JsonNode postRequest(String url, String[] parm);
+
     public String[] getRequestHeaderByUid(String uid, Boolean get_real_data);
 
 }

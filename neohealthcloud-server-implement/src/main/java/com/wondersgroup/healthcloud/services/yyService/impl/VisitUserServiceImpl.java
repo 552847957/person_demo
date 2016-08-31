@@ -102,6 +102,21 @@ public class VisitUserServiceImpl implements VisitUserService {
         }
         return body;
     }
+    /**
+     * 处理post请求
+     * @return
+     */
+    public JsonNode postRequest(String url, String[] parm){
+
+        Request request = new RequestBuilder().post().url(url).params(parm).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode body = response.convertBody();
+        if (response.code() != 200){
+            String errorCodeMsg = "服务提供异常("+response.code()+")";
+            throw new CommonException(2022, errorCodeMsg);
+        }
+        return body;
+    }
 
     private String getBindPersoncard(String userId){
         RegisterInfo person = userService.getOneNotNull(userId);
