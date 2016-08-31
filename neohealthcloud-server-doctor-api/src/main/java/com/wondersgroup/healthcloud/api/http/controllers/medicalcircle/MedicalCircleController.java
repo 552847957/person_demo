@@ -216,14 +216,9 @@ public class MedicalCircleController {
             ) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);
-        if (mc.getType() == 2) {
-            responseEntity.setCode(1281);
-            responseEntity.setMsg("未认证医生无法查看病例");
-        } else {
-            responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
-                    mc, screen_width, doctor_id));
-            mcService.view(circle_id, doctor_id);//redis
-        }
+        responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
+                mc, screen_width, doctor_id));
+        mcService.view(circle_id, doctor_id);//redis
         return responseEntity;
     }
 
