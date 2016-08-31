@@ -19,76 +19,76 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MedicalCircleDetailAPIEntity {
-    private String circle_id;
-    private String doctor_id;
-    private String avatar;
-    private String name;
-    private String hospital;
-    private String ago;
-    private String tag;
-    private String color;
-    private Long like_num;
-    private Long comment_num;
-    private Boolean is_liked;
-    private Long views; //浏览次数
-    private Boolean is_collected; //是否收藏
-    private String[] liked_doc_name; //点赞人名
-    private String like_doc_names; //点赞人名 逗号分隔
-    private Integer circle_type; //圈子类型 1学术贴 2病例 3动态
-    private NoteAPIEntity note; //帖子
-    private CaseAPIEntity cases; //病例
-    private DynamicAPIEntity dynamic; //动态
-    private ShareAPIEntity share; //分享
-    private List<CommentAPIEntity> comment_list; //评论列表
+    private String                 circle_id;      //帖子id
+    private String                 doctor_id;      //医生id
+    private String                 avatar;         //图像
+    private String                 name;           //名称
+    private String                 hospital;       //医院名称
+    private String                 ago;            //时间
+    private String                 tag;            //标签
+    private String                 color;          //颜色
+    private Long                   like_num;       //赞数量
+    private Long                   comment_num;    //评论数
+    private Boolean                is_liked;
+    private Long                   views;         //浏览次数
+    private Boolean                is_collected;  //是否收藏
+    private String[]               liked_doc_name; //点赞人名
+    private String                 like_doc_names; //点赞人名 逗号分隔
+    private Integer                circle_type;   //圈子类型 1学术贴 2病例 3动态
+    private NoteAPIEntity          note;          //帖子
+    private CaseAPIEntity          cases;         //病例
+    private DynamicAPIEntity       dynamic;       //动态
+    private ShareAPIEntity         share;         //分享
+    private List<CommentAPIEntity> comment_list;  //评论列表
 
-    public MedicalCircleDetailAPIEntity(MedicalCircleDependence dep,MedicalCircle mc,String screen_width,String uid) {
-        if(dep==null&&mc==null){
+    public MedicalCircleDetailAPIEntity(MedicalCircleDependence dep, MedicalCircle mc, String screen_width, String uid) {
+        if (dep == null && mc == null) {
             return;
         }
         DictCache dictCache = dep.getDictCache();
         MedicalCircleService mcService = dep.getMcService();
 
-        if(true) {
+        if (true) {
             String circle_id = mc.getId();
-//            String doctor_id = doctor.getRegisterid();
-//            this.setDoctor_id(doctor.getRegisterid());
-//            this.setAgo(TimeAgoUtils.ago(mc.getSendtime()));
-//            this.setAvatar(doctor.getHeadphoto());
+            //            String doctor_id = doctor.getRegisterid();
+            //            this.setDoctor_id(doctor.getRegisterid());
+            //            this.setAgo(TimeAgoUtils.ago(mc.getSendtime()));
+            //            this.setAvatar(doctor.getHeadphoto());
             this.setCircle_id(circle_id);
             this.setCircle_type(mc.getType());
             this.setComment_num(mcService.getCommentsNum(circle_id));
             this.setLike_num(null != mc.getPraisenum() ? mc.getPraisenum() : 0);
-//            this.setHospital(doctor.getHospitalName());
+            //            this.setHospital(doctor.getHospitalName());
             if (StringUtils.isNotEmpty(uid)) {
-//                this.setIs_liked(CircleLikeUtils.isLikeOne(circle_id, uid));
+                //                this.setIs_liked(CircleLikeUtils.isLikeOne(circle_id, uid));
             }
-//            this.setName(doctor.getName());
+            //            this.setName(doctor.getName());
             this.setTag(dictCache.queryTagName(mc.getTagid()));
             this.setColor(dictCache.queryTagColor(mc.getTagid()));
-            this.setViews(mcService.getCircleViews(circle_id));
-            this.setIs_collected(mcService.checkCollect(circle_id, uid,1));
+            //            this.setViews(mcService.getCircleViews(circle_id));//redis
+            this.setIs_collected(mcService.checkCollect(circle_id, uid, 1));
 
-//            DoctorEntity[] doctors = docUtils.getDoctors(CircleLikeUtils.likeUserIds(circle_id));
-//            String[] docLikeNames = new String[doctors.length];
-//            if(doctors.length>0){
-//                for (int i = 0; i < doctors.length; i++) {
-//                    DoctorEntity doc = doctors[i];
-//                    if(doc!=null) {
-//                        String name = doc.getName();
-//                        if(StringUtils.isEmpty(name)){
-//                            name = doc.getNickname();
-//                        }
-//                        docLikeNames[i] = doc.getRegisterid() + ":" + name;
-//                        this.like_doc_names ="";
-//                        if (i == doctors.length - 1) {
-//                            this.like_doc_names += name;
-//                        } else {
-//                            this.like_doc_names += name + ",";
-//                        }
-//                    }
-//                }
-//                this.setLiked_doc_name(docLikeNames);
-//            }
+            //            DoctorEntity[] doctors = docUtils.getDoctors(CircleLikeUtils.likeUserIds(circle_id));
+            //            String[] docLikeNames = new String[doctors.length];
+            //            if(doctors.length>0){
+            //                for (int i = 0; i < doctors.length; i++) {
+            //                    DoctorEntity doc = doctors[i];
+            //                    if(doc!=null) {
+            //                        String name = doc.getName();
+            //                        if(StringUtils.isEmpty(name)){
+            //                            name = doc.getNickname();
+            //                        }
+            //                        docLikeNames[i] = doc.getRegisterid() + ":" + name;
+            //                        this.like_doc_names ="";
+            //                        if (i == doctors.length - 1) {
+            //                            this.like_doc_names += name;
+            //                        } else {
+            //                            this.like_doc_names += name + ",";
+            //                        }
+            //                    }
+            //                }
+            //                this.setLiked_doc_name(docLikeNames);
+            //            }
             Integer type = mc.getType();
             this.setCircle_type(type);
             List<ArticleAttach> images = mcService.getCircleAttachs(mc.getId());
@@ -97,7 +97,7 @@ public class MedicalCircleDetailAPIEntity {
                 if (images.size() == 1) {
                     ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
                     ImageUtils.Image image = ImageUtils.getImage(images.get(0).getAttachid());
-                    if(image!=null) {
+                    if (image != null) {
                         imageAPIEntity.setRatio(ImageUtils.getImgRatio(image));
                         imageAPIEntity.setUrl(image.getUrl());
                         imageAPIEntity.setThumb(ImageUtils.getBigThumb(image, screen_width));
@@ -142,35 +142,37 @@ public class MedicalCircleDetailAPIEntity {
                 this.setDynamic(dynamic);
             }
 
-            List<MedicalCircleCommunity> comments = mcService.getMedicalCircleComments(circle_id, "discusstime:asc", new Date(0));
+            List<MedicalCircleCommunity> comments = mcService.getMedicalCircleComments(circle_id, "discusstime:asc",
+                    new Date(0));
             List<CommentAPIEntity> commentlist = new ArrayList<CommentAPIEntity>();
             int cfloor = 1;
             for (MedicalCircleCommunity comment : comments) {
                 CommentAPIEntity commentEntity = new CommentAPIEntity();
-//                DoctorEntity commentDoctor = docUtils.getDoctor(comment.getDoctorid());
-//                if(commentDoctor==null){
-//                    continue;
-//                }
+                //                DoctorEntity commentDoctor = docUtils.getDoctor(comment.getDoctorid());
+                //                if(commentDoctor==null){
+                //                    continue;
+                //                }
                 commentEntity.setAgo(TimeAgoUtils.ago(comment.getDiscusstime()));
-//                commentEntity.setAvatar(commentDoctor.getHeadphoto());
+                //                commentEntity.setAvatar(commentDoctor.getHeadphoto());
                 commentEntity.setContent(comment.getContent());
                 commentEntity.setFloor(mcService.getFloor(cfloor));
                 commentEntity.setDoctor_id(comment.getDoctorid());
-//                commentEntity.setName(commentDoctor.getName());
+                //                commentEntity.setName(commentDoctor.getName());
 
                 int rfloor = 1;
                 List<CommentAPIEntity> replyEntitylist = new ArrayList<CommentAPIEntity>();
-                List<MedicalCircleReply> commentReplyList = mcService.getCommentReplyList(comment.getId(), new Date(0), "discusstime:asc", 5);
+                List<MedicalCircleReply> commentReplyList = mcService.getCommentReplyList(comment.getId(), new Date(0),
+                        "discusstime:asc", 5);
                 for (MedicalCircleReply reply : commentReplyList) {
                     CommentAPIEntity replyEntity = new CommentAPIEntity();
-//                    DoctorEntity replyDoctor = docUtils.getDoctor(comment.getDoctorid());
-//                    if(replyDoctor==null){
-//                        continue;
-//                    }
-//                    replyEntity.setName(replyDoctor.getName());
+                    //                    DoctorEntity replyDoctor = docUtils.getDoctor(comment.getDoctorid());
+                    //                    if(replyDoctor==null){
+                    //                        continue;
+                    //                    }
+                    //                    replyEntity.setName(replyDoctor.getName());
                     replyEntity.setDoctor_id(reply.getDoctorid());
                     replyEntity.setAgo(TimeAgoUtils.ago(reply.getDiscusstime()));
-//                    replyEntity.setAvatar(replyDoctor.getHeadphoto());
+                    //                    replyEntity.setAvatar(replyDoctor.getHeadphoto());
                     replyEntity.setContent(reply.getContent());
                     replyEntity.setFloor(mcService.getFloor(rfloor));
                     rfloor++;
@@ -189,13 +191,13 @@ public class MedicalCircleDetailAPIEntity {
 
             ShareAPIEntity shareEntity = new ShareAPIEntity();
             String content = mc.getContent();
-            if(StringUtils.isNotBlank(content)&&content.length()>100){
+            if (StringUtils.isNotBlank(content) && content.length() > 100) {
                 content = content.substring(0, 100) + "...";
             }
-            shareEntity.setTitle(StringUtils.defaultString(mc.getTitle(),"万达全程健康云"));
+            shareEntity.setTitle(StringUtils.defaultString(mc.getTitle(), "万达全程健康云"));
             shareEntity.setDesc(content);
             shareEntity.setThumb("http://img.wdjky.com/app/ic_launcher");
-//            shareEntity.setUrl(AppDoctorUrlH5Utils.buildMedicalCircleTopicView(mc.getId()));
+            //            shareEntity.setUrl(AppDoctorUrlH5Utils.buildMedicalCircleTopicView(mc.getId()));
             this.share = shareEntity;
         }
     }

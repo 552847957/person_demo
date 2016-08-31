@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -382,28 +383,20 @@ public class MedicalCircleController {
             @RequestParam("circle_type") Integer circle_type,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "content", required = false) String content,
-            @RequestPart(value = "images", required = false) MultipartFile[] images) {
+            @RequestParam(value = "images", required = false) String images) {
        
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
-        try {
-            List<String> imageURLs = new ArrayList<String>();
-            if(images != null){
-                for (MultipartFile image : images) {
-                    imageURLs.add(ImageUploader.upload("app", IdGen.uuid() + ".jpg", image.getBytes()));
-                    
-                }
-            }
-            mcService.publish(doctor_id, title, content, circle_type, imageURLs);
-            entity.setMsg("发布成功");
-            //        } else {
-            //            entity.setCode(1299);
-            //            entity.setMsg("内容含有敏感词汇");
-            //        }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        List<String> imageURLs = new ArrayList<String>();
+        if(!StringUtils.isBlank(images)){
+            imageURLs = Arrays.asList(images.split(","));
         }
+        mcService.publish(doctor_id, title, content, circle_type, imageURLs);
+        entity.setMsg("发布成功");
+        //        } else {
+        //            entity.setCode(1299);
+        //            entity.setMsg("内容含有敏感词汇");
+        //        }
         return entity;
     }
 
@@ -587,9 +580,11 @@ public class MedicalCircleController {
      * @return
      */
     @VersionRange
-    @RequestMapping(method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delCircle(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("circle_id") String circle_id) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "delCircle")
+    public JsonResponseEntity<String> delCircle(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("circle_id") String circle_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delMedicalCircle(doctor_id, circle_id);
@@ -608,8 +603,10 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment", method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delComment(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("comment_id") String comment_id) {
+    public JsonResponseEntity<String> delComment(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("comment_id") String comment_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delComment(doctor_id, comment_id);
@@ -628,8 +625,10 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment/reply", method = RequestMethod.DELETE)
-    public JsonResponseEntity<String> delReply(@RequestParam("doctor_id") String doctor_id,
-            @RequestParam("reply_id") String reply_id) {
+    public JsonResponseEntity<String> delReply(
+            @RequestParam("doctor_id") String doctor_id,
+            @RequestParam("reply_id") String reply_id
+        ) {
         
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         Boolean success = mcService.delReply(reply_id, doctor_id);
