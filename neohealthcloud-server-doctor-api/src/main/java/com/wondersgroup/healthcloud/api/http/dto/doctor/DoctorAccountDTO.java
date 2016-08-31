@@ -57,6 +57,8 @@ public class DoctorAccountDTO {
     @JsonProperty("dynamic_num")
     private Long dynamicNum;//动态
 
+    private Boolean verified = true;
+
 
 
     public DoctorAccountDTO(Map<String, Object> doctor) {
@@ -281,5 +283,13 @@ public class DoctorAccountDTO {
 
     public void setDynamicNum(Long dynamicNum) {
         this.dynamicNum = dynamicNum;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 }

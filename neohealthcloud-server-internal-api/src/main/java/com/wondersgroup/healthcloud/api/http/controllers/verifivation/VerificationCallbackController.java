@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.api.http.controllers.verifivation;
 
+import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,9 @@ public class VerificationCallbackController {
     @Autowired
     private PushClientWrapper pushClientWrapper;
 
+    @Autowired
+    private HealthRecordUpdateUtil healthRecordUpdateUtil;
+
     private static final Logger logger = LoggerFactory.getLogger(VerificationCallbackController.class);
 
     @RequestMapping(value = "/verification/callback", method = RequestMethod.GET)
@@ -36,14 +41,18 @@ public class VerificationCallbackController {
         String decodedMsg = "";
         logger.info(String.format("callback_api_id:[%s],success:[%s],msg:[%s]", id, success.toString(), decodedMsg));
 
-        userAccountService.fetchInfo(id);
+        RegisterInfo info = userAccountService.fetchInfo(id);
 
         AppMessage message = AppMessage.Builder.init().title("实名认证")
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(id,success))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success))
                 .persistence().build();
         pushClientWrapper.pushToAlias(message, id);
+
+        if (success) {
+            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard());
+        }
 
         return "{\"success\":" + success + "}";
     }

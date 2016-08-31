@@ -32,11 +32,11 @@ public class ForwardArticleAPIEntity {
         this.start_time = format.format((Date) param.get("start_time"));
         this.end_time = format.format((Date) param.get("end_time"));
         Date nowDate=new Date();
-        this.status = "进行中";
+        this.status = "2";
         if (nowDate.before((Date) param.get("start_time"))){
-            status = "未开始";
+            status = "1";
         }else if (nowDate.after((Date) param.get("end_time"))){
-            status = "已结束";
+            status = "3";
         }
     }
 

@@ -216,14 +216,9 @@ public class MedicalCircleController {
             ) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);
-        if (mc.getType() == 2) {
-            responseEntity.setCode(1281);
-            responseEntity.setMsg("未认证医生无法查看病例");
-        } else {
-            responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
-                    mc, screen_width, doctor_id));
-            mcService.view(circle_id, doctor_id);//redis
-        }
+        responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
+                mc, screen_width, doctor_id));
+        mcService.view(circle_id, doctor_id);//redis
         return responseEntity;
     }
 
@@ -376,14 +371,15 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
-    public JsonResponseEntity<String> publish(
-            @RequestParam("doctor_id") String doctor_id,
-            @RequestParam("circle_type") Integer circle_type,
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "content", required = false) String content,
-            @RequestParam(value = "images", required = false) String images) {
+    public JsonResponseEntity<String> publish(@RequestBody String body) {
        
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String doctor_id = reader.readString("doctor_id", false);
+        Integer circle_type = reader.readInteger("circle_type", false);
+        String title = reader.readString("title", true);
+        String content = reader.readString("content", true);
+        String images = reader.readString("images", true);
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
         List<String> imageURLs = new ArrayList<String>();
         if(!StringUtils.isBlank(images)){

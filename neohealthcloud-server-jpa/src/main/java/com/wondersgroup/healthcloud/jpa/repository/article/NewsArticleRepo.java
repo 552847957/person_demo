@@ -20,7 +20,8 @@ public interface NewsArticleRepo extends JpaRepository<NewsArticle,String> {
     @Query(nativeQuery = true,value = "SELECT t1.* FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_area t2 ON t1.id=t2.article_id WHERE  main_area=?1 order by t1.update_time desc limit ?2,?3")
     List<NewsArticle> queryNewsArticleByAreaId(String areaId,int pageNo,int pageSize);
 
-    @Query(nativeQuery = true,value = "SELECT t1.* FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_favorite t2 ON t1.id=t2.article_id WHERE  t2.user_id=?1 order by t1.update_time desc limit ?2,?3")
+    @Query(nativeQuery = true,value = "SELECT t1.id,t1.author,t1.source,t1.thumb,t1.title,t1.brief,t1.content,t1.update_by,t1.fake_pv,t1.pv,t1.type,t1.by_area,t2.update_time,t1.online_time,t1.keyword " +
+            " FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_favorite t2 ON t1.id=t2.article_id WHERE  t2.user_id=?1 order by t2.update_time desc limit ?2,?3")
     List<NewsArticle> queryCollectionNewsArticle(String areaId,int pageNo,int pageSize);
 
     @Query(nativeQuery = true,value = "SELECT * FROM app_tb_neoarticle where id=?1")

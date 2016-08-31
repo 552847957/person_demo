@@ -19,6 +19,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -63,6 +64,9 @@ public class UserController {
 
     @Autowired
     private DoctorController doctorController;
+
+    @Autowired
+    private HealthRecordUpdateUtil healthRecordUpdateUtil;
 
 
     DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
@@ -220,6 +224,7 @@ public class UserController {
 
     /**
      * 添加注册方法 不需要设置密码 3.0 上海健康云
+     *
      * @param request
      * @param channel
      * @return
@@ -527,6 +532,9 @@ public class UserController {
         }
         user.setMedicarecard(medicarecard);
         this.userService.updateMedicarecard(uid, medicarecard);
+
+        healthRecordUpdateUtil.onMedicareBindSuccess(user.getPersoncard(), medicarecard, user.getName());
+
         rt.setData("success");
         return rt;
     }

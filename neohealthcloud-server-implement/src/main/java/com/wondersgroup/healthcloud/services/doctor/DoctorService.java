@@ -33,4 +33,5 @@ public interface DoctorService {
     List<Map<String,Object>> findDoctorServicesById(String uid);
 
     Boolean checkDoctorHasService(String doctorId, String keyword);
+
 }

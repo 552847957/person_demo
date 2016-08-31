@@ -1,12 +1,18 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorDepartmentEntity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
+import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.services.dic.DepartGbService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountNoneException;
@@ -16,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +40,7 @@ public class DoctorController {
 
     @Autowired
     private MedicalCircleService medicalCircleService;
+
 
 
     /**
@@ -175,6 +183,9 @@ public class DoctorController {
         response.setMsg(verifyCodeResult ? "恭喜, 密码设置成功" : "密码设置失败");
         return response;
     }
+
+
+
 
 
 

@@ -21,4 +21,6 @@ public class DepartGB {
 
     private String pid;
 
+
+
 }
