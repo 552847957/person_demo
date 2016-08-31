@@ -5,6 +5,8 @@ import com.wondersgroup.healthcloud.jpa.entity.app.UserPushInfo;
 import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
  * ░░░▄█▀▀▄▓█▓▓▓▓▓▓▓▓▓▓▓▓▀░▓▌█
@@ -26,11 +28,11 @@ public class PushAreaService {
 
 
     public PushClient getByUser(String uid) {
-        UserPushInfo userPushInfo = userPushInfoRepository.findByUid(uid);
-        if (userPushInfo == null) {
+        List<UserPushInfo> list = userPushInfoRepository.findByUid(uid);
+        if (list.size() == 0) {
             return null;
         } else {
-            return pushClientSelector.getByArea(userPushInfo.getArea(), false);
+            return pushClientSelector.getByArea(list.get(0).getArea(), false);
         }
     }
 

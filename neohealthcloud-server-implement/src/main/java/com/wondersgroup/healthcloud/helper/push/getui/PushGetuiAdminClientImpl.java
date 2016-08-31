@@ -39,7 +39,6 @@ public class PushGetuiAdminClientImpl implements PushAdminClient {
     @Override
     public void overrideTagToClient(String cid, List<String> tags) {
         IQueryResult ret = push.setClientTag(appId, cid, tags);
-        System.out.println(ret.getResponse().toString());
     }
 
     @Override
