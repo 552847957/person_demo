@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,11 +30,20 @@ public class ExamController {
 
     @GetMapping(value = "station/nearby", produces = MediaType.APPLICATION_JSON_VALUE)
     public JsonResponseEntity stationNearby(@RequestParam String areaCode,
-                                            @RequestParam double longitude, @RequestParam double latitude) {
+                                            Double longitude, Double latitude, Boolean need, Integer flag) {
         String url = String.format(requestStationNearby, host) +
-                "areaCode=" + areaCode +
-                "&longitude=" + longitude +
-                "&latitude=" + latitude;
+                "areaCode=" + areaCode;
+        if (null != longitude && null != latitude) {
+            url += "&longitude=" + longitude +
+                    "&latitude=" + latitude;
+        }
+        if (need != null) {
+            url += "&need=" + need;
+        }
+        if (flag != null) {
+            url += "&flag=" + flag;
+        }
+
         ResponseEntity<Map> response = template.getForEntity(url, Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             return formatResponse(response.getBody());
@@ -53,7 +61,7 @@ public class ExamController {
     }
 
     private JsonResponseEntity formatResponse(Map responseBody) {
-        if (0 != (int)responseBody.get("code")) {
+        if (0 != (int) responseBody.get("code")) {
             return new JsonResponseEntity(500, "信息获取失败");
         }
         JsonResponseEntity<Object> result = new JsonResponseEntity<>(0, null);

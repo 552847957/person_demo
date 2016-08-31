@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static javafx.scene.input.KeyCode.R;
 
 /**
  * Created by Jeffrey on 16/8/19.
@@ -221,9 +221,9 @@ public class MeasureController {
      * @throws JsonProcessingException
      */
     @GetMapping("3.0/abnormal/dayHistory")
-    public JsonResponseEntity queryAbnormalHistory(@RequestParam String registerId, @RequestParam String personCard) throws JsonProcessingException {
+    public JsonResponseEntity queryAbnormalHistory(@RequestParam String registerId, String personCard) throws JsonProcessingException {
         Map<String, Object> result = new HashMap<>();
-        result.put("h5Url", h5Utils.generateLinks(personCard));
+        result.put("h5Url", StringUtils.isEmpty(personCard) ? Collections.EMPTY_MAP : h5Utils.generateLinks(personCard));
         try {
             String param = "registerId=".concat(registerId);
             String url = String.format(requestAbnormalHistories, host, param);
@@ -237,6 +237,7 @@ public class MeasureController {
             }
         } catch (Exception e) {
             log.info("近期异常数据获取失败", e);
+            return new JsonResponseEntity(1000, "近期异常数据获取失败");
         }
         return new JsonResponseEntity(0, "查询成功", result);
     }

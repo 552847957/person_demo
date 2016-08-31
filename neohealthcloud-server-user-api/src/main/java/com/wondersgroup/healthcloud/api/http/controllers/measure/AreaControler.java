@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
