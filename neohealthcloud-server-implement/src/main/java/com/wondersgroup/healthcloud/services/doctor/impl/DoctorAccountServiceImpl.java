@@ -38,8 +38,12 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
     private static final String[] smsContent = {
             "您的验证码是：:code，请在10分钟内按照提示提交验证码。切勿将验证码泄露于他人。",
+            "验证码:code，10分钟有效。这不只是您注册的一小步，更是您迈向健康的一大步。",
             "偷偷告诉您个秘密，用:code就能在10分钟内登录。千万不要告诉别人哦。",
-            "您的验证码:code已经快马加鞭送到您手上，您可以在10分钟内重置您的密码。"
+            "您的验证码:code已经快马加鞭送到您手上，您可以在10分钟内重置您的密码。",
+            "您正在更改绑定的手机号，验证码:code。慎重操作，打死都不能告诉别人。",
+            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。",
+            "恭喜您人品爆发通过摇一摇赢得奖品，请用验证码:code来完成领取。"
     };
 
 
@@ -71,6 +75,24 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
         }
     }
 
+    @Override
+    public AccessToken fastLogin(String mobile, String verify_code, boolean onceCode) {
+        DoctorAccount doctorAccount = repository.findDoctorByAccount(mobile);
+        if(doctorAccount == null){
+            throw new ErrorDoctorAccountException("该账号不存在,请重新输入。");
+        }
+        if(StringUtils.isBlank(doctorAccount.getIsAvailable()) || "1".equals(doctorAccount.getIsAvailable())){
+            throw new ErrorDoctorAccountException("该医生账号正在审核中,请稍后再试。");
+        }
+        JsonNode result = httpWdUtils.fastLogin(mobile, verify_code, onceCode);
+        if (wondersCloudResult(result)) {
+            return fetchTokenFromWondersCloud(result.get("session_token").asText());
+        }else {
+            throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
+    }
+
+
     /**
      * 登出
      * @param token
@@ -89,7 +111,7 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
     /**
      * 获取验证码
      * @param mobile
-     * @param type  `0`:默认, `1`:手机动态码登陆, `2`:重置密码
+     * @param type  0 默 、1 注册 、2 快速登录 3、重置密码(修改密码) 4、修改手机号 5、绑定手机号
      */
     @Override
     public void getVerifyCode(String mobile, Integer type) {
@@ -157,6 +179,8 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
             throw new ErrorUserWondersBaseInfoException();
         }
     }
+
+
 
     private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();

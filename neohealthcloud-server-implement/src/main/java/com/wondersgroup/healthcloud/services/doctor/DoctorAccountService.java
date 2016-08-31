@@ -28,4 +28,6 @@ public interface DoctorAccountService {
     Boolean resetPassword(String mobile, String verifyCode, String password);
 
     WondersUser getWondersBaseInfo(String userid);
+
+    AccessToken fastLogin(String mobile, String verify_code, boolean b);
 }
