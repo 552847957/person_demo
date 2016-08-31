@@ -1,10 +1,13 @@
 package com.wondersgroup.healthcloud.jpa.repository.user;
 
-import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -25,4 +28,9 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
 
     @Query("select r from RegisterInfo r where (r.personcard =?1 or r.regmobilephone = ?1) and r.delFlag='0'")
     List<RegisterInfo> getByCardOrPhone(String info);
+    
+    @Transactional
+	@Modifying
+    @Query("update RegisterInfo set bindPersoncard=?1 where registerId =?2")
+    int updateByRegister(String bindPersoncard, String registerId);
 }

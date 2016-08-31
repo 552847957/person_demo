@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountNoneException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorInforUpdateLengthException;
+import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,9 @@ public class DoctorController {
 
     @Autowired
     private DoctorAccountService doctorAccountService;
+
+    @Autowired
+    private MedicalCircleService medicalCircleService;
 
 
     /**
@@ -186,6 +190,12 @@ public class DoctorController {
         }
         DoctorAccountDTO doctorAccountDTO = new DoctorAccountDTO(doctor);
 
+        doctorAccountDTO.setAttentionNum(medicalCircleService.getDocFollowedNum(id));
+        doctorAccountDTO.setFansNum(medicalCircleService.getDocFansNum(id));
+        doctorAccountDTO.setNotecaseNum(medicalCircleService.getNoteCaseNum(id));
+        doctorAccountDTO.setDynamicNum(medicalCircleService.getDynamicNum(id));
+
+        doctorAccountDTO.setHasQA(doctorService.checkDoctorHasService(id,"Q&A"));
         return doctorAccountDTO;
     }
 }

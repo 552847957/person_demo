@@ -43,6 +43,22 @@ public class DoctorAccountDTO {
 
     private String actcode;//医生推广邀请码
 
+    private Boolean hasQA;//是否有 我的问答
+
+    @JsonProperty("attention_num")
+    private Long attentionNum;//关注数
+
+    @JsonProperty("fans_num")
+    private Long fansNum;//粉丝数
+
+    @JsonProperty("notecase_num")
+    private Long notecaseNum;//病例数
+
+    @JsonProperty("dynamic_num")
+    private Long dynamicNum;//动态
+
+
+
     public DoctorAccountDTO(Map<String, Object> doctor) {
         if(doctor!=null){
             this.uid = doctor.get("id")==null?"":doctor.get("id").toString();
@@ -225,5 +241,45 @@ public class DoctorAccountDTO {
 
     public void setDutyName(String dutyName) {
         this.dutyName = dutyName;
+    }
+
+    public Boolean getHasQA() {
+        return hasQA;
+    }
+
+    public void setHasQA(Boolean hasQA) {
+        this.hasQA = hasQA;
+    }
+
+    public Long getAttentionNum() {
+        return attentionNum;
+    }
+
+    public void setAttentionNum(Long attentionNum) {
+        this.attentionNum = attentionNum;
+    }
+
+    public Long getFansNum() {
+        return fansNum;
+    }
+
+    public void setFansNum(Long fansNum) {
+        this.fansNum = fansNum;
+    }
+
+    public Long getNotecaseNum() {
+        return notecaseNum;
+    }
+
+    public void setNotecaseNum(Long notecaseNum) {
+        this.notecaseNum = notecaseNum;
+    }
+
+    public Long getDynamicNum() {
+        return dynamicNum;
+    }
+
+    public void setDynamicNum(Long dynamicNum) {
+        this.dynamicNum = dynamicNum;
     }
 }

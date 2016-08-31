@@ -73,6 +73,9 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
                 } else if (!session.getIsValid()) {
                     code = 13;
                     message = "账户在其他设备登录, 请重新登录";
+                } else if (session.isGuest()) {
+                    code = 1000;
+                    message = "请登录";
                 } else {
                     return true;
                 }

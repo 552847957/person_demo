@@ -160,7 +160,6 @@ public class CommonController {
                 navigationBars.add(imageText.getImgUrl());
             }
             result.setData(navigationBars);
-            result.setData(navigationBars);
         } else {
             result.setCode(1000);
             result.setMsg("未查询到相关配置信息！");

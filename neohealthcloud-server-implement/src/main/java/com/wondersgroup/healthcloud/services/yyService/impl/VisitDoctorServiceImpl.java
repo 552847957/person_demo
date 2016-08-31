@@ -10,10 +10,11 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.utils.QueryMapUtils;
 import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.redis.config.RedisConfig;
 import com.wondersgroup.healthcloud.services.yyService.VisitDoctorService;
 import com.wondersgroup.healthcloud.services.yyService.dto.*;
-import com.wondersgroup.healthcloud.utils.RedisConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -29,6 +30,9 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     @Value("yyservice.img.host")
     private String yyImgHost;//yyservice.img.host
+
+    @Autowired
+    private RedisConfig redisConfig;
 
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
@@ -361,12 +365,12 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
         return new String[]{"userId", yyDoctorInfo.getUserId(), "token", yyDoctorInfo.getToken()};
     }
 
-    private static Jedis jedis() {
-        return RedisConnectionFactory.getConnection6379();
+    private Jedis jedis() {
+        return redisConfig.redisConnectionFactory().getResource();
     }
 
-    private static void returnResource(Jedis jedis) {
-        RedisConnectionFactory.returnResource6379(jedis);
+    private void returnResource(Jedis jedis) {
+        redisConfig.redisConnectionFactory();
     }
 
 }

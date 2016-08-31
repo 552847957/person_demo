@@ -809,7 +809,8 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/doctor/attention", method = RequestMethod.GET)
-    public JsonListResponseEntity<DoctorAPIEntity> getOneAttentionList(@RequestParam("uid") String uid,
+    public JsonListResponseEntity<DoctorAPIEntity> getOneAttentionList(
+            @RequestParam("uid") String uid,
             @RequestParam(value = "doctor_id") String doctor_id,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "flag", required = false) String flag) {
@@ -856,7 +857,8 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/doctor/fans", method = RequestMethod.GET)
-    public JsonListResponseEntity<DoctorAPIEntity> getOneFansList(@RequestParam("uid") String uid,
+    public JsonListResponseEntity<DoctorAPIEntity> getOneFansList(
+            @RequestParam("uid") String uid,
             @RequestParam(value = "doctor_id") String doctor_id,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "flag", required = false) String flag) {
