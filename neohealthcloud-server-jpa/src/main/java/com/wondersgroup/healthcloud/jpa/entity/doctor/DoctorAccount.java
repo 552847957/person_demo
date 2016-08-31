@@ -32,6 +32,9 @@ public class DoctorAccount {
     @Column(name = "is_available")
     private String isAvailable;//是否可用
 
+    @Column(name = "main_area")
+    private String mainArea;
+
     @Column(name = "del_flag")
     private String delFlag;
 
