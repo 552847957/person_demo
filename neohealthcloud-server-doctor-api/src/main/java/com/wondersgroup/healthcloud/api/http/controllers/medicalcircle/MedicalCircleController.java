@@ -1,9 +1,38 @@
 package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.wondersgroup.common.image.utils.ImageUploader;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.*;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DocSearchResultAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicSearchResultAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ImageAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDependence;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDetailAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteCaseSearchResultAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.SearchResultAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ShareAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -22,16 +51,6 @@ import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
 import com.wondersgroup.healthcloud.utils.ImageUtils;
 import com.wondersgroup.healthcloud.utils.TimeAgoUtils;
 import com.wondersgroup.healthcloud.utils.circle.CircleLikeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/medicalcircle")
@@ -175,7 +194,7 @@ public class MedicalCircleController {
      * @return
      */
     @VersionRange
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, value = "allCircle")
     public JsonListResponseEntity<MedicalCircleAPIEntity> getAllCircle(
             @RequestHeader(value = "screen-width") String screen_width,
             @RequestParam(value = "doctor_id", required = false) String doctor_id,
@@ -193,7 +212,6 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
-            @RequestHeader(value = "access-token") String token,
             @RequestHeader(value = "screen-width") String screen_width,
             @RequestParam(value = "circle_id", required = true) String circle_id) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
@@ -205,7 +223,7 @@ public class MedicalCircleController {
         } else {
             responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
                     mc, screen_width, uid));
-            mcService.view(circle_id, uid);
+//            mcService.view(circle_id, uid);//redis
         }
         return responseEntity;
     }
@@ -294,7 +312,7 @@ public class MedicalCircleController {
 
     /**
      * 回复列表
-     * @param comment_id
+     * @param comment_id 评论id
      * @param flag
      * @return
      */
@@ -359,7 +377,8 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
-    public JsonResponseEntity<String> publish(@RequestParam("doctor_id") String doctor_id,
+    public JsonResponseEntity<String> publish(
+            @RequestParam("doctor_id") String doctor_id,
             @RequestParam("circle_type") Integer circle_type,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "content", required = false) String content,
@@ -368,10 +387,12 @@ public class MedicalCircleController {
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
         try {
-            List<String> imageURLs = Lists.newArrayList();
-            for (MultipartFile image : images) {
-                imageURLs.add(ImageUploader.upload("app", IdGen.uuid() + ".jpg", image.getBytes()));
-
+            List<String> imageURLs = new ArrayList<String>();
+            if(images != null){
+                for (MultipartFile image : images) {
+                    imageURLs.add(ImageUploader.upload("app", IdGen.uuid() + ".jpg", image.getBytes()));
+                    
+                }
             }
             mcService.publish(doctor_id, title, content, circle_type, imageURLs);
             entity.setMsg("发布成功");
@@ -393,8 +414,7 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
-    public JsonResponseEntity<CommentAPIEntity> comment(@RequestHeader("access-token") String token,
-            @RequestBody String body) {
+    public JsonResponseEntity<CommentAPIEntity> comment(@RequestBody String body) {
         
         JsonResponseEntity<CommentAPIEntity> entity = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(body);
@@ -429,8 +449,7 @@ public class MedicalCircleController {
      */
     @VersionRange
     @RequestMapping(value = "/comment/reply", method = RequestMethod.POST)
-    public JsonResponseEntity<CommentAPIEntity> reply(@RequestHeader("access-token") String token,
-            @RequestBody String body) {
+    public JsonResponseEntity<CommentAPIEntity> reply(@RequestBody String body) {
        
         JsonResponseEntity<CommentAPIEntity> entity = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(body);
