@@ -57,7 +57,12 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
     private CircleService circleService;
     @Autowired
     private CircleReportRepository circleReportRepository;
-
+    @Autowired
+    private CircleLikeUtils circleLikeUtils;
+    @Autowired
+    private CircleReportUtils circleReportUtils;
+    @Autowired
+    private CircleViewsUtils circleViewsUtils;
 
     @Override
     public List<MedicalCircle> getAllMedicalCircle(Integer[] type,String order, Date flag) {
@@ -127,7 +132,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
 
     @Override
     public Boolean like(String doctorId, String circleId) {
-        Boolean success = CircleLikeUtils.likeOne(circleId, doctorId);
+        Boolean success = circleLikeUtils.likeOne(circleId, doctorId);
         if(success){
             MedicalCircle mc = mcRepo.findOne(circleId);
             mc.setPraisenum(mc.getPraisenum() == null ? 1 : mc.getPraisenum() + 1);
@@ -143,7 +148,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
         if(praisenum<=0){
             return false;
         }
-        Boolean success = CircleLikeUtils.cancelLikeOne(circleId, doctorId);
+        Boolean success = circleLikeUtils.cancelLikeOne(circleId, doctorId);
         if(success) {
             mc.setPraisenum(mc.getPraisenum() - 1);
             mcRepo.save(mc);
@@ -227,7 +232,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
     public Boolean report(String uid, String reportId, Integer contentType, Integer reportType) {
         Assert.isTrue(contentType == 1 || contentType == 2, "接收参数值：" + contentType + "，举报类型错误(1.帖子 2.评论)");
         Assert.isTrue(reportType>=1&&reportType<=5,"接收参数值："+reportType+"，举报理由错误(1.色情 2.政治 3.骂人 4.广告 5.其他)");
-        Boolean success = CircleReportUtils.reportOne(reportId, uid, String.valueOf(contentType));
+        Boolean success = circleReportUtils.reportOne(reportId, uid, String.valueOf(contentType));
         if(success){
             saveReport(uid, reportId, contentType, reportType);
         }
@@ -412,12 +417,12 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
 
     @Override
     public void view(String circleId, String doctorId){
-        CircleViewsUtils.viewOne(circleId, doctorId);
+        circleViewsUtils.viewOne(circleId, doctorId);
     }
 
     @Override
     public Long getCircleViews(String circleId){
-        return CircleViewsUtils.totalViews(circleId)==0?1:CircleViewsUtils.totalViews(circleId);
+        return circleViewsUtils.totalViews(circleId) == 0 ? 1 : circleViewsUtils.totalViews(circleId);
     }
 
     @Override
