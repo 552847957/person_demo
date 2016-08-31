@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthActivityAPIEntity {
@@ -39,7 +38,6 @@ public class HealthActivityAPIEntity {
     private String enrollColor;//报名倒计时字体显示颜色
     
     private HealthActivityEvaluationAPIEntity evaluation;
-    private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
     private SimpleDateFormat monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
     private SimpleDateFormat hourMinute_sdf = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -68,8 +66,6 @@ public class HealthActivityAPIEntity {
         this.host = info.getHost();
         this.name = info.getTitle();
         
-        String startMonDay = monthDay_sdf.format(info.getStarttime());
-        String endMonDay = monthDay_sdf.format(info.getEndtime());
         String startHourMin = hourMinute_sdf.format(info.getStarttime());
         String endHourMin = hourMinute_sdf.format(info.getEndtime());
         
