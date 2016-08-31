@@ -20,7 +20,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/api/doctor/common")
+@RequestMapping("/api/common")
 public class CommonController {
     private static final Logger log = Logger.getLogger(CommonController.class);
 
