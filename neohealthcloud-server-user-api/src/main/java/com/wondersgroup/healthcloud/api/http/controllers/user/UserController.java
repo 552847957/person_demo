@@ -219,7 +219,7 @@ public class UserController {
 
 
     /**
-     * 添加注册方法 不需要设置密码
+     * 添加注册方法 不需要设置密码 3.0 上海健康云
      * @param request
      * @param channel
      * @return
