@@ -19,8 +19,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-import static javafx.scene.input.KeyCode.R;
-
 /**
  * Created by Jeffrey on 16/8/19.
  */
