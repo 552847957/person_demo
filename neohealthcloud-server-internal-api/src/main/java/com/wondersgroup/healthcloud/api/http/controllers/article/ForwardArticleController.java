@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by dukuanxin on 2016/8/25.
@@ -47,12 +47,39 @@ public class ForwardArticleController {
     public JsonResponseEntity save(@RequestBody ForwardArticle forwardArticle){
         JsonResponseEntity response=new JsonResponseEntity();
 
-        if(forwardArticle.getMain_area()==null){
+        if(StringUtils.isEmpty(forwardArticle.getMain_area())){
             response.setCode(2000);
             response.setMsg("区域不能为空");
             return response;
         }
+        int existCount = forwardArticleService.getExistCount(forwardArticle.getArticle_id(), forwardArticle.getMain_area());
+        if(existCount>=1){
+            response.setCode(1000);
+            response.setMsg("该资讯已经存在");
+            return response;
+        }
+        forwardArticleService.updateForwardArticle(forwardArticle);
+        response.setMsg("成功");
+        return response;
+    }
+    @PostMapping("/update")
+    public JsonResponseEntity update(@RequestBody ForwardArticle forwardArticle){
+        JsonResponseEntity response=new JsonResponseEntity();
 
+        if(StringUtils.isEmpty(forwardArticle.getMain_area())){
+            response.setCode(2000);
+            response.setMsg("区域不能为空");
+            return response;
+        }
+        if(!StringUtils.isEmpty(forwardArticle.getId())&&forwardArticle.getIs_visable()==1){
+            long time = forwardArticle.getEnd_time().getTime();
+            long nowTime=new Date().getTime();
+            if((nowTime+24*3600)<time){
+                SimpleDateFormat sdf=new SimpleDateFormat("");
+                String endTime= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(time+48*3600));
+                forwardArticle.setEnd_time(endTime);
+            }
+        }
         forwardArticleService.updateForwardArticle(forwardArticle);
         response.setMsg("成功");
         return response;
@@ -64,4 +91,5 @@ public class ForwardArticleController {
         response.setData(homePageArticle);
         return response;
     }
+
 }
