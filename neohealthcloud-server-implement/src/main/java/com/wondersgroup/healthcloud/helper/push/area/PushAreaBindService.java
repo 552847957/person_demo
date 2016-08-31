@@ -7,8 +7,10 @@ import com.wondersgroup.healthcloud.jpa.entity.app.UserPushInfo;
 import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,6 +28,7 @@ import java.util.Set;
  * Created by zhangzhixiu on 8/21/16.
  */
 @Component
+@Transactional(readOnly = true)
 public class PushAreaBindService {
 
     @Autowired
@@ -37,24 +40,24 @@ public class PushAreaBindService {
     @Autowired
     private PushAdminSelector pushAdminSelector;
 
+    @Transactional
     public void bindInfoAfterSignin(String uid, String cid, String area) {
         unbindInfoAfterSignout(uid);//signout first and then sign in
 
-        UserPushInfo clientLastSignin = userPushInfoRepository.findByCid(cid);
-        if (clientLastSignin != null) {
-            userPushInfoRepository.delete(clientLastSignin.getId());
-        }
+        userPushInfoRepository.deleteByCid(cid);
+
         bindTagToClient(uid, cid, area);
         bindUidAndCid(uid, cid, area);
     }
 
+    @Transactional
     public void unbindInfoAfterSignout(String uid) {
-        UserPushInfo userLastSignin = userPushInfoRepository.findByUid(uid);
-        if (userLastSignin != null) {
-            userPushInfoRepository.delete(userLastSignin.getId());
+        List<UserPushInfo> userLastSignin = userPushInfoRepository.findByUid(uid);
+        for (UserPushInfo userPushInfo : userLastSignin) {
+            userPushInfoRepository.delete(userPushInfo.getId());
 
-            PushAdminClient client = pushAdminSelector.getByArea(userLastSignin.getArea(), false);//clear tag binded to previous device
-            client.overrideTagToClient(userLastSignin.getCid(), new LinkedList<String>());
+            PushAdminClient client = pushAdminSelector.getByArea(userPushInfo.getArea(), false);//clear tag binded to previous device
+            client.overrideTagToClient(userPushInfo.getCid(), new LinkedList<String>());
         }
     }
 

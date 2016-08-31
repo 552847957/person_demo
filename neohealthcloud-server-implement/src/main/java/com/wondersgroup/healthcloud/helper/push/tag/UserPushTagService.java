@@ -88,8 +88,9 @@ public class UserPushTagService {
     }
 
     private void bindTagToClient(String uid) {
-        UserPushInfo userPushInfo = userPushInfoRepository.findByUid(uid);
-        if (userPushInfo != null) {
+        List<UserPushInfo> list = userPushInfoRepository.findByUid(uid);
+        if (list.size() > 0) {
+            UserPushInfo userPushInfo = list.get(0);
             Set<String> tags = getIdsByUid(uid);
             PushAdminClient client = pushAdminSelector.getByArea(userPushInfo.getArea(), false);
             client.overrideTagToClient(userPushInfo.getCid(), new LinkedList<>(tags));
@@ -98,21 +99,21 @@ public class UserPushTagService {
 
     public void bindTag(String[] uids, String tagname) {
         PushTag pushTag = tagRepository.findByName(tagname);
-        if(null == pushTag){
+        if (null == pushTag) {
             pushTag = new PushTag();
             pushTag.setTagname(tagname);
             pushTag.setUpdatetime(new Date());
             pushTag = tagRepository.save(pushTag);
         }
 
-        for(String uid : uids){
-            this.bindTagsToOneUser(uid,pushTag.getTagid().toString());
+        for (String uid : uids) {
+            this.bindTagsToOneUser(uid, pushTag.getTagid().toString());
         }
     }
 
     public List<RegisterInfo> bindPerson(String info, String tagname) {
         PushTag pushTag = tagRepository.findByName(tagname);
-        if(null == pushTag){
+        if (null == pushTag) {
             pushTag = new PushTag();
             pushTag.setTagname(tagname);
             pushTag.setUpdatetime(new Date());
@@ -120,8 +121,8 @@ public class UserPushTagService {
         }
 
         List<RegisterInfo> list = registerInfoRepo.getByCardOrPhone(info);
-        for(RegisterInfo register  : list){
-            this.bindTagsToOneUser(register.getRegisterid(),pushTag.getTagid().toString());
+        for (RegisterInfo register : list) {
+            this.bindTagsToOneUser(register.getRegisterid(), pushTag.getTagid().toString());
         }
         return list;
 
