@@ -43,7 +43,8 @@ public class SpecCommonController {
     private AppUrlH5Utils appUrlH5Utils;
 
     @GetMapping(value = "/appConfig")
-    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
+    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value="platform", required = false) String platform,
+                                                             @RequestHeader(name = "main-area", required = true) String mainArea,
                                                              @RequestHeader(name = "spec-area", required = false) String specArea,
                                                              @RequestHeader(value = "app-version", required = false) String appVersion) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
@@ -53,6 +54,8 @@ public class SpecCommonController {
         keyWords.add("app.common.help.center");// 帮助中心
         keyWords.add("app.common.userAgreement");// 用户协议
         keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
+        keyWords.add("common.qr.code.url.ios");// ios邀请二维码
+        keyWords.add("common.qr.code.url.android");// ios邀请二维码
 
         keyWords.add("app.common.appUpdate");// APP更新
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
@@ -71,6 +74,12 @@ public class SpecCommonController {
             }
             if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
                 common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
+            }
+            String qrCode = "";
+            if(platform.equalsIgnoreCase("0")){
+                common.put("qrCode", cfgMap.get("common.qr.code.url.ios"));
+            }else if(platform.equalsIgnoreCase("1")){
+                common.put("qrCode", cfgMap.get("common.qr.code.url.android"));
             }
             data.put("common", common);
 
