@@ -197,7 +197,7 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(method = RequestMethod.GET, value = "allCircle")
     public JsonListResponseEntity<MedicalCircleAPIEntity> getAllCircle(
-            @RequestHeader(value = "screen-width") String screen_width,
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
             @RequestParam(value = "doctor_id", required = false) String doctor_id,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "flag", required = false) String flag) {
