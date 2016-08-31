@@ -46,4 +46,6 @@ public interface UserService {
     Map<String, Object>  findSignDoctorByUid(String uid);
 
     Boolean updateMedicarecard(String uid, String medicareCard);
+
+    void activeInvitation(String uid, String code);
 }

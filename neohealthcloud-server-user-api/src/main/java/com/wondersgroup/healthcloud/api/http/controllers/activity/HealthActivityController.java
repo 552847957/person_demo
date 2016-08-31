@@ -279,16 +279,11 @@ public class HealthActivityController {
 					.findActivityDetailByAidAndRid(activityid, registerId);
 			HealthActivityInfo info = healthActivityRepository.findOne(activityid);
 			
-			Date activityTime = info.getStarttime();
 			if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {
 				response.setCode(1616);
 				response.setMsg("活动已结束不能取消报名");
 				return response;
-			}else if (activityTime.before(new Timestamp(System.currentTimeMillis()))) {
-				response.setCode(1611);
-				response.setMsg("活动已开始不能取消报名");
-				return response;
-			}if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
+			}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
                 response.setCode(1617);
                 response.setMsg("活动报名已结束");
                 return response;

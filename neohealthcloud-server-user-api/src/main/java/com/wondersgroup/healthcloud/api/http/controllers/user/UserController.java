@@ -219,7 +219,7 @@ public class UserController {
 
 
     /**
-     * 添加注册方法 不需要设置密码
+     * 添加注册方法 不需要设置密码 3.0 上海健康云
      * @param request
      * @param channel
      * @return
@@ -227,7 +227,7 @@ public class UserController {
     @RequestMapping(value = "/registeByCode", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> register(@RequestBody String request,
-                                                             @RequestHeader(required = false) String channel) {
+                                                                 @RequestHeader(required = false) String channel) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String mobile = reader.readString("mobile", false);
         String verifyCode = reader.readString("verify_code", false);
@@ -581,5 +581,18 @@ public class UserController {
             token = jsonNode.get("token").asText();
         }
         return token;
+    }
+
+    @PostMapping(value = "/invitation")
+    @VersionRange
+    public JsonResponseEntity<String> appInvitation(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String uid = reader.readString("uid", false);
+        String code = reader.readString("code", false);
+
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        userService.activeInvitation(uid, code);
+        body.setMsg("激活成功");
+        return body;
     }
 }
