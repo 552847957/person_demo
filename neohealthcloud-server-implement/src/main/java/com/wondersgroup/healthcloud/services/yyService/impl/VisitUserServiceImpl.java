@@ -9,12 +9,14 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.redis.config.RedisConfig;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.yyService.VisitUserService;
 import com.wondersgroup.healthcloud.utils.RedisConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
@@ -28,12 +30,20 @@ public class VisitUserServiceImpl implements VisitUserService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisConfig redisConfig;
+
     @Value("yyservice.img.host")
     private String yyImgHost;//yyservice.img.host
+    @Value("yyservice.service.host")
+    private String yyServiceHost;
+
+    @Autowired
+    private Environment env;
 
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
-    private static String getTokenUrl = PropertiesUtils.get("api.medicineSupport.service.url")+"/rest/users/toElmuPPye.action";
+
     private static final int TIME_24_HOUR = 24*60*60;
 
     /**
@@ -47,7 +57,7 @@ public class VisitUserServiceImpl implements VisitUserService {
         String cacheInfo = "";
         try{
             if (!jedis.exists(cache_key) || get_real_data){
-                Request request = new RequestBuilder().post().url(getTokenUrl)
+                Request request = new RequestBuilder().post().url(getTokenUrl())
                         .params(new String[]{"idCard", personcard}).build();
                 JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
                 JsonNode body = response.convertBody();
@@ -108,7 +118,7 @@ public class VisitUserServiceImpl implements VisitUserService {
      */
     public JsonNode postRequest(String url, String[] parm){
 
-        Request request = new RequestBuilder().get().url(url).build();
+        Request request = new RequestBuilder().post().url(url).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode body = response.convertBody();
         if (response.code() != 200){
@@ -127,12 +137,15 @@ public class VisitUserServiceImpl implements VisitUserService {
         return bindPersonCard;
     }
 
-    private static Jedis jedis() {
-        return RedisConnectionFactory.getConnection6379();
+    private Jedis jedis() {
+        return redisConfig.redisConnectionFactory().getResource();
     }
 
-    private static void returnResource(Jedis jedis) {
-        RedisConnectionFactory.returnResource6379(jedis);
+    private void returnResource(Jedis jedis) {
+        redisConfig.redisConnectionFactory();
     }
 
+    private  String getTokenUrl() {
+        return this.env.getProperty("yyservice.service.host")+"/rest/users/toElmuPPye.action";
+    }
 }
