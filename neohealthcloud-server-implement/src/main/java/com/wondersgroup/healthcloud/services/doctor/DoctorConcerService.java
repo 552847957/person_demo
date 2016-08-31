@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.services.doctor;
 
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorConcerned;
 
 import java.util.List;
 
@@ -13,5 +12,4 @@ public interface DoctorConcerService {
 
     List<DepartGB> queryDoctorDepartmentsByDoctorId(String doctorId);
 
-    List<DoctorConcerned> queryDoctorConcernedsByDoctorId(String doctorId, String type);
 }

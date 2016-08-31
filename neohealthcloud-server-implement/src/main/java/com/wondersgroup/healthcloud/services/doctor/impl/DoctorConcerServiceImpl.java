@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import com.qiniu.util.StringUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorConcerned;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartmentRela;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorDepartmentRelaRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorConcerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -24,10 +24,12 @@ public class DoctorConcerServiceImpl implements DoctorConcerService {
     private DoctorDepartmentRelaRepository doctorDepartmentRelaRepository;
 
 
+
     @Override
+    @Transactional
     public Boolean updateDoctorConcerDepartment(String doctorId, String departmentIds) {
         if(!StringUtils.isNullOrEmpty(departmentIds)&&!StringUtils.isNullOrEmpty(doctorId)){
-            deleteDoctorConcerDepartment(doctorId);//先删除医生和科室的关系,在维护新的关系
+            doctorDepartmentRelaRepository.deleteById(doctorId);//先删除医生和科室的关系,在维护新的关系
             String[] ids = departmentIds.split(",");
             List<DoctorDepartmentRela> relations = Lists.newArrayList();
             for(String id:ids){
@@ -50,18 +52,19 @@ public class DoctorConcerServiceImpl implements DoctorConcerService {
 
     @Override
     public List<DepartGB> queryDoctorDepartmentsByDoctorId(String doctorId) {
-        return null;
+        return doctorDepartmentRelaRepository.queryDoctorDepartmentsByDoctorId(doctorId);
     }
 
-    @Override
-    public List<DoctorConcerned> queryDoctorConcernedsByDoctorId(String doctorId, String type) {
-        return null;
-    }
 
-    public boolean deleteDoctorConcerDepartment(String doctorId) {
-        Integer result = doctorDepartmentRelaRepository.deleteById(doctorId);
-        if(result!=null)
-            return true;
-        return false;
+
+
+    private List<String> convert(List<Object> result){
+        List<String> ids = Lists.newArrayList();
+        if(result!=null&&!result.isEmpty()){
+            for(Object obj: result){
+                ids.add((String)obj);
+            }
+        }
+        return ids;
     }
 }

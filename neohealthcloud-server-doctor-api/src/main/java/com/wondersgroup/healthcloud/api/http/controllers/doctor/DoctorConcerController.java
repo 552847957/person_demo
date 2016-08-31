@@ -9,7 +9,6 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorConcerned;
 import com.wondersgroup.healthcloud.services.dic.DepartGbService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorConcerService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -126,8 +125,6 @@ public class DoctorConcerController {
         Map<String, Object> data = Maps.newHashMap();
         try{
             List<DepartGB> departmentList = doctorConcerService.queryDoctorDepartmentsByDoctorId(doctorId);
-            List<DoctorConcerned> diseaseEntities = doctorConcerService.queryDoctorConcernedsByDoctorId(doctorId, "1");
-            List<DoctorConcerned> symptoms = doctorConcerService.queryDoctorConcernedsByDoctorId(doctorId, "2");
 
             if(departmentList==null||departmentList.isEmpty()){
                 Doctor doctorInfo = doctorService.findDoctorByUid(doctorId);
@@ -138,12 +135,6 @@ public class DoctorConcerController {
 
             data.put("department",departmentList);
 
-            if(diseaseEntities!=null&&!diseaseEntities.isEmpty()){
-                data.put("diseaseEntity",diseaseEntities);
-            }
-            if(symptoms!=null&&!symptoms.isEmpty()){
-                data.put("symptom",symptoms);
-            }
             body.setData(data);
         }catch (Exception e){
             e.printStackTrace();
