@@ -19,17 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DocSearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicSearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ImageAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDependence;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDetailAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteCaseSearchResultAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.SearchResultAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ShareAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -49,6 +45,10 @@ import com.wondersgroup.healthcloud.utils.ImageUtils;
 import com.wondersgroup.healthcloud.utils.TimeAgoUtils;
 import com.wondersgroup.healthcloud.utils.circle.CircleLikeUtils;
 
+/**
+ * 
+ * Created by sunhaidi on 2016.8.29
+ */
 @RestController
 @RequestMapping("/api/medicalcircle")
 public class MedicalCircleController {
@@ -210,7 +210,7 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
-            @RequestHeader(value = "screen-width") String screen_width,
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
             @RequestParam(value = "circle_id", required = true) String circle_id) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);

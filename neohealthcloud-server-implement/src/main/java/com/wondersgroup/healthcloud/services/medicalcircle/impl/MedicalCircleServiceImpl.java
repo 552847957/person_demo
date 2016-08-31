@@ -276,6 +276,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
             circleReport.setCreateBy(uid);
             circleReport.setUpdateDate(new Date());
             circleReport.setDealstatus("0");
+            circleReport.setDelFlag("0");
             circleReportRepository.save(circleReport);
         }else{
             report.setReportnum(report.getReportnum()+1);
