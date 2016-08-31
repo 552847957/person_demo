@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.yyService;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,7 +31,6 @@ import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
@@ -50,6 +49,9 @@ public class RestrictController {
 
     @Autowired
     private VisitUserService visitUserService;
+    
+    @Autowired
+    private Environment env;
 
     /**
      * 签约检查身份证是否有效
@@ -93,7 +95,7 @@ public class RestrictController {
     @RequestMapping(value = "/restrict", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity<Object> restrict(@RequestBody String request) {
-        String url = PropertiesUtils.get("medical.service.url") + "rest/users/clientRegister.action";
+        String url = getURL() + "rest/users/clientRegister.action";
         JsonResponseEntity<Object> entity = new JsonResponseEntity<Object>();
         JsonKeyReader reader = new JsonKeyReader(request);
         String password   = "123456";
@@ -126,13 +128,7 @@ public class RestrictController {
         }
         String[] parm = { "password", password, "zjhm", zjhm, "source", source, "phone", phone, "xm", xm, "qx", qx, "qxcode", qxcode, "jd",
                 jd, "jdcode", jdcode, "jw", jw, "jwcode", jwcode, "mph", mph};
-        Map<String, String> params = Maps.newHashMap();
-        for (int i = 0; i < parm.length; i = +2) {
-        	params.put(parm[i], parm[1+1]);
-		}
-        RestTemplate restTemplate = new RestTemplate();
-        JsonNode node = restTemplate.postForObject(url, params, JsonNode.class);
-        
+        JsonNode node = visitUserService.postRequest(url, parm);
         if (1 == node.get("status").asInt()) {
             int result = registerRepo.updateByRegister(zjhm, registerId);
             if (result > 0) {
@@ -158,19 +154,14 @@ public class RestrictController {
      */
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<Map<String, String>> upload(HttpServletRequest request, @RequestParam(required = false) String response, @RequestParam String userId,
-                                                          @RequestParam MultipartFile file) {
-        String filePath = request.getSession().getServletContext().getRealPath("/") + "upload/"
-                + file.getOriginalFilename();
-        File f = new File(filePath);
-        System.out.println((f.exists())+"  filePath:"+filePath +"   file"+file.toString());
-        if(f.exists()){
-//			f.delete();
-        }
-        // 转存文件
-        String url = PropertiesUtils.get("medical.service.url") + "rest/order/phoneAction!getIOSPhotos.action?fileType=03&orderid={orderid}";
+    public JsonResponseEntity<Map<String, String>> upload(
+    		HttpServletRequest request, 
+    		@RequestParam(required = false, defaultValue = "") String response, 
+    		@RequestParam String userId,
+            @RequestParam MultipartFile file) {
+    	
+        String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action?fileType=03&orderid={orderid}";
         JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
-        
         String[] header = visitUserService.getRequestHeaderByUid(userId, true);
 
         byte[] part = null;
@@ -184,7 +175,7 @@ public class RestrictController {
         param.add("file", part);
         
         HttpHeaders headers = new HttpHeaders();
-        for (int i = 0; i < header.length; i = +2) {
+        for (int i = 0; i < header.length; i += 2) {
         	headers.add(header[i], header[i + 1]);
 		}
         RestTemplate restTemplate = new RestTemplate();
@@ -214,7 +205,7 @@ public class RestrictController {
         String fwid		  = reader.readString("fwid", false);
         String addressid 	  = reader.readString("addressid", false);
 
-        String url = PropertiesUtils.get("medical.service.url") + "rest/order/orderApplyInfoAction!findJgJwByFwidAndAddid.action";
+        String url = getURL() + "rest/order/orderApplyInfoAction!findJgJwByFwidAndAddid.action";
         JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
         String[] query = { "fwid", fwid, "addressid", addressid };
         JsonNode node = visitUserService.postRequest(userId, url, query);
@@ -304,6 +295,6 @@ public class RestrictController {
     }
 
     private String getURL() {
-        return PropertiesUtils.get("medical.service.url");
+        return this.env.getProperty("yyservice.service.host")+"/";
     }
 }
