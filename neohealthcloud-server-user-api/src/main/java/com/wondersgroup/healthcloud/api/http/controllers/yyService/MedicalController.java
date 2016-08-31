@@ -45,8 +45,8 @@ public class MedicalController {
         JsonListResponseEntity<MedicalAPIEntity> res = new JsonListResponseEntity<>();
         String[] query = { "pageIndex", "0", "pageSize", "18" };
         String url = getURL()
-                + "rest/order/orderApplyInfoAction!orderFwnrsInfo.action？pageIndex=0&pageSize=18";
-        JsonNode result = visitUserService.postRequest(url, null);
+                + "rest/order/orderApplyInfoAction!orderFwnrsInfo.action";
+        JsonNode result = visitUserService.postRequest(url, query);
         int code = result.get("status").asInt();
         if (code == 1) {
             JsonNode data = result.get("response");
