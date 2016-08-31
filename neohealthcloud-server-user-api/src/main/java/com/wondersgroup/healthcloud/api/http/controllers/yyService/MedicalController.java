@@ -10,13 +10,13 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.services.yyService.VisitUserService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -30,13 +30,11 @@ import java.util.*;
 @RequestMapping("/api/medicalService")
 public class MedicalController {
 
-    @Value("yyservice.img.host")
-    private String yyImgHost;//yyservice.img.host
+    @Autowired
+    private Environment env;
 
     @Autowired
     private VisitUserService visitUserService;
-
-    private static String serviceImgBaseUri = PropertiesUtils.get("medical.service.img.url");
 
 
     // 查询服务列表
@@ -47,8 +45,8 @@ public class MedicalController {
         JsonListResponseEntity<MedicalAPIEntity> res = new JsonListResponseEntity<>();
         String[] query = { "pageIndex", "0", "pageSize", "18" };
         String url = getURL()
-                + "rest/order/orderApplyInfoAction!orderFwnrsInfo.action";
-        JsonNode result = visitUserService.postRequest(url, query);
+                + "rest/order/orderApplyInfoAction!orderFwnrsInfo.action？pageIndex=0&pageSize=18";
+        JsonNode result = visitUserService.postRequest(url, null);
         int code = result.get("status").asInt();
         if (code == 1) {
             JsonNode data = result.get("response");
@@ -57,7 +55,7 @@ public class MedicalController {
             // 头部广告图片
             List<String> keys = new ArrayList<String>();
             keys.add("yyservice.top.banner");// 医养融合服务列表头部引导图
-          
+
             res.setCode(0);
         } else {
             String msg = result.get("message").asText();
@@ -378,11 +376,11 @@ public class MedicalController {
     }
 
     private String getURL() {
-        return PropertiesUtils.get("api.medicineSupport.service.url");
+        return this.env.getProperty("yyservice.service.host")+"/";
     }
 
     private String getImgUrl(){
-        return this.yyImgHost;
+        return this.env.getProperty("yyservice.img.host");
     }
 
     private List<MedicalAPIEntity> toEntity(JsonNode data) {
@@ -395,7 +393,6 @@ public class MedicalController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        serviceImgBaseUri = getImgUrl();
         for (int i = 0; i < arry.size(); i++) {
             MedicalAPIEntity entity = new MedicalAPIEntity();
             JSONObject job = arry.getJSONObject(i);
@@ -404,8 +401,8 @@ public class MedicalController {
             entity.setMemo(job.get("memo").toString());
             entity.setGrFee(job.get("gr_fee"));
             entity.setYbFee(job.get("yb_fee"));
-            entity.setSmallimg(serviceImgBaseUri + "/" + job.get("smallimg").toString());
-            entity.setBigimg(serviceImgBaseUri + "/" + job.get("bigimg").toString());
+            entity.setSmallimg(getImgUrl() + "/" + job.get("smallimg").toString());
+            entity.setBigimg(getImgUrl() + "/" + job.get("bigimg").toString());
             entity.setDj1(job.get("dj1"));
             entity.setIsneedphoto(job.getString("isneedphoto"));
             list.add(entity);
@@ -416,7 +413,6 @@ public class MedicalController {
     private List<ServiceOrderAPIEntity> toServiceEntity(JsonNode data) {
         List<ServiceOrderAPIEntity> list = new ArrayList<>();
         JSONArray arry = JSONArray.fromObject(data.toString());
-        serviceImgBaseUri = getImgUrl();
         for (int i = 0; i < arry.size(); i++) {
             ServiceOrderAPIEntity entity = new ServiceOrderAPIEntity();
             JSONObject job = arry.getJSONObject(i);
@@ -438,7 +434,7 @@ public class MedicalController {
             }
             entity.setOrderList(job.get("orderList"));
             entity.setStatus(job.getString("status"));
-            entity.setSmallimg(serviceImgBaseUri + "/" + job.getString("smallimg"));
+            entity.setSmallimg(getImgUrl() + "/" + job.getString("smallimg"));
             List<Map<String, Object>> obj = (List) job.get("photoList");
             if (null != obj && obj.size() > 0) {
                 entity.setPhotoList(photoList(obj));
@@ -459,9 +455,8 @@ public class MedicalController {
 
     public List<Object> photoList(List<Map<String, Object>> obj) {
         List<Object> list = new ArrayList<>();
-        serviceImgBaseUri = getImgUrl();
         for (int i = 0; i < obj.size(); i++) {
-            String photoaddress = serviceImgBaseUri + "/" + obj.get(i).get("photoaddress");
+            String photoaddress = getImgUrl() + "/" + obj.get(i).get("photoaddress");
             list.add(photoaddress);
         }
 

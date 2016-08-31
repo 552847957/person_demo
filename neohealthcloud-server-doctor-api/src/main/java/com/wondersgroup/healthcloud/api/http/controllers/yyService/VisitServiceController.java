@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.yyService;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountNoneException;
 import com.wondersgroup.healthcloud.services.yyService.VisitDoctorService;
@@ -36,6 +37,7 @@ public class VisitServiceController {
     /**
      * 服务签到
      */
+    @VersionRange
     @ResponseBody
     @RequestMapping(value = "/checkIn", method = RequestMethod.GET)
     public JsonResponseEntity<String> checkIn(@RequestParam String doctorId, @RequestParam String workOrderNo) {
@@ -56,6 +58,7 @@ public class VisitServiceController {
     /**
      * 服务订单列表
      */
+    @VersionRange
     @ResponseBody
     @RequestMapping(value = "/orderList", method = RequestMethod.GET)
     public JsonListResponseEntity<YYVisitOrderInfo> orderList(@RequestParam String doctorId,
@@ -80,6 +83,7 @@ public class VisitServiceController {
      * 获取要服务的老人信息
      * elderid
      */
+    @VersionRange
     @ResponseBody
     @RequestMapping(value = "/getElderInfo", method = RequestMethod.GET)
     public JsonResponseEntity<YYVisitUserInfo> getElderInfo(@RequestParam String doctorId, @RequestParam String elderid) {
@@ -95,6 +99,7 @@ public class VisitServiceController {
     /**
      * 获取表单录入信息
      */
+    @VersionRange
     @ResponseBody
     @RequestMapping(value = "/execDemo", method = RequestMethod.GET)
     public JsonListResponseEntity<YYExecDemoInfo> execDemo(@RequestParam String doctorId, @RequestParam String fwnrid,
@@ -118,6 +123,7 @@ public class VisitServiceController {
     /**
      *  提交表单录入信息
      */
+    @VersionRange
     @ResponseBody
     @RequestMapping(value = "/postExecDemo", method = RequestMethod.POST)
     public JsonResponseEntity<Boolean> postExecDemo(@RequestBody String request){
