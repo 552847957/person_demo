@@ -1,15 +1,16 @@
 package com.wondersgroup.healthcloud.api.http.controllers.administer;
 
-import com.wondersgroup.healthcloud.api.helper.UserHelper;
+/*import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.api.helper.UserHelper;*/
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.jpa.entity.app.AppKeyConfigurationInfo;
-import com.wondersgroup.healthcloud.jpa.entity.permission.User;
-import org.apache.shiro.SecurityUtils;
+/*import com.wondersgroup.healthcloud.jpa.entity.permission.User;*/
+import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+/*import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;*/
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,7 @@ import java.util.Map;
 @RequestMapping(value = "/api")
 public class LoginController {
 
-    @Autowired
+    /*@Autowired
     private UserHelper userHelper;
 
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
@@ -35,14 +36,8 @@ public class LoginController {
         if (user != null) {
             Map<String, Object> map = new HashMap<>();
             map.put("mainArea", user.getMainArea());
-            if (user.getSpecArea() != null) {
-                map.put("specArea", user.getSpecArea());
-            }
+            map.put("specArea", user.getSpecArea());
             map.put("userName", user.getUsername());
-            AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
-            if (appKCfg != null) {
-                map.put("areaName", appKCfg.getName());
-            }
             result.setData(map);
         }
         return result;
@@ -52,30 +47,23 @@ public class LoginController {
     public JsonResponseEntity logout() {
         SecurityUtils.getSubject().logout();
         JsonResponseEntity result = new JsonResponseEntity();
-        result.setMsg("账号退出成功！");
+        result.setMsg("logout success");
         return result;
-    }
+    }*/
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public JsonResponseEntity login(HttpServletRequest request) {
         JsonResponseEntity result = new JsonResponseEntity();
-
-        if(SecurityUtils.getSubject().isAuthenticated()) {
-            User user = userHelper.getCurrentUser();
-            if (user != null) {
-                //return new ModelAndView("redirect:/welcome");
-                Map<String, Object> map = new HashMap<>();
-                map.put("mainArea", user.getMainArea());
-                if (user.getSpecArea() != null) {
-                    map.put("specArea", user.getSpecArea());
-                }
-                map.put("userName", user.getUsername());
-                AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
-                if (appKCfg != null) {
-                    map.put("areaName", appKCfg.getName());
-                }
-                result.setData(map);
-            }
+        Map<String, Object> map = new HashMap<>();
+        map.put("mainArea", "4401");
+        //map.put("specArea", null);
+        map.put("userName", "admin");
+        //map.put("areaName", "广州");
+        result.setData(map);
+       /*if(SecurityUtils.getSubject().isAuthenticated()) {
+            //return new ModelAndView("redirect:/welcome");
+            result.setCode(0);
+            result.setData(SecurityUtils.getSubject().getPrincipal());
             return result;
         }
         String exceptionClassName = (String)request.getAttribute("shiroLoginFailure");
@@ -94,7 +82,7 @@ public class LoginController {
             error = "账号未登录";
         }
         result.setCode(1000);
-        result.setMsg(error);
+        result.setMsg(error);*/
         return result;
     }
 }
