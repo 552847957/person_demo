@@ -119,10 +119,13 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
             throw new ErrorDoctorAccountException("未知的短信请求");
         }
 
-        DoctorAccount doctorAccount = repository.findDoctorByAccount(mobile);
-        if(doctorAccount == null){
-            throw new ErrorDoctorAccountException("手机号码无效,请重新输入。");
+        if(type==5){
+            DoctorAccount doctorAccount = repository.findDoctorByAccount(mobile);
+            if(doctorAccount == null){
+                throw new ErrorDoctorAccountException("手机号码无效,请重新输入。");
+            }
         }
+
 
         JsonNode result = httpWdUtils.sendCode(mobile,smsContent[type]);
         Boolean success = result.get("success").asBoolean();
