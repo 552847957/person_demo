@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.helper.push.area;
 
 import com.google.common.collect.ImmutableMap;
+import com.wondersgroup.healthcloud.helper.push.exception.AreaNotSupportedException;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
 import com.wondersgroup.healthcloud.helper.push.getui.PushGetuiClientImpl;
 import com.wondersgroup.healthcloud.jpa.entity.app.AppKeyConfigurationInfo;
@@ -48,7 +49,7 @@ public class PushClientSelector {
         if (client != null) {
             return client;
         } else {
-            throw new RuntimeException();//todo
+            throw new AreaNotSupportedException();
         }
     }
 }
