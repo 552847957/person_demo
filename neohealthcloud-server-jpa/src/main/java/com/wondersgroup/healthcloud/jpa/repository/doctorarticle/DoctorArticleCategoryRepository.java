@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface DoctorArticleCategoryRepository extends JpaRepository<DoctorArticleCategory, Integer> {
 
+    DoctorArticleCategory findById(int id);
 }

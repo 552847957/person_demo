@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.jpa.entity.doctorarticle;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by shenbin on 16/8/30.
@@ -19,7 +20,7 @@ public class DoctorArticleCategory {
     private int rank;
 
     @Column(name = "c_name")
-    private String cName;
+    private String caName;
 
     @Column(name = "is_visable")
     private int isVisable;
@@ -28,5 +29,5 @@ public class DoctorArticleCategory {
     private String updateBy;
 
     @Column(name = "update_time")
-    private long updateTime;
+    private Date updateTime;
 }
