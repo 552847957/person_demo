@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorDepartmentEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorConcerned;
@@ -45,7 +46,7 @@ public class DoctorConcerController {
      * @return
      */
     @RequestMapping(value = "/getDocotrQRCode", method = RequestMethod.GET)
-    @ResponseBody
+    @VersionRange
     public JsonResponseEntity<String> getDocotrQRCode(@RequestParam String doctorId){
 
         JsonResponseEntity<String> body = new JsonResponseEntity();
@@ -65,7 +66,7 @@ public class DoctorConcerController {
      * @return
      */
     @RequestMapping(value = "/getDepartList", method = RequestMethod.GET)
-    @ResponseBody
+    @VersionRange
     public JsonListResponseEntity<DoctorDepartmentEntity> getDepartments(){
 
         JsonListResponseEntity<DoctorDepartmentEntity> body = new JsonListResponseEntity<>();
@@ -99,7 +100,7 @@ public class DoctorConcerController {
      * @return
      */
     @RequestMapping(value = "/changeDepart", method = RequestMethod.POST)
-    @ResponseBody
+    @VersionRange
     public JsonResponseEntity<String> changeRelationShipBtwDoctorAndDepartment(@RequestBody String request){
 
         JsonResponseEntity<String> body = new JsonResponseEntity();
@@ -118,7 +119,7 @@ public class DoctorConcerController {
     }
 
     @RequestMapping(value = "/getDoctorConcer", method = RequestMethod.GET)
-    @ResponseBody
+    @VersionRange
     public JsonResponseEntity<Map<String,Object>> getConcerDepartment(@RequestParam(required = false) String doctorId){
 
         JsonResponseEntity<Map<String,Object>> body = new JsonResponseEntity();
