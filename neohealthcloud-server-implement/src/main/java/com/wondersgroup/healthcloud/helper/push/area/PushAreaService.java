@@ -44,8 +44,7 @@ public class PushAreaService {
         if (doctorAccount == null) {
             return null;
         } else {
-            return null;
-//            return pushClientSelector.getByArea("", true);//todo
+            return pushClientSelector.getByArea(doctorAccount.getMainArea(), true);
         }
     }
 
