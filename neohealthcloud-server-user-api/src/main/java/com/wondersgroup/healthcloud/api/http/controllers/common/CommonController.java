@@ -85,7 +85,6 @@ public class CommonController {
             if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
                 common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
             }
-            data.put("common", common);
 
             if (cfgMap.get("app.common.appUpdate") != null) {
                 try {
@@ -117,6 +116,7 @@ public class CommonController {
                 }
             }
         }
+        data.put("common", common);
 
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
