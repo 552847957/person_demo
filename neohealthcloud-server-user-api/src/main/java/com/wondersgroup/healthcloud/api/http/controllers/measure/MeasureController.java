@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wondersgroup.healthcloud.api.utils.JacksonHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import org.slf4j.Logger;
@@ -39,10 +40,14 @@ public class MeasureController {
     private static final String requestYearHistoryPath = "%s/api/measure/yearHistory/%s?%s";
     private static final String requestDayHistoriesListPath = "%s/api/measure/topHistories/?%s";
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
+    private static final String requestAbnormalHistories = "%s/api/measure/3.0/dayHistory?%s";
     private RestTemplate template = new RestTemplate();
 
     @Autowired
     private MeasureManagementService managementService;
+
+    @Autowired
+    private AppUrlH5Utils h5Utils;
 
     @GetMapping(value = "home", produces = MediaType.APPLICATION_JSON_VALUE)
     @VersionRange
@@ -205,6 +210,35 @@ public class MeasureController {
             log.info("近期历史数据获取失败", e);
         }
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
+    }
+
+    /**
+     * 查询历史记录
+     * 根据天的维度展示
+     *
+     * @param registerId 注册认证码
+     * @return
+     * @throws JsonProcessingException
+     */
+    @GetMapping("3.0/abnormal/dayHistory")
+    public JsonResponseEntity queryAbnormalHistory(@RequestParam String registerId, @RequestParam String personCard) throws JsonProcessingException {
+        Map<String, Object> result = new HashMap<>();
+        result.put("h5Url", h5Utils.generateLinks(personCard));
+        try {
+            String param = "registerId=".concat(registerId);
+            String url = String.format(requestAbnormalHistories, host, param);
+            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    Object content = response.getBody().get("data");
+                    result.put("content", content);
+                    return new JsonResponseEntity<>(0, "近期异常数据查询成功", result);
+                }
+            }
+        } catch (Exception e) {
+            log.info("近期异常数据获取失败", e);
+        }
+        return new JsonResponseEntity(0, "查询成功", result);
     }
 
     /**

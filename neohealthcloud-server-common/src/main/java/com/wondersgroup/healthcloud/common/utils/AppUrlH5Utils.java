@@ -4,6 +4,9 @@ package com.wondersgroup.healthcloud.common.utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * app h5 url build
  * Created by dukuanxin on 16/08/15.
@@ -73,6 +76,15 @@ public class AppUrlH5Utils {
      */
     public String buildHealthRecordYongyao(String idc){
         return basePath + "/healthRecords/drugList?idc="+idc;
+    }
+
+    public Map<String, String> generateLinks(String idc) {
+        Map<String, String> result = new HashMap<>();
+        result.put("zhuyuan_url", buildHealthRecordZhuyuan(idc));
+        result.put("jiuzhen_url", buildHealthRecordJiuzhen(idc));
+        result.put("yongyao_url", buildHealthRecordYongyao(idc));
+        result.put("jianyan_url", buildHealthRecordJianyan(idc));
+        return result;
     }
 
 }
