@@ -377,13 +377,21 @@ public class MedicalCircleController {
     @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
     public JsonResponseEntity<String> publish(
-            @RequestParam("doctor_id") String doctor_id,
-            @RequestParam("circle_type") Integer circle_type,
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "content", required = false) String content,
-            @RequestParam(value = "images", required = false) String images) {
+            @RequestBody String body
+//            @RequestParam("doctor_id") String doctor_id,
+//            @RequestParam("circle_type") Integer circle_type,
+//            @RequestParam(value = "title", required = false) String title,
+//            @RequestParam(value = "content", required = false) String content,
+//            @RequestParam(value = "images", required = false) String images
+            ) {
        
         JsonResponseEntity<String> entity = new JsonResponseEntity<>();
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String doctor_id = reader.readString("doctor_id", false);
+        Integer circle_type = reader.readInteger("circle_type", false);
+        String title = reader.readString("title", false);
+        String content = reader.readString("content", false);
+        String images = reader.readString("images", false);
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
         List<String> imageURLs = new ArrayList<String>();
         if(!StringUtils.isBlank(images)){
