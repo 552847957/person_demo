@@ -40,6 +40,7 @@ public class HealthActivityAPIEntity {
     
     private HealthActivityEvaluationAPIEntity evaluation;
     private SimpleDateFormat monthDay_sdf = new SimpleDateFormat("MM.dd");
+    private SimpleDateFormat monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
     private SimpleDateFormat hourMinute_sdf = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat time_adf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
@@ -79,12 +80,11 @@ public class HealthActivityAPIEntity {
             this.enrollCountdown = getDateTimeStr(info);
         }
         if("activityMine".equals(pageType)){//我参与的活动
-            this.time= DateFormatter.yearFormat(info.getStarttime())
-                    + "/"+ startMonDay+(startMonDay.equals(endMonDay)?"":"～" + endMonDay)
-                    + "/"+startHourMin+(startHourMin.equals(endHourMin)?"":"--"+endHourMin);
+            this.time= monthDayStr_sdf.format(info.getStarttime())
+                    + "/"+startHourMin+(startHourMin.equals(endHourMin)?"":"～"+endHourMin);
         }else{//活动列表、活动详情
-            this.time= startMonDay+(startMonDay.equals(endMonDay)?"":"～" + endMonDay)
-                    + " "+startHourMin+(startHourMin.equals(endHourMin)?"":"--"+endHourMin);
+            this.time= monthDayStr_sdf.format(info.getStarttime())
+                    + " "+startHourMin+(startHourMin.equals(endHourMin)?"":"～"+endHourMin);
         } 
         this.totalAvailable = info.getQuota();
 
