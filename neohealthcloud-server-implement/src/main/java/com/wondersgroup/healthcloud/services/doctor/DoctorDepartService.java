@@ -7,9 +7,8 @@ import java.util.List;
 /**
  * Created by longshasha on 16/8/31.
  */
-public interface DoctorConcerService {
-    Boolean updateDoctorConcerDepartment(String doctorId, String departmentIds);
+public interface DoctorDepartService {
+    List<DoctorDepartment> queryFirstLevelDepartments();
 
-    List<DoctorDepartment> queryDoctorDepartmentsByDoctorId(String doctorId);
-
+    List<DoctorDepartment> queryDoctorDepartmentsByPid(String id);
 }

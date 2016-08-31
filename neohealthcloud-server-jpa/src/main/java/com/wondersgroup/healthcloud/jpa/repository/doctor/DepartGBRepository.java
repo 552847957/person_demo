@@ -11,9 +11,5 @@ import java.util.List;
  */
 public interface DepartGBRepository extends JpaRepository<DepartGB, String> {
 
-    @Query(" select a from DepartGB a where a.pid is null")
-    List<DepartGB> queryFirstLevelDepartments();
 
-    @Query(" select a from DepartGB a where a.pid = ?1 ")
-    List<DepartGB> queryDoctorDepartmentsByPid(String id);
 }

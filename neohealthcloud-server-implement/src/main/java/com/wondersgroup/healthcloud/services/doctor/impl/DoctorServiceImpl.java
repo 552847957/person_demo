@@ -13,8 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +70,50 @@ public class DoctorServiceImpl implements DoctorService {
     public Doctor findDoctorByUid(String uid) {
         Map<String,Object> doctorInfo = findDoctorInfoByUid(uid);
         return new Doctor(doctorInfo);
+    }
+
+    @Override
+    public List<Doctor> findDoctorByIds(String ids) {
+        String sql =query +
+                " where a.id in '%s'";
+        sql = String.format(sql,ids);
+        RowMapper<Doctor> rowMapper = new DoctorListRowMapper();
+        List<Doctor> doctors = jt.query(sql, rowMapper);
+        return doctors;
+    }
+
+    public class DoctorListRowMapper implements RowMapper<Doctor> {
+        @Override
+        public Doctor mapRow(ResultSet rs, int i) throws SQLException {
+            Doctor doctor = new Doctor();
+            doctor.setUid(rs.getString("id"));
+            doctor.setName(rs.getString("name"));
+
+            doctor.setMobile(rs.getString("mobile"));
+            doctor.setNickname(rs.getString("nickname"));
+            doctor.setLoginName(rs.getString("loginName"));
+
+            doctor.setIdcard(rs.getString("idcard"));
+            doctor.setGender(rs.getString("gender"));
+
+            doctor.setHospitalId(rs.getString("hospitalId"));
+            doctor.setHospitalName(rs.getString("hospitalName"));
+            doctor.setDutyName(rs.getString("dutyName"));
+            doctor.setDepartName(rs.getString("departName"));
+            doctor.setNo(rs.getString("no"));
+
+            doctor.setIntroduction(rs.getString("introduction"));
+            doctor.setExpertin(rs.getString("expertin"));
+            doctor.setAvatar(rs.getString("avatar"));
+
+
+            doctor.setTalkid(rs.getString("talkid"));
+            doctor.setTalkpwd(rs.getString("talkpwd"));
+            doctor.setTalkgroupid(rs.getString("talkgroupid"));
+
+            doctor.setAvatar(rs.getString("actcode"));
+            return doctor;
+        }
     }
 
     @Override

@@ -9,7 +9,8 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
-import com.wondersgroup.healthcloud.services.dic.DepartGbService;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartment;
+import com.wondersgroup.healthcloud.services.doctor.DoctorDepartService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorConcerService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
@@ -31,7 +32,7 @@ public class DoctorConcerController {
     private DoctorConcerService doctorConcerService;
 
     @Autowired
-    private DepartGbService departGbService;
+    private DoctorDepartService doctorDepartService;
 
     @Autowired
     private DoctorService doctorService;
@@ -71,10 +72,10 @@ public class DoctorConcerController {
         JsonListResponseEntity<DoctorDepartmentEntity> body = new JsonListResponseEntity<>();
         try{
             List<DoctorDepartmentEntity> entities = Lists.newArrayList();
-            List<DepartGB> departments = departGbService.queryFirstLevelDepartments();
+            List<DoctorDepartment> departments = doctorDepartService.queryFirstLevelDepartments();
             if(departments!=null&&!departments.isEmpty()){
-                for(DepartGB department:departments){
-                    List<DepartGB> subList = departGbService.queryDoctorDepartmentsByPid(department.getId());
+                for(DoctorDepartment department:departments){
+                    List<DoctorDepartment> subList = doctorDepartService.queryDoctorDepartmentsByPid(department.getId());
                     if(subList==null||subList.isEmpty()){
                         subList = Lists.newArrayList();
                         subList.add(department);
@@ -124,12 +125,12 @@ public class DoctorConcerController {
         JsonResponseEntity<Map<String,Object>> body = new JsonResponseEntity();
         Map<String, Object> data = Maps.newHashMap();
         try{
-            List<DepartGB> departmentList = doctorConcerService.queryDoctorDepartmentsByDoctorId(doctorId);
+            List<DoctorDepartment> departmentList = doctorConcerService.queryDoctorDepartmentsByDoctorId(doctorId);
 
             if(departmentList==null||departmentList.isEmpty()){
                 Doctor doctorInfo = doctorService.findDoctorByUid(doctorId);
                 departmentList = Lists.newArrayList();
-                DepartGB department = new DepartGB();
+                DoctorDepartment department = new DoctorDepartment();
                 department.setName(doctorInfo.getDepartName());
             }
 

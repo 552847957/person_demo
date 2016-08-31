@@ -18,6 +18,8 @@ public interface DoctorService {
 
     Doctor findDoctorByUid(String uid);
 
+    List<Doctor> findDoctorByIds(String ids);
+
     Doctor findDoctorInfoByActcode(String actcode);
 
     DoctorInfo updateExpertin(String uid, String expertin);

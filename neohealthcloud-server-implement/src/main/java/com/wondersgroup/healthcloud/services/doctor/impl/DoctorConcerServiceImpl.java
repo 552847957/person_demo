@@ -3,14 +3,18 @@ package com.wondersgroup.healthcloud.services.doctor.impl;
 import com.google.common.collect.Lists;
 import com.qiniu.util.StringUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartment;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartmentRela;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorDepartmentRelaRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorConcerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +26,9 @@ public class DoctorConcerServiceImpl implements DoctorConcerService {
 
     @Autowired
     private DoctorDepartmentRelaRepository doctorDepartmentRelaRepository;
+
+    @Autowired
+    private JdbcTemplate jt;
 
 
 
@@ -51,20 +58,37 @@ public class DoctorConcerServiceImpl implements DoctorConcerService {
     }
 
     @Override
-    public List<DepartGB> queryDoctorDepartmentsByDoctorId(String doctorId) {
-        return doctorDepartmentRelaRepository.queryDoctorDepartmentsByDoctorId(doctorId);
+    public List<DoctorDepartment> queryDoctorDepartmentsByDoctorId(String doctorId) {
+
+        String sql = " select b.id,b.name,b.pid,b.sort,b.isview,b.del_flag as 'delFlag', " +
+                " b.create_by as 'createBy' ,b.create_date as 'createDate',b.update_by as 'updateBy' ," +
+                " b.update_date as 'updateDate',b.source_id as 'sourceId' " +
+                " from   app_tb_doctor_departmentcare a LEFT JOIN " +
+                " app_dic_doctor_department b ON " +
+                " a.departid = b.id AND " +
+                " a.doctorid = '%s' " +
+                " where  b.del_flag = 0 order by sort ";
+
+        sql = String.format(sql,doctorId);
+
+        RowMapper<DoctorDepartment> hospitalRowMapper = new DoctorDepartmentRowMapper();
+        List<DoctorDepartment> list = jt.query(sql,hospitalRowMapper);
+        return list;
     }
 
-
-
-
-    private List<String> convert(List<Object> result){
-        List<String> ids = Lists.newArrayList();
-        if(result!=null&&!result.isEmpty()){
-            for(Object obj: result){
-                ids.add((String)obj);
-            }
+    public class DoctorDepartmentRowMapper implements RowMapper<DoctorDepartment> {
+        @Override
+        public DoctorDepartment mapRow(ResultSet rs, int i) throws SQLException {
+            DoctorDepartment department = new DoctorDepartment();
+            department.setId(rs.getString("id"));
+            department.setName(rs.getString("name"));
+            department.setPid(rs.getString("pid"));
+            department.setSort(rs.getString("sort"));
+            department.setIsview(rs.getString("isview"));
+            department.setDelFlag(rs.getString("delFlag"));
+            return department;
         }
-        return ids;
     }
+
+
 }

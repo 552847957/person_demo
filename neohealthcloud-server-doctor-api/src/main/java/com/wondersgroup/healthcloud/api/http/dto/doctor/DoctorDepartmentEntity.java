@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartment;
 
 import java.util.List;
 
@@ -11,15 +12,15 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DoctorDepartmentEntity {
 
-    public List<DepartGB> getSubDepartments() {
+    public List<DoctorDepartment> getSubDepartments() {
         return subDepartments;
     }
 
-    public void setSubDepartments(List<DepartGB> subDepartments) {
+    public void setSubDepartments(List<DoctorDepartment> subDepartments) {
         this.subDepartments = subDepartments;
     }
 
-    private List<DepartGB> subDepartments;
+    private List<DoctorDepartment> subDepartments;
 
     public String getCreate_by() {
         return create_by;
@@ -121,7 +122,7 @@ public class DoctorDepartmentEntity {
     private String update_date;
     private String source_id;
 
-    public DoctorDepartmentEntity(DepartGB department, List<DepartGB> subDepartments){
+    public DoctorDepartmentEntity(DoctorDepartment department, List<DoctorDepartment> subDepartments){
         this.id = department.getId();
         this.subDepartments = subDepartments;
         this.pid = department.getPid();

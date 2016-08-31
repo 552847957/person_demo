@@ -37,6 +37,8 @@ public class Doctor {
     private String actcode;//医生推广邀请码
 
 
+    public Doctor() {
+    }
 
     public Doctor(Map<String, Object> doctor) {
         if(doctor!=null){
