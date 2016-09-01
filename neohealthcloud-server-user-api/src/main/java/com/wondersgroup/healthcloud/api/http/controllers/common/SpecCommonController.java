@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +56,11 @@ public class SpecCommonController {
         keyWords.add("app.common.userAgreement");// 用户协议
         keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
         keyWords.add("common.qr.code.url.ios");// ios邀请二维码
-        keyWords.add("common.qr.code.url.android");// ios邀请二维码
+        keyWords.add("common.qr.code.url.android");// android邀请二维码
+        keyWords.add("app.common.huidao.channel");
+        keyWords.add("app.common.huidao.appkey");
+        keyWords.add("app.common.huidao.sid");
+        keyWords.add("app.common.huidao.apiid");
 
         keyWords.add("app.common.appUpdate");// APP更新
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
@@ -63,16 +68,16 @@ public class SpecCommonController {
         Map<String, Object> common = new HashMap<>();
         common.put("publicKey", HttpWdUtils.publicKey);
         if (cfgMap != null) {
-            if (cfgMap.get("app.common.consumer.hotline") != null) {
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.consumer.hotline"))) {
                 common.put("consumerHotline", cfgMap.get("app.common.consumer.hotline"));
             }
-            if (cfgMap.get("app.common.help.center") != null) {
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.help.center"))) {
                 common.put("helpCenter", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.help.center")));
             }
-            if (cfgMap.get("app.common.userAgreement") != null) {
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.userAgreement"))) {
                 common.put("userAgreement", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
             }
-            if (cfgMap.get("app.common.intellectualPropertyAgreement") != null) {
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.intellectualPropertyAgreement"))) {
                 common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
             }
             String qrCode = "";
@@ -81,6 +86,20 @@ public class SpecCommonController {
             }else if(platform.equalsIgnoreCase("1")){
                 common.put("qrCode", cfgMap.get("common.qr.code.url.android"));
             }
+            // 汇道
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.channel"))) {
+                common.put("huiDaoChannelid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.channel")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.appkey"))) {
+                common.put("huiDaoAppkey", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.appkey")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.sid"))) {
+                common.put("huiDaoSid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.sid")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.apiid"))) {
+                common.put("huiDaoApiid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.apiid")));
+            }
+
             data.put("common", common);
 
             if (cfgMap.get("app.common.appUpdate") != null) {

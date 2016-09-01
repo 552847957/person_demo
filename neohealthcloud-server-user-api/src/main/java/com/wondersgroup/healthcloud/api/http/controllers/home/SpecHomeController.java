@@ -22,10 +22,11 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +55,14 @@ public class SpecHomeController {
 
     @Autowired
     private FaqService faqService;
+
+    private static final String requestStationNearby = "%s/api/exam/station/nearby?";
+    private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
+
+    @Value("${internal.api.service.measure.url}")
+    private String host;
+
+    private RestTemplate template = new RestTemplate();
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
@@ -120,9 +129,6 @@ public class SpecHomeController {
                 String telephoneAd = appConfig.getData();
                 ObjectMapper om = new ObjectMapper();
                 JsonNode jsonNode = om.readTree(telephoneAd);
-                //Map<String, Object> tad = new HashMap<>();
-
-
                 data.put("telephoneAd", jsonNode);
             } catch (Exception ex) {
 
@@ -191,6 +197,52 @@ public class SpecHomeController {
             log.error("SpecHomeController.newsAndQuestions Error --> faqService.findHomeFaqList -->" + ex.getLocalizedMessage());
         }
 
+        result.setData(data);
+        return result;
+    }
+
+    @GetMapping(value = "/specSerMeasuringPoint")
+    public JsonResponseEntity specSerMeasuringPoint(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                                    @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                    @RequestHeader(name = "app-version", required = true) String appVersion,
+                                                    @RequestParam String areaCode,
+                                                    Double longitude, Double latitude, Boolean need, Integer flag) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map<String, Object> data = new HashMap<>();
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+        if (imageTextsB != null && imageTextsB.size() > 0) {
+            List specialServices = new ArrayList();
+            Map map = null;
+            for (ImageText imageText : imageTextsB) {
+                map = new HashMap();
+                map.put("imgUrl", imageText.getImgUrl());
+                map.put("hoplink", imageText.getHoplink());
+                map.put("mainTitle", imageText.getMainTitle());
+                map.put("subTitle", imageText.getSubTitle());
+                specialServices.add(map);
+            }
+            data.put("specialService", specialServices);
+        }
+
+        String url = String.format(requestStationNearby, host) +
+                "areaCode=" + areaCode;
+        if (null != longitude && null != latitude) {
+            url += "&longitude=" + longitude +
+                    "&latitude=" + latitude;
+        }
+        if (need != null) {
+            url += "&need=" + need;
+        }
+        if (flag != null) {
+            url += "&flag=" + flag;
+        }
+
+        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            if (0 == (int) response.getBody().get("code")) {
+                data.put("measuringPoint", response.getBody().get("data"));
+            }
+        }
         result.setData(data);
         return result;
     }
