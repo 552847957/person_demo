@@ -81,13 +81,13 @@ public class DoctorServiceImpl implements DoctorService {
 
         StringBuffer sb = new StringBuffer();
         for(String str : doctorIds){
-            sb.append(" '"+str+"',  ");
+            sb.append(",'"+str+"'");
         }
         String param = sb.toString();
 
         String sql =query +
-                " where a.id in  ('%s') ";
-        sql = String.format(sql,param.substring(0,param.length()-1));
+                " where a.id in  (%s) ";
+        sql = String.format(sql,param.substring(1));
         RowMapper<Doctor> rowMapper = new DoctorListRowMapper();
         List<Doctor> doctors = jt.query(sql, rowMapper);
         return doctors;
