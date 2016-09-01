@@ -46,6 +46,7 @@ public class DoctorClinicController {
      * @param uid
      * @return
      */
+    @VersionRange
     @RequestMapping(value="/articleList", method = RequestMethod.GET)
     public JsonListResponseEntity<DoctorArticleListAPIEntity> articleList(@RequestParam(required = true) Integer cat_id,
                                                                           @RequestParam(required = false) String uid,
