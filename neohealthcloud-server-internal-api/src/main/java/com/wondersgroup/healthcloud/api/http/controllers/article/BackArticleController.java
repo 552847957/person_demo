@@ -74,7 +74,7 @@ public class BackArticleController {
     @PostMapping("/save")
     public JsonResponseEntity updateArticle(@RequestBody NewsArticle article){
         JsonResponseEntity response=new JsonResponseEntity();
-        if(article.getTitle().length()>30){
+        if(article.getTitle().length()>10){
             response.setCode(-1);
             response.setMsg("字数过多，限制10个字");
             return response;
@@ -146,27 +146,17 @@ public class BackArticleController {
 
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
-
-        //查询文章所属分类
-        List<NewsArticleCategory> newsArticleBelongArea = manageNewsArticleCategotyService.findNewsArticleBelongArea(id, areaCode);
-        //查询文章不属分类
-        List<NewsArticleCategory> newsArticleNotBelongArea = manageNewsArticleCategotyService.findNewsArticleNotBelongArea(id, areaCode);
-
-        Set<NewsArticleCategory> set=new HashSet<>();
-        for(NewsArticleCategory category:newsArticleNotBelongArea){
+        List<NewsArticleCategory> appNewsCategory= manageNewsArticleCategotyService.findNewsCategoryByArea(areaCode);
+        List<Integer> integers = manageNewsArticleCategotyService.queryCategoryBelongArticle(id, areaCode);
+        List<NewsArticleCategory> belongAreaCategory=new ArrayList<>();
+        for(NewsArticleCategory category:appNewsCategory){
             category.setBelong_article("1");
-            set.add(category);
+            for (Integer categoryId:integers){
+                if(categoryId==category.getId()) category.setBelong_article("0");
+            }
+            belongAreaCategory.add(category);
         }
-        for (NewsArticleCategory category2:newsArticleBelongArea){
-            category2.setBelong_article("0");
-            set.add(category2);
-        }
-        if(!set.isEmpty()){
-            List<NewsArticleCategory> list=new ArrayList<>();
-            list.addAll(set);
-            articleInfo.setCategories(list);
-        }
-
+        articleInfo.setCategories(belongAreaCategory);
         response.setData(articleInfo);
         return response;
     }

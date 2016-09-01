@@ -50,15 +50,11 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
     }
 
     @Override
-    public List<NewsArticleCategory> findNewsArticleNotBelongArea(int articleId, String area) {
-        return newsArticleCategoryRepo.findNewsArticleNotBelongArea(articleId,area);
+    public List<Integer> queryCategoryBelongArticle(int articleId, String areaCode) {
+        String sql="SELECT DISTINCT(t1.id) FROM app_tb_neoarticle_category t1 LEFT JOIN app_tb_neoarticle_area t2 ON t2.category_id=t1.id" +
+                " WHERE t2.article_id="+articleId+" AND t2.main_area='"+areaCode+"'";
+        return getJt().queryForList(sql,Integer.class);
     }
-
-    @Override
-    public List<NewsArticleCategory> findNewsArticleBelongArea(int articleId, String area) {
-        return newsArticleCategoryRepo.findNewsArticleBelongArea(articleId,area);
-    }
-
 
     private JdbcTemplate getJt() {
         if (jt == null) {

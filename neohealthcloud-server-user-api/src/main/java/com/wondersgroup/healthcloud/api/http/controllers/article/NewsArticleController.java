@@ -150,6 +150,7 @@ public class NewsArticleController {
      */
     @GetMapping("/homePage")
     @WithoutToken
+    @VersionRange
     public JsonResponseEntity getHomePageArticle(@RequestHeader("main-area") String area){
         JsonResponseEntity response=new JsonResponseEntity();
         List<NewsArticleListAPIEntity> articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(area, 0, 10);
