@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.faq.exception.ErrorNoneFaqException;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,34 +32,6 @@ public class FaqController {
     @Autowired
     private FaqService faqService;
 
-
-    /**
-     * 问答集锦列表(首页)
-     * @return
-     */
-    @VersionRange
-    @WithoutToken
-    @RequestMapping(value = "/home/faq/list", method = RequestMethod.GET)
-    public JsonListResponseEntity getHomeFaqList(){
-        JsonListResponseEntity<FaqDTO> body = new JsonListResponseEntity<>();
-        boolean has_more = false;
-        List<FaqDTO> list = Lists.newArrayList();
-
-        List<Faq> faqList = faqService.findHomeFaqList();
-
-        if(faqList !=null){
-            for (Faq faq : faqList){
-                FaqDTO faqDTO = new FaqDTO(faq);
-                //查询回答数
-                int commentCount = faqService.countCommentByQid(faq.getQId());
-                faqDTO.setCommentCount(commentCount);
-                list.add(faqDTO);
-            }
-        }
-        body.setContent(list, has_more, null, null);
-        return body;
-
-    }
 
     /**
      * 更多 问答集锦
@@ -86,6 +59,7 @@ public class FaqController {
         if(faqList !=null){
             for (Faq faq : faqList){
                 FaqDTO faqDTO = new FaqDTO(faq);
+                faqDTO.setAskTime(DateFormatter.questionListDateFormat(faq.getAskDate()));
                 //查询回答数
                 int commentCount = faqService.countCommentByQid(faq.getQId());
                 faqDTO.setCommentCount(commentCount);
