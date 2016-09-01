@@ -56,6 +56,15 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
         return getJt().queryForList(sql,Integer.class);
     }
 
+
+    @Override
+    public int relieveCategory(String id,String areaCode) {
+
+        String sql="DELETE FROM app_tb_neoarticle_area WHERE article_id="+id+" AND main_area='"+areaCode+"'";
+
+        return getJt().update(sql);
+    }
+
     private JdbcTemplate getJt() {
         if (jt == null) {
             jt = new JdbcTemplate(dataSource);

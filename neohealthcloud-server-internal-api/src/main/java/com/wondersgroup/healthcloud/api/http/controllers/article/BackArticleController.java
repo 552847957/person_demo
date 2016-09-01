@@ -96,9 +96,9 @@ public class BackArticleController {
     @PostMapping("/areaArticleUpdate")
     public JsonResponseEntity updateArticle(@RequestBody NewsArticleEditDTO newsArticleEditDTO){
         JsonResponseEntity response=new JsonResponseEntity();
+        int num= manageNewsArticleCategotyService.relieveCategory(newsArticleEditDTO.getId(), newsArticleEditDTO.getMain_area());
         Date date=new Date();
         String categoryids []=newsArticleEditDTO.getCategory_ids().split(",");
-
         for(String categoryid:categoryids){
             ArticleArea articleArea=new ArticleArea();
             if(StringUtils.isEmpty(newsArticleEditDTO.getId())){
@@ -143,7 +143,6 @@ public class BackArticleController {
     @GetMapping("/areaInfo")
     public JsonResponseEntity articleInfoByArea(@RequestParam(required = true) Integer id,@RequestParam(required = true) String areaCode){
         JsonResponseEntity response=new JsonResponseEntity();
-
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
         List<NewsArticleCategory> appNewsCategory= manageNewsArticleCategotyService.findNewsCategoryByArea(areaCode);
