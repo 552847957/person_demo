@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.DoctorAnswer;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.api.http.dto.faq.QuestionClosely;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -36,6 +37,7 @@ public class FaqController {
      * @return
      */
     @VersionRange
+    @WithoutToken
     @RequestMapping(value = "/home/faq/list", method = RequestMethod.GET)
     public JsonListResponseEntity getHomeFaqList(){
         JsonListResponseEntity<FaqDTO> body = new JsonListResponseEntity<>();
@@ -64,6 +66,7 @@ public class FaqController {
      * @return
      */
     @VersionRange
+    @WithoutToken
     @RequestMapping(value = "/faq/list", method = RequestMethod.GET)
     public JsonListResponseEntity getFaqList(@RequestParam(required = false, defaultValue = "1") Integer flag){
         JsonListResponseEntity<FaqDTO> body = new JsonListResponseEntity<>();
@@ -104,6 +107,7 @@ public class FaqController {
      * @return
      */
     @VersionRange
+    @WithoutToken
     @RequestMapping(value = "/faq/detail", method = RequestMethod.GET)
     public JsonResponseEntity<FaqDTO> getFaqDetail(@RequestParam(required = true) String id){
         JsonResponseEntity<FaqDTO> response = new JsonResponseEntity<>();
