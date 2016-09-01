@@ -32,8 +32,10 @@ import java.util.concurrent.TimeUnit;
 public class BeanFactory {
 
     @Bean
-    public SMS sms() {
-        return new SMSWondersImpl();
+    public SMS sms(HttpRequestExecutorManager httpRequestExecutorManager) {
+        SMSWondersImpl impl = new SMSWondersImpl();
+        impl.setHttpManager(httpRequestExecutorManager);
+        return impl;
     }
 
     @Bean
