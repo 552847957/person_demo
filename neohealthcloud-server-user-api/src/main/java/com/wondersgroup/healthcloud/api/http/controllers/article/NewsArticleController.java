@@ -43,7 +43,6 @@ public class NewsArticleController {
     @Autowired
     private AppConfigService appConfigService;
 
-    private final int showCatNum = 4;
     /**
      * 资讯列表
      * @return
@@ -167,10 +166,6 @@ public class NewsArticleController {
         if (null == resourList || resourList.isEmpty()){
             return null;
         }
-        if (resourList.size()>this.showCatNum){
-            resourList = resourList.subList(0, this.showCatNum);
-        }
-
 
         List<NewsCateArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
