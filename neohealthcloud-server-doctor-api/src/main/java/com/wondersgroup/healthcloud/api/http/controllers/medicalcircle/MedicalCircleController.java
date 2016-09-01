@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
@@ -33,7 +30,6 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleAttach;
 import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleTransmit;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleAttention;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleCommunity;
@@ -64,6 +60,8 @@ public class MedicalCircleController {
     private DoctorAccountRepository doctorAccountRepository;
     @Autowired
     private CircleLikeUtils circleLikeUtils;
+    @Autowired
+    private MedicalCircleService cedicalCircleService;
     
     
 
@@ -217,7 +215,7 @@ public class MedicalCircleController {
             ) {
         JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
         MedicalCircle mc = mcService.getMedicalCircle(circle_id);
-        responseEntity.setData(new MedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
+        responseEntity.setData(newMedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
                 mc, screen_width, doctor_id));
         mcService.view(circle_id, doctor_id);//redis
         return responseEntity;
@@ -938,11 +936,10 @@ public class MedicalCircleController {
             entity.setColor(dictCache.queryTagColor(mc.getTagid()));
             entity.setViews(mcService.getCircleViews(circle_id));//redis
             entity.setIs_collected(mcService.checkCollect(circle_id, uid, 1));
-            
+            cedicalCircleService.getMedicalCircle(circle_id);
             List<Doctor> doctors = getDoctorByDocotrIds(circleLikeUtils.likeUserIds(circle_id));
-//            DoctorEntity[] doctors = docUtils.getDoctors(circleLikeUtils.likeUserIds(circle_id));
-            String[] docLikeNames = new String[doctors.size()];
-            if(doctors.size() > 0){
+            if(doctors != null && doctors.size() > 0){
+                String[] docLikeNames = new String[doctors.size()];
                 for (int i = 0; i < doctors.size(); i++) {
                     Doctor doc = doctors.get(i);
                     if(doc != null) {
