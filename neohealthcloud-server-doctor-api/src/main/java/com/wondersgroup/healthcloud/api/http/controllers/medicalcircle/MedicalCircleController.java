@@ -378,7 +378,7 @@ public class MedicalCircleController {
         Integer circle_type = reader.readInteger("circle_type", false);
         String title = reader.readString("title", true);
         String content = reader.readString("content", true);
-        String images = reader.readString("images", true);
+        String images = reader.readString("files", true);
         //        if (!SensitiveWordsFilterUtils.isIncludeSenstiveWords(content)) {
         List<String> imageURLs = new ArrayList<String>();
         if(!StringUtils.isBlank(images)){
