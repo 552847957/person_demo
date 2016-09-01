@@ -35,6 +35,4 @@ public class CommonController {
         response.setData(map);
         return response;
     }
-
-
 }
