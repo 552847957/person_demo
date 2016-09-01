@@ -1,15 +1,15 @@
 package com.wondersgroup.healthcloud.jpa.entity.config;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
 
 /**
  * Created by zhaozhenxing on 2016/8/16.
@@ -37,4 +37,5 @@ public class AppConfig {
     private String mainArea;
     @Column(name = "spec_area")
     private String specArea;
+    private String source;// 1-用户端;2-医生端
 }

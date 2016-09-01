@@ -1,13 +1,15 @@
 package com.wondersgroup.healthcloud.jpa.entity.imagetext;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
 
 /**
  * Created by zhaozhenxing on 2016/8/16.
@@ -52,4 +54,5 @@ public class ImageText {
     private String specArea;
     private String remark;
     private String version;
+    private String source;// 1-用户端;2-医生端
 }

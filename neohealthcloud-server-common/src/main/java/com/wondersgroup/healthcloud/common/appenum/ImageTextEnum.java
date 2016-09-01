@@ -11,8 +11,12 @@ public enum ImageTextEnum {
     NAVIGATION_BAR("导航按钮", 3),
     G_SERVICE_BTN("服务功能列表", 4),// 组图
     HOME_ADVERTISEMENT("首页广告位", 5),
-    HOME_FLOAT_AD("首页浮动广告", 6);
-
+    HOME_FLOAT_AD("首页浮动广告", 6),
+	AD_CIRCLE("医学圈",7),
+	AD_DOCTOR_DETAIL("医生详情",8),
+	AD_QA_DETAIL("问答详情",9),
+	AD_HOME("个人诊所",10);
+	
 
     private String name;
     private Integer type;

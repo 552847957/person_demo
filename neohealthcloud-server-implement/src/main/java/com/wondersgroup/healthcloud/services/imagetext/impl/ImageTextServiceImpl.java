@@ -1,11 +1,17 @@
 package com.wondersgroup.healthcloud.services.imagetext.impl;
 
-import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
-import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
-import com.wondersgroup.healthcloud.jpa.repository.imagetext.GImageTextRepository;
-import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
-import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +21,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.GImageText;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.repository.imagetext.GImageTextRepository;
+import com.wondersgroup.healthcloud.jpa.repository.imagetext.ImageTextRepository;
+import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 
 /**
  * Created by zhaozhenxing on 2016/6/12.
@@ -141,6 +147,14 @@ public class ImageTextServiceImpl implements ImageTextService {
                 if (imgText.getEndTime() != null) {
                     pdList.add(cb.lessThanOrEqualTo(rt.<Date>get("endTime"), imgText.getEndTime()));
                 }
+                
+                String source = imgText.getSource();
+                if (StringUtils.isBlank(source)) {
+                    pdList.add(cb.equal(rt.<Date>get("source"), "1"));
+                }else{
+                	pdList.add(cb.equal(rt.<Date>get("source"), source));
+                }
+                
                 if (pdList.size() > 0) {
                     Predicate[] predicates = new Predicate[pdList.size()];
                     cq.where(pdList.toArray(predicates));
