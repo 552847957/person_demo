@@ -21,7 +21,6 @@ public class DoctorDepartment {
     private String pid;
     private String sort;
     private String isview;
-    private String tagnum;
 
     @Column(name = "del_flag")
     private String delFlag;
