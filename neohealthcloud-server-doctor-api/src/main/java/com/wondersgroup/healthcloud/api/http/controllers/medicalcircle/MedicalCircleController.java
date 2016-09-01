@@ -111,7 +111,7 @@ public class MedicalCircleController {
             entity.setName(doctorInfo.getName());
             Integer type = mc.getType();
             entity.setCircle_type(type);
-            List<ArticleAttach> images = mcService.getCircleAttachs("1363914b73e6475f9cc17a0e2401437e");
+            List<ArticleAttach> images = mcService.getCircleAttachs(mc.getId());
             List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
             if (images != null && images.size() > 0) {
                 if (images.size() == 1) {
