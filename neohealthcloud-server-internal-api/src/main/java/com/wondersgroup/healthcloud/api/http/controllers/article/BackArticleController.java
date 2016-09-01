@@ -96,22 +96,23 @@ public class BackArticleController {
     @PostMapping("/areaArticleUpdate")
     public JsonResponseEntity updateArticle(@RequestBody NewsArticleEditDTO newsArticleEditDTO){
         JsonResponseEntity response=new JsonResponseEntity();
-        int num= manageNewsArticleCategotyService.relieveCategory(newsArticleEditDTO.getId(), newsArticleEditDTO.getMain_area());
+        int num= manageNewsArticleCategotyService.relieveCategory(newsArticleEditDTO.getArticle_id(), newsArticleEditDTO.getMain_area());
         Date date=new Date();
-        String categoryids []=newsArticleEditDTO.getCategory_ids().split(",");
-        for(String categoryid:categoryids){
-            ArticleArea articleArea=new ArticleArea();
-            if(StringUtils.isEmpty(newsArticleEditDTO.getId())){
-                articleArea.setId(newsArticleEditDTO.getId());
+        if(!newsArticleEditDTO.getCategory_ids().equals((""))) {
+            String categoryids[] = newsArticleEditDTO.getCategory_ids().split(",");
+            for (String categoryid : categoryids) {
+                ArticleArea articleArea = new ArticleArea();
+                if (StringUtils.isEmpty(newsArticleEditDTO.getId())) {
+                    articleArea.setId(newsArticleEditDTO.getId());
+                }
+                articleArea.setArticle_id(newsArticleEditDTO.getArticle_id());
+                articleArea.setCategory_id(categoryid);
+                articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
+                articleArea.setMain_area(newsArticleEditDTO.getMain_area());
+                articleArea.setUpdate_time(date);
+                articleAreaRepository.saveAndFlush(articleArea);
             }
-            articleArea.setArticle_id(newsArticleEditDTO.getArticle_id());
-            articleArea.setCategory_id(categoryid);
-            articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
-            articleArea.setMain_area(newsArticleEditDTO.getMain_area());
-            articleArea.setUpdate_time(date);
-            articleAreaRepository.saveAndFlush(articleArea);
         }
-
         response.setMsg("成功");
         return response;
     }

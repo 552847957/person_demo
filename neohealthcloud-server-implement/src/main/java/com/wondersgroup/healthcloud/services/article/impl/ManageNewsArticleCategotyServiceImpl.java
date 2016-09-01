@@ -58,7 +58,7 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
 
 
     @Override
-    public int relieveCategory(String id,String areaCode) {
+    public int relieveCategory(int id,String areaCode) {
 
         String sql="DELETE FROM app_tb_neoarticle_area WHERE article_id="+id+" AND main_area='"+areaCode+"'";
 

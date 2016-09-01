@@ -21,5 +21,5 @@ public interface ManageNewsArticleCategotyService {
 
     public List<Integer> queryCategoryBelongArticle(int articleId,String areaCode);
     //文章和分类解除关系
-    public int relieveCategory(String id,String areaCode);
+    public int relieveCategory(int id,String areaCode);
 }
