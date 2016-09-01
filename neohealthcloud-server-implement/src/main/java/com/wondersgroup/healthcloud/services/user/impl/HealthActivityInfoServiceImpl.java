@@ -54,12 +54,12 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     @Override
     public List<HealthActivityInfo> getHealthActivityInfos(String province,String city, String county, Integer status, int pageNo, int pageSize) {
 
-        String sql = "select * from app_tb_healthactivity_info where del_flag = '0' and online_status <> 2 ";
+        String sql = "select * from app_tb_healthactivity_info where del_flag = '0' ";
         if(!StringUtils.isEmpty(status)){
             if(status == 1){//活动进行中
-                sql += " and endtime >= now() ";
+                sql += "and starttime <= now() and endtime >= now() and online_status = 1 ";
             }else if(status == 2){//活动已结束
-                sql += " and endtime < now()";
+                sql += " and endtime < now() and online_status = 2";
             }
         }
         if(!StringUtils.isEmpty(province)){
