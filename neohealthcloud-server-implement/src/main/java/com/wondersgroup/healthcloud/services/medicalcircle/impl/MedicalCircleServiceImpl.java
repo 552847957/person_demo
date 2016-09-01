@@ -66,7 +66,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
 
     @Override
     public List<MedicalCircle> getAllMedicalCircle(Integer[] type,String order, Date flag) {
-        return mcRepo.findAllMedicalCircle(type,flag, PageFactory.create(1, 20, order)).getContent();
+        return mcRepo.findAllMedicalCircle(type,flag, PageFactory.create(1, 1, order)).getContent();
     }
 
     @Override
