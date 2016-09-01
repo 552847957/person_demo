@@ -45,7 +45,7 @@ public class AppSecretController {
             }
         }
 
-        JsonListResponseEntity response = new JsonListResponseEntity<>();
+        JsonListResponseEntity<AppSecret> response = new JsonListResponseEntity<>();
         response.setContent(result);
         return response;
     }
