@@ -49,7 +49,6 @@ public class UserQuestionController {
 	 * @return
 	 */
 	@VersionRange
-	@WithoutToken
 	@RequestMapping(value="/ask",method= RequestMethod.POST)
 	public Object ask(@RequestHeader("main-area") String area,@RequestBody Question question){
 		JsonResponseEntity<Object> response=new JsonResponseEntity<>();
