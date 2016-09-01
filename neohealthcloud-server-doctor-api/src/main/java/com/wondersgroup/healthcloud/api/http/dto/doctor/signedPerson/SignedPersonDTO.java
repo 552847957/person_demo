@@ -25,6 +25,8 @@ public class SignedPersonDTO {
     private String uid;
     private String avatar;
 
+    private String healthRecordsUrl;//市级调阅url
+
 
     public String getName() {
         return name;
@@ -136,5 +138,13 @@ public class SignedPersonDTO {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getHealthRecordsUrl() {
+        return healthRecordsUrl;
+    }
+
+    public void setHealthRecordsUrl(String healthRecordsUrl) {
+        this.healthRecordsUrl = healthRecordsUrl;
     }
 }

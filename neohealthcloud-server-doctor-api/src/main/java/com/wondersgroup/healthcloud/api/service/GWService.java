@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.signedPerson.SignedPersonDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
@@ -21,6 +22,9 @@ public class GWService extends HttpBaseService {
 
 	@Autowired
 	private AssessmentService assessmentService;
+
+	@Autowired
+	private AppUrlH5Utils appUrlH5Utils;
 
 	Logger logger = LoggerFactory.getLogger(GWService.class);
 
@@ -72,6 +76,8 @@ public class GWService extends HttpBaseService {
 					signedPersonDTO.setIsApo(false);
 					signedPersonDTO.setIsDiabetes(false);
 					signedPersonDTO.setIsHyp(false);
+
+					signedPersonDTO.setHealthRecordsUrl(appUrlH5Utils.buildHealthRecordJianyan(signedPersonDTO.getPersoncard()));
 
 				}
 			}

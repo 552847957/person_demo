@@ -2,7 +2,10 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
@@ -25,6 +28,7 @@ import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -58,6 +62,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JailPropertiesUtils jailPropertiesUtils;
+
+    @Value("${internal.api.service.measure.url}")
+    private String measureUrl;
 
 
 
@@ -141,11 +148,20 @@ public class UserServiceImpl implements UserService {
 
         userInfoRepository.saveAndFlush(merged);
 
+        //修改BMI
+        if(form.height!=null || form.weight !=null){
+            updateBMI(userInfo);
+        }
+
         if (StringUtils.isNotBlank(form.gender)) {
             registerInfo.setGender(form.gender);
             registerInfoRepository.saveAndFlush(registerInfo);
         }
 
+    }
+
+    private void updateBMI(UserInfo userInfo) {
+        //todo 问李玄武接口
     }
 
     @Override

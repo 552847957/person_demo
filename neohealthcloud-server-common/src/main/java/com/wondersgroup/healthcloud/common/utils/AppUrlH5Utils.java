@@ -89,6 +89,6 @@ public class AppUrlH5Utils {
     }
 
     public String buildWeiXinScan(String doctorId) {
-        return basePath + "";
+        return basePath + "/doctorDetails?from=doctor&for_type=weixin&doctorId="+doctorId;
     }
 }
