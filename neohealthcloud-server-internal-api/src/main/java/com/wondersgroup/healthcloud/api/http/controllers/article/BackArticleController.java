@@ -96,15 +96,19 @@ public class BackArticleController {
     @PostMapping("/areaArticleUpdate")
     public JsonResponseEntity updateArticle(@RequestBody NewsArticleEditDTO newsArticleEditDTO){
         JsonResponseEntity response=new JsonResponseEntity();
+        if (!StringUtils.isEmpty(newsArticleEditDTO.getId())) {
+            ArticleArea articleArea = articleAreaRepository.findOne(newsArticleEditDTO.getId());
+            articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
+            articleAreaRepository.saveAndFlush(articleArea);
+            response.setMsg("成功");
+            return response;
+        }
         int num= manageNewsArticleCategotyService.relieveCategory(newsArticleEditDTO.getArticle_id(), newsArticleEditDTO.getMain_area());
         Date date=new Date();
-        if(!newsArticleEditDTO.getCategory_ids().equals((""))) {
+        if(!StringUtils.isEmpty(newsArticleEditDTO.getCategory_ids())) {
             String categoryids[] = newsArticleEditDTO.getCategory_ids().split(",");
             for (String categoryid : categoryids) {
                 ArticleArea articleArea = new ArticleArea();
-                if (StringUtils.isEmpty(newsArticleEditDTO.getId())) {
-                    articleArea.setId(newsArticleEditDTO.getId());
-                }
                 articleArea.setArticle_id(newsArticleEditDTO.getArticle_id());
                 articleArea.setCategory_id(categoryid);
                 articleArea.setIs_visable(newsArticleEditDTO.getIs_visable());
