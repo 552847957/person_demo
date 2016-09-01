@@ -37,7 +37,7 @@ public class HelpCenterController {
      * @return
      * @throws JsonProcessingException
      */
-    @RequestMapping(value = "helpCenter", method = RequestMethod.GET)
+    @RequestMapping(value = "helpCenter", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public String findHelpCenter() throws JsonProcessingException {
         List<HelpCenter> helpCenterList = helpCenterService.findByIsVisable("0");
 

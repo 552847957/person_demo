@@ -21,7 +21,7 @@ public class HelpCenterServiceImpl implements HelpCenterService{
 
     @Override
     public List<HelpCenter> findByIsVisable(String isVisable) {
-        return helpCenterRepository.findByIsVisable(isVisable);
+        return helpCenterRepository.findByIsVisableOrderBySort(isVisable);
     }
 
     @Override

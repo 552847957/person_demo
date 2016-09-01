@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface HelpCenterRepository extends JpaRepository<HelpCenter, String> {
 
-    List<HelpCenter> findByIsVisable(String isVisable);
+    List<HelpCenter> findByIsVisableOrderBySort(String isVisable);
 
     @Modifying
     @Transactional
