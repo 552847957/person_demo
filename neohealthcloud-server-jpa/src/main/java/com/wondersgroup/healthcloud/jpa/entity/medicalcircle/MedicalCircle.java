@@ -1,11 +1,11 @@
 package com.wondersgroup.healthcloud.jpa.entity.medicalcircle;
 
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 import lombok.Data;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -15,7 +15,8 @@ import java.util.Date;
 @Entity
 @Data
 @Table(name = "app_tb_medicalcircle")
-public class MedicalCircle extends BaseEntity {
+public class MedicalCircle implements  Serializable {
+    private static final long serialVersionUID = 8057604029718771988L;
     private String  doctorid;  //医生id
     private Date    sendtime;  //发送时间
     private String  tagid;     //标签id，医生圈标签表中的id
@@ -29,5 +30,20 @@ public class MedicalCircle extends BaseEntity {
 
     @Column(name = "is_visible")
     private String  isVisible; //是否冻结
+    
+    @Id
+    private String id;
+    @Column(name = "del_flag")
+    private String delFlag;
+    @Column(name = "source_id")
+    private String sourceId;
+    @Column(name = "create_by")
+    private String createBy;
+    @Column(name = "create_date")
+    private Date createDate;
+    @Column(name = "update_by")
+    private String updateBy;
+    @Column(name = "update_date")
+    private Date updateDate;
 
 }
