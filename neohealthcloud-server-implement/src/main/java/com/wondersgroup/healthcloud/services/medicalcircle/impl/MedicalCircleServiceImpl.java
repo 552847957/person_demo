@@ -184,6 +184,9 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
 
     private void saveArticleAttach(MedicalCircle circle,List<String> imageURLs){
         for(int i=0;i<imageURLs.size();i++){
+            if(StringUtils.isBlank(imageURLs.get(i))){
+                continue;
+            }
             ArticleAttach articleAttach = new ArticleAttach();
             articleAttach.setId(IdGen.uuid());
             articleAttach.setArticleid(circle.getId());
