@@ -68,8 +68,8 @@ public class ForwardArticleService {
         if(status.equals("3")){//已结束
             sql.append(" and end_time<NOW()");
         }
-        if(status.equals("4")){//已结束
-            sql.append(" and t2.is_visable=0");
+        if(status.equals("4")){//已下线
+            sql.append(" and start_time<=NOW() and end_time>=NOW() and t2.is_visable=0");
         }
         return sql.toString();
     }
