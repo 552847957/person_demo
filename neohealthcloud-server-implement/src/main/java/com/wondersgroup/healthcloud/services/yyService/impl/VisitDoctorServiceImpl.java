@@ -37,6 +37,9 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     @Value("${yyservice.service.host}")
     private String yyServiceHost;
 
+    @Value("${yyservice.doctor.signDistance}")
+    private String yyDoctorSignDistance;
+
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
     private String checkInUrl = "/rest/admin/order/checkIn.action";
@@ -165,7 +168,8 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
      * 获取服务签到距离
      */
     private Integer getServiceSignDistance(){
-        return 1000;
+        int signDistance = StringUtils.isNotEmpty(yyDoctorSignDistance) ? Integer.parseInt(yyDoctorSignDistance) : 1000;
+        return signDistance > 0 ? signDistance : 0;
     }
 
     private SimpleDateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd");
