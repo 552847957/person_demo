@@ -74,6 +74,7 @@ public class DoctorClinicController {
     /**
      * 检查是否收藏过
      */
+    @VersionRange
     @RequestMapping(value = "/collect/check",method = RequestMethod.GET)
     public JsonResponseEntity<H5CollectShareAPIEntity> collectCheck(@RequestParam int article_id,
                                                                     @RequestParam(required = false) String from,
