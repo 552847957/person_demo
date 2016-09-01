@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -7,6 +8,7 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 /**
  * Created by longshasha on 16/5/13.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VerificationInfoDTO {
 
     public static final String[] statusArray = {"认证成功", "审核中", "认证失败"};
