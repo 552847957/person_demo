@@ -61,7 +61,7 @@ public class AssessmentController {
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
-    @RequestMapping(value = "/predata",method = RequestMethod.GET)
+    @GetMapping(value = "/predata")
     @VersionRange
     public JsonResponseEntity<AssessmentPreDataAPIEntity> predata(@RequestParam("uid") String uid){
         JsonResponseEntity<AssessmentPreDataAPIEntity> response = new JsonResponseEntity<>();
@@ -95,7 +95,7 @@ public class AssessmentController {
     }
 
 
-    @RequestMapping(value = "/history",method = RequestMethod.GET)
+    @GetMapping(value = "/history")
     @VersionRange
     public JsonListResponseEntity<AssessmentHistoryAPIEntity> history(@RequestParam("uid") String uid,
                                                                       @RequestParam(value = "flag",required = false) String flag){
@@ -135,7 +135,7 @@ public class AssessmentController {
     }
 
 
-    @RequestMapping(value = "/count",method= RequestMethod.GET)
+    @GetMapping(value = "/count")
     @VersionRange
     @WithoutToken
     public JsonResponseEntity count(){
@@ -146,7 +146,7 @@ public class AssessmentController {
         return response;
     }
 
-    @RequestMapping(value = "/assess",method = RequestMethod.POST)
+    @PostMapping(value = "/assess")
     @VersionRange
     @WithoutToken
     public JsonResponseEntity<AssessmentAPIEntity> assess(@RequestBody String result){
@@ -234,7 +234,7 @@ public class AssessmentController {
     }
 
     @VersionRange
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public JsonResponseEntity<AssessmentAPIEntity> get(@RequestParam("id") String id){
         Assessment assessment = assessmentService.getAssessment(id);
         return getResult(assessment,false);
