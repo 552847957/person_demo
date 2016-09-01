@@ -100,6 +100,16 @@ public class DateFormatter {
         }
     }
 
+    public static String questionListDateFormat(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if (calendar.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
+            return format(date, monthDayPattern);
+        } else {
+            return format(date, datePattern);
+        }
+    }
+
     public static String questionDateFormat(String date) {
         if (null == date) {
             return null;

@@ -15,6 +15,7 @@ import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -149,6 +150,7 @@ public class HomeController {
                 List<FaqDTO> questions = Lists.newArrayList();
                 for (Faq faq : faqList) {
                     FaqDTO faqDTO = new FaqDTO(faq);
+                    faqDTO.setAskTime(DateFormatter.questionListDateFormat(faq.getAskDate()));
                     //查询回答数
                     int commentCount = faqService.countCommentByQid(faq.getQId());
                     faqDTO.setCommentCount(commentCount);

@@ -8,7 +8,6 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
-import com.wondersgroup.healthcloud.jpa.entity.dic.DepartGB;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorDepartment;
 import com.wondersgroup.healthcloud.services.doctor.DoctorDepartService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorConcerService;
@@ -51,7 +50,7 @@ public class DoctorConcerController {
 
         JsonResponseEntity<String> body = new JsonResponseEntity();
         try{
-            String qrCodeUrl = appUrlH5Utils.buildWeiXinScan(doctorId);
+            String qrCodeUrl = appUrlH5Utils.buildWeiXinScan(doctorId);//todo 具体的链接
             body.setData(qrCodeUrl);
         }catch (Exception e){
             e.printStackTrace();
@@ -62,7 +61,7 @@ public class DoctorConcerController {
     }
 
     /**
-     * 科室列表
+     * 关注的领域 -- 科室列表
      * @return
      */
     @RequestMapping(value = "/getDepartList", method = RequestMethod.GET)

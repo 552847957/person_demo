@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -57,6 +58,7 @@ public class HealthActivityController {
 	 */
 	@RequestMapping(value = "/activities", method = RequestMethod.GET)
 	@VersionRange
+	@WithoutToken
 	public JsonResponseEntity<List<HealthActivityAPIEntity>> getHealthActivityList(
 			@RequestParam(value = "uid",required = false) String registerid,
 			@RequestParam(value = "location", required = true) String area,
@@ -86,6 +88,7 @@ public class HealthActivityController {
 	 */
 	@RequestMapping(value = "/activities/page", method = RequestMethod.GET)
 	@VersionRange
+	@WithoutToken
 	public JsonListResponseEntity<HealthActivityAPIEntity> getHealthActivityPageList(
 			@RequestParam(value = "uid",required = false) String registerid,
 			@RequestParam(value = "province", required = false) String province,
@@ -150,6 +153,7 @@ public class HealthActivityController {
 	 */
 	@RequestMapping(value = "/activities/detail", method = RequestMethod.GET)
 	@VersionRange
+	@WithoutToken
 	public JsonResponseEntity<HealthActivityAPIEntity> getHealthActivityDetail(
 			@RequestParam(value="uid",required = false) String registerId,
 			@RequestParam(value = "activityid", required = true)  String activityid,

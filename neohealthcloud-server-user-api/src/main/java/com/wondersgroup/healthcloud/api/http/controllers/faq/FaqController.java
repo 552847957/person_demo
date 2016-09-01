@@ -4,12 +4,14 @@ import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.DoctorAnswer;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.api.http.dto.faq.QuestionClosely;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.faq.exception.ErrorNoneFaqException;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,38 +34,12 @@ public class FaqController {
 
 
     /**
-     * 问答集锦列表(首页)
-     * @return
-     */
-    @VersionRange
-    @RequestMapping(value = "/home/faq/list", method = RequestMethod.GET)
-    public JsonListResponseEntity getHomeFaqList(){
-        JsonListResponseEntity<FaqDTO> body = new JsonListResponseEntity<>();
-        boolean has_more = false;
-        List<FaqDTO> list = Lists.newArrayList();
-
-        List<Faq> faqList = faqService.findHomeFaqList();
-
-        if(faqList !=null){
-            for (Faq faq : faqList){
-                FaqDTO faqDTO = new FaqDTO(faq);
-                //查询回答数
-                int commentCount = faqService.countCommentByQid(faq.getQId());
-                faqDTO.setCommentCount(commentCount);
-                list.add(faqDTO);
-            }
-        }
-        body.setContent(list, has_more, null, null);
-        return body;
-
-    }
-
-    /**
      * 更多 问答集锦
      * @param flag
      * @return
      */
     @VersionRange
+    @WithoutToken
     @RequestMapping(value = "/faq/list", method = RequestMethod.GET)
     public JsonListResponseEntity getFaqList(@RequestParam(required = false, defaultValue = "1") Integer flag){
         JsonListResponseEntity<FaqDTO> body = new JsonListResponseEntity<>();
@@ -83,6 +59,7 @@ public class FaqController {
         if(faqList !=null){
             for (Faq faq : faqList){
                 FaqDTO faqDTO = new FaqDTO(faq);
+                faqDTO.setAskTime(DateFormatter.questionListDateFormat(faq.getAskDate()));
                 //查询回答数
                 int commentCount = faqService.countCommentByQid(faq.getQId());
                 faqDTO.setCommentCount(commentCount);
@@ -104,6 +81,7 @@ public class FaqController {
      * @return
      */
     @VersionRange
+    @WithoutToken
     @RequestMapping(value = "/faq/detail", method = RequestMethod.GET)
     public JsonResponseEntity<FaqDTO> getFaqDetail(@RequestParam(required = true) String id){
         JsonResponseEntity<FaqDTO> response = new JsonResponseEntity<>();

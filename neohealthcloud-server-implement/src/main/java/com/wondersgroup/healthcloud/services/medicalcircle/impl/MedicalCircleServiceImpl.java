@@ -194,6 +194,7 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
             articleAttach.setCreateDate(new Date());
             articleAttach.setUpdateDate(new Date());
             articleAttach.setUpdateBy(circle.getDoctorid());
+            articleAttach.setDelFlag("0");
             articleAttachRepository.save(articleAttach);
         }
     }

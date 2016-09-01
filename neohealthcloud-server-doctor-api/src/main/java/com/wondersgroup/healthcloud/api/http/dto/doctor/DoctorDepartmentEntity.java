@@ -12,6 +12,28 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DoctorDepartmentEntity {
 
+    private String id;
+    private String name;
+    private String pid;
+    private String sort;
+    private String isview;
+    private String del_flag;
+    private String create_by;
+    private String create_date;
+    private String update_by;
+    private String update_date;
+    private String source_id;
+
+    public DoctorDepartmentEntity(DoctorDepartment department, List<DoctorDepartment> subDepartments){
+        this.id = department.getId();
+        this.subDepartments = subDepartments;
+        this.pid = department.getPid();
+        this.name = department.getName();
+        this.isview = department.getIsview();
+        this.sort = department.getSort();
+        this.del_flag = department.getDelFlag();
+    }
+
     public List<DoctorDepartment> getSubDepartments() {
         return subDepartments;
     }
@@ -110,22 +132,6 @@ public class DoctorDepartmentEntity {
         this.update_date = update_date;
     }
 
-    private String id;
-    private String name;
-    private String pid;
-    private String sort;
-    private String isview;
-    private String del_flag;
-    private String create_by;
-    private String create_date;
-    private String update_by;
-    private String update_date;
-    private String source_id;
 
-    public DoctorDepartmentEntity(DoctorDepartment department, List<DoctorDepartment> subDepartments){
-        this.id = department.getId();
-        this.subDepartments = subDepartments;
-        this.pid = department.getPid();
-    }
 
 }

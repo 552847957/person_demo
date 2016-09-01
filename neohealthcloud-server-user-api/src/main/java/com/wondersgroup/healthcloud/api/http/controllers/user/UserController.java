@@ -183,6 +183,7 @@ public class UserController {
      * @return
      */
     @PostMapping(path = "/mobile/update")
+    @VersionRange
     public JsonResponseEntity<Map<String, String>> changeMobile(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
@@ -206,6 +207,7 @@ public class UserController {
      * @return
      */
     @VersionRange
+    @WithoutToken
     @PostMapping(path = "/registe")
     public JsonResponseEntity<UserAccountAndSessionDTO> register(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -231,6 +233,7 @@ public class UserController {
      */
     @RequestMapping(value = "/registeByCode", method = RequestMethod.POST)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<UserAccountAndSessionDTO> register(@RequestBody String request,
                                                                  @RequestHeader(required = false) String channel) {
         JsonKeyReader reader = new JsonKeyReader(request);
