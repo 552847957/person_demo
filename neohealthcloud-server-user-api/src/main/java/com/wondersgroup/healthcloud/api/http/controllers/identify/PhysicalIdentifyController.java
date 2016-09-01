@@ -22,7 +22,7 @@ public class PhysicalIdentifyController {
     private PhysicalIdentifyService physicalIdentifyService;
 
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @VersionRange
     @WithoutToken
     public JsonResponseEntity<List<HealthQuestionAPIEnity>> doPhysiqueIdentify(
