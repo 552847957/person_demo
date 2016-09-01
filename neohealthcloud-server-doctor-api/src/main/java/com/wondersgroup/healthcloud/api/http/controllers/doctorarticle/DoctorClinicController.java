@@ -9,13 +9,17 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
+import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleCollect;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import com.wondersgroup.healthcloud.services.doctor.ManageDoctorArticleService;
 import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -42,10 +46,51 @@ public class DoctorClinicController {
 
 
     /**
-     * 学苑文章列表
+     * 收藏列表
+     * @param uid
+     * @param flag
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/collectList",method = RequestMethod.GET)
+    public JsonListResponseEntity<DoctorArticleListAPIEntity> collectList(@RequestParam(required = true) String uid,
+                                                                          @RequestParam(required = false, defaultValue = "") String flag){
+        JsonListResponseEntity<DoctorArticleListAPIEntity> result = new JsonListResponseEntity<>();
+        List<DoctorArticleListAPIEntity> articleList = new ArrayList<>();
+        Date sendtime = new Date();
+        if(StringUtils.isNotEmpty(flag)){
+            sendtime = new Date(Long.valueOf(flag));
+        }
+        String order = "collecttime:desc";
+        //获取收藏的ids
+        List<MedicalCircleCollect> circleCollectList = mcService.getCollectCircleListByType(uid, 2, sendtime, order);
+        List<Integer> circleIds = new LinkedList<>();
+        if (null != circleCollectList){
+            for (MedicalCircleCollect circleCollect : circleCollectList){
+                circleIds.add(Integer.valueOf(circleCollect.getCircleid()));
+                sendtime = circleCollect.getCollecttime();
+            }
+        }
+
+        //获取收藏的信息
+        articleList = getArticleEntityListByIds(circleIds);
+        JsonListResponseEntity<DoctorArticleListAPIEntity> rt = new JsonListResponseEntity<>();
+        Boolean hasMore = false;
+        if (circleIds.size() == 20){
+            hasMore = true;
+        }
+        result.setContent(articleList, hasMore, null, String.valueOf(sendtime.getTime()));
+        return result;
+    }
+
+
+
+    /**
+     *
      * @param uid
      * @return
      */
+    @VersionRange
     @RequestMapping(value="/articleList", method = RequestMethod.GET)
     public JsonListResponseEntity<DoctorArticleListAPIEntity> articleList(@RequestParam(required = true) Integer cat_id,
                                                                           @RequestParam(required = false) String uid,
@@ -178,5 +223,35 @@ public class DoctorClinicController {
         h5CollectShareAPIEntity.setShare(h5APIEntity);
         result.setData(h5CollectShareAPIEntity);
         return result;
+    }
+
+
+    /**
+     * 根据ids获取下面的文章
+     * @return List
+     */
+    private List<DoctorArticleListAPIEntity> getArticleEntityListByIds(List<Integer> ids){
+        if (null == ids || ids.size() == 0){
+            return null;
+        }
+        //获取文章分类下面的文章
+        List<DoctorArticle> catArticleList = manageDoctorArticleService.findArticleListByIds(ids);
+
+        if(null == catArticleList || catArticleList.size() == 0){
+            return null;
+        }
+        List<DoctorArticleListAPIEntity> articleList = new ArrayList<>();
+        for (DoctorArticle articleModel : catArticleList){
+            DoctorArticleListAPIEntity articleEntity = new DoctorArticleListAPIEntity();
+            articleEntity.setId(String.valueOf(articleModel.getId()));
+            articleEntity.setTitle(articleModel.getTitle());
+            articleEntity.setDesc(articleModel.getBrief());
+            int pv = articleModel.getPv() + articleModel.getFakePv();
+            articleEntity.setPv(String.valueOf(pv));
+            articleEntity.setThumb(articleModel.getThumb());
+            articleEntity.setUrl(appUrlH5Utils.buildXueYuanArticleView(articleModel.getId()));
+            articleList.add(articleEntity);
+        }
+        return articleList;
     }
 }

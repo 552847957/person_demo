@@ -31,4 +31,9 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
 
 
     }
+
+    @Override
+    public List<DoctorArticle> findArticleListByIds(List<Integer> ids) {
+        return doctorArticleRepository.findArticleListByIds(ids);
+    }
 }

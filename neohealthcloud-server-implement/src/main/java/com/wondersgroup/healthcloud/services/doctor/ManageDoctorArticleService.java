@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface ManageDoctorArticleService {
     List<DoctorArticle> findAppShowListByCategoryId(int cat_id, int pageSize, int page);
+
+    List<DoctorArticle> findArticleListByIds(List<Integer> ids);
 }
