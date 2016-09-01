@@ -41,6 +41,10 @@ public class MedicalCircleDetailAPIEntity {
     private ShareAPIEntity         share;         //分享
     private List<CommentAPIEntity> comment_list;  //评论列表
 
+    public MedicalCircleDetailAPIEntity(){
+        
+    }
+    
     public MedicalCircleDetailAPIEntity(MedicalCircleDependence dep, MedicalCircle mc, String screen_width, String uid) {
         if (dep == null && mc == null) {
             return;

@@ -2,12 +2,15 @@ package com.wondersgroup.healthcloud.jpa.entity.circle;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
 
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * 健康圈举报表
@@ -16,7 +19,7 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 @Entity
 @Data
 @Table(name = "app_tb_reportcontent")
-public class CircleReport extends BaseEntity {
+public class CircleReport {
     private String registerid;
     private String content;
     private String reportid;
@@ -27,5 +30,22 @@ public class CircleReport extends BaseEntity {
     private String operator;
     private String dealtime;
     private String dealstatus;
+    
+    @Id
+    @GeneratedValue()
+//    @GenericGenerator()
+    private Integer id;
+    @Column(name = "del_flag")
+    private String delFlag;
+    @Column(name = "source_id")
+    private String sourceId;
+    @Column(name = "create_by")
+    private String createBy;
+    @Column(name = "create_date")
+    private Date createDate;
+    @Column(name = "update_by")
+    private String updateBy;
+    @Column(name = "update_date")
+    private Date updateDate;
 
 }
