@@ -19,4 +19,8 @@ public interface ManageNewsArticleCategotyService {
 
     public NewsArticleCategory findNewsCategory(int id);
 
+    List<NewsArticleCategory> findNewsArticleNotBelongArea(int articleId,String area);
+
+    List<NewsArticleCategory> findNewsArticleBelongArea(int articleId,String area);
+
 }

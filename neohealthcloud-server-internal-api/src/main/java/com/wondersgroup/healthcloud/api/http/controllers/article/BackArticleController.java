@@ -3,16 +3,13 @@ package com.wondersgroup.healthcloud.api.http.controllers.article;
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleCategoryDTO;
 import com.wondersgroup.healthcloud.api.http.dto.article.NewsArticleEditDTO;
 import com.wondersgroup.healthcloud.api.utils.Pager;
-import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.article.ArticleArea;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticleCategory;
 import com.wondersgroup.healthcloud.jpa.repository.article.ArticleAreaRepository;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleCategotyService;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
-import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -149,7 +146,26 @@ public class BackArticleController {
 
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
-        List<NewsArticleCategory> newsCategory = manageNewsArticleCategotyService.findNewsCategoryByArea(areaCode);
+
+        //查询文章所属分类
+        List<NewsArticleCategory> newsArticleBelongArea = manageNewsArticleCategotyService.findNewsArticleBelongArea(id, areaCode);
+        //查询文章不属分类
+        List<NewsArticleCategory> newsArticleNotBelongArea = manageNewsArticleCategotyService.findNewsArticleNotBelongArea(id, areaCode);
+
+        Set<NewsArticleCategory> set=new HashSet<>();
+        for(NewsArticleCategory category:newsArticleNotBelongArea){
+            category.setBelong_article("1");
+            set.add(category);
+        }
+        for (NewsArticleCategory category2:newsArticleBelongArea){
+            category2.setBelong_article("0");
+            set.add(category2);
+        }
+        if(!set.isEmpty()){
+            List<NewsArticleCategory> list=new ArrayList<>();
+            list.addAll(set);
+            articleInfo.setCategories(list);
+        }
 
         response.setData(articleInfo);
         return response;

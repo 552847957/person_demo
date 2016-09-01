@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Administrator on 2015/12/30.
@@ -32,4 +33,6 @@ public class NewsArticle implements Serializable {
     private int type;//文章类型
     @Transient
     private String url;
+    @Transient
+    private List<NewsArticleCategory> categories;
 }
