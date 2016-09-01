@@ -62,7 +62,8 @@ public class MedicalCircleController {
     private CircleLikeUtils circleLikeUtils;
     @Autowired
     private MedicalCircleService cedicalCircleService;
-    
+    @Autowired
+    private ImageUtils imageUtils;
     
 
     private JsonListResponseEntity<MedicalCircleAPIEntity> getMedicalCircleList(String screen_width,
@@ -110,25 +111,25 @@ public class MedicalCircleController {
             entity.setName(doctorInfo.getName());
             Integer type = mc.getType();
             entity.setCircle_type(type);
-            List<ArticleAttach> images = mcService.getCircleAttachs(mc.getId());
+            List<ArticleAttach> images = mcService.getCircleAttachs("1363914b73e6475f9cc17a0e2401437e");
             List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
             if (images != null && images.size() > 0) {
                 if (images.size() == 1) {
                     ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
-                    ImageUtils.Image image = ImageUtils.getImage(images.get(0).getAttachid());
+                    ImageUtils.Image image = imageUtils.getImage(images.get(0).getAttachid());
                     if (image != null) {
-                        imageAPIEntity.setRatio(ImageUtils.getImgRatio(image));
+                        imageAPIEntity.setRatio(imageUtils.getImgRatio(image));
                         imageAPIEntity.setUrl(image.getUrl());
-                        imageAPIEntity.setThumb(ImageUtils.getBigThumb(image, screen_width));
-                        imageAPIEntity.setHeight(ImageUtils.getUsefulImgHeight(image, screen_width));
-                        imageAPIEntity.setWidth(ImageUtils.getUsefulImgWidth(image, screen_width));
+                        imageAPIEntity.setThumb(imageUtils.getBigThumb(image, screen_width));
+                        imageAPIEntity.setHeight(imageUtils.getUsefulImgHeight(image, screen_width));
+                        imageAPIEntity.setWidth(imageUtils.getUsefulImgWidth(image, screen_width));
                         imageAPIEntities.add(imageAPIEntity);
                     }
                 } else {
                     for (ArticleAttach image : images) {
                         ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
                         imageAPIEntity.setUrl(image.getAttachid());
-                        imageAPIEntity.setThumb(ImageUtils.getSquareThumb(image.getAttachid(), screen_width));
+                        imageAPIEntity.setThumb(imageUtils.getSquareThumb(image.getAttachid(), screen_width));
                         imageAPIEntities.add(imageAPIEntity);
                     }
                 }
@@ -965,20 +966,20 @@ public class MedicalCircleController {
             if (images != null && images.size() > 0) {
                 if (images.size() == 1) {
                     ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
-                    ImageUtils.Image image = ImageUtils.getImage(images.get(0).getAttachid());
+                    ImageUtils.Image image = imageUtils.getImage(images.get(0).getAttachid());
                     if (image != null) {
-                        imageAPIEntity.setRatio(ImageUtils.getImgRatio(image));
+                        imageAPIEntity.setRatio(imageUtils.getImgRatio(image));
                         imageAPIEntity.setUrl(image.getUrl());
-                        imageAPIEntity.setThumb(ImageUtils.getBigThumb(image, screen_width));
-                        imageAPIEntity.setHeight(ImageUtils.getUsefulImgHeight(image, screen_width));
-                        imageAPIEntity.setWidth(ImageUtils.getUsefulImgWidth(image, screen_width));
+                        imageAPIEntity.setThumb(imageUtils.getBigThumb(image, screen_width));
+                        imageAPIEntity.setHeight(imageUtils.getUsefulImgHeight(image, screen_width));
+                        imageAPIEntity.setWidth(imageUtils.getUsefulImgWidth(image, screen_width));
                         imageAPIEntities.add(imageAPIEntity);
                     }
                 } else {
                     for (ArticleAttach image : images) {
                         ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
                         imageAPIEntity.setUrl(image.getAttachid());
-                        imageAPIEntity.setThumb(ImageUtils.getSquareThumb(image.getAttachid(), screen_width));
+                        imageAPIEntity.setThumb(imageUtils.getSquareThumb(image.getAttachid(), screen_width));
                         imageAPIEntities.add(imageAPIEntity);
                     }
                 }

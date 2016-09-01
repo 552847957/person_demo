@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +47,8 @@ public class MedcinCaseController {
 
 	@Resource
 	private ManageMedicalCaseService manageMedicalCaseService;
+	@Autowired
+	private ImageUtils imageUtils;
 
 	@RequestMapping(value = "/api/getMedicialCases", method = RequestMethod.GET)
 	@VersionRange
@@ -474,12 +477,12 @@ public class MedcinCaseController {
 				String thumbs;
 				String[] imgsArray = imgs.split(",");
 				if (imgs.length() == 1) {
-					ImageUtils.Image image = ImageUtils.getImage(imgsArray[0]);
-					thumbs = ImageUtils.getBigThumb(image, width);
+					ImageUtils.Image image = imageUtils.getImage(imgsArray[0]);
+					thumbs = imageUtils.getBigThumb(image, width);
 				} else {
 					StringBuffer sb = new StringBuffer();
 					for (String imgUrl : imgsArray) {
-						sb.append(ImageUtils.getSquareThumb(imgUrl, width)).append(",");
+						sb.append(imageUtils.getSquareThumb(imgUrl, width)).append(",");
 					}
 					thumbs = sb.toString();
 					thumbs = thumbs.substring(0, thumbs.lastIndexOf(","));
