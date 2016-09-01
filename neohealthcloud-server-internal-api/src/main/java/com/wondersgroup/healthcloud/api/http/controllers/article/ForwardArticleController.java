@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.article.ForwardArticle;
 import com.wondersgroup.healthcloud.services.article.ForwardArticleService;
+import com.wondersgroup.healthcloud.services.article.dto.ForwardArticleAPIEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,11 @@ public class ForwardArticleController {
         param.putAll(pager.getParameter());
         if(param.containsKey("articleId")&&!StringUtils.isEmpty(param.get("articleId"))){
             String id= (String) param.get("articleId");
-            pager.setData(forwardArticleService.queryById(id));
+            List<ForwardArticleAPIEntity> forwardArticle= forwardArticleService.queryById(id);
+            if(!forwardArticle.isEmpty()) {
+                pager.setData(forwardArticle);
+                pager.setTotalElements(forwardArticle.size());
+            }
             return pager;
         }
         int pageNo=pager.getNumber();
