@@ -32,8 +32,17 @@ import java.util.concurrent.TimeUnit;
 public class BeanFactory {
 
     @Bean
+    @Profile({"de", "te"})
     public SMS sms(HttpRequestExecutorManager httpRequestExecutorManager) {
-        SMSWondersImpl impl = new SMSWondersImpl();
+        SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://10.1.67.253:8080", "jkja");
+        impl.setHttpManager(httpRequestExecutorManager);
+        return impl;
+    }
+
+    @Bean
+    @Profile({"re", "pe1"})
+    public SMS prodsms(HttpRequestExecutorManager httpRequestExecutorManager) {
+        SMSWondersImpl impl = new SMSWondersImpl("MUFpJNT8WsbUZizlhVHF2Wvh84qz9J", "http://172.18.11.164:8080", "jky");
         impl.setHttpManager(httpRequestExecutorManager);
         return impl;
     }
