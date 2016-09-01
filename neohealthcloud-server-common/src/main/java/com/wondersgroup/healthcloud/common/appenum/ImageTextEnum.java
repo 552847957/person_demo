@@ -10,7 +10,8 @@ public enum ImageTextEnum {
     LOADING_IMAGE("启动页广告", 2),
     NAVIGATION_BAR("导航按钮", 3),
     G_SERVICE_BTN("服务功能列表", 4),// 组图
-    HOME_ADVERTISEMENT("首页广告位", 5);
+    HOME_ADVERTISEMENT("首页广告位", 5),
+    HOME_FLOAT_AD("首页浮动广告", 6);
 
 
     private String name;
