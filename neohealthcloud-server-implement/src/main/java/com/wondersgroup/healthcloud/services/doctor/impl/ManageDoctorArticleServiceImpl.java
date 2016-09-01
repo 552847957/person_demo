@@ -1,18 +1,19 @@
 package com.wondersgroup.healthcloud.services.doctor.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
-import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import com.wondersgroup.healthcloud.services.doctor.ManageDoctorArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by longshasha on 16/9/1.
  */
+@Service
 public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleService {
 
     @Autowired
@@ -29,5 +30,10 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
         return rt;
 
 
+    }
+
+    @Override
+    public List<DoctorArticle> findArticleListByIds(List<Integer> ids) {
+        return doctorArticleRepository.findArticleListByIds(ids);
     }
 }

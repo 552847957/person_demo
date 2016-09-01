@@ -49,6 +49,16 @@ public class ManageNewsArticleCategotyServiceImpl implements ManageNewsArticleCa
         return newsArticleCategoryRepo.ArticleCategoryById(id);
     }
 
+    @Override
+    public List<NewsArticleCategory> findNewsArticleNotBelongArea(int articleId, String area) {
+        return newsArticleCategoryRepo.findNewsArticleNotBelongArea(articleId,area);
+    }
+
+    @Override
+    public List<NewsArticleCategory> findNewsArticleBelongArea(int articleId, String area) {
+        return newsArticleCategoryRepo.findNewsArticleBelongArea(articleId,area);
+    }
+
 
     private JdbcTemplate getJt() {
         if (jt == null) {

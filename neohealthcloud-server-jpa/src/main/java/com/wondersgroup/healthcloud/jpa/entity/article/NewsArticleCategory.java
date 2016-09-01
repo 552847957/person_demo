@@ -23,4 +23,6 @@ public class NewsArticleCategory implements Serializable {
     private Date update_time;// 更新时间
     private String by_area;//创建区域
     private int is_visable;//是否禁用0-是，1-否
+    @Transient
+    private String belong_article;//是否属于某篇文章，0-是，1-否
 }

@@ -7,6 +7,8 @@ import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,9 @@ public class DoctorInfoController {
 
     @Autowired
     private DoctorInfoRepository doctorInfoRepository;
+
+    @Autowired
+    private DoctorService doctorService;
 
     /**
      * 保存医生信息
@@ -55,4 +60,28 @@ public class DoctorInfoController {
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
+
+
+    /**
+     * 用于H5页面 -- 医生详情
+     * @param doctorId
+     * @return
+     * @throws JsonProcessingException
+     */
+    @GetMapping(path = "/doctor/detail")
+    public JsonResponseEntity<Doctor> detail(@RequestParam String doctorId) throws JsonProcessingException {
+
+        JsonResponseEntity<Doctor> response = new JsonResponseEntity<>();
+
+        Doctor doctor = doctorService.findDoctorByUid(doctorId);
+
+        if(doctor==null){
+            response.setCode(3101);
+            response.setMsg("不存在的医生");
+            return response;
+        }
+        response.setData(doctor);
+        return response;
+    }
+
 }

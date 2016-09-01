@@ -1,19 +1,24 @@
 package com.wondersgroup.healthcloud.api.http.controllers.home;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
+import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,9 @@ public class SpecHomeController {
 
     @Autowired
     private NoticeService noticeService;
+
+    @Autowired
+    private AppConfigService appConfigService;
 
     @Autowired
     private ManageNewsArticleService manageNewsArticleService;
@@ -97,6 +105,30 @@ public class SpecHomeController {
             }
             data.put("advertisements", adImages);
         }
+
+        // 首页浮动广告及在线客服
+        ImageText imgTextD = new ImageText();
+        imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());
+        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextD);
+        if (imageTextsD != null && imageTextsD.size() > 0) {
+            data.put("sideAd", new ImageTextPositionDTO(imageTextsD.get(0)));
+        }
+
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.floatTelephone");
+        if (appConfig != null) {
+            try {
+                String telephoneAd = appConfig.getData();
+                ObjectMapper om = new ObjectMapper();
+                JsonNode jsonNode = om.readTree(telephoneAd);
+                //Map<String, Object> tad = new HashMap<>();
+
+
+                data.put("telephoneAd", jsonNode);
+            } catch (Exception ex) {
+
+            }
+        }
+
         if (data.size() > 0) {
             result.setData(data);
         } else {

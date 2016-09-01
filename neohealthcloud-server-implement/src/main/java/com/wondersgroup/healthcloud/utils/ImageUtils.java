@@ -2,20 +2,31 @@ package com.wondersgroup.healthcloud.utils;
 
 
 import java.io.File;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.apache.http.client.HttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonObjectResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.common.image.utils.ImageUploader;
 
 /**
  * Created by zhangzhixiu on 15/5/15.
  */
+@Component
 public class ImageUtils {
+    
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
 
-    public static Float getImgRatio(Image img) {
+    public Float getImgRatio(Image img) {
         if (img != null) {
             int width = img.getWidth();
             int height = img.getHeight();
@@ -25,7 +36,7 @@ public class ImageUtils {
         return 0.0f;
     }
 
-    public static String getBigThumb(Image image, String screenWidth) {
+    public String getBigThumb(Image image, String screenWidth) {
         Assert.notNull(image);
         Assert.notNull(screenWidth);
         int width = Integer.valueOf(screenWidth);
@@ -47,7 +58,7 @@ public class ImageUtils {
         return image.getUrl() + ImagePath.thumbnailPostfix(String.valueOf(imgWidth), String.valueOf(imgHeight));
     }
 
-    public static String getSquareThumb(Image image, String screenWidth) {
+    public String getSquareThumb(Image image, String screenWidth) {
         Assert.notNull(image);
         Assert.notNull(screenWidth);
         int width = Integer.valueOf(screenWidth);
@@ -55,7 +66,7 @@ public class ImageUtils {
         return image.getUrl() + ImagePath.cutCenterPostfix(String.valueOf(length), String.valueOf(length));
     }
 
-    public static String getSquareThumb(String imageUrl, String screenWidth) {
+    public String getSquareThumb(String imageUrl, String screenWidth) {
         Assert.notNull(imageUrl);
         Assert.notNull(screenWidth);
         int width = Integer.valueOf(screenWidth);
@@ -63,7 +74,7 @@ public class ImageUtils {
         return imageUrl + ImagePath.cutCenterPostfix(String.valueOf(length), String.valueOf(length));
     }
 
-    public static Integer getUsefulImgWidth(Image image, String screenWidth) {
+    public Integer getUsefulImgWidth(Image image, String screenWidth) {
         Assert.notNull(image);
         Assert.notNull(screenWidth);
         int width = Integer.valueOf(screenWidth) / 3 * 2;
@@ -71,7 +82,7 @@ public class ImageUtils {
     }
 
 
-    public static Integer getUsefulImgHeight(Image image, String screenWidth) {
+    public Integer getUsefulImgHeight(Image image, String screenWidth) {
         Assert.notNull(image);
         Assert.notNull(screenWidth);
         int width = Integer.valueOf(screenWidth) / 3 * 2;
@@ -82,16 +93,19 @@ public class ImageUtils {
         return image.getHeight();
     }
 
-    public static Image getImage(String imgUrl) {
+    public Image getImage(String imgUrl) {
         Image img = null;
-//        try {
-//            img = HttpClient.get(imgUrl + "?imageInfo", "", new Object(), Image.class);
-//            if (img != null) {
-//                img.setUrl(imgUrl);
-//            }
-//        } catch (Exception e) {
-//            //ignore
-//        }
+        try {
+            Request request = new RequestBuilder().get().url(imgUrl+"?imageInfo").build();
+            JsonObjectResponseWrapper<Image> response = (JsonObjectResponseWrapper<Image>)httpRequestExecutorManager.newCall(request).run().as(JsonObjectResponseWrapper.class);
+            img = response.withObjectType(Image.class).convertBody();
+            if (img != null) {
+                img.setUrl(imgUrl);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //ignore
+        }
         return img;
     }
 
@@ -112,14 +126,15 @@ public class ImageUtils {
 
     }
 
-    public class Image {
+    public static class Image implements Serializable{
+        private static final long serialVersionUID = -6576358149375258483L;
         private String url;
         private String format;
         private String colorModel;
         private String orientation;
         private Integer width;
         private Integer height;
-
+        
         public String getUrl() {
             return url;
         }

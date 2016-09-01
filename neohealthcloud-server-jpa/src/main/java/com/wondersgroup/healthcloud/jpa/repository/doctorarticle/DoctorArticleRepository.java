@@ -20,4 +20,7 @@ public interface DoctorArticleRepository extends JpaRepository<DoctorArticle, In
 
     @Query(" select a from DoctorArticle a where a.categoryIds like %?1% and a.isVisable = 1  ")
     List<DoctorArticle> findListByCategoryId(int cat_id, Pageable pageable);
+
+    @Query(" select a from DoctorArticle a where a.id  in  ?1")
+    List<DoctorArticle> findArticleListByIds(List<Integer> ids);
 }

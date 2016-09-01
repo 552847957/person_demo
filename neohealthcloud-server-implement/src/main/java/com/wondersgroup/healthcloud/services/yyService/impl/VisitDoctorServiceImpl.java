@@ -39,18 +39,16 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
-    private String checkInUrl = yyServiceHost+"/rest/admin/order/checkIn.action";
-    private String getTokenUrl = yyServiceHost+"/rest/users/JyCCDYsFmg.action";
-    private String orderListUrl = yyServiceHost+"/rest/users/orderAction!orderinfoList.action";
+    private String checkInUrl = "/rest/admin/order/checkIn.action";
+    private String getTokenUrl = "/rest/users/JyCCDYsFmg.action";
+    private String orderListUrl = "/rest/users/orderAction!orderinfoList.action";
 
-    private String execDemoUrl = yyServiceHost+"/rest/order/execDemo.action";
-    private String execDemoResultUrl = yyServiceHost+
-                        "/rest/order/orderApplyInfoAction!findOrderExecInfo.action";
+    private String execDemoUrl = "/rest/order/execDemo.action";
+    private String execDemoResultUrl = "/rest/order/orderApplyInfoAction!findOrderExecInfo.action";
 
-    private String submitExecDemoUrl = yyServiceHost+
-                        "/rest/order/orderApplyInfoAction!saveOrderExecInfo.action";
+    private String submitExecDemoUrl = "/rest/order/orderApplyInfoAction!saveOrderExecInfo.action";
 
-    private String getUserInfoUrl = yyServiceHost+ "/rest/admin/order/client.action";
+    private String getUserInfoUrl =  "/rest/admin/order/client.action";
 
 
     private static final int TIME_24_HOUR = 24*60*60;
@@ -67,7 +65,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
         try{
             if (!jedis.exists(cache_key) || get_real_data){
 
-                Request request = new RequestBuilder().post().url(getTokenUrl)
+                Request request = new RequestBuilder().post().url(yyServiceHost + getTokenUrl)
                             .params(new String[]{"idCard", personcard}).build();
                 JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
                 JsonNode body = response.convertBody();
@@ -97,7 +95,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     @Override
     public YYVisitUserInfo getElderInfo(String personcard, String elderid) {
-        JsonNode body = this.postRequest(personcard, getUserInfoUrl, new String[]{"id", elderid});
+        JsonNode body = this.postRequest(personcard, yyServiceHost + getUserInfoUrl, new String[]{"id", elderid});
         YYVisitUserInfo userInfo = null;
         if (body.get("status").asText().equals("1")){
             JsonNode jsonNode = body.get("response");
@@ -121,7 +119,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
         List<YYVisitOrderInfo> list = new ArrayList<>();
         yyImgHost = getServiceImgHost();
         try {
-            JsonNode body = this.postRequest(personcard, orderListUrl, QueryMapUtils.convert(parm));
+            JsonNode body = this.postRequest(personcard, yyServiceHost + orderListUrl, QueryMapUtils.convert(parm));
             if (body.get("status").asText().equals("1")){
                 JsonNode jsonNode = body.get("response");
                 Gson gson = new Gson();
@@ -211,7 +209,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
      * @return
      */
     private Map<String, JsonNode> getExecDemoResult(String personcard, String workOrderNo){
-        JsonNode body = this.postRequest(personcard, execDemoResultUrl, new String[]{"workOrderNo", workOrderNo});
+        JsonNode body = this.postRequest(personcard, yyServiceHost + execDemoResultUrl, new String[]{"workOrderNo", workOrderNo});
         Map<String, JsonNode> resultMap = new HashMap<>();
         if (body.get("status").asText().equals("1")) {
             JsonNode jsonNode = body.get("response");
@@ -231,7 +229,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     @Override
     public List<YYExecDemoInfo> execDemo(String personcard, String fwnrid, String workOrderNo) {
-        JsonNode body = this.postRequest(personcard, execDemoUrl, new String[]{"fwnrid", fwnrid});
+        JsonNode body = this.postRequest(personcard, yyServiceHost + execDemoUrl, new String[]{"fwnrid", fwnrid});
 
         Map<String, JsonNode> resultMap = this.getExecDemoResult(personcard, workOrderNo);
 
@@ -306,7 +304,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     @Override
     public Boolean submitExecDemo(String personcard, String workOrderNo, String data) {
         String[] parm = new String[]{"workOrderNo", workOrderNo, "data", data};
-        JsonNode body = this.postRequest(personcard, submitExecDemoUrl, parm);
+        JsonNode body = this.postRequest(personcard, yyServiceHost + submitExecDemoUrl, parm);
         if (body.get("status").asText().equals("1")){
             return true;
         }else {
@@ -342,7 +340,7 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     @Override
     public Boolean checkInVisitService(String personcard, String workOrderNo) {
         String[] parm = new String[]{"workOrderNo", workOrderNo};
-        JsonNode body = this.postRequest(personcard, checkInUrl, parm);
+        JsonNode body = this.postRequest(personcard, yyServiceHost + checkInUrl, parm);
         if (body.get("status").asText().equals("1")){
             return true;
         }else {
