@@ -94,7 +94,7 @@ public class HealthActivityController {
         info.setLocate(reader.readString("locate", true));
         info.setProvince(reader.readString("province", false));
         info.setCity(reader.readString("city", false));
-        info.setCounty(reader.readString("county", false));
+        info.setCounty(reader.readString("county", true));
         info.setQuota(reader.readInteger("quota", true));
         info.setOnlineTime(DateFormatter.parseDateTime(reader.readString("online_time", false)));
         info.setOfflineTime(DateFormatter.parseDateTime(reader.readString("offline_time", false)));
