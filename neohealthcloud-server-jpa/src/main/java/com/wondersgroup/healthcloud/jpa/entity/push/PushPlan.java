@@ -14,7 +14,7 @@ import java.util.Date;
 @Table(name = "app_tb_push_plan")
 public class PushPlan {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
     private String creator; // 创建人
     private String area; // 管理员对应的区域

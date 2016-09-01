@@ -14,7 +14,7 @@ import java.util.Date;
 @Table(name = "app_tb_game_score")
 public class GameScore {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
     private String registerid; // 游戏人
     private Integer score;//最高游戏分数

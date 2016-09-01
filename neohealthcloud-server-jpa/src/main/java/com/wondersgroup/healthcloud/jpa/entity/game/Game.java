@@ -14,7 +14,7 @@ import java.util.Date;
 public class Game {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
     private String rule;
     @Column(name="start_time")

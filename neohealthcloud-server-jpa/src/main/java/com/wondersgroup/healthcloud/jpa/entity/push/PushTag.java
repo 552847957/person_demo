@@ -3,10 +3,7 @@ package com.wondersgroup.healthcloud.jpa.entity.push;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -29,7 +26,7 @@ import java.util.Date;
 public class PushTag {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer tagid;
     private String tagname;
     @JsonIgnore
