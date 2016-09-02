@@ -70,4 +70,11 @@ public interface DoctorQuestionService {
      * @return
      */
     Question queryQuestion(String id);
+
+    /**
+     * 查询未查看追问
+     * @param
+     * @return
+     */
+    public int queryUnreadCount(String doctorId);
 }

@@ -251,7 +251,18 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     	Question qt=repository.findOne(id);
 		return qt;
 	}
-    
+
+    @Override
+    public int queryUnreadCount(String doctorId) {
+        String sql="SELECT * FROM app_tb_neoquestion WHERE assign_answer_id='"+doctorId+"' AND status<>3 AND is_new_question=1";
+
+        String sql2="SELECT * FROM app_tb_neoquestion t1 INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                     "WHERE t2.answer_id='"+doctorId+"' AND  t1.status<>3 AND t2.has_new_user_comment=1";
+        int unreadQuestion = getJt().queryForObject(sql, Integer.class);
+        int unreadAsk = getJt().queryForObject(sql2, Integer.class);
+        return unreadQuestion+unreadAsk;
+    }
+
     private List<QuestionInfoForm> transformat(List<Map<String, Object>> param){
         List <QuestionInfoForm> list=new ArrayList<>();
         for(Map<String, Object> map:param){
