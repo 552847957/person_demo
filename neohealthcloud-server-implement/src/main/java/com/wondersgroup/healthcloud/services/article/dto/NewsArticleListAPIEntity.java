@@ -20,7 +20,7 @@ public class NewsArticleListAPIEntity {
     private String desc;
     private String pv;
     private String url;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date date;
 
     public NewsArticleListAPIEntity(NewsArticle article,AppUrlH5Utils appUrlH5Utils){

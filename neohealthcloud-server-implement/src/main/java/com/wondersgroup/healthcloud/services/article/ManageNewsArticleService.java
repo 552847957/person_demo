@@ -20,6 +20,7 @@ public interface ManageNewsArticleService {
 
     public int updateNewsAritile(NewsArticle article);
 
+    public int updateNewsAritilePv(NewsArticle article);
     /**
      * 根据分类查询改分类下面的所有文章
      * @param categoryId
