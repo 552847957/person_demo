@@ -535,7 +535,7 @@ public class HttpWdUtils {
 
 //        httpWdUtils.getSession("034386ef208f4704897fd31b41c82dcf");
 //        httpWdUtils.logout("15639763552");
-//        httpWdUtils.verficationSubmitInfo("580422deb19e4befaa856c8ec94d83e4");
+        httpWdUtils.verficationSubmitInfo("8a81c1fb555cab530156cfc6baf301db");
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);

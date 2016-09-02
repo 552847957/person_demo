@@ -77,8 +77,9 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         String loginName = "";
         Boolean success = result.get("success").asBoolean();
         if(!success){
+            String psw = "";
             try {
-                String psw = RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
+                RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
             }catch (Exception e){
                 throw new SyncDoctorAccountException(e.getLocalizedMessage());
             }
