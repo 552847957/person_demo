@@ -33,6 +33,7 @@ public class InterImageDTO {
 		} else {
 			this.is_visable = false;
 		}
+		this.update_by = "";
 	}
 
 }
