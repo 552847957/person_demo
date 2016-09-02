@@ -79,8 +79,8 @@ public class ForwardArticleController {
         if(!StringUtils.isEmpty(forwardArticle.getId())&&forwardArticle.getIs_visable()==1){
             long time = forwardArticle.getEnd_time().getTime();
             long nowTime=new Date().getTime();
-            if((nowTime+24*3600)>time){
-                String endTime= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(time+48*3600));
+            if((nowTime+24*3600*1000)>time){
+                String endTime= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(time+48*3600*1000));
                 forwardArticle.setEnd_time(endTime);
             }
         }
