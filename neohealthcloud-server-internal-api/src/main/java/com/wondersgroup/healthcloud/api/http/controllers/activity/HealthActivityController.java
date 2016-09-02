@@ -1,31 +1,53 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DynamicAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ImageAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDependence;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.MedicalCircleDetailAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.NoteAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.ShareAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.area.DicArea;
+import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleAttach;
+import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleTransmit;
+import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
+import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleCommunity;
+import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleReply;
 import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.area.DicAreaRepository;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
+import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.ImageUtils;
+import com.wondersgroup.healthcloud.utils.TimeAgoUtils;
+import com.wondersgroup.healthcloud.utils.circle.CircleLikeUtils;
 
 @RestController
 @RequestMapping("/healthActivity")
@@ -35,12 +57,24 @@ public class HealthActivityController {
 
     @Autowired
     private HealthActivityInfoService infoService;
-    
     @Autowired
     private HealthActivityInfoRepository      activityRepo;
-    
     @Autowired
     private DicAreaRepository dicAreaRepository;
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+    @Autowired
+    private MedicalCircleService    mcService;
+    @Autowired
+    private DictCache               dictCache;
+    @Autowired
+    private DoctorService           docinfoService;
+    @Autowired
+    private CircleLikeUtils circleLikeUtils;
+    @Autowired
+    private MedicalCircleService cedicalCircleService;
+    @Autowired
+    private ImageUtils imageUtils;
     
     @RequestMapping(value = "/listdata", method = RequestMethod.POST)
     public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(@RequestBody String request) {
@@ -180,4 +214,202 @@ public class HealthActivityController {
         return entity;
     }
 
+    /**
+     * 医学圈子内容详情
+     * @param screen_width
+     * @param circle_id
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    public JsonResponseEntity<MedicalCircleDetailAPIEntity> getCircleDetail(
+            @RequestHeader(value = "screen-width", defaultValue = "100") String screen_width,
+            @RequestParam(value = "circle_id", required = true) String circle_id,
+            @RequestParam(value = "doctor_id", required = true) String doctor_id
+            ) {
+        JsonResponseEntity<MedicalCircleDetailAPIEntity> responseEntity = new JsonResponseEntity<>();
+        MedicalCircle mc = mcService.getMedicalCircle(circle_id);
+        responseEntity.setData(newMedicalCircleDetailAPIEntity(new MedicalCircleDependence(mcService, dictCache),
+                mc, screen_width, doctor_id));
+        mcService.view(circle_id, doctor_id);//redis
+        return responseEntity;
+    }
+    
+    public MedicalCircleDetailAPIEntity newMedicalCircleDetailAPIEntity(MedicalCircleDependence dep, MedicalCircle mc, String screen_width, String uid) {
+        MedicalCircleDetailAPIEntity entity = new MedicalCircleDetailAPIEntity();
+        if (dep == null && mc == null) {
+            return entity;
+        }
+        DictCache dictCache = dep.getDictCache();
+        MedicalCircleService mcService = dep.getMcService();
+        Doctor doctor = getDoctorByDocotrId(mc.getDoctorid());
+        if (doctor != null) {
+            String circle_id = mc.getId();
+            String doctor_id = doctor.getUid();
+            entity.setDoctor_id(doctor_id);
+            entity.setAgo(TimeAgoUtils.ago(mc.getSendtime()));
+            entity.setAvatar(doctor.getAvatar());
+            entity.setCircle_id(circle_id);
+            entity.setCircle_type(mc.getType());
+            entity.setComment_num(mcService.getCommentsNum(circle_id));
+            entity.setLike_num(null != mc.getPraisenum() ? mc.getPraisenum() : 0);
+                    entity.setHospital(doctor.getHospitalName());
+            if (!StringUtils.isEmpty(uid)) {
+                entity.setIs_liked(circleLikeUtils.isLikeOne(circle_id, uid));
+            }
+            entity.setName(doctor.getName());
+            entity.setTag(dictCache.queryTagName(mc.getTagid()));
+            entity.setColor(dictCache.queryTagColor(mc.getTagid()));
+            entity.setViews(mcService.getCircleViews(circle_id));//redis
+            entity.setIs_collected(mcService.checkCollect(circle_id, uid, 1));
+            cedicalCircleService.getMedicalCircle(circle_id);
+            List<Doctor> doctors = getDoctorByDocotrIds(circleLikeUtils.likeUserIds(circle_id));
+            if(doctors != null && doctors.size() > 0){
+                String[] docLikeNames = new String[doctors.size()];
+                for (int i = 0; i < doctors.size(); i++) {
+                    Doctor doc = doctors.get(i);
+                    if(doc != null) {
+                        String name = doc.getName();
+                        if(StringUtils.isEmpty(name)){
+                            name = doc.getNickname();
+                        }
+                        docLikeNames[i] = doc.getUid() + ":" + name;
+                        entity.setLike_doc_names("");
+                        if (i == doctors.size() - 1) {
+                            entity.setLike_doc_names(entity.getLike_doc_names() + name);
+                        } else {
+                            entity.setLike_doc_names(entity.getLike_doc_names() + name + ",");
+                        }
+                    }
+                }
+                entity.setLiked_doc_name(docLikeNames);
+            }
+            Integer type = mc.getType();
+            entity.setCircle_type(type);
+            List<ArticleAttach> images = mcService.getCircleAttachs(mc.getId());
+            List<ImageAPIEntity> imageAPIEntities = new ArrayList<>();
+            if (images != null && images.size() > 0) {
+                if (images.size() == 1) {
+                    ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
+                    ImageUtils.Image image = imageUtils.getImage(images.get(0).getAttachid());
+                    if (image != null) {
+                        imageAPIEntity.setRatio(imageUtils.getImgRatio(image));
+                        imageAPIEntity.setUrl(image.getUrl());
+                        imageAPIEntity.setThumb(imageUtils.getBigThumb(image, screen_width));
+                        imageAPIEntity.setHeight(imageUtils.getUsefulImgHeight(image, screen_width));
+                        imageAPIEntity.setWidth(imageUtils.getUsefulImgWidth(image, screen_width));
+                        imageAPIEntities.add(imageAPIEntity);
+                    }
+                } else {
+                    for (ArticleAttach image : images) {
+                        ImageAPIEntity imageAPIEntity = new ImageAPIEntity();
+                        imageAPIEntity.setUrl(image.getAttachid());
+                        imageAPIEntity.setThumb(imageUtils.getSquareThumb(image.getAttachid(), screen_width));
+                        imageAPIEntities.add(imageAPIEntity);
+                    }
+                }
+            }
+            if (type == 1) {//帖子
+                NoteAPIEntity note = new NoteAPIEntity();
+                note.setContent(mc.getContent());
+                note.setImages(imageAPIEntities);
+                note.setTitle(mc.getTitle());
+                entity.setNote(note);
+            } else if (type == 2) {//病例
+                CaseAPIEntity cases = new CaseAPIEntity();
+                cases.setTitle(mc.getTitle());
+                cases.setContent(mc.getContent());
+                cases.setImages(imageAPIEntities);
+                entity.setCases(cases);
+            } else if (type == 3) {//动态
+                DynamicAPIEntity dynamic = new DynamicAPIEntity();
+                dynamic.setContent(mc.getContent());
+                dynamic.setImages(imageAPIEntities);
+                ArticleTransmit share = mcService.getMedicalCircleForward(mc.getId());
+                if (share != null) {
+                    ShareAPIEntity shareAPIEntity = new ShareAPIEntity();
+                    shareAPIEntity.setTitle(share.getTitle());
+                    shareAPIEntity.setDesc(share.getSubtitle());
+                    shareAPIEntity.setThumb(share.getPic());
+                    shareAPIEntity.setUrl(share.getUrl());
+                    dynamic.setShare(shareAPIEntity);
+                }
+                entity.setDynamic(dynamic);
+            }
+
+            List<MedicalCircleCommunity> comments = mcService.getMedicalCircleComments(circle_id, "discusstime:asc",
+                    new Date(0));
+            List<CommentAPIEntity> commentlist = new ArrayList<CommentAPIEntity>();
+            int cfloor = 1;
+            for (MedicalCircleCommunity comment : comments) {
+                CommentAPIEntity commentEntity = new CommentAPIEntity();
+                Doctor commentDoctor =  getDoctorByDocotrId(comment.getDoctorid());
+                if(commentDoctor==null){
+                    continue;
+                }
+                commentEntity.setAgo(TimeAgoUtils.ago(comment.getDiscusstime()));
+                commentEntity.setAvatar(commentDoctor.getAvatar());
+                commentEntity.setContent(comment.getContent());
+                commentEntity.setFloor(mcService.getFloor(cfloor));
+                commentEntity.setDoctor_id(comment.getDoctorid());
+                commentEntity.setName(commentDoctor.getName());
+
+                int rfloor = 1;
+                List<CommentAPIEntity> replyEntitylist = new ArrayList<CommentAPIEntity>();
+                List<MedicalCircleReply> commentReplyList = mcService.getCommentReplyList(comment.getId(), new Date(0),
+                        "discusstime:asc", 5);
+                for (MedicalCircleReply reply : commentReplyList) {
+                    CommentAPIEntity replyEntity = new CommentAPIEntity();
+                    Doctor replyDoctor =  getDoctorByDocotrId(comment.getDoctorid());
+                    if(replyDoctor == null){
+                        continue;
+                    }
+                    replyEntity.setName(replyDoctor.getName());
+                    replyEntity.setDoctor_id(reply.getDoctorid());
+                    replyEntity.setAgo(TimeAgoUtils.ago(reply.getDiscusstime()));
+                    replyEntity.setAvatar(replyDoctor.getAvatar());
+                    replyEntity.setContent(reply.getContent());
+                    replyEntity.setFloor(mcService.getFloor(rfloor));
+                    rfloor++;
+                    replyEntitylist.add(replyEntity);
+                }
+                if (commentReplyList.size() < 5) {
+                    commentEntity.setReply_more(false);
+                } else {
+                    commentEntity.setReply_more(true);
+                }
+                cfloor++;
+                commentEntity.setReply_list(replyEntitylist);
+                commentlist.add(commentEntity);
+            }
+            entity.setComment_list(commentlist);
+
+            ShareAPIEntity shareEntity = new ShareAPIEntity();
+            String content = mc.getContent();
+            if (!StringUtils.isEmpty(content) && content.length() > 100) {
+                content = content.substring(0, 100) + "...";
+            }
+            shareEntity.setTitle(StringUtils.isEmpty(mc.getTitle()) ? "万达全程健康云" : mc.getTitle());
+            shareEntity.setDesc(content);
+            shareEntity.setThumb("http://img.wdjky.com/app/ic_launcher");
+//            shareEntity.setUrl("http://10.1.64.194/neohealthcloud-doctor/api/medicalcircle/detail?circle_id=" + mc.getId() + "&doctor_id=" + mc.getDoctorid());
+            entity.setShare(shareEntity);
+        }
+        return entity;
+    }
+    
+    public Doctor getDoctorByDocotrId(String doctorId) {
+        return docinfoService.findDoctorByUid(doctorId);
+    }
+    
+    public List<Doctor> getDoctorByDocotrIds(String[] doctorIds) {
+        if(doctorIds == null || doctorIds.length < 1){
+            return null;
+        }
+        String ids = "";
+        for (String id : doctorIds) {
+            ids+=id + ",";
+        }
+        return docinfoService.findDoctorByIds(ids.substring(0, ids.length() - 1));
+    }
 }
