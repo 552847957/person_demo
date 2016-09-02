@@ -43,6 +43,7 @@ public class DoctorController {
      */
     @RequestMapping(value = "/user/doctorInfo", method = RequestMethod.GET)
     @VersionRange
+    @WithoutToken
     public JsonResponseEntity<DoctorAccountDTO> info(@RequestParam(required = false) String uid,
                                                      @RequestParam String doctor_id) {
         DoctorAccountDTO  doctorAccountDTO = getDoctorInfo(uid,doctor_id);

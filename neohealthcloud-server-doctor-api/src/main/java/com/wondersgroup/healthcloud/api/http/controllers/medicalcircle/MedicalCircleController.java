@@ -1067,7 +1067,7 @@ public class MedicalCircleController {
             shareEntity.setTitle(StringUtils.defaultString(mc.getTitle(), "万达全程健康云"));
             shareEntity.setDesc(content);
             shareEntity.setThumb("http://img.wdjky.com/app/ic_launcher");
-//            shareEntity.setUrl(AppDoctorUrlH5Utils.buildMedicalCircleTopicView(mc.getId()));
+            shareEntity.setUrl("http://10.1.64.194/neohealthcloud-doctor/api/medicalcircle/detail?circle_id=" + mc.getId() + "&doctor_id=" + mc.getDoctorid());
             entity.setShare(shareEntity);
         }
         return entity;
