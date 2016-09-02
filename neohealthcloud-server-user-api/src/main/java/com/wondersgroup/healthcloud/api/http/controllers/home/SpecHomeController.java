@@ -237,13 +237,33 @@ public class SpecHomeController {
             url += "&flag=" + flag;
         }
 
-        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            if (0 == (int) response.getBody().get("code")) {
-                data.put("measuringPoint", response.getBody().get("data"));
+        try {
+            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    JsonResponseEntity jsonResponseEntity = formatResponse(response.getBody());
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String rtnStr = objectMapper.writeValueAsString(jsonResponseEntity);
+                    JsonNode rtnJson = objectMapper.readTree(rtnStr);
+                    JsonNode measuringPoint = rtnJson.get("data").get("content").get(0);
+                    if (measuringPoint != null) {
+                        data.put("measuringPoint", measuringPoint);
+                    }
+                }
             }
+        } catch (Exception ex) {
+            log.error("SpecHomeController error --> " + ex.getLocalizedMessage());
         }
         result.setData(data);
+        return result;
+    }
+
+    private JsonResponseEntity formatResponse(Map responseBody) {
+        if (0 != (int) responseBody.get("code")) {
+            return new JsonResponseEntity(500, "信息获取失败");
+        }
+        JsonResponseEntity<Object> result = new JsonResponseEntity<>(0, null);
+        result.setData(responseBody.get("data"));
         return result;
     }
 }

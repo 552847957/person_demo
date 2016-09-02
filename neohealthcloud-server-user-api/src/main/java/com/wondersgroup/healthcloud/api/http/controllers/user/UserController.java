@@ -176,6 +176,31 @@ public class UserController {
         return response;
     }
 
+
+    /**
+     * 修改密码
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/password/update")
+    public JsonResponseEntity<String> updatePassword(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String mobile = reader.readString("mobile", false);
+        String verifyCode = reader.readString("verify_code", false);
+        String password = reader.readString("password", false);
+
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        Boolean verifyCodeResult = userAccountService.resetPassword(mobile, verifyCode, password);
+        if (!verifyCodeResult) {
+            response.setCode(1002);
+            response.setMsg("无效的验证码，请重新输入");
+            return response;
+        }
+        response.setMsg(verifyCodeResult ? "恭喜, 密码设置成功" : "密码设置失败");
+        return response;
+    }
+
     /**
      * 修改手机号
      *
@@ -403,7 +428,7 @@ public class UserController {
     }
 
     /**
-     * 修改昵称
+     * 修改头像
      *
      * @param request
      * @return

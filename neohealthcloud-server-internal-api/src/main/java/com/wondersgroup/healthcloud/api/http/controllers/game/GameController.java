@@ -52,7 +52,8 @@ public class GameController {
         Page<GameScore> page = gameService.findAll(pager.getNumber()-1,pager.getSize());
         List<Map> list = Lists.newArrayList();
         for(GameScore gameScore : page.getContent()){
-            list.add(ImmutableMap.of("nickname",this.getNiceName(gameScore.getRegisterid()),"score",gameScore.getScore()));
+            list.add(ImmutableMap.of("rank",(pager.getNumber()-1) * pager.getSize()+1+list.size(),
+                    "nickname",this.getNiceName(gameScore.getRegisterid()),"score",gameScore.getScore()));
         }
         pager.setData(list);
         pager.setTotalElements((int)page.getTotalElements());
