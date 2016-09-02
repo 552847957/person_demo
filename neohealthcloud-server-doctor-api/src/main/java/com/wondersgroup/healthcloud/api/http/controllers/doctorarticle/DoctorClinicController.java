@@ -56,7 +56,7 @@ public class DoctorClinicController {
     public JsonListResponseEntity<DoctorArticleListAPIEntity> collectList(@RequestParam(required = true) String uid,
                                                                           @RequestParam(required = false, defaultValue = "") String flag){
         JsonListResponseEntity<DoctorArticleListAPIEntity> result = new JsonListResponseEntity<>();
-        List<DoctorArticleListAPIEntity> articleList = new ArrayList<>();
+        List<DoctorArticleListAPIEntity> articleList;
         Date sendtime = new Date();
         if(StringUtils.isNotEmpty(flag)){
             sendtime = new Date(Long.valueOf(flag));
@@ -129,17 +129,7 @@ public class DoctorClinicController {
             return null;
         }
         List<DoctorArticleListAPIEntity> articleList = new ArrayList<>();
-        for (DoctorArticle articleModel : catArticleList){
-            DoctorArticleListAPIEntity articleEntity = new DoctorArticleListAPIEntity();
-            articleEntity.setId(String.valueOf(articleModel.getId()));
-            articleEntity.setTitle(articleModel.getTitle());
-            articleEntity.setDesc(articleModel.getBrief());
-            int pv = articleModel.getPv() + articleModel.getFakePv();
-            articleEntity.setPv(String.valueOf(pv));
-            articleEntity.setThumb(articleModel.getThumb());
-            articleEntity.setUrl(appUrlH5Utils.buildXueYuanArticleView(articleModel.getId()));
-            articleList.add(articleEntity);
-        }
+        iteratorDoctorArticle(catArticleList, articleList);
         return articleList;
     }
 
@@ -241,6 +231,12 @@ public class DoctorClinicController {
             return null;
         }
         List<DoctorArticleListAPIEntity> articleList = new ArrayList<>();
+        iteratorDoctorArticle(catArticleList, articleList);
+        return articleList;
+    }
+
+    private void iteratorDoctorArticle(List<DoctorArticle> catArticleList,
+                                       List<DoctorArticleListAPIEntity> articleList) {
         for (DoctorArticle articleModel : catArticleList){
             DoctorArticleListAPIEntity articleEntity = new DoctorArticleListAPIEntity();
             articleEntity.setId(String.valueOf(articleModel.getId()));
@@ -252,6 +248,5 @@ public class DoctorClinicController {
             articleEntity.setUrl(appUrlH5Utils.buildXueYuanArticleView(articleModel.getId()));
             articleList.add(articleEntity);
         }
-        return articleList;
     }
 }
