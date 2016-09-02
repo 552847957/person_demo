@@ -93,7 +93,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
 
         }else{
             registerId = result.get("user").get("userid").asText();
-            loginName = result.get("user").get("username").asText();
+            loginName = result.get("user").get("username")==null?"":result.get("user").get("username").asText();
         }
 
         DoctorAccount account = doctorAccountRepository.findOne(registerId);
