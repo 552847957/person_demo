@@ -116,6 +116,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         }
         doctorAccount.setIsAvailable("1");
         doctorAccount.setDelFlag("0");
+        doctorAccount.setMainArea("3101");//区域编码
         doctorAccount.setUpdateDate(new Date());
         doctorAccountRepository.saveAndFlush(doctorAccount);
 
