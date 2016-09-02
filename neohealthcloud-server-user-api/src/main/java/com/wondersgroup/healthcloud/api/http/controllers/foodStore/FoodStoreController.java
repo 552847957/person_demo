@@ -73,11 +73,11 @@ public class FoodStoreController {
             page = Integer.valueOf(flag);
         }
 
-        if (StringUtils.isNotEmpty(cate_id)){
+        if(StringUtils.isNotBlank(kw)){
+            return this.getFoodListByKwFromDb(kw, page, pageSize);
+        }else if(StringUtils.isNotBlank(cate_id)){
             Integer cateId = Integer.valueOf(cate_id);
             return this.getFoodListByCateId(cateId, page, pageSize);
-        }else if (StringUtils.isNotEmpty(kw)){
-            return this.getFoodListByKwFromDb(kw, page, pageSize);
         }
 
         return new JsonListResponseEntity<>();
