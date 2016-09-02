@@ -25,9 +25,10 @@ public class ForwardArticleController {
     public Pager findHomeArticleList(@RequestBody Pager pager) {
         Map param = new HashMap();
         param.putAll(pager.getParameter());
+        String areaCode=param.get("mainArea").toString();
         if(param.containsKey("articleId")&&!StringUtils.isEmpty(param.get("articleId"))){
             String id= (String) param.get("articleId");
-            List<ForwardArticleAPIEntity> forwardArticle= forwardArticleService.queryById(id);
+            List<ForwardArticleAPIEntity> forwardArticle= forwardArticleService.queryById(id,areaCode);
             if(!forwardArticle.isEmpty()) {
                 pager.setData(forwardArticle);
                 pager.setTotalElements(forwardArticle.size());
@@ -40,7 +41,6 @@ public class ForwardArticleController {
         if(null!=param.get("status")){
            status=(String)param.get("status");
         }
-        String areaCode=param.get("mainArea").toString();
         pager.setData(forwardArticleService.queryPageForWardArticle(status,pageNo,pageSize,areaCode));
         int total=forwardArticleService.getCount(status,areaCode);
         int totalPage = total % pageSize == 0 ? total / pageSize : (total / pageSize) + 1;
