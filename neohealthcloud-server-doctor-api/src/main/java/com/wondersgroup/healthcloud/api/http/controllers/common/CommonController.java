@@ -92,10 +92,10 @@ public class CommonController {
                 common.put("register_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
             }
             if(cfgMap.get("app.common.versionDesc") != null){
-            	common.put("version_desc", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.versionDesc")));
+            	common.put("version_desc", cfgMap.get("app.common.versionDesc"));
             }
             if(cfgMap.get("app.common.versionDepartment") != null){
-            	common.put("version_department", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.versionDepartment")));
+            	common.put("version_department", cfgMap.get("app.common.versionDepartment"));
             }
             if(cfgMap.get("app.common.disclaimerUrl") != null){
             	common.put("disclaimerUrl", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.disclaimerUrl")));
