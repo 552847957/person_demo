@@ -364,7 +364,7 @@ public class UserServiceImpl implements UserService {
             throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
         } else {
             String doctorId = doctorInfo.getUid();
-            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(), doctorId, DateFormatter.dateTimeFormat(new Date())));
+            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
         }
     }
 
