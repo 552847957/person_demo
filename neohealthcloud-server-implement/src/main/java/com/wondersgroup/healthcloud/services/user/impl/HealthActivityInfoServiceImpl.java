@@ -57,7 +57,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         String sql = "select *,case when (endtime < now()) THEN 1 else 0 end as overdue from app_tb_healthactivity_info where del_flag = '0' and online_status = 1 ";
         if(!StringUtils.isEmpty(status)){
             if(status == 1){//活动进行中
-//                sql += "and starttime <= now() and endtime >= now() ";
+                sql += "and endtime >= now() ";
             }else if(status == 2){//活动已结束
                 sql += " and endtime < now()";
             }
