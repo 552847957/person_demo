@@ -27,12 +27,15 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +47,8 @@ import java.util.Map;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger log = Logger.getLogger(UserServiceImpl.class);
 
     @Autowired
     private RegisterInfoRepository registerInfoRepository;
@@ -160,8 +165,52 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
+    @Override
+    public Boolean updateUserHeightAndWeight(UserInfoForm form) {
+
+        UserInfo userInfo = userInfoRepository.findOne(form.registerId);
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            userInfo.setRegisterid(form.registerId);
+            userInfo.setDelFlag("0");
+        }
+        UserInfo merged = form.merge(userInfo);
+
+        try {
+            userInfoRepository.saveAndFlush(merged);
+        }catch (Exception e){
+            log.error("UserServiceImpl.updateUserHeightAndWeight Error -->" + e.getLocalizedMessage());
+            return false;
+        }
+
+
+        return true;
+
+    }
+
     private void updateBMI(UserInfo userInfo) {
-        //todo 问李玄武接口
+        String url = measureUrl + "/api/measure/upload/0";
+        Date date = new Date();
+        String testTime = DateFormatter.dateTimeFormat(date);
+        Map<String, Object> paras = new HashMap<>();
+        paras.put("registerId",userInfo.getRegisterid());
+        paras.put("height",userInfo.getHeight());
+        paras.put("weight",userInfo.getWeight());
+        paras.put("measureWay","1");
+        paras.put("testTime",testTime);
+        RestTemplate template = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("access-token", "version3.0");
+        ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            if (0 != (int) response.getBody().get("code")) {
+                log.error("UserServiceImpl.updateBMI Error  -->"+response.getBody().get("msg"));
+            }
+        }
+
+
     }
 
     @Override

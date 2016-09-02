@@ -27,6 +27,8 @@ public interface UserService {
 
     void updateUserInfo(UserInfoForm form);
 
+    Boolean updateUserHeightAndWeight(UserInfoForm form);
+
     UserInfo getUserInfo(String uid);
 
     void updateAvatar(String id, String avatar);
