@@ -76,7 +76,7 @@ public class ForwardArticleController {
             response.setMsg("区域不能为空");
             return response;
         }
-        if(!StringUtils.isEmpty(forwardArticle.getId())&&forwardArticle.getIs_visable()==1){
+        if(!StringUtils.isEmpty(forwardArticle.getId())){
             long time = forwardArticle.getEnd_time().getTime();
             long nowTime=new Date().getTime();
             if((nowTime+24*3600*1000)>time){

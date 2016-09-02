@@ -44,7 +44,7 @@ public class DoctorArticle {
     private int isVisable;
 
     @Column(name = "online_time")
-    private int onlineTime;
+    private Date onlineTime;
 
     @Column(name = "update_time")
     private Date updateTime;

@@ -35,16 +35,15 @@ public class AppConfigServiceImpl implements AppConfigService {
 	private AppConfigRepository appConfigRepository;
 
 	@Override
-	public Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, List<String> keyWords, String ... source) {
+	public Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, List<String> keyWords,
+			String source) {
 		Map<String, String> cfgMap = null;
 		try {
 			AppConfig appConfig = new AppConfig();
 			appConfig.setDelFlag("0");
 			appConfig.setMainArea(mainArea);
 			appConfig.setSpecArea(specArea);
-			if(source != null && source.length > 0){
-				appConfig.setSource(source[0]);
-			}
+			appConfig.setSource(source);
 			List<AppConfig> appConfigList = findAll(appConfig, keyWords);
 
 			if (appConfigList != null && appConfigList.size() > 0) {
@@ -60,16 +59,19 @@ public class AppConfigServiceImpl implements AppConfigService {
 	}
 
 	@Override
-	public List<AppConfig> findAllDiscreteAppConfig(String mainArea, String specArea, String ... source) {
+	public Map<String, String> findAppConfigByKeyWords(String mainArea, String specArea, List<String> keyWords) {
+		return findAppConfigByKeyWords(mainArea, specArea, keyWords, "1");
+	}
+
+	@Override
+	public List<AppConfig> findAllDiscreteAppConfig(String mainArea, String specArea, String source) {
 		try {
 			AppConfig appConfig = new AppConfig();
 			appConfig.setDelFlag("0");
 			appConfig.setDiscrete(1);
 			appConfig.setMainArea(mainArea);
 			appConfig.setSpecArea(specArea);
-			if(source != null && source.length > 0){
-				appConfig.setSource(source[0]);
-			}
+			appConfig.setSource(source);
 			List<AppConfig> appConfigList = findAll(appConfig, null);
 
 			if (appConfigList != null && appConfigList.size() > 0) {
@@ -82,17 +84,20 @@ public class AppConfigServiceImpl implements AppConfigService {
 	}
 
 	@Override
-	public AppConfig findSingleAppConfigByKeyWord(String mainArea, String specArea, String keyWord, String ... source) {
+	public List<AppConfig> findAllDiscreteAppConfig(String mainArea, String specArea) {
+		return findAllDiscreteAppConfig(mainArea, specArea, "1");
+
+	}
+
+	@Override
+	public AppConfig findSingleAppConfigByKeyWord(String mainArea, String specArea, String keyWord, String source) {
 		try {
 			AppConfig appConfig = new AppConfig();
 			appConfig.setDelFlag("0");
 			appConfig.setMainArea(mainArea);
 			appConfig.setSpecArea(specArea);
 			appConfig.setKeyWord(keyWord);
-			
-			if(source != null && source.length > 0){
-				appConfig.setSource(source[0]);
-			}
+			appConfig.setSource(source);
 			List<AppConfig> appConfigs = findAll(appConfig, null);
 
 			if (appConfigs != null && appConfigs.size() > 0) {
@@ -102,6 +107,11 @@ public class AppConfigServiceImpl implements AppConfigService {
 			logger.error("AppConfigServiceImpl.findSingleAppConfigByKeyWord\t-->\t" + ex.getLocalizedMessage());
 		}
 		return null;
+	}
+
+	@Override
+	public AppConfig findSingleAppConfigByKeyWord(String mainArea, String specArea, String keyWord) {
+		return findSingleAppConfigByKeyWord(mainArea, specArea, keyWord, "1");
 	}
 
 	@Override
@@ -156,5 +166,5 @@ public class AppConfigServiceImpl implements AppConfigService {
 			}
 		});
 	}
-	
+
 }

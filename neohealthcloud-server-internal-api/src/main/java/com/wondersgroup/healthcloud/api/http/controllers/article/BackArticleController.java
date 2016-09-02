@@ -133,7 +133,7 @@ public class BackArticleController {
             NewsArticle articleInfoById = manageNewsArticleServiceImpl.findArticleInfoById(id);
             int pvNum=articleInfoById.getPv()+1;
             articleInfoById.setPv(pvNum);
-            manageNewsArticleServiceImpl.updateNewsAritile(articleInfoById);
+            manageNewsArticleServiceImpl.updateNewsAritilePv(articleInfoById);
         }
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
@@ -150,6 +150,9 @@ public class BackArticleController {
         JsonResponseEntity response=new JsonResponseEntity();
 
         NewsArticle articleInfo = manageNewsArticleServiceImpl.findArticleInfoById(id);
+        if(articleInfo==null){
+            return response;
+        }
         List<NewsArticleCategory> appNewsCategory= manageNewsArticleCategotyService.findNewsCategoryByArea(areaCode);
         List<Integer> integers = manageNewsArticleCategotyService.queryCategoryBelongArticle(id, areaCode);
         List<NewsArticleCategory> belongAreaCategory=new ArrayList<>();
