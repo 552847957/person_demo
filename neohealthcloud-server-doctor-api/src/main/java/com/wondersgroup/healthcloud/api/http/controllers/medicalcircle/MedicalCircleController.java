@@ -886,8 +886,10 @@ public class MedicalCircleController {
             list.add(entity);
         }
         //获取最后一个对象的时间作为flag
-        flag = String.valueOf(attlist.get(attlist.size() - 1) == null ? "" : attlist.get(attlist.size() - 1)
-                .getAttentiontime().getTime());
+        if(attlist != null && !attlist.isEmpty()){
+            flag = String.valueOf(attlist.get(attlist.size() - 1) == null ? "" : attlist.get(attlist.size() - 1)
+                    .getAttentiontime().getTime());
+        }
         if (attlist.size() < 20) {
             more = false;
         }
