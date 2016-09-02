@@ -93,7 +93,7 @@ public class ForwardArticleService {
     }
     //查询首页资讯存在进行中的记录数
     public int getExistCount(int articleId,String areaCode){
-       String sql = "SELECT count(1) FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where t2.article_id="+articleId+"  AND main_area='"+areaCode+"' and start_time<=NOW() and end_time>=NOW()";
+       String sql = "SELECT count(1) FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoforward_article t2 ON t1.id=t2.article_id where t2.article_id="+articleId+"  AND main_area='"+areaCode+"'";
 
         return this.getJt().queryForObject(sql,Integer.class);
     }
