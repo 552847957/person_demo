@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.push;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
@@ -18,9 +19,11 @@ import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.helper.push.plan.PushPlanService;
+import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
+import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
@@ -73,6 +76,9 @@ public class PushPlanController {
 
     @Value("${h5-web.connection.url}")
     private String h5Url;
+
+    @Autowired
+    private NewsArticleRepo articleRepo;
 
 
     @PostMapping(path = "/list")
@@ -197,6 +203,17 @@ public class PushPlanController {
         pushPlan.setUpdateTime(new Date());
         pushPlanRepo.save(pushPlan);
         return "{\"code\":0}";
+    }
+
+    @GetMapping(path = "/article")
+    public JsonResponseEntity article(@RequestParam(name = "articleId",required = true) Integer articleId) {
+        JsonResponseEntity reponse = new JsonResponseEntity();
+        NewsArticle article = articleRepo.queryArticleById(articleId);
+        if(null != article) {
+            reponse.setData(ImmutableMap.of("url", h5Url + "/article/detail?id=" + articleId,
+                    "title",article.getTitle(),"content",article.getBrief()));
+        }
+        return reponse;
     }
 
     private void updatPlan(Integer id ,Integer status){
