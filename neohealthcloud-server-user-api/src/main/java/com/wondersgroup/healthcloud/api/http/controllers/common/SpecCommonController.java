@@ -88,16 +88,16 @@ public class SpecCommonController {
             }
             // 汇道
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.channel"))) {
-                common.put("huiDaoChannelid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.channel")));
+                common.put("huiDaoChannelid", cfgMap.get("app.common.huidao.channel"));
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.appkey"))) {
-                common.put("huiDaoAppkey", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.appkey")));
+                common.put("huiDaoAppkey", cfgMap.get("app.common.huidao.appkey"));
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.sid"))) {
-                common.put("huiDaoSid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.sid")));
+                common.put("huiDaoSid", cfgMap.get("app.common.huidao.sid"));
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.apiid"))) {
-                common.put("huiDaoApiid", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.huidao.apiid")));
+                common.put("huiDaoApiid", cfgMap.get("app.common.huidao.apiid"));
             }
 
             data.put("common", common);
