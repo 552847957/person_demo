@@ -28,9 +28,10 @@ public class ConfigController {
     @RequestMapping(value = "/findSingleAppConfigByKeyWord", method = RequestMethod.GET)
     public JsonResponseEntity<AppConfig> findSingleAppConfigByKeyWord(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                                       @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                                      @RequestParam(required = true) String keyWord) {
+                                                                      @RequestParam(required = true) String keyWord,
+                                                                      @RequestParam(required =  false, defaultValue = "1") String source) {
         JsonResponseEntity<AppConfig> result = new JsonResponseEntity<>();
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, keyWord);
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, keyWord, source);
         if (appConfig != null) {
             result.setData(appConfig);
         } else {
@@ -47,9 +48,10 @@ public class ConfigController {
     @Admin
     @RequestMapping(value = "/findAllDiscreteAppConfig", method = RequestMethod.GET)
     public JsonResponseEntity<List<AppConfig>> findAllDiscreteAppConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
-                                                                        @RequestHeader(name = "spec-area", required = false) String specArea) {
+                                                                        @RequestHeader(name = "spec-area", required = false) String specArea,
+                                                                        @RequestParam(required =  false, defaultValue = "1") String source) {
         JsonResponseEntity<List<AppConfig>> result = new JsonResponseEntity<>();
-        List<AppConfig> appConfigs = appConfigService.findAllDiscreteAppConfig(mainArea, specArea);
+        List<AppConfig> appConfigs = appConfigService.findAllDiscreteAppConfig(mainArea, specArea, source);
         if (appConfigs != null && appConfigs.size() > 0) {
             result.setData(appConfigs);
         } else {
