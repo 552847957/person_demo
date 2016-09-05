@@ -45,21 +45,23 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     @Override
     public void saveOneMessage(AppMessage message, String uid) {
         if (message.persistence) {
-            UserPrivateMessage userPrivateMessage = new UserPrivateMessage();
-            userPrivateMessage.setId(message.id == null ? IdGen.uuid() : message.id);
-            userPrivateMessage.setUid(uid);
-            userPrivateMessage.setTitle(message.title);
-            userPrivateMessage.setContent(message.content);
-            if (message.areaSpecial) {
-                userPrivateMessage.setArea(message.area);
+            if (!message.isDoctor) {
+                UserPrivateMessage userPrivateMessage = new UserPrivateMessage();
+                userPrivateMessage.setId(message.id == null ? IdGen.uuid() : message.id);
+                userPrivateMessage.setUid(uid);
+                userPrivateMessage.setTitle(message.title);
+                userPrivateMessage.setContent(message.content);
+                if (message.areaSpecial) {
+                    userPrivateMessage.setArea(message.area);
+                }
+                userPrivateMessage.setUrl(message.urlFragment);
+                userPrivateMessage.setType(message.type.id);
+                userPrivateMessage.setCreateTime(new Date());
+
+                userPrivateMessage = messageRepository.save(userPrivateMessage);
+
+                messageReadService.newMessage(userPrivateMessage);
             }
-            userPrivateMessage.setUrl(message.urlFragment);
-            userPrivateMessage.setType(message.type.id);
-            userPrivateMessage.setCreateTime(new Date());
-
-            userPrivateMessage = messageRepository.save(userPrivateMessage);
-
-            messageReadService.newMessage(userPrivateMessage);
         }
     }
 
