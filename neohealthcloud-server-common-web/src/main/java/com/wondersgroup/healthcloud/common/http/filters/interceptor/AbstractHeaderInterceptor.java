@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.common.http.filters.interceptor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
  * Created by zhangzhixiu on 16/4/27.
  */
 public abstract class AbstractHeaderInterceptor implements HandlerInterceptor {
+
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractHeaderInterceptor.class);
+
     public static class HeaderCode {
         public String headerKey;
         int errorCode;
