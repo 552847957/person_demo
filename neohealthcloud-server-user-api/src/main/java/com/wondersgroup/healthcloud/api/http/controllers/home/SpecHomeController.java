@@ -102,19 +102,6 @@ public class SpecHomeController {
             data.put("functionIcons", functionIcons);
         }
 
-        // 首页广告
-        ImageText imgTextC = new ImageText();
-        imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
-        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextC);
-        if (imageTextsC != null && imageTextsC.size() > 0) {
-            List adImages = new ArrayList();
-            for (ImageText imageText : imageTextsC) {
-                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
-                adImages.add(bit);
-            }
-            data.put("advertisements", adImages);
-        }
-
         // 首页浮动广告及在线客服
         ImageText imgTextD = new ImageText();
         imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());

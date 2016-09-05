@@ -1,5 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wondersgroup.healthcloud.api.http.controllers.common.CommonController;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -11,11 +14,13 @@ import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import com.wondersgroup.healthcloud.services.user.dto.healthactivity.HealthActivityAPIEntity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +33,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/spec/services")
 public class SpecServicesController {
+
+    private static final Logger log = Logger.getLogger(SpecServicesController.class);
+
     @Autowired
     private ImageTextService imageTextService;
     @Autowired
     private HealthActivityInfoService haiService;
+
+    @Value("${internal.api.service.measure.url}")
+    private String host;
+    private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
+    private RestTemplate template = new RestTemplate();
 
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     @VersionRange
@@ -40,7 +53,8 @@ public class SpecServicesController {
                                                         @RequestHeader(value = "spec-area", required = false) String specArea,
                                                         @RequestHeader(value = "app-version", required = true) String version,
                                                         @RequestHeader(value="screen-width")String width,
-                                                        @RequestHeader(value="screen-height")String height) {
+                                                        @RequestHeader(value="screen-height")String height,
+                                                        @RequestParam(required = false) String registerId) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
         List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);
@@ -66,7 +80,47 @@ public class SpecServicesController {
             data.put("activities", entity);
         }
 
-        data.put("signMeasurements", new HashMap<>());
+        // 近期异常指标 begin
+        try {
+            String parameters = "registerId=".concat(registerId).concat("&personCard=0");
+            String url = String.format(requestFamilyPath, host, parameters);
+            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                Map<String, Object> responseBody = response.getBody();
+                if (0 == (int) responseBody.get("code")) {
+                    ObjectMapper om = new ObjectMapper();
+                    String jdata = om.writeValueAsString(new JsonResponseEntity<>(0, null, responseBody.get("data")));
+                    JsonNode jsonNode = om.readTree(jdata);
+                    JsonNode unusuals = jsonNode.findPath("unusual");
+                    if (unusuals != null && unusuals.get(0) != null) {
+                        JsonNode unusual = unusuals.get(0);
+                        Map<String, Object> rtnMap = new HashMap();
+                        switch (unusual.get("flag").asText()){
+                            /*case "0": rtnMap.put("status", "正常"); break;*/
+                            case "1":// 偏高
+                                rtnMap.put("prefix", "您最近一次测量" + unusual.get("name").asText());
+                                rtnMap.put("status", "偏高");
+                                rtnMap.put("color", "#F54949");
+                                rtnMap.put("suffix", "哦~");
+                                break;
+                            case "2":// 偏低
+                                rtnMap.put("prefix", "您最近一次测量" + unusual.get("name").asText());
+                                rtnMap.put("status", "偏低");
+                                rtnMap.put("color", "#F54949");
+                                rtnMap.put("suffix", "哦~");
+                                break;
+                        }
+                        if (rtnMap.size() > 0) {
+                            data.put("signMeasurements", rtnMap);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.info("请求测量数据异常", e);
+            return new JsonResponseEntity<>(1000, "内部错误");
+        }
+        // 近期异常指标 end
         result.setData(data);
         return result;
     }

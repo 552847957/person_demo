@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
@@ -16,6 +17,7 @@ import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,92 +48,42 @@ public class SpecCommonController {
     @GetMapping(value = "/appConfig")
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value="platform", required = false) String platform,
+    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = false) String platform,
                                                              @RequestHeader(name = "main-area", required = true) String mainArea,
                                                              @RequestHeader(name = "spec-area", required = false) String specArea,
                                                              @RequestHeader(value = "app-version", required = false) String appVersion) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
-        List<String> keyWords = new ArrayList<>();
-        keyWords.add("app.common.consumer.hotline");//客服热线
-        keyWords.add("app.common.help.center");// 帮助中心
-        keyWords.add("app.common.userAgreement");// 用户协议
-        keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
-        keyWords.add("common.qr.code.url.ios");// ios邀请二维码
-        keyWords.add("common.qr.code.url.android");// android邀请二维码
-        keyWords.add("app.common.huidao.channel");
-        keyWords.add("app.common.huidao.appkey");
-        keyWords.add("app.common.huidao.sid");
-        keyWords.add("app.common.huidao.apiid");
+        data.put("common", getAppConfig(mainArea, specArea, platform));
 
-        keyWords.add("app.common.appUpdate");// APP更新
-        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
-
-        Map<String, Object> common = new HashMap<>();
-        common.put("publicKey", HttpWdUtils.publicKey);
-        if (cfgMap != null) {
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.consumer.hotline"))) {
-                common.put("consumerHotline", cfgMap.get("app.common.consumer.hotline"));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.help.center"))) {
-                common.put("helpCenter", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.help.center")));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.userAgreement"))) {
-                common.put("userAgreement", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.intellectualPropertyAgreement"))) {
-                common.put("ipa", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
-            }
-            String qrCode = "";
-            if(platform.equalsIgnoreCase("0")){
-                common.put("qrCode", cfgMap.get("common.qr.code.url.ios"));
-            }else if(platform.equalsIgnoreCase("1")){
-                common.put("qrCode", cfgMap.get("common.qr.code.url.android"));
-            }
-            // 汇道
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.channel"))) {
-                common.put("huiDaoChannelid", cfgMap.get("app.common.huidao.channel"));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.appkey"))) {
-                common.put("huiDaoAppkey", cfgMap.get("app.common.huidao.appkey"));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.sid"))) {
-                common.put("huiDaoSid", cfgMap.get("app.common.huidao.sid"));
-            }
-            if (StringUtils.isNotEmpty(cfgMap.get("app.common.huidao.apiid"))) {
-                common.put("huiDaoApiid", cfgMap.get("app.common.huidao.apiid"));
-            }
-
-            data.put("common", common);
-
-            if (cfgMap.get("app.common.appUpdate") != null) {
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode content = objectMapper.readTree(cfgMap.get("app.common.appUpdate").toString());
-                    String lastVersion = content.get("lastVersion") == null ? "" : content.get("lastVersion").asText();
-                    Boolean hasUpdate = CommonUtils.compareVersion(appVersion, lastVersion);
-                    if (hasUpdate) {
-                        Boolean forceUpdate = false;
-                        String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
-                        if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
-                            forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
-                        }
-                        String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
-                        String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
-                        String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();
-
-                        Map appUpdate = new HashMap();
-                        appUpdate.put("hasUpdate", hasUpdate);
-                        appUpdate.put("forceUpdate", forceUpdate);
-                        appUpdate.put("lastVersion", lastVersion);
-                        appUpdate.put("updateMsg", updateMsg);
-                        appUpdate.put("androidUrl", downloadUrl);
-                        appUpdate.put("iosUrl", iosDownloadUrl);
-                        data.put("appUpdate", appUpdate);
+        AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.appUpdate");
+        if (acUpdate != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(acUpdate.getData());
+                String lastVersion = content.get("lastVersion") == null ? "" : content.get("lastVersion").asText();
+                Boolean hasUpdate = CommonUtils.compareVersion(appVersion, lastVersion);
+                if (hasUpdate) {
+                    Boolean forceUpdate = false;
+                    String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
+                    if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
+                        forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
                     }
-                } catch (Exception ex) {
-                    log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+                    String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
+                    String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
+                    String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();
+
+                    Map appUpdate = new HashMap();
+                    appUpdate.put("hasUpdate", hasUpdate);
+                    appUpdate.put("forceUpdate", forceUpdate);
+                    appUpdate.put("lastVersion", lastVersion);
+                    appUpdate.put("updateMsg", updateMsg);
+                    appUpdate.put("androidUrl", downloadUrl);
+                    appUpdate.put("iosUrl", iosDownloadUrl);
+                    data.put("appUpdate", appUpdate);
                 }
+            } catch (Exception ex) {
+                log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
             }
         }
 
@@ -205,5 +157,104 @@ public class SpecCommonController {
             result.setMsg("获取配置信息失败！");
         }
         return result;
+    }
+
+    private CommonDTO getAppConfig(String mainArea, String specArea, String platform) {
+        CommonDTO common = new CommonDTO();
+        common.setPublicKey(HttpWdUtils.publicKey);
+
+        List<String> keyWords = new ArrayList<>();
+        keyWords.add("app.common.consumer.hotline");//客服热线
+        keyWords.add("app.common.help.center");// 帮助中心
+        keyWords.add("app.common.userAgreement");// 用户协议
+        keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
+        keyWords.add("common.qr.code.url.ios");// ios邀请二维码
+        keyWords.add("common.qr.code.url.android");// android邀请二维码
+        keyWords.add("app.common.huidao.channel");// 汇道
+        keyWords.add("app.common.huidao.appkey");// 汇道
+        keyWords.add("app.common.huidao.sid");// 汇道
+        keyWords.add("app.common.huidao.apiid");// 汇道
+        keyWords.add("app.common.appUpdate");// APP更新
+        keyWords.add("app.common.medicineCloudUrl");// 医药云
+        keyWords.add("app.common.medicinePayUrl");// 医疗支出
+        keyWords.add("app.common.recordUrl");// 市级健康档案
+        keyWords.add("app.common.pointUrl");// 积分商城地址
+        keyWords.add("app.common.isUmengEvent");// 友盟
+        keyWords.add("app.common.isWdEvent2");// 内部统计
+        keyWords.add("app.common.citizenUrl");// 市民云url
+        keyWords.add("app.common.registerUrl");// 注册协议
+        keyWords.add("app.common.wdTrinityKey");// 公司埋点key
+        keyWords.add("app.common.wdTrinityIp");// 公司埋点ip
+        keyWords.add("app.common.voiceTip");// 语音-提示
+        keyWords.add("app.common.callCentUrl");// 在线客服是否显示
+        keyWords.add("app.common.disclaimerUrl");// 健康档案说明文案
+
+        Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
+
+        if (cfgMap != null) {
+            common.setConsumerHotline(cfgMap.get("app.common.consumer.hotline"));
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.help.center"))) {
+                common.setHelpCenter(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.help.center")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.userAgreement"))) {
+                common.setUserAgreement(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.intellectualPropertyAgreement"))) {
+                common.setIpa(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
+            }
+            if (platform.equalsIgnoreCase("0")) {
+                common.setQrCode(cfgMap.get("common.qr.code.url.ios"));
+            } else if (platform.equalsIgnoreCase("1")) {
+                common.setQrCode(cfgMap.get("common.qr.code.url.android"));
+            }
+            // 汇道
+            common.setHuiDaoChannelid(cfgMap.get("app.common.huidao.channel"));
+            common.setHuiDaoAppkey(cfgMap.get("app.common.huidao.appkey"));
+            common.setHuiDaoSid(cfgMap.get("app.common.huidao.sid"));
+            common.setHuiDaoApiid(cfgMap.get("app.common.huidao.apiid"));
+
+            common.setMedicineCloudUrl(cfgMap.get("app.common.medicineCloudUrl"));
+            common.setMedicinePayUrl(cfgMap.get("app.common.medicinePayUrl"));
+            common.setRecordUrl(cfgMap.get("app.common.recordUrl"));
+            common.setPointUrl(cfgMap.get("app.common.pointUrl"));
+            common.setIsUmengEvent(cfgMap.get("app.common.isUmengEvent"));
+            common.setIsWdEvent2(cfgMap.get("app.common.isWdEvent2"));
+            common.setCitizenUrl(cfgMap.get("app.common.citizenUrl"));
+            common.setRegisterUrl(cfgMap.get("app.common.registerUrl"));
+            common.setWdTrinityKey(cfgMap.get("app.common.wdTrinityKey"));
+            common.setWdTrinityIp(cfgMap.get("app.common.wdTrinityIp"));
+            common.setVoiceTip(cfgMap.get("app.common.voiceTip"));
+            common.setCallCentUrl(cfgMap.get("app.common.callCentUrl"));
+            common.setDisclaimerUrl(cfgMap.get("app.common.disclaimerUrl"));
+        }
+        return common;
+    }
+
+    @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    class CommonDTO {
+        private String publicKey;// 公钥
+        private String consumerHotline;// 客服热线
+        private String helpCenter;// 帮助中心
+        private String userAgreement;// 用户协议
+        private String ipa;// 知识产权协议
+        private String qrCode;// 分享二维码
+        private String huiDaoChannelid;// 汇道
+        private String huiDaoAppkey;// 汇道
+        private String huiDaoSid;// 汇道
+        private String huiDaoApiid;// 汇道
+        private String medicineCloudUrl;// 医药云
+        private String medicinePayUrl;// 医疗支出
+        private String recordUrl;// 市级健康档案
+        private String pointUrl;// 积分商城地址
+        private String isUmengEvent;// 友盟
+        private String isWdEvent2;// 内部统计
+        private String citizenUrl;// 市民云url
+        private String registerUrl;// 注册协议
+        private String wdTrinityKey;// 公司埋点key
+        private String wdTrinityIp;// 公司埋点ip
+        private String voiceTip;// 语音-提示
+        private String callCentUrl;// 在线客服是否显示
+        private String disclaimerUrl;// 健康档案说明文案
     }
 }
