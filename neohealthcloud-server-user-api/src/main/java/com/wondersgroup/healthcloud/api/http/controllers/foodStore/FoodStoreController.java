@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping(value = "/api/foodstore")
@@ -62,11 +64,24 @@ public class FoodStoreController {
      */
     @WithoutToken
     @VersionRange
-    @GetMapping(path = "/foodlist",produces = "application/json; charset=utf-8" )
+    @GetMapping(path = "/foodlist")
     public JsonListResponseEntity<FoodStoreItemListAPIEntity> foodList(
             @RequestParam(required = false, defaultValue = "") String cate_id,
             @RequestParam(required = false, defaultValue = "") String kw,
             @RequestParam(required = false, defaultValue = "1") String flag) {
+
+        JsonListResponseEntity<FoodStoreItemListAPIEntity> response = new JsonListResponseEntity<>();
+
+        //过滤表情
+        Pattern unicodeOutliers = Pattern.compile("[^\\x00-\\x7F]",
+                Pattern.UNICODE_CASE | Pattern.CANON_EQ
+                        | Pattern.CASE_INSENSITIVE);
+        Matcher unicodeOutlierMatcher = unicodeOutliers.matcher(kw);
+
+        if(unicodeOutlierMatcher.find()){
+            return response;
+        }
+
         int page = 1;
         int pageSize = 10;
         if (StringUtils.isNotEmpty(flag)){
@@ -80,7 +95,7 @@ public class FoodStoreController {
             return this.getFoodListByCateId(cateId, page, pageSize);
         }
 
-        return new JsonListResponseEntity<>();
+        return response;
     }
 
     /**
