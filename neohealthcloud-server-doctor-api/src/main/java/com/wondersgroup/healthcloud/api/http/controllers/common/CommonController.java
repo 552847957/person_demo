@@ -194,6 +194,7 @@ public class CommonController {
     }
 
     @RequestMapping(value = "/getQiniuToken", method = RequestMethod.GET)
+    @WithoutToken
     @VersionRange
     public JsonResponseEntity<Map<String, Object>> qiniuConfig() {
         JsonResponseEntity<Map<String, Object>> response = new JsonResponseEntity<Map<String, Object>>();
