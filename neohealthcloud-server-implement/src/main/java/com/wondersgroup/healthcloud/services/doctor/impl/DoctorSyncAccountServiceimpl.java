@@ -93,7 +93,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
 
         }else{
             registerId = result.get("user").get("userid").asText();
-            loginName = result.get("user").get("username").asText();
+            loginName = result.get("user").get("username")==null?"":result.get("user").get("username").asText();
         }
 
         DoctorAccount account = doctorAccountRepository.findOne(registerId);
@@ -116,6 +116,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         }
         doctorAccount.setIsAvailable("1");
         doctorAccount.setDelFlag("0");
+        doctorAccount.setMainArea("3101");//区域编码
         doctorAccount.setUpdateDate(new Date());
         doctorAccountRepository.saveAndFlush(doctorAccount);
 

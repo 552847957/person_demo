@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,10 @@ public class HomeController {
     @Autowired
     private DoctorService doctorService;
 
+    @Autowired
+    private DoctorQuestionService doctorQuestionService;
+
+
 
     @RequestMapping(value = "/doctorServices", method = RequestMethod.GET)
     @VersionRange
@@ -32,7 +37,7 @@ public class HomeController {
         if(services.size()>0){
             for(Map<String,Object> service :services){
                 if(service.containsKey("keyword") && service.get("keyword")!=null && service.get("keyword").equals("Q&A")){
-                    int unread = 2;// todo 等杜宽心的接口
+                    int unread = doctorQuestionService.queryUnreadCount(uid);// 杜宽心的接口
                     service.put("unread",unread);
                 }
             }

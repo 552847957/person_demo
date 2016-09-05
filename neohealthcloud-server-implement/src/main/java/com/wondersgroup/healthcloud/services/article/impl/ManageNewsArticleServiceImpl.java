@@ -54,8 +54,15 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
     @Override
     public int updateNewsAritile(NewsArticle article) {
+
         Date date=new Date();
         article.setUpdate_time(date);
+        return newsArticleRepo.saveAndFlush(article).getId();
+    }
+
+    @Override
+    public int updateNewsAritilePv(NewsArticle article) {
+
         return newsArticleRepo.saveAndFlush(article).getId();
     }
 

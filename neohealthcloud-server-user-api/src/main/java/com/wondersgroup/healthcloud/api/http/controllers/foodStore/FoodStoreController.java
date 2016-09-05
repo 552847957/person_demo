@@ -62,7 +62,7 @@ public class FoodStoreController {
      */
     @WithoutToken
     @VersionRange
-    @GetMapping(path = "/foodlist")
+    @GetMapping(path = "/foodlist",produces = "application/json; charset=utf-8" )
     public JsonListResponseEntity<FoodStoreItemListAPIEntity> foodList(
             @RequestParam(required = false, defaultValue = "") String cate_id,
             @RequestParam(required = false, defaultValue = "") String kw,
@@ -73,11 +73,11 @@ public class FoodStoreController {
             page = Integer.valueOf(flag);
         }
 
-        if (StringUtils.isNotEmpty(cate_id)){
+        if(StringUtils.isNotBlank(kw)){
+            return this.getFoodListByKwFromDb(kw, page, pageSize);
+        }else if(StringUtils.isNotBlank(cate_id)){
             Integer cateId = Integer.valueOf(cate_id);
             return this.getFoodListByCateId(cateId, page, pageSize);
-        }else if (StringUtils.isNotEmpty(kw)){
-            return this.getFoodListByKwFromDb(kw, page, pageSize);
         }
 
         return new JsonListResponseEntity<>();

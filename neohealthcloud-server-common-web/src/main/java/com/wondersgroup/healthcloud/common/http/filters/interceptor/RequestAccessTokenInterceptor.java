@@ -41,6 +41,9 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
 
     static {
         List<String> parseFromPackage = APIScanner.getAPIsByExistAnnotation("com.wondersgroup.healthcloud", WithoutToken.class);
+        for (String path : parseFromPackage) {
+            logger.info("without token annotated " + path);
+        }
         exclude = ImmutableSet.copyOf(parseFromPackage);
     }
 

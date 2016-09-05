@@ -23,6 +23,12 @@ public class UserInfoForm {
     public UserInfoForm() {
     }
 
+    public UserInfoForm(String registerId, Integer height, Float weight) {
+        this.registerId = registerId;
+        this.height = height;
+        this.weight = weight;
+    }
+
     public UserInfo merge(UserInfo userInfo){
         if(age !=null){
             userInfo.setAge(age);

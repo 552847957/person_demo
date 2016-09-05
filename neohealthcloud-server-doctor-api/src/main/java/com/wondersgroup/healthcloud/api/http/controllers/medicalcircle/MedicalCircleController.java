@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CommentAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.DoctorAPIEntity;
@@ -64,7 +67,8 @@ public class MedicalCircleController {
     private MedicalCircleService cedicalCircleService;
     @Autowired
     private ImageUtils imageUtils;
-    
+    @Autowired
+    private Environment environment;
 
     private JsonListResponseEntity<MedicalCircleAPIEntity> getMedicalCircleList(String screen_width,
             Integer[] circle_type, String doctor_id, String uid, String order, String flag, Boolean collect) {
@@ -1069,7 +1073,7 @@ public class MedicalCircleController {
             shareEntity.setTitle(StringUtils.defaultString(mc.getTitle(), "万达全程健康云"));
             shareEntity.setDesc(content);
             shareEntity.setThumb("http://img.wdjky.com/app/ic_launcher");
-            shareEntity.setUrl("http://10.1.64.194/neohealthcloud-doctor/api/medicalcircle/detail?circle_id=" + mc.getId() + "&doctor_id=" + mc.getDoctorid());
+            shareEntity.setUrl(environment.getProperty("h5-web.connection.url") + "/doctorDetails/circle?circle_id=" + mc.getId() + "&doctor_id=" + mc.getDoctorid());
             entity.setShare(shareEntity);
         }
         return entity;

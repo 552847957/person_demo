@@ -213,7 +213,7 @@ public class HealthActivityController {
 
 			JsonResponseEntity<String> response = new JsonResponseEntity<String>();
 			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-			if (detail == null) {
+			if (detail == null || detail.getActivityid() == null){
 				HealthActivityInfo info = healthActivityRepository.findOne(activityid);
 				
 				Integer totalApply = healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid);// 已报名人数
@@ -234,27 +234,15 @@ public class HealthActivityController {
 
 				}else {
 					HealthActivityDetail detailInfo = new HealthActivityDetail();
-					detailInfo.setSigntime(DateFormatter.dateTimeFormat(new Date()));
-					detailInfo.setRegisterid(registerId);
-					detailInfo.setActivityid(activityid);
-					detailInfo.setId(IdGen.uuid());
-					detailInfo.setDelFlag("0");
-					healthActivityDetailRepository.save(detailInfo);
-					response.setCode(0);//1：报名成功
-					response.setMsg("报名成功");
-					
-					if(healthActivityDetailRepository.findActivityDetailByAidAndRidNum(activityid, registerId) > 1){
-						healthActivityDetailRepository.delete(detailInfo);
-						response.setCode(1610);
-						response.setMsg("不能重复报名");
-						return response;
-					}
-					if(healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid) > quota){
-						healthActivityDetailRepository.delete(detailInfo);
-						response.setCode(1609);
-						response.setMsg("名额已满");
-						return response;
-					}
+                    detailInfo.setSigntime(DateFormatter.dateTimeFormat(new Date()));
+                    detailInfo.setRegisterid(registerId);
+                    detailInfo.setActivityid(activityid);
+                    detailInfo.setId(IdGen.uuid());
+                    detailInfo.setDelFlag("0");
+                    healthActivityDetailRepository.save(detailInfo);
+                    response.setCode(0);//1：报名成功
+                    response.setMsg("报名成功");
+                    
 				}
 			} else {
 				response.setCode(1610);
@@ -283,7 +271,11 @@ public class HealthActivityController {
 					.findActivityDetailByAidAndRid(activityid, registerId);
 			HealthActivityInfo info = healthActivityRepository.findOne(activityid);
 			
-			if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {
+			if(detail == null){
+			    response.setCode(1615);
+                response.setMsg("请先报名");
+                return response;
+			}else if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {
 				response.setCode(1616);
 				response.setMsg("活动已结束不能取消报名");
 				return response;

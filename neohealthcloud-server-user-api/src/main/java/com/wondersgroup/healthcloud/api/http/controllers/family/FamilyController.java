@@ -384,9 +384,16 @@ public class FamilyController {
         String memberId = reader.readString("member_id", false);
         String memo = reader.readDefaultString("memo", "");
 
-        familyService.updateMemoName(uid, memberId, memo);
         JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
         Map<String, String> data = ImmutableMap.of("memo", memo);
+        FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
+        if(familyMember == null || familyMember.getId() == null){
+            body.setCode(1695);
+            body.setData(data);
+            body.setMsg("用户已解绑，修改失败");
+            return body;
+        }
+        familyService.updateMemoName(uid, memberId, memo);
         body.setData(data);
         body.setMsg("修改成功");
         return body;

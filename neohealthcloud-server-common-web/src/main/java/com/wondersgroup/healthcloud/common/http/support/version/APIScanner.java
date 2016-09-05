@@ -45,6 +45,13 @@ public class APIScanner {
                             String urlInfo = httpMethod + rootUrl + removeEndSlash(mappingInfo.value()[i]);
                             result.add(urlInfo);
                         }
+
+                        for (int i = 0; i < mappingInfo.path().length; i++) {
+                            String httpMethod = mappingInfo.method().length == 1 ? mappingInfo.method()[0].toString() : "GET";
+                            String urlInfo = httpMethod + rootUrl + removeEndSlash(mappingInfo.path()[i]);
+                            result.add(urlInfo);
+                        }
+
                         continue;
                     }
 

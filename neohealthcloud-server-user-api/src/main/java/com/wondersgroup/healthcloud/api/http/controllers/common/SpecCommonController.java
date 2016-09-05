@@ -44,6 +44,8 @@ public class SpecCommonController {
     private AppUrlH5Utils appUrlH5Utils;
 
     @GetMapping(value = "/appConfig")
+    @VersionRange
+    @WithoutToken
     public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value="platform", required = false) String platform,
                                                              @RequestHeader(name = "main-area", required = true) String mainArea,
                                                              @RequestHeader(name = "spec-area", required = false) String specArea,

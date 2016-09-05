@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.verifivation;
 
+import com.google.common.collect.ImmutableMap;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
@@ -50,16 +51,17 @@ public class SigningVerificationController {
             throw new CommonException(1000, "token不正确");
         }
         JsonKeyReader reader = new JsonKeyReader(request);
-        String hospitalId = reader.readString("hospital", false);
-        String jobNumber = reader.readString("job_number", false);
-        String doctorName = reader.readString("doctor_name", false);
-        String doctorIdcard = reader.readString("doctor_idcard", false);
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        builder.put("hospial", reader.readString("hospital", false));
+        builder.put("job_number", reader.readString("job_number", false));
+        builder.put("doctor_name", reader.readString("doctor_name", false));
+        builder.put("doctor_idcard", reader.readString("doctor_idcard", false));
         String mobile = reader.readString("mobile", false);
         String name = reader.readString("patient_name", false);
         String idCard = reader.readString("patient_idcard", false);
         Boolean isDefault = reader.readDefaultBoolean("default", true);
 
-//        signingVerficationService.doctorInvitationSend(doctorId, name, idCard, mobile, isDefault);
+        signingVerficationService.externalDoctorInvitationSend(builder.build(), name, idCard, mobile, isDefault);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("邀请发送成功");
         return body;
