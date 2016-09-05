@@ -234,6 +234,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                     imageTexts.get(i).setCreateTime(now);
                     imageTexts.get(i).setUpdate_time(now);
                     imageTexts.get(i).setDelFlag(0);
+                    imageTexts.get(i).setSource(gImageText.getSource());
                 }
             } else {
                 gImageText.setUpdateTime(now);

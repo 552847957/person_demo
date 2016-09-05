@@ -80,8 +80,9 @@ public class ImageTextController {
 
     @Admin
     @PostMapping("/saveGImageText")
-    public JsonResponseEntity saveGImageText(@RequestBody GImageText gImageText) {
+    public JsonResponseEntity saveGImageText(@RequestHeader(required = true) String source, @RequestBody GImageText gImageText) {
         JsonResponseEntity result = new JsonResponseEntity();
+        gImageText.setSource(source);
         if (imageTextService.saveGImageText(gImageText)) {
             result.setMsg("数据保存成功");
         } else {

@@ -34,6 +34,7 @@ public class GImageText {
     private Integer gadcode;
     @Column(name = "del_flag")
     private String delFlag;
+    private String source;
     @Transient
     private List<ImageText> images;
 }
