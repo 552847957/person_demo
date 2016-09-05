@@ -18,6 +18,8 @@ public class DoctorInvitation extends BaseEntity {
 
     @Column(name = "docid")
     private String doctorId;
+    @Column(name = "docinfo")
+    private String doctorInfo;
     private String personcard;
     private String mobile;
     private String name;

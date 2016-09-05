@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.doctor;
 
+import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInvitation;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -95,6 +97,41 @@ public class SigningVerficationService {
         doctorInvitationRepository.saveAndFlush(invitation);
         String content = isDefault ? "%s医生给了您一个健康云认证码：%s，用健康云认证码就能实名认证万达全程健康（下载应用http://www.wdjky.com/healthcloud2/），一般人我不告诉他。客服热线4009216519。" : "尊敬的先生/女士，您已完成上海市社区综改1+1+1签约服务。签约医生为%s,健康云认证码%s,请您尽快登录[上海健康云App]（下载地址：http://t.cn/RLp6ow8）完成身份认证,即可享受对应家庭医生提供的医疗服务。";
         sms.send(mobile, String.format(content, doctorInfo.getName(), code));
+
+        return true;
+    }
+
+    public Boolean externalDoctorInvitationSend(Map<String, String> doctorInfo, String name, String idCard, String mobile, Boolean isDefault) {
+        idCard = StringUtils.upperCase(idCard);
+        if (!IdcardUtils.validateCard(idCard)) {
+            throw new ErrorIdcardException();
+        }
+        List<RegisterInfo> register = userService.findRegisterInfoByIdcard(idCard);
+        if (!register.isEmpty()) {
+            throw new IdcardExistException();
+        }
+
+        Random random = new Random();
+        int value = random.nextInt(1000000) + 1000000;
+        String code = String.valueOf(value).substring(1);
+
+        List<DoctorInvitation> list = doctorInvitationRepository.findExternalExist(mobile, name, idCard, new Date(System.currentTimeMillis() - monthAgo));
+        if (!list.isEmpty()) {
+            doctorInvitationRepository.delete(list);
+        }
+        DoctorInvitation invitation = new DoctorInvitation();
+        invitation.setId(IdGen.uuid());
+        invitation.setCode(code);
+        invitation.setDoctorInfo(JsonConverter.toJson(doctorInfo));
+        invitation.setMobile(mobile);
+        invitation.setPersoncard(idCard);
+        invitation.setName(name);
+        invitation.setSendDate(new Date());
+        invitation.setCreateDate(invitation.getSendDate());
+        invitation.setUpdateDate(invitation.getCreateDate());
+        doctorInvitationRepository.saveAndFlush(invitation);
+        String content = "尊敬的先生/女士，您已完成上海市社区综改1+1+1签约服务。签约医生为%s,健康云认证码%s,请您尽快登录[上海健康云App]（下载地址：http://t.cn/RLp6ow8）完成身份认证,即可享受对应家庭医生提供的医疗服务。";
+        sms.send(mobile, String.format(content, doctorInfo.get("doctor_name"), code));
 
         return true;
     }
