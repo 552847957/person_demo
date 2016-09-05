@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
 import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
@@ -39,6 +41,9 @@ public class PushController {
 
     @Autowired
     private UserPrivateMessageService userPrivateMessageService;
+
+    @Autowired
+    private PushClientWrapper pushClientWrapper;
 
     @PostMapping(path = "/push/single", produces = "application/json")
     public String pushToAlias(@RequestBody AppMessage pushMessage,
@@ -97,6 +102,16 @@ public class PushController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String planId = reader.readString("planId", false);
 
+        return "{\"code\":0}";
+    }
+    @PostMapping(path = "/closeQuestion/psuh", produces = "application/json")
+    public String closeQuestionPush(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String userId = reader.readString("userId", false);
+        String questionId = reader.readString("questionId", false);
+        AppMessage message=AppMessage.Builder.init().title("我的咨询").content("您有一条提问已关闭")
+                .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
+        Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
         return "{\"code\":0}";
     }
 }

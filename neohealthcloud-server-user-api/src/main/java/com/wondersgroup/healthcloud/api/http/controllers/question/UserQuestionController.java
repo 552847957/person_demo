@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.question;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Response;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.builder.RequestBuilder;
@@ -20,10 +22,13 @@ import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.BackCall;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,14 +81,13 @@ public class UserQuestionController {
 		url+=id;
 
 		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
-			String scam=String.format("com.wondersgroup.hs.neohealthcloud://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, id);
-			AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的问诊提问，点击查看").isDoctor().param("page",scam)
+			AppMessage message=AppMessage.Builder.init().title("我的问答").content("您有一条新的问诊提问，点击查看").isDoctor()
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
 		}
 		
 		Request request= new RequestBuilder().get().url(url).build();
-		httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+		httpRequestExecutorManager.newCall(request).callback(new BackCall()).run().as(JsonNodeResponseWrapper.class);
 		response.setMsg("您的问题已提交，请耐心等待医生回复");
 		return response;
 	}
@@ -139,7 +143,7 @@ public class UserQuestionController {
 
 		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
 			String scam=String.format("com.wondersgroup.hs.neohealthcloud://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, group.getQuestion_id());
-			AppMessage message=AppMessage.Builder.init().title("问诊").content("您有一条新的回复，点击查看").isDoctor().param("page",scam)
+			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId)
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
 		}
