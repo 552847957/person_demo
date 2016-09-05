@@ -54,7 +54,8 @@ public class SpecCommonController {
                                                              @RequestHeader(value = "app-version", required = false) String appVersion) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
-        data.put("common", getAppConfig(mainArea, specArea, platform));
+        // 全局接口不需指定区级区域ID
+        data.put("common", getAppConfig(mainArea, null, platform));
 
         AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.appUpdate");
         if (acUpdate != null) {

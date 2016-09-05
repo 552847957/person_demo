@@ -84,6 +84,16 @@ public class SpecHomeController {
                 banners.add(bit);
             }
             data.put("banners", banners);
+        } else {// 当指定区域未获取到banner时，从主区域获取
+            imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextA);
+            if (imageTextsA != null && imageTextsA.size() > 0) {
+                List banners = new ArrayList();
+                for (ImageText imageText : imageTextsA) {
+                    BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+                    banners.add(bit);
+                }
+                data.put("banners", banners);
+            }
         }
 
         // 首页功能栏

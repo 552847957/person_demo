@@ -21,6 +21,7 @@ public class ConfigController {
 
     /**
      * 根据关键字查询单个APP配置信息
+     *
      * @param keyWord
      * @return
      */
@@ -29,9 +30,10 @@ public class ConfigController {
     public JsonResponseEntity<AppConfig> findSingleAppConfigByKeyWord(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                                       @RequestHeader(name = "spec-area", required = false) String specArea,
                                                                       @RequestParam(required = true) String keyWord,
-                                                                      @RequestParam(required =  false, defaultValue = "1") String source) {
+                                                                      @RequestParam(required = false, defaultValue = "1") String source) {
         JsonResponseEntity<AppConfig> result = new JsonResponseEntity<>();
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, keyWord, source);
+        // 全局接口不需指定区级区域ID
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, keyWord, source);
         if (appConfig != null) {
             result.setData(appConfig);
         } else {
@@ -49,7 +51,7 @@ public class ConfigController {
     @RequestMapping(value = "/findAllDiscreteAppConfig", method = RequestMethod.GET)
     public JsonResponseEntity<List<AppConfig>> findAllDiscreteAppConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                                         @RequestHeader(name = "spec-area", required = false) String specArea,
-                                                                        @RequestParam(required =  false, defaultValue = "1") String source) {
+                                                                        @RequestParam(required = false, defaultValue = "1") String source) {
         JsonResponseEntity<List<AppConfig>> result = new JsonResponseEntity<>();
         List<AppConfig> appConfigs = appConfigService.findAllDiscreteAppConfig(mainArea, specArea, source);
         if (appConfigs != null && appConfigs.size() > 0) {
@@ -61,15 +63,17 @@ public class ConfigController {
         return result;
     }
 
-    /**.
+    /**
      * 保存配置信息
+     *
      * @param appConfig
      * @return
      */
     @Admin
     @RequestMapping(value = "/saveAppConfig", method = RequestMethod.POST)
-    public JsonResponseEntity saveAppConfig(@RequestBody AppConfig appConfig) {
+    public JsonResponseEntity saveAppConfig(@RequestHeader(required = true) String source, @RequestBody AppConfig appConfig) {
         JsonResponseEntity result = new JsonResponseEntity();
+        appConfig.setSource(source);
         AppConfig rtnAppConfig = appConfigService.saveAndUpdateAppConfig(appConfig);
         if (rtnAppConfig != null) {
             result.setMsg("配置信息保存成功！");
