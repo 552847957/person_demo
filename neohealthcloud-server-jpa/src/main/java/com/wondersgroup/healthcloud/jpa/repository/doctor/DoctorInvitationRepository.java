@@ -28,4 +28,7 @@ public interface DoctorInvitationRepository extends JpaRepository<DoctorInvitati
 
     @Query("select di from DoctorInvitation di where di.doctorId=?1 and di.mobile=?2 and di.name=?3 and di.personcard=?4 and di.successDate is null and di.sendDate>?5")
     List<DoctorInvitation> findExist(String doctorId, String mobile, String name, String idCard, Date monthAge);
+
+    @Query("select di from DoctorInvitation di where di.doctorId is null and di.mobile=?1 and di.name=?2 and di.personcard=?3 and di.successDate is null and di.sendDate>?4")
+    List<DoctorInvitation> findExternalExist(String mobile, String name, String idCard, Date monthAge);
 }
