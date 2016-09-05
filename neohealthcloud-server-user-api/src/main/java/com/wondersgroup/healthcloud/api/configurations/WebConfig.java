@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -121,18 +120,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setOrder(1);
         registration.setFilter(new RequestWrapperFilter());
-        registration.setDispatcherTypes(DispatcherType.REQUEST);
-        return registration;
-    }
-
-    @Bean
-    public FilterRegistrationBean characterEncodingFilter() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
-        characterEncodingFilter.setEncoding("UTF-8");
-        characterEncodingFilter.setForceEncoding(true);
-        registration.setOrder(0);
-        registration.setFilter(characterEncodingFilter);
         registration.setDispatcherTypes(DispatcherType.REQUEST);
         return registration;
     }
