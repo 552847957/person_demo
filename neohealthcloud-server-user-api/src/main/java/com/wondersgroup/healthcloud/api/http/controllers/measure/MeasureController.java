@@ -7,6 +7,8 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
+import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ import java.util.*;
 public class MeasureController {
 
     private static final Logger log = LoggerFactory.getLogger(MeasureController.class);
+
+    @Autowired
+    private UserService userService;
 
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -102,6 +107,15 @@ public class MeasureController {
             ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
+                    if (type == 0) {
+                        String registerId = (String) paras.get("registerId");
+                        String heightInitValue = (String) paras.get("height");
+                        String weightInitValue = (String) paras.get("weight");
+                        Integer height = Integer.parseInt(heightInitValue.contains(".") ? heightInitValue.substring(0, heightInitValue.indexOf(".")) : heightInitValue);
+                        Float weight = Float.parseFloat((weightInitValue.contains(".") ? weightInitValue.substring(0, weightInitValue.indexOf(".")) : weightInitValue));
+                        UserInfoForm userInfoForm = new UserInfoForm(registerId, height, weight);
+                        userService.updateUserHeightAndWeight(userInfoForm);
+                    }
                     return new JsonResponseEntity<>(0, "数据上传成功", response.getBody().get("data"));
                 }
             }
@@ -268,7 +282,6 @@ public class MeasureController {
         }
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
-
 
 
 }
