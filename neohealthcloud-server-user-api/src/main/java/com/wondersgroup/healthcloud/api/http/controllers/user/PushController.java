@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaBindService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by zhangzhixiu on 8/8/16.
  */
 @RestController
+@RequestMapping
 public class PushController {
 
     @Autowired
@@ -40,7 +42,8 @@ public class PushController {
         return String.format(pushResponseTemplate, uid);
     }
 
-    @DeleteMapping(path = "/api/utils/push", produces = "application/json")
+    @RequestMapping(path = "/api/utils/push", method = RequestMethod.DELETE, produces = "application/json")
+    @WithoutToken
     @VersionRange
     public String unbindPush(@RequestHeader("main-area") String mainArea,
                              @RequestParam String uid) {
