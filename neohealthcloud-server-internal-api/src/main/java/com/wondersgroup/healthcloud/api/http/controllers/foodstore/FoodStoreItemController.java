@@ -90,6 +90,7 @@ public class FoodStoreItemController {
         SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
         JsonResponseEntity response;
         if (foodStoreItem != null) {
+            foodStoreItem.setGi_level(FoodStoreItem.getGiLevel(foodStoreItem.getGi()));
             response = new JsonResponseEntity(0, "查询成功", foodStoreItem);
         } else {
             response = new JsonResponseEntity(-1, "查询失败");

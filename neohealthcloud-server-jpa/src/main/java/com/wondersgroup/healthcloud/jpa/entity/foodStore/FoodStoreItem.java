@@ -64,6 +64,9 @@ public class FoodStoreItem {
         foodlevelConf.put("谨慎吃", "3");
     }
 
+    @Transient
+    private String gi_level;
+
     /**
      * 获取转换后的使用建议
      * @param use_suggest
