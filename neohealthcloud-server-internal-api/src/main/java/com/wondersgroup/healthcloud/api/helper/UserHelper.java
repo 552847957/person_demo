@@ -27,10 +27,6 @@ public class UserHelper {
      */
     public User getCurrentUser(){
         String username = (String) SecurityUtils.getSubject().getPrincipal();
-        // todo
-        if(true){//
-            return userRepo.findOne("d8222c3f5f9e11e6bb08000c2918b89b");
-        }
         if(StringUtils.isEmpty(username)){
             return null;
         }

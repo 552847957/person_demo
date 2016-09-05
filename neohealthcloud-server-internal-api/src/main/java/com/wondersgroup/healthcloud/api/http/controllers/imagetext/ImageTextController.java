@@ -153,10 +153,11 @@ public class ImageTextController {
 
     @Admin
     @RequestMapping(value = "/saveImageText", method = RequestMethod.POST)
-    public JsonResponseEntity saveImageText(@RequestBody ImageText imageText) {
+    public JsonResponseEntity saveImageText(@RequestHeader(required = true) String source, @RequestBody ImageText imageText) {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageTextEnum imageTextEnum = ImageTextEnum.fromValue(imageText.getAdcode());
         if (imageTextEnum != null) {
+            imageText.setSource(source);
             ImageText advertisement = imageTextService.saveImageText(imageText);
             if (advertisement != null) {
                 result.setMsg("广告信息保存成功！");
