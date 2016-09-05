@@ -2,10 +2,8 @@ package com.wondersgroup.healthcloud.api.http.controllers.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wondersgroup.healthcloud.api.http.controllers.common.CommonController;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
-import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
@@ -117,11 +115,16 @@ public class SpecServicesController {
                 }
             }
         } catch (Exception e) {
-            log.info("请求测量数据异常", e);
-            return new JsonResponseEntity<>(1000, "内部错误");
+            log.error("请求测量数据异常", e);
         }
         // 近期异常指标 end
-        result.setData(data);
+        if (data.size() > 0) {
+            result.setData(data);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置信息！");
+        }
+
         return result;
     }
 

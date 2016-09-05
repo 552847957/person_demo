@@ -167,9 +167,10 @@ public class ImageTextServiceImpl implements ImageTextService {
     }
 
     @Override
-    public List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode) {
+    public List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode, String source) {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT version FROM app_tb_neo_g_image_text WHERE  main_area = '").append(mainArea).append("'")
+                .append(" AND source = '").append(source).append("'")
                 .append(" AND gadcode = ").append(gadcode);
         if (StringUtils.isNotEmpty(specArea)) {
             sql.append(" AND spec_area = '").append(specArea).append("'");
@@ -276,6 +277,10 @@ public class ImageTextServiceImpl implements ImageTextService {
             tmpObj = parameter.get("version");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
                 bf.append(" and version = '" + tmpObj + "'");
+            }
+            tmpObj = parameter.get("source");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and source = '" + tmpObj + "'");
             }
         }
         return bf.toString();

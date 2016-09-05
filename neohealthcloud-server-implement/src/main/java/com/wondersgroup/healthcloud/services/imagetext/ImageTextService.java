@@ -24,7 +24,7 @@ public interface ImageTextService {
     List<ImageText> findImageTextByAdcode(Integer pageNum, Integer pageSize, Map params);
 
     // 根据区域,广告位获取版本列表
-    List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode);
+    List<String> findGImageTextVersions(String mainArea, String specArea, Integer gadcode, String source);
 
     public int countGImageTextList(Map params);
     // 根据区域,广告位获取广告组列表

@@ -30,11 +30,12 @@ public class ImageTextController {
 
     @Admin
     @GetMapping("/findGImageTextVersions")
-    public JsonResponseEntity<List<String>> findGImageTextVersions(@RequestHeader(name = "main-area", required = true) String mainArea,
+    public JsonResponseEntity<List<String>> findGImageTextVersions(@RequestHeader(required = true) String source,
+                                                                   @RequestHeader(name = "main-area", required = true) String mainArea,
                                                                    @RequestHeader(name = "spec-area", required = false) String specArea,
                                                                    @RequestParam(required = true) Integer gadcode) {
         JsonResponseEntity<List<String>> result = new JsonResponseEntity<>();
-        List<String> versions = imageTextService.findGImageTextVersions(mainArea, specArea, gadcode);
+        List<String> versions = imageTextService.findGImageTextVersions(mainArea, specArea, gadcode, source);
         if (versions != null && versions.size() > 0) {
             result.setData(versions);
         } else {
@@ -46,7 +47,8 @@ public class ImageTextController {
 
     @Admin
     @PostMapping("/findGImageTextList")
-    public Pager findGImageTextList(@RequestHeader(name = "main-area", required = true) String main_area,
+    public Pager findGImageTextList(@RequestHeader(required = true) String source,
+                                    @RequestHeader(name = "main-area", required = true) String main_area,
                                     @RequestHeader(name = "spec-area", required = false) String spec_area,
                                     @RequestBody Pager pager) {
         int pageNum = 1;
@@ -55,6 +57,7 @@ public class ImageTextController {
         }
         pager.getParameter().put("main_area", main_area);
         pager.getParameter().put("spec_area", spec_area);
+        pager.getParameter().put("source", source);
         List<GImageText> gImageTexts = imageTextService.findGImageTextList(pageNum, pager.getSize(), pager.getParameter());
         if (gImageTexts != null && gImageTexts.size() > 0) {
             int totalSize = imageTextService.countGImageTextList(pager.getParameter());
