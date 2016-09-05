@@ -62,7 +62,7 @@ public class FoodStoreController {
      */
     @WithoutToken
     @VersionRange
-    @GetMapping(path = "/foodlist")
+    @GetMapping(path = "/foodlist",produces = "application/json; charset=utf-8" )
     public JsonListResponseEntity<FoodStoreItemListAPIEntity> foodList(
             @RequestParam(required = false, defaultValue = "") String cate_id,
             @RequestParam(required = false, defaultValue = "") String kw,
