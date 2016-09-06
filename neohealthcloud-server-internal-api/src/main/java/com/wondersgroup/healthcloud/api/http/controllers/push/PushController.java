@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.push;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
@@ -47,10 +46,9 @@ public class PushController {
 
     @PostMapping(path = "/push/single", produces = "application/json")
     public String pushToAlias(@RequestBody AppMessage pushMessage,
-                              @RequestParam String alias,
-                              @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
+                              @RequestParam String alias) {
         PushClient client;
-        if (isDoctor) {
+        if (pushMessage.isDoctor) {
             client = pushAreaService.getByDoctor(alias);
             if (client != null) {
                 pushMessage.area = client.identityName().substring(0, client.identityName().length() - 1);
@@ -72,9 +70,8 @@ public class PushController {
 
     @PostMapping(path = "/push/all", produces = "application/json")
     public String pushToAll(@RequestBody AppMessage pushMessage,
-                            @RequestParam String area,
-                            @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
-        PushClient client = pushAreaService.getByArea(area, isDoctor);
+                            @RequestParam String area) {
+        PushClient client = pushAreaService.getByArea(area, pushMessage.isDoctor);
         if (client == null) {
             return error;
         }
@@ -86,9 +83,8 @@ public class PushController {
     @PostMapping(path = "/push/tag", produces = "application/json")
     public String pushToTag(@RequestBody AppMessage pushMessage,
                             @RequestParam String area,
-                            @RequestParam String tags,
-                            @RequestParam(name = "is_doctor", defaultValue = "false") Boolean isDoctor) {
-        PushClient client = pushAreaService.getByArea(area, isDoctor);
+                            @RequestParam String tags) {
+        PushClient client = pushAreaService.getByArea(area, pushMessage.isDoctor);
         if (client == null) {
             return error;
         }
@@ -104,12 +100,13 @@ public class PushController {
 
         return "{\"code\":0}";
     }
+
     @PostMapping(path = "/closeQuestion/psuh", produces = "application/json")
     public String closeQuestionPush(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String userId = reader.readString("userId", false);
         String questionId = reader.readString("questionId", false);
-        AppMessage message=AppMessage.Builder.init().title("我的咨询").content("您有一条提问已关闭")
+        AppMessage message = AppMessage.Builder.init().title("我的咨询").content("您有一条提问已关闭")
                 .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
         Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
         return "{\"code\":0}";

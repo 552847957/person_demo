@@ -1,11 +1,11 @@
 package com.wondersgroup.healthcloud.api.http.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 import java.util.Date;
 
@@ -26,14 +26,15 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageDTO {
 
+    private static final Long millisecondOfDay = 24 * 60 * 60 * 1000L;
+
     public String id;
     public String title;
     public String content;
     public String url;
     public String icon;
     public String type;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    public Date time;
+    public String time;
     @JsonProperty("is_read")
     public Boolean isRead;
     @JsonIgnore
@@ -49,8 +50,22 @@ public class MessageDTO {
         this.content = message.getContent();
         this.type = message.getType();
         this.url = "-1".equals(type) ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
-        this.time = message.getCreateTime();
+        this.time = parseDate(message.getCreateTime());
         this.isRead = message.getIsRead();
         this.nativeMessage = message;
+    }
+
+    private static String parseDate(Date date) {
+        long day = date.getTime() / millisecondOfDay;
+        long now = System.currentTimeMillis() / millisecondOfDay;
+        if (now - day == 0L) {
+            return DateFormatter.format(date, "HH:mm");
+        } else if (now - day == 1L) {
+            return DateFormatter.format(date, "昨天 HH:mm");
+        } else if (now - day == 2L) {
+            return DateFormatter.format(date, "前天 HH:mm");
+        } else {
+            return DateFormatter.format(date, "yyyy-MM-dd");
+        }
     }
 }

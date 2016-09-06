@@ -34,7 +34,7 @@ public class DateFormatter {
 
     private static final String questionDatePattern = "yyyy-MM-dd HH:mm";
 
-    private static String format(Date date, String pattern) {
+    public static String format(Date date, String pattern) {
         if (date == null) {
             return null;
         }
@@ -42,7 +42,7 @@ public class DateFormatter {
         return df.format(date);
     }
 
-    private static Date parse(String dateStr, String pattern) {
+    public static Date parse(String dateStr, String pattern) {
         if (dateStr == null) {
             return null;
         }
