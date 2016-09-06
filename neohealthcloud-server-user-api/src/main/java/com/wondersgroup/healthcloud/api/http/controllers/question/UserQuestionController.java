@@ -18,6 +18,7 @@ import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
+import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
 import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
@@ -45,7 +46,6 @@ public class UserQuestionController {
 	private UserService userService;
 	@Autowired
 	private PushClientWrapper pushClientWrapper;
-
 	@Autowired
 	private HttpRequestExecutorManager httpRequestExecutorManager;
 	/**
@@ -63,7 +63,7 @@ public class UserQuestionController {
 
 		String doctorId="";//定时任务
 
-		if(question.getAnswerId()!=null){
+		if(!StringUtils.isEmpty(question.getAnswerId())){
 			doctorId=question.getAnswerId();
 			url=env.getProperty("JOB_CONNECTION_URL")+"/api/jobclient/question/closeOneToOneQuestion?questionId=";
 		}else{
@@ -84,6 +84,7 @@ public class UserQuestionController {
 			AppMessage message=AppMessage.Builder.init().title("我的问答").content("您有一条新的问诊提问，点击查看").isDoctor()
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+			boolean success=aBoolean;
 		}
 		
 		Request request= new RequestBuilder().get().url(url).build();

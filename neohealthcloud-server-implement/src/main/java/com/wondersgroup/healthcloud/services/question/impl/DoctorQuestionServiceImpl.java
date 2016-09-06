@@ -96,7 +96,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
                 "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.create_time,'%Y-%m-%d %H:%i') as date2 " +
                 "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
                 "WHERE answer_id=? " +
-                "ORDER BY status,date2 limit ?,?";
+                "ORDER BY status,date2 DESC limit ?,?";
         elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
         elementType.add(pageSize+1);
@@ -254,12 +254,13 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public int queryUnreadCount(String doctorId) {
-        String sql="SELECT * FROM app_tb_neoquestion WHERE assign_answer_id='"+doctorId+"' AND status<>3 AND is_new_question=1";
+       /* String sql="SELECT * FROM app_tb_neoquestion WHERE assign_answer_id='"+doctorId+"' AND status<>3 AND is_new_question=1";
 
         String sql2="SELECT * FROM app_tb_neoquestion t1 INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
-                     "WHERE t2.answer_id='"+doctorId+"' AND  t1.status<>3 AND t2.has_new_user_comment=1";
-        int unreadQuestion = getJt().queryForObject(sql, Integer.class);
-        int unreadAsk = getJt().queryForObject(sql2, Integer.class);
+                     "WHERE t2.answer_id='"+doctorId+"' AND  t1.status<>3 AND t2.has_new_user_comment=1";*/
+
+        int unreadQuestion = repository.unreadQuestionuCount(doctorId);
+        int unreadAsk = repository.unreadAskCount(doctorId);
         return unreadQuestion+unreadAsk;
     }
 

@@ -13,7 +13,8 @@ public interface NewsArticleRepo extends JpaRepository<NewsArticle,Integer> {
     @Query(nativeQuery = true,value = "SELECT  t1.* FROM app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_area t2 " +
             "ON t1.id=t2.article_id WHERE t2.is_visable=1 and t2.category_id=?1 ORDER BY t1.update_time desc limit ?2,?3")
     List<NewsArticle> queryNewsArticleByCatId(String categoryId,int pageNo,int pageSize);
-    @Query(nativeQuery = true,value = "select t1.* from app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_area t2 ON t1.id=t2.article_id " +
+    @Query(nativeQuery = true,value = "select DISTINCT(t1.id),t1.author,t1.source,t1.thumb,t1.title,t1.brief,t1.content,t1.update_by,t1.fake_pv,t1.pv,t1.type,t1.by_area,t1.update_time " +
+            ",t1.online_time,t1.keyword from app_tb_neoarticle t1 LEFT JOIN app_tb_neoarticle_area t2 ON t1.id=t2.article_id " +
             "where t2.main_area=?1 AND t2.is_visable=1 AND  keyword like %?2% order by update_time desc limit ?3,?4")
     List<NewsArticle> findAppShowListByKeyword(String area,String word,int pageNo,int pageSize);
 
