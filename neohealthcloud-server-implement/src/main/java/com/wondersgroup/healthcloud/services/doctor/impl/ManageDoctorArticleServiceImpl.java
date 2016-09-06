@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.doctor.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
+import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleCategoryRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import com.wondersgroup.healthcloud.services.doctor.ManageDoctorArticleService;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
@@ -27,6 +28,7 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
 
     @Autowired
     private JdbcTemplate jt;
+
 
 
 
@@ -62,6 +64,25 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
                 getWhereSqlByParameter(parameter);
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
+    }
+
+    @Override
+    public String findCategoryNamesByIds(String categoryIds) {
+        if(StringUtils.isBlank(categoryIds)){
+            return "";
+        }
+        String[] ids = categoryIds.split(",");
+
+        StringBuffer sb = new StringBuffer();
+        for(String str : ids){
+            sb.append(",'"+str+"'");
+        }
+        String param = sb.toString();
+        String sql = " select GROUP_CONCAT(b.c_name) as categoryNames from " +
+                " (select a.c_name from app_tb_doctor_article_category a where a.id in (%s)) b";
+        sql = String.format(sql,param.substring(1));
+
+        return jt.queryForMap(sql).get("categoryNames").toString();
     }
 
 

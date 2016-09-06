@@ -16,4 +16,6 @@ public interface ManageDoctorArticleService {
     List<Map<String,Object>> findDoctorArticleListByPager(int pageNum, int size, Map<String, Object> parameter);
 
     int countDoctorArticleByParameter(Map<String, Object> parameter);
+
+    String findCategoryNamesByIds(String categoryIds);
 }

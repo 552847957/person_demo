@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import com.wondersgroup.healthcloud.services.doctor.ManageDoctorArticleService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ public class DoctorArticleController {
     @Autowired
     private ManageDoctorArticleService manageDoctorArticleService;
 
+
     /**
      * 查询学院文章列表
      * @param pager
@@ -46,6 +48,16 @@ public class DoctorArticleController {
             pageNum = pager.getNumber();
 
         List<Map<String,Object>> mapList = manageDoctorArticleService.findDoctorArticleListByPager(pageNum, pager.getSize(), pager.getParameter());
+
+        if(mapList.size()>0){
+            for (Map<String,Object> map : mapList){
+                String categoryIds = map.get("category_ids")==null?"":map.get("category_ids").toString();
+                if(StringUtils.isNotBlank(categoryIds)){
+                    String categoryNames = manageDoctorArticleService.findCategoryNamesByIds(categoryIds);
+                    map.put("categoryNames",categoryNames);
+                }
+            }
+        }
 
         int totalSize = manageDoctorArticleService.countDoctorArticleByParameter(pager.getParameter());
         pager.setTotalElements(totalSize);
