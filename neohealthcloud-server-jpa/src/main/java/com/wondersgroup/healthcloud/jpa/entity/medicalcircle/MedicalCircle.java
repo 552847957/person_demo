@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.medicalcircle;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import java.util.Date;
 @Entity
 @Data
 @Table(name = "app_tb_medicalcircle")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MedicalCircle implements  Serializable {
     private static final long serialVersionUID = 8057604029718771988L;
     private String  doctorid;  //医生id

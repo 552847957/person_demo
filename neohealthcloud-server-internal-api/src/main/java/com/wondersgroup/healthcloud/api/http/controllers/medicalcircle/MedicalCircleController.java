@@ -6,6 +6,8 @@ import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
 import com.wondersgroup.healthcloud.jpa.repository.medicalcircle.MedicalCircleRepository;
+import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,9 +30,11 @@ import java.util.Map;
 @RequestMapping("api")
 public class MedicalCircleController {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MedicalCircleController.class);
     @Autowired
     private MedicalCircleRepository medicalCircleRepository;
-
+    @Autowired
+    private MedicalCircleService medicalCircleService;
     /**
      * 查询帖子病例列表
      * @param pageable
@@ -93,5 +97,26 @@ public class MedicalCircleController {
         medicalCircleRepository.batchUpdateMedicalCircleTag(ids, tagnames);
 
         return new JsonResponseEntity(0, "修改成功");
+    }
+
+    @RequestMapping(value="medicalCircleTag/getMedicalCircleById",method = RequestMethod.GET)
+    public JsonResponseEntity getMedicalCircleById(@RequestParam String id) {
+        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        try {
+            MedicalCircle medicalCircle = medicalCircleService.getMedicalCircle(id);
+            if (medicalCircle != null) {
+                jsonResponseEntity.setData(medicalCircle);
+                return jsonResponseEntity;
+            } else {
+                jsonResponseEntity.setCode(1002);
+                jsonResponseEntity.setMsg("未查询到帖子详情");
+            }
+        } catch (Exception e) {
+            String errorMsg = "查询帖子详情出错";
+            logger.error(errorMsg, e);
+            jsonResponseEntity.setCode(1001);
+            jsonResponseEntity.setMsg(errorMsg);
+        }
+        return jsonResponseEntity;
     }
 }
