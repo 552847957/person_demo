@@ -166,9 +166,11 @@ public class RestrictController {
 	 */
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@VersionRange
-	public JsonResponseEntity<Map<String, String>> upload(HttpServletRequest request,
-			@RequestParam(required = false, defaultValue = "") String response, @RequestParam String userId,
-			@RequestParam String file) throws IOException {
+	public JsonResponseEntity<Map<String, String>> upload(HttpServletRequest request,@RequestBody Map<String, String> map) throws IOException {
+		String response = map.get("response");
+		String userId = map.get("userId");
+		String file = map.get("file");
+		
 		String[] filePaths = file.split(",");
 		String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action";
 		JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
