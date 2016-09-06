@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.IgnoreGateLog;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletRequestIPAddressUtil;
 import com.wondersgroup.healthcloud.common.http.support.version.APIScanner;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 import okio.Okio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,14 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
             sb.append(request.getQueryString());
             sb.append(" ");
             sb.append(Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8));
+        }
+
+        Session session = ServletAttributeCacheUtil.getSession(request, null);
+        sb.append(" uid=");
+        if (session != null) {
+            sb.append(session.getUserId());
+        } else {
+            sb.append("null");
         }
 
         logger.info(sb.toString());
