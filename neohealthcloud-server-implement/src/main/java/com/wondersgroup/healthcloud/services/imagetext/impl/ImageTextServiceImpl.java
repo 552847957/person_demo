@@ -12,6 +12,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 
+import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,6 +210,9 @@ public class ImageTextServiceImpl implements ImageTextService {
 
     @Override
     public List<ImageText> findGImageTextForApp(String mainArea, String specArea, Integer gadcode, String version) {
+        if (gadcode != ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType()) {// 仅在查询区级特色服务是需要使用spec_area
+            specArea = null;
+        }
         GImageText gImageText = gImageTextRepository.findGImageTextForApp(mainArea, specArea, gadcode, version);
         if (gImageText != null) {
             List<ImageText> imageTextList = imageTextRepository.findByGid(gImageText.getId());
