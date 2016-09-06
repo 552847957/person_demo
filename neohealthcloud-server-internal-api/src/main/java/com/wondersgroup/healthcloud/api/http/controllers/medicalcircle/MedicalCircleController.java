@@ -110,7 +110,7 @@ public class MedicalCircleController {
         JsonKeyReader reader = new JsonKeyReader(body);
         String id = reader.readString("id", false);
         String title = reader.readString("title", false);
-        String author = reader.readString("author", false);
+        String author = reader.readString("author", false);// 作者 需要和程泽商议，目前没有这个字段 TODO
         String tagid = reader.readString("tagid", false);
         String isVisible = reader.readString("isVisible", false);
         String content = reader.readString("content", false);
