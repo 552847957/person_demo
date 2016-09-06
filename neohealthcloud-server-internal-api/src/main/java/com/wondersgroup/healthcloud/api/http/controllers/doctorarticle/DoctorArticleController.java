@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticle;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,5 +103,27 @@ public class DoctorArticleController {
         doctorArticleRepository.save(doctorArticle);
 
         return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 设置禁用与启用
+     * @param request
+     * @return
+     */
+    @PostMapping(path = "doctorArticle/setVisable")
+    public JsonResponseEntity<String> updateDoctorArticleVisable(@RequestBody String request ){
+        JsonKeyReader reader = new JsonKeyReader(request);
+        int id = reader.readInteger("id",true);
+        int isVisable = reader.readInteger("is_visable",true);
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+
+        int result = doctorArticleRepository.updateDoctorArticleVisable(id,isVisable);
+        if(result<=0){
+            response.setCode(2001);
+            response.setMsg("设置失败");
+            return response;
+        }
+        response.setMsg("设置成功");
+        return response;
     }
 }
