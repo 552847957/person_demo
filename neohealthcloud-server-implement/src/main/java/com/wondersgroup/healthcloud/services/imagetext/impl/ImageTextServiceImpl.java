@@ -115,6 +115,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         for (ImageText imageText : imageTextList) {
             if (StringUtils.isBlank(imageText.getId())) {
                 imageText.setId(IdGen.uuid());
+                imageText.setDelFlag(0);
             }
             imageTextRepository.saveAndFlush(imageText);
             flag++;
@@ -313,6 +314,10 @@ public class ImageTextServiceImpl implements ImageTextService {
             tmpObj = parameter.get("delFlag");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
                 bf.append(" and del_flag = '" + tmpObj + "'");
+            }
+            tmpObj = parameter.get("source");
+            if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
+                bf.append(" and source = '" + tmpObj + "'");
             }
             tmpObj = parameter.get("startTime");
             Object tmpObja = parameter.get("endTime");

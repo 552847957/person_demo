@@ -70,8 +70,8 @@ public class SpecServicesController {
             data.put("services", funcList);
         }
 
-        // 健康活动
-        List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(null, fillingArea(mainArea), fillingArea(specArea), 1, 1, 1);
+        // 健康活动 不区分区域-2016/09/06测试(TY)确认
+        List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(null, fillingArea(mainArea), null, 1, 1, 1);
         if (infoList != null && infoList.size() > 0) {
             HealthActivityInfo healthActivityInfo = infoList.get(0);
             HealthActivityAPIEntity entity = new HealthActivityAPIEntity(healthActivityInfo,width,height);
@@ -115,7 +115,13 @@ public class SpecServicesController {
                 }
             }
         } catch (Exception e) {
-            log.error("请求测量数据异常", e);
+            log.info("请求测量数据异常-->" + e.getLocalizedMessage());
+        }
+        // 未登录或无异常情况下显示默认数据-2016/09/06测试(XJJ)确认
+        if (data.get("signMeasurements") == null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("prefix", "健康测量，体征记录");
+            data.put("signMeasurements", map);
         }
         // 近期异常指标 end
         if (data.size() > 0) {

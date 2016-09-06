@@ -110,17 +110,21 @@ public class ImageTextController {
     }
 
     @Admin
-    @RequestMapping(value = "/findImageTextByAdcode", method = RequestMethod.POST)
-    public Pager findImageTextByAdcode(@RequestHeader(name = "main-area", required = true) String mainArea,
+    @PostMapping(value = "/findImageTextByAdcode")
+    public Pager findImageTextByAdcode(@RequestHeader(required = true) String source,
+                                       @RequestHeader(name = "main-area", required = true) String mainArea,
                                        @RequestHeader(name = "spec-area", required = false) String specArea,
                                        @RequestBody(required = true) Pager pager) {
-        JsonResponseEntity result = new JsonResponseEntity();
         int pageNum = 1;
         if (pager.getNumber() != 0) {
             pageNum = pager.getNumber();
         }
+        if (pager.getSize() == 0) {
+            pager.setSize(10);
+        }
         pager.getParameter().put("mainArea", mainArea);
         pager.getParameter().put("specArea", specArea);
+        pager.getParameter().put("source", source);
 
         List<ImageText> imageTextList = imageTextService.findImageTextByAdcode(pageNum, pager.getSize(), pager.getParameter());
         if (imageTextList != null && imageTextList.size() > 0) {
@@ -133,7 +137,7 @@ public class ImageTextController {
 
     @Admin
     @PostMapping(value = "/saveBatchImageText")
-    public JsonResponseEntity saveBatchImageText(@RequestBody String imageTexts) {
+    public JsonResponseEntity saveBatchImageText(@RequestHeader(required = true) String source, @RequestBody String imageTexts) {
         JsonResponseEntity result = new JsonResponseEntity();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -141,6 +145,9 @@ public class ImageTextController {
             JavaType javaType = objectMapper.getTypeFactory().constructParametricType(List.class, ImageText.class);
             List<ImageText> imageTextList = objectMapper.readValue(imageTexts, javaType);
             if (imageTextList != null && imageTextList.size() > 0) {
+                for (int i = 0; i < imageTextList.size(); i++) {
+                    imageTextList.get(i).setSource(source);
+                }
                 int flag = imageTextService.saveBatchImageText(imageTextList);
                 if (flag == imageTextList.size()) {
                     result.setMsg("数据保存成功！");
