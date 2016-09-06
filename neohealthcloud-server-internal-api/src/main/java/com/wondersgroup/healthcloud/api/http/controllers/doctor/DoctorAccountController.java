@@ -1,10 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +46,17 @@ public class DoctorAccountController {
      * @return
      */
     @PostMapping(path = "/doctor/available")
-    public JsonResponseEntity updateIsAvailable(@RequestParam List<String> ids,
+    public JsonResponseEntity updateIsAvailable(@RequestParam String ids,
                                                 @RequestParam String isAvailable){
-        doctorAccountRepository.updateIsAvailable(isAvailable, ids);
+        if(StringUtils.isNotBlank(ids)){
+            String[] idArray = ids.split(",");
+            List<String> idsList = Lists.newArrayList();
+
+            for(String str : idArray){
+                idsList.add(str);
+            }
+            doctorAccountRepository.updateIsAvailable(isAvailable, idsList);
+        }
 
         return new JsonResponseEntity(0, "修改成功");
     }
