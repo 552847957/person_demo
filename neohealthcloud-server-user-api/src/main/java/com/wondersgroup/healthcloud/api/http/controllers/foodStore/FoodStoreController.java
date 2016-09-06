@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreCategory;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.foodStore.FoodStoreService;
+import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -72,15 +73,12 @@ public class FoodStoreController {
 
         JsonListResponseEntity<FoodStoreItemListAPIEntity> response = new JsonListResponseEntity<>();
 
-        //过滤表情
-        Pattern unicodeOutliers = Pattern.compile("[^\\x00-\\x7F]",
-                Pattern.UNICODE_CASE | Pattern.CANON_EQ
-                        | Pattern.CASE_INSENSITIVE);
-        Matcher unicodeOutlierMatcher = unicodeOutliers.matcher(kw);
+        String cleanName = EmojiUtils.cleanEmoji(kw);
 
-        if(unicodeOutlierMatcher.find()){
+        if(kw.length() > cleanName.length()){
             return response;
         }
+
 
         int page = 1;
         int pageSize = 10;

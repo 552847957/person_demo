@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.http.dto.doctor.signedPerson.SignedPerso
 import com.wondersgroup.healthcloud.api.service.GWService;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,13 +44,9 @@ public class SignedController {
 
 		JsonListResponseEntity<SignedPersonDTO> response = new JsonListResponseEntity<>();
 
-		//过滤表情
-		Pattern unicodeOutliers = Pattern.compile("[^\\x00-\\x7F]",
-				Pattern.UNICODE_CASE | Pattern.CANON_EQ
-						| Pattern.CASE_INSENSITIVE);
-		Matcher unicodeOutlierMatcher = unicodeOutliers.matcher(name);
+		String cleanName = EmojiUtils.cleanEmoji(name);
 
-		if(unicodeOutlierMatcher.find()){
+		if(name.length() > cleanName.length()){
 			return response;
 		}
 
