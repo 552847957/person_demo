@@ -2,22 +2,22 @@ package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
+import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleTag;
 import com.wondersgroup.healthcloud.jpa.repository.medicalcircle.MedicalCircleRepository;
+import com.wondersgroup.healthcloud.jpa.repository.medicalcircle.MedicalCircleTagRepository;
 import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +35,9 @@ public class MedicalCircleController {
     private MedicalCircleRepository medicalCircleRepository;
     @Autowired
     private MedicalCircleService medicalCircleService;
+
+    @Autowired
+    private MedicalCircleTagRepository medicalCircleTagRepository;
     /**
      * 查询帖子病例列表
      * @param pageable
@@ -52,6 +55,27 @@ public class MedicalCircleController {
         JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", medicalCircles);
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+    }
+
+
+    /**
+     * 医学圈标签列表
+     * @param pager
+     * @return
+     */
+    @RequestMapping(value = "/medicalCircleTag/list", method = RequestMethod.POST)
+    public Pager tabList(@RequestBody Pager pager){
+        int pageNum = 1;
+        if(pager.getNumber()!=0)
+            pageNum = pager.getNumber();
+
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC,"updateDate"));
+
+        List<MedicalCircleTag> rt = medicalCircleTagRepository.findTagListByPager(new PageRequest((pageNum-1),pager.getSize(),sort));
+        int totalSize = medicalCircleTagRepository.countTag();
+        pager.setTotalElements(totalSize);
+        pager.setData(rt);
+        return pager;
     }
 
     /**
@@ -99,7 +123,7 @@ public class MedicalCircleController {
         return new JsonResponseEntity(0, "修改成功");
     }
 
-    @RequestMapping(value="medicalCircleTag/getMedicalCircleById",method = RequestMethod.GET)
+    @RequestMapping(value="medicalCircle/getMedicalCircleById",method = RequestMethod.GET)
     public JsonResponseEntity getMedicalCircleById(@RequestParam String id) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
