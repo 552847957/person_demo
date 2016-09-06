@@ -18,4 +18,5 @@ public interface ReplyGroupRepository extends JpaRepository<ReplyGroup, String> 
     @Query(nativeQuery = true, value = "SELECT cg.* from app_tb_neogroup cg where cg.question_id=?1 " +
             " and cg.answer_id=?2 and cg.is_valid=1 limit 1")
     ReplyGroup getCommentGroup(String question_id, String doctor_id);
+
 }

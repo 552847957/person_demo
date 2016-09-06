@@ -149,7 +149,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
             if(null==searchParam.get("areaCode")){
                 sql.append(" * ");
             }else{
-                sql.append(" t1.id as article_id,t2.id,t1.title,t1.keyword,t1.update_time,t2.is_visable,t3.c_name ");
+                sql.append(" t1.id as article_id,t2.id,t1.title,t1.keyword,t2.update_time,t2.is_visable,t3.c_name ");
             }
         }
         if(null==searchParam.get("areaCode")){
