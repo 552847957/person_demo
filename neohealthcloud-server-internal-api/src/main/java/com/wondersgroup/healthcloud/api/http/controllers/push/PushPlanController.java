@@ -8,11 +8,11 @@ import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
-import com.wondersgroup.healthcloud.api.helper.UserHelper;
 import com.wondersgroup.healthcloud.api.http.dto.push.PushPlanDTO;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
+import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
@@ -23,9 +23,11 @@ import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
+import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +61,6 @@ public class PushPlanController {
     private PermissionService permissionService;
 
     @Autowired
-    private UserHelper userHelper;
-
-    @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
     @Autowired
@@ -76,12 +75,21 @@ public class PushPlanController {
     @Autowired
     private NewsArticleRepo articleRepo;
 
+    @Autowired
+    private UserRepository userRepo;
+
 
     @PostMapping(path = "/list")
     public Pager list(@RequestBody Pager pager) throws Exception{
 
-        User user = userHelper.getCurrentUser();
+        if(null == pager.getParameter() || !pager.getParameter().containsKey("uid")
+                || StringUtils.isEmpty(pager.getParameter().get("uid").toString())){
+            throw new RequestPostMissingKeyException("uid");
+        }
+        User user = userRepo.findOne(pager.getParameter().get("uid").toString());
+
         Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter(),user);
+
 
         List<PushPlanDTO> list = Lists.newArrayList();
         for(PushPlan push : page.getContent()){
@@ -99,7 +107,10 @@ public class PushPlanController {
 
     @PostMapping(path = "/update")
     public JsonResponseEntity list(@RequestBody PushPlan pushPlan) throws Exception{
-        User user = userHelper.getCurrentUser();
+        if(StringUtils.isEmpty(pushPlan.getCreator())){
+            throw new RequestPostMissingKeyException("creator");
+        }
+        User user = userRepo.findOne(pushPlan.getCreator());
 
         pushPlan.setArea(user.getMainArea());
         pushPlan.setCreator(user.getUserId());
