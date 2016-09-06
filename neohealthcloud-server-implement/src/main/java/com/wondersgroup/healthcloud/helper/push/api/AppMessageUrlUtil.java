@@ -23,7 +23,7 @@ public class AppMessageUrlUtil {
     public enum Type {
         HTTP("-1", "http", null, null),
         SYSTEM("0", "系统消息", null, "/system"),
-        QUESTION("1", "轻问诊", null, "/question"),
+        QUESTION("1", "我的咨询", null, "/question"),
         FAMILY("2", "亲情账户", null, "/family"),
         ACTIVITY("3", "健康活动", null, "/activity");
 

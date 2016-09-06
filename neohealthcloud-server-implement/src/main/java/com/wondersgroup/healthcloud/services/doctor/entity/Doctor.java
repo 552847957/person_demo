@@ -36,6 +36,7 @@ public class Doctor {
 
     private String actcode;//医生推广邀请码
 
+    private String isAvailable;
 
     public Doctor() {
     }
@@ -222,5 +223,13 @@ public class Doctor {
 
     public void setActcode(String actcode) {
         this.actcode = actcode;
+    }
+
+    public String getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(String isAvailable) {
+        this.isAvailable = isAvailable;
     }
 }

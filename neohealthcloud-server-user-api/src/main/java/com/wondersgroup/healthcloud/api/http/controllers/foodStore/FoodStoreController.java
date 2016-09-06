@@ -73,12 +73,6 @@ public class FoodStoreController {
 
         JsonListResponseEntity<FoodStoreItemListAPIEntity> response = new JsonListResponseEntity<>();
 
-        String cleanName = EmojiUtils.cleanEmoji(kw);
-
-        if(kw.length() > cleanName.length()){
-            return response;
-        }
-
 
         int page = 1;
         int pageSize = 10;
@@ -87,6 +81,10 @@ public class FoodStoreController {
         }
 
         if(StringUtils.isNotBlank(kw)){
+            String cleanName = EmojiUtils.cleanEmoji(kw);
+            if(kw.length() > cleanName.length()){
+                return response;
+            }
             return this.getFoodListByKwFromDb(kw, page, pageSize);
         }else if(StringUtils.isNotBlank(cate_id)){
             Integer cateId = Integer.valueOf(cate_id);

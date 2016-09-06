@@ -6,9 +6,11 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +84,8 @@ public class MeasureController {
     @GetMapping("family/nearest")
     public JsonResponseEntity<?> nearestMeasure(@RequestParam String familyMateId) {
         try {
-            String parameters = "registerId=".concat(familyMateId).concat("&personCard=0");
+            RegisterInfo info = userService.getOneNotNull(familyMateId);
+            String parameters = "registerId=".concat(familyMateId).concat("&personCard=0").concat("&sex=").concat(info.getGender());
             String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {

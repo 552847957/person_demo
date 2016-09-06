@@ -507,7 +507,9 @@ public class UserController {
                         doctorAccountDTO = doctorController.getDoctorInfo(uid, doctorId);
                     }
                 }
-
+            //有签约无医生账号
+            }else if(result.get("code").asInt() == 2){
+                isSignDoctor = true;
             }
 
         }

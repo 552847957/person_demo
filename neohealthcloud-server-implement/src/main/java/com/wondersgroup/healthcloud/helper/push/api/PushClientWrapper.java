@@ -1,9 +1,6 @@
 package com.wondersgroup.healthcloud.helper.push.api;
 
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.*;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.utils.JsonConverter;
@@ -32,7 +29,7 @@ import java.util.List;
 public class PushClientWrapper {//todo(zzx) can convert the blocked request to async request to imporve the performance.
 
     @Value("${internal.api.service.message.url}")
-    private String baseUrl;
+    private String baseUrl = "http://localhost:8001/neohealthcloud-internal/message";
 
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
@@ -58,4 +55,11 @@ public class PushClientWrapper {//todo(zzx) can convert the blocked request to a
         return wrapper.convertBody().get("code").asInt() == 0;
     }
 
+
+    public static void main(String... args) {
+        PushClientWrapper wrapper = new PushClientWrapper();
+        wrapper.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
+        wrapper.pushToAlias(AppMessage.Builder.init().title("我的问答").content("您有一条新的问诊提问，点击查看").isDoctor()
+                .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question("1")).persistence().build(), "757b0bb2d734401d931bde49f851eda9");
+    }
 }

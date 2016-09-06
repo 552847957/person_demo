@@ -31,12 +31,12 @@ public class MedicalCircle implements  Serializable {
     private String  tagnames;
 
     @Column(name = "is_visible")
-    private String  isVisible; //是否冻结
+    private String  isVisible; //是否冻结 是否启用
     
     @Id
     private String id;
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag = "0";//删除标记 0:正常 1:删除
     @Column(name = "source_id")
     private String sourceId;
     @Column(name = "create_by")

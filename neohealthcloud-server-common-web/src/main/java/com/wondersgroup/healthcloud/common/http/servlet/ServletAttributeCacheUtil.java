@@ -43,7 +43,7 @@ public class ServletAttributeCacheUtil {
 
     public static Session getSession(HttpServletRequest request, SessionUtil sessionUtil) {
         Session session = (Session) request.getAttribute("session");
-        if (session == null) {
+        if (session == null && sessionUtil != null) {
             String accessToken = request.getHeader("access-token");
             if (StringUtils.isNotBlank(accessToken)) {
                 session = sessionUtil.get(accessToken);

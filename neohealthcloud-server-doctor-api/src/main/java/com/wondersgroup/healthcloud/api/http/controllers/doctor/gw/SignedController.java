@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.api.service.GWService;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.utils.EmojiUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,11 +45,14 @@ public class SignedController {
 
 		JsonListResponseEntity<SignedPersonDTO> response = new JsonListResponseEntity<>();
 
-		String cleanName = EmojiUtils.cleanEmoji(name);
+		if(StringUtils.isNotBlank(name)){
+			String cleanName = EmojiUtils.cleanEmoji(name);
 
-		if(name.length() > cleanName.length()){
-			return response;
+			if(name.length() > cleanName.length()){
+				return response;
+			}
 		}
+
 
 		return gwService.getPersonlist(famId, name, flag);
 	}

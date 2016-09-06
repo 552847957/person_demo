@@ -97,17 +97,13 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
                 bf.append(" and a.is_visable = "+parameter.get("isVisable").toString());
             }
             if(parameter.containsKey("startTime") && StringUtils.isNotBlank(parameter.get("startTime").toString())){
-                Date startDate = (Date)parameter.get("startTime");
-                if(startDate!=null){
-                    bf.append(" and a.update_time >= "+startDate);
-                }
+                long lcc_time = Long.valueOf(parameter.get("startTime").toString())* 1000L;
+                bf.append(" and unix_timestamp(a.update_time) >= "+lcc_time);
 
             }
             if(parameter.containsKey("endTime") && StringUtils.isNotBlank(parameter.get("endTime").toString())){
-                Date endDate = (Date)parameter.get("endTime");
-                if(endDate!=null){
-                    bf.append(" and a.update_time <= "+endDate);
-                }
+                long lcc_time = Long.valueOf(parameter.get("endTime").toString()) * 1000L;
+                bf.append(" and unix_timestamp(a.update_time) <= "+lcc_time);
             }
         }
         return bf.toString();

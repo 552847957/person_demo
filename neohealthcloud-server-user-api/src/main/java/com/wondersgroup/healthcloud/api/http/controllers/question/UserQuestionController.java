@@ -18,6 +18,8 @@ import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
+import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
+import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
 import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
@@ -48,6 +50,10 @@ public class UserQuestionController {
 	private PushClientWrapper pushClientWrapper;
 	@Autowired
 	private HttpRequestExecutorManager httpRequestExecutorManager;
+	@Autowired
+	private ReplyGroupRepository replyGroupRepository;
+	@Autowired
+	private QuestionRepository repository;
 	/**
 	 * 提问
 	 * @param question
@@ -142,9 +148,8 @@ public class UserQuestionController {
 		ReplyGroup group=questionService.queryAnswerId(reply.getGroupId());
 		String doctorId=group.getAnswer_id();
 
-		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
-			String scam=String.format("com.wondersgroup.hs.neohealthcloud://doctor/question_detail?doctorId=%s&questionId=%s", doctorId, group.getQuestion_id());
-			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId)
+		if(StringUtils.isNoneEmpty(doctorId)){//用户回复医生问题需要推送到医生端
+			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId).param("questionId",group.getQuestion_id())
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
 		}
@@ -164,4 +169,20 @@ public class UserQuestionController {
 		response.setData(is);
 		return response;
 	}
+
+	/**
+	 * 是否有新的未看回复
+	 * @param userId
+	 * @return
+	 */
+	@VersionRange
+	@RequestMapping(value="/test",method= RequestMethod.GET)
+	public JsonResponseEntity<Boolean> test(@RequestParam String userId){
+		JsonResponseEntity<Boolean> response=new JsonResponseEntity<>();
+
+		Question one = repository.findOne(userId);
+
+		return response;
+	}
+
 }
