@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,6 +97,19 @@ public class SpecCommonController {
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);
             data.put("ads", loadingImageDTO);
         }
+
+        // APP分享
+        AppConfig appShare = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.shareUrl");
+        try {
+            if (appShare != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(appShare.getData());
+                data.put("share", content);
+            }
+        } catch (IOException e) {
+            log.info("AppConfig --> " + e.getLocalizedMessage());
+        }
+
         result.setData(data);
         return result;
     }

@@ -14,7 +14,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/17.
@@ -86,6 +88,23 @@ public class ImageTextController {
     public JsonResponseEntity saveGImageText(@RequestHeader(required = true) String source, @RequestBody GImageText gImageText) {
         JsonResponseEntity result = new JsonResponseEntity();
         gImageText.setSource(source);
+        if (gImageText.getId() == null) {
+            Map<String, Object> param = new HashMap<>();
+            param.put("version", gImageText.getVersion());
+            param.put("main_area", gImageText.getMainArea());
+            param.put("gadcode", gImageText.getGadcode());
+            param.put("source", gImageText.getSource());
+            if (ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType().equals(gImageText.getGadcode())) {
+                param.put("spec_area", gImageText.getSpecArea());
+            }
+            List<GImageText> tmpList = imageTextService.findGImageTextList(1, 1, param);
+            if (tmpList != null && tmpList.size() > 0) {
+                result.setCode(1000);
+                result.setMsg("当前数据与已有数据重复！");
+                return result;
+            }
+        }
+
         if (imageTextService.saveGImageText(gImageText)) {
             result.setMsg("数据保存成功");
         } else {
