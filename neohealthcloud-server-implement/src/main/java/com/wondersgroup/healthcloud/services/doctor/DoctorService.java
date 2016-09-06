@@ -36,4 +36,7 @@ public interface DoctorService {
 
     Boolean checkDoctorHasService(String doctorId, String keyword);
 
+    List<Doctor> findDoctorListByPager(int pageNum, int size, Map parameter);
+
+    int countFaqByParameter(Map parameter);
 }

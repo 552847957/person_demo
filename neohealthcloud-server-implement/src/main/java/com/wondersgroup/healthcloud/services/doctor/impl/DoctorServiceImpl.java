@@ -173,6 +173,7 @@ public class DoctorServiceImpl implements DoctorService {
         return false;
     }
 
+
     /**
      * 根据医生uid查询医生信息
      * @param
@@ -281,6 +282,57 @@ public class DoctorServiceImpl implements DoctorService {
         return jt.queryForList(sql);
     }
 
+
+//-----医生后台
+
+
+
+
+
+    /**
+     *
+     * @param pageNum
+     * @param size
+     * @param parameter
+     * @return
+     */
+    @Override
+    public List<Doctor> findDoctorListByPager(int pageNum, int size, Map parameter) {
+        String sql =query + getWhereSqlByParameter(parameter)+" LIMIT " +(pageNum-1)*size +"," + size;
+        RowMapper<Doctor> rowMapper = new DoctorListRowMapper();
+        List<Doctor> doctors = jt.query(sql, rowMapper);
+        return doctors;
+    }
+
+    @Override
+    public int countFaqByParameter(Map parameter) {
+        String sql = "select count(a.id)  "+
+                " from doctor_account_tb a " +
+                " left join doctor_info_tb i on a.id = i.id " +
+                " left join t_dic_duty d on i.duty_id = d.duty_id " +
+                " left join t_dic_depart_gb gb on i.depart_standard = gb.id " +
+                " left join t_dic_hospital_info hi on i.hospital_id = hi.hospital_id "+
+                getWhereSqlByParameter(parameter);
+        Integer count = jt.queryForObject(sql, Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    public String getWhereSqlByParameter(Map parameter){
+        StringBuffer bf = new StringBuffer();
+        bf.append(" where a.del_flag = '0'  ");
+        if(parameter.size()>0){
+            if(parameter.containsKey("name") &&  StringUtils.isNotBlank(parameter.get("name").toString())){
+                bf.append(" and a.name like '%"+parameter.get("name").toString()+"%' ");
+            }
+            if(parameter.containsKey("mobile") && StringUtils.isNotBlank(parameter.get("mobile").toString())){
+                bf.append(" and a.mobile = "+parameter.get("mobile").toString());
+            }
+            if(parameter.containsKey("hospitalName") && StringUtils.isNotBlank(parameter.get("hospitalName").toString())){
+                bf.append(" and hi.hospital_name like '%"+parameter.get("hospitalName").toString() +"%' ");
+            }
+        }
+        return bf.toString();
+    }
 
 
 }

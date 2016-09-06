@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticleCategory;
 import com.wondersgroup.healthcloud.jpa.repository.doctorarticle.DoctorArticleCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class DoctorArticleCategoryController {
         Page<DoctorArticleCategory> doctorArticleCategories = doctorArticleCategoryRepository.findAll(pageable);
 
         Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(DoctorArticleCategory.class, new String[]{"id", "ca_name", "update_time", "is_visable"});
+        filterMap.put(DoctorArticleCategory.class, new String[]{"id", "ca_name","rank", "update_time", "is_visable"});
         filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
         JsonResponseEntity response;
@@ -116,5 +117,27 @@ public class DoctorArticleCategoryController {
         doctorArticleCategoryRepository.save(doctorArticleCategory);
 
         return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 设置禁用与启用
+     * @param request
+     * @return
+     */
+    @PostMapping(path = "doctorArticleCategory/setVisable")
+    public JsonResponseEntity<String> updateCategoryVisable(@RequestBody String request ){
+        JsonKeyReader reader = new JsonKeyReader(request);
+        int id = reader.readInteger("id",true);
+        int isVisable = reader.readInteger("is_visable",true);
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+
+        int result = doctorArticleCategoryRepository.updateCategoryVisable(id,isVisable);
+        if(result<=0){
+            response.setCode(2001);
+            response.setMsg("设置失败");
+            return response;
+        }
+        response.setMsg("设置成功");
+        return response;
     }
 }
