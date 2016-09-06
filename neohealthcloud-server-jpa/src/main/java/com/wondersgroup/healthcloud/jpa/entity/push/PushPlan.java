@@ -27,15 +27,15 @@ public class PushPlan {
     @Column(name="article_id")
     private Integer articleId; // 连接地址
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     @Column(name = "plan_time")
     private Date planTime; //计划推送时间
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     @Column(name = "create_time")
     private Date createTime; // 创建时间
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     @Column(name = "update_time")
     private Date updateTime; // 更新时间
 }

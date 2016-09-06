@@ -14,7 +14,6 @@ import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
-import com.wondersgroup.healthcloud.exceptions.BaseException;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
@@ -24,7 +23,6 @@ import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushTag;
 import com.wondersgroup.healthcloud.jpa.repository.article.NewsArticleRepo;
-import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
@@ -33,11 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -111,6 +107,9 @@ public class PushPlanController {
         pushPlan.setCreateTime(new Date());
         pushPlan.setUpdateTime(new Date());
         pushPlan.setStatus(0);
+        if(null != pushPlan.getArticleId()){
+            pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId());
+        }
         pushPlanRepo.save(pushPlan);
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("保存成功");
@@ -191,7 +190,7 @@ public class PushPlanController {
         PushPlan pushPlan = pushPlanRepo.findOne(planId);
         if(null != pushPlan){
             AppMessage message = AppMessage.Builder.init().title(pushPlan.getTitle()).content(pushPlan.getContent()).
-                    urlFragment(h5Url+"/article/detail?id="+pushPlan.getArticleId()).
+                    urlFragment(pushPlan.getUrl()).
                     type(AppMessageUrlUtil.Type.HTTP).build();
             if(null == pushPlan.getTarget()){
                 pushClientWrapper.pushToAll(message,pushPlan.getArea());
