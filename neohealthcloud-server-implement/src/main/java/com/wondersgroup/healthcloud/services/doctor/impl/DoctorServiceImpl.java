@@ -40,7 +40,7 @@ public class DoctorServiceImpl implements DoctorService {
 
 
     private String query = "select a.id,a.`name` ,a.mobile,a.nickname ,a.login_name as 'loginName',a.avatar , " +
-                          " a.talkid ,a.talkpwd ,a.talkgroupid,i.`no`, "+
+                          " a.talkid ,a.talkpwd ,a.talkgroupid,i.`no`, a.is_available as 'isAvailable',  "+
                           " i.actcode,i.expertin,i.introduction,i.idcard,i.gender,i.hospital_id as 'hospitalId', " +
                           " d.duty_name as 'dutyName',gb.`name` as 'departName',hi.hospital_name as 'hospitalName' " +
                           " from doctor_account_tb a " +
@@ -123,6 +123,8 @@ public class DoctorServiceImpl implements DoctorService {
             doctor.setTalkgroupid(rs.getString("talkgroupid"));
 
             doctor.setAvatar(rs.getString("actcode"));
+
+            doctor.setIsAvailable(rs.getString("isAvailable"));
             return doctor;
         }
     }
