@@ -174,7 +174,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public Boolean hasNewQuestionForDoctor(String doctorId) {
 
         String sqlQuestion = "SELECT t1.id FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id "+
-                             "WHERE t1.assign_answer_id=? and t2.status IS NULL and t1.is_new_question=1 and t1.is_valid=1 limit 1";
+                             "WHERE t1.assign_answer_id=? and t1.status<>3 AND t2.status IS NULL and t1.is_new_question=1 and t1.is_valid=1 limit 1";
         List<Map<String, Object>> noReadQ = getJt().queryForList(sqlQuestion, new Object[]{doctorId});
 
         return null != noReadQ && !noReadQ.isEmpty();
