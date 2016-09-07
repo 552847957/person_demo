@@ -210,6 +210,11 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorUserMobileHasNotRegisteredException("该手机号未注册，请先注册");
         }
 
+        //修改手机号时校验手机号是否被占用
+        if(type == 5 && checkAccount(mobile)){
+            throw new ErrorUserMobileHasNotRegisteredException("手机已被使用");
+        }
+
         JsonNode result = httpWdUtils.sendCode(mobile, smsContent[type]);
         Boolean success = result.get("success").asBoolean();
         if (!success) {
@@ -400,7 +405,7 @@ public class UserAccountServiceImpl implements UserAccountService{
                 throw new ErrorChangeMobileException("验证码错误");
             }
         }
-        if (!validateCode(newMobile, newVerifyCode, true)) {
+        if (!validateCode(newMobile, newVerifyCode, false)) {
             throw new ErrorChangeMobileException("验证码错误");
         }
 
@@ -421,8 +426,9 @@ public class UserAccountServiceImpl implements UserAccountService{
                 doctorAccount.setUpdateBy(register.getRegisterid());
                 doctorAccountRepository.saveAndFlush(doctorAccount);
             }
-            //为了使旧手机的验证码失效
+            //为了使手机的验证码失效
             validateCode(register.getRegmobilephone(), oldVerifyCode, true);
+            validateCode(newMobile, newVerifyCode, true);
             return true;
         } else {
             throw new ErrorChangeMobileException(1002,result.get("msg").asText());
