@@ -76,7 +76,7 @@ public class UserPushTagService {
     public void bindTagsToOneUser(String uid, String... tagIds) {
         Set<String> ids = getIdsByUid(uid);
         for (String tagId : tagIds) {
-            if (!ids.contains(tagId)) {
+            if (!ids.contains(Integer.parseInt(tagId))) {
                 UserPushTag userPushTag = new UserPushTag();
                 userPushTag.setUid(uid);
                 userPushTag.setTagid(Integer.valueOf(tagId));
