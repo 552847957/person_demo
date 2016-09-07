@@ -188,7 +188,8 @@ public class MeasureController {
     @GetMapping("yearHistory/{type}")
     public JsonResponseEntity queryMeasureHistory(@PathVariable int type, String registerId) throws JsonProcessingException {
         try {
-            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId));
+            RegisterInfo info = userService.getOneNotNull(registerId);
+            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(info.getGender()));
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -274,8 +275,9 @@ public class MeasureController {
     @GetMapping("recentHistory/{type}")
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
+            RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registerId=".concat(registerId);
-            String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
+            String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag).concat("&sex=").concat(info.getGender()));
             String url = String.format(recentMeasureHistory, host, type, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {

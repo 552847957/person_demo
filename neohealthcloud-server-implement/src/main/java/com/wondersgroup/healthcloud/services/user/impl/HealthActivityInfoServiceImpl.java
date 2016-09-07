@@ -63,13 +63,13 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
             }
         }
         if(!StringUtils.isEmpty(province)){
-            sql += " and province = '" + province + "'";
+            sql += " and province like '" + province + "%'";
         }
         if(!StringUtils.isEmpty(city)){
-            sql +=  " and city = '" + city + "'";
+            sql +=  " and city like '" + city + "%'";
         }
         if (!StringUtils.isEmpty(county)) {
-            sql += " and county = '" + county + "'";
+            sql += " and county like '" + county + "%'";
         }
         
         sql += " ORDER BY overdue asc ,starttime desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
