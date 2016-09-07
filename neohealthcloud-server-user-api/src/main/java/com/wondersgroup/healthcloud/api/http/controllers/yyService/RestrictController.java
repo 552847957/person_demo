@@ -44,6 +44,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.yyService.VisitUserService;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 @RestController
 @RequestMapping("/api/user")
@@ -289,6 +290,10 @@ public class RestrictController {
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	public void checkAgeIsCanBind(String personNo) {
+		
+		if(IdcardUtils.validateCard(personNo)){
+			throw new CommonException(2022, "身份证号码有误");
+		}
 		int cardLen = personNo.length();
 		String birthdayStr = "";
 		if (cardLen == 18) {
@@ -297,9 +302,7 @@ public class RestrictController {
 		} else if (cardLen == 16) {
 			birthdayStr = "19" + personNo.substring(6, 8) + "-" + personNo.substring(8, 10) + "-"
 					+ personNo.substring(10, 12);
-		} else {
-			throw new CommonException(2022, "身份证号码有误");
-		}
+		} 
 		Date birthday = null;
 		try {
 			birthday = sdf.parse(birthdayStr);
