@@ -245,6 +245,13 @@ public class ImageTextServiceImpl implements ImageTextService {
             } else {
                 gImageText.setUpdateTime(now);
                 for (int i = 0; i < imageTexts.size(); i++) {
+                    if (imageTexts.get(i).getId() == null) {
+                        imageTexts.get(i).setId(IdGen.uuid());
+                        imageTexts.get(i).setGid(gImageText.getId());
+                        imageTexts.get(i).setCreateTime(now);
+                        imageTexts.get(i).setDelFlag(0);
+                        imageTexts.get(i).setSource(gImageText.getSource());
+                    }
                     imageTexts.get(i).setUpdate_time(now);
                 }
             }

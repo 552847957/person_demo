@@ -154,9 +154,9 @@ public class UserServiceImpl implements UserService {
         userInfoRepository.saveAndFlush(merged);
 
         //修改BMI
-        if(form.height!=null || form.weight !=null){
+        /*if(form.height!=null || form.weight !=null){
             updateBMI(userInfo);
-        }
+        }*/
 
         if (StringUtils.isNotBlank(form.gender)) {
             registerInfo.setGender(form.gender);

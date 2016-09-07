@@ -58,8 +58,9 @@ public class MeasureController {
     @VersionRange
     public String measureHome(String registerId) {
 
+        RegisterInfo info = userService.getOneNotNull(registerId);
         List histories = new ArrayList();
-        String parameters = "registerId=".concat(registerId);
+        String parameters = "registerId=".concat(registerId).concat("&sex=").concat(info.getGender());
         String url = String.format(requestDayHistoriesListPath, host, parameters);
         ResponseEntity<Map> response = template.getForEntity(url, Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -212,8 +213,9 @@ public class MeasureController {
     @GetMapping("dayHistory")
     public JsonResponseEntity queryMeasureHistory(String registerId, String flag) throws JsonProcessingException {
         try {
+            RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registerId=".concat(registerId);
-            String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
+            String params = (flag == null) ? param : param.concat("&flag=").concat(flag).concat("&sex=").concat(info.getGender());
             String url = String.format(requestDayHistoryPath, host, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -240,7 +242,8 @@ public class MeasureController {
         Map<String, Object> result = new HashMap<>();
         result.put("h5Url", StringUtils.isEmpty(personCard) ? Collections.EMPTY_MAP : h5Utils.generateLinks(personCard));
         try {
-            String param = "registerId=".concat(registerId);
+            RegisterInfo info = userService.getOneNotNull(registerId);
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(info.getGender());
             String url = String.format(requestAbnormalHistories, host, param);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
