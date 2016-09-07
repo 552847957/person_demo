@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +35,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.api.http.dto.medical.RestrictUploadDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -167,47 +170,42 @@ public class RestrictController {
 	 */
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@VersionRange
-	public JsonResponseEntity<Map<String, String>> upload(HttpServletRequest request,@RequestBody Map<String, String> map) throws IOException {
-		String response = map.get("response");
-		String userId = map.get("userId");
-		String file = map.get("file");
-		
-		String[] filePaths = file.split(",");
+	public JsonResponseEntity<Map<String, String>> upload(
+			HttpServletRequest request,
+			@RequestBody RestrictUploadDto uploadDto) throws IOException {
+		JsonResponseEntity<Map<String, String>> responseEntity = new JsonResponseEntity<>();
+
 		String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action";
-		JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
-		String[] header = visitUserService.getRequestHeaderByUid(userId, true);
-		MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-		for (String path : filePaths) {
+
+		String response = uploadDto.getResponse();
+		String userId = uploadDto.getUserId();
+		List<String> filePaths = uploadDto.getFile();
+
+		HttpHeaders headers = buildHttpHeaders(userId);
+		for (String string : filePaths) {
+			MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
+			requestBody.add("fileType", 03);
+			requestBody.add("orderid", response);
 			String filePath = request.getSession().getServletContext().getRealPath("/") + IdGen.uuid();
-			download(path, filePath);
+			download(string, filePath);
 			File f = new File(filePath);
-			param.add("file", new FileSystemResource(f));
+			requestBody.add("file", new FileSystemResource(f));
 			if (f.exists()) {
 				f.delete();
 			}
+			
+			try {
+				response = upload(url, new HttpEntity<MultiValueMap<String, Object>>(requestBody, headers));
+			} catch (RuntimeException e) {
+				responseEntity.setMsg(e.getMessage());
+			}
+			
 		}
-		param.add("fileType", 03);
-		param.add("orderid", response);
 
-		HttpHeaders headers = new HttpHeaders();
-		for (int i = 0; i < header.length; i += 2) {
-			headers.add(header[i], header[i + 1]);
-		}
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, Object>>(param, headers), String.class);
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode node = objectMapper.readValue(responseEntity.getBody(), JsonNode.class);
-		Map<String, String> resultMap = Maps.newHashMap();
-		if (1 == node.get("status").asInt()) {
-			resultMap.put("response", node.get("response").asText());
-			entity.setData(resultMap);
-			entity.setMsg("上传成功");
-		} else {
-			entity.setCode(1000);
-			entity.setMsg(node.get("message").asText());
-		}
-		return entity;
+		Map<String, String> resultMap = ImmutableBiMap.of("response", response);
+		responseEntity.setData(resultMap);
+		responseEntity.setMsg("上传成功");
+		return responseEntity;
 	}
 
 	/**
@@ -290,8 +288,8 @@ public class RestrictController {
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	public void checkAgeIsCanBind(String personNo) {
-		
-		if(!IdcardUtils.validateCard(personNo)){
+
+		if (!IdcardUtils.validateCard(personNo)) {
 			throw new CommonException(2022, "身份证号码有误");
 		}
 		int cardLen = personNo.length();
@@ -302,7 +300,7 @@ public class RestrictController {
 		} else if (cardLen == 16) {
 			birthdayStr = "19" + personNo.substring(6, 8) + "-" + personNo.substring(8, 10) + "-"
 					+ personNo.substring(10, 12);
-		} 
+		}
 		Date birthday = null;
 		try {
 			birthday = sdf.parse(birthdayStr);
@@ -334,6 +332,33 @@ public class RestrictController {
 		}
 		os.close();
 		is.close();
+	}
+
+	private String upload(String url, HttpEntity<MultiValueMap<String, Object>> httpEntity) {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode node = null;
+		try {
+			node = objectMapper.readValue(responseEntity.getBody(), JsonNode.class);
+		} catch (Exception e) {
+			throw new RuntimeException("服务异常");
+		}
+
+		if (1 == node.get("status").asInt()) {
+			return node.get("response").asText();
+		} else {
+			throw new RuntimeException(node.get("message").asText());
+		}
+	}
+
+	private HttpHeaders buildHttpHeaders(String userId) {
+		String[] header = visitUserService.getRequestHeaderByUid(userId, true);
+		HttpHeaders headers = new HttpHeaders();
+		for (int i = 0; i < header.length; i += 2) {
+			headers.add(header[i], header[i + 1]);
+		}
+		return headers;
 	}
 
 }
