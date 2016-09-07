@@ -94,7 +94,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     public List<QuestionInfoForm> getDoctorPrivateQuestionLivingList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
         String sql="SELECT t1.id,t1.content,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date," +
-                "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.create_time,'%Y-%m-%d %H:%i') as date2 " +
+                "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.new_comment_time,'%Y-%m-%d %H:%i') as date2 " +
                 "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
                 "WHERE answer_id=? " +
                 "ORDER BY status,date2 DESC limit ?,?";
