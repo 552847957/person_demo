@@ -108,7 +108,7 @@ public class RestrictController {
 	@RequestMapping(value = "/restrict", method = RequestMethod.POST)
 	@VersionRange
 	public JsonResponseEntity<Object> restrict(@RequestBody String request) {
-		String url = getURL() + "rest/users/clientRegister.action";
+		String url = getURL() + "/rest/users/clientRegister.action";
 		JsonResponseEntity<Object> entity = new JsonResponseEntity<Object>();
 		JsonKeyReader reader = new JsonKeyReader(request);
 		String password = "123456";
@@ -175,7 +175,7 @@ public class RestrictController {
 			@RequestBody RestrictUploadDto uploadDto) throws IOException {
 		JsonResponseEntity<Map<String, String>> responseEntity = new JsonResponseEntity<>();
 
-		String url = getURL() + "rest/order/phoneAction!getIOSPhotos.action";
+		String url = getURL() + "/rest/order/phoneAction!getIOSPhotos.action";
 
 		String response = uploadDto.getResponse();
 		String userId = uploadDto.getUserId();
@@ -221,7 +221,7 @@ public class RestrictController {
 		String fwid = reader.readString("fwid", false);
 		String addressid = reader.readString("addressid", false);
 
-		String url = getURL() + "rest/order/orderApplyInfoAction!findJgJwByFwidAndAddid.action";
+		String url = getURL() + "/rest/order/orderApplyInfoAction!findJgJwByFwidAndAddid.action";
 		JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<Map<String, String>>();
 		String[] query = { "fwid", fwid, "addressid", addressid };
 		JsonNode node = visitUserService.postRequest(userId, url, query);
@@ -317,7 +317,7 @@ public class RestrictController {
 	}
 
 	private String getURL() {
-		return this.env.getProperty("yyservice.service.host") + "/";
+		return this.env.getProperty("yyservice.service.host");
 	}
 
 	private void download(String urlString, String filename) throws IOException {
