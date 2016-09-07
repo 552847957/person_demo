@@ -134,4 +134,27 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         return getJt().queryForObject(sql,Integer.class);
     }
 
+    @Override
+    public List<HealthActivityInfo> getHealthActivityInfos(String province, String city, String county, int pageNo,
+            int pageSize) {
+        String sql = "select * from app_tb_healthactivity_info where del_flag = '0'";
+        sql += " and online_status = '" + 1 + "'";
+        if(!StringUtils.isEmpty(province)){
+            sql += " and province like '" + province + "%'";
+        }
+        if(!StringUtils.isEmpty(city)){
+            sql +=  " and city like '" + city + "%'";
+        }
+        if (!StringUtils.isEmpty(county)) {
+            sql += " and county like '" + county + "%'";
+        }
+        sql += " ORDER BY update_date desc limit " + (pageNo - 1) * pageSize + "," + (pageSize);
+        List<Map<String, Object>> resourceList = getJt().queryForList(sql);
+        List<HealthActivityInfo> list = Lists.newArrayList();
+        for (Map<String, Object> map : resourceList) {
+            list.add(new Gson().fromJson(new Gson().toJson(map), HealthActivityInfo.class));
+        }
+        return list;
+    }
+
 }
