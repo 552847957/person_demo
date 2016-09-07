@@ -29,6 +29,7 @@ public class PushPlanDTO {
     @JsonProperty("planTime")
     private String planTime; //计划推送时间
     private String operate;//操作 1：编辑、2：通过、3：驳回、4：复制、5：查看、6：取消
+    private Integer status ;// 0:待审核、1:待推送、2:已推送、3:已取消、4:已驳回、5:已过期
 
     public PushPlanDTO(PushPlan plan,String uid,Boolean audit){
         this.id = plan.getId();
@@ -37,21 +38,11 @@ public class PushPlanDTO {
         this.articleId = plan.getArticleId();
         this.createTime = new DateTime(plan.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss");
         this.planTime = new DateTime(plan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss");
+        this.status = plan.getStatus();
 
         Set permission = Sets.newHashSet(4,5);
         switch (plan.getStatus()){
-            case 1: //待推送
-                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator()) || audit){
-                    permission.add(6);
-                }
-                break;
-            case 2: //已经提送
-                break;
-            case 3: //已经取消
-                break;
-            case 5://已经过期
-                break;
-            default: //待审核 和  已驳回
+            case 0: //待审核
                 if(StringUtils.equalsIgnoreCase(uid,plan.getCreator())){
                     permission.add(1);
                 }
@@ -59,6 +50,18 @@ public class PushPlanDTO {
                     permission.add(2);
                     permission.add(3);
                 }
+                break;
+            case 1: //待推送
+                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator()) || audit){
+                    permission.add(6);
+                }
+                break;
+            case 4: //已经驳回
+                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator())){
+                    permission.add(1);
+                }
+                break;
+            default: //已推送、已取消、已驳回
                 break;
         }
         this.operate = StringUtils.join(permission,",");

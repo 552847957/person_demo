@@ -192,6 +192,7 @@ public class GameController {
         List<Game> list = gameRepo.findAll();
 
         Boolean flag = false;
+
         if(null != list && 0 != list.size()){
             Game game = list.get(0);
             if(null != game.getStartTime() && null != game.getEndTime()
