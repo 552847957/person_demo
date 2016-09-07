@@ -7,11 +7,15 @@ import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
+import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
+import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -43,6 +47,9 @@ public class PushController {
 
     @Autowired
     private PushClientWrapper pushClientWrapper;
+
+    @Autowired
+    private ReplyGroupRepository replyGroupRepository;
 
     @PostMapping(path = "/push/single", produces = "application/json")
     public String pushToAlias(@RequestBody AppMessage pushMessage,
@@ -106,9 +113,13 @@ public class PushController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String userId = reader.readString("userId", false);
         String questionId = reader.readString("questionId", false);
-        AppMessage message = AppMessage.Builder.init().title("我的咨询").content("您有一条提问已关闭")
-                .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
-        Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
+        List<ReplyGroup> commentGroupList = replyGroupRepository.getCommentGroupList(questionId);
+
+        if (!commentGroupList.isEmpty()){
+            AppMessage message= AppMessage.Builder.init().title("您的问题已关闭").content("您提交的问题已经关闭")
+                    .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
+            Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
+        }
         return "{\"code\":0}";
     }
 }
