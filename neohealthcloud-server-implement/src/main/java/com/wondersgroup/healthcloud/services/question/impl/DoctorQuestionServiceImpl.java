@@ -77,7 +77,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         String sql="SELECT t1.id,t1.content,t1.is_new_question as isNoRead,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
                 " FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
                 "WHERE (t1.assign_answer_id='' OR t1.assign_answer_id=?) AND t1.status<>3 AND ifnull(t2.answer_id,'')<>? " +
-                "GROUP BY id ORDER BY date DESC limit ?,?";
+                "GROUP BY id assign_answer_id DESC,ORDER BY date DESC limit ?,?";
         elementType.add(doctor_id);
         elementType.add(doctor_id);
         elementType.add((page-1)*pageSize);
