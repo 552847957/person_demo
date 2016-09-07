@@ -216,7 +216,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         }
         GImageText gImageText = gImageTextRepository.findGImageTextForApp(mainArea, specArea, gadcode, version);
         if (gImageText != null) {
-            List<ImageText> imageTextList = imageTextRepository.findByGid(gImageText.getId());
+            List<ImageText> imageTextList = imageTextRepository.findByGidForApp(gImageText.getId());
             return imageTextList;
         }
         return null;

@@ -132,8 +132,8 @@ public class ShiroApplication {
         shiroFilterFactoryBean.setFilters(map);
 
         StringBuffer value = new StringBuffer();
-        value.append("/api/login = authc\n");
-                //.append("/logout = logout\n")
+        value.append("/api/login = authc\n")
+                .append("api/logout = logout\n");
                 //.append("/api/welcome = user\n")
                 //.append("/api/notice/** = user\n");
 

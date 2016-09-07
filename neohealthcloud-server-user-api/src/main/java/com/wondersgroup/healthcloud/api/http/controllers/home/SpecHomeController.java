@@ -199,6 +199,7 @@ public class SpecHomeController {
     }
 
     @GetMapping(value = "/specSerMeasuringPoint")
+    @WithoutToken
     public JsonResponseEntity specSerMeasuringPoint(@RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
                                                     @RequestHeader(name = "app-version", required = true) String appVersion,

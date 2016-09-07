@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,9 +72,15 @@ public class ConfigController {
      */
     @Admin
     @RequestMapping(value = "/saveAppConfig", method = RequestMethod.POST)
-    public JsonResponseEntity saveAppConfig(@RequestHeader(required = true) String source, @RequestBody AppConfig appConfig) {
+    public JsonResponseEntity saveAppConfig(@RequestHeader(name = "main-area", required = true) String mainArea,
+                                            @RequestHeader(name = "spec-area", required = false) String specArea,
+                                            @RequestHeader(required = true) String source, @RequestBody AppConfig appConfig) {
         JsonResponseEntity result = new JsonResponseEntity();
         appConfig.setSource(source);
+        appConfig.setMainArea(mainArea);
+        if (StringUtils.isNotEmpty(specArea)) {
+            appConfig.setSpecArea(specArea);
+        }
         AppConfig rtnAppConfig = appConfigService.saveAndUpdateAppConfig(appConfig);
         if (rtnAppConfig != null) {
             result.setMsg("配置信息保存成功！");

@@ -58,7 +58,8 @@ public class SpecCommonController {
         // 全局接口不需指定区级区域ID
         data.put("common", getAppConfig(mainArea, null, platform));
 
-        AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.appUpdate");
+        // 更新接口无需校验 specArea
+        AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.appUpdate");
         if (acUpdate != null) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -189,7 +190,6 @@ public class SpecCommonController {
         keyWords.add("app.common.huidao.appkey");// 汇道
         keyWords.add("app.common.huidao.sid");// 汇道
         keyWords.add("app.common.huidao.apiid");// 汇道
-        keyWords.add("app.common.appUpdate");// APP更新
         keyWords.add("app.common.medicineCloudUrl");// 医药云
         keyWords.add("app.common.medicinePayUrl");// 医疗支出
         keyWords.add("app.common.recordUrl");// 市级健康档案
@@ -201,7 +201,7 @@ public class SpecCommonController {
         keyWords.add("app.common.wdTrinityKey");// 公司埋点key
         keyWords.add("app.common.wdTrinityIp");// 公司埋点ip
         keyWords.add("app.common.voiceTip");// 语音-提示
-        keyWords.add("app.common.callCentUrl");// 在线客服是否显示
+        keyWords.add("app.common.callCentUrl");// 在线客服链接
         keyWords.add("app.common.disclaimerUrl");// 健康档案说明文案
 
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
