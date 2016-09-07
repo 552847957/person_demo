@@ -39,4 +39,6 @@ public interface DoctorService {
     List<Doctor> findDoctorListByPager(int pageNum, int size, Map parameter);
 
     int countFaqByParameter(Map parameter);
+
+    List<Map<String,Object>> findDoctorServicesByIdWithoutDel(String uid);
 }

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.doctor.entity;
 
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +39,8 @@ public class Doctor {
     private String actcode;//医生推广邀请码
 
     private String isAvailable;
+
+    private List<String> serviceIds;
 
     public Doctor() {
     }
@@ -244,5 +247,13 @@ public class Doctor {
 
     public void setDepartStandard(String departStandard) {
         this.departStandard = departStandard;
+    }
+
+    public List<String> getServiceIds() {
+        return serviceIds;
+    }
+
+    public void setServiceIds(List<String> serviceIds) {
+        this.serviceIds = serviceIds;
     }
 }
