@@ -291,7 +291,7 @@ public class RestrictController {
 
 	public void checkAgeIsCanBind(String personNo) {
 		
-		if(IdcardUtils.validateCard(personNo)){
+		if(!IdcardUtils.validateCard(personNo)){
 			throw new CommonException(2022, "身份证号码有误");
 		}
 		int cardLen = personNo.length();
