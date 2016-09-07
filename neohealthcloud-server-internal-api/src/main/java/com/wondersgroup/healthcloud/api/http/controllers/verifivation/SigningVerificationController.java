@@ -7,6 +7,8 @@ import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -29,6 +31,9 @@ public class SigningVerificationController {
     @Autowired
     private SigningVerficationService signingVerficationService;
 
+    @Autowired
+    private JedisPool pool;
+
     @PostMapping(path = "/signing/verification")
     public JsonResponseEntity<String> generateVerificationCode(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -44,12 +49,22 @@ public class SigningVerificationController {
         return body;
     }
 
+    private static final long millis = 24 * 60 * 60 * 1000;
+
     @PostMapping(path = "/signing/verification/external")
     public JsonResponseEntity<String> generateExternalVerificationCode(@RequestHeader(name = "token") String token,
                                                                        @RequestBody String request) {
         if (!"5eaa7d91d75f431582f9608b79d835a9".equals(token)) {
             throw new CommonException(1000, "token不正确");
+        } else {
+            try (Jedis jedis = pool.getResource()) {
+                long count = jedis.incr("ext:signing:token:" + token + ":" + System.currentTimeMillis() / millis);
+                if (count > 3000) {
+                    throw new CommonException(1000, "当天已请求超过3000次");
+                }
+            }
         }
+
         JsonKeyReader reader = new JsonKeyReader(request);
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         builder.put("hospial", reader.readString("hospital", false));
