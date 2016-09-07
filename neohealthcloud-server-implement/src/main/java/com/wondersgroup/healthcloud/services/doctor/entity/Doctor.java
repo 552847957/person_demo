@@ -22,6 +22,7 @@ public class Doctor {
 
     private String hospitalName;//所属医疗机构名称
 
+    private String departStandard;//所属标准科室Id
     private String departName;//所属标准科室
 
     private String dutyName; //职称
@@ -68,6 +69,10 @@ public class Doctor {
             this.talkgroupid = doctor.get("talkgroupid")==null?"":doctor.get("talkgroupid").toString();
 
             this.actcode = doctor.get("actcode")==null?"":doctor.get("actcode").toString();
+
+            this.isAvailable = doctor.get("isAvailable")==null?"":doctor.get("isAvailable").toString();
+
+            this.departStandard = doctor.get("departStandard")==null?"":doctor.get("departStandard").toString();
         }
 
 
@@ -231,5 +236,13 @@ public class Doctor {
 
     public void setIsAvailable(String isAvailable) {
         this.isAvailable = isAvailable;
+    }
+
+    public String getDepartStandard() {
+        return departStandard;
+    }
+
+    public void setDepartStandard(String departStandard) {
+        this.departStandard = departStandard;
     }
 }

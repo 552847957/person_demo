@@ -1,13 +1,18 @@
 package com.wondersgroup.healthcloud.services.medicalcircle.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -63,6 +68,9 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
     private CircleReportUtils circleReportUtils;
     @Autowired
     private CircleViewsUtils circleViewsUtils;
+
+    @Autowired
+    private JdbcTemplate jt;
 
     @Override
     public List<MedicalCircle> getAllMedicalCircle(Integer[] type,String order, Date flag) {
@@ -485,5 +493,39 @@ public class MedicalCircleServiceImpl implements MedicalCircleService {
     public List<MedicalCircleCollect> getCollectCircleListByType(String doctorId,int type, Date flag,String order){
         List<MedicalCircleCollect> collectList = mcCollectRepo.findCollectListByType(doctorId, type, flag, PageFactory.create(1, 20, order)).getContent();
         return collectList;
+    }
+
+
+    //--------后台配置 帖子/病历 列表---
+
+    @Override
+    public List<MedicalCircle> findMedicalCircleListByPager(int pageNum, int pageSize) {
+        String sql = " select a.id,a.doctorid,da.`name` as 'doctorName',a.title,a.tagid, " +
+                " dt.tagname,a.content,a.is_visible as 'isVisible' " +
+                " from app_tb_medicalcircle a " +
+                " left join doctor_account_tb da on a.doctorid = da.id " +
+                " left join app_dic_tag dt on a.tagid = dt.id " +
+                " where a.del_flag = '0' order by a.update_date desc  ";
+        sql =  String.format((sql + " LIMIT %s,%s"),pageNum*pageSize,pageSize);
+
+        RowMapper<MedicalCircle> rowMapper = new MedicalCircleListRowMapper();
+        List<MedicalCircle> medicalCircleList = jt.query(sql, rowMapper);
+        return medicalCircleList;
+    }
+
+    public class MedicalCircleListRowMapper implements RowMapper<MedicalCircle> {
+        @Override
+        public MedicalCircle mapRow(ResultSet rs, int i) throws SQLException {
+            MedicalCircle medicalCircle = new MedicalCircle();
+            medicalCircle.setId(rs.getString("id"));
+            medicalCircle.setTitle(rs.getString("title"));
+            medicalCircle.setDoctorid(rs.getString("doctorid"));
+            medicalCircle.setDoctorName(rs.getString("doctorName"));
+            medicalCircle.setTagid(rs.getString("tagid"));
+            medicalCircle.setTagnames(rs.getString("tagname"));
+            medicalCircle.setContent(rs.getString("content"));
+            medicalCircle.setIsVisible(rs.getString("isVisible"));
+            return medicalCircle;
+        }
     }
 }

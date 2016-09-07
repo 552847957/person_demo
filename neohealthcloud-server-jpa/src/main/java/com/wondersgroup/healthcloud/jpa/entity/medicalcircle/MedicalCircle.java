@@ -2,10 +2,8 @@ package com.wondersgroup.healthcloud.jpa.entity.medicalcircle;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -47,5 +45,9 @@ public class MedicalCircle implements  Serializable {
     private String updateBy;
     @Column(name = "update_date")
     private Date updateDate;
+
+
+    @Transient
+    private String doctorName;
 
 }

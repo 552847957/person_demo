@@ -245,4 +245,6 @@ public interface MedicalCircleService {
     List<MedicalCircle> getCollectCircleList(String doctorId,Date flag,Integer[] type);
 
     List<MedicalCircleCollect> getCollectCircleListByType(String doctorId, int type, Date flag, String order);
+
+    List<MedicalCircle> findMedicalCircleListByPager(int pageNum, int pageSize);
 }

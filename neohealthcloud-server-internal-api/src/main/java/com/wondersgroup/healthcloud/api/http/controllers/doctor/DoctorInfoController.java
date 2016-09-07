@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,21 +31,39 @@ public class DoctorInfoController {
     private DoctorInfoRepository doctorInfoRepository;
 
     @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
+
+    @Autowired
     private DoctorService doctorService;
 
     /**
      * 保存医生信息
-     * @param para
+     * @param
      * @return
      */
     @PostMapping(path = "/doctorInfo/save")
-    public JsonResponseEntity saveDoctorInfo(@RequestBody Map para){
-        DoctorInfo doctorInfo = MapToBeanUtil.fromMapToBean(DoctorInfo.class, para);
-        doctorInfo.setCreateDate(new Date());
-        doctorInfo.setUpdateDate(new Date());
-        doctorInfoRepository.saveAndFlush(doctorInfo);
+    public JsonResponseEntity saveDoctorInfo(@RequestBody Doctor doctor){
 
-        return new JsonResponseEntity(0, "保存成功");
+        if(doctor!=null && StringUtils.isNotBlank(doctor.getUid())){
+            DoctorInfo doctorInfo = doctorInfoRepository.findOne(doctor.getUid());
+            if(doctorInfo!=null){
+                doctorInfo.setExpertin(doctor.getExpertin());
+                doctorInfo.setIntroduction(doctor.getIntroduction());
+                doctorInfo.setDepartStandard(doctor.getDepartStandard());
+                doctorInfoRepository.saveAndFlush(doctorInfo);
+            }
+            DoctorAccount doctorAccount = doctorAccountRepository.findOne(doctor.getUid());
+            if(doctorAccount!=null){
+                doctorAccount.setIsAvailable(doctor.getIsAvailable());
+                doctorAccountRepository.saveAndFlush(doctorAccount);
+            }
+
+            return new JsonResponseEntity(0, "保存成功");
+        }else{
+            return new JsonResponseEntity(3101, "保存失败,参数有误");
+        }
+
+
     }
 
     /**
@@ -50,15 +71,19 @@ public class DoctorInfoController {
      * @return
      */
     @GetMapping(path = "/doctorInfo/find")
-    public String findDoctorInfo(@RequestParam String id) throws JsonProcessingException {
-        DoctorInfo doctorInfo = doctorInfoRepository.findById(id);
+    public JsonResponseEntity<Doctor> findDoctorInfo(@RequestParam String uid) throws JsonProcessingException {
 
-        Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(DoctorInfo.class, new String[]{"create_by", "create_date", "update_by", "update_date"});
-        SimpleFilterProvider filterProvider = PropertyFilterUtil.serializeAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", doctorInfo);
+        JsonResponseEntity<Doctor> response = new JsonResponseEntity<>();
 
-        return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+        Doctor doctor = doctorService.findDoctorByUid(uid);
+
+        if(doctor==null){
+            response.setCode(3101);
+            response.setMsg("不存在的医生");
+            return response;
+        }
+        response.setData(doctor);
+        return response;
     }
 
 

@@ -1,15 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers.medicalcircle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.Pager;
-import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleTag;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.medicalcircle.MedicalCircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.medicalcircle.MedicalCircleTagRepository;
 import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
@@ -17,14 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by shenbin on 16/8/28.
@@ -41,24 +37,141 @@ public class MedicalCircleController {
 
     @Autowired
     private MedicalCircleTagRepository medicalCircleTagRepository;
+
+    @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
+
+
+
+    //-------------------- 医学圈--帖子/病历-----------------------
     /**
      * 查询帖子病例列表
-     * @param pageable
+     * @param
      * @return
      * @throws JsonProcessingException
      */
-    @RequestMapping(value = "medicalCircle/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String findMedicalCircleList(@PageableDefault(size = 20) Pageable pageable) throws JsonProcessingException {
-        Page<MedicalCircle> medicalCircles = medicalCircleRepository.findAll(pageable);
+    @RequestMapping(value = "medicalCircle/list", method = RequestMethod.POST)
+    public Pager findMedicalCircleList(@RequestBody Pager pager){
+        int pageNum = 1;
+        if(pager.getNumber()!=0)
+            pageNum = pager.getNumber();
 
-        Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(MedicalCircle.class, new String[]{"id", "title", "content", "is_visible", "tagnames"});
-        filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
-        SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
-        JsonResponseEntity response = new JsonResponseEntity(0, "查询成功", medicalCircles);
-
-        return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
+        List<MedicalCircle> rt = medicalCircleService.findMedicalCircleListByPager(pageNum - 1, pager.getSize());
+        int totalSize = medicalCircleRepository.countTag();
+        pager.setTotalElements(totalSize);
+        pager.setData(rt);
+        return pager;
     }
+
+
+    /**
+     * 批量修改冻结/解冻
+     * @return
+     */
+    @RequestMapping(value = "medicalCircleIsVisible/update", method = RequestMethod.POST)
+    public JsonResponseEntity updateMedicalCircleIsVisible(@RequestBody String request) {
+
+        JsonKeyReader reader = new JsonKeyReader(request);
+        List<String> ids = reader.readObject("ids", true,List.class);
+        String isVisible = reader.readString("isVisible", true);
+        medicalCircleRepository.updateIsVisible(ids, isVisible);
+
+        return new JsonResponseEntity(0, "修改成功");
+    }
+
+    /**
+     * 批量添加标签
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "medicalCircle/batchUpdateTag", method = RequestMethod.POST)
+    public JsonResponseEntity batchUpdateTag(@RequestBody String request) {
+
+        JsonKeyReader reader = new JsonKeyReader(request);
+        List<String> ids = reader.readObject("ids", true,List.class);
+        List<String> tags = reader.readObject("tagIds", true,List.class);
+        String tagId = tags.get(0);
+
+        medicalCircleRepository.batchUpdateTagByIds(ids, tagId);
+
+        return new JsonResponseEntity(0, "修改成功");
+    }
+
+
+    /**
+     * 保存、修改医学圈子
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "medicalCircle/saveMedicalCircle", method = RequestMethod.POST)
+    public JsonResponseEntity<String> saveMedicalCircle(@RequestBody  MedicalCircle medicalCircle) {
+        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        try {
+            if(medicalCircle!=null){
+                if (StringUtils.isBlank(medicalCircle.getId())) { // 保存
+                    jsonResponseEntity.setCode(1001);
+                    jsonResponseEntity.setMsg("参数不正确");
+                    return jsonResponseEntity;
+                }else{
+                    MedicalCircle medicalCircleOld = medicalCircleRepository.findOne(medicalCircle.getId());
+                    medicalCircleOld.setContent(medicalCircle.getContent());
+                    medicalCircleOld.setIsVisible(medicalCircle.getIsVisible());
+                    medicalCircleOld.setTitle(medicalCircle.getTitle());
+                    medicalCircleOld.setUpdateDate(new Date());
+
+                    String tagId = "";
+                    if(StringUtils.isNotBlank(medicalCircle.getTagid())){
+                        String[] tagIds = medicalCircle.getTagid().split(",");
+                        tagId = tagIds[0];
+                    }
+
+                    medicalCircleOld.setTagid(tagId);
+
+                    medicalCircleRepository.save(medicalCircleOld);
+                    jsonResponseEntity.setMsg("保存成功");
+                    return jsonResponseEntity;
+                }
+
+            }
+
+        } catch (Exception e) {
+            String errorMsg = "保存/修改医学圈帖子出错";
+            logger.error(errorMsg, e);
+            jsonResponseEntity.setCode(1001);
+            jsonResponseEntity.setMsg(errorMsg);
+        }
+        return jsonResponseEntity;
+    }
+
+    /**
+     * 帖子/病历详情
+     * @param id
+     * @return
+     */
+    @RequestMapping(value="medicalCircle/getMedicalCircleById",method = RequestMethod.GET)
+    public JsonResponseEntity getMedicalCircleById(@RequestParam String id) {
+        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        try {
+            MedicalCircle medicalCircle = medicalCircleService.getMedicalCircle(id);
+            if (medicalCircle != null) {
+                DoctorAccount doctorAccount =doctorAccountRepository.findOne(medicalCircle.getDoctorid());
+                medicalCircle.setDoctorName(doctorAccount.getName());
+                jsonResponseEntity.setData(medicalCircle);
+                return jsonResponseEntity;
+            } else {
+                jsonResponseEntity.setCode(1002);
+                jsonResponseEntity.setMsg("未查询到帖子详情");
+            }
+        } catch (Exception e) {
+            String errorMsg = "查询帖子详情出错";
+            logger.error(errorMsg, e);
+            jsonResponseEntity.setCode(1001);
+            jsonResponseEntity.setMsg(errorMsg);
+        }
+        return jsonResponseEntity;
+    }
+
+    //-------------------------医学圈标签---------------------------
 
 
     /**
@@ -106,6 +219,7 @@ public class MedicalCircleController {
             }
             medicalCircleTag.setUpdateDate(new Date());
             medicalCircleTagRepository.save(medicalCircleTag);
+            return new JsonResponseEntity(0, "保存成功");
         }
 
         return new JsonResponseEntity(1001, "保存失败");
@@ -123,7 +237,6 @@ public class MedicalCircleController {
         MedicalCircleTag medicalCircleTag = medicalCircleTagRepository.findOne(id);
         if(medicalCircleTag!=null){
             response.setData(medicalCircleTag);
-
         }else{
             response.setCode(3010);
             response.setMsg("查询失败");
@@ -131,6 +244,12 @@ public class MedicalCircleController {
         return response;
     }
 
+
+    /**
+     * 标签批量删除
+     * @param ids
+     * @return
+     */
     @RequestMapping(value = "medicalCircleTag/batchDelete", method = RequestMethod.POST)
     public JsonResponseEntity batchDelete(@RequestBody List<String> ids) {
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
@@ -145,87 +264,5 @@ public class MedicalCircleController {
         return response;
     }
 
-    /**
-     * 批量修改冻结/解冻
-     * @param ids
-     * @param isVisible
-     * @return
-     */
-    @RequestMapping(value = "medicalCircleIsVisible/update", method = RequestMethod.POST)
-    public JsonResponseEntity updateMedicalCircleIsVisible(@RequestParam List<String> ids,
-                                                           @RequestParam String isVisible) {
-        medicalCircleRepository.updateIsVisible(ids, isVisible);
 
-        return new JsonResponseEntity(0, "修改成功");
-    }
-
-
-    /**
-     * 保存、修改医学圈子 TODO
-     * @param
-     * @return
-     */
-    @RequestMapping(value = "medicalCircle/saveMedicalCircle", method = RequestMethod.POST)
-    public JsonResponseEntity<String> saveMedicalCircle(@RequestBody  MedicalCircle medicalCircle) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
-        try {
-            if(medicalCircle!=null){
-                if (StringUtils.isBlank(medicalCircle.getId())) { // 保存
-                    medicalCircle.setId(IdGen.uuid());
-                    medicalCircle.setCreateDate(new Date());
-                }
-                medicalCircle.setUpdateDate(new Date());
-                medicalCircleRepository.save(medicalCircle);
-                jsonResponseEntity.setMsg("保存成功");
-                return jsonResponseEntity;
-
-            }
-
-        } catch (Exception e) {
-            String errorMsg = "保存/修改医学圈帖子出错";
-            logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
-        }
-        return jsonResponseEntity;
-    }
-
-    /**
-     * 初始化保存圈子实体
-     * @param title
-     * @param tagid
-     * @param isVisible
-     * @param content
-     * @return
-     */
-    private MedicalCircle initMedicalCircle(String title, String tagid, String isVisible, String content) {
-        MedicalCircle medicalCircle = new MedicalCircle();
-        medicalCircle.setTitle(title);
-        medicalCircle.setTagid(tagid);
-        medicalCircle.setIsVisible(isVisible);
-        medicalCircle.setContent(content);
-        medicalCircle.setSendtime(new Date());
-        return medicalCircle;
-    }
-
-    @RequestMapping(value="medicalCircle/getMedicalCircleById",method = RequestMethod.GET)
-    public JsonResponseEntity getMedicalCircleById(@RequestParam String id) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
-        try {
-            MedicalCircle medicalCircle = medicalCircleService.getMedicalCircle(id);
-            if (medicalCircle != null) {
-                jsonResponseEntity.setData(medicalCircle);
-                return jsonResponseEntity;
-            } else {
-                jsonResponseEntity.setCode(1002);
-                jsonResponseEntity.setMsg("未查询到帖子详情");
-            }
-        } catch (Exception e) {
-            String errorMsg = "查询帖子详情出错";
-            logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
-        }
-        return jsonResponseEntity;
-    }
 }

@@ -40,7 +40,7 @@ public class DoctorServiceImpl implements DoctorService {
 
 
     private String query = "select a.id,a.`name` ,a.mobile,a.nickname ,a.login_name as 'loginName',a.avatar , " +
-                          " a.talkid ,a.talkpwd ,a.talkgroupid,i.`no`, a.is_available as 'isAvailable',  "+
+                          " a.talkid ,a.talkpwd ,a.talkgroupid,i.`no`, a.is_available as 'isAvailable',i.depart_standard as 'departStandard',  "+
                           " i.actcode,i.expertin,i.introduction,i.idcard,i.gender,i.hospital_id as 'hospitalId', " +
                           " d.duty_name as 'dutyName',gb.`name` as 'departName',hi.hospital_name as 'hospitalName' " +
                           " from doctor_account_tb a " +
@@ -328,6 +328,9 @@ public class DoctorServiceImpl implements DoctorService {
             }
             if(parameter.containsKey("mobile") && StringUtils.isNotBlank(parameter.get("mobile").toString())){
                 bf.append(" and a.mobile = "+parameter.get("mobile").toString());
+            }
+            if(parameter.containsKey("isAvailable") && StringUtils.isNotBlank(parameter.get("isAvailable").toString())){
+                bf.append(" and a.is_available = "+parameter.get("isAvailable").toString());
             }
             if(parameter.containsKey("hospitalName") && StringUtils.isNotBlank(parameter.get("hospitalName").toString())){
                 bf.append(" and hi.hospital_name like '%"+parameter.get("hospitalName").toString() +"%' ");
