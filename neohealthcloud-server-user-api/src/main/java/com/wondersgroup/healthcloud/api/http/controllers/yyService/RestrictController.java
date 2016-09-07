@@ -297,6 +297,8 @@ public class RestrictController {
 		} else if (cardLen == 16) {
 			birthdayStr = "19" + personNo.substring(6, 8) + "-" + personNo.substring(8, 10) + "-"
 					+ personNo.substring(10, 12);
+		} else {
+			throw new CommonException(2022, "身份证号码有误");
 		}
 		Date birthday = null;
 		try {
