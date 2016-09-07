@@ -8,9 +8,12 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
+import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.healthactivity.HealthActivityAPIEntity;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,9 @@ public class SpecServicesController {
     private ImageTextService imageTextService;
     @Autowired
     private HealthActivityInfoService haiService;
-
+    @Autowired
+    private UserService userService;
+    
     @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
@@ -71,7 +76,7 @@ public class SpecServicesController {
         }
 
         // 健康活动 不区分区域-2016/09/06测试(TY)确认
-        List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(null, fillingArea(mainArea), null, 1, 1, 1);
+        List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(null, fillingArea(mainArea), null, 1, 1);
         if (infoList != null && infoList.size() > 0) {
             HealthActivityInfo healthActivityInfo = infoList.get(0);
             HealthActivityAPIEntity entity = new HealthActivityAPIEntity(healthActivityInfo,width,height);
@@ -80,7 +85,8 @@ public class SpecServicesController {
 
         // 近期异常指标 begin
         try {
-            String parameters = "registerId=".concat(registerId).concat("&personCard=0");
+            RegisterInfo info = userService.getOneNotNull(registerId);
+            String parameters = "registerId=".concat(registerId).concat("&personCard=0").concat("&sex=" + info.getGender());
             String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {

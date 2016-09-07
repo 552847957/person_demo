@@ -144,7 +144,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public List<Map<String, Object>> findDoctorServicesById(String uid) {
 
-        String sql = " select sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
+        String sql = " select sd.id,sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
                 " from doctor_account_tb a " +
                 " left join doctor_service_tb s on a.id = s.doctor_id " +
                 " left join doctor_service_dic sd on s.service_id = sd.id " +
@@ -317,6 +317,18 @@ public class DoctorServiceImpl implements DoctorService {
                 getWhereSqlByParameter(parameter);
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
+    }
+
+    @Override
+    public List<Map<String, Object>> findDoctorServicesByIdWithoutDel(String uid) {
+        String sql = " select sd.id,sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
+                " from doctor_account_tb a " +
+                " left join doctor_service_tb s on a.id = s.doctor_id " +
+                " left join doctor_service_dic sd on s.service_id = sd.id " +
+                " where  a.id = '%s'";
+
+        sql =  String.format(sql,uid);
+        return jt.queryForList(sql);
     }
 
     public String getWhereSqlByParameter(Map parameter){
