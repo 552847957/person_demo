@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.helper.push.getui;
 
+import com.gexin.rp.sdk.base.IAliasResult;
 import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.IQueryResult;
 import com.gexin.rp.sdk.http.IGtPush;
@@ -39,6 +40,11 @@ public class PushGetuiAdminClientImpl implements PushAdminClient {
     @Override
     public void overrideTagToClient(String cid, List<String> tags) {
         IQueryResult ret = push.setClientTag(appId, cid, tags);
+    }
+
+    @Override
+    public void unbindAliasAll(String alias) {
+        IAliasResult AliasUnBindAll = push.unBindAliasAll(appId, alias);
     }
 
     @Override

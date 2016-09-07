@@ -20,5 +20,7 @@ public interface PushAdminClient {
 
     void overrideTagToClient(String cid, List<String> tags);
 
+    void unbindAliasAll(String alias);
+
     void getPushResult(String taskId);
 }

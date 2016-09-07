@@ -58,6 +58,7 @@ public class PushAreaBindService {
 
             PushAdminClient client = pushAdminSelector.getByArea(userPushInfo.getArea(), false);//clear tag binded to previous device
             client.overrideTagToClient(userPushInfo.getCid(), new LinkedList<String>());
+            client.unbindAliasAll(uid);
         }
     }
 
