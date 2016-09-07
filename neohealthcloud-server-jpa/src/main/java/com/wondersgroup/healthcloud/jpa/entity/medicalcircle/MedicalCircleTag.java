@@ -21,7 +21,7 @@ public class MedicalCircleTag {
     private String charid;
     private String tagname;
     private String tagmemo;
-    private String tagsort;
+    private Integer tagsort;
     private String tagcolor;
 
 

@@ -6,9 +6,12 @@ import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/17.
@@ -19,6 +22,27 @@ public class ConfigController {
 
     @Autowired
     private AppConfigService appConfigService;
+
+    @Value("${yyservice.user.register.count}")
+    private String yyServiceSignCount;
+
+    /**
+     * 获取yy服务签约的人数
+     */
+    @Admin
+    @RequestMapping(value = "/yyService/signNum", method = RequestMethod.GET)
+    public JsonResponseEntity<Map<String, String>> yyServiceSignNum() {
+        JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<>();
+        String signCountStr = StringUtils.isNotEmpty(yyServiceSignCount) ? yyServiceSignCount : "";
+        int strLen = signCountStr.length();
+        Map<String, String> map = new HashMap<>();
+        map.put("q", strLen >= 4 ? signCountStr.substring(strLen-4, strLen-3) : "0");
+        map.put("b", strLen >= 3 ? signCountStr.substring(strLen-3, strLen-2) : "0");
+        map.put("s", strLen >= 2 ? signCountStr.substring(strLen-2, strLen-1) : "0");
+        map.put("g", strLen >= 1 ? signCountStr.substring(strLen-1) : "0");
+        entity.setData(map);
+        return entity;
+    }
 
     /**
      * 根据关键字查询单个APP配置信息
