@@ -90,12 +90,10 @@ public class DoctorArticleController {
 
     /**
      * 保存学院文章
-     * @param para
      * @return
      */
     @RequestMapping(value = "saveDoctorArticle", method = RequestMethod.POST)
-    public JsonResponseEntity saveDoctorArticle(@RequestBody Map para) {
-        DoctorArticle doctorArticle = MapToBeanUtil.fromMapToBean(DoctorArticle.class, para);
+    public JsonResponseEntity saveDoctorArticle(@RequestBody DoctorArticle doctorArticle) {
         doctorArticle.setUpdateTime(new Date());
         doctorArticleRepository.save(doctorArticle);
 
@@ -104,15 +102,13 @@ public class DoctorArticleController {
 
     /**
      * 修改学院文章
-     * @param para
+     * @param
      * @return
      */
     @RequestMapping(value = "updateDoctorArticle", method = RequestMethod.POST)
-    public JsonResponseEntity updateDoctorArticle(@RequestBody Map para) {
-        DoctorArticle doctorArticle = MapToBeanUtil.fromMapToBean(DoctorArticle.class, para);
+    public JsonResponseEntity updateDoctorArticle(@RequestBody DoctorArticle doctorArticle) {
         doctorArticle.setUpdateTime(new Date());
         doctorArticleRepository.save(doctorArticle);
-
         return new JsonResponseEntity(0, "修改成功");
     }
 

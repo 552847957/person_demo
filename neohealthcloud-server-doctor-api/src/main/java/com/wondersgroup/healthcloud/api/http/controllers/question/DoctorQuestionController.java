@@ -48,7 +48,7 @@ public class DoctorQuestionController {
         Question question=doctorQuestionService.queryQuestion(questionId);
         String userId=question.getAskerId();
         String doctorName=doctorService.findDoctorByUid(doctorId).getName();
-        AppMessage message=AppMessage.Builder.init().title(doctorName+"医生回复了您的问题，点击查看").content(content)
+        AppMessage message=AppMessage.Builder.init().title(doctorName+"医生回复了您的问题").content(content)
                 .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
         Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
 
