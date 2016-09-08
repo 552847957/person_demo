@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.common.http.filters.interceptor;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.wondersgroup.healthcloud.common.http.annotations.IgnoreGateLog;
@@ -8,6 +10,7 @@ import com.wondersgroup.healthcloud.common.http.servlet.ServletRequestIPAddressU
 import com.wondersgroup.healthcloud.common.http.support.version.APIScanner;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import okio.Okio;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,41 +61,55 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
 
         String remoteIp = ServletRequestIPAddressUtil.parse(request);
 
-        Long durantion = end - start;
+        Long duration = end - start;
 
-        StringBuilder sb = new StringBuilder(512);
-        sb.append(method);
-        sb.append(URI);
-        sb.append(" ");
-        sb.append(remoteIp);
-        sb.append(" ");
-        sb.append(durantion);
-        sb.append(" ");
-        sb.append(response.getStatus());
-        sb.append(" ");
-        sb.append(request.getHeader("request-id"));
-        sb.append(" ");
-        sb.append(ServletAttributeCacheUtil.getHeaderStr(request));
+        LogBuilder node = LogBuilder.builder();
+
+        node.put("url", method + URI);
+        node.put("ip", remoteIp);
+        node.put("duration", duration);
+        node.put("status", response.getStatus());
+        node.put("request-id", request.getHeader("request-id"));
+        node.put("headers", ServletAttributeCacheUtil.getHeaderStr(request));
         if (!logIgnore.contains(method + URI)) {
-            sb.append(" ");
-            sb.append(request.getQueryString());
-            sb.append(" ");
-            sb.append(Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8));
+            node.put("query", request.getQueryString());
+            node.put("body", Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8));
         }
 
         Session session = ServletAttributeCacheUtil.getSession(request, null);
-        sb.append(" uid=");
         if (session != null) {
-            sb.append(session.getUserId());
-        } else {
-            sb.append("null");
+            node.put("uid", session.getUserId());
         }
 
-        logger.info(sb.toString());
+        logger.info(node.build());
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
     }
 
+    private static class LogBuilder {
+
+        private static final JsonNodeFactory factory = JsonNodeFactory.instance;
+        private ObjectNode node;
+
+        LogBuilder() {
+            node = factory.objectNode();
+        }
+
+        static LogBuilder builder() {
+            return new LogBuilder();
+        }
+
+        String build() {
+            return node.toString();
+        }
+
+        LogBuilder put(String key, Object value) {
+            if (value != null && StringUtils.isNotBlank(value.toString())) {
+                node.put(key, value.toString());
+            }
+            return this;
+        }
+    }
 }
