@@ -1,6 +1,4 @@
 package com.wondersgroup.healthcloud.services.article;
-
-import com.wondersgroup.healthcloud.jpa.entity.article.ArticleArea;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 
