@@ -86,6 +86,7 @@ public class PushGetuiClientImpl implements PushClient {
         appMessage.setAppIdList(Lists.newArrayList(appId));
         AppConditions cdt = new AppConditions();
         cdt.addCondition(AppConditions.TAG, tags);
+        appMessage.setConditions(cdt);
         PushResult result = (PushResult) push.pushMessageToApp(appMessage);
         logger.info(String.format("cli[%s] msg[%s][%s] tags[%s] result[%s]", area, message.title, message.content, StringUtils.join(tags, ","), result.getResponse().toString()));
     }
