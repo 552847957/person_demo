@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -43,6 +44,8 @@ public class SpecServicesController {
     private HealthActivityInfoService haiService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DictCache dictCache; 
     
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -80,6 +83,7 @@ public class SpecServicesController {
         if (infoList != null && infoList.size() > 0) {
             HealthActivityInfo healthActivityInfo = infoList.get(0);
             HealthActivityAPIEntity entity = new HealthActivityAPIEntity(healthActivityInfo,width,height);
+            setLocation(entity, healthActivityInfo);
             data.put("activities", entity);
         }
 
@@ -150,5 +154,14 @@ public class SpecServicesController {
             }
         }
         return areaId;
+    }
+    
+    public void setLocation(HealthActivityAPIEntity entity,HealthActivityInfo info){
+        String province = StringUtils.isEmpty(info.getProvince())?"":dictCache.queryArea(info.getProvince());
+        String city = (province.contains("上海") || province.contains("北京") || province.contains("重庆") || province.contains("天津") ||
+                StringUtils.isEmpty(info.getCity()))?"":dictCache.queryArea(info.getCity());
+        String county = StringUtils.isEmpty(info.getCounty())?"":dictCache.queryArea(info.getCounty());
+        entity.setLocation(province+city+county+info.getLocate());
+        entity.setHost((StringUtils.isEmpty(city)?dictCache.queryArea(info.getCounty()):city)+info.getHost());
     }
 }
