@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.helper.push.getui;
 
 import com.gexin.rp.sdk.base.IPushResult;
+import com.gexin.rp.sdk.base.IQueryResult;
 import com.gexin.rp.sdk.base.impl.AppMessage;
 import com.gexin.rp.sdk.base.impl.PushResult;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
@@ -105,7 +106,9 @@ public class PushGetuiClientImpl implements PushClient {
         payload.setBadge(1);
         payload.setContentAvailable(1);
         payload.setCategory("$由客户端定义");
-        payload.setAlertMsg(new APNPayload.SimpleAlertMsg(pushMessage.title + ": " + pushMessage.content));
+        String msg = pushMessage.title + ": " + pushMessage.content;
+        msg = msg.length() > 100 ? (StringUtils.substring(msg, 0, 100) + "...") : msg;
+        payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
         payload.addCustomMsg("content", jsonContent);
 
         template.setAPNInfo(payload);
@@ -114,7 +117,9 @@ public class PushGetuiClientImpl implements PushClient {
 
     public static void main(String... args) {
         IGtPush push = new IGtPush("http://sdk.open.api.igexin.com/apiex.htm", "jh3Tfp3au69APHqVb19QM3", "VbIuZ6Z1fg7cRuNaSI1ab4");
-        IPushResult result = push.getUserTags("OCayARRsi39MgchgX1hPo6", "9f7e1bd2959d01c605a925f18508c3e7");
+        IQueryResult ret = push.setClientTag("OCayARRsi39MgchgX1hPo6", "6c0436278e216e755c0044d15ad47334", Lists.<String>newArrayList("test1", "test2", "test3"));
+        System.out.println(ret.getResponse().toString());
+        IPushResult result = push.getUserTags("OCayARRsi39MgchgX1hPo6", "6c0436278e216e755c0044d15ad47334");
         System.out.println(result.getResponse().toString());
     }
 }

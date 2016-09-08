@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface UserPrivateMessageRepository extends JpaRepository<UserPrivateMessage, String> {
 
-    @Query(nativeQuery = true, value = "select m.* from app_tb_user_private_message m inner join(select type, max(create_time) as maxtime from app_tb_user_private_message where uid=?2  and (main_area is null or main_area=?1) group by type) g on m.type=g.type and m.create_time=g.maxtime where uid=?2 and (main_area is null or main_area=?1)")
+    @Query(nativeQuery = true, value = "select m.* from (select a.*,if(@type=type,@n\\:=@n+1,@n\\:=1) as rownum,@type\\:=type,@time\\:=create_time from (select * from app_tb_user_private_message where uid=?2 and (main_area is null or main_area=?1) order by type,create_time desc,id) a,(select @n\\:=0) b,(select @type\\:='') c,(select @id\\:='') d ,(select @time\\:='') e) m where rownum=1")
     List<UserPrivateMessage> findRootMessages(String area, String uid);
 
     @Query(nativeQuery = true, value = "select * from app_tb_user_private_message where uid=?2 and type=?3 and create_time<FROM_UNIXTIME(?4) and (main_area is null or main_area=?1) order by create_time desc limit 11")

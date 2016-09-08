@@ -21,16 +21,17 @@ import java.util.Map;
 public class AppMessageUrlUtil {
 
     public enum Type {
-        HTTP("-1", "http", null, null),
-        SYSTEM("0", "系统消息", null, "/system"),
-        QUESTION("1", "我的咨询", null, "/question"),
-        FAMILY("2", "亲情账户", null, "/family"),
-        ACTIVITY("3", "健康活动", null, "/activity");
+        HTTP("-1", "http", null, null, false),
+        SYSTEM("0", "系统消息", null, "/system", false),
+        QUESTION("1", "我的咨询", null, "/question", true),
+        FAMILY("2", "亲情账户", null, "/family", false),
+        ACTIVITY("3", "健康活动", null, "/activity", false);
 
         public final String id;
         public final String name;
         public final String icon;
         public final String urlPrefix;
+        public final Boolean showTitleInRoot;
         private static final Map<String, Type> idTypeMap;
 
         static {
@@ -41,11 +42,12 @@ public class AppMessageUrlUtil {
             idTypeMap = builder.build();
         }
 
-        Type(String id, String name, String icon, String urlPrefix) {
+        Type(String id, String name, String icon, String urlPrefix, Boolean showTitleInRoot) {
             this.id = id;
             this.name = name;
             this.icon = icon;
             this.urlPrefix = urlPrefix;
+            this.showTitleInRoot = showTitleInRoot;
         }
 
         public static Type getById(String id) {
@@ -58,8 +60,8 @@ public class AppMessageUrlUtil {
      *
      * @return
      */
-    public static String verificationCallback(String uid,Boolean success) {
-        return Type.SYSTEM.urlPrefix + "/verification?uid="+uid+"&success="+success;
+    public static String verificationCallback(String uid, Boolean success) {
+        return Type.SYSTEM.urlPrefix + "/verification?uid=" + uid + "&success=" + success;
     }
 
     /**

@@ -53,7 +53,9 @@ public class MessageController {
             MessageDTO message = new MessageDTO(result, area);
             message.id = null;
             message.url = null;
-            message.title = AppMessageUrlUtil.Type.getById(message.type).name;
+            AppMessageUrlUtil.Type type = AppMessageUrlUtil.Type.getById(message.type);
+            message.title = type.name;
+            message.content = type.showTitleInRoot ? result.getTitle() : result.getContent();
             message.isRead = messageReadService.unreadCountByType(uid, message.type) == 0;
             messages.add(message);
         }
