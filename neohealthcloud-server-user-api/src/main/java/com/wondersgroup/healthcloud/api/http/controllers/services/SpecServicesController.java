@@ -117,6 +117,12 @@ public class SpecServicesController {
                                 rtnMap.put("color", "#F54949");
                                 rtnMap.put("suffix", "哦~");
                                 break;
+                            case "3":
+                                rtnMap.put("prefix", "您最近一次测量" + unusual.get("name").asText());
+                                rtnMap.put("status", "偏高");
+                                rtnMap.put("color", "#F54949");
+                                rtnMap.put("suffix", "哦~");
+                                break;
                         }
                         if (rtnMap.size() > 0) {
                             data.put("signMeasurements", rtnMap);
