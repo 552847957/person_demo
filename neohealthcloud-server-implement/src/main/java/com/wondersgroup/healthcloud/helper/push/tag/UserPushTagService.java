@@ -84,7 +84,7 @@ public class UserPushTagService {
             }
         }
 
-        bindTagToClient(uid);
+//        bindTagToClient(uid);  //后台打标签，只是维护本地数据库标签关系，不维护个推处标签关系
     }
 
     private void bindTagToClient(String uid) {
