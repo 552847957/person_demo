@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 @Data
@@ -28,12 +29,12 @@ public class QuestionInfoForm {
 		this.contentCount = map.containsKey("comment_count") ? (int) map.get("comment_count") : null;
 		this.isRead =map.containsKey("isNoRead") ?(int) map.get("isNoRead"):null;
 		if((map.containsKey("status")&&status==3)||status==null){
-			this.date = map.containsKey("date") ?((String) map.get("date")).substring(5) : "";
+			this.date = map.containsKey("date") ?((String) map.get("date")): "";
 		}else{
 			if ( !map.containsKey("date2")){
-				this.date = map.containsKey("date") ? ((String) map.get("date")).substring(5) : "";
+				this.date = map.containsKey("date") ? ((String) map.get("date")): "";
 			}else{
-				this.date = map.containsKey("date2") ? ((String) map.get("date2")).substring(5) : "";
+				this.date = map.containsKey("date2") ? ((String) map.get("date2")): "";
 			}
 		}
 		if( map.containsKey("assign_answer_id")&& !StringUtils.isEmpty(map.get("assign_answer_id"))){

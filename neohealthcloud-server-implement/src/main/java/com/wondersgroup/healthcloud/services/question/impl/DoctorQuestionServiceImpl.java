@@ -127,7 +127,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<DoctorQuestionMsg> getDoctorNoReadQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT q.id,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i:%s') as date "
+        String sql="SELECT q.id,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date "
                 + " FROM app_tb_neoquestion q "
                 + " WHERE q.assign_answer_id=? and q.status=1 and q.is_valid=1 and q.is_new_question=1 ORDER BY q.create_time DESC limit ?,?";
         elementType.add(doctorId);
@@ -148,7 +148,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<DoctorQuestionMsg> getDoctorNoReadCommentList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql="SELECT question_id as id, content, date_format(create_time,'%Y-%m-%d %H:%i:%s') as date "
+        String sql="SELECT question_id as id, content, date_format(create_time,'%Y-%m-%d %H:%i') as date "
                 + " FROM " +
                         "(  select g.`id`, g.question_id, c.id AS comment_id, c.content, c.create_time " +
                         " from app_tb_neogroup g left join comment_tb c on c.comment_group_id=g.id "
