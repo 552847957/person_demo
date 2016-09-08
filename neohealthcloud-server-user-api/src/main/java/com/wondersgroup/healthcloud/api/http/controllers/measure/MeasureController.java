@@ -215,8 +215,8 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureHistory(String registerId, String flag) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registerId=".concat(registerId);
-            String params = (flag == null) ? param : param.concat("&flag=").concat(flag).concat("&sex=").concat(info.getGender());
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(info.getGender());
+            String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
             String url = String.format(requestDayHistoryPath, host, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
