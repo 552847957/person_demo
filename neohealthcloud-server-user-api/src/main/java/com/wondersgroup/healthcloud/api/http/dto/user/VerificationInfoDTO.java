@@ -35,7 +35,7 @@ public class VerificationInfoDTO {
             this.status = statusArray[status - 1];
             this.success = status == 1;
             this.canSubmit = status == 3;
-            this.name = info.get("name").asText();
+            this.name = IdcardUtils.maskName(info.get("name").asText());
             this.idcard = IdcardUtils.maskIdcard(info.get("idcard").asText());
             this.msg = info.get("msg").isNull() ? null : info.get("msg").asText();
         }

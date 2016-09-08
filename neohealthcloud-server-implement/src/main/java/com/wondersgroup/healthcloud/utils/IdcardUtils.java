@@ -587,14 +587,23 @@ public final class IdcardUtils extends StringUtils {
 
     public static String maskIdcard(String idCard) {
         byte[] bytes = idCard.getBytes();
-        for (int i = 2; i < bytes.length - 1; i++) {
+        for (int i = 4; i < bytes.length - 4; i++) {
             bytes[i] = '*';
         }
         return new String(bytes);
     }
 
+    public static String maskName(String name) {
+        if(name.length()<2){
+            return name;
+        }
+        StringBuilder sb = new StringBuilder(name);
+        sb.setCharAt(1,'*');
+        return sb.toString();
+    }
+
     public static String maskIdcard(byte[] bytes) {
-        for (int i = 2; i < bytes.length - 1; i++) {
+        for (int i = 4; i < bytes.length - 4; i++) {
             bytes[i] = '*';
         }
         return new String(bytes);

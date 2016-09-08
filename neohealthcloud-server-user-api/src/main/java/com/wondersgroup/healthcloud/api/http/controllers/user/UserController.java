@@ -323,7 +323,7 @@ public class UserController {
         if (person.verified()) {
             VerificationInfoDTO data = new VerificationInfoDTO();
             data.setUid(id);
-            data.setName(person.getName());
+            data.setName(IdcardUtils.maskName(person.getName()));
             data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
             data.setSuccess(true);
             data.setStatus(VerificationInfoDTO.statusArray[0]);
