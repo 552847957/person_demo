@@ -288,16 +288,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
 
-        String sqlQuery = "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
+        String sqlQuery = " SELECT  * from (" +
+                "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
                 "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
                 ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_tb_push_tag dt on tag.tagid = dt.tagid "+getTagListLike(parameter)+" ) d ";
+                "left join app_tb_push_tag dt on tag.tagid = dt.tagid  ) d ";
 
         String sql = sqlQuery + " where 1=1 "+
                 getWhereSqlByParameter(parameter)
-                + " group by registerid "
+                + " group by registerid  ) e where 1=1 "+getTagListLike(parameter)
                 + " ORDER BY regtime  desc "
                 + " LIMIT " +(pageNum-1)*size +"," + size;
         return jt.queryForList(sql);
@@ -306,14 +307,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int countUserByParameter(Map parameter) {
-        String sqlQuery = "SELECT count(DISTINCT(registerid)) " +
+        String sqlQuery = "SELECT count(registerid) FROM (" +
+                "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
                 "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
-                ",tag.tagid,dt.tagname,r.create_date  " +
+                ",tag.tagid,dt.tagname,r.regtime  " +
                 " from app_tb_register_info r " +
                 "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_tb_push_tag dt on tag.tagid = dt.tagid "+getTagListLike(parameter)+" ) d ";
+                "left join app_tb_push_tag dt on tag.tagid = dt.tagid  ) d ";
         String sql = sqlQuery + " where 1=1 "+
-                getWhereSqlByParameter(parameter) ;
+                getWhereSqlByParameter(parameter)
+                + " group by registerid  ) e where 1=1 "+getTagListLike(parameter);
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
     }
@@ -373,15 +376,15 @@ public class UserServiceImpl implements UserService {
         if(parameter.size()>0 && parameter.containsKey("tagList") &&  StringUtils.isNotBlank(parameter.get("tagList").toString())){
             String tagList = parameter.get("tagList").toString();
             String[] tags = tagList.split(",");
-            bf.append(" where  ");
+            bf.append(" and  ");
             int size = tags.length;
             int i = 0;
             for (String tag :tags){
                 i++;
                 if(i<size){
-                    bf.append(" dt.tagname like '%"+tag+"%' or ");
+                    bf.append(" e.tagList like '%"+tag+"%' or ");
                 }else{
-                    bf.append(" dt.tagname like '%"+tag+"%'  ");
+                    bf.append(" e.tagList like '%"+tag+"%'  ");
                 }
 
             }
