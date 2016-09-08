@@ -18,6 +18,7 @@ public class QuestionInfoForm {
 	private Integer status;
 	private String date;
 	private Integer contentCount;
+	private Integer hasAt=1;
 	private String assign_answer_id;
 	public QuestionInfoForm(Map<String,Object> map) {
 		this.id = (String) map.get("id");
@@ -36,7 +37,7 @@ public class QuestionInfoForm {
 			}
 		}
 		if( map.containsKey("assign_answer_id")&& !StringUtils.isEmpty(map.get("assign_answer_id"))){
-			this.content+="&#";
+			this.hasAt=0;
 		}
 	}
 	
