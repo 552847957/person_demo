@@ -36,7 +36,7 @@ public class QuestionInfoForm {
 			}
 		}
 		if( map.containsKey("assign_answer_id")&& !StringUtils.isEmpty(map.get("assign_answer_id"))){
-			this.content+="@我";
+			this.content+="&#";
 		}
 	}
 	
