@@ -51,7 +51,7 @@ public class VerificationCallbackController {
         pushClientWrapper.pushToAlias(message, id);
 
         if (success) {
-            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard());
+            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(),info.getName());
         }
 
         return "{\"success\":" + success + "}";

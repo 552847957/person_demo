@@ -587,12 +587,18 @@ public class UserController {
         form.put("zjhm", cardNum);
         form.put("zjlx", islocal ? "21" : "22");
         form.put("token", token);
-        Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
-        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-        JsonNode jsonNode = response.convertBody();
-        String userName = jsonNode.get("grjbxx").get("xm").asText().trim();
-        rt.put("name", userName);
-        rt.put("sex", jsonNode.get("grjbxx").get("xb").asText().equals("男") ? "1" : "2");
+        try {
+            Request request = new RequestBuilder().post().url(medicarecardHost + path).params(form).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+            JsonNode jsonNode = response.convertBody();
+            String userName = jsonNode.get("grjbxx").get("xm").asText().trim();
+            rt.put("name", userName);
+            rt.put("sex", jsonNode.get("grjbxx").get("xb").asText().equals("男") ? "1" : "2");
+        }catch (Exception e){
+//            e.printStackTrace();
+            return null;
+        }
+
         return rt;
     }
 
