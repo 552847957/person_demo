@@ -146,8 +146,8 @@ public class DoctorServiceImpl implements DoctorService {
 
         String sql = " select sd.id,sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
                 " from doctor_account_tb a " +
-                " left join doctor_service_tb s on a.id = s.doctor_id " +
-                " left join doctor_service_dic sd on s.service_id = sd.id " +
+                " inner join doctor_service_tb s on a.id = s.doctor_id " +
+                " inner join doctor_service_dic sd on s.service_id = sd.id " +
                 " where sd.is_available = '0' and a.id = '%s'";
 
         sql =  String.format(sql,uid);
@@ -323,8 +323,8 @@ public class DoctorServiceImpl implements DoctorService {
     public List<Map<String, Object>> findDoctorServicesByIdWithoutDel(String uid) {
         String sql = " select sd.id,sd.icon ,sd.`name`,sd.keyword,sd.subtitle,sd.url " +
                 " from doctor_account_tb a " +
-                " left join doctor_service_tb s on a.id = s.doctor_id " +
-                " left join doctor_service_dic sd on s.service_id = sd.id " +
+                " inner join doctor_service_tb s on a.id = s.doctor_id " +
+                " inner join doctor_service_dic sd on s.service_id = sd.id " +
                 " where  a.id = '%s'";
 
         sql =  String.format(sql,uid);
