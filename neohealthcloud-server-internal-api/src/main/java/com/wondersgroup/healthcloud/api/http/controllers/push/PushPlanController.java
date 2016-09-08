@@ -183,11 +183,14 @@ public class PushPlanController {
     public JsonResponseEntity cancel(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer id = Integer.parseInt(reader.readString("id", false));
+        Integer preStatus = pushPlanRepo.findOne(id).getStatus();
         this.updatPlan(id,3);
 
         //取消定时任务
-        Request build= new RequestBuilder().delete().url(jobClientUrl+"/api/healthcloud/push").param("planId", id.toString()).build();
-        httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
+            Request build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
+            httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        }
 
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setMsg("取消成功");
