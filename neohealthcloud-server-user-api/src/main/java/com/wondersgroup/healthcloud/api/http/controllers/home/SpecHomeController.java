@@ -20,6 +20,7 @@ import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
 import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -186,6 +187,7 @@ public class SpecHomeController {
                     //查询回答数
                     int commentCount = faqService.countCommentByQid(faq.getQId());
                     faqDTO.setCommentCount(commentCount);
+                    faqDTO.setAskTime(DateFormatter.questionListDateFormat(faq.getAskDate()));
                     questions.add(faqDTO);
                 }
                 data.put("questions", questions);
