@@ -43,22 +43,20 @@ public class PushPlanDTO {
         Set permission = Sets.newHashSet(4,5);
         switch (plan.getStatus()){
             case 0: //待审核
-                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator())){
-                    permission.add(1);
-                }
                 if(audit){
                     permission.add(2);
                     permission.add(3);
                 }
                 break;
             case 1: //待推送
-                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator()) || audit){
+                if(StringUtils.equalsIgnoreCase(uid,plan.getCreator())){
                     permission.add(6);
                 }
                 break;
             case 4: //已经驳回
                 if(StringUtils.equalsIgnoreCase(uid,plan.getCreator())){
                     permission.add(1);
+                    permission.add(6);
                 }
                 break;
             default: //已推送、已取消、已驳回
