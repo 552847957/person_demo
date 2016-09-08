@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.helper.push.getui;
 
+import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.impl.AppMessage;
 import com.gexin.rp.sdk.base.impl.PushResult;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
@@ -104,10 +105,16 @@ public class PushGetuiClientImpl implements PushClient {
         payload.setBadge(1);
         payload.setContentAvailable(1);
         payload.setCategory("$由客户端定义");
-        payload.setAlertMsg(new APNPayload.SimpleAlertMsg(pushMessage.content));
+        payload.setAlertMsg(new APNPayload.SimpleAlertMsg(pushMessage.title + ": " + pushMessage.content));
         payload.addCustomMsg("content", jsonContent);
 
         template.setAPNInfo(payload);
         return template;
+    }
+
+    public static void main(String... args) {
+        IGtPush push = new IGtPush("http://sdk.open.api.igexin.com/apiex.htm", "jh3Tfp3au69APHqVb19QM3", "VbIuZ6Z1fg7cRuNaSI1ab4");
+        IPushResult result = push.getUserTags("OCayARRsi39MgchgX1hPo6", "9f7e1bd2959d01c605a925f18508c3e7");
+        System.out.println(result.getResponse().toString());
     }
 }
