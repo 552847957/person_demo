@@ -51,9 +51,11 @@ public class NoticeController {
 
     @Admin
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public JsonResponseEntity save(@RequestBody Notice notice) {
+    public JsonResponseEntity save(@RequestHeader(required = true, name = "main-area") String mainArea,
+                                   @RequestHeader(required = false, name = "spec-area") String specArea,
+                                   @RequestBody Notice notice) {
         JsonResponseEntity result = new JsonResponseEntity();
-        Notice rtnNotice = noticeService.saveNotice(notice);
+        Notice rtnNotice = noticeService.saveNotice(mainArea, notice);
         if (rtnNotice != null) {
             result.setMsg("配置信息保存成功！");
         } else {
