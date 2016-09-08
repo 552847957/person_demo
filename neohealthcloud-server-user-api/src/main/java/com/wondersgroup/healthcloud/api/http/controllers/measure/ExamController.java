@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +31,7 @@ public class ExamController {
     private RestTemplate template = new RestTemplate();
 
     @GetMapping(value = "station/nearby", produces = MediaType.APPLICATION_JSON_VALUE)
+    @WithoutToken
     public JsonResponseEntity stationNearby(@RequestParam String areaCode,
                                             Double longitude, Double latitude, Boolean need, Integer flag) {
         String url = String.format(requestStationNearby, host) +
@@ -52,6 +55,7 @@ public class ExamController {
     }
 
     @GetMapping("station/detail")
+    @WithoutToken
     public JsonResponseEntity stationDetail(@RequestParam String id) {
         ResponseEntity<Map> response = template.getForEntity(String.format(requestStationDetail, host, id), Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
