@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class NoticeServiceImpl implements NoticeService {
             if (!StringUtils.isEmpty(specArea)) {
                 sql.append(" AND spec_area = '").append(specArea).append("'");
             }
-            sql.append(" ORDER BY update_time DESC");
+            sql.append(" ORDER BY create_time DESC");
             List<Notice> notices = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<Notice>(Notice.class));
 
             if (notices != null && notices.size() > 0) {
@@ -83,7 +84,15 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public Notice saveNotice(Notice notice) {
+    @Transactional
+    public Notice saveNotice(String mainArea, Notice notice) {
+        if ("0".equals(notice.getDelFlag())) {
+            if (StringUtils.isEmpty(notice.getId())) {
+                noticeRepository.updateAll(mainArea);
+            } else {
+                noticeRepository.updateOthers(mainArea,notice.getId());
+            }
+        }
         if (notice.getId() == null) {
             notice.setId(IdGen.uuid());
             notice.setCreateTime(new Date());

@@ -115,7 +115,6 @@ public class ImageTextServiceImpl implements ImageTextService {
         for (ImageText imageText : imageTextList) {
             if (StringUtils.isBlank(imageText.getId())) {
                 imageText.setId(IdGen.uuid());
-                imageText.setDelFlag(0);
             }
             imageTextRepository.saveAndFlush(imageText);
             flag++;
@@ -143,11 +142,11 @@ public class ImageTextServiceImpl implements ImageTextService {
                 if (StringUtils.isNotEmpty(imgText.getVersion())) {
                     pdList.add(cb.equal(rt.<String>get("version"), imgText.getVersion()));
                 }
-                if (imgText.getStartTime() != null) {
-                    pdList.add(cb.greaterThanOrEqualTo(rt.<Date>get("startTime"), imgText.getStartTime()));
-                }
-                if (imgText.getEndTime() != null) {
-                    pdList.add(cb.lessThanOrEqualTo(rt.<Date>get("endTime"), imgText.getEndTime()));
+                if (imgText.getStartTime() != null && imgText.getEndTime() != null) {
+                    pdList.add(cb.or(
+                            cb.between(rt.<Date>get("startTime"), imgText.getStartTime(), imgText.getEndTime()),
+                            cb.between(rt.<Date>get("endTime"), imgText.getStartTime(), imgText.getEndTime())
+                    ));
                 }
                 
                 String source = imgText.getSource();
@@ -329,8 +328,8 @@ public class ImageTextServiceImpl implements ImageTextService {
             tmpObj = parameter.get("startTime");
             Object tmpObja = parameter.get("endTime");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString()) && tmpObja != null && StringUtils.isNotBlank(tmpObja.toString())) {
-                bf.append(" and (start_time between '" + tmpObj + "' and '" + tmpObja + "')");
-                bf.append(" and (end_time between '" + tmpObj + "' and '" + tmpObja + "')");
+                bf.append(" and ( (start_time between '" + tmpObj + "' and '" + tmpObja + "')");
+                bf.append(" or (end_time between '" + tmpObj + "' and '" + tmpObja + "'))");
             }
         }
         return bf.toString();

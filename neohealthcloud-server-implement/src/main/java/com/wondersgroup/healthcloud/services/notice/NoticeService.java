@@ -15,5 +15,5 @@ public interface NoticeService {
 
     Notice findNoticeByAreaForApp(String mainArea, String specArea);
 
-    Notice saveNotice(Notice notice);
+    Notice saveNotice(String mainArea, Notice notice);
 }

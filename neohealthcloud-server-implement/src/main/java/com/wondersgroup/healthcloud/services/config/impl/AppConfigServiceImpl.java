@@ -6,11 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -162,6 +158,9 @@ public class AppConfigServiceImpl implements AppConfigService {
 					Predicate[] predicates = new Predicate[predicateList.size()];
 					cq.where(predicateList.toArray(predicates));
 				}
+				Order order = cb.desc(rt.<String>get("updateTime"));
+				cq.orderBy(order);
+
 				return null;
 			}
 		});
