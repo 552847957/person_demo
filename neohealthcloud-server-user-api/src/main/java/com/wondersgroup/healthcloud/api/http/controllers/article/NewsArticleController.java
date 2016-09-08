@@ -71,7 +71,7 @@ public class NewsArticleController {
         int pageNo = Integer.valueOf(flag);
         int pageSize = 10;
         List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cat_id, (pageNo-1) * pageSize, pageSize+1);//获取文章分类下面的文章
-        List<NewsArticleListAPIEntity> list = this.getArticleEntityList(resourceList);//获取文章分类下面的文章
+        List<NewsArticleListAPIEntity> list = this.getArticleEntityList(resourceList,area);//获取文章分类下面的文章
         Boolean hasMore = false;
         if (null != list  && list.size() > pageSize){
             list = list.subList(0, pageSize);
@@ -129,7 +129,7 @@ public class NewsArticleController {
         List<NewsArticleListAPIEntity> articleList=null;
 
             List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByKeyword(area,word,pageNo, pageSize+1);
-            articleList =  this.getArticleEntityList(resourceList);
+            articleList =  this.getArticleEntityList(resourceList,area);
             if (null != articleList && articleList.size() > 10){
                 articleList = articleList.subList(0, 10);
                 hasMore = true;
@@ -172,7 +172,7 @@ public class NewsArticleController {
         for (NewsArticleCategory category : resourList) {//遍历文章分类,获取分类下面的文章
             NewsCateArticleListAPIEntity cateEntity = new NewsCateArticleListAPIEntity(category);
             List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByCategoryId(cateEntity.getCat_id(), 0, 11);//获取文章分类下面的文章
-            List<NewsArticleListAPIEntity> articleList = this.getArticleEntityList(resourceList);//获取文章分类下面的文章
+            List<NewsArticleListAPIEntity> articleList = this.getArticleEntityList(resourceList,area);//获取文章分类下面的文章
                 Boolean hasMore = false;
                 if (null != articleList && articleList.size() > 10){
                 articleList = articleList.subList(0, 10);
@@ -190,14 +190,14 @@ public class NewsArticleController {
     }
 
 
-    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
+    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList,String area){
 
         if(null == resourceList || resourceList.size() == 0){
             return null;
         }
         List<NewsArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticle article : resourceList){
-            list.add(new NewsArticleListAPIEntity(article,appUrlH5Utils));
+            list.add(new NewsArticleListAPIEntity(article,appUrlH5Utils,area));
         }
         return list;
     }

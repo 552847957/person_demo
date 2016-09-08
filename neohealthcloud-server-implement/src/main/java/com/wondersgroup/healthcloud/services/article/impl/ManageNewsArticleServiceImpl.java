@@ -33,10 +33,10 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
 
     @Override
-    public NewsArticle findArticleInfoById(int id) {
+    public NewsArticle findArticleInfoById(int id,String area) {
         NewsArticle newsArticle = newsArticleRepo.queryArticleById(id);
         if (newsArticle==null) return null;
-        String url=appUrlH5Utils.buildNewsArticleView(id);
+        String url=appUrlH5Utils.buildNewsArticleView(id,area);
         newsArticle.setUrl(url);
         return newsArticle;
     }
@@ -97,15 +97,15 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize) {
         List<NewsArticle> list=newsArticleRepo.queryNewsArticleForHomePage(areaId,pageNo*pageSize,pageSize);
 
-        return getArticleEntityList(list);
+        return getArticleEntityList(list,areaId);
     }
 
     @Override
-    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize) {
+    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize,String area) {
 
         List<NewsArticle> newsArticles = newsArticleRepo.queryCollectionNewsArticle(uid, pageNo * pageSize, pageSize);
 
-        return getArticleEntityList(newsArticles);
+        return getArticleEntityList(newsArticles,area);
     }
 
     @Override
@@ -126,14 +126,14 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     }
 
 
-    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList){
+    private List<NewsArticleListAPIEntity> getArticleEntityList(List<NewsArticle> resourceList,String area){
 
         if(null == resourceList || resourceList.size() == 0){
             return null;
         }
         List<NewsArticleListAPIEntity> list = new ArrayList<>();
         for (NewsArticle article : resourceList){
-            list.add(new NewsArticleListAPIEntity(article, appUrlH5Utils));
+            list.add(new NewsArticleListAPIEntity(article, appUrlH5Utils,area));
         }
         return list;
     }

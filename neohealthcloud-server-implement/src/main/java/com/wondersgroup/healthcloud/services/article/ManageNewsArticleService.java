@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface ManageNewsArticleService {
 
-    public NewsArticle findArticleInfoById(int id);
+    public NewsArticle findArticleInfoById(int id,String area);
 
     public List<NewsArticle> findArticleListByIds(List<Integer> ids);
 
@@ -64,7 +64,7 @@ public interface ManageNewsArticleService {
      */
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize);
 
-    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize);
+    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize,String area);
 
     /**
      * 分页查询文章

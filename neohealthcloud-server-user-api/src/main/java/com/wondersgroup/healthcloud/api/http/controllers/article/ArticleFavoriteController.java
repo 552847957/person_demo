@@ -42,13 +42,13 @@ public class ArticleFavoriteController {
 
 	@RequestMapping(value = "/list",method = RequestMethod.GET)
     @VersionRange
-	public JsonListResponseEntity<NewsArticleListAPIEntity> articleFavoriteList(@RequestParam(required=false) String uid,
+	public JsonListResponseEntity<NewsArticleListAPIEntity> articleFavoriteList(@RequestHeader("main-area") String area,@RequestParam(required=false) String uid,
                                                                        @RequestParam(required=false, defaultValue = "0") String flag){
 
 		JsonListResponseEntity<NewsArticleListAPIEntity> body = new JsonListResponseEntity<>();
 		int pageSize=10;
 		int pageNo=Integer.valueOf(flag);
-		List<NewsArticleListAPIEntity> collectionArticle = manageNewsArticleServiceImpl.findCollectionArticle(uid, pageNo, pageSize + 1);
+		List<NewsArticleListAPIEntity> collectionArticle = manageNewsArticleServiceImpl.findCollectionArticle(uid, pageNo, pageSize + 1,area);
 		Boolean hasMore = false;
 		if (null != collectionArticle  && collectionArticle.size() > pageSize){
 			collectionArticle = collectionArticle.subList(0, pageSize);
@@ -90,7 +90,7 @@ public class ArticleFavoriteController {
     @RequestMapping(value = "/checkIsFavor",method = RequestMethod.GET)
     @VersionRange
 	@WithoutToken
-    public JsonResponseEntity checkIsFavor(@RequestParam(required = true) int id,@RequestParam(required=false) String uid){
+    public JsonResponseEntity checkIsFavor(@RequestHeader("main-area") String area,@RequestParam(required = true) int id,@RequestParam(required=false) String uid){
         JsonResponseEntity body = new JsonResponseEntity<>();
 
 		//是否可以收藏
@@ -104,7 +104,7 @@ public class ArticleFavoriteController {
 
 		ShareH5APIDTO h5APIDTO = new ShareH5APIDTO();
 
-		NewsArticle article = manageNewsArticleServiceImpl.findArticleInfoById(id);
+		NewsArticle article = manageNewsArticleServiceImpl.findArticleInfoById(id,area);
 
 		if (null != article ){
 			h5APIDTO.setDesc(article.getBrief());
