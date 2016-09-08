@@ -63,9 +63,13 @@ public class HomeController {
         imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
         List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
         if (imageTextsA != null && imageTextsA.size() > 0) {
+            int flag = 5;
+            if (imageTextsA.size() < flag) {
+                flag = imageTextsA.size();
+            }
             List banners = new ArrayList();
-            for (ImageText imageText : imageTextsA) {
-                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+            for (int i = 0; i < flag; i++) {
+                BasicImageTextDTO bit = new BasicImageTextDTO(imageTextsA.get(i));
                 banners.add(bit);
             }
             data.put("banners", banners);

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Charsets;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExceptionHandler;
+import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParameterExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalGateInterceptor;
@@ -86,6 +87,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
+        exceptionResolvers.add(new MissingParameterExceptionHandler());
         exceptionResolvers.add(new ServiceExceptionHandler());
         exceptionResolvers.add(new DefaultExceptionHandler());//default exception handler
     }
