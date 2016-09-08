@@ -88,17 +88,6 @@ public class DoctorArticleController {
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
 
-    /**
-     * 保存学院文章
-     * @return
-     */
-    @RequestMapping(value = "saveDoctorArticle", method = RequestMethod.POST)
-    public JsonResponseEntity saveDoctorArticle(@RequestBody DoctorArticle doctorArticle) {
-        doctorArticle.setUpdateTime(new Date());
-        doctorArticleRepository.save(doctorArticle);
-
-        return new JsonResponseEntity(0, "保存成功");
-    }
 
     /**
      * 修改学院文章

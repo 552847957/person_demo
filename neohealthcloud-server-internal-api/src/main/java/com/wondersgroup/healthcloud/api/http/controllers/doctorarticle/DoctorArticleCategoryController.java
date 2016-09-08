@@ -106,20 +106,6 @@ public class DoctorArticleCategoryController {
     }
 
     /**
-     * 修改学院分类
-     * @param para
-     * @return
-     */
-    @RequestMapping(value = "updateDoctorArticleCategory", method = RequestMethod.POST)
-    public JsonResponseEntity updateDoctorArticleCategory(@RequestBody Map para) {
-        DoctorArticleCategory doctorArticleCategory = MapToBeanUtil.fromMapToBean(DoctorArticleCategory.class, para);
-        doctorArticleCategory.setUpdateTime(new Date());
-        doctorArticleCategoryRepository.save(doctorArticleCategory);
-
-        return new JsonResponseEntity(0, "修改成功");
-    }
-
-    /**
      * 设置禁用与启用
      * @param request
      * @return
