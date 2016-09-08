@@ -70,6 +70,8 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         sb.append(" ");
         sb.append(response.getStatus());
         sb.append(" ");
+        sb.append(request.getHeader("request-id"));
+        sb.append(" ");
         sb.append(ServletAttributeCacheUtil.getHeaderStr(request));
         if (!logIgnore.contains(method + URI)) {
             sb.append(" ");

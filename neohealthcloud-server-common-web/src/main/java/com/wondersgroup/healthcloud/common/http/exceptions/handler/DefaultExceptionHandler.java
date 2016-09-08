@@ -44,6 +44,7 @@ public final class DefaultExceptionHandler implements HandlerExceptionResolver {
             return JsonModelAndViewBuilder.build(new ErrorMessage(404, "404NotFound"));
         } else {
             response.setStatus(500);
+            logger.info("request-id=" + request.getHeader("request-id"));
             logger.info(request.getMethod() + request.getServletPath());
             logger.info(request.getQueryString());
             try {
