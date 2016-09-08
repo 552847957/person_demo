@@ -76,6 +76,10 @@ public class CommonController {
         keyWords.add("app.common.versionDepartment");// 关于我们中部门描述
         
         keyWords.add("app.common.disclaimerUrl");//健康档案说明文案
+        
+        keyWords.add("app.common.recordUrl");
+        
+        
       
         keyWords.add("app.common.appUpdate");// APP更新
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords, "2");
@@ -100,7 +104,9 @@ public class CommonController {
             if(cfgMap.get("app.common.disclaimerUrl") != null){
             	common.put("disclaimerUrl", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.disclaimerUrl")));
             }
-           
+            if(cfgMap.get("app.common.recordUrl") != null){
+            	common.put("record_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+            }
 
             if (cfgMap.get("app.common.appUpdate") != null) {
                 try {
