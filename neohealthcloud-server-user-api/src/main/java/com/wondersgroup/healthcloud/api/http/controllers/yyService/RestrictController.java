@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.yyService;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,13 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,20 +26,24 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Maps;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.http.dto.medical.RestrictUploadDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.yyService.VisitUserService;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.ImageUtils;
 
 @RestController
 @RequestMapping("/api/user")
@@ -64,6 +60,9 @@ public class RestrictController {
 
 	@Autowired
 	private Environment env;
+
+	@Autowired
+	private HttpRequestExecutorManager httpRequestExecutorManager;
 
 	/**
 	 * 签约检查身份证是否有效
@@ -177,33 +176,17 @@ public class RestrictController {
 
 		String url = getURL() + "/rest/order/phoneAction!getIOSPhotos.action";
 
-		String response = uploadDto.getResponse();
+		String orderid = uploadDto.getResponse();
 		String userId = uploadDto.getUserId();
 		List<String> filePaths = uploadDto.getFile();
 
-		HttpHeaders headers = buildHttpHeaders(userId);
+		String[] header = visitUserService.getRequestHeaderByUid(userId, true);
+		
 		for (String string : filePaths) {
-			MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
-			requestBody.add("fileType", 03);
-			requestBody.add("orderid", response);
-			String filePath = request.getSession().getServletContext().getRealPath("/") + IdGen.uuid();
-			download(string, filePath);
-			File f = new File(filePath);
-			requestBody.add("file", new FileSystemResource(f));
-			if (f.exists()) {
-				f.delete();
-			}
-			
-			try {
-				response = upload(url, new HttpEntity<MultiValueMap<String, Object>>(requestBody, headers));
-			} catch (RuntimeException e) {
-				responseEntity.setMsg(e.getMessage());
-			}
-			
+			orderid = upload(url, header, buildRequestBody(string, orderid));
 		}
-
-		Map<String, String> resultMap = ImmutableBiMap.of("response", response);
-		responseEntity.setData(resultMap);
+		
+		responseEntity.setData(ImmutableBiMap.of("response", orderid));
 		responseEntity.setMsg("上传成功");
 		return responseEntity;
 	}
@@ -334,31 +317,39 @@ public class RestrictController {
 		is.close();
 	}
 
-	private String upload(String url, HttpEntity<MultiValueMap<String, Object>> httpEntity) {
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode node = null;
-		try {
-			node = objectMapper.readValue(responseEntity.getBody(), JsonNode.class);
-		} catch (Exception e) {
-			throw new RuntimeException("服务异常");
+	private com.squareup.okhttp.RequestBody buildRequestBody(String fileURL, String orderid) {
+		byte[] bytes = new ImageUtils().getImageFromURL(fileURL);
+		
+		MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
+		multipartBuilder.addFormDataPart("fileType", "03");
+		if(StringUtils.isNoneEmpty(orderid)){
+			multipartBuilder.addFormDataPart("orderid", orderid);
 		}
-
-		if (1 == node.get("status").asInt()) {
-			return node.get("response").asText();
-		} else {
-			throw new RuntimeException(node.get("message").asText());
-		}
+		multipartBuilder.addFormDataPart("file", "file", com.squareup.okhttp.RequestBody.create(MediaType.parse(""), bytes));
+		com.squareup.okhttp.RequestBody requestBody = multipartBuilder.build();
+		return requestBody;
 	}
 
-	private HttpHeaders buildHttpHeaders(String userId) {
-		String[] header = visitUserService.getRequestHeaderByUid(userId, true);
-		HttpHeaders headers = new HttpHeaders();
-		for (int i = 0; i < header.length; i += 2) {
-			headers.add(header[i], header[i + 1]);
+	private String upload(String url, String[] header, com.squareup.okhttp.RequestBody requestBody) {
+		Request.Builder builder = new Request.Builder();
+		builder.url(url);
+		for (int i = 0; i < header.length / 2; ++i) {
+			if (header[i * 2 + 1] != null) {
+				builder.addHeader(header[i * 2], header[i * 2 + 1]);
+			}
 		}
-		return headers;
+
+		builder.post(requestBody);
+		Request request = builder.build();
+
+		JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
+				.as(JsonNodeResponseWrapper.class);
+		JsonNode result = response.convertBody();
+		if (1 == result.get("status").asInt()) {
+			return result.get("response").asText();
+		} else {
+			throw new RuntimeException(result.get("message").asText());
+		}
 	}
 
 }
