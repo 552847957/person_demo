@@ -29,10 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
@@ -121,7 +118,7 @@ public class SpecHomeController {
             data.put("sideAd", new ImageTextPositionDTO(imageTextsD.get(0)));
         }
 
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.floatTelephone");
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.floatTelephone");
         if (appConfig != null) {
             try {
                 String telephoneAd = appConfig.getData();
@@ -218,7 +215,7 @@ public class SpecHomeController {
                 map.put("imgUrl", imageText.getImgUrl());
                 map.put("hoplink", imageText.getHoplink());
                 map.put("mainTitle", imageText.getMainTitle());
-                map.put("subTitle", imageText.getSubTitle());
+                map.put("subTitle", getRandomSubTitle());
                 specialServices.add(map);
             }
             data.put("specialService", specialServices);
@@ -265,5 +262,10 @@ public class SpecHomeController {
         JsonResponseEntity<Object> result = new JsonResponseEntity<>(0, null);
         result.setData(responseBody.get("data"));
         return result;
+    }
+
+    private String getRandomSubTitle() {
+        String[] subTitles = {"健康指标免费测，健康管理随时做", "家门口的健康指标免费测量中心", "在这里，健康设备免费测"};
+        return subTitles[(int)(Math.random() * 10) % subTitles.length];
     }
 }

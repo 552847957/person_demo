@@ -1,6 +1,4 @@
 package com.wondersgroup.healthcloud.services.article;
-
-import com.wondersgroup.healthcloud.jpa.entity.article.ArticleArea;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 
@@ -12,7 +10,7 @@ import java.util.Map;
  */
 public interface ManageNewsArticleService {
 
-    public NewsArticle findArticleInfoById(int id);
+    public NewsArticle findArticleInfoById(int id,String area);
 
     public List<NewsArticle> findArticleListByIds(List<Integer> ids);
 
@@ -64,7 +62,7 @@ public interface ManageNewsArticleService {
      */
     public List<NewsArticleListAPIEntity> findArticleForFirst(String areaId, int pageNo, int pageSize);
 
-    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize);
+    public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize,String area);
 
     /**
      * 分页查询文章
