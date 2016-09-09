@@ -71,6 +71,13 @@ public class AppUrlH5Utils {
         return basePath + "/healthRecords/examList?idc="+idc;
     }
 
+    /**
+     * 健康档案 - 市级调阅
+     */
+    public String buildHealthRecord(String idc){
+        return basePath + "/healthRecords/home?idc="+idc;
+    }
+
 
     /**
      * 健康档案 - 用药列表

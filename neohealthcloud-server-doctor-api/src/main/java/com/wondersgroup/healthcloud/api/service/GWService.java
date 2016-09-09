@@ -77,7 +77,7 @@ public class GWService extends HttpBaseService {
 					signedPersonDTO.setIsDiabetes(false);
 					signedPersonDTO.setIsHyp(false);
 
-					signedPersonDTO.setHealthRecordsUrl(appUrlH5Utils.buildHealthRecordJianyan(signedPersonDTO.getPersoncard()));
+					signedPersonDTO.setHealthRecordsUrl(appUrlH5Utils.buildHealthRecord(signedPersonDTO.getPersoncard()));
 
 				}
 			}
