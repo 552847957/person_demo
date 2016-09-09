@@ -1,9 +1,11 @@
 package com.wondersgroup.healthcloud.common.http.filters.interceptor;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.http.annotations.IgnoreGateLog;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletRequestIPAddressUtil;
@@ -65,6 +67,8 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
 
         LogBuilder node = LogBuilder.builder();
 
+        node.put("project_id", "01");
+        node.put("action_time", System.currentTimeMillis());
         node.put("url", method + URI);
         node.put("ip", remoteIp);
         node.put("duration", duration);
@@ -73,7 +77,7 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         node.put("headers", ServletAttributeCacheUtil.getHeaderStr(request));
         if (!logIgnore.contains(method + URI)) {
             node.put("query", request.getQueryString());
-            node.put("body", Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8));
+            node.put("body", JsonConverter.toJsonNode(Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8)));
         }
 
         Session session = ServletAttributeCacheUtil.getSession(request, null);
@@ -106,8 +110,15 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         }
 
         LogBuilder put(String key, Object value) {
-            if (value != null && StringUtils.isNotBlank(value.toString())) {
-                node.put(key, value.toString());
+            if (value == null) {
+                return this;
+            }
+            if (value instanceof JsonNode) {
+                node.set(key, (JsonNode) value);
+            } else {
+                if (StringUtils.isNotBlank(value.toString())) {
+                    node.put(key, value.toString());
+                }
             }
             return this;
         }

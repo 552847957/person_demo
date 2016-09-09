@@ -21,5 +21,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface AccessToken {
 
+    boolean required() default true;
+
     boolean guestEnabled() default false;
 }
