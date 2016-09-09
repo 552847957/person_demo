@@ -8,7 +8,6 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.utils.QueryMapUtils;
-import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.redis.config.RedisConfig;
 import com.wondersgroup.healthcloud.services.yyService.VisitDoctorService;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,7 +29,7 @@ import java.util.*;
 public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     @Autowired
-    private RedisConfig redisConfig;
+    private JedisPool jedisPool;
 
     @Value("${yyservice.img.host}")
     private String yyImgHost;//yyservice.img.host
@@ -51,63 +51,58 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     private String submitExecDemoUrl = "/rest/order/orderApplyInfoAction!saveOrderExecInfo.action";
 
-    private String getUserInfoUrl =  "/rest/admin/order/client.action";
+    private String getUserInfoUrl = "/rest/admin/order/client.action";
 
 
-    private static final int TIME_24_HOUR = 24*60*60;
+    private static final int TIME_24_HOUR = 24 * 60 * 60;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
     public YYDoctorInfo getYYDoctorUserInfo(String personcard, Boolean get_real_data) {
-        Jedis jedis = jedis();
-        String cache_key = "health-yySercice-getYYDoctorUserInfo-"+personcard;
-        String infoJson="";
-        YYDoctorInfo doctorInfo = null;
-        try{
-            if (!jedis.exists(cache_key) || get_real_data){
+        try (Jedis jedis = jedisPool.getResource()) {
+            String cache_key = "health-yySercice-getYYDoctorUserInfo-" + personcard;
+            String infoJson = "";
+            YYDoctorInfo doctorInfo = null;
+            if (!jedis.exists(cache_key) || get_real_data) {
 
                 Request request = new RequestBuilder().post().url(yyServiceHost + getTokenUrl)
-                            .params(new String[]{"idCard", personcard}).build();
+                        .params(new String[]{"idCard", personcard}).build();
                 JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
                 JsonNode body = response.convertBody();
                 String status = body.get("status").asText();
-                if ("1".equals(status) && null != body.get("response")){
+                if ("1".equals(status) && null != body.get("response")) {
                     infoJson = body.get("response").toString();
                 }
-            }else {
+            } else {
                 infoJson = jedis.get(cache_key);
             }
-            if (StringUtils.isNotEmpty(infoJson)){
+            if (StringUtils.isNotEmpty(infoJson)) {
                 jedis.set(cache_key, infoJson);
                 jedis.expire(cache_key, TIME_24_HOUR);
                 Gson gson = new Gson();
                 doctorInfo = gson.fromJson(infoJson, YYDoctorInfo.class);
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            returnResource(jedis);
+            if (null == doctorInfo) {
+                throw new CommonException(2021, "服务用户不存在");
+            }
+            return doctorInfo;
         }
-        if (null == doctorInfo){
-            throw new CommonException(2021, "服务用户不存在");
-        }
-        return doctorInfo;
     }
 
     @Override
     public YYVisitUserInfo getElderInfo(String personcard, String elderid) {
         JsonNode body = this.postRequest(personcard, yyServiceHost + getUserInfoUrl, new String[]{"id", elderid});
         YYVisitUserInfo userInfo = null;
-        if (body.get("status").asText().equals("1")){
+        if (body.get("status").asText().equals("1")) {
             JsonNode jsonNode = body.get("response");
             Gson gson = new Gson();
             userInfo = gson.fromJson(jsonNode.toString(), YYVisitUserInfo.class);
-            if (StringUtils.isNotEmpty(userInfo.getHeadIcon())){
+            if (StringUtils.isNotEmpty(userInfo.getHeadIcon())) {
                 userInfo.setHeadIcon(yyImgHost + "/" + userInfo.getHeadIcon());
             }
-        }else {
+        } else {
             return null;
         }
         return userInfo;
@@ -116,48 +111,48 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     @Override
     public List<YYVisitOrderInfo> getOrderList(String personcard, Integer type, Integer page, Integer pageSize) {
         Map<String, Object> parm = new HashMap<>();
-        parm.put("pageIndex", page-1);
+        parm.put("pageIndex", page - 1);
         parm.put("pageSize", pageSize);
         parm.put("type", type);
         List<YYVisitOrderInfo> list = new ArrayList<>();
         yyImgHost = getServiceImgHost();
         try {
             JsonNode body = this.postRequest(personcard, yyServiceHost + orderListUrl, QueryMapUtils.convert(parm));
-            if (body.get("status").asText().equals("1")){
+            if (body.get("status").asText().equals("1")) {
                 JsonNode jsonNode = body.get("response");
                 Gson gson = new Gson();
-                if (jsonNode.isArray() && jsonNode.size() > 0){
+                if (jsonNode.isArray() && jsonNode.size() > 0) {
                     for (JsonNode objNode : jsonNode) {
                         try {
                             YYVisitOrderInfo orderInfo = gson.fromJson(objNode.toString(), YYVisitOrderInfo.class);
-                            if (StringUtils.isNotEmpty(orderInfo.getSmallimg())){
+                            if (StringUtils.isNotEmpty(orderInfo.getSmallimg())) {
                                 orderInfo.setSmallimg(yyImgHost + "/" + orderInfo.getSmallimg());
                             }
                             String showTime;
-                            if (StringUtils.isNotEmpty(orderInfo.getEndtime())){
+                            if (StringUtils.isNotEmpty(orderInfo.getEndtime())) {
                                 //完成去完成时间
                                 showTime = this.getServiceShowTime(orderInfo.getEndtime(), null);
-                            }else {
+                            } else {
                                 showTime = this.getServiceShowTime(orderInfo.getRealyytime(), orderInfo.getRealyysjd());
                             }
                             List<YYVisitOrderInfo.OrderPhotos> orderPhotoses = orderInfo.gettOrderPhotos();
-                            if (orderPhotoses != null && !orderPhotoses.isEmpty()){
-                                for (YYVisitOrderInfo.OrderPhotos orderPhoto : orderPhotoses){
+                            if (orderPhotoses != null && !orderPhotoses.isEmpty()) {
+                                for (YYVisitOrderInfo.OrderPhotos orderPhoto : orderPhotoses) {
                                     orderPhoto.setPhotoaddress(yyImgHost + "/" + orderPhoto.getPhotoaddress());
                                 }
                             }
                             orderInfo.setService_showtime(showTime);
                             orderInfo.setSign_distance(getServiceSignDistance());
                             list.add(orderInfo);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }
-            }else {
+            } else {
                 return null;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -167,20 +162,22 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     /**
      * 获取服务签到距离
      */
-    private Integer getServiceSignDistance(){
+    private Integer getServiceSignDistance() {
         int signDistance = StringUtils.isNotEmpty(yyDoctorSignDistance) ? Integer.parseInt(yyDoctorSignDistance) : 1000;
         return signDistance > 0 ? signDistance : 0;
     }
 
     private SimpleDateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd");
     private String[] weekDays = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
+
     /**
      * 时间格式转换
+     *
      * @param dateTime 时间 2016-05-05 12:12:22
-     * @param apm 上午/下午
+     * @param apm      上午/下午
      * @return
      */
-    private String getServiceShowTime(String dateTime, String apm){
+    private String getServiceShowTime(String dateTime, String apm) {
         String showTime = "";
         try {
             Date date = sdf.parse(dateTime);
@@ -190,17 +187,17 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
             w = w < 0 ? 0 : w;
             String week = weekDays[w];
             String day = dateFm.format(date);
-            if (StringUtils.isEmpty(apm)){
+            if (StringUtils.isEmpty(apm)) {
                 apm = date.getHours() < 12 ? "上午" : "下午";
-            }else {
-                if (apm.equalsIgnoreCase("pm")){
+            } else {
+                if (apm.equalsIgnoreCase("pm")) {
                     apm = "下午";
-                }else if (apm.equalsIgnoreCase("am")){
+                } else if (apm.equalsIgnoreCase("am")) {
                     apm = "上午";
                 }
             }
             showTime = day + " " + week + " " + apm;
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return StringUtils.isEmpty(showTime) ? dateTime : showTime;
@@ -208,24 +205,25 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
 
     /**
      * 获取医生表单任务的执行结果
+     *
      * @param personcard
      * @param workOrderNo
      * @return
      */
-    private Map<String, JsonNode> getExecDemoResult(String personcard, String workOrderNo){
+    private Map<String, JsonNode> getExecDemoResult(String personcard, String workOrderNo) {
         JsonNode body = this.postRequest(personcard, yyServiceHost + execDemoResultUrl, new String[]{"workOrderNo", workOrderNo});
         Map<String, JsonNode> resultMap = new HashMap<>();
         if (body.get("status").asText().equals("1")) {
             JsonNode jsonNode = body.get("response");
-            if (jsonNode == null || !jsonNode.isArray() || jsonNode.size() == 0){
+            if (jsonNode == null || !jsonNode.isArray() || jsonNode.size() == 0) {
                 return resultMap;
-            }else {
+            } else {
                 for (JsonNode objNode : jsonNode) {
                     String xh = objNode.get("xh").asText();
                     resultMap.put(xh, objNode);
                 }
             }
-        }else {
+        } else {
             return resultMap;
         }
         return resultMap;
@@ -253,43 +251,43 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
                     //要服务的每一个小服务的执行列表 eq:第一步/第二步
                     if (execresult.isArray() && execresult.size() > 0) {
                         int tmp_i = 0;
-                        for (JsonNode objNode2 : execresult){
+                        for (JsonNode objNode2 : execresult) {
                             tmp_i++;
                             YYExecDemoResultInfo resultInfo = new YYExecDemoResultInfo();
                             String title = objNode2.get(0).asText();
                             resultInfo.setTitle(title);
                             JsonNode items = objNode2.get(1);
-                            if (null != items && items.isArray() && items.size()>0){
+                            if (null != items && items.isArray() && items.size() > 0) {
                                 Gson gson = new Gson();
                                 List<String> bodyItems = gson.fromJson(items.toString(), List.class);
                                 resultInfo.setItem(bodyItems);
                             }
-                            if (dealResult != null){
+                            if (dealResult != null) {
                                 //去拼装医生提交的信息
                                 String dealExecresult = dealResult.get("execresult").asText();
-                                if (dealExecresult.length() >= tmp_i){
-                                    resultInfo.setResult(dealExecresult.substring(tmp_i-1, tmp_i));
+                                if (dealExecresult.length() >= tmp_i) {
+                                    resultInfo.setResult(dealExecresult.substring(tmp_i - 1, tmp_i));
                                 }
                                 JsonNode dealExecmemo = dealResult.get("execmemo");
-                                if (null != dealExecmemo && dealExecmemo.isArray() && dealExecmemo.size()>tmp_i-1){
-                                    String execmemoTmp = dealExecmemo.get(tmp_i-1).asText();
-                                    if (StringUtils.isEmpty(execmemoTmp) || "null".equalsIgnoreCase(execmemoTmp)){
+                                if (null != dealExecmemo && dealExecmemo.isArray() && dealExecmemo.size() > tmp_i - 1) {
+                                    String execmemoTmp = dealExecmemo.get(tmp_i - 1).asText();
+                                    if (StringUtils.isEmpty(execmemoTmp) || "null".equalsIgnoreCase(execmemoTmp)) {
                                         execmemoTmp = "";
                                     }
                                     resultInfo.setComment(execmemoTmp);
-                                }else if (null != dealExecmemo && dealExecmemo.isTextual()){
+                                } else if (null != dealExecmemo && dealExecmemo.isTextual()) {
                                     try {
                                         Gson gson = new Gson();
                                         List<String> comomons = gson.fromJson(dealExecmemo.textValue(), List.class);
                                         String execmemoTmp = "";
-                                        if (comomons != null && comomons.size() > tmp_i-1 && !StringUtils.isEmpty(comomons.get(tmp_i-1))){
-                                            execmemoTmp = comomons.get(tmp_i-1).equalsIgnoreCase("null") ? "" : comomons.get(tmp_i-1);
+                                        if (comomons != null && comomons.size() > tmp_i - 1 && !StringUtils.isEmpty(comomons.get(tmp_i - 1))) {
+                                            execmemoTmp = comomons.get(tmp_i - 1).equalsIgnoreCase("null") ? "" : comomons.get(tmp_i - 1);
                                         }
                                         resultInfo.setComment(execmemoTmp);
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                     }
                                 }
-                            }else {
+                            } else {
                                 resultInfo.setComment("");
                                 resultInfo.setResult("0");
                             }
@@ -309,33 +307,34 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     public Boolean submitExecDemo(String personcard, String workOrderNo, String data) {
         String[] parm = new String[]{"workOrderNo", workOrderNo, "data", data};
         JsonNode body = this.postRequest(personcard, yyServiceHost + submitExecDemoUrl, parm);
-        if (body.get("status").asText().equals("1")){
+        if (body.get("status").asText().equals("1")) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
     /**
      * 处理post请求
+     *
      * @return
      */
-    private JsonNode postRequest(String personcard, String url, String[] parm){
+    private JsonNode postRequest(String personcard, String url, String[] parm) {
         YYDoctorInfo doctorInfo = this.getYYDoctorUserInfo(personcard, false);
 
         Request request = new RequestBuilder().post().url(url).params(parm).headers(getServiceHeade(doctorInfo)).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode body = response.convertBody();
 
-        if (response.code() == 200 && body.get("status").asText().equals("999")){
+        if (response.code() == 200 && body.get("status").asText().equals("999")) {
             //登陆失效
             doctorInfo = this.getYYDoctorUserInfo(personcard, true);
             request = new RequestBuilder().post().url(url).params(parm).headers(getServiceHeade(doctorInfo)).build();
             response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
             body = response.convertBody();
         }
-        if (response.code() != 200){
-            String errorCodeMsg = "服务提供异常("+response.code()+")";
+        if (response.code() != 200) {
+            String errorCodeMsg = "服务提供异常(" + response.code() + ")";
             throw new CommonException(2022, errorCodeMsg);
         }
         return body;
@@ -345,36 +344,29 @@ public class VisitDoctorServiceImpl implements VisitDoctorService {
     public Boolean checkInVisitService(String personcard, String workOrderNo) {
         String[] parm = new String[]{"workOrderNo", workOrderNo};
         JsonNode body = this.postRequest(personcard, yyServiceHost + checkInUrl, parm);
-        if (body.get("status").asText().equals("1")){
+        if (body.get("status").asText().equals("1")) {
             return true;
-        }else {
+        } else {
             throw new CommonException(2040, body.get("message").asText());
         }
     }
 
     /**
      * 获取图片host
+     *
      * @return
      */
-    private String getServiceImgHost(){
+    private String getServiceImgHost() {
         return StringUtils.isEmpty(yyImgHost) ? yyServiceHost : yyImgHost;
     }
 
     /**
      * 拼接需要的header信息
+     *
      * @param yyDoctorInfo
      * @return
      */
-    private String[] getServiceHeade(YYDoctorInfo yyDoctorInfo){
+    private String[] getServiceHeade(YYDoctorInfo yyDoctorInfo) {
         return new String[]{"userId", yyDoctorInfo.getUserId(), "token", yyDoctorInfo.getToken()};
     }
-
-    private Jedis jedis() {
-        return redisConfig.redisConnectionFactory().getResource();
-    }
-
-    private void returnResource(Jedis jedis) {
-        redisConfig.redisConnectionFactory();
-    }
-
 }
