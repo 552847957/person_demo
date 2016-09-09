@@ -110,7 +110,7 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         }
 
         LogBuilder put(String key, Object value) {
-            if (value == null) {
+            if (value == null || StringUtils.isNotBlank(value.toString())) {
                 return this;
             }
             if (value instanceof JsonNode) {

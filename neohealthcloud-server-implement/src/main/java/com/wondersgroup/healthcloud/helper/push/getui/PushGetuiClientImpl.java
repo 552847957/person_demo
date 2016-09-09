@@ -107,7 +107,7 @@ public class PushGetuiClientImpl implements PushClient {
         payload.setContentAvailable(1);
         payload.setCategory("$由客户端定义");
         String msg = pushMessage.title + ": " + pushMessage.content;
-        msg = msg.length() > 100 ? (StringUtils.substring(msg, 0, 100) + "...") : msg;
+        msg = msg.length() > 50 ? (StringUtils.substring(msg, 0, 50) + "...") : msg;
         payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
         payload.addCustomMsg("content", jsonContent);
 
