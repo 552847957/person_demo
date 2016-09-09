@@ -77,7 +77,10 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         node.put("headers", ServletAttributeCacheUtil.getHeaderStr(request));
         if (!logIgnore.contains(method + URI)) {
             node.put("query", request.getQueryString());
-            node.put("body", JsonConverter.toJsonNode(Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8)));
+            String body = Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8);
+            if (StringUtils.isNotBlank(body)) {
+                node.put("body", JsonConverter.toJsonNode(body));
+            }
         }
 
         Session session = ServletAttributeCacheUtil.getSession(request, null);
@@ -110,7 +113,7 @@ public final class GateInterceptor extends AbstractHeaderInterceptor {
         }
 
         LogBuilder put(String key, Object value) {
-            if (value == null || StringUtils.isNotBlank(value.toString())) {
+            if (value == null || StringUtils.isBlank(value.toString())) {
                 return this;
             }
             if (value instanceof JsonNode) {
