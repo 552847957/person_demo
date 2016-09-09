@@ -46,7 +46,11 @@ public class AccessTokenResolver implements HandlerMethodArgumentResolver {
 
         AccessToken annotation = parameter.getParameterAnnotation(AccessToken.class);
         if (session == null) {
-            throw new AccessTokenMissingException();
+            if (annotation.required()) {
+                throw new AccessTokenMissingException();
+            } else {
+                return null;
+            }
         } else if (session.isGuest() && !annotation.guestEnabled()) {
             throw new LoginRequiredException();
         } else {
