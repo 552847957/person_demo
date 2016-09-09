@@ -128,7 +128,7 @@ public class NewsArticleController {
         Boolean hasMore = false;
         List<NewsArticleListAPIEntity> articleList=null;
 
-            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByKeyword(area,word,pageNo, pageSize+1);
+            List<NewsArticle> resourceList = this.manageNewsArticleServiceImpl.findAppShowListByKeyword(area,word,pageNo, pageSize);
             articleList =  this.getArticleEntityList(resourceList,area);
             if (null != articleList && articleList.size() > 10){
                 articleList = articleList.subList(0, 10);

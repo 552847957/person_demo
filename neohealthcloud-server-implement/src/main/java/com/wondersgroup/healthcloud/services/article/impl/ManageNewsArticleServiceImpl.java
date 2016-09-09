@@ -90,7 +90,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
 
     @Override
     public List<NewsArticle> findAppShowListByKeyword(String area,String word, int pageNo, int pageSize) {
-        return newsArticleRepo.findAppShowListByKeyword(area,word,pageNo,pageSize);
+        return newsArticleRepo.findAppShowListByKeyword(area,word,pageNo*pageSize,pageSize+1);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ManageNewsArticleServiceImpl implements ManageNewsArticleService{
     @Override
     public List<NewsArticleListAPIEntity> findCollectionArticle(String uid,int pageNo,int pageSize,String area) {
 
-        List<NewsArticle> newsArticles = newsArticleRepo.queryCollectionNewsArticle(uid, pageNo * pageSize, pageSize);
+        List<NewsArticle> newsArticles = newsArticleRepo.queryCollectionNewsArticle(uid, pageNo * pageSize, pageSize+1);
 
         return getArticleEntityList(newsArticles,area);
     }

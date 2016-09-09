@@ -48,7 +48,7 @@ public class ArticleFavoriteController {
 		JsonListResponseEntity<NewsArticleListAPIEntity> body = new JsonListResponseEntity<>();
 		int pageSize=10;
 		int pageNo=Integer.valueOf(flag);
-		List<NewsArticleListAPIEntity> collectionArticle = manageNewsArticleServiceImpl.findCollectionArticle(uid, pageNo, pageSize + 1,area);
+		List<NewsArticleListAPIEntity> collectionArticle = manageNewsArticleServiceImpl.findCollectionArticle(uid, pageNo, pageSize,area);
 		Boolean hasMore = false;
 		if (null != collectionArticle  && collectionArticle.size() > pageSize){
 			collectionArticle = collectionArticle.subList(0, pageSize);

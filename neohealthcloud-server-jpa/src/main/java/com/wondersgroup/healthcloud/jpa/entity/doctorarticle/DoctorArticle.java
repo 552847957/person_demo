@@ -44,10 +44,13 @@ public class DoctorArticle {
     private int isVisable;
 
     @Column(name = "online_time")
-    private Date onlineTime;
+    private Integer onlineTime;
 
     @Column(name = "update_time")
-    private Date updateTime;
+    private Integer updateTime;
+
+    @Column(name = "update_date")
+    private Date updateDate;
 
     private String keyword;
 }

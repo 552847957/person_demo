@@ -64,7 +64,8 @@ public class DoctorController {
             @RequestParam(required = true) String  uid,
             @RequestParam(required = false, defaultValue = "1") Integer flag){
         JsonListResponseEntity<DoctorAccountDTO> body = new JsonListResponseEntity<>();
-        int pageSize = 10;
+//        int pageSize = 10;
+        int pageSize = 5;
         boolean has_more = false;
         List<DoctorAccountDTO> list = Lists.newArrayList();
 
@@ -78,7 +79,8 @@ public class DoctorController {
         }
 
         if(null != doctorList && doctorList.size() == pageSize){
-            if(null != patientAttentionService.findAttentionDoctorList(uid,pageSize,flag+1)){
+            List<Map<String,Object>> doctorListMore = patientAttentionService.findAttentionDoctorList(uid,pageSize,flag+1);
+            if(null !=doctorListMore && doctorListMore.size()>0 ){
                 has_more = true;
                 flag = flag +1;
             }

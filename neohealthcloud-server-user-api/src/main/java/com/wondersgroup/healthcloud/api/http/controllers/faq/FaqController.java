@@ -50,7 +50,8 @@ public class FaqController {
         List<Faq> faqList = faqService.findFaqList(pageSize,flag);
 
         if(null != faqList && faqList.size() == pageSize){
-            if(null != faqService.findFaqList(pageSize,flag+1)){
+            List<Faq> faqListMore = faqService.findFaqList(pageSize,flag+1);
+            if(null !=faqListMore && faqListMore.size()>0){
                 has_more = true;
                 flag = flag +1;
             }
