@@ -8,11 +8,14 @@ import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
@@ -21,6 +24,7 @@ import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
 import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,9 @@ public class SpecHomeController {
 
     @Autowired
     private FaqService faqService;
+
+    @Autowired
+    RegisterInfoRepository registerInfoRepo;
 
     private static final String requestStationNearby = "%s/api/exam/station/nearby?";
     private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
@@ -199,7 +206,8 @@ public class SpecHomeController {
 
     @GetMapping(value = "/specSerMeasuringPoint")
     @WithoutToken
-    public JsonResponseEntity specSerMeasuringPoint(@RequestHeader(name = "main-area", required = true) String mainArea,
+    public JsonResponseEntity specSerMeasuringPoint(@AccessToken Session session,
+                                                    @RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
                                                     @RequestHeader(name = "app-version", required = true) String appVersion,
                                                     @RequestParam String areaCode,
@@ -210,10 +218,36 @@ public class SpecHomeController {
         if (imageTextsB != null && imageTextsB.size() > 0) {
             List specialServices = new ArrayList();
             Map map = null;
+
+            String idCard = null;
+            int loginOrRealName = 0;// 0:需登录,1:需实名制,2:正常
+            if (session != null) {
+                String userId = session.getUserId();
+                RegisterInfo registerInfo = registerInfoRepo.findOne(userId);
+                if (registerInfo != null) {
+                    // 未实名认证
+                    if (!"1".equals(registerInfo.getIdentifytype()) && !"2".equals(registerInfo.getIdentifytype())) {
+                        loginOrRealName = 1;
+                    } else {
+                        loginOrRealName = 2;
+                        idCard = registerInfo.getPersoncard();
+                    }
+                }
+            }
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", imageText.getHoplink());
+                if (imageText.getHoplink() != null && imageText.getHoplink().contains("{sfzh}")) {// 需获取身份证
+                    if (loginOrRealName == 2) {
+                        map.put("hoplink", imageText.getHoplink().replace("{sfzh}", idCard));
+                    } else {
+                        map.put("hoplink", imageText.getHoplink());
+                    }
+                } else {// 不需要身份证信息
+                    map.put("loginOrRealName", 2);
+                    map.put("hoplink", imageText.getHoplink());
+                }
+
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 specialServices.add(map);

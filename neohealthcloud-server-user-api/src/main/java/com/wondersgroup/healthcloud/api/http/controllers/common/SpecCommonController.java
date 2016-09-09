@@ -216,6 +216,9 @@ public class SpecCommonController {
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.intellectualPropertyAgreement"))) {
                 common.setIpa(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.intellectualPropertyAgreement")));
             }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.recordUrl"))) {
+                common.setRecord_url(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+            }
             if (platform.equalsIgnoreCase("0")) {
                 common.setQrCode(cfgMap.get("common.qr.code.url.ios"));
             } else if (platform.equalsIgnoreCase("1")) {
@@ -229,7 +232,6 @@ public class SpecCommonController {
 
             common.setMedicineCloudUrl(cfgMap.get("app.common.medicineCloudUrl"));
             common.setMedicinePayUrl(cfgMap.get("app.common.medicinePayUrl"));
-            common.setRecordUrl(cfgMap.get("app.common.recordUrl"));
             common.setPointUrl(cfgMap.get("app.common.pointUrl"));
             common.setIsUmengEvent(cfgMap.get("app.common.isUmengEvent"));
             common.setIsWdEvent2(cfgMap.get("app.common.isWdEvent2"));
@@ -259,7 +261,7 @@ public class SpecCommonController {
         private String huiDaoApiid;// 汇道
         private String medicineCloudUrl;// 医药云
         private String medicinePayUrl;// 医疗支出
-        private String recordUrl;// 市级健康档案
+        private String record_url;// 市级健康档案
         private String pointUrl;// 积分商城地址
         private String isUmengEvent;// 友盟
         private String isWdEvent2;// 内部统计
