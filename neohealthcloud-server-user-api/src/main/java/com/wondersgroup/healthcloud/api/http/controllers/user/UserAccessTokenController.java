@@ -33,15 +33,16 @@ public class UserAccessTokenController {
     @WithoutToken
     @GetMapping(path = "/token")
     @VersionRange
-    public JsonResponseEntity<UserAccountAndSessionDTO> fetchToken(@RequestParam String account,
-                                                                   @RequestParam String password
-    ) {
+    public JsonResponseEntity<UserAccountAndSessionDTO> fetchToken(
+            @RequestHeader(required = false, name = "request-id") String requestId,
+            @RequestParam String account,
+            @RequestParam String password) {
 
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.login(account,password)));
         body.setMsg("登录成功");
         attachInfo(body);
-        logger.info("");
+        logger.info("GET url = api/token ,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;
     }
 
@@ -67,12 +68,14 @@ public class UserAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/token/fast", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<UserAccountAndSessionDTO> fastFetchToken(@RequestParam String mobile,
+    public JsonResponseEntity<UserAccountAndSessionDTO> fastFetchToken(@RequestHeader(required = false, name = "request-id") String requestId,
+                                                                       @RequestParam String mobile,
                                                                        @RequestParam String verify_code) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.fastLogin(mobile, verify_code,false)));//改为false
         body.setMsg("登录成功");
         attachInfo(body);
+        logger.info("GET, url = api/token/fast,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;
     }
 
@@ -85,12 +88,15 @@ public class UserAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/token/thirdparty/wechat", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<UserAccountAndSessionDTO> wechatLogin(@RequestParam String token,
-                                                                    @RequestParam String openid) {
+    public JsonResponseEntity<UserAccountAndSessionDTO> wechatLogin(
+            @RequestHeader(required = false, name = "request-id") String requestId,
+            @RequestParam String token,
+            @RequestParam String openid) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.wechatLogin(token, openid)));
         body.setMsg("登录成功");
         attachInfo(body);
+        logger.info("GET url = api/token/thirdparty/wechat,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;
     }
 
@@ -102,11 +108,13 @@ public class UserAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/token/thirdparty/weibo", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<UserAccountAndSessionDTO> weiboLogin(@RequestParam String token) {
+    public JsonResponseEntity<UserAccountAndSessionDTO> weiboLogin(@RequestHeader(required = false, name = "request-id") String requestId,
+                                                                   @RequestParam String token) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.weiboLogin(token)));
         body.setMsg("登录成功");
         attachInfo(body);
+        logger.info("GET url = api/token/thirdparty/weibo,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;
     }
 
@@ -118,11 +126,13 @@ public class UserAccessTokenController {
     @WithoutToken
     @RequestMapping(value = "/token/thirdparty/qq", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<UserAccountAndSessionDTO> qqLogin(@RequestParam String token) {
+    public JsonResponseEntity<UserAccountAndSessionDTO> qqLogin(@RequestHeader(required = false, name = "request-id") String requestId,
+                                                                @RequestParam String token) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.qqLogin(token)));
         body.setMsg("登录成功");
         attachInfo(body);
+        logger.info("GET url = api/token/thirdparty/qq,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;
     }
 
