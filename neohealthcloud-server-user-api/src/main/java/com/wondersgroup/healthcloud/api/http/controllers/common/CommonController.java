@@ -153,7 +153,7 @@ public class CommonController {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {

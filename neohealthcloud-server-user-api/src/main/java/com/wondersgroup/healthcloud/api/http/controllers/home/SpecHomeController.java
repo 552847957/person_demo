@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
@@ -162,8 +163,7 @@ public class SpecHomeController {
     @RequestMapping(value = "/newsAndQuestions", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
+    public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
         try {
@@ -215,7 +215,7 @@ public class SpecHomeController {
                 map.put("imgUrl", imageText.getImgUrl());
                 map.put("hoplink", imageText.getHoplink());
                 map.put("mainTitle", imageText.getMainTitle());
-                map.put("subTitle", getRandomSubTitle());
+                map.put("subTitle", imageText.getSubTitle());
                 specialServices.add(map);
             }
             data.put("specialService", specialServices);
@@ -244,6 +244,7 @@ public class SpecHomeController {
                     JsonNode rtnJson = objectMapper.readTree(rtnStr);
                     JsonNode measuringPoint = rtnJson.get("data").get("content").get(0);
                     if (measuringPoint != null) {
+                        ((ObjectNode) measuringPoint).put("description", getRandomDesc());
                         data.put("measuringPoint", measuringPoint);
                     }
                 }
@@ -264,7 +265,7 @@ public class SpecHomeController {
         return result;
     }
 
-    private String getRandomSubTitle() {
+    private String getRandomDesc() {
         String[] subTitles = {"健康指标免费测，健康管理随时做", "家门口的健康指标免费测量中心", "在这里，健康设备免费测"};
         return subTitles[(int)(Math.random() * 10) % subTitles.length];
     }

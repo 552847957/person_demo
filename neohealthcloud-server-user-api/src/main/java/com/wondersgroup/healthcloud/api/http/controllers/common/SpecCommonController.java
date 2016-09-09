@@ -131,12 +131,11 @@ public class SpecCommonController {
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
+    public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             List<String> navigationBars = new ArrayList<>();
             for (ImageText imageText : imageTexts) {
