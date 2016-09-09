@@ -29,7 +29,7 @@ public class DoctorArticleCategory {
     private String updateBy;
 
     @Column(name = "update_time")
-    private int updateTime;
+    private Integer updateTime;
 
     @Column(name = "update_date")
     private Date updateDate;
