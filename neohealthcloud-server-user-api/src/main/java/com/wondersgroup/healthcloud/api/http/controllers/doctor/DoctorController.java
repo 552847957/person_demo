@@ -64,8 +64,7 @@ public class DoctorController {
             @RequestParam(required = true) String  uid,
             @RequestParam(required = false, defaultValue = "1") Integer flag){
         JsonListResponseEntity<DoctorAccountDTO> body = new JsonListResponseEntity<>();
-//        int pageSize = 10;
-        int pageSize = 5;
+        int pageSize = 10;
         boolean has_more = false;
         List<DoctorAccountDTO> list = Lists.newArrayList();
 

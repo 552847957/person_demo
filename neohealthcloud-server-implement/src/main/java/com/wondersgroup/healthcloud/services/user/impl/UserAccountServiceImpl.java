@@ -234,6 +234,9 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public Boolean validateCode(String mobile, String verifyCode, boolean onlyOne) {
         JsonNode result = httpWdUtils.verifyCode(mobile, verifyCode, onlyOne);
+        if(result.get("code").asInt()==511){
+            throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
         return result.get("success").asBoolean();
     }
 

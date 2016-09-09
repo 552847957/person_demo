@@ -20,7 +20,7 @@ public class RegisterInfo {
   @Column(name = "userid")
   private String username; //用户id
 
-  private String identifytype; //认证类型（0.未认证，1.认证）
+  private String identifytype; //认证类型（0.未认证，1.市民云认证,2:医生邀请码认证）
 
   private String personcard; //身份证
 
