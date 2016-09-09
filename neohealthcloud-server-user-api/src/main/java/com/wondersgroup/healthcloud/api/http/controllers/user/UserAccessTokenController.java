@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class UserAccessTokenController {
+    private static final Logger logger = Logger.getLogger(UserAccessTokenController.class);
 
     @Autowired
     private UserAccountService userAccountService;
@@ -39,6 +41,7 @@ public class UserAccessTokenController {
         body.setData(new UserAccountAndSessionDTO(userAccountService.login(account,password)));
         body.setMsg("登录成功");
         attachInfo(body);
+        logger.info("");
         return body;
     }
 
