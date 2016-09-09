@@ -96,7 +96,7 @@ public class DoctorArticleController {
      */
     @RequestMapping(value = "updateDoctorArticle", method = RequestMethod.POST)
     public JsonResponseEntity updateDoctorArticle(@RequestBody DoctorArticle doctorArticle) {
-        doctorArticle.setUpdateTime(new Date());
+        doctorArticle.setUpdateDate(new Date());
         doctorArticleRepository.save(doctorArticle);
         return new JsonResponseEntity(0, "修改成功");
     }

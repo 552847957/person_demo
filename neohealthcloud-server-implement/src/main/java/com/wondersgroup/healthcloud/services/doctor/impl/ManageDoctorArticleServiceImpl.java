@@ -51,7 +51,7 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
 
     @Override
     public List<Map<String, Object>> findDoctorArticleListByPager(int pageNum, int size, Map<String, Object> parameter) {
-        String query = " select a.id,a.title,a.is_visable,a.category_ids,a.update_time from app_tb_doctor_article a ";
+        String query = " select a.id,a.title,a.is_visable,a.category_ids,a.update_date from app_tb_doctor_article a ";
         String sql = query + getWhereSqlByParameter(parameter)+" LIMIT " +(pageNum-1)*size +"," + size;
         List<Map<String, Object>> mapList = jt.queryForList(sql);
         return mapList;
@@ -97,11 +97,11 @@ public class ManageDoctorArticleServiceImpl implements ManageDoctorArticleServic
                 bf.append(" and a.is_visable = "+parameter.get("isVisable").toString());
             }
             if(parameter.containsKey("startTime") && StringUtils.isNotBlank(parameter.get("startTime").toString())){
-                bf.append(" and a.update_time >= '"+parameter.get("startTime").toString()+" 00:00:00'" );
+                bf.append(" and a.update_date >= '"+parameter.get("startTime").toString()+" 00:00:00'" );
 
             }
             if(parameter.containsKey("endTime") && StringUtils.isNotBlank(parameter.get("endTime").toString())){
-                bf.append(" and a.update_time <= '"+parameter.get("endTime").toString()+" 23:59:59'" );
+                bf.append(" and a.update_date <= '"+parameter.get("endTime").toString()+" 23:59:59'" );
             }
         }
         return bf.toString();

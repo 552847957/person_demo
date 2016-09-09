@@ -42,7 +42,7 @@ public class DoctorArticleCategoryController {
         Page<DoctorArticleCategory> doctorArticleCategories = doctorArticleCategoryRepository.findAll(pageable);
 
         Map<Class, Object> filterMap = new HashMap<>();
-        filterMap.put(DoctorArticleCategory.class, new String[]{"id", "ca_name","rank", "update_time", "is_visable"});
+        filterMap.put(DoctorArticleCategory.class, new String[]{"id", "ca_name","rank", "update_date", "is_visable"});
         filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
         JsonResponseEntity response;
@@ -99,7 +99,7 @@ public class DoctorArticleCategoryController {
     @RequestMapping(value = "saveDoctorArticleCategory", method = RequestMethod.POST)
     public JsonResponseEntity saveDoctorArticleCategory(@RequestBody Map para) {
         DoctorArticleCategory doctorArticleCategory = MapToBeanUtil.fromMapToBean(DoctorArticleCategory.class, para);
-        doctorArticleCategory.setUpdateTime(new Date());
+        doctorArticleCategory.setUpdateDate(new Date());
         doctorArticleCategoryRepository.save(doctorArticleCategory);
 
         return new JsonResponseEntity(0, "保存成功");
