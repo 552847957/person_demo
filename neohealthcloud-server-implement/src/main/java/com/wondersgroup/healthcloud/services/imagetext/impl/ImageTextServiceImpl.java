@@ -12,6 +12,8 @@ import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -230,6 +232,10 @@ public class ImageTextServiceImpl implements ImageTextService {
     public List<ImageText> findGImageTextForApp(String mainArea, String specArea, Integer gadcode, String version) {
         if (gadcode != ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType()) {// 仅在查询区级特色服务是需要使用spec_area
             specArea = null;
+        } else {
+            if (specArea == null) {// 查询特色服务是specArea不能为空
+                return null;
+            }
         }
         GImageText param = new GImageText();
         param.setDelFlag("0");
@@ -241,7 +247,17 @@ public class ImageTextServiceImpl implements ImageTextService {
         strBuf.append("SELECT * FROM app_tb_neo_g_image_text WHERE 1 = 1 ");
         strBuf.append(findGImageTextForApp(param));
 
-        GImageText gImageText = getJt().queryForObject(strBuf.toString(), new BeanPropertyRowMapper<GImageText>(GImageText.class));
+        GImageText gImageText = null;
+        try {
+            gImageText = getJt().queryForObject(strBuf.toString(), new BeanPropertyRowMapper<GImageText>(GImageText.class));
+        } catch (EmptyResultDataAccessException ex) {
+            logger.info("ImageTextServiceImpl.findGImageTextForApp --> " + ex.getLocalizedMessage());
+            return null;
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            logger.info("ImageTextServiceImpl.findGImageTextForApp --> " + ex.getLocalizedMessage());
+            return null;
+        }
+
         if (gImageText != null) {
             List<ImageText> imageTextList = imageTextRepository.findByGidForApp(gImageText.getId());
             return imageTextList;
