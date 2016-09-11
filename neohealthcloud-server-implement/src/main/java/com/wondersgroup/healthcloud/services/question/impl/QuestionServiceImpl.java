@@ -93,7 +93,7 @@ public class QuestionServiceImpl implements QuestionService {
                 + " LEFT JOIN doctor_account_tb t2 ON t1.answer_id=t2.id "
                 + " LEFT JOIN doctor_info_tb t3 ON t2.id=t3.id "
                 + " LEFT JOIN t_dic_duty t4 ON t3.duty_id=t4.duty_id "
-                + " WHERE t1.question_id='"+questionId+"' order by t1.new_comment_time DESC";
+                + " WHERE t1.question_id='"+questionId+"' order by t1.create_time DESC";
         List<Map<String, Object>> list=getJt().queryForList(sql);
         List<QuestionGroup> groups=new ArrayList<>();
         for(Map<String, Object> map :list){
