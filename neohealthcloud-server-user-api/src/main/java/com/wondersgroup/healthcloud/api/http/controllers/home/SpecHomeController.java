@@ -26,6 +26,7 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -221,7 +222,7 @@ public class SpecHomeController {
 
             String idCard = null;
             int loginOrRealName = 0;// 0:需登录,1:需实名制,2:正常
-            if (session != null) {
+            if (session != null && StringUtils.isNotEmpty(session.getUserId())) {
                 String userId = session.getUserId();
                 RegisterInfo registerInfo = registerInfoRepo.findOne(userId);
                 if (registerInfo != null) {
