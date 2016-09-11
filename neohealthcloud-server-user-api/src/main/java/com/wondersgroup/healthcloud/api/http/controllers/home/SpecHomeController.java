@@ -206,7 +206,7 @@ public class SpecHomeController {
 
     @RequestMapping(value = "/specSerMeasuringPoint", method = RequestMethod.GET)
     @WithoutToken
-    public JsonResponseEntity specSerMeasuringPoint(@AccessToken(required = false) Session session,
+    public JsonResponseEntity specSerMeasuringPoint(@AccessToken(required = false, guestEnabled = true) Session session,
                                                     @RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
                                                     @RequestHeader(name = "app-version", required = true) String appVersion,
