@@ -57,7 +57,7 @@ public class GWService extends HttpBaseService {
 				personList = jsonMapper.fromJson(contentNode.toString(),
 						jsonMapper.contructCollectionType(List.class, SignedPersonDTO.class));
 
-				for(SignedPersonDTO signedPersonDTO : personList){//todo
+				for(SignedPersonDTO signedPersonDTO : personList){
 					Boolean isJky = false;
 					Boolean isRisk = false;
 					signedPersonDTO.setAvatar("");
@@ -68,7 +68,7 @@ public class GWService extends HttpBaseService {
 						signedPersonDTO.setAvatar(registerInfos.get(0).getHeadphoto());
 						signedPersonDTO.setUid(registerInfos.get(0).getRegisterid());
 						//判断是否是 "危" 朱春柳的接口
-						signedPersonDTO.setIsRisk(assessmentService.hasDiseases(registerInfos.get(0).getRegisterid()));
+						isRisk = assessmentService.hasDiseases(registerInfos.get(0).getRegisterid());
 					}
 
 					signedPersonDTO.setIsJky(isJky);

@@ -22,8 +22,8 @@ public class DoctorArticleDto {
     public DoctorArticleDto toNewDoctorArticleDto(DoctorArticle doctorArticle){
         DoctorArticleDto doctorArticleDto = new DoctorArticleDto();
         doctorArticleDto.setArticleId(doctorArticle.getId());
-        doctorArticleDto.setDesc(doctorArticle.getContent());
-        doctorArticleDto.setPv(doctorArticle.getPv());
+        doctorArticleDto.setDesc(doctorArticle.getBrief());
+        doctorArticleDto.setPv(doctorArticle.getPv()+doctorArticle.getFakePv());
         doctorArticleDto.setThumb(doctorArticle.getThumb());
         doctorArticleDto.setTitle(doctorArticle.getTitle());
 
