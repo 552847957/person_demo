@@ -67,11 +67,7 @@ public class FoodStoreItemController {
         filterMap.put(PageImpl.class, new String[]{"content", "total_pages", "total_elements", "size", "number", "last"});
         SimpleFilterProvider filterProvider = PropertyFilterUtil.filterOutAllExceptFilter(filterMap);
         JsonResponseEntity response;
-        if (foodStoreItems.getContent() != null && !foodStoreItems.getContent().isEmpty()) {
-            response = new JsonResponseEntity(0, "查询成功", foodStoreItems);
-        } else {
-            response = new JsonResponseEntity(-1, "查询失败");
-        }
+        response = new JsonResponseEntity(0, "查询成功", foodStoreItems);
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }
@@ -91,10 +87,8 @@ public class FoodStoreItemController {
         JsonResponseEntity response;
         if (foodStoreItem != null) {
             foodStoreItem.setGi_level(FoodStoreItem.getGiLevel(foodStoreItem.getGi()));
-            response = new JsonResponseEntity(0, "查询成功", foodStoreItem);
-        } else {
-            response = new JsonResponseEntity(-1, "查询失败");
         }
+        response = new JsonResponseEntity(0, "查询成功", foodStoreItem);
 
         return PropertyFilterUtil.getObjectMapper().setFilterProvider(filterProvider).writeValueAsString(response);
     }

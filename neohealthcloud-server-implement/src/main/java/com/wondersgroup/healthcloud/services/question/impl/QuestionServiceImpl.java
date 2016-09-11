@@ -149,11 +149,20 @@ public class QuestionServiceImpl implements QuestionService {
     }
     @Override
     public void saveReplay(Reply reply) {
+        ReplyGroup group=replyGroupRepository.findOne(reply.getGroupId());
+        if(null != group&&group.getStatus()==1){
+            //最后一次是医生回复的，不能再次回复
+            throw new ErrorReplyException("请先等待医生回复哦！");
+        }
+        if(null != group&&group.getStatus()==3){
+            //最后一次是医生回复的，不能再次回复
+            throw new ErrorReplyException("问题已经被关闭，不能进行回复了！");
+        }
         reply.setCreateTime(new Date());
         reply.setUserReply(1);
         reply.setIsValid(1);
         replyRepository.saveAndFlush(reply);
-        ReplyGroup group=replyGroupRepository.findOne(reply.getGroupId());
+
         group.setNewCommentTime(new Date());
         group.setHasNewUserComment(1);
         group.setStatus(1);
