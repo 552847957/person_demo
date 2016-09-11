@@ -122,4 +122,27 @@ public class DoctorArticleController {
         response.setMsg("设置成功");
         return response;
     }
+
+    /**
+     * 增加阅读量
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
+    @RequestMapping(value = "doctorArticle/addPv", method = RequestMethod.GET)
+    public JsonResponseEntity<String> addPv(@RequestParam int id) throws JsonProcessingException {
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        DoctorArticle doctorArticle = doctorArticleRepository.findById(id);
+        if(doctorArticle!=null){
+            doctorArticle.setPv(doctorArticle.getPv()+1);
+            doctorArticleRepository.saveAndFlush(doctorArticle);
+            response.setMsg("保存成功");
+        }else{
+            response.setCode(3101);
+            response.setMsg("保存失败");
+        }
+
+        return response;
+    }
+
 }
