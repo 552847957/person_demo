@@ -5,7 +5,6 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.helper.push.area.PushAdminSelector;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaBindService;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +54,7 @@ public class PushController {
     @VersionRange
     public String unbindPush(@RequestHeader("main-area") String mainArea,
                              @RequestParam String uid) {
-        DoctorAccount account = doctorAccountRepository.findOne(uid);
-        pushAdminSelector.getByArea(account.getMainArea(), true).unbindAliasAll(uid);
+        pushAdminSelector.getByArea(mainArea, true).unbindAliasAll(uid);
         return "{\"code\":0}";
     }
 }
