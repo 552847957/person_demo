@@ -57,7 +57,7 @@ public class ImageTextServiceImpl implements ImageTextService {
             StringBuffer strBuf = new StringBuffer();
             strBuf.append("SELECT * FROM app_tb_neoimage_text WHERE 1 = 1");
             strBuf.append(findAll(imageText));
-            strBuf.append(" ORDER BY sequence");
+            strBuf.append(" ORDER BY sequence DESC");
 
             List<ImageText> appAdsList = getJt().query(strBuf.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
 
@@ -142,7 +142,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        strBuf.append(" AND '" + sdf.format(new Date()) + "' BETWEEN start_time AND end_time");
+        strBuf.append(" AND ('" + sdf.format(new Date()) + "' BETWEEN start_time AND end_time  OR (start_time IS NULL AND end_time IS NULL))");
 
         if (StringUtils.isBlank(imgText.getSource())) {
             strBuf.append(" AND source = '1'");
@@ -231,7 +231,17 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (gadcode != ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType()) {// 仅在查询区级特色服务是需要使用spec_area
             specArea = null;
         }
-        GImageText gImageText = gImageTextRepository.findGImageTextForApp(mainArea, specArea, gadcode, version);
+        GImageText param = new GImageText();
+        param.setDelFlag("0");
+        param.setMainArea(mainArea);
+        param.setSpecArea(specArea);
+        param.setGadcode(gadcode);
+        param.setVersion(version);
+        StringBuffer strBuf = new StringBuffer();
+        strBuf.append("SELECT * FROM app_tb_neo_g_image_text WHERE 1 = 1 ");
+        strBuf.append(findGImageTextForApp(param));
+
+        GImageText gImageText = getJt().queryForObject(strBuf.toString(), new BeanPropertyRowMapper<GImageText>(GImageText.class));
         if (gImageText != null) {
             List<ImageText> imageTextList = imageTextRepository.findByGidForApp(gImageText.getId());
             return imageTextList;
@@ -353,4 +363,27 @@ public class ImageTextServiceImpl implements ImageTextService {
         }
         return bf.toString();
     }
+
+    private String findGImageTextForApp(GImageText gImageText) {
+        StringBuffer strBuf = new StringBuffer();
+
+        if (StringUtils.isNotEmpty(gImageText.getDelFlag())) {
+            strBuf.append(" AND del_flag = '" + gImageText.getDelFlag() + "'");
+        }
+        if (StringUtils.isNotEmpty(gImageText.getMainArea())) {
+            strBuf.append(" AND main_area = '" + gImageText.getMainArea() + "'");
+        }
+        if (StringUtils.isNotEmpty(gImageText.getSpecArea())) {
+            strBuf.append(" AND spec_area = '" + gImageText.getSpecArea() + "'");
+        }
+        if (gImageText.getGadcode() != null) {
+            strBuf.append(" AND gadcode = " + gImageText.getGadcode().intValue());
+        }
+        if (StringUtils.isNotEmpty(gImageText.getVersion())) {
+            strBuf.append(" AND version = '" + gImageText.getVersion() + "'");
+        }
+
+        return strBuf.toString();
+    }
+
 }

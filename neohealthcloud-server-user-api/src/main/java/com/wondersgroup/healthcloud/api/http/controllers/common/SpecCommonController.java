@@ -92,7 +92,7 @@ public class SpecCommonController {
 
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgText);
         if (imageTexts != null && imageTexts.size() > 0) {
             ImageText imageText = imageTexts.get(0);
             LoadingImageDTO loadingImageDTO = new LoadingImageDTO(imageText);

@@ -49,7 +49,7 @@ public class SpecServicesController {
     
     @Value("${internal.api.service.measure.url}")
     private String host;
-    private static final String requestFamilyPath = "%s/api/measure/family/nearest?%s";
+    private static final String requestFamilyPath = "%s/api/measure/family/abnormalByWeek?%s";
     private RestTemplate template = new RestTemplate();
 
     @RequestMapping(value = "/info", method = RequestMethod.GET)

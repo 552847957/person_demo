@@ -61,7 +61,7 @@ public class HomeController {
         // 首页Banner
         ImageText imgTextA = new ImageText();
         imgTextA.setAdcode(ImageTextEnum.HOME_BANNER.getType());
-        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
+        List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextA);
         if (imageTextsA != null && imageTextsA.size() > 0) {
             int flag = 5;
             if (imageTextsA.size() < flag) {
@@ -76,7 +76,7 @@ public class HomeController {
         }
 
         // 首页功能栏
-        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_FUNCTION.getType(), version);
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, null, ImageTextEnum.G_HOME_FUNCTION.getType(), version);
         if (imageTextsB != null && imageTextsB.size() > 0) {
             List functionIcons = new ArrayList();
             Map map = null;
@@ -94,7 +94,7 @@ public class HomeController {
         // 首页广告
         ImageText imgTextC = new ImageText();
         imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
-        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextC);
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextC);
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
             for (ImageText imageText : imageTextsC) {

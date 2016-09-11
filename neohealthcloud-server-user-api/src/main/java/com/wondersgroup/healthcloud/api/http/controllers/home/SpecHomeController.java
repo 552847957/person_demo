@@ -121,7 +121,7 @@ public class SpecHomeController {
         // 首页浮动广告及在线客服
         ImageText imgTextD = new ImageText();
         imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());
-        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextD);
+        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextD);
         if (imageTextsD != null && imageTextsD.size() > 0) {
             data.put("sideAd", new ImageTextPositionDTO(imageTextsD.get(0)));
         }
