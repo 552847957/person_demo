@@ -59,7 +59,11 @@ public class ImageTextServiceImpl implements ImageTextService {
             StringBuffer strBuf = new StringBuffer();
             strBuf.append("SELECT * FROM app_tb_neoimage_text WHERE 1 = 1");
             strBuf.append(findAll(imageText));
-            strBuf.append(" ORDER BY sequence DESC");
+            if (ImageTextEnum.NAVIGATION_BAR.getType().equals(imageText.getAdcode())) {
+                strBuf.append(" ORDER BY sequence");
+            } else {
+                strBuf.append(" ORDER BY sequence DESC");
+            }
 
             List<ImageText> appAdsList = getJt().query(strBuf.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
 
