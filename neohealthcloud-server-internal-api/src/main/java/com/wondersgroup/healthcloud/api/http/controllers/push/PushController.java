@@ -54,6 +54,7 @@ public class PushController {
     @PostMapping(path = "/push/single", produces = "application/json")
     public String pushToAlias(@RequestBody AppMessage pushMessage,
                               @RequestParam String alias) {
+        userPrivateMessageService.saveOneMessage(pushMessage, alias);
         PushClient client;
         if (pushMessage.isDoctor) {
             client = pushAreaService.getByDoctor(alias);
@@ -71,7 +72,6 @@ public class PushController {
             }
         }
         client.pushToAlias(pushMessage.toPushMessage(), alias);
-        userPrivateMessageService.saveOneMessage(pushMessage, alias);
         return "{\"code\":0}";
     }
 
@@ -115,8 +115,8 @@ public class PushController {
         String questionId = reader.readString("questionId", false);
         List<ReplyGroup> commentGroupList = replyGroupRepository.getCommentGroupList(questionId);
 
-        if (commentGroupList.isEmpty()){
-            AppMessage message= AppMessage.Builder.init().title("您的问题已关闭").content("您提交的问题已经关闭")
+        if (commentGroupList.isEmpty()) {
+            AppMessage message = AppMessage.Builder.init().title("您的问题已关闭").content("您提交的问题已经关闭")
                     .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
             Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
         }
