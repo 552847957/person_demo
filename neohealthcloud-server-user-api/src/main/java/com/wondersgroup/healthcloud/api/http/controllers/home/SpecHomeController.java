@@ -206,7 +206,7 @@ public class SpecHomeController {
 
     @GetMapping(value = "/specSerMeasuringPoint")
     @WithoutToken
-    public JsonResponseEntity specSerMeasuringPoint(@AccessToken Session session,
+    public JsonResponseEntity specSerMeasuringPoint(@AccessToken(required = false) Session session,
                                                     @RequestHeader(name = "main-area", required = true) String mainArea,
                                                     @RequestHeader(name = "spec-area", required = false) String specArea,
                                                     @RequestHeader(name = "app-version", required = true) String appVersion,
@@ -239,8 +239,10 @@ public class SpecHomeController {
                 map.put("imgUrl", imageText.getImgUrl());
                 if (imageText.getHoplink() != null && imageText.getHoplink().contains("{sfzh}")) {// 需获取身份证
                     if (loginOrRealName == 2) {
+                        map.put("loginOrRealName", 2);
                         map.put("hoplink", imageText.getHoplink().replace("{sfzh}", idCard));
                     } else {
+                        map.put("loginOrRealName", loginOrRealName);
                         map.put("hoplink", imageText.getHoplink());
                     }
                 } else {// 不需要身份证信息

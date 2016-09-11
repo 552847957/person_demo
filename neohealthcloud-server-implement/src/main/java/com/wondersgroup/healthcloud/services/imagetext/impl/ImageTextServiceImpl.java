@@ -1,22 +1,17 @@
 package com.wondersgroup.healthcloud.services.imagetext.impl;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -58,7 +53,13 @@ public class ImageTextServiceImpl implements ImageTextService {
             imageText.setDelFlag(0);
             imageText.setMainArea(mainArea);
             imageText.setSpecArea(specArea);
-            List<ImageText> appAdsList = findAll(imageText);
+
+            StringBuffer strBuf = new StringBuffer();
+            strBuf.append("SELECT * FROM app_tb_neoimage_text WHERE 1 = 1");
+            strBuf.append(findAll(imageText));
+            strBuf.append(" ORDER BY sequence");
+
+            List<ImageText> appAdsList = getJt().query(strBuf.toString(), new Object[]{}, new BeanPropertyRowMapper<ImageText>(ImageText.class));
 
             if (appAdsList != null && appAdsList.size() > 0) {
                 return appAdsList;
@@ -122,49 +123,66 @@ public class ImageTextServiceImpl implements ImageTextService {
         return flag;
     }
 
-    List<ImageText> findAll(final ImageText imgText) {
-        return imageTextRepository.findAll(new Specification<ImageText>() {
-            @Override
-            public Predicate toPredicate(Root<ImageText> rt, CriteriaQuery<?> cq, CriteriaBuilder cb) {
-                List<Predicate> pdList = new ArrayList<Predicate>();
-                if (imgText.getDelFlag() != null) {
-                    pdList.add(cb.equal(rt.<String>get("delFlag"), imgText.getDelFlag()));
-                }
-                if (StringUtils.isNotEmpty(imgText.getMainArea())) {
-                    pdList.add(cb.equal(rt.<String>get("mainArea"), imgText.getMainArea()));
-                }
-                if (StringUtils.isNotEmpty(imgText.getSpecArea())) {
-                    pdList.add(cb.equal(rt.<String>get("specArea"), imgText.getSpecArea()));
-                }
-                if (imgText.getAdcode() != null) {
-                    pdList.add(cb.equal(rt.<String>get("adcode"), imgText.getAdcode()));
-                }
-                if (StringUtils.isNotEmpty(imgText.getVersion())) {
-                    pdList.add(cb.equal(rt.<String>get("version"), imgText.getVersion()));
-                }
-                if (imgText.getStartTime() != null && imgText.getEndTime() != null) {
-                    pdList.add(cb.or(
-                            cb.between(rt.<Date>get("startTime"), imgText.getStartTime(), imgText.getEndTime()),
-                            cb.between(rt.<Date>get("endTime"), imgText.getStartTime(), imgText.getEndTime())
-                    ));
-                }
-                
-                String source = imgText.getSource();
-                if (StringUtils.isBlank(source)) {
-                    pdList.add(cb.equal(rt.<Date>get("source"), "1"));
-                }else{
-                	pdList.add(cb.equal(rt.<Date>get("source"), source));
-                }
-                
-                if (pdList.size() > 0) {
-                    Predicate[] predicates = new Predicate[pdList.size()];
-                    cq.where(pdList.toArray(predicates));
-                }
-                Order order = cb.asc(rt.<String>get("sequence"));
-                cq.orderBy(order);
-                return null;
-            }
-        });
+    String findAll(final ImageText imgText) {
+        StringBuffer strBuf = new StringBuffer();
+        if (imgText.getDelFlag() != null) {
+            strBuf.append(" AND del_flag = " + imgText.getDelFlag());
+        }
+        if (StringUtils.isNotEmpty(imgText.getMainArea())) {
+            strBuf.append(" AND main_area = '" + imgText.getMainArea() + "'");
+        }
+        if (StringUtils.isNotEmpty(imgText.getSpecArea())) {
+            strBuf.append(" AND spec_area = '" + imgText.getSpecArea() + "'");
+        }
+        if (imgText.getAdcode() != null) {
+            strBuf.append(" AND adcode = " + imgText.getAdcode());
+        }
+        if (StringUtils.isNotEmpty(imgText.getVersion())) {
+            strBuf.append(" AND version = '" + imgText.getVersion() + "'");
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        strBuf.append(" AND '" + sdf.format(new Date()) + "' BETWEEN start_time AND end_time");
+
+        if (StringUtils.isBlank(imgText.getSource())) {
+            strBuf.append(" AND source = '1'");
+        } else {
+            strBuf.append(" AND source = '" + imgText.getSource() + "'");
+        }
+
+        return strBuf.toString();
+    }
+
+    String findAllForApp(final ImageText imgText) {
+        StringBuffer strBuf = new StringBuffer();
+        if (imgText.getDelFlag() != null) {
+            strBuf.append(" AND del_flag = " + imgText.getDelFlag());
+        }
+        if (StringUtils.isNotEmpty(imgText.getMainArea())) {
+            strBuf.append(" AND main_area = '" + imgText.getMainArea() + "'");
+        }
+        if (StringUtils.isNotEmpty(imgText.getSpecArea())) {
+            strBuf.append(" AND spec_area = '" + imgText.getSpecArea() + "'");
+        }
+        if (imgText.getAdcode() != null) {
+            strBuf.append(" AND adcode = " + imgText.getAdcode());
+        }
+        if (StringUtils.isNotEmpty(imgText.getVersion())) {
+            strBuf.append(" AND version = '" + imgText.getVersion() + "'");
+        }
+        if (imgText.getStartTime() != null && imgText.getEndTime() != null) {
+            strBuf.append(" AND ('" + imgText.getStartTime() + "' BETWEEN start_time AND end_time")
+                    .append(" OR '" + imgText.getEndTime() + "' BETWEEN start_time AND end_time")
+                    .append(")");
+        }
+
+        if (StringUtils.isBlank(imgText.getSource())) {
+            strBuf.append(" AND source = '1'");
+        } else {
+            strBuf.append(" AND source = '" + imgText.getSource() + "'");
+        }
+
+        return strBuf.toString();
     }
 
     @Override
@@ -297,7 +315,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         return bf.toString();
     }
 
-    // 生成单图SQL
+    // 生成图文SQL
     private String getWhereSqlByParameter(Map parameter) {
         StringBuffer bf = new StringBuffer();
         if (parameter.size() > 0) {
@@ -328,8 +346,9 @@ public class ImageTextServiceImpl implements ImageTextService {
             tmpObj = parameter.get("startTime");
             Object tmpObja = parameter.get("endTime");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString()) && tmpObja != null && StringUtils.isNotBlank(tmpObja.toString())) {
-                bf.append(" and ( (start_time between '" + tmpObj + "' and '" + tmpObja + "')");
-                bf.append(" or (end_time between '" + tmpObj + "' and '" + tmpObja + "'))");
+                bf.append(" AND ('" + tmpObj + "' BETWEEN start_time AND end_time")
+                        .append(" OR '" + tmpObja + "' BETWEEN start_time AND end_time")
+                        .append(")");
             }
         }
         return bf.toString();
