@@ -82,7 +82,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         elementType.add(doctor_id);
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize + 1);
+        elementType.add(pageSize);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
         if (null != list) {
             return transformat(list);
@@ -93,19 +93,33 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getDoctorPrivateQuestionLivingList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
+        List<Object> elementType2 = new ArrayList<>();
         String sql = "SELECT t1.id,t1.content,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date," +
                 "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.new_comment_time,'%Y-%m-%d %H:%i') as date2 " +
                 "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
-                "WHERE answer_id=? " +
+                "WHERE answer_id=? AND t1.status<>3 " +
                 "ORDER BY status,date2 DESC limit ?,?";
+        String sql2 = "SELECT t1.id,t1.content,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date," +
+                "t2.has_new_user_comment as isNoRead,t2.status ,date_format(t2.new_comment_time,'%Y-%m-%d %H:%i') as date2 " +
+                "FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
+                "WHERE answer_id=? " +
+                "ORDER BY status,date DESC limit ?,?";
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize + 1);
+        elementType.add(pageSize+1);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
-        if (null != list) {
-            return transformat2(list);
+        int size=list.size();
+        elementType2.add(doctor_id);
+        elementType2.add((page - 1) * pageSize+size);
+        elementType2.add(pageSize+1);
+        List<Map<String, Object>> list2 = getJt().queryForList(sql2, elementType2.toArray());
+        if (size<11) {
+            list.addAll(list2);
+            return transformat(list);
+        }else{
+            list.addAll(list);
+            return transformat(list);
         }
-        return null;
     }
 
     @Override
@@ -255,10 +269,6 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public int queryUnreadCount(String doctorId) {
-       /* String sql="SELECT * FROM app_tb_neoquestion WHERE assign_answer_id='"+doctorId+"' AND status<>3 AND is_new_question=1";
-
-        String sql2="SELECT * FROM app_tb_neoquestion t1 INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
-                     "WHERE t2.answer_id='"+doctorId+"' AND  t1.status<>3 AND t2.has_new_user_comment=1";*/
 
         int unreadQuestion = repository.unreadQuestionuCount(doctorId);
         int unreadAsk = repository.unreadAskCount(doctorId);
