@@ -60,6 +60,7 @@ public class UserAccountDTO {
             this.mobile = user.get("regmobilephone") == null ? "" : user.get("regmobilephone").toString();
             this.avatar = user.get("headphoto") == null ? "" : user.get("headphoto").toString();
             this.idcard = user.get("personcard") == null ? "" : user.get("personcard").toString();
+
             String gender = user.get("gender") == null ? "" : user.get("gender").toString();
             if (StringUtils.isNotBlank(gender))
                 this.gender = Integer.valueOf(gender);
@@ -79,8 +80,11 @@ public class UserAccountDTO {
             this.talkId = user.get("talkid") == null ? "" : user.get("talkid").toString();
             this.talkPwd = user.get("talkpwd") == null ? "" : user.get("talkpwd").toString();
             this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
-            this.medicarecard = user.get("medicarecard") == null ? "" : user.get("medicarecard").toString();
-            this.bindPersoncard = user.get("bind_personcard") == null ? "" : user.get("bind_personcard").toString();
+            this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskIdcard(user.get("medicarecard").toString());
+            this.bindPersoncard = user.get("bind_personcard") == null ? "" : IdcardUtils.maskIdcard(user.get("bind_personcard").toString());
+            if(StringUtils.isNotBlank(this.idcard)){
+                this.idcard = IdcardUtils.maskIdcard(this.idcard);
+            }
         }
     }
 
@@ -111,8 +115,11 @@ public class UserAccountDTO {
         this.talkId = registerInfo.getTalkid()==null?"":registerInfo.getTalkid();
         this.talkPwd = registerInfo.getTalkpwd()==null?"":registerInfo.getTalkpwd();
         this.tagid = registerInfo.getTagid()==null?"":registerInfo.getTagid();
-        this.medicarecard = registerInfo.getMedicarecard()==null?"": registerInfo.getMedicarecard();
-        this.bindPersoncard = registerInfo.getBindPersoncard()==null?"":registerInfo.getBindPersoncard();
+        this.medicarecard = registerInfo.getMedicarecard()==null?"": IdcardUtils.maskIdcard(registerInfo.getMedicarecard());
+        this.bindPersoncard = registerInfo.getBindPersoncard()==null?"":IdcardUtils.maskIdcard(registerInfo.getBindPersoncard());
+        if(StringUtils.isNotBlank(this.idcard)){
+            this.idcard = IdcardUtils.maskIdcard(this.idcard);
+        }
     }
 
     public String getUid() {
