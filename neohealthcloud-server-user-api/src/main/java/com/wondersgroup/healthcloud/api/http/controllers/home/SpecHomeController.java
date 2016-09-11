@@ -204,7 +204,7 @@ public class SpecHomeController {
         return result;
     }
 
-    @GetMapping(value = "/specSerMeasuringPoint")
+    @RequestMapping(value = "/specSerMeasuringPoint", method = RequestMethod.GET)
     @WithoutToken
     public JsonResponseEntity specSerMeasuringPoint(@AccessToken(required = false) Session session,
                                                     @RequestHeader(name = "main-area", required = true) String mainArea,

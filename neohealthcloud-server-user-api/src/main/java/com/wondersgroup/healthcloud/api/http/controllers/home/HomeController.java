@@ -97,8 +97,13 @@ public class HomeController {
         List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextC);
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
-            for (ImageText imageText : imageTextsC) {
-                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+            int flag = 5;
+            if (imageTextsA.size() < flag) {
+                flag = imageTextsA.size();
+            }
+            List banners = new ArrayList();
+            for (int i = 0; i < flag; i++) {
+                BasicImageTextDTO bit = new BasicImageTextDTO(imageTextsC.get(i));
                 adImages.add(bit);
             }
             data.put("advertisements", adImages);
