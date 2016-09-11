@@ -125,12 +125,13 @@ public class DoctorArticleController {
 
     /**
      * 增加阅读量
-     * @param id
      * @return
      * @throws JsonProcessingException
      */
-    @RequestMapping(value = "doctorArticle/addPv", method = RequestMethod.GET)
-    public JsonResponseEntity<String> addPv(@RequestParam int id) throws JsonProcessingException {
+    @PostMapping(value = "doctorArticle/addPv")
+    public JsonResponseEntity<String> addPv(@RequestBody String request) throws JsonProcessingException {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        int id = reader.readInteger("id", true);
         JsonResponseEntity<String> response = new JsonResponseEntity<>();
         DoctorArticle doctorArticle = doctorArticleRepository.findById(id);
         if(doctorArticle!=null){
