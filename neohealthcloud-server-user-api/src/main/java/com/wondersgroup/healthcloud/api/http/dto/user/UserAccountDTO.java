@@ -4,12 +4,12 @@ package com.wondersgroup.healthcloud.api.http.dto.user;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Map;
 
@@ -49,10 +49,11 @@ public class UserAccountDTO {
     @JsonUnwrapped(prefix = "address_")
     private AddressDTO addressDTO;
 
-    DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+    DecimalFormat decimalFormat = new DecimalFormat("##########");
 
 
     public UserAccountDTO(Map<String, Object> user) {
+        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         if(user!=null) {
             this.uid = user.get("registerid") == null ? "" : user.get("registerid").toString();
             this.name = user.get("name") == null ? "" : user.get("name").toString();
@@ -89,6 +90,7 @@ public class UserAccountDTO {
     }
 
     public UserAccountDTO(RegisterInfo registerInfo,UserInfo userInfo) {
+        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         this.uid = registerInfo.getRegisterid();
         this.name = registerInfo.getName()==null?"":registerInfo.getName();
         this.nickName = registerInfo.getNickname()==null?"":registerInfo.getNickname();

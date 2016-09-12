@@ -38,6 +38,20 @@ public class UserManageController {
         if(pager.getNumber()!=0)
             pageNum = pager.getNumber();
 
+        Map<String,Object> map = pager.getParameter();
+        String userid = map.get("userid")==null?"":map.get("userid").toString();
+        String name = map.get("name")==null?"":map.get("name").toString();
+        String nickname = map.get("nickname")==null?"":map.get("nickname").toString();
+        String regmobilephone = map.get("regmobilephone")==null?"":map.get("regmobilephone").toString();
+        String personcard = map.get("personcard")==null?"":map.get("personcard").toString();
+        String tagList = map.get("tagList")==null?"":map.get("tagList").toString();
+        if(map==null || map.size()<1 ||
+                (StringUtils.isBlank(userid)&&StringUtils.isBlank(name)&&StringUtils.isBlank(nickname)
+                &&StringUtils.isBlank(regmobilephone)&&StringUtils.isBlank(personcard)&&StringUtils.isBlank(tagList))){
+            String tagName = userService.findFirstTagName();
+            pager.getParameter().put("tagList",tagName);
+        }
+
         List<Map<String,Object>> mapList = userService.findUserListByPager(pageNum,pager.getSize(),pager.getParameter());
 
         int totalSize = userService.countUserByParameter(pager.getParameter());

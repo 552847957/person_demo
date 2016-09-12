@@ -280,64 +280,6 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
-
-
-    //----------------------后台使用----------------------
-
-
-    @Override
-    public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
-
-        String sqlQuery = " SELECT  * from (" +
-                "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
-                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
-                ",tag.tagid,dt.tagname,r.regtime  " +
-                " from app_tb_register_info r " +
-                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_tb_push_tag dt on tag.tagid = dt.tagid  ) d ";
-
-        String sql = sqlQuery + " where 1=1 "+
-                getWhereSqlByParameter(parameter)
-                + " group by registerid  ) e where 1=1 "+getTagListLike(parameter)
-                + " ORDER BY regtime  desc "
-                + " LIMIT " +(pageNum-1)*size +"," + size;
-        return jt.queryForList(sql);
-
-    }
-
-    @Override
-    public int countUserByParameter(Map parameter) {
-        String sqlQuery = "SELECT count(registerid) FROM (" +
-                "SELECT registerid,userid,`name`,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
-                "from (select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
-                ",tag.tagid,dt.tagname,r.regtime  " +
-                " from app_tb_register_info r " +
-                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_tb_push_tag dt on tag.tagid = dt.tagid  ) d ";
-        String sql = sqlQuery + " where 1=1 "+
-                getWhereSqlByParameter(parameter)
-                + " group by registerid  ) e where 1=1 "+getTagListLike(parameter);
-        Integer count = jt.queryForObject(sql, Integer.class);
-        return count == null ? 0 : count;
-    }
-
-    @Override
-    public Map<String, Object> findUserDetailByUid(String registerid) {
-        String sqlQuery = "SELECT registerid,userid,`name`,headphoto,nickname,gender,regmobilephone,identifytype,personcard,regtime,GROUP_CONCAT(tagname) as  tagList " +
-                "from (select r.registerid,r.userid,r.`name`,r.headphoto,r.nickname,r.gender,r.regmobilephone,r.identifytype,r.personcard " +
-                ",tag.tagid,dt.tagname,r.regtime  " +
-                " from app_tb_register_info r " +
-                "left join app_tb_tag_user tag on r.registerid = tag.registerid " +
-                "left join app_tb_push_tag dt on tag.tagid = dt.tagid ) d ";
-        String sql = sqlQuery + " where d.registerid = '%s' group by registerid";
-        sql = String.format(sql, registerid);
-        try {
-            return jt.queryForMap(sql);
-        }catch (EmptyResultDataAccessException e){
-            return null;
-        }
-    }
-
     @Override
     public Boolean updateMedicarecard(String uid, String medicareCard) {
         RegisterInfo register = getOneNotNull(uid);
@@ -371,6 +313,80 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
+
+
+    //----------------------后台使用----------------------
+
+
+    @Override
+    public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
+
+        String sqlQuery = " select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype," +
+                "  r.personcard ,tag.tagid,dt.tagname,r.regtime,GROUP_CONCAT(dt.tagname) as tagList " +
+                "  from app_tb_register_info r " +
+                "  left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "  left join app_tb_push_tag dt on tag.tagid = dt.tagid ";
+
+        String sql = sqlQuery + " where 1=1 "+
+                getWhereSqlByParameter(parameter)+
+                getTagListLike(parameter)+
+                " group by r.registerid  "+
+                " ORDER BY r.regtime  desc "+
+                " LIMIT " +(pageNum-1)*size +"," + size;
+        return jt.queryForList(sql);
+
+    }
+
+    @Override
+    public int countUserByParameter(Map parameter) {
+        String sqlQuery = " select  count(DISTINCT(r.registerid))  " +
+                "  from app_tb_register_info r " +
+                "  left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "  left join app_tb_push_tag dt on tag.tagid = dt.tagid ";
+
+        String sql = sqlQuery + " where 1=1 "+
+                getWhereSqlByParameter(parameter)+
+                getTagListLike(parameter) ;
+        Integer count = jt.queryForObject(sql, Integer.class);
+
+        return count == null ? 0 : count;
+    }
+
+    @Override
+    public Map<String, Object> findUserDetailByUid(String registerid) {
+        String sqlQuery = " select r.registerid,r.userid,r.`name`,r.nickname,r.gender,r.regmobilephone,r.identifytype," +
+                "  r.personcard ,tag.tagid,dt.tagname,r.regtime,GROUP_CONCAT(dt.tagname) as tagList " +
+                "  from app_tb_register_info r " +
+                "  left join app_tb_tag_user tag on r.registerid = tag.registerid " +
+                "  left join app_tb_push_tag dt on tag.tagid = dt.tagid ";
+
+        String sql = sqlQuery + " where r.registerid = '%s' group by r.registerid";
+        sql = String.format(sql, registerid);
+        try {
+            return jt.queryForMap(sql);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public String findFirstTagName() {
+        String tagname = "请至少填写一个条件";
+        Map<String,Object> map = new HashMap<>();
+        String sql = "select tagname from app_tb_push_tag  order by updatetime desc limit 1";
+        try {
+            map = jt.queryForMap(sql);
+            if(map!=null)
+                tagname = map.get("tagname")==null?tagname:map.get("tagname").toString();
+        }catch (EmptyResultDataAccessException e){
+            return tagname;
+        }
+        return tagname;
+    }
+
+
+
     private String getTagListLike(Map parameter){
         StringBuffer bf = new StringBuffer();
         if(parameter.size()>0 && parameter.containsKey("tagList") &&  StringUtils.isNotBlank(parameter.get("tagList").toString())){
@@ -382,9 +398,9 @@ public class UserServiceImpl implements UserService {
             for (String tag :tags){
                 i++;
                 if(i<size){
-                    bf.append(" e.tagList like '%"+tag+"%' or ");
+                    bf.append(" dt.tagname like '%"+tag+"%' or ");
                 }else{
-                    bf.append(" e.tagList like '%"+tag+"%'  ");
+                    bf.append(" dt.tagname like '%"+tag+"%'  ");
                 }
 
             }
@@ -395,19 +411,19 @@ public class UserServiceImpl implements UserService {
         StringBuffer bf = new StringBuffer();
         if(parameter.size()>0){
             if(parameter.containsKey("nickname") &&  StringUtils.isNotBlank(parameter.get("nickname").toString())){
-                bf.append(" and d.nickname like '%"+parameter.get("nickname").toString()+"%' ");
+                bf.append(" and r.nickname like '%"+parameter.get("nickname").toString()+"%' ");
             }
             if(parameter.containsKey("name") && StringUtils.isNotBlank(parameter.get("name").toString())){
-                bf.append(" and d.name like '%"+parameter.get("name").toString()+"%' ");
+                bf.append(" and r.name like '%"+parameter.get("name").toString()+"%' ");
             }
             if(parameter.containsKey("regmobilephone") && StringUtils.isNotBlank(parameter.get("regmobilephone").toString())){
-                bf.append(" and d.regmobilephone like '%"+parameter.get("regmobilephone").toString()+"%' ");
+                bf.append(" and r.regmobilephone like '%"+parameter.get("regmobilephone").toString()+"%' ");
             }
             if(parameter.containsKey("personcard") && StringUtils.isNotBlank(parameter.get("personcard").toString())){
-                bf.append(" and d.personcard like '%"+parameter.get("personcard").toString()+"%' ");
+                bf.append(" and r.personcard like '%"+parameter.get("personcard").toString()+"%' ");
             }
             if(parameter.containsKey("userid") && StringUtils.isNotBlank(parameter.get("userid").toString())){
-                bf.append(" and d.userid like '%"+parameter.get("userid").toString()+"%' ");
+                bf.append(" and r.userid like '%"+parameter.get("userid").toString()+"%' ");
             }
         }
         return bf.toString();
