@@ -219,7 +219,7 @@ public class DoctorServiceImpl implements DoctorService {
         try {
             doctorInfo =  jt.queryForMap(sql);
         }catch (EmptyResultDataAccessException e){
-
+                return null;
         }
         return  new Doctor(doctorInfo);
 
