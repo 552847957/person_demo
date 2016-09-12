@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
 import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.exceptions.BaseException;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
@@ -87,6 +88,11 @@ public class PushPlanController {
             throw new RequestPostMissingKeyException("uid");
         }
         User user = userRepo.findOne(pager.getParameter().get("uid").toString());
+        if(null == user){
+            throw new BaseException(1000,"用户尚未登录，请先登录",null){
+
+            };
+        }
 
         Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter(),user);
 
@@ -111,6 +117,12 @@ public class PushPlanController {
             throw new RequestPostMissingKeyException("creator");
         }
         User user = userRepo.findOne(pushPlan.getCreator());
+
+        if(null == user){
+            throw new BaseException(1000,"用户尚未登录，请先登录",null){
+
+            };
+        }
 
         pushPlan.setArea(user.getMainArea());
         pushPlan.setCreator(user.getUserId());
