@@ -148,7 +148,7 @@ public class DoctorServiceImpl implements DoctorService {
                 " from doctor_account_tb a " +
                 " inner join doctor_service_tb s on a.id = s.doctor_id " +
                 " inner join doctor_service_dic sd on s.service_id = sd.id " +
-                " where sd.is_available = '0' and a.id = '%s'";
+                " where sd.is_available = '0' and a.id = '%s' order by sd.update_date ASC , sd.id asc";
 
         sql =  String.format(sql,uid);
         return jt.queryForList(sql);

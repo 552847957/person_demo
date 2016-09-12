@@ -50,4 +50,6 @@ public interface UserService {
     Boolean updateMedicarecard(String uid, String medicareCard);
 
     void activeInvitation(String uid, String code);
+
+    String findFirstTagName();
 }
