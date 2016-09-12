@@ -98,8 +98,8 @@ public class HomeController {
         if (imageTextsC != null && imageTextsC.size() > 0) {
             List adImages = new ArrayList();
             int flag = 5;
-            if (imageTextsA.size() <= flag) {
-                flag = imageTextsA.size();
+            if (imageTextsC.size() <= flag) {
+                flag = imageTextsC.size();
             }
             for (int i = 0; i < flag; i++) {
                 BasicImageTextDTO bit = new BasicImageTextDTO(imageTextsC.get(i));

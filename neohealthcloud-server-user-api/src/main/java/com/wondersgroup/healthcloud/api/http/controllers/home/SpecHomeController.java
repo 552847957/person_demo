@@ -86,8 +86,12 @@ public class SpecHomeController {
         List<ImageText> imageTextsA = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextA);
         if (imageTextsA != null && imageTextsA.size() > 0) {
             List banners = new ArrayList();
-            for (ImageText imageText : imageTextsA) {
-                BasicImageTextDTO bit = new BasicImageTextDTO(imageText);
+            int flag = 5;
+            if (imageTextsA.size() < flag) {
+                flag = imageTextsA.size();
+            }
+            for (int i = 0; i < flag; i++) {
+                BasicImageTextDTO bit = new BasicImageTextDTO(imageTextsA.get(i));
                 banners.add(bit);
             }
             data.put("banners", banners);
