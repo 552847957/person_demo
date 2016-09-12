@@ -262,8 +262,8 @@ public class SpecHomeController {
             data.put("specialService", specialServices);
         }
 
-        String url = String.format(requestStationNearby, host) +
-                "areaCode=" + areaCode;
+        //String url = String.format(requestStationNearby, host) + "areaCode=" + areaCode;
+        String url = String.format(requestStationNearby, host) + "areaCode=310100";
         if (null != longitude && null != latitude) {
             url += "&longitude=" + longitude +
                     "&latitude=" + latitude;
