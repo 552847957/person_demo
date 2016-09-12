@@ -82,7 +82,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         elementType.add(doctor_id);
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize);
+        elementType.add(pageSize+1);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
         if (null != list) {
             return transformat(list);
