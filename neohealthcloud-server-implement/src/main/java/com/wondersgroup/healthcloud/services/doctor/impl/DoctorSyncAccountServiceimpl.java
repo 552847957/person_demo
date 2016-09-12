@@ -79,7 +79,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         if(!success){
             String psw = "";
             try {
-                psw = RSAUtil.encryptByPublicKey("initPwd2016", httpWdUtils.publicKey);
+                psw = RSAUtil.encryptByPublicKey("WondersInitPwd0913!^*", httpWdUtils.publicKey);
             }catch (Exception e){
                 throw new SyncDoctorAccountException(e.getLocalizedMessage());
             }
