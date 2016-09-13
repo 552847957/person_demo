@@ -56,9 +56,9 @@ public class BeanFactory {
         dispatcher.setMaxRequests(64);
         dispatcher.setMaxRequestsPerHost(16);
         client.setDispatcher(dispatcher);
-        client.setConnectTimeout(5, TimeUnit.SECONDS);
-        client.setWriteTimeout(5, TimeUnit.SECONDS);
-        client.setReadTimeout(5, TimeUnit.SECONDS);
+        client.setConnectTimeout(20, TimeUnit.SECONDS);
+        client.setWriteTimeout(20, TimeUnit.SECONDS);
+        client.setReadTimeout(20, TimeUnit.SECONDS);
 
         return client;
     }
