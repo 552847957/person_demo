@@ -240,16 +240,15 @@ public class MeasureController {
     @GetMapping("3.0/abnormal/dayHistory")
     public JsonResponseEntity queryAbnormalHistory(@RequestParam String registerId, String personCard) throws JsonProcessingException {
         Map<String, Object> result = new HashMap<>();
-        RegisterInfo registerInfo = userService.getOneNotNull(registerId);
-        if(registerInfo==null || StringUtils.isEmpty(registerInfo.getPersoncard()) ){
-            result.put("h5Url", Collections.EMPTY_MAP );
-        }else{
-            personCard = registerInfo.getPersoncard();
-            result.put("h5Url", h5Utils.generateLinks(personCard)) ;
-        }
 
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
+            if(StringUtils.isEmpty(info.getPersoncard()) ){
+                result.put("h5Url", Collections.EMPTY_MAP );
+            }else{
+                personCard = info.getPersoncard();
+                result.put("h5Url", h5Utils.generateLinks(personCard)) ;
+            }
             String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info));
             String url = String.format(requestAbnormalHistories, host, param);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
