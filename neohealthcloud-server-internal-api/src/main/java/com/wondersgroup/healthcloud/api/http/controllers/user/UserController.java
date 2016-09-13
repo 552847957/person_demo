@@ -1,10 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +21,13 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping(value = "/api/user")
-public class userController {
+public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AnonymousAccountService anonymousAccountService;
 
 
     @PostMapping(path = "/userInfo/update")
@@ -36,7 +43,7 @@ public class userController {
         form.waist = reader.readObject("waist", true, Float.class);
         try {
             userService.updateUserInfo(form);
-        }catch (Exception e){
+        } catch (Exception e) {
             body.setData(3101);
             body.setMsg("信息修改失败");
             return body;
@@ -48,14 +55,24 @@ public class userController {
 
     /**
      * 获取用户信息
+     *
      * @param uid
      * @return
      */
     @GetMapping(path = "/userInfo")
-    public JsonResponseEntity<RegisterInfo> getUserInfo(@RequestParam String uid) {
-        JsonResponseEntity<RegisterInfo> response = new JsonResponseEntity<>();
-        RegisterInfo registerInfo = userService.getOneNotNull(uid);
-        response.setData(registerInfo);
-        return response;
+    public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestParam String uid) {
+        JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
+        Map<String, String> map = Maps.newHashMap();
+        try {
+            RegisterInfo registerInfo = userService.getOneNotNull(uid);
+            map.put("personcard", registerInfo.getPersoncard());
+            return response;
+        } catch (ErrorUserAccountException ex) {
+            AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(uid, true);
+            if (anonymousAccount != null && StringUtils.isNotBlank(anonymousAccount.getIdcard())) {
+                map.put("personcard", anonymousAccount.getIdcard());
+            }
+            return response;
+        }
     }
 }
