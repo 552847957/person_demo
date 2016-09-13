@@ -235,11 +235,12 @@ public class PushPlanController {
     }
 
     @GetMapping(path = "/article")
-    public JsonResponseEntity article(@RequestParam(name = "articleId",required = true) Integer articleId) {
+    public JsonResponseEntity article(@RequestParam(name = "articleId",required = true) Integer articleId,
+                                      @RequestParam(name = "area",required = false) String area) {
         JsonResponseEntity reponse = new JsonResponseEntity();
         NewsArticle article = articleRepo.queryArticleById(articleId);
         if(null != article) {
-            reponse.setData(ImmutableMap.of("url", h5Url + "/article/detail?id=" + articleId,
+            reponse.setData(ImmutableMap.of("url", h5Url + "/article/detail?id=" + articleId+"&area="+area,
                     "title",article.getTitle(),"content",article.getBrief()));
         }
         return reponse;
