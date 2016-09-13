@@ -131,7 +131,7 @@ public class PushPlanController {
         pushPlan.setUpdateTime(new Date());
         pushPlan.setStatus(0);
         if(null != pushPlan.getArticleId()){
-            pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId());
+            pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId()+"&area="+pushPlan.getArea());
         }
         pushPlanRepo.save(pushPlan);
         JsonResponseEntity entity = new JsonResponseEntity();
