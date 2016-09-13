@@ -66,11 +66,13 @@ public class UserController {
         try {
             RegisterInfo registerInfo = userService.getOneNotNull(uid);
             map.put("personcard", registerInfo.getPersoncard());
+            response.setData(map);
             return response;
         } catch (ErrorUserAccountException ex) {
             AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(uid, true);
             if (anonymousAccount != null && StringUtils.isNotBlank(anonymousAccount.getIdcard())) {
                 map.put("personcard", anonymousAccount.getIdcard());
+                response.setData(map);
             }
             return response;
         }
