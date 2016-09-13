@@ -2,13 +2,14 @@ package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 /**
@@ -43,5 +44,18 @@ public class userController {
 
         body.setMsg("信息修改成功");
         return body;
+    }
+
+    /**
+     * 获取用户信息
+     * @param uid
+     * @return
+     */
+    @GetMapping(path = "/userInfo")
+    public JsonResponseEntity<RegisterInfo> getUserInfo(@RequestParam String uid) {
+        JsonResponseEntity<RegisterInfo> response = new JsonResponseEntity<>();
+        RegisterInfo registerInfo = userService.getOneNotNull(uid);
+        response.setData(registerInfo);
+        return response;
     }
 }
