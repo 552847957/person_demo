@@ -397,7 +397,7 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public Boolean changeMobile(String uid, String oldVerifyCode, String newMobile, String newVerifyCode) {
         RegisterInfo register = findOneRegister(uid,false);
-        if (register.getRegmobilephone() != null) {
+        if (StringUtils.isNotBlank(register.getRegmobilephone())) {
             if (StringUtils.isBlank(oldVerifyCode)) {
                 throw new ErrorChangeMobileException("请输入原手机的验证码");
             }
@@ -430,7 +430,9 @@ public class UserAccountServiceImpl implements UserAccountService{
                 doctorAccountRepository.saveAndFlush(doctorAccount);
             }
             //为了使手机的验证码失效
-            validateCode(register.getRegmobilephone(), oldVerifyCode, true);
+            if(StringUtils.isNotBlank(oldVerifyCode)){
+                validateCode(register.getRegmobilephone(), oldVerifyCode, true);
+            }
             validateCode(newMobile, newVerifyCode, true);
             return true;
         } else {
