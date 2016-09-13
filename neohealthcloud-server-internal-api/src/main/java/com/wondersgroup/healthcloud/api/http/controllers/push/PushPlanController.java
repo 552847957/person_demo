@@ -221,7 +221,7 @@ public class PushPlanController {
         if(null != pushPlan){
             AppMessage message = AppMessage.Builder.init().title(pushPlan.getTitle()).content(pushPlan.getContent()).
                     urlFragment(pushPlan.getUrl()).
-                    type(AppMessageUrlUtil.Type.HTTP).build();
+                    type(AppMessageUrlUtil.Type.HTTP).param("for_type","article").build();
             if(null == pushPlan.getTarget()){
                 pushClientWrapper.pushToAll(message,pushPlan.getArea());
             }else{
