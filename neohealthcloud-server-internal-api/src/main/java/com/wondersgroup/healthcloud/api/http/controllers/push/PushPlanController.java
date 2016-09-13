@@ -131,7 +131,7 @@ public class PushPlanController {
         pushPlan.setUpdateTime(new Date());
         pushPlan.setStatus(0);
         if(null != pushPlan.getArticleId()){
-            pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId()+"&area="+pushPlan.getArea());
+            pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId()+"&area="+pushPlan.getArea()+"&for_type=article");
         }
         pushPlanRepo.save(pushPlan);
         JsonResponseEntity entity = new JsonResponseEntity();
@@ -221,7 +221,7 @@ public class PushPlanController {
         if(null != pushPlan){
             AppMessage message = AppMessage.Builder.init().title(pushPlan.getTitle()).content(pushPlan.getContent()).
                     urlFragment(pushPlan.getUrl()).
-                    type(AppMessageUrlUtil.Type.HTTP).param("for_type","article").build();
+                    type(AppMessageUrlUtil.Type.HTTP).build();
             if(null == pushPlan.getTarget()){
                 pushClientWrapper.pushToAll(message,pushPlan.getArea());
             }else{
@@ -240,7 +240,7 @@ public class PushPlanController {
         JsonResponseEntity reponse = new JsonResponseEntity();
         NewsArticle article = articleRepo.queryArticleById(articleId);
         if(null != article) {
-            reponse.setData(ImmutableMap.of("url", h5Url + "/article/detail?id=" + articleId+"&area="+area,
+            reponse.setData(ImmutableMap.of("url", h5Url + "/article/detail?id=" + articleId+"&area="+area+"&for_type=article",
                     "title",article.getTitle(),"content",article.getBrief()));
         }
         return reponse;
