@@ -156,6 +156,7 @@ public class PushPlanController {
         Integer id = Integer.parseInt(reader.readString("id", false));
         this.updatPlan(id,1);
 
+        logger.error("开始创建push定时任务，pushId :"+id);
         //创建定时任务
         String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlanRepo.findOne(id).getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
         Request build= new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
@@ -165,9 +166,10 @@ public class PushPlanController {
         JsonResponseEntity entity = new JsonResponseEntity();
         if(0 == result.get("code").asInt()){
             entity.setMsg("审核通过");
+            logger.error("定时任务(pushId = "+id+")创建成功，返回结果"+result);
         }else{
             this.updatPlan(id,0);
-            logger.error("定时任务(id = "+id+")创建错误，返回结果"+result);
+            logger.error("定时任务(pushId = "+id+")创建错误，返回结果"+result);
             entity.setMsg("定时任务创建出错，适合失败");
         }
 
@@ -201,7 +203,9 @@ public class PushPlanController {
         //取消定时任务
         if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
             Request build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
-            httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+            logger.error("定时任务(pushId = "+id+")取消成功，返回结果"+result);
         }
 
         JsonResponseEntity entity = new JsonResponseEntity();
