@@ -17,6 +17,8 @@ import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,7 @@ public class GameController {
     @Autowired
     private SessionUtil sessionUtil;
 
+    private Logger logger = LoggerFactory.getLogger(GameController.class);
     /**
      * 获取游戏分数
      * @return
@@ -95,6 +98,7 @@ public class GameController {
         }
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer score = Integer.parseInt(reader.readString("score", false));
+        logger.info(" registerId: "+session.getUserId() +"   score: "+score);
         gameService.updatePersonScore(session.getUserId(),score);
         Float rate = gameService.getScoreRank(session.getUserId(), score);
         return new JsonResponseEntity(0,null,ImmutableBiMap.of("rate",new DecimalFormat("#").format(rate*100)+"%"));

@@ -96,7 +96,8 @@ public class UserAccessTokenController {
         body.setData(new UserAccountAndSessionDTO(userAccountService.wechatLogin(token, openid)));
         body.setMsg("登录成功");
         attachInfo(body);
-        logger.info("GET url = api/token/thirdparty/wechat,requestId="+requestId+"&uid="+body.getData().getUid());
+        logger.info("GET url = api/token/thirdparty/wechat,requestId="+requestId+"&uid="+body.getData().getUid()+
+                "&token="+body.getData().getToken()+"&openid="+openid);
         return body;
     }
 

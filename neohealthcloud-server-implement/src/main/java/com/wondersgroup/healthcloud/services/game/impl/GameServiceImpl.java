@@ -70,9 +70,7 @@ public class GameServiceImpl implements GameService{
 
         int underCount = gameScoreRepo.getUnderCount(score);
         int totalCount = gameScoreRepo.getTotalCount();
-        if(1 == totalCount && 1 == gameScoreRepo.getTotalCount(registerid,score)){
-            return 100f;
-        }
+
         float rate = (float)underCount / (float)totalCount;
         return Float.parseFloat(new DecimalFormat("#.##").format(rate).toString());
     }
