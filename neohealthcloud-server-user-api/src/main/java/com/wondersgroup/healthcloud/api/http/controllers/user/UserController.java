@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class UserController {
     private HealthRecordUpdateUtil healthRecordUpdateUtil;
 
 
-    DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+    DecimalFormat decimalFormat = new DecimalFormat("###########");
 
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
@@ -395,6 +396,7 @@ public class UserController {
     @VersionRange
     @PostMapping(path = "/userInfo/update")
     public JsonResponseEntity<Map<String, Object>> updateUserInfo(@RequestBody String request) {
+        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         JsonKeyReader reader = new JsonKeyReader(request);
 
         UserInfoForm form = new UserInfoForm();
@@ -628,6 +630,11 @@ public class UserController {
         return token;
     }
 
+    /**
+     * 邀请码激活
+     * @param request
+     * @return
+     */
     @PostMapping(value = "/invitation")
     @VersionRange
     public JsonResponseEntity<String> appInvitation(@RequestBody String request) {
