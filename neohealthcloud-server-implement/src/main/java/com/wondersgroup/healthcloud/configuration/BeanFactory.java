@@ -98,6 +98,10 @@ public class BeanFactory {
 
         builder.put("verficationSubmitInfoApiId", "11fe1cae-205b-4762-bd6b-af6deeac399d");//获取提交实名制审核用户状态信息
         builder.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
+
+        builder.put("smyLoginApiId", "58e866dd-c5b8-46e5-98d0-1032eae99d7f");//三方市民云绑定接口
+        builder.put("verificationChildSubmitApiId", "ba85dfe1-94c4-432e-a3d7-b66c32aaeb36");//儿童实名信息提交
+
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
@@ -135,6 +139,9 @@ public class BeanFactory {
 
         builder.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
         builder.put("sessionExtraApiId", "edb73abf-987a-4055-9e1f-19408468cc73");//扩展session自定义字段
+
+        builder.put("smyLoginApiId", "");//三方市民云绑定接口
+        builder.put("verificationChildSubmitApiId", "");//儿童实名信息提交
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
