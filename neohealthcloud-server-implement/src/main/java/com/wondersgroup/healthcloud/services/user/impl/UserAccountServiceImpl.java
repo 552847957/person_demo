@@ -37,6 +37,7 @@ public class UserAccountServiceImpl implements UserAccountService{
     private final Integer CHANNEL_TYPE_QQ = 2;
     private final Integer CHANNEL_TYPE_WEIBO = 3;
     private final Integer CHANNEL_TYPE_WECHAT = 4;
+    private final Integer CHANNEL_TYPE_SMY = 5;
 
     @Autowired
     private HttpWdUtils httpWdUtils;
@@ -173,6 +174,27 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
     }
 
+
+    /**
+     * 市民云三方登陆
+     * @param token
+     * @param username
+     * @return
+     */
+    @Override
+    public AccessToken smyLogin(String token, String username) {
+        JsonNode result = httpWdUtils.smyLogin(token,username);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_SMY);
+            mergeRegistration(user);
+            return fetchTokenFromWondersCloud(result.get("session_token").asText());
+        } else {
+            throw new ErrorWondersCloudException(result.get("msg").get("error_description").asText());
+        }
+    }
+
+
     /**
      * 退出登录
      *
@@ -308,6 +330,37 @@ public class UserAccountServiceImpl implements UserAccountService{
         //根据图片的url获取图片的byte
         byte[] photo = new ImageUtils().getImageFromURL(photoUrl);
         JsonNode result = httpWdUtils.verificationSubmit(id, name, idCard, "", photo);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            return true;
+        } else {
+            throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
+    }
+
+
+    /**
+     * 儿童实名认证提交
+     * @param parentUserid
+     * @param name
+     * @param idcard
+     * @param idCardFileUrl
+     * @param birthCertFileUrl
+     */
+    @Override
+    @Transactional
+    public Boolean childVerificationSubmit(String parentUserid, String name, String idcard, String idCardFileUrl, String birthCertFileUrl) {
+        RegisterInfo parentUser = registerInfoRepository.findOne(parentUserid);
+        if (parentUser == null) {
+            throw new ErrorUserAccountException();
+        }
+        //注册
+        AnonymousAccount anonymousAccount = anonymousRegistration(parentUserid, "HCCHILD" + IdGen.uuid(), IdGen.uuid());
+
+        byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
+        byte[] birthCertFile = new ImageUtils().getImageFromURL(birthCertFileUrl);
+        JsonNode result = httpWdUtils.verificationChildSubmit(anonymousAccount.getId(), name, parentUser.getRegmobilephone(), idcard, parentUserid,
+                null, idCardFile, birthCertFile);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             return true;
@@ -688,6 +741,8 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
         return null;
     }
+
+
 
     private WondersUser getWondersBaseInfo(String uuid, int channelType) {
         JsonNode result = httpWdUtils.basicInfo(uuid);

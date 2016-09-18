@@ -45,4 +45,9 @@ public interface UserAccountService {
     Boolean checkAccount(String mobile);
 
     RegisterInfo fetchInfo(String userId);
+
+    AccessToken smyLogin(String token, String username);
+
+    Boolean childVerificationSubmit(String id, String name, String idCard, String idCardFile, String birthCertFile);
+
 }

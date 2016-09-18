@@ -295,7 +295,9 @@ public class HttpWdUtils {
         String[] form = new String[]{"token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+
         JsonNode result = response.convertBody();
+        System.out.println(response.body());
         return result;
     }
 
@@ -461,6 +463,74 @@ public class HttpWdUtils {
     }
 
 
+    /**
+     *  三方市民云绑定接口
+     * @param smyToken
+     * @param username 平台用户名
+     * @return
+     */
+    public JsonNode smyLogin(String smyToken,String username) {
+        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+                "octopus_sid", octopusSid,
+                "octopus_apiid", idMap.get("smyLoginApiId")};//todo  添加汇道 smyLoginApiId
+        String[] form = new String[]{"access_token",smyToken,"username",username,"token",appToken};
+        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
+        return  result;
+    }
+
+
+    /**
+     * 儿童实名认证提交
+     * @param childUserid 儿童云账号用户Id
+     * @param parentUserid 监护人云账号Id
+     * @param name  儿童真实姓名
+     * @param mobile 监护人的手机号
+     * @param idcard 儿童身份证号
+     * @param contentType
+     * @param idCardFile 户口本(儿童身份信息页照片)
+     * @param birthCertFile 出生证明(照片)
+     * @return
+     */
+    public JsonNode verificationChildSubmit(String childUserid, String name,String mobile, String idcard,String parentUserid,
+                                           String contentType, byte[] idCardFile,byte[] birthCertFile) {
+        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+                "octopus_sid", octopusSid,
+                "octopus_apiid", idMap.get("verificationChildSubmitApiId")};//todo verificationChildSubmitApiId 汇道ID
+
+        MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
+
+
+        String[] form = new String[]{"name",name,"mobile",mobile,"idcard",idcard,"childUserid",childUserid,
+                "parentUserid",parentUserid,"token",appToken};
+
+        for (int i = 0; i < form.length; i += 2) {
+            multipartBuilder.addFormDataPart(form[i], form[i + 1]);
+        }
+
+        multipartBuilder.addFormDataPart("idCardFile", "idCardFile", RequestBody.create(MediaType.parse(contentType), idCardFile));
+        multipartBuilder.addFormDataPart("birthCertFile", "birthCertFile", RequestBody.create(MediaType.parse(contentType),birthCertFile));
+
+        RequestBody requestBody = multipartBuilder.build();
+
+        Request.Builder builder = new Request.Builder();
+        builder.url(url);
+        for(int i = 0; i < header.length / 2; ++i) {
+            if(header[i * 2 + 1] != null) {
+                builder.addHeader(header[i * 2], header[i * 2 + 1]);
+            }
+        }
+
+        builder.post(requestBody);
+        Request request = builder.build();
+
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
+        return  result;
+    }
+
+
     public static void main(String[] args) {
         Map<String, String> idMap = new HashMap<>();
         idMap.put("octopusSid", "C6B18542F8E0000118BD1E2A1C001D9E");//测试环境服务编号
@@ -488,15 +558,18 @@ public class HttpWdUtils {
         idMap.put("verficationSubmitInfoApiId", "11fe1cae-205b-4762-bd6b-af6deeac399d");//获取提交实名制审核用户状态信息
         idMap.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
 
+        idMap.put("smyLoginApiId", "58e866dd-c5b8-46e5-98d0-1032eae99d7f");//三方市民云绑定接口
+        idMap.put("verificationChildSubmitApiId", "ba85dfe1-94c4-432e-a3d7-b66c32aaeb36");//儿童实名信息提交
 
         HttpWdUtils httpWdUtils = new HttpWdUtils();
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
+
         httpWdUtils.setIdMap(idMap);
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-        httpWdUtils.basicInfo("15821377309");
+//        httpWdUtils.basicInfo("8a81c1fb555cab53015723a5dc6b03f1");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -526,7 +599,7 @@ public class HttpWdUtils {
 //        httpWdUtils.verifyCode("15639763552","354735",false);
 
 //        httpWdUtils.thirdPartyBinding("ff808081546052c1015499d295660017");
-//        httpWdUtils.updateMobile("ff808081546052c1015499d295660017","15639763509");
+//        httpWdUtils.updateMobile("8a81c1fb555cab53015723f43f6703f5","13900800809");
 //        httpWdUtils.updateUserName("ff808081546052c1015499d295660017","longss509");
 
 //        httpWdUtils.guestLogin();
@@ -535,7 +608,7 @@ public class HttpWdUtils {
 
 //        httpWdUtils.getSession("034386ef208f4704897fd31b41c82dcf");
 //        httpWdUtils.logout("15639763552");
-        httpWdUtils.verficationSubmitInfo("8a81c1fb555cab530156cfc6baf301db");
+//        httpWdUtils.verficationSubmitInfo("8a81c1fb555cab530156cfc6baf301db");
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);

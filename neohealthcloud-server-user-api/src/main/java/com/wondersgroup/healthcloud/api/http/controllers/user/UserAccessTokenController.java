@@ -136,6 +136,27 @@ public class UserAccessTokenController {
         return body;
     }
 
+    /**
+     * 市民云三方登陆
+     * @param requestId
+     * @param token  市民云的token
+     * @param username 市民云的登录名
+     * @return
+     */
+    @WithoutToken
+    @RequestMapping(value = "/token/thirdparty/smy", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<UserAccountAndSessionDTO> smyLogin(@RequestHeader(required = false, name = "request-id") String requestId,
+                                                                @RequestParam String token,
+                                                                 @RequestParam String username) {
+        JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
+        body.setData(new UserAccountAndSessionDTO(userAccountService.smyLogin(token,username)));
+        body.setMsg("登录成功");
+        attachInfo(body);
+        logger.info("GET url = api/token/thirdparty/smy,requestId="+requestId+"&uid="+body.getData().getUid());
+        return body;
+    }
+
 
     @RequestMapping(value = "/token/logout", method = RequestMethod.DELETE)
     @VersionRange
