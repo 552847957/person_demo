@@ -66,10 +66,12 @@ public class GameServiceImpl implements GameService{
      */
     @Override
     public Float getScoreRank(String registerid,Integer score) {
-        int underCount = gameScoreRepo.getUnderCount(registerid,score);
-        int totalCount = gameScoreRepo.getTotalCount(registerid, score);
-        if(0 == totalCount){
-            return 0f;
+
+
+        int underCount = gameScoreRepo.getUnderCount(score);
+        int totalCount = gameScoreRepo.getTotalCount();
+        if(1 == totalCount && 1 == gameScoreRepo.getTotalCount(registerid,score)){
+            return 100f;
         }
         float rate = (float)underCount / (float)totalCount;
         return Float.parseFloat(new DecimalFormat("#.##").format(rate).toString());
