@@ -472,9 +472,9 @@ public class HttpWdUtils {
     public JsonNode smyLogin(String smyToken,String username) {
         String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
                 "octopus_sid", octopusSid,
-                "octopus_apiid", idMap.get("smyLoginApiId")};//todo  添加汇道 smyLoginApiId
+                "octopus_apiid", idMap.get("smyLoginApiId")};
         String[] form = new String[]{"access_token",smyToken,"username",username,"token",appToken};
-        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+        Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
         return  result;
@@ -497,7 +497,7 @@ public class HttpWdUtils {
                                            String contentType, byte[] idCardFile,byte[] birthCertFile) {
         String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
                 "octopus_sid", octopusSid,
-                "octopus_apiid", idMap.get("verificationChildSubmitApiId")};//todo verificationChildSubmitApiId 汇道ID
+                "octopus_apiid", idMap.get("verificationChildSubmitApiId")};
 
         MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
 
@@ -558,7 +558,7 @@ public class HttpWdUtils {
         idMap.put("verficationSubmitInfoApiId", "11fe1cae-205b-4762-bd6b-af6deeac399d");//获取提交实名制审核用户状态信息
         idMap.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
 
-        idMap.put("smyLoginApiId", "58e866dd-c5b8-46e5-98d0-1032eae99d7f");//三方市民云绑定接口
+        idMap.put("smyLoginApiId", "44304602-abf1-44b7-8a46-4fc9cee814e1");//三方市民云绑定接口
         idMap.put("verificationChildSubmitApiId", "ba85dfe1-94c4-432e-a3d7-b66c32aaeb36");//儿童实名信息提交
 
         HttpWdUtils httpWdUtils = new HttpWdUtils();
@@ -569,7 +569,7 @@ public class HttpWdUtils {
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-//        httpWdUtils.basicInfo("8a81c1fb555cab53015723a5dc6b03f1");
+//        httpWdUtils.basicInfo("8a81c01a4f167bf3014f24af540f006b");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -613,6 +613,8 @@ public class HttpWdUtils {
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);
 //        {"code":220,"msg":"session自定义数据添加成功","success":true}
+
+//        httpWdUtils.smyLogin("3f5bebf7-17ca-4d6d-a0cc-0ca7e75dc46e","eshimin73762403");
     }
 
 
