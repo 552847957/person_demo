@@ -8,14 +8,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.sql.DataSource;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2016/8/31.
@@ -25,18 +29,20 @@ public class GameServiceImpl implements GameService{
     @Autowired
     private GameScoreRepository gameScoreRepo;
 
-    @Override
-    public Page<GameScore> findAll(int number, int size) {
+    @Autowired
+    private JdbcTemplate jt;
 
-        Specification<GameScore> specification = new Specification<GameScore>() {
-            @Override
-            public Predicate toPredicate(Root<GameScore> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                criteriaQuery.orderBy(criteriaBuilder.desc(root.get("score").as(Integer.class)));
-                return criteriaQuery.getRestriction();
-            }
-        };
-        Pageable pageable = new PageRequest(number,size);
-        return gameScoreRepo.findAll(specification,pageable);
+    @Override
+    public List<Map<String, Object>> findAll(int number, int size) {
+        String sql = "select registerid,score,rownum_finish as rank from ( " +
+        " select id,registerid,score,rownum_1,rownum_add,if(@score=score and @rn_add!=rownum_add,@n3:=rownum_1+@rn_add,@n3:=rownum_1+rownum_add) rownum_finish ,@rn_add:=rownum_add,@score:=score " +
+                " from (" +
+                " select id,registerid,score,rownum_1,if(@rn=rownum_1,@nn:=@nn+1,@nn:=@nn) rownum_add,@rn:=rownum_1 from ( " +
+                " select id,registerid,score,if(@s!=score,@n:=@n+1,@n) rownum_1,@s:=score from " +
+                " (select * from app_tb_game_score order by score desc) a,(select @n:=0) b,(select @s:=0) c) aa,(select @nn:=0) bb,(select @rn:=0) cc " +
+                " ) aaa ,(select @rn_add:=0) bbb,(select @n3:=0) ccc,(select @score:=0) ddd " +
+                " ) f limit "+number*size+" , "+size;
+        return jt.queryForList(sql);
     }
 
     @Override
@@ -74,4 +80,6 @@ public class GameServiceImpl implements GameService{
         float rate = (float)underCount / (float)totalCount;
         return Float.parseFloat(new DecimalFormat("#.##").format(rate).toString());
     }
+
+
 }

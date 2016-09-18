@@ -48,6 +48,6 @@ public interface UserAccountService {
 
     AccessToken smyLogin(String token, String username);
 
-    Boolean childVerificationSubmit(String id, String name, String idCard, String idCardFile, String birthCertFile);
+    Boolean childVerificationSubmit(String id,String childId, String name, String idCard, String idCardFile, String birthCertFile);
 
 }

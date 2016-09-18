@@ -52,14 +52,12 @@ public class GameController {
      */
     @PostMapping(path = "/score/list")
     public Pager scoreList(@RequestBody Pager pager){
-        Page<GameScore> page = gameService.findAll(pager.getNumber()-1,pager.getSize());
-        List<Map> list = Lists.newArrayList();
-        for(GameScore gameScore : page.getContent()){
-            list.add(ImmutableMap.of("rank",(pager.getNumber()-1) * pager.getSize()+1+list.size(),
-                    "nickname",this.getNiceName(gameScore.getRegisterid()),"score",gameScore.getScore()));
+        List<Map<String, Object>> resultMap = gameService.findAll(pager.getNumber()-1,pager.getSize());
+        for(Map<String,Object> map : resultMap){
+            map.put("nickname", null == map.get("registerid") ? "" : this.getNiceName(map.get("registerid").toString()));
         }
-        pager.setData(list);
-        pager.setTotalElements((int)page.getTotalElements());
+        pager.setData(resultMap);
+        pager.setTotalElements(gameScoreRepo.getTotalCount());
         return pager;
     }
 

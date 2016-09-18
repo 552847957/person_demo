@@ -349,17 +349,14 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     @Transactional
-    public Boolean childVerificationSubmit(String parentUserid, String name, String idcard, String idCardFileUrl, String birthCertFileUrl) {
+    public Boolean childVerificationSubmit(String parentUserid,String childUserid , String name, String idcard, String idCardFileUrl, String birthCertFileUrl) {
         RegisterInfo parentUser = registerInfoRepository.findOne(parentUserid);
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
-        //注册
-        AnonymousAccount anonymousAccount = anonymousRegistration(parentUserid, "HCCHILD" + IdGen.uuid(), IdGen.uuid());
-
         byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
         byte[] birthCertFile = new ImageUtils().getImageFromURL(birthCertFileUrl);
-        JsonNode result = httpWdUtils.verificationChildSubmit(anonymousAccount.getId(), name, parentUser.getRegmobilephone(), idcard, parentUserid,
+        JsonNode result = httpWdUtils.verificationChildSubmit(childUserid, name, parentUser.getRegmobilephone(), idcard, parentUserid,
                 null, idCardFile, birthCertFile);
         Boolean success = result.get("success").asBoolean();
         if (success) {
