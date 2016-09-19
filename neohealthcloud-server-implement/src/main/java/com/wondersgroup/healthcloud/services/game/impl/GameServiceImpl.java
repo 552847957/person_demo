@@ -42,7 +42,7 @@ public class GameServiceImpl implements GameService{
         String sql = "select registerid,score,rownum_finish as rank from ( " +
         " select id,registerid,score,rownum_1,rownum_add,if(@score=score and @rn_add!=rownum_add,@n3:=rownum_1+@rn_add,@n3:=rownum_1+rownum_add) rownum_finish ,@rn_add:=rownum_add,@score:=score " +
                 " from (" +
-                " select id,registerid,score,rownum_1,if(@rn=rownum_1,@nn:=@nn+1,@nn:=@nn) rownum_add,@rn:=rownum_1 from ( " +
+                " select id,registerid,score,rownum_1,if(@rn=rownum_1,@nn:=@nn+(rownum_1-@rn),@nn:=@nn) rownum_add,@rn:=rownum_1 from ( " +
                 " select id,registerid,score,if(@s!=score,@n:=@n+1,@n) rownum_1,@s:=score from " +
                 " (select * from app_tb_game_score order by score desc,update_time desc) a,(select @n:=0) b,(select @s:=0) c) aa,(select @nn:=0) bb,(select @rn:=0) cc " +
                 " ) aaa ,(select @rn_add:=0) bbb,(select @n3:=0) ccc,(select @score:=0) ddd " +
