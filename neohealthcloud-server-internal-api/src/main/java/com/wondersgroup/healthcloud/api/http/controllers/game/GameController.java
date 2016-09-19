@@ -113,7 +113,7 @@ public class GameController {
     public JsonResponseEntity checkPhone(@RequestHeader(name="access-token") String token){
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"token已经过期");
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
         RegisterInfo register = registerInfoRepo.findOne(session.getUserId());
         boolean flag = false;
