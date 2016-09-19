@@ -52,14 +52,13 @@ public class GameController {
      */
     @PostMapping(path = "/score/list")
     public Pager scoreList(@RequestBody Pager pager){
-        Page<GameScore> page = gameService.findAll(pager.getNumber()-1,pager.getSize());
-        List<Map> list = Lists.newArrayList();
-        for(GameScore gameScore : page.getContent()){
-            list.add(ImmutableMap.of("rank",(pager.getNumber()-1) * pager.getSize()+1+list.size(),
-                    "nickname",this.getNiceName(gameScore.getRegisterid()),"score",gameScore.getScore()));
+        List<Map<String, Object>> resultMap = gameService.findAll(pager.getNumber()-1,pager.getSize());
+        for(Map<String,Object> map : resultMap){
+            map.put("nickname", null == map.get("registerid") ? "" : this.getNiceName(map.get("registerid").toString()));
         }
-        pager.setData(list);
-        pager.setTotalElements((int)page.getTotalElements());
+        pager.setData(resultMap);
+        int totalCount = gameScoreRepo.getTotalCount();
+        pager.setTotalElements(totalCount >100 ?100:totalCount);
         return pager;
     }
 
@@ -72,7 +71,7 @@ public class GameController {
     public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token") String token){
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"token已经过期");
+            return new JsonResponseEntity(0,null,ImmutableBiMap.of("score","0"));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
@@ -98,8 +97,10 @@ public class GameController {
         }
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer score = Integer.parseInt(reader.readString("score", false));
+        Integer platform = reader.readInteger("platform", false);
+
         logger.info(" registerId: "+session.getUserId() +"   score: "+score);
-        gameService.updatePersonScore(session.getUserId(),score);
+        gameService.updatePersonScore(session.getUserId(),score,platform);
         Float rate = gameService.getScoreRank(session.getUserId(), score);
         return new JsonResponseEntity(0,null,ImmutableBiMap.of("rate",new DecimalFormat("#").format(rate*100)+"%"));
     }
@@ -125,28 +126,19 @@ public class GameController {
         return entity;
     }
 
+
     /**
-     * 累计挑战次数
-     * plantform 1:app ,2:微信
+     * 检测用户是否绑定了手机号
+     * @param token
      * @return
      */
-    @PostMapping(path = "/click")
-    public JsonResponseEntity click(@RequestBody String request){
-        JsonKeyReader reader = new JsonKeyReader(request);
-        Integer platform = reader.readInteger("platform", false);
-        List<Game> list = gameRepo.findAll();
-
-        Boolean flag = false;
-        if(null != list && 0 != list.size()) {
-            Game game = list.get(0);
-            if(1 == platform){
-                game.setAppClick(game.getAppClick() == null ?1:game.getAppClick()+1);
-            }else{
-                game.setWeixinClick(game.getWeixinClick() == null ? 1 : game.getWeixinClick()+1);
-            }
-            gameRepo.save(game);
+    @GetMapping(path = "/check/token")
+    public JsonResponseEntity checkToken(@RequestHeader(name="access-token") String token){
+        Session session = sessionUtil.get(token);
+        if(null == session || StringUtils.isEmpty(session.getUserId())){
+            return new JsonResponseEntity(1001,"token已经过期");
         }
-        return new JsonResponseEntity(0,"统计成功");
+        return new JsonResponseEntity();
     }
 
     /**
