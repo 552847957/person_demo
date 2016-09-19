@@ -73,7 +73,9 @@ public class GameServiceImpl implements GameService{
     @Override
     public Float getScoreRank(String registerid,Integer score) {
 
-
+        if(0 == score){
+            return 0f;
+        }
         int underCount = gameScoreRepo.getUnderCount(score);
         int totalCount = gameScoreRepo.getTotalCount();
 
