@@ -4,7 +4,9 @@ import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,9 @@ public class VerificationCallbackController {
     private UserAccountService userAccountService;
 
     @Autowired
+    private AnonymousAccountService anonymousAccountService;
+
+    @Autowired
     private PushClientWrapper pushClientWrapper;
 
     @Autowired
@@ -43,16 +48,28 @@ public class VerificationCallbackController {
 
         RegisterInfo info = userAccountService.fetchInfo(id);
 
+        String pushId = id;
+
+        if (success) {
+            if(from!=522)
+                healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(),info.getName());
+        }
+
+        if(from==522){//儿童实名认证
+            AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(id,true);
+            if(anonymousAccount!=null){
+                pushId = anonymousAccount.getCreator();//监护人的Id
+                if(success)
+                    healthRecordUpdateUtil.onVerificationSuccess(anonymousAccount.getIdcard(),anonymousAccount.getName());
+            }
+        }
+
         AppMessage message = AppMessage.Builder.init().title("实名认证")
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(pushId, success))
                 .persistence().build();
-        pushClientWrapper.pushToAlias(message, id);
-
-        if (success) {
-            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(),info.getName());
-        }
+        pushClientWrapper.pushToAlias(message, pushId);
 
         return "{\"success\":" + success + "}";
     }

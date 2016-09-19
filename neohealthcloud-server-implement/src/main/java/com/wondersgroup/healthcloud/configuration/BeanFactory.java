@@ -100,7 +100,7 @@ public class BeanFactory {
         builder.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
 
         builder.put("smyLoginApiId", "44304602-abf1-44b7-8a46-4fc9cee814e1");//三方市民云绑定接口
-        builder.put("verificationChildSubmitApiId", "ba85dfe1-94c4-432e-a3d7-b66c32aaeb36");//儿童实名信息提交
+        builder.put("verificationChildSubmitApiId", "4c118096-b3ed-4b06-bb4e-18b3547a8974");//儿童实名信息提交
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端

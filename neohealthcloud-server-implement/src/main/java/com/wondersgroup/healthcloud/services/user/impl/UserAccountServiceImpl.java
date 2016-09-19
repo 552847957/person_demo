@@ -357,7 +357,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
         byte[] birthCertFile = new ImageUtils().getImageFromURL(birthCertFileUrl);
         JsonNode result = httpWdUtils.verificationChildSubmit(childUserid, name, parentUser.getRegmobilephone(), idcard, parentUserid,
-                null, idCardFile, birthCertFile);
+                "", idCardFile, birthCertFile);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             return true;

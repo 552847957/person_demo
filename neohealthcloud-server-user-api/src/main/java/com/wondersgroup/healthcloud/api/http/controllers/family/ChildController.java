@@ -32,7 +32,7 @@ public class ChildController {
     public JsonResponseEntity<String> verificationSubmit(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);//监护人Id
-        String childId = reader.readString("childId", false);//监护人Id
+        String childId = reader.readString("childId", false);//儿童匿名Id
         String name = reader.readString("name", false);//儿童的真实姓名
         String idCard = reader.readString("idcard", false);//儿童的身份证号
         String idCardFile = reader.readString("idCardFile", false);//户口本(儿童身份信息页照片)
