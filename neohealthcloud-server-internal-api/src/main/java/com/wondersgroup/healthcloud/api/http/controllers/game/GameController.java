@@ -97,10 +97,9 @@ public class GameController {
         }
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer score = Integer.parseInt(reader.readString("score", false));
-        Integer platform = reader.readInteger("platform", false);
 
         logger.info(" registerId: "+session.getUserId() +"   score: "+score);
-        gameService.updatePersonScore(session.getUserId(),score,platform);
+        gameService.updatePersonScore(session.getUserId(),score);
         Float rate = gameService.getScoreRank(session.getUserId(), score);
         return new JsonResponseEntity(0,null,ImmutableBiMap.of("rate",new DecimalFormat("#").format(rate*100)+"%"));
     }
@@ -139,6 +138,23 @@ public class GameController {
             return new JsonResponseEntity(1001,"token已经过期");
         }
         return new JsonResponseEntity();
+    }
+
+    /**
+     * 累计挑战次数
+     * plantform 1:app ,2:微信
+     * @return
+     */
+    @PostMapping(path = "/click")
+    public JsonResponseEntity click(@RequestBody String request){
+        JsonKeyReader reader = new JsonKeyReader(request);
+        Integer platform = reader.readInteger("platform", false);
+        if(1 == platform){
+            gameRepo.updateAppClick();
+        }else{
+            gameRepo.updateWeixinClick();
+        }
+        return new JsonResponseEntity(0,"统计成功");
     }
 
     /**

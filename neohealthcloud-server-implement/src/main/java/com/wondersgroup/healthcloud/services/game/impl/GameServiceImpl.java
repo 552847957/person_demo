@@ -44,7 +44,7 @@ public class GameServiceImpl implements GameService{
                 " from (" +
                 " select id,registerid,score,rownum_1,if(@rn=rownum_1,@nn:=@nn+1,@nn:=@nn) rownum_add,@rn:=rownum_1 from ( " +
                 " select id,registerid,score,if(@s!=score,@n:=@n+1,@n) rownum_1,@s:=score from " +
-                " (select * from app_tb_game_score order by score desc) a,(select @n:=0) b,(select @s:=0) c) aa,(select @nn:=0) bb,(select @rn:=0) cc " +
+                " (select * from app_tb_game_score order by score desc,update_time desc) a,(select @n:=0) b,(select @s:=0) c) aa,(select @nn:=0) bb,(select @rn:=0) cc " +
                 " ) aaa ,(select @rn_add:=0) bbb,(select @n3:=0) ccc,(select @score:=0) ddd " +
                 " ) f limit "+number*size+" , "+size;
         return jt.queryForList(sql);
@@ -57,7 +57,7 @@ public class GameServiceImpl implements GameService{
      * @param platform plantform 1:app ,2:微信
      */
     @Override
-    public void updatePersonScore(String registerId, Integer score,Integer platform) {
+    public void updatePersonScore(String registerId, Integer score) {
         GameScore gameScore = gameScoreRepo.getByRegisterId(registerId);
         if(null == gameScore){
             gameScore = new GameScore();
@@ -75,11 +75,6 @@ public class GameServiceImpl implements GameService{
 
         gameScoreRepo.save(gameScore);
 
-        if(1 == platform){
-            gameRepo.updateAppClick();
-        }else{
-            gameRepo.updateWeixinClick();
-        }
     }
 
     /**
