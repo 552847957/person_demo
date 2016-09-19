@@ -320,8 +320,8 @@ public class UserController {
     @VersionRange
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo(@RequestParam("uid") String id) {
         JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
-        RegisterInfo person = userService.getOneNotNull(id);
-        if (person.verified()) {
+        RegisterInfo person = userService.findOne(id);
+        if (person!=null&&person.verified()) {
             VerificationInfoDTO data = new VerificationInfoDTO();
             data.setUid(id);
             data.setName(IdcardUtils.maskName(person.getName()));
@@ -330,8 +330,10 @@ public class UserController {
             data.setStatus(VerificationInfoDTO.statusArray[0]);
             data.setCanSubmit(false);
             body.setData(data);
-        } else {
+        } else if(person!=null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
+        }else if(person==null){
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
         }
         return body;
     }
