@@ -71,7 +71,7 @@ public class GameController {
     public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token") String token){
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(0,null,ImmutableBiMap.of("score","0"));
+            return new JsonResponseEntity(0,"token已经过期",ImmutableBiMap.of("score","0"));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
