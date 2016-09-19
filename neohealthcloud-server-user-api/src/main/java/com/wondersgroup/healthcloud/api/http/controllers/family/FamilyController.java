@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +32,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -43,7 +46,9 @@ import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 /**
  * 孫海迪
@@ -53,7 +58,6 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 @RestController
 @RequestMapping("/api/family")
 public class FamilyController {
-
     @Autowired
     private UserAccountService      accountService;
 
@@ -183,9 +187,13 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/registration/code", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<String> registrationCode(@RequestParam String uid, @RequestParam String mobile,
-            @RequestParam String relation, @RequestParam("relation_name") String relationName) {
-        familyService.sendRegistrationCode(uid, relation, relationName, mobile);
+    public JsonResponseEntity<String> registrationCode(
+            @Header(name = "spec-area",defaultValue = "") String area, 
+            @RequestParam String uid, 
+            @RequestParam String mobile,
+            @RequestParam String relation, 
+            @RequestParam("relation_name") String relationName) {
+        familyService.sendRegistrationCode(uid, relation, relationName, mobile,area);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("发送成功");
         return body;
@@ -450,6 +458,39 @@ public class FamilyController {
         }
         
         return res;
+    }
+    
+    /**
+     * 提交实名认证信息
+     *
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/childVerification/submit")
+    public JsonResponseEntity<String> verificationSubmit(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);//监护人Id
+        String name = reader.readString("name", false);//儿童的真实姓名
+        String idCard = reader.readString("idcard", false);//儿童的身份证号
+        String idCardFile = reader.readString("idCardFile", false);//户口本(儿童身份信息页照片)
+        String birthCertFile = reader.readString("birthCertFile", false);//出生证明(照片)
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        name = name.trim();
+        idCard = idCard.trim();
+        int age = IdcardUtils.getAgeByIdCard(idCard);
+        if(age >= 18){
+            throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
+        }
+        AnonymousAccount account = accountService.childVerificationRegistration(id, "HCGEN" + IdGen.uuid(), IdGen.uuid());
+        
+        boolean result = accountService.childVerificationSubmit(id, account.getId(), name, idCard, idCardFile, birthCertFile);
+        if(!result){
+            body.setCode(1001);
+            body.setMsg("提交失败");
+            return body;
+        }
+        body.setMsg("实名认证已提交，请耐心等待");
+        return body;
     }
 
 }

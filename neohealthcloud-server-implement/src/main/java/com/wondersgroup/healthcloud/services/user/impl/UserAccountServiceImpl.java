@@ -412,6 +412,22 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
+        return anonymousRegistration(creator, username, password, false);
+    }
+    
+    /**
+     * 注册儿童实名认证
+     * @param creator
+     * @param username
+     * @param password
+     * @return
+     */
+    @Override
+    public AnonymousAccount childVerificationRegistration(String creator, String username, String password) {
+        return anonymousRegistration(creator, username, password, true);
+    }
+    
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild) {
         String encodedPassword;
         try {
             encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());
@@ -430,6 +446,7 @@ public class UserAccountServiceImpl implements UserAccountService{
             anonymousAccount.setCreateDate(time);
             anonymousAccount.setUpdateDate(time);
             anonymousAccount.setDelFlag("0");
+            anonymousAccount.setIsChild(isChild);
             return anonymousAccountRepository.saveAndFlush(anonymousAccount);
         } else {
             throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
