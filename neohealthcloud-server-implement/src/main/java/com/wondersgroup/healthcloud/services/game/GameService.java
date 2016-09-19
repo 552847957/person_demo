@@ -9,7 +9,7 @@ import java.util.Map;
 public interface GameService {
     List<Map<String, Object>> findAll(int number, int size);
 
-    void updatePersonScore(String registerId, Integer score);
+    void updatePersonScore(String registerId, Integer score,Integer platform);
 
     Float getScoreRank(String registerId, Integer score);
 }

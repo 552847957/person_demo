@@ -57,7 +57,8 @@ public class GameController {
             map.put("nickname", null == map.get("registerid") ? "" : this.getNiceName(map.get("registerid").toString()));
         }
         pager.setData(resultMap);
-        pager.setTotalElements(gameScoreRepo.getTotalCount());
+        int totalCount = gameScoreRepo.getTotalCount();
+        pager.setTotalElements(totalCount >100 ?100:totalCount);
         return pager;
     }
 
@@ -96,8 +97,10 @@ public class GameController {
         }
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer score = Integer.parseInt(reader.readString("score", false));
+        Integer platform = reader.readInteger("platform", false);
+
         logger.info(" registerId: "+session.getUserId() +"   score: "+score);
-        gameService.updatePersonScore(session.getUserId(),score);
+        gameService.updatePersonScore(session.getUserId(),score,platform);
         Float rate = gameService.getScoreRank(session.getUserId(), score);
         return new JsonResponseEntity(0,null,ImmutableBiMap.of("rate",new DecimalFormat("#").format(rate*100)+"%"));
     }
@@ -136,30 +139,6 @@ public class GameController {
             return new JsonResponseEntity(1001,"token已经过期");
         }
         return new JsonResponseEntity();
-    }
-
-    /**
-     * 累计挑战次数
-     * plantform 1:app ,2:微信
-     * @return
-     */
-    @PostMapping(path = "/click")
-    public JsonResponseEntity click(@RequestBody String request){
-        JsonKeyReader reader = new JsonKeyReader(request);
-        Integer platform = reader.readInteger("platform", false);
-        List<Game> list = gameRepo.findAll();
-
-        Boolean flag = false;
-        if(null != list && 0 != list.size()) {
-            Game game = list.get(0);
-            if(1 == platform){
-                game.setAppClick(game.getAppClick() == null ?1:game.getAppClick()+1);
-            }else{
-                game.setWeixinClick(game.getWeixinClick() == null ? 1 : game.getWeixinClick()+1);
-            }
-            gameRepo.save(game);
-        }
-        return new JsonResponseEntity(0,"统计成功");
     }
 
     /**
