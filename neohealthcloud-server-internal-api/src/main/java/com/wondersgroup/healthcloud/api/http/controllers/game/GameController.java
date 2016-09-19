@@ -70,7 +70,7 @@ public class GameController {
     public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token") String token){
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"token已经过期");
+            return new JsonResponseEntity(0,null,ImmutableBiMap.of("score","0"));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
@@ -121,6 +121,21 @@ public class GameController {
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setData(ImmutableMap.of("flag",flag));
         return entity;
+    }
+
+
+    /**
+     * 检测用户是否绑定了手机号
+     * @param token
+     * @return
+     */
+    @GetMapping(path = "/check/token")
+    public JsonResponseEntity checkToken(@RequestHeader(name="access-token") String token){
+        Session session = sessionUtil.get(token);
+        if(null == session || StringUtils.isEmpty(session.getUserId())){
+            return new JsonResponseEntity(1001,"token已经过期");
+        }
+        return new JsonResponseEntity();
     }
 
     /**
