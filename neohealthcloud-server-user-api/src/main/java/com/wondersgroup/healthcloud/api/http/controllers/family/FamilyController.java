@@ -32,7 +32,6 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -461,8 +460,7 @@ public class FamilyController {
     }
     
     /**
-     * 提交实名认证信息
-     *
+     * 提交儿童实名认证信息
      * @return
      */
     @VersionRange
@@ -481,9 +479,8 @@ public class FamilyController {
         if(age >= 18){
             throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
         }
-        AnonymousAccount account = accountService.childVerificationRegistration(id, "HCGEN" + IdGen.uuid(), IdGen.uuid());
         
-        boolean result = accountService.childVerificationSubmit(id, account.getId(), name, idCard, idCardFile, birthCertFile);
+        Boolean result = familyService.childVerificationRegistration(id, name, idCard, idCardFile, birthCertFile);
         if(!result){
             body.setCode(1001);
             body.setMsg("提交失败");

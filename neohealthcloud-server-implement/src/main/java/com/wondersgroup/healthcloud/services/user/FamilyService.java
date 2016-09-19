@@ -156,4 +156,9 @@ public interface FamilyService {
      * @param photo
      */
     void anonymousRegistration(String userId, String relation, String relationName, String name, String idcard, String photo);
+   
+    /**
+     * 儿童实名认证
+     */
+    Boolean childVerificationRegistration(String uid, String name, String idCard, String idCardFile, String birthCertFile);
 }

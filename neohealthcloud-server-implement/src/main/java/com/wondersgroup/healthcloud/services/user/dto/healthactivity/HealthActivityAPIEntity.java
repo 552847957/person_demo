@@ -12,45 +12,46 @@ import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthActivityAPIEntity {
-    private String                            id;                                                            //活动id
-    private String                            host;                                                          // 主办方
-    private String                            name;                                                         // '主题',
-    private String                            time;                                                          // '开始时间',
-    private String                            location;                                                      // '举办地点',
-    private Integer                           totalAvailable;                                                // '名额',
-    private Integer                           totalApplied;                                                  // 报名人数
-    private String                            isApplied;                                                    // 是否已报名（按钮状态）
-    private String                            speechMaker;                                                   // '主讲人信息 姓名 科室 职务',
-    private String                            department;                                                    //科室
-    private String                            pftitle;                                                       //职称
-    private Integer                           style;                                                         // 讲座形式
-    private String                            description;                                                   // '活动概述',
-    private String                            picture;                                                      // '活动图片存入attach表',
-    private String                            thumbnail;                                                     //活动缩略图
-    private Double                            score;                                                         // 积分
-    private String                            isEvaluation;                                                  //是否可以评价 0:不能评价，1：能评价
-    private String                            isSurvey;                                                      //是否做过满意度调查 0:未做调查，1：已做调查
-    private String                            contentUrl;                                                    //活动内容url地址
-    private String                            overdue;                                                       //活动是否过期：0为未过期，1为过期
-    private String                            enrollOverdue;                                                 //报名时间是否过期：0为未过期，1为过期
-    private boolean                           ltDay;                                                        //再报名时间||活动时间未过期的情况下，剩余时间是否只剩一天
-    private String                            enrollCountdown;                                               //报名倒计时
-    private String                            enrollColor;                                                   //报名倒计时字体显示颜色
+    private String  id;                 //活动id
+    private String  host;               // 主办方
+    private String  name;               // '主题',
+    private String  time;               // '开始时间',
+    private String  location;           // '举办地点',
+    private Integer totalAvailable;     // '名额',
+    private Integer totalApplied;       // 报名人数
+    private String  isApplied;          // 是否已报名（按钮状态）
+    private String  speechMaker;        // '主讲人信息 姓名 科室 职务',
+    private String  department;         //科室
+    private String  pftitle;            //职称
+    private Integer style;              // 讲座形式
+    private String  description;        // '活动概述',
+    private String  picture;            // '活动图片存入attach表',
+    private String  thumbnail;          //活动缩略图
+    private Double  score;              // 积分
+    private String  isEvaluation;       //是否可以评价 0:不能评价，1：能评价
+    private String  isSurvey;           //是否做过满意度调查 0:未做调查，1：已做调查
+    private String  contentUrl;         //活动内容url地址
+    private String  overdue;            //活动是否过期：0为未过期，1为过期
+    private String  enrollOverdue;      //报名时间是否过期：0为未过期，1为过期
+    private boolean ltDay;              //再报名时间||活动时间未过期的情况下，剩余时间是否只剩一天
+    private String  enrollCountdown;    //报名倒计时
+    private String  enrollColor;        //报名倒计时字体显示颜色
 
     private HealthActivityEvaluationAPIEntity evaluation;
     private SimpleDateFormat                  monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
     private SimpleDateFormat                  hourMinute_sdf  = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat                  time_adf        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private String                            starttime;                                                    // '开始时间',
-    private String                            endtime;                                                      // '结束时间',
-    private String                            onlineTime;                                                   //上线时间
-    private String                            offlineTime;                                                  //下线时间
-    private String                            enrollStartTime;                                              //活动报名时间'
-    private String                            enrollEndTime;                                                //活动结束时间
+    private String  starttime;          // '开始时间',
+    private String  endtime;            // '结束时间',
+    private String  onlineTime;         //上线时间
+    private String  offlineTime;        //下线时间
+    private String  enrollStartTime;    //活动报名时间'
+    private String  enrollEndTime;      //活动结束时间
 
-    private String                            partakeActivityDesc;                                           //离参与活动时间最近的一条信息
-    private String                            partakeActivityId;                                             //离参与活动时间最近的一条id
+    private String  partakeActivityDesc;//离参与活动时间最近的一条信息
+    private String  partakeActivityId;  //离参与活动时间最近的一条id
+    private String  descriptionHtml;    //有html标签的活动概述
 
     public HealthActivityAPIEntity(HealthActivityInfo info, String width, String height) {
         init(info, "activityList", width, height);
@@ -121,6 +122,7 @@ public class HealthActivityAPIEntity {
             this.enrollCountdown = getDateTimeStr(info);
         }
         this.enrollColor = ltDay ? "#CC0000" : "#666666";
+        this.descriptionHtml = info.getSummaryHtml();
     }
 
     public String getId() {
@@ -412,11 +414,20 @@ public class HealthActivityAPIEntity {
         cal1.setTime(date1);
         Calendar cal2 = Calendar.getInstance();
         cal2.setTime(date2);
-        
+
         boolean isSameYear = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
         boolean isSameMonth = isSameYear && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
         boolean isSameDate = isSameMonth && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
 
         return isSameDate;
     }
+
+    public String getDescriptionHtml() {
+        return descriptionHtml;
+    }
+
+    public void setDescriptionHtml(String descriptionHtml) {
+        this.descriptionHtml = descriptionHtml;
+    }
+
 }

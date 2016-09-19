@@ -18,6 +18,7 @@ public class FamilyMemberAPIEntity {
     private String uid;
     private String avatar;
     private String name;
+    private String idcard;
     private String memo;
     private String mobile;
     private Boolean verified;
@@ -57,6 +58,7 @@ public class FamilyMemberAPIEntity {
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
         this.isAnonymous = false;
         this.gender = register.getGender();
+        this.idcard = register.getPersoncard();
     }
 
     public FamilyMemberAPIEntity(FamilyMember familyMember, AnonymousAccount anonymousAccount) {
@@ -69,6 +71,7 @@ public class FamilyMemberAPIEntity {
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
         this.isAnonymous = true;
         this.gender = null == anonymousAccount.getIdcard()?"":(anonymousAccount.getIdcard().charAt(16)%2==1?"1":"2");
+        this.idcard = anonymousAccount.getIdcard();
         this.isChild = anonymousAccount.getIsChild() == null ? false : anonymousAccount.getIsChild();
     }
 

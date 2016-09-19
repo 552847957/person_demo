@@ -2,11 +2,13 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import java.util.Date;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.utils.JsonConverter;
@@ -27,6 +29,7 @@ import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 
@@ -325,6 +328,20 @@ public class FamilyServiceImpl implements FamilyService {
         AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
         createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
         accountService.verificationSubmit(account.getId(), name, idcard, photo);
+    }
+    
+    @Transactional(readOnly = false)
+    @Override
+    public Boolean childVerificationRegistration(String userId,String name, String idCard, String idCardFile, String birthCertFile) {
+        String gender = IdcardUtils.getGenderByIdCard(idCard);
+        String relation = "1".equals(gender) ? "4" : "5";//4 儿子 5 女儿
+        String relationName = "1".equals(gender) ? "儿子" : "女儿";
+        
+        checkMemberCount(userId);
+        RegisterInfo register = findOneRegister(userId, false);
+        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
+        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
+       return  accountService.childVerificationSubmit(userId, account.getId(), name, idCard, idCardFile, birthCertFile);
     }
 
     private List<FamilyMember> findByTwoUser(String userId, String memberId, Boolean nullable) {
