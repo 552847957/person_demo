@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.services.game.impl;
 
+import com.wondersgroup.healthcloud.jpa.entity.game.Game;
 import com.wondersgroup.healthcloud.jpa.entity.game.GameScore;
+import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameScoreRepository;
 import com.wondersgroup.healthcloud.services.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class GameServiceImpl implements GameService{
     @Autowired
     private JdbcTemplate jt;
 
+    @Autowired
+    private GameRepository gameRepo;
+
     @Override
     public List<Map<String, Object>> findAll(int number, int size) {
         String sql = "select registerid,score,rownum_finish as rank from ( " +
@@ -45,8 +50,14 @@ public class GameServiceImpl implements GameService{
         return jt.queryForList(sql);
     }
 
+    /**
+     *
+     * @param registerId
+     * @param score
+     * @param platform plantform 1:app ,2:微信
+     */
     @Override
-    public void updatePersonScore(String registerId, Integer score) {
+    public void updatePersonScore(String registerId, Integer score,Integer platform) {
         GameScore gameScore = gameScoreRepo.getByRegisterId(registerId);
         if(null == gameScore){
             gameScore = new GameScore();
@@ -63,6 +74,12 @@ public class GameServiceImpl implements GameService{
         gameScore.setUpdateTime(new Date());
 
         gameScoreRepo.save(gameScore);
+
+        if(1 == platform){
+            gameRepo.updateAppClick();
+        }else{
+            gameRepo.updateWeixinClick();
+        }
     }
 
     /**
