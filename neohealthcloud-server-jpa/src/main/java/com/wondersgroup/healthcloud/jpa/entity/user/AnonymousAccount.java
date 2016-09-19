@@ -1,9 +1,12 @@
 package com.wondersgroup.healthcloud.jpa.entity.user;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import lombok.Data;
+
 import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
@@ -21,4 +24,6 @@ public class AnonymousAccount extends BaseEntity {
     private String creator;
     private String name;
     private String idcard;
+    @Column(name = "is_child")
+    private Boolean isChild;
 }

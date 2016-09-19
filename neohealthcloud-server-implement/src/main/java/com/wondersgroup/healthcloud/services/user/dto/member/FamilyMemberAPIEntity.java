@@ -40,6 +40,7 @@ public class FamilyMemberAPIEntity {
     private String label;
     private String labelColor;
     private String gender;
+    private Boolean isChild;//当是匿名账户的时候 是否是儿童
 
     public FamilyMemberAPIEntity() {
     }
@@ -62,12 +63,13 @@ public class FamilyMemberAPIEntity {
         this.uid = familyMember.getMemberId();
         this.name = anonymousAccount.getName();
         this.memo = familyMember.getMemo();
-        this.verified = anonymousAccount.getId() != null;
+        this.verified = anonymousAccount.getIdcard() != null;
         this.relation = familyMember.getRelation();
         this.relationName = FamilyMemberRelation.getName(this.relation, familyMember.getMemo());
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
         this.isAnonymous = true;
         this.gender = null == anonymousAccount.getIdcard()?"":(anonymousAccount.getIdcard().charAt(16)%2==1?"1":"2");
+        this.isChild = anonymousAccount.getIsChild() == null ? false : anonymousAccount.getIsChild();
     }
 
 }
