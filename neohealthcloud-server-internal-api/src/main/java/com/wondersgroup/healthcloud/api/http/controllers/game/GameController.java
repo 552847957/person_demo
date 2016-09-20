@@ -68,10 +68,13 @@ public class GameController {
      * @return
      */
     @GetMapping(path = "/score/person")
-    public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token") String token){
+    public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token",required = false) String token){
+        if(StringUtils.isEmpty(token)){
+            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score","0"));
+        }
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(0,"token已经过期",ImmutableBiMap.of("score","0"));
+            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score","0"));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
@@ -90,10 +93,15 @@ public class GameController {
      * @return
      */
     @PostMapping(path = "/score/person")
-    public JsonResponseEntity setPersonScore(@RequestHeader(name="access-token") String token,@RequestBody String request){
+    public JsonResponseEntity setPersonScore(@RequestHeader(name="access-token",required = false) String token,@RequestBody String request){
+
+        if(StringUtils.isEmpty(token)){
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+        }
+
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"token已经过期");
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer score = Integer.parseInt(reader.readString("score", false));
@@ -110,7 +118,12 @@ public class GameController {
      * @return
      */
     @GetMapping(path = "/check/phone")
-    public JsonResponseEntity checkPhone(@RequestHeader(name="access-token") String token){
+    public JsonResponseEntity checkPhone(@RequestHeader(name="access-token",required = false) String token){
+
+        if(StringUtils.isEmpty(token)){
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+        }
+
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
             return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
@@ -132,10 +145,15 @@ public class GameController {
      * @return
      */
     @GetMapping(path = "/check/token")
-    public JsonResponseEntity checkToken(@RequestHeader(name="access-token") String token){
+    public JsonResponseEntity checkToken(@RequestHeader(name="access-token",required = false) String token){
+
+        if(StringUtils.isEmpty(token)){
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+        }
+
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"token已经过期");
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
         return new JsonResponseEntity();
     }
