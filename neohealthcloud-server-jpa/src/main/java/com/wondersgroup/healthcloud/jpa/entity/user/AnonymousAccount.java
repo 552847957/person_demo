@@ -1,13 +1,13 @@
 package com.wondersgroup.healthcloud.jpa.entity.user;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
-
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
  * 匿名账户表
@@ -16,7 +16,7 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 @Data
 @Entity
 @Table(name = "app_tb_anonymous_account")
-public class AnonymousAccount extends BaseEntity {
+public class AnonymousAccount{
     @Id
     private String id;
     private String username;
@@ -26,4 +26,16 @@ public class AnonymousAccount extends BaseEntity {
     private String idcard;
     @Column(name = "is_child")
     private Boolean isChild;
+    @Column(name = "del_flag")
+    private String delFlag = "0";
+    @Column(name = "source_id")
+    private String sourceId;
+    @Column(name = "create_by")
+    private String createBy;
+    @Column(name = "create_date")
+    private Date createDate;
+    @Column(name = "update_by")
+    private String updateBy;
+    @Column(name = "update_date")
+    private Date updateDate;
 }
