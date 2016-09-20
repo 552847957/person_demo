@@ -78,11 +78,11 @@ public class GameController {
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
-        if(null != gameScore && 0 != gameScore.getScore()){
+        if(null != gameScore){
             float rate = gameService.getScoreRank(session.getUserId(),gameScore.getScore());
             map = ImmutableBiMap.of("score",gameScore.getScore(),"rate",new DecimalFormat("#").format(rate*100)+"%");
         }else{
-            map = ImmutableBiMap.of("score","0");
+            map = ImmutableBiMap.of("score",null);
         }
         return new JsonResponseEntity(0,null,map);
     }
