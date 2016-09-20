@@ -69,11 +69,15 @@ public class UserController {
     @Autowired
     private HealthRecordUpdateUtil healthRecordUpdateUtil;
 
-
-    DecimalFormat decimalFormat = new DecimalFormat("###########");
+    private DecimalFormat decimalFormat;
 
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
+
+    public UserController() {
+        this.decimalFormat = new DecimalFormat("###########");
+        this.decimalFormat.setRoundingMode(RoundingMode.FLOOR);
+    }
 
 
     /**
@@ -180,6 +184,7 @@ public class UserController {
 
     /**
      * 修改密码
+     *
      * @param request
      * @return
      */
@@ -398,7 +403,6 @@ public class UserController {
     @VersionRange
     @PostMapping(path = "/userInfo/update")
     public JsonResponseEntity<Map<String, Object>> updateUserInfo(@RequestBody String request) {
-        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         JsonKeyReader reader = new JsonKeyReader(request);
 
         UserInfoForm form = new UserInfoForm();
@@ -511,8 +515,8 @@ public class UserController {
                         doctorAccountDTO = doctorController.getDoctorInfo(uid, doctorId);
                     }
                 }
-            //有签约无医生账号
-            }else if(result.get("code").asInt() == 2){
+                //有签约无医生账号
+            } else if (result.get("code").asInt() == 2) {
                 isSignDoctor = true;
             }
 
@@ -598,7 +602,7 @@ public class UserController {
             String userName = jsonNode.get("grjbxx").get("xm").asText().trim();
             rt.put("name", userName);
             rt.put("sex", jsonNode.get("grjbxx").get("xb").asText().equals("男") ? "1" : "2");
-        }catch (Exception e){
+        } catch (Exception e) {
 //            e.printStackTrace();
             return null;
         }
@@ -634,6 +638,7 @@ public class UserController {
 
     /**
      * 邀请码激活
+     *
      * @param request
      * @return
      */
