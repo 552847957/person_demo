@@ -49,6 +49,7 @@ public class VerificationCallbackController {
         RegisterInfo info = userAccountService.fetchInfo(id);
 
         String pushId = id;
+        Boolean isChild = false;
 
         if (success) {
             if(from!=522)
@@ -58,6 +59,7 @@ public class VerificationCallbackController {
         if(from==522){//儿童实名认证
             AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(id,true);
             if(anonymousAccount!=null){
+                isChild = true;
                 pushId = anonymousAccount.getCreator();//监护人的Id
                 if(success)
                     healthRecordUpdateUtil.onVerificationSuccess(anonymousAccount.getIdcard(),anonymousAccount.getName());
@@ -67,7 +69,7 @@ public class VerificationCallbackController {
         AppMessage message = AppMessage.Builder.init().title("实名认证")
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(pushId, success))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success,isChild))
                 .persistence().build();
         pushClientWrapper.pushToAlias(message, pushId);
 
