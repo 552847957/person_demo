@@ -59,7 +59,8 @@ public class MeasureController {
 
         RegisterInfo info = userService.getOneNotNull(registerId);
         List histories = new ArrayList();
-        String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info));
+        String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
+                .concat("&personCard=").concat(getPersonCard(info));
         String url = String.format(requestDayHistoriesListPath, host, parameters);
         ResponseEntity<Map> response = template.getForEntity(url, Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -85,7 +86,8 @@ public class MeasureController {
     public JsonResponseEntity<?> nearestMeasure(@RequestParam String familyMateId) {
         try {
             RegisterInfo info = userService.getOneNotNull(familyMateId);
-            String parameters = "registerId=".concat(familyMateId).concat("&personCard=0").concat("&sex=").concat(getGender(info));
+            String parameters = "registerId=".concat(familyMateId).concat("&sex=").concat(getGender(info))
+                    .concat("&personCard=").concat(getPersonCard(info));
             String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -188,7 +190,8 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureHistory(@PathVariable int type, String registerId) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info)));
+            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
+                    .concat("&personCard=").concat(getPersonCard(info)));
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -214,7 +217,8 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureHistory(String registerId, String flag) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info));
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
+                    .concat("&personCard=").concat(getPersonCard(info));
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
             String url = String.format(requestDayHistoryPath, host, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
@@ -230,7 +234,7 @@ public class MeasureController {
     }
 
     /**
-     * 查询历史记录
+     * 查询历史记录 3.0
      * 根据天的维度展示
      *
      * @param registerId 注册认证码
@@ -249,7 +253,8 @@ public class MeasureController {
                 personCard = info.getPersoncard();
                 result.put("h5Url", h5Utils.generateLinks(personCard)) ;
             }
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info));
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
+                    .concat("&personCard=").concat(getPersonCard(info));
             String url = String.format(requestAbnormalHistories, host, param);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -267,7 +272,7 @@ public class MeasureController {
     }
 
     /**
-     * 查询历史记录
+     * 查询历史记录 3.0
      * 根据天的维度展示
      *
      * @param type       0－BMI 1－血氧 2－血压 3－血糖 4－记步 5－腰臀比
@@ -281,7 +286,8 @@ public class MeasureController {
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info));
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
+                    .concat("&personCard=").concat(getPersonCard(info));
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
             String url = String.format(recentMeasureHistory, host, type, params);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
@@ -298,5 +304,9 @@ public class MeasureController {
 
     public String getGender(RegisterInfo info){
         return StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender();
+    }
+    
+    public String getPersonCard(RegisterInfo info){
+        return StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard();
     }
 }
