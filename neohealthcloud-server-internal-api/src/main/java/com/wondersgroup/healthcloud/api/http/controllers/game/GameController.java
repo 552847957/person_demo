@@ -121,12 +121,12 @@ public class GameController {
     public JsonResponseEntity checkPhone(@RequestHeader(name="access-token",required = false) String token){
 
         if(StringUtils.isEmpty(token)){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
 
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
         RegisterInfo register = registerInfoRepo.findOne(session.getUserId());
         boolean flag = false;
@@ -140,7 +140,7 @@ public class GameController {
 
 
     /**
-     * 检测用户是否绑定了手机号
+     * 检测token是否有效
      * @param token
      * @return
      */
@@ -148,12 +148,12 @@ public class GameController {
     public JsonResponseEntity checkToken(@RequestHeader(name="access-token",required = false) String token){
 
         if(StringUtils.isEmpty(token)){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
 
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
         return new JsonResponseEntity();
     }
