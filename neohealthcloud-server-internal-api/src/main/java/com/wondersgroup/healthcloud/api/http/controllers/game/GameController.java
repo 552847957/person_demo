@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -73,7 +72,7 @@ public class GameController {
             return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
         Session session = sessionUtil.get(token);
-        if(null == session || StringUtils.isEmpty(session.getUserId())){
+        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
             return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
@@ -118,7 +117,7 @@ public class GameController {
         }
 
         Session session = sessionUtil.get(token);
-        if(null == session || StringUtils.isEmpty(session.getUserId())){
+        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
             return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
 
@@ -141,7 +140,7 @@ public class GameController {
         }
 
         Session session = sessionUtil.get(token);
-        if(null == session || StringUtils.isEmpty(session.getUserId())){
+        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
             return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
         RegisterInfo register = registerInfoRepo.findOne(session.getUserId());
@@ -168,7 +167,7 @@ public class GameController {
         }
 
         Session session = sessionUtil.get(token);
-        if(null == session || StringUtils.isEmpty(session.getUserId())){
+        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
             return new JsonResponseEntity(1001,"玩游戏，请先登录哟！");
         }
         return new JsonResponseEntity();
