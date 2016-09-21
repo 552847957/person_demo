@@ -21,4 +21,7 @@ public interface GameRepository extends JpaRepository<Game,Integer> {
     @Modifying
     @Query(nativeQuery = true,value = "update app_tb_game set weixin_click = IFNULL(weixin_click,0) +1")
     void updateWeixinClick();
+
+    @Query(nativeQuery = true,value = "select * from app_tb_game limit 1")
+    Game getTopGame();
 }
