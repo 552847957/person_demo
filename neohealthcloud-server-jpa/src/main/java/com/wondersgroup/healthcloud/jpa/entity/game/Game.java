@@ -29,6 +29,8 @@ public class Game {
     private Integer appShare;//app分享次数
     @Column(name="weixin_share")
     private Integer weixinShare;//微信分享次数
+    @Column(name="max_score")
+    private Integer maxScore;//微信分享次数
 
 
 }

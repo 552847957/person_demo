@@ -32,7 +32,7 @@ public class RSAEncryptUtils {
     /** 算法名称 */
     private static final String ALGORITHOM = "RSA";
     /** 密钥大小 */
-    private static final int KEY_SIZE = 1024;
+    private static final int KEY_SIZE = 512;
     /** 默认的安全服务提供者 */
     private static final Provider DEFAULT_PROVIDER = new BouncyCastleProvider();
 
@@ -59,6 +59,11 @@ public class RSAEncryptUtils {
             LOGGER.error(ex.getMessage());
         }
         return null;
+    }
+
+    public static void main(String[] args){
+        KeyPair keyPair = RSAEncryptUtils.generateKeyPair();
+        System.err.println(RSAEncryptUtils.getPublicKeyMap(keyPair));
     }
 
     /**
