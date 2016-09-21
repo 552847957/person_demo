@@ -1,6 +1,36 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.api.utils.JacksonHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -9,18 +39,6 @@ import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import com.wondersgroup.healthcloud.services.user.UserService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.*;
 
 /**
  * Created by Jeffrey on 16/8/19.
@@ -46,6 +64,9 @@ public class MeasureController {
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/dayHistory?%s";
     private RestTemplate template = new RestTemplate();
+    
+    @Autowired
+    private HttpServletRequest request;
 
     @Autowired
     private MeasureManagementService managementService;
@@ -62,7 +83,7 @@ public class MeasureController {
         String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
                 .concat("&personCard=").concat(getPersonCard(info));
         String url = String.format(requestDayHistoriesListPath, host, parameters);
-        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+        ResponseEntity<Map> response = buildGetEntity(url, Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             Map body = response.getBody();
             if (0 == (int) body.get("code")) {
@@ -89,7 +110,7 @@ public class MeasureController {
             String parameters = "registerId=".concat(familyMateId).concat("&sex=").concat(getGender(info))
                     .concat("&personCard=").concat(getPersonCard(info));
             String url = String.format(requestFamilyPath, host, parameters);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 Map<String, Object> responseBody = response.getBody();
                 if (0 == (int) responseBody.get("code"))
@@ -105,6 +126,14 @@ public class MeasureController {
     @PostMapping("upload/{type}")
     public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
         try {
+        	String registerId = (String) paras.get("registerId");
+        	RegisterInfo info = userService.getOneNotNull(registerId);
+        	
+        	String personCard = info.getPersoncard();
+        	if(personCard != null){
+        		paras.put("personCard", personCard);
+        	}
+        	
             String url = String.format(requestUploadPath, host, type);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
@@ -134,6 +163,14 @@ public class MeasureController {
     @PostMapping("modify/{type}")
     public JsonResponseEntity<?> updateMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
         try {
+        	String registerId = (String) paras.get("registerId");
+        	RegisterInfo info = userService.getOneNotNull(registerId);
+        	
+        	String personCard = info.getPersoncard();
+        	if(personCard != null){
+        		paras.put("personCard", personCard);
+        	}
+        	
             String url = String.format(requestModifyPath, host, type);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
@@ -161,10 +198,11 @@ public class MeasureController {
     @VersionRange
     @GetMapping("chart/{type}")
     public JsonResponseEntity queryMeasureChart(@PathVariable int type, String registerId, int flag) {
+    	 RegisterInfo info = userService.getOneNotNull(registerId);
         try {
-            String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag));
+            String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag)).concat("&personCard=").concat(getPersonCard(info));
             String url = String.format(requestChartPath, host, type, params);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
                     return new JsonResponseEntity<>(0, "数据查询成功", response.getBody().get("data"));
@@ -192,7 +230,7 @@ public class MeasureController {
             RegisterInfo info = userService.getOneNotNull(registerId);
             String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
                     .concat("&personCard=").concat(getPersonCard(info)));
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
                     return new JsonResponseEntity<>(0, "历史数据查询成功", response.getBody().get("data"));
@@ -221,7 +259,7 @@ public class MeasureController {
                     .concat("&personCard=").concat(getPersonCard(info));
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
             String url = String.format(requestDayHistoryPath, host, params);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
                     return new JsonResponseEntity<>(0, "近期数据查询成功", response.getBody().get("data"));
@@ -256,7 +294,7 @@ public class MeasureController {
             String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
                     .concat("&personCard=").concat(getPersonCard(info));
             String url = String.format(requestAbnormalHistories, host, param);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
                     Object content = response.getBody().get("data");
@@ -290,7 +328,7 @@ public class MeasureController {
                     .concat("&personCard=").concat(getPersonCard(info));
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
             String url = String.format(recentMeasureHistory, host, type, params);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
                     return new JsonResponseEntity<>(0, "近期数据查询成功", response.getBody().get("data"));
@@ -308,5 +346,17 @@ public class MeasureController {
     
     public String getPersonCard(RegisterInfo info){
         return StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard();
+    }
+    
+    private HttpHeaders buildHeader(){
+    	String version = request.getHeader("app-version");
+    	boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.add("isStandard", String.valueOf(isStandard));
+    	return headers;
+    }
+    
+    private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables){
+    	return template.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
     }
 }
