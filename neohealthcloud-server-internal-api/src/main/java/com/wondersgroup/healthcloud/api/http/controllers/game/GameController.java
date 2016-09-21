@@ -54,6 +54,7 @@ public class GameController {
         List<Map<String, Object>> resultMap = gameService.findAll(pager.getNumber()-1,pager.getSize());
         for(Map<String,Object> map : resultMap){
             map.put("nickname", null == map.get("registerid") ? "" : this.getNiceName(map.get("registerid").toString()));
+            map.remove("registerid");
         }
         pager.setData(resultMap);
         int totalCount = gameScoreRepo.getTotalCount();
