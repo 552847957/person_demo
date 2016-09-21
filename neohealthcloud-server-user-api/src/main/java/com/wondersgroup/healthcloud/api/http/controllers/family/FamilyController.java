@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.family;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -286,18 +288,22 @@ public class FamilyController {
                         familyMember.getMemberId(), false);
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
-                if (anonymousAccount.getIdcard() == null) {
-                    JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
-                    if(submitInfo != null){
-                        Integer status = submitInfo.get("status").asInt();
-                        entity.setRedirectFlag(status - 1);
-                    }else{
+                if(!anonymousAccount.getIsChild()){
+                    if (anonymousAccount.getIdcard() == null) {
+                        JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
+                        if(submitInfo != null){
+                            Integer status = submitInfo.get("status").asInt();
+                            entity.setRedirectFlag(status - 1);
+                        }else{
+                            entity.setRedirectFlag(0);
+                        }
+                        entity.setHealthWarning(false);
+                    } else {
                         entity.setRedirectFlag(0);
+                        entity.setHealthWarning(false);
                     }
-                    entity.setHealthWarning(false);
-                } else {
-                    entity.setRedirectFlag(0);
-                    entity.setHealthWarning(false);
+                }else{
+                    entity.setRedirectFlag(verficationStatus(uid));
                 }
             }
             entity.setLabelColor("#666666");
@@ -318,6 +324,15 @@ public class FamilyController {
                 break;
             case 1:
                 entity.setLabel("申请身份核实中");
+                break;
+            case 2:
+                entity.setLabel("实名制认证审核中");
+                break;
+            case 3:
+                entity.setLabel("已通过实名制认证");
+                break;
+            case 4:
+                entity.setLabel("实名制认证失败");
                 break;
             default:
                 entity.setLabel("身份核实失败");
@@ -489,5 +504,31 @@ public class FamilyController {
         body.setMsg("实名认证已提交，请耐心等待");
         return body;
     }
+    
+    /**
+     * 亲情账户儿童实名认证是否打开
+     * @return JsonResponseEntity<String>
+     */
+    @VersionRange
+    @GetMapping(path = "/isOpenVerification")
+    public JsonResponseEntity<Map<String, String>> openVerification(){
+        JsonResponseEntity<Map<String, String>> result = new JsonResponseEntity<Map<String, String>>();
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("isOpen", environment.getProperty("family_open_verification", "0"));
+        result.setData(map);
+        result.setMsg("查询成功");
+        return result;
+        
+    }
 
+    /**
+     * 市民云儿童认证状态
+     * @param uid
+     * @return int 2 成功 3审核中 4 失败
+     */
+    public int verficationStatus(String uid){
+        int status = accountService.verficationSubmitInfo(uid, true).get("status").asInt();
+        // status 1 成功 2 审核中 3 失败
+        return status + 1;
+    }
 }
