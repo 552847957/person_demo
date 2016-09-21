@@ -49,30 +49,42 @@ public class VerificationCallbackController {
         RegisterInfo info = userAccountService.fetchInfo(id);
 
         String pushId = id;
-        Boolean isChild = false;
+        Integer type= 1;
+        String idCard = "";
+        String name = "";
+        String title = "实名认证";
 
-        if (success) {
-            if(from!=522)
-                healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(),info.getName());
-        }
 
-        if(from==522){//儿童实名认证
+        if(info!=null){
+            idCard = info.getPersoncard();
+            name = info.getName();
+        }else{
             AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(id,true);
             if(anonymousAccount!=null){
-                isChild = true;
                 pushId = anonymousAccount.getCreator();//监护人的Id
-                if(success)
-                    healthRecordUpdateUtil.onVerificationSuccess(anonymousAccount.getIdcard(),anonymousAccount.getName());
+                idCard = anonymousAccount.getIdcard();
+                name = anonymousAccount.getName();
+                if(from==522 || anonymousAccount.getIsChild()){//儿童实名认证
+                    title = "儿童实名认证";
+                    type = 3;
+                }else{
+                    title = "亲情账户实名认证";
+                    type = 2;
+                }
             }
+
         }
 
-        AppMessage message = AppMessage.Builder.init().title("实名认证")
+        AppMessage message = AppMessage.Builder.init().title(title)
                 .content("您的实名认证已经有结果了, 请点击查看")
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success,isChild))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success,type))
                 .persistence().build();
         pushClientWrapper.pushToAlias(message, pushId);
 
+        if(success){
+            healthRecordUpdateUtil.onVerificationSuccess(idCard,name);
+        }
         return "{\"success\":" + success + "}";
     }
 }
