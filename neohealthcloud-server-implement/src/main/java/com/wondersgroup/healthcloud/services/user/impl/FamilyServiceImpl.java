@@ -29,6 +29,7 @@ import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
@@ -339,7 +340,10 @@ public class FamilyServiceImpl implements FamilyService {
         
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
-        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
+        if(StringUtils.isEmpty(register.getPersoncard()) || StringUtils.isEmpty(register.getRegmobilephone())){
+            throw new ErrorChildVerificationException("为实名认证的用户不能添加儿童实名认证");
+        }
+        AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
         createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
        return  accountService.childVerificationSubmit(userId, account.getId(), name, idCard, idCardFile, birthCertFile);
     }
