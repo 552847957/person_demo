@@ -70,11 +70,11 @@ public class GameController {
     @GetMapping(path = "/score/person")
     public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token",required = false) String token){
         if(StringUtils.isEmpty(token)){
-            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",null));
+            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
         Session session = sessionUtil.get(token);
         if(null == session || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",null));
+            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
         GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
         ImmutableBiMap map;
@@ -82,7 +82,7 @@ public class GameController {
             float rate = gameService.getScoreRank(session.getUserId(),gameScore.getScore());
             map = ImmutableBiMap.of("score",gameScore.getScore(),"rate",new DecimalFormat("#").format(rate*100)+"%");
         }else{
-            map = ImmutableBiMap.of("score",null);
+            map = ImmutableBiMap.of("score","");
         }
         return new JsonResponseEntity(0,null,map);
     }
