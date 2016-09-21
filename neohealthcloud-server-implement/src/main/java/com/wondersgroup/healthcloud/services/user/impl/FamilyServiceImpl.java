@@ -341,7 +341,7 @@ public class FamilyServiceImpl implements FamilyService {
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
         if(StringUtils.isEmpty(register.getPersoncard()) || StringUtils.isEmpty(register.getRegmobilephone())){
-            throw new ErrorChildVerificationException("为实名认证的用户不能添加儿童实名认证");
+            throw new ErrorChildVerificationException("非实名认证的用户不能添加儿童实名认证");
         }
         AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
         createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);

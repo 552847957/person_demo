@@ -303,7 +303,7 @@ public class FamilyController {
                         entity.setHealthWarning(false);
                     }
                 }else{
-                    entity.setRedirectFlag(verficationStatus(uid));
+                    entity.setRedirectFlag(verficationStatus(anonymousAccount.getId()));
                 }
             }
             entity.setLabelColor("#666666");
