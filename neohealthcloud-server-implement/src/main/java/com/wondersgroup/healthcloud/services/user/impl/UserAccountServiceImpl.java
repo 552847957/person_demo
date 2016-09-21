@@ -354,6 +354,12 @@ public class UserAccountServiceImpl implements UserAccountService{
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
+        if(!parentUser.verified()){
+            throw new ErrorChildVerificationException("您还未实名认证,请先去实名认证");
+        }
+        if(StringUtils.isBlank(parentUser.getRegmobilephone())){
+            throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
+        }
         byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
         byte[] birthCertFile = new ImageUtils().getImageFromURL(birthCertFileUrl);
         JsonNode result = httpWdUtils.verificationChildSubmit(childUserid, name, parentUser.getRegmobilephone(), idcard, parentUserid,

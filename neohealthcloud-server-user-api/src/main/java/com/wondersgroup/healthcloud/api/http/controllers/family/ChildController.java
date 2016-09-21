@@ -3,9 +3,12 @@ package com.wondersgroup.healthcloud.api.http.controllers.family;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
+import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +24,9 @@ public class ChildController {
 
     @Autowired
     private UserAccountService userAccountService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 提交实名认证信息
@@ -43,6 +49,13 @@ public class ChildController {
         int age = IdcardUtils.getAgeByIdCard(idCard);
         if(age>18){
             throw new ErrorChildVerificationException("年龄大于18岁的不能使用儿童实名认证");
+        }
+        RegisterInfo registerInfo = userService.getOneNotNull(id);
+        if(!registerInfo.verified()){
+            throw new ErrorChildVerificationException("您还未实名认证,请先去实名认证");
+        }
+        if(StringUtils.isBlank(registerInfo.getRegmobilephone())){
+            throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
         }
         userAccountService.childVerificationSubmit(id, childId,name, idCard, idCardFile, birthCertFile);
         body.setMsg("提交成功");
