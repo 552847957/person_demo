@@ -4,6 +4,8 @@ import com.wondersgroup.healthcloud.api.helper.UserHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.app.AppKeyConfigurationInfo;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
+import com.wondersgroup.healthcloud.services.permission.BasicInfoService;
+import com.wondersgroup.healthcloud.services.permission.dto.MenuDTO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
@@ -26,6 +28,9 @@ public class LoginController {
     @Autowired
     private UserHelper userHelper;
 
+    @Autowired
+    private BasicInfoService basicInfoService;
+
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
     @ResponseBody
     public JsonResponseEntity welcome() {
@@ -44,6 +49,11 @@ public class LoginController {
             if (appKCfg != null) {
                 map.put("areaName", appKCfg.getName());
             }
+            MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+            if (menu != null) {
+                map.put("menu", menu);
+            }
+
             result.setData(map);
         }
         return result;
