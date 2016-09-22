@@ -11,6 +11,7 @@ import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,8 @@ import java.util.Map;
 @RequestMapping(value = "/api")
 public class LoginController {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("exlog");
+
     @Autowired
     private UserHelper userHelper;
 
@@ -36,6 +39,7 @@ public class LoginController {
     public JsonResponseEntity welcome() {
         JsonResponseEntity result = new JsonResponseEntity();
         User user = userHelper.getCurrentUser();
+        logger.info("------------------------------------>" + user.getUserId() + " | " + user.getUsername());
         if (user != null) {
             Map<String, Object> map = new HashMap<>();
             map.put("mainArea", user.getMainArea());
