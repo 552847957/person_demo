@@ -52,7 +52,7 @@ public class FamilyMemberAPIEntity {
         this.mobile = register.getRegmobilephone();
         this.name = register.getNickname();
         this.memo = familyMember.getMemo();
-        this.verified = !"0".equals(register.getIdentifytype());
+        this.verified = "1".equals(register.getIdentifytype());
         this.relation = familyMember.getRelation();
         this.relationName = FamilyMemberRelation.getName(this.relation, familyMember.getMemo());
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
