@@ -154,7 +154,7 @@ public class GameController {
         }
 
         if(score > maxScore || score < 0 ){
-            return new JsonResponseEntity(1002,"成绩无效，请停止非法攻击!");
+            return new JsonResponseEntity(1002,"成绩无效，请再挑战一次!");
         }
 
         logger.info(" registerId: "+registerId +"   score: "+score);
