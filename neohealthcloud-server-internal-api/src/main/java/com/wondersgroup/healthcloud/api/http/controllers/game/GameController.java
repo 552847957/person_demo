@@ -76,12 +76,12 @@ public class GameController {
             @RequestHeader(name="access-token",required = false) String token,
             @RequestHeader(name = "openid",required = false) String openid){
 
-        if(StringUtils.isEmpty(token) && StringUtils.isEmpty(openid)){
+        if(StringUtils.isEmpty(token) && (StringUtils.isEmpty(openid) || StringUtils.equalsIgnoreCase(openid, "null"))){
             return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
 
         String registerId = null;
-        if(!StringUtils.isEmpty(openid)){//微信登录
+        if(!StringUtils.isEmpty(openid) && !StringUtils.equalsIgnoreCase(openid,"null")){//微信登录
             WechatRegister wechatRegister = wechatRegisterRepo.getByOpenId(openid);
             registerId = null == wechatRegister ? null : wechatRegister.getRegisterid();
         }else{//app登录
@@ -120,12 +120,12 @@ public class GameController {
 
         JsonKeyReader reader = new JsonKeyReader(request);
 
-        if(StringUtils.isEmpty(token) && StringUtils.isEmpty(openid)){
+        if(StringUtils.isEmpty(token) && (StringUtils.isEmpty(openid) || StringUtils.equalsIgnoreCase(openid, "null"))){
             return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
 
         String registerId = null;
-        if(!StringUtils.isEmpty(openid)){//微信登录
+        if(!StringUtils.isEmpty(openid) && !StringUtils.equalsIgnoreCase(openid,"null")){//微信登录
             WechatRegister wechatRegister = wechatRegisterRepo.getByOpenId(openid);
             registerId = null == wechatRegister ? null : wechatRegister.getRegisterid();
         }else{//app登录
