@@ -93,7 +93,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <warName>neohealthcloud-internal</warName>
+                    <warName>neohealthcloud-internal-3.1</warName>
                 </configuration>
             </plugin>
         </plugins>
