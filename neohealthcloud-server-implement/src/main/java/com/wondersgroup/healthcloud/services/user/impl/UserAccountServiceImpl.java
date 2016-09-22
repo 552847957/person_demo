@@ -355,7 +355,9 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorUserAccountException();
         }
         if(!parentUser.verified()){
-            throw new ErrorChildVerificationException("您还未实名认证,请先去实名认证");
+            throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
+        }else if(!"1".equals(parentUser.getIdentifytype())){
+            throw new ErrorChildVerificationException("您未通过市民云实名认证");
         }
         if(StringUtils.isBlank(parentUser.getRegmobilephone())){
             throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");

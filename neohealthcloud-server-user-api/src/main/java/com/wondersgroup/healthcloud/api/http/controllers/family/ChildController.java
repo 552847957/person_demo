@@ -52,7 +52,9 @@ public class ChildController {
         }
         RegisterInfo registerInfo = userService.getOneNotNull(id);
         if(!registerInfo.verified()){
-            throw new ErrorChildVerificationException("您还未实名认证,请先去实名认证");
+            throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
+        }else if(!"1".equals(registerInfo.getIdentifytype())){
+            throw new ErrorChildVerificationException("您未通过市民云实名认证");
         }
         if(StringUtils.isBlank(registerInfo.getRegmobilephone())){
             throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
