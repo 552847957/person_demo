@@ -511,14 +511,16 @@ public class FamilyController {
      */
     @VersionRange
     @GetMapping(path = "/isOpenVerification")
-    public JsonResponseEntity<Map<String, String>> openVerification(){
+    public JsonResponseEntity<Map<String, String>> openVerification(@RequestParam() String uid){
+        RegisterInfo register = userService.getOneNotNull(uid);
         JsonResponseEntity<Map<String, String>> result = new JsonResponseEntity<Map<String, String>>();
         Map<String, String> map = new HashMap<String, String>();
-        map.put("isOpen", environment.getProperty("family_open_verification", "0"));
+        String identifytype = register.getIdentifytype();
+        String isOpen = environment.getProperty("family_open_verification", "0");
+        map.put("isOpen", ("1".equals(identifytype) && "0".equals(isOpen)) ? "0" : "1");
         result.setData(map);
         result.setMsg("查询成功");
         return result;
-        
     }
 
     /**
