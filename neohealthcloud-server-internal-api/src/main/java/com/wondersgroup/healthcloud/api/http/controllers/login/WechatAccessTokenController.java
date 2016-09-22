@@ -3,9 +3,13 @@ package com.wondersgroup.healthcloud.api.http.controllers.login;
 import com.google.common.collect.ImmutableMap;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
+import com.wondersgroup.healthcloud.jpa.repository.game.WechatRegisterRepository;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +29,9 @@ public class WechatAccessTokenController {
     @Autowired
     private UserAccountService userAccountService;
 
+    @Autowired
+    private WechatRegisterRepository wechatRegisterRepo;
+
     /**
      * 微信登录
      * @param token
@@ -33,15 +40,23 @@ public class WechatAccessTokenController {
      */
     @RequestMapping(value = "/token/thirdparty/wechat", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<String> wechatLogin(
+    public JsonResponseEntity wechatLogin(
             @RequestParam String token,
             @RequestParam String openid) {
-        JsonResponseEntity body = new JsonResponseEntity<>();
-        AccessToken accessToken =  userAccountService.wechatLogin(token, openid);
-        body.setMsg("登录成功");
-        body.setData(ImmutableMap.of("token",accessToken.getToken()));
-        logger.info("GET url = api/token/thirdparty/wechat,assess_token="+accessToken.getToken()+
-                "&token="+token+"&openid="+openid);
-        return body;
+
+        logger.info("GET url = api/token/thirdparty/wechat: token="+token+"   openid="+openid);
+        if(null == wechatRegisterRepo.getByOpenId(openid)){//用户未创建，则创建用户
+            AccessToken accessToken =  userAccountService.wechatLogin(token, openid);
+            if(null == accessToken || StringUtils.isEmpty(accessToken.getUid())){
+                return new JsonResponseEntity(1001,"万达云登录失败");
+            }
+            WechatRegister wechat = new WechatRegister();
+            wechat.setOpenid(openid);
+            wechat.setRegisterid(accessToken.getUid());
+            wechat.setCreateDate(DateTime.now().toDate());
+            wechat.setDelFlag("0");
+            wechatRegisterRepo.save(wechat);
+        }
+        return new JsonResponseEntity(0,"万达云登录成功");
     }
 }

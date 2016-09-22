@@ -7,9 +7,11 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.game.Game;
 import com.wondersgroup.healthcloud.jpa.entity.game.GameScore;
+import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameScoreRepository;
+import com.wondersgroup.healthcloud.jpa.repository.game.WechatRegisterRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.game.GameService;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
@@ -43,6 +45,8 @@ public class GameController {
     private RegisterInfoRepository registerInfoRepo;
     @Autowired
     private SessionUtil sessionUtil;
+    @Autowired
+    private WechatRegisterRepository wechatRegisterRepo;
 
     private Logger logger = LoggerFactory.getLogger(GameController.class);
     /**
@@ -68,18 +72,34 @@ public class GameController {
      * @return
      */
     @GetMapping(path = "/score/person")
-    public JsonResponseEntity getPersonScore(@RequestHeader(name="access-token",required = false) String token){
-        if(StringUtils.isEmpty(token)){
+    public JsonResponseEntity getPersonScore(
+            @RequestHeader(name="access-token",required = false) String token,
+            @RequestHeader(name = "openid",required = false) String openid){
+
+        if(StringUtils.isEmpty(token) && StringUtils.isEmpty(openid)){
             return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
         }
-        Session session = sessionUtil.get(token);
-        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
+
+        String registerId = null;
+        if(!StringUtils.isEmpty(openid)){//微信登录
+            WechatRegister wechatRegister = wechatRegisterRepo.getByOpenId(openid);
+            registerId = null == wechatRegister ? null : wechatRegister.getRegisterid();
+        }else{//app登录
+            Session session = sessionUtil.get(token);
+            if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
+                return new JsonResponseEntity(0,"您已长时间未登录，请重新登录获取历史分数!",ImmutableBiMap.of("score",""));
+            }
+            registerId = session.getUserId();
         }
-        GameScore gameScore = gameScoreRepo.getByRegisterId(session.getUserId());
+
+        if(StringUtils.isEmpty(registerId)){
+            logger.info(" method : getPersonScore  获取不到用户信息 openId : "+openid+"  token : "+token);
+            return new JsonResponseEntity(0,"获取不到用户信息!",ImmutableBiMap.of("score",""));
+        }
+        GameScore gameScore = gameScoreRepo.getByRegisterId(registerId);
         ImmutableBiMap map;
         if(null != gameScore){
-            float rate = gameService.getScoreRank(session.getUserId(),gameScore.getScore());
+            float rate = gameService.getScoreRank(registerId,gameScore.getScore());
             map = ImmutableBiMap.of("score",gameScore.getScore(),"rate",new DecimalFormat("#").format(rate*100)+"%");
         }else{
             map = ImmutableBiMap.of("score","");
@@ -93,10 +113,34 @@ public class GameController {
      * @return
      */
     @PostMapping(path = "/score/person")
-    public JsonResponseEntity setPersonScore(@RequestHeader(name="access-token",required = false) String token,@RequestBody String request)
-    throws  Exception{
+    public JsonResponseEntity setPersonScore(
+            @RequestHeader(name="access-token",required = false) String token,
+            @RequestHeader(name="openid",required = false) String openid,
+            @RequestBody String request) throws  Exception{
 
         JsonKeyReader reader = new JsonKeyReader(request);
+
+        if(StringUtils.isEmpty(token) && StringUtils.isEmpty(openid)){
+            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+        }
+
+        String registerId = null;
+        if(!StringUtils.isEmpty(openid)){//微信登录
+            WechatRegister wechatRegister = wechatRegisterRepo.getByOpenId(openid);
+            registerId = null == wechatRegister ? null : wechatRegister.getRegisterid();
+        }else{//app登录
+            Session session = sessionUtil.get(token);
+            if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
+                return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            }
+            registerId = session.getUserId();
+        }
+
+        if(StringUtils.isEmpty(registerId)){
+            logger.info("method : setPersonScore  获取不到用户信息 openId : "+openid+"  token : "+token);
+            return new JsonResponseEntity(1001,"获取不到用户信息!",ImmutableBiMap.of("score",""));
+        }
+
         String score_encode = reader.readString("c2NvcmU=", false);
         int score =0;
         if(!StringUtils.isEmpty(score_encode) && score_encode.length() > 2){
@@ -117,14 +161,9 @@ public class GameController {
             return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
         }
 
-        Session session = sessionUtil.get(token);
-        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
-        }
-
-        logger.info(" registerId: "+session.getUserId() +"   score: "+score);
-        gameService.updatePersonScore(session.getUserId(),score);
-        Float rate = gameService.getScoreRank(session.getUserId(), score);
+        logger.info(" registerId: "+registerId +"   score: "+score);
+        gameService.updatePersonScore(registerId,score);
+        Float rate = gameService.getScoreRank(registerId, score);
         return new JsonResponseEntity(0,null,ImmutableBiMap.of("rate",new DecimalFormat("#").format(rate*100)+"%"));
     }
 
