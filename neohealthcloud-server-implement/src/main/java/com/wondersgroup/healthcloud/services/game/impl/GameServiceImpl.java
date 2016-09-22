@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
@@ -92,7 +93,9 @@ public class GameServiceImpl implements GameService{
         int totalCount = gameScoreRepo.getTotalCount();
 
         float rate = (float)underCount / (float)totalCount;
-        return Float.parseFloat(new DecimalFormat("#.##").format(rate).toString());
+        DecimalFormat format=new DecimalFormat(".00");
+        format.setRoundingMode(RoundingMode.FLOOR);
+        return Float.parseFloat(format.format(rate));
     }
 
 
