@@ -85,7 +85,7 @@
                     <server>tomcat-jenkins</server>
                     <username>jenkins</username>
                     <password>jenkins_password</password>
-                    <path>/neohealthcloud-internal</path>
+                    <path>/neohealthcloud-internal-3.1</path>
                 </configuration>
             </plugin>
             <plugin>
