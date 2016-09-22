@@ -340,7 +340,7 @@ public class FamilyServiceImpl implements FamilyService {
         
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
-        if(!register.verified() || StringUtils.isEmpty(register.getRegmobilephone())){
+        if(!"1".equals(register.getIdentifytype()) || StringUtils.isEmpty(register.getRegmobilephone())){
             throw new ErrorChildVerificationException("非实名认证和未绑定手机号的用户不能添加儿童实名认证");
         }
         AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
