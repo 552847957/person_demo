@@ -157,10 +157,6 @@ public class GameController {
             return new JsonResponseEntity(1002,"成绩无效，请停止非法攻击!");
         }
 
-        if(StringUtils.isEmpty(token)){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
-        }
-
         logger.info(" registerId: "+registerId +"   score: "+score);
         gameService.updatePersonScore(registerId,score);
         Float rate = gameService.getScoreRank(registerId, score);
