@@ -2,13 +2,13 @@ package com.wondersgroup.healthcloud.api.http.controllers.administer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 
 import com.wondersgroup.healthcloud.api.helper.PropertiesUtil;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.permission.Role;
+import com.wondersgroup.healthcloud.jpa.entity.permission.RoleEntity;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.permission.UserRole;
 import com.wondersgroup.healthcloud.services.permission.BasicInfoService;
@@ -17,16 +17,14 @@ import com.wondersgroup.healthcloud.jpa.repository.permission.RoleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRoleRepository;
 import com.wondersgroup.healthcloud.api.shiro.PasswordHelper;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.wondersgroup.healthcloud.services.permission.dto.MenuDTO;
+import com.wondersgroup.healthcloud.utils.MenuUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -58,31 +56,31 @@ public class BasicInfoController {
      * @param userId
      * @return
      */
-    @RequiresPermissions(value = {"user:add", "user:edit"}, logical = Logical.OR)
     @RequestMapping(value = "/userAdd", method = RequestMethod.GET)
     @ResponseBody
-    public ModelAndView userAdd(@RequestParam(value = "userId", required = false) String userId) {
-        Map<String, Object> map = Maps.newHashMap();
+    public JsonResponseEntity userAdd(@RequestParam(value = "userId", required = false) String userId) {
+        JsonResponseEntity result = new JsonResponseEntity();
         User user = new User();
         if (!StringUtils.isEmpty(userId)) {
             user = userRepo.findOne(userId);
         }
 //        设置角色选中状态
         List<Map<String, Object>> list = basicInfoService.findAllRole(userId);
-        List<User.Role> roleList = Lists.newArrayList();
-        for (Map<String, Object> role : list) {
-            User.Role child = new User().new Role();
-            child.setRoleId(role.get("role_id").toString());
-            child.setName(role.get("name").toString());
-            child.setChecked((null == role.get("check_role_id")) ? false : true);
-            roleList.add(child);
+        List<RoleEntity> roleList = Lists.newArrayList();
+        for (Map<String, Object> role : list) {// 仅查询用户拥有的角色
+            if ((null == role.get("check_role_id")) ? false : true) {
+                RoleEntity child = new RoleEntity();
+                child.setRoleId(role.get("role_id").toString());
+                child.setName(role.get("name").toString());
+                child.setChecked((null == role.get("check_role_id")) ? false : true);
+                roleList.add(child);
+            }
         }
 
         user.setRoleList(roleList);
 
-        map.put("info", user);
-        ModelAndView mav = new ModelAndView("authManager/userAdd", map);
-        return mav;
+        result.setData(user);
+        return result;
     }
 
     /**
@@ -91,33 +89,40 @@ public class BasicInfoController {
      * @param roleId 角色主键
      * @return
      */
-    @RequiresPermissions(value = {"role:add", "role:edit"}, logical = Logical.OR)
     @RequestMapping(value = "/roleAdd", method = RequestMethod.GET)
     @ResponseBody
-    public ModelAndView roleAdd(@RequestParam(value = "roleId", required = false) String roleId) {
+    public JsonResponseEntity roleAdd(@RequestParam(value = "roleId", required = false) String roleId,
+                                      @RequestParam(required = true) String rootMenuId) {
+        JsonResponseEntity result = new JsonResponseEntity();
         Map<String, Object> map = Maps.newHashMap();
         Role role = new Role();
         if (!StringUtils.isEmpty(roleId)) {
             role = roleRepo.findOne(roleId);
         }
         List<Map<String, Object>> list = menuService.getMenuByRole(roleId);//获取选中的菜单信息
-        List<Role.Menu> menuList = Lists.newArrayList();
+        List<MenuDTO> menuDTOList = Lists.newArrayList();
         for (Map<String, Object> child : list) {
-            Role.Menu menu = new Role().new Menu();
-            menu.setId(child.get("menu_id").toString());
-            menu.setName(StringUtils.isEmpty(child.get("name")) ? null : child.get("name").toString());
-            menu.setPId(StringUtils.isEmpty(child.get("parent_id")) ? null : child.get("parent_id").toString());
+            MenuDTO menuDTO = new MenuDTO();
+            menuDTO.setMenuId(child.get("menu_id").toString());
+            menuDTO.setMenuName(StringUtils.isEmpty(child.get("name")) ? null : child.get("name").toString());
+            menuDTO.setParentId(StringUtils.isEmpty(child.get("parent_id")) ? null : child.get("parent_id").toString());
             if (StringUtils.isEmpty(child.get("checked")) || child.get("checked").toString().equals("0")) {
-                menu.setChecked(false);
+                menuDTO.setChecked(false);
             } else {
-                menu.setChecked(true);
+                menuDTO.setChecked(true);
             }
-            menuList.add(menu);
+            menuDTOList.add(menuDTO);
         }
-        role.setMenuTree(new Gson().toJson(menuList));
-        map.put("info", role);
-        ModelAndView mav = new ModelAndView("authManager/roleAdd", map);
-        return mav;
+        MenuUtils.addMenuChildrenToParent(menuDTOList);
+        MenuDTO menuTree = null;
+        for (int i = 0; i < menuDTOList.size(); i++) {
+            if (menuDTOList.get(i) != null && rootMenuId.equals(menuDTOList.get(i).getMenuId())) {
+                menuTree = menuDTOList.get(i);
+                break;
+            }
+        }
+        result.setData(menuTree);
+        return result;
     }
 
 
@@ -127,20 +132,17 @@ public class BasicInfoController {
      *
      * @return
      */
-    @RequiresPermissions(value = {"user:view", "user:add", "user:edit", "user:delete"}, logical = Logical.OR)
     @PostMapping(value = "/user/list")
     @ResponseBody
     public JsonResponseEntity<Pager> getUserInfoList(@RequestBody Pager pager) {
 
         JsonResponseEntity<Pager> response = new JsonResponseEntity<Pager>();
         if (null != pager) {
-            List<Map<String, Object>> list = basicInfoService.findAllUser(pager.getParameter(),
-                    propertiesUtil.getAccount(), pager.getNumber(), pager.getSize());
-
+            List<User> list = basicInfoService.findAllUser(pager.getParameter(), propertiesUtil.getAccount(), pager.getNumber(), pager.getSize());
             int total = basicInfoService.findAllUserTotal(pager.getParameter(), propertiesUtil.getAccount());
-            pager.setTotalPages((total + pager.getSize() - 1) / pager.getSize());//页数
-            pager.setTotalElements(total);            //记录数
-            pager.setData(list);        //结果集
+            pager.setTotalPages((total + pager.getSize() - 1) / pager.getSize());// 页数
+            pager.setTotalElements(total);// 记录数
+            pager.setData(list);// 结果集
         }
         response.setData(pager);
         return response;
@@ -152,24 +154,23 @@ public class BasicInfoController {
      *
      * @return
      */
-    @RequiresPermissions(value = {"user:add", "user:edit"}, logical = Logical.OR)
     @RequestMapping(value = "/user/update", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity updateUser(User user, @RequestParam(value = "roleIds") String roleIds) {
         JsonResponseEntity response = new JsonResponseEntity();
         try {
-            User original = userRepo.findOne(user.getUserId());
             if (StringUtils.isEmpty(user.getUserId())) {
                 user.setUserId(IdGen.uuid());
                 user.setCreateDate(new Date());
                 user.setLocked("0");
-            }
-            if (!StringUtils.isEmpty(user.getPassword())) {
-                user.setPassword(PasswordHelper.encryptPassword(user.getPassword()));
+                if (!StringUtils.isEmpty(user.getPassword())) {
+                    user.setPassword(PasswordHelper.encryptPassword(user.getPassword()));
+                }
             } else {
+                User original = userRepo.findOne(user.getUserId());
                 user.setPassword(original.getPassword());
+                user.setLocked(null == original ? "0" : original.getLocked());
             }
-            user.setLocked(null == original ? "0" : original.getLocked());
             basicInfoService.updateUserInfo(user, roleIds);
             response.setMsg("保存成功");
 
@@ -197,7 +198,6 @@ public class BasicInfoController {
             user.setUsername(username);
             userRepo.save(user);
             response.setMsg("保存成功");
-
         } catch (Exception e) {
             e.printStackTrace();
             response.setMsg("保存失败");
@@ -235,13 +235,27 @@ public class BasicInfoController {
         return response;
     }
 
+    @RequestMapping(value = "/user/resetPassword", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonResponseEntity resetPassword(@RequestParam(value = "userId", required = true) String userId) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        try {
+            User user = userRepo.findOne(userId);
+            user.setPassword(PasswordHelper.encryptPassword("123456"));
+            userRepo.save(user);
+            result.setMsg("密码已重置为:123456");
+        } catch (Exception ex) {
+            result.setMsg("保存失败");
+        }
+        return result;
+    }
+
     /**
      * 锁定用户信息
      * Updated upstream
      *
      * @return
      */
-    @RequiresPermissions("user:edit")
     @RequestMapping(value = "/user/locked", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity lockedUser(
@@ -267,7 +281,6 @@ public class BasicInfoController {
      * @param userIds 用户主键集合，多个用户id，用,间隔
      * @return
      */
-    @RequiresPermissions("user:delete")
     @RequestMapping(value = "/user/delete", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity deleteUerInfo(@RequestParam(value = "userIds", required = true) String userIds) {
@@ -299,6 +312,7 @@ public class BasicInfoController {
             response.setCode(0);
         } else {
             response.setCode(1000);
+            response.setMsg("该登录名已存在");
         }
         return response;
     }
@@ -309,21 +323,22 @@ public class BasicInfoController {
      *
      * @return
      */
-    @RequiresPermissions(value = {"role:view", "role:add", "role:edit", "role:delete"}, logical = Logical.OR)
     @RequestMapping(value = "/role/list", method = RequestMethod.POST)
     @ResponseBody
-    public JsonResponseEntity<Pager> getRoleInfoList(@RequestParam(required = false) String dtGridPager) {
+    public JsonResponseEntity<List<Role>> getRoleInfoList(@RequestBody(required = false) Role role) {
 
-        JsonResponseEntity<Pager> response = new JsonResponseEntity<Pager>();
-        Pager pager = new Gson().fromJson(dtGridPager, Pager.class);
-        String name = null == pager.getParameter().get("name") ? "" : pager.getParameter().get("name").toString().trim();
-        List<Role> list = roleRepo.findAllRole(name, new PageRequest(pager.getNumber() - 1, pager.getSize()));
-        int total = roleRepo.findAllRoleTotal(name);
-
-        pager.setData(list);        //结果集
-        pager.setTotalPages((total + pager.getSize() - 1) / pager.getSize());//页数
-        pager.setTotalElements(total);
-        response.setData(pager);
+        JsonResponseEntity<List<Role>> response = new JsonResponseEntity<>();
+        String name = "";
+        if (role != null) {
+            name = null == role.getName() ? "" : role.getName().toString().trim();
+        }
+        List<Role> list = roleRepo.findAllRole(name, new PageRequest(0, 9999));
+        if (list != null && list.size() > 0) {
+            response.setData(list);
+        } else {
+            response.setCode(1000);
+            response.setMsg("查询无角色信息");
+        }
         return response;
     }
 
@@ -334,7 +349,6 @@ public class BasicInfoController {
      * @param menuIds 选中的菜单信息
      * @return
      */
-    @RequiresPermissions(value = {"role:add", "role:edit"}, logical = Logical.OR)
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity updateRoleInfo(Role role, @RequestParam(value = "menuIds") String menuIds) {
@@ -351,17 +365,24 @@ public class BasicInfoController {
 
     /**
      * 删除角色信息
-     *
-     * @param roleIds 用户主键集合，多个用户id，用,间隔
-     * @return
      */
-    @RequiresPermissions("role:delete")
-    @RequestMapping(value = "/role/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/role/enOrDisable", method = RequestMethod.POST)
     @ResponseBody
-    public JsonResponseEntity deleteRoleInfo(@RequestParam(value = "roleIds", required = true) String roleIds) {
-        roleRepo.deteleRoleInfo(roleIds.split(","));
-        userRoleRepo.deteleUserRoleInfo(roleIds.split(","));
+    public JsonResponseEntity deleteRoleInfo(@RequestParam(value = "roleIds", required = true) String roleIds,
+                                             @RequestParam(value = "delFlag", required = true) String delFlag) {
         JsonResponseEntity response = new JsonResponseEntity();
+        try {
+            if ("0".equals(delFlag)) {// 启用角色
+                roleRepo.enableRoleInfo(roleIds.split(","));
+            } else {// 禁用角色
+                roleRepo.deteleRoleInfo(roleIds.split(","));
+                userRoleRepo.deteleUserRoleInfo(roleIds.split(","));
+            }
+            response.setMsg("操作成功！");
+        } catch (Exception ex) {
+            response.setCode(1000);
+            response.setMsg("操作失败！");
+        }
         return response;
     }
 
@@ -372,9 +393,9 @@ public class BasicInfoController {
      */
     @RequestMapping(value = "/role/user/list", method = RequestMethod.GET)
     @ResponseBody
-    public JsonResponseEntity<List<Map<String, Object>>> getRoleUserInfoList(@RequestParam(value = "roleId", required = true) String roleId) {
-        JsonResponseEntity<List<Map<String, Object>>> response = new JsonResponseEntity<List<Map<String, Object>>>();
-        List<Map<String, Object>> list = basicInfoService.getRoleUserInfo(roleId);
+    public JsonResponseEntity<List<User>> getRoleUserInfoList(@RequestParam(value = "roleId", required = true) String roleId) {
+        JsonResponseEntity<List<User>> response = new JsonResponseEntity<>();
+        List<User> list = basicInfoService.getRoleUserInfo(roleId);
         response.setData(list);
         return response;
     }
@@ -384,7 +405,6 @@ public class BasicInfoController {
      *
      * @return
      */
-    @RequiresPermissions(value = {"role:add", "role:edit"}, logical = Logical.OR)
     @RequestMapping(value = "/role/user/update", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity<List<Map<String, Object>>> updateRoleUserInfo(UserRole userRole) {
@@ -411,7 +431,6 @@ public class BasicInfoController {
      * @param userId
      * @return
      */
-    @RequiresPermissions("role:delete")
     @RequestMapping(value = "/role/user/delete", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponseEntity<List<Map<String, Object>>> deleteRoleUserInfo(
@@ -422,5 +441,4 @@ public class BasicInfoController {
         JsonResponseEntity response = new JsonResponseEntity();
         return response;
     }
-
 }

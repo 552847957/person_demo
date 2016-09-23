@@ -25,6 +25,9 @@ public class HealthActivityInfo {
     private String            title;                                   // '标题',
     private Date              releasetime;                             // '发布时间',
     private String            summary;                                 // '活动概述',
+    @Column(name = "summary_html")
+    @SerializedName("summary_html")
+    private String            summaryHtml;                            // '有html标签的活动概述',
     private Date              starttime;                               // '开始时间',
     private Date              endtime;                                 // '结束时间',
     private String            province;                                // '地址 省 area字典表代码',

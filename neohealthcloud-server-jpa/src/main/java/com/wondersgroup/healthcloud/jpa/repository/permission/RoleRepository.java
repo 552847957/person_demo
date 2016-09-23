@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface RoleRepository extends JpaRepository<Role, String>, JpaSpecificationExecutor {
 
-    @Query("select r from Role r where r.name like %?1% and r.delFlag = '0' order by r.name asc")
+    @Query("select r from Role r where r.name like %?1% order by r.name asc")
     List<Role> findAllRole(String name, Pageable pageable);
 
     @Query("select count(r) from Role r where r.name like %?1% and r.delFlag = '0'")
@@ -24,6 +24,11 @@ public interface RoleRepository extends JpaRepository<Role, String>, JpaSpecific
 
     @Transactional
     @Modifying
-    @Query("delete from Role  where roleId in (?1)")
+    @Query("update Role set delFlag = '1' where roleId in (?1)")
     void deteleRoleInfo(String[] roleIds);
+
+    @Transactional
+    @Modifying
+    @Query("update Role set delFlag = '0' where roleId in (?1)")
+    void enableRoleInfo(String[] roleIds);
 }

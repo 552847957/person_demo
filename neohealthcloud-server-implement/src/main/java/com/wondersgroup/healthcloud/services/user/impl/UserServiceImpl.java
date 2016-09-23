@@ -101,6 +101,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public RegisterInfo findOne(String id) {
+        return registerInfoRepository.findOne(id);
+    }
+
+    @Override
     public List<RegisterInfo> findRegisterInfoByIdcard(String idcard) {
         return registerInfoRepository.findByPersoncard(idcard);
     }
@@ -384,6 +389,7 @@ public class UserServiceImpl implements UserService {
         }
         return tagname;
     }
+
 
 
 

@@ -1,6 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.permission;
 
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,45 +23,21 @@ public class User {
     @Column(name = "create_by")
     private String createBy;
     @Column(name = "create_date")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone="GMT+8")
     private Date createDate;
     @Column(name = "update_by")
     private String updateBy;
     @Column(name = "update_date")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone="GMT+8")
     private Date updateDate;
     @Column(name = "main_area")
     private String mainArea;
+    @Transient
+    private String mainAreaName;
+    @Transient
+    private String specAreaName;
     @Column(name = "spec_area")
     private String specArea;
     @Transient
-    private List<Role> roleList;
-
-    public class Role{
-        String roleId;
-        String name;
-        Boolean checked;
-
-        public String getRoleId() {
-            return roleId;
-        }
-
-        public void setRoleId(String roleId) {
-            this.roleId = roleId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Boolean getChecked() {
-            return checked;
-        }
-
-        public void setChecked(Boolean checked) {
-            this.checked = checked;
-        }
-    }
+    private List<RoleEntity> roleList;
 }

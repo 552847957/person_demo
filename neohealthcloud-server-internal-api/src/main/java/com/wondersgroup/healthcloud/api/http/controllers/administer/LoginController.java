@@ -4,11 +4,14 @@ import com.wondersgroup.healthcloud.api.helper.UserHelper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.app.AppKeyConfigurationInfo;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
+import com.wondersgroup.healthcloud.services.permission.BasicInfoService;
+import com.wondersgroup.healthcloud.services.permission.dto.MenuDTO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +26,20 @@ import java.util.Map;
 @RequestMapping(value = "/api")
 public class LoginController {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("exlog");
+
     @Autowired
     private UserHelper userHelper;
+
+    @Autowired
+    private BasicInfoService basicInfoService;
 
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
     @ResponseBody
     public JsonResponseEntity welcome() {
         JsonResponseEntity result = new JsonResponseEntity();
         User user = userHelper.getCurrentUser();
+        logger.info("------------------------------------>" + user.getUserId() + " | " + user.getUsername());
         if (user != null) {
             Map<String, Object> map = new HashMap<>();
             map.put("mainArea", user.getMainArea());
@@ -44,6 +53,11 @@ public class LoginController {
             if (appKCfg != null) {
                 map.put("areaName", appKCfg.getName());
             }
+            MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+            if (menu != null) {
+                map.put("menu", menu);
+            }
+
             result.setData(map);
         }
         return result;

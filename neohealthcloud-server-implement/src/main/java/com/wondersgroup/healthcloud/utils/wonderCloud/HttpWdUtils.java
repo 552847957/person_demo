@@ -266,7 +266,7 @@ public class HttpWdUtils {
     }
 
     /**
-     * 1.17 三方微信绑定接口（未测试）
+     * 1.17 三方微信绑定接口
      * @param wechatToken
      * @param openId
      * @return
@@ -502,7 +502,7 @@ public class HttpWdUtils {
         MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
 
 
-        String[] form = new String[]{"name",name,"mobile",mobile,"idcard",idcard,"childUserid",childUserid,
+        String[] form = new String[]{"name",name,"mobile",mobile,"idCardNum",idcard,"childUserid",childUserid,
                 "parentUserid",parentUserid,"token",appToken};
 
         for (int i = 0; i < form.length; i += 2) {
@@ -559,7 +559,7 @@ public class HttpWdUtils {
         idMap.put("sessionExtraApiId", "e3b91188-1212-43bc-8e3b-da605aa3a957");//扩展session自定义字段
 
         idMap.put("smyLoginApiId", "44304602-abf1-44b7-8a46-4fc9cee814e1");//三方市民云绑定接口
-        idMap.put("verificationChildSubmitApiId", "ba85dfe1-94c4-432e-a3d7-b66c32aaeb36");//儿童实名信息提交
+        idMap.put("verificationChildSubmitApiId", "4c118096-b3ed-4b06-bb4e-18b3547a8974");//儿童实名信息提交
 
         HttpWdUtils httpWdUtils = new HttpWdUtils();
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
@@ -569,7 +569,7 @@ public class HttpWdUtils {
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-//        httpWdUtils.basicInfo("8a81c01a4f167bf3014f24af540f006b");
+//        httpWdUtils.basicInfo("8a81c1fb572797db01573c37b4080060");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -598,7 +598,7 @@ public class HttpWdUtils {
 
 //        httpWdUtils.verifyCode("15639763552","354735",false);
 
-//        httpWdUtils.thirdPartyBinding("ff808081546052c1015499d295660017");
+//        httpWdUtils.thirdPartyBinding("8a81c1fb572797db01573c37b4080060");
 //        httpWdUtils.updateMobile("8a81c1fb555cab53015723f43f6703f5","13900800809");
 //        httpWdUtils.updateUserName("ff808081546052c1015499d295660017","longss509");
 

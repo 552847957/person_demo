@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.permission;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,10 +26,12 @@ public class Role {
     @Column(name = "create_by")
     private String createBy;
     @Column(name = "create_date")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone="GMT+8")
     private Date createDate;
     @Column(name = "update_by")
     private String updateBy;
     @Column(name = "update_date")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone="GMT+8")
     private Date updateDate;
     @Transient
     private List<Menu> menuList ;

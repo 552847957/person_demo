@@ -139,6 +139,11 @@ public interface FamilyService {
      * @return
      */
     Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile);
+    
+    /**
+     * @param area 根据区域id 发送短信内容和APP下载链接
+     */
+    Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile, String area);
 
     /**
      * 匿名注册
@@ -151,4 +156,9 @@ public interface FamilyService {
      * @param photo
      */
     void anonymousRegistration(String userId, String relation, String relationName, String name, String idcard, String photo);
+   
+    /**
+     * 儿童实名认证
+     */
+    Boolean childVerificationRegistration(String uid, String name, String idCard, String idCardFile, String birthCertFile);
 }

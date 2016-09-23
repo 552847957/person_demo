@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.family;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,7 +47,9 @@ import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEntity;
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 /**
  * 孫海迪
@@ -53,7 +59,6 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 @RestController
 @RequestMapping("/api/family")
 public class FamilyController {
-
     @Autowired
     private UserAccountService      accountService;
 
@@ -183,9 +188,13 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/registration/code", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<String> registrationCode(@RequestParam String uid, @RequestParam String mobile,
-            @RequestParam String relation, @RequestParam("relation_name") String relationName) {
-        familyService.sendRegistrationCode(uid, relation, relationName, mobile);
+    public JsonResponseEntity<String> registrationCode(
+            @Header(name = "spec-area",defaultValue = "") String area, 
+            @RequestParam String uid, 
+            @RequestParam String mobile,
+            @RequestParam String relation, 
+            @RequestParam("relation_name") String relationName) {
+        familyService.sendRegistrationCode(uid, relation, relationName, mobile,area);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("发送成功");
         return body;
@@ -279,21 +288,24 @@ public class FamilyController {
                         familyMember.getMemberId(), false);
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
-                if (anonymousAccount.getIdcard() == null) {
-                    JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
-                    if(submitInfo != null){
-                        Integer status = submitInfo.get("status").asInt();
-                        entity.setRedirectFlag(status - 1);
-                    }else{
+                if(!anonymousAccount.getIsChild()){
+                    if (anonymousAccount.getIdcard() == null) {
+                        JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
+                        if(submitInfo != null){
+                            Integer status = submitInfo.get("status").asInt();
+                            entity.setRedirectFlag(status - 1);
+                        }else{
+                            entity.setRedirectFlag(0);
+                        }
+                    } else {
                         entity.setRedirectFlag(0);
                     }
-                    entity.setHealthWarning(false);
-                } else {
-                    entity.setRedirectFlag(0);
-                    entity.setHealthWarning(false);
+                }else{
+                    entity.setRedirectFlag(verficationStatus(anonymousAccount.getId()));
                 }
             }
             entity.setLabelColor("#666666");
+            entity.setHealthWarning(false);
             switch (entity.getRedirectFlag()) {
             case 0:
                 if (haveMeasureException(entity.getUid(), DateFormatter.dateFormat(new Date()), 2)) {
@@ -306,11 +318,19 @@ public class FamilyController {
                     entity.setLabelColor("#CC0000");
                 } else {
                     entity.setLabel("最近无异常指标");
-                    entity.setHealthWarning(false);
                 }
                 break;
             case 1:
                 entity.setLabel("申请身份核实中");
+                break;
+            case 2:
+                entity.setLabel("实名制认证审核中");
+                break;
+            case 3:
+                entity.setLabel("已通过实名制认证");
+                break;
+            case 4:
+                entity.setLabel("实名制认证失败");
                 break;
             default:
                 entity.setLabel("身份核实失败");
@@ -451,5 +471,63 @@ public class FamilyController {
         
         return res;
     }
+    
+    /**
+     * 提交儿童实名认证信息
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/childVerification/submit")
+    public JsonResponseEntity<String> verificationSubmit(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);//监护人Id
+        String name = reader.readString("name", false);//儿童的真实姓名
+        String idCard = reader.readString("idcard", false);//儿童的身份证号
+        String idCardFile = reader.readString("idCardFile", false);//户口本(儿童身份信息页照片)
+        String birthCertFile = reader.readString("birthCertFile", false);//出生证明(照片)
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        name = name.trim();
+        idCard = idCard.trim();
+        int age = IdcardUtils.getAgeByIdCard(idCard);
+        if(age >= 18){
+            throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
+        }
+        
+        Boolean result = familyService.childVerificationRegistration(id, name, idCard, idCardFile, birthCertFile);
+        if(!result){
+            body.setCode(1001);
+            body.setMsg("提交失败");
+            return body;
+        }
+        body.setMsg("实名认证已提交，请耐心等待");
+        return body;
+    }
+    
+    /**
+     * 亲情账户儿童实名认证是否打开
+     * @return JsonResponseEntity<String>
+     */
+    @VersionRange
+    @GetMapping(path = "/isOpenVerification")
+    public JsonResponseEntity<Map<String, String>> openVerification(@RequestParam() String uid){
+        RegisterInfo register = userService.getOneNotNull(uid);
+        JsonResponseEntity<Map<String, String>> result = new JsonResponseEntity<Map<String, String>>();
+        Map<String, String> map = new HashMap<String, String>();
+        String identifytype = register.getIdentifytype();
+        map.put("identifyType", identifytype);
+        result.setData(map);
+        result.setMsg("查询成功");
+        return result;
+    }
 
+    /**
+     * 市民云儿童认证状态
+     * @param uid
+     * @return int 2 成功 3审核中 4 失败
+     */
+    public int verficationStatus(String uid){
+        int status = accountService.verficationSubmitInfo(uid, true).get("status").asInt();
+        // status 1 成功 2 审核中 3 失败
+        return status + 1;
+    }
 }
