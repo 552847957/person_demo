@@ -515,7 +515,6 @@ public class FamilyController {
         Map<String, String> map = new HashMap<String, String>();
         String identifytype = register.getIdentifytype();
         map.put("identifyType", identifytype);
-        map.put("isOpen", environment.getProperty("family_open_verification", "0"));
         result.setData(map);
         result.setMsg("查询成功");
         return result;
