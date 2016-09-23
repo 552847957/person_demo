@@ -42,7 +42,7 @@ public interface UserAccountService {
 
     AnonymousAccount anonymousRegistration(String creator, String username, String password);
 
-    AnonymousAccount childVerificationRegistration(String creator, String username, String password);
+    AnonymousAccount childVerificationRegistration(String creator, String username, String password, String name, String idcard);
 
     Boolean checkAccount(String mobile);
 

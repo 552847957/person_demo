@@ -297,16 +297,15 @@ public class FamilyController {
                         }else{
                             entity.setRedirectFlag(0);
                         }
-                        entity.setHealthWarning(false);
                     } else {
                         entity.setRedirectFlag(0);
-                        entity.setHealthWarning(false);
                     }
                 }else{
                     entity.setRedirectFlag(verficationStatus(anonymousAccount.getId()));
                 }
             }
             entity.setLabelColor("#666666");
+            entity.setHealthWarning(false);
             switch (entity.getRedirectFlag()) {
             case 0:
                 if (haveMeasureException(entity.getUid(), DateFormatter.dateFormat(new Date()), 2)) {
@@ -319,7 +318,6 @@ public class FamilyController {
                     entity.setLabelColor("#CC0000");
                 } else {
                     entity.setLabel("最近无异常指标");
-                    entity.setHealthWarning(false);
                 }
                 break;
             case 1:
@@ -516,8 +514,8 @@ public class FamilyController {
         JsonResponseEntity<Map<String, String>> result = new JsonResponseEntity<Map<String, String>>();
         Map<String, String> map = new HashMap<String, String>();
         String identifytype = register.getIdentifytype();
-        String isOpen = environment.getProperty("family_open_verification", "0");
-        map.put("isOpen", ("1".equals(identifytype) && "0".equals(isOpen)) ? "0" : "1");
+        map.put("identifyType", identifytype);
+        map.put("isOpen", environment.getProperty("family_open_verification", "0"));
         result.setData(map);
         result.setMsg("查询成功");
         return result;
