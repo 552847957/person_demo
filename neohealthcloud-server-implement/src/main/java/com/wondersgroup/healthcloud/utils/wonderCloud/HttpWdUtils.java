@@ -565,15 +565,22 @@ public class HttpWdUtils {
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
 
+        //正式
+//        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
+//        httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
+//        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
+//        idMap.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
+
+
         httpWdUtils.setIdMap(idMap);
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-//        httpWdUtils.basicInfo("8a81c1fb572797db01573c37b4080060");
+//        httpWdUtils.basicInfo("297ed4e257455c660157455cb76d0000");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
-//            httpWdUtils.registe("15639763552",password);
+//            httpWdUtils.registe("15639763508",password);
 //        }catch (Exception e){
 //            e.printStackTrace();
 //        }
@@ -600,21 +607,27 @@ public class HttpWdUtils {
 
 //        httpWdUtils.thirdPartyBinding("8a81c1fb572797db01573c37b4080060");
 //        httpWdUtils.updateMobile("8a81c1fb555cab53015723f43f6703f5","13900800809");
-//        httpWdUtils.updateUserName("ff808081546052c1015499d295660017","longss509");
+//        httpWdUtils.updateUserName("8a81c1fb5755c5c1015755cc81cb0002","longshaertongceshi");
 
 //        httpWdUtils.guestLogin();
-//        httpWdUtils.fastLogin("15639763552","892548",false);
+//        httpWdUtils.fastLogin("15639763552","189178",false);
 //        {"tagid":"0051000012","userid":"3a24cb5b173e4d6597f62a95d04e3340","code":202,"msg":"登录成功","success":true,"session_token":"f5a280c7315f480c94da78069530b9e3"}
 
-//        httpWdUtils.getSession("034386ef208f4704897fd31b41c82dcf");
+//        httpWdUtils.getSession("2be1e435ce2043728b51f89a1bc8acca");
 //        httpWdUtils.logout("15639763552");
-//        httpWdUtils.verficationSubmitInfo("8a81c1fb555cab530156cfc6baf301db");
+
+//        httpWdUtils.verficationSubmitInfo("8a81c01a4ed91559014eda29f2e90004");
+        httpWdUtils.verficationSubmitInfo("ff80808154177829015417bbe1970020");
+
+        //匿名
+//        httpWdUtils.verficationSubmitInfo("8a81c1fb57511a840157512c15d1000b");
+
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);
 //        {"code":220,"msg":"session自定义数据添加成功","success":true}
 
-//        httpWdUtils.smyLogin("3f5bebf7-17ca-4d6d-a0cc-0ca7e75dc46e","eshimin73762403");
+//        httpWdUtils.smyLogin("57d71f1f-692d-44c0-842c-a8622388fa63","eshimin73762403");
     }
 
 
