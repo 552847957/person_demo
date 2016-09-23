@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,9 @@ public class HealthActivityController {
 
 	@Autowired
 	private HealthActivityDetailRepository healthActivityDetailRepository;
+	
+	@Autowired
+    private Environment environment;
 	
 	/**
 	 * 根据类型和区域查询健康活动
@@ -173,8 +177,8 @@ public class HealthActivityController {
 				    entity.setPartakeActivityDesc("您关注的活动" + in.getTitle() + "将于" + new SimpleDateFormat("MM月dd号").format(in.getStarttime()) + "开始，点击查看活动详情");
 				    entity.setPartakeActivityId(de.getActivityid());
 				}
+				entity.getActivityShare().setUrl(environment.getProperty("h5-web.connection.url") + "/activity/detail?acitivityId=" + entity.getId());
 				this.setDetailInfo(entity,info,registerId);
-
 				response.setData(entity);
 			}
 			return response;

@@ -53,6 +53,8 @@ public class HealthActivityAPIEntity {
     private String  partakeActivityId;  //离参与活动时间最近的一条id
     private String  descriptionHtml;    //有html标签的活动概述
 
+    private ActivityShare activityShare;
+    
     public HealthActivityAPIEntity(HealthActivityInfo info, String width, String height) {
         init(info, "activityList", width, height);
     }
@@ -122,7 +124,9 @@ public class HealthActivityAPIEntity {
             this.enrollCountdown = getDateTimeStr(info);
         }
         this.enrollColor = ltDay ? "#CC0000" : "#666666";
-        this.descriptionHtml = info.getSummaryHtml();
+        this.descriptionHtml = info.getSummaryHtml() == null ? info.getSummary() : info.getSummaryHtml();
+        
+        this.activityShare = new ActivityShare(id, name, descriptionHtml, thumbnail, null);
     }
 
     public String getId() {
@@ -389,6 +393,14 @@ public class HealthActivityAPIEntity {
         this.partakeActivityId = partakeActivityId;
     }
 
+    public ActivityShare getActivityShare() {
+        return activityShare;
+    }
+
+    public void setActivityShare(ActivityShare activityShare) {
+        this.activityShare = activityShare;
+    }
+
     public String getDateTimeStr(HealthActivityInfo info) {
         long quot = 0;
         quot = info.getEnrollEndTime().getTime() - new Date().getTime();
@@ -429,5 +441,55 @@ public class HealthActivityAPIEntity {
     public void setDescriptionHtml(String descriptionHtml) {
         this.descriptionHtml = descriptionHtml;
     }
-
+    
+    //活动分享信息
+    public class ActivityShare{
+        public String id;
+        public String title;
+        public String desc;
+        public String thumb;
+        public String url;
+        
+        public ActivityShare() {
+            
+        }
+        
+        public ActivityShare(String id, String title, String desc, String thumb, String url) {
+            this.id = id;
+            this.title = title;
+            this.desc = desc;
+            this.thumb = thumb;
+            this.url = url;
+        }
+        public String getId() {
+            return id;
+        }
+        public void setId(String id) {
+            this.id = id;
+        }
+        public String getTitle() {
+            return title;
+        }
+        public void setTitle(String title) {
+            this.title = title;
+        }
+        public String getDesc() {
+            return desc;
+        }
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+        public String getThumb() {
+            return thumb;
+        }
+        public void setThumb(String thumb) {
+            this.thumb = thumb;
+        }
+        public String getUrl() {
+            return url;
+        }
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
 }

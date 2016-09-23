@@ -421,7 +421,7 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
-        return anonymousRegistration(creator, username, password, null, null, false);
+        return anonymousRegistration(creator, username, password, false);
     }
     
     /**
@@ -432,11 +432,11 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @return
      */
     @Override
-    public AnonymousAccount childVerificationRegistration(String creator, String username, String password, String name, String idcard) {
-        return anonymousRegistration(creator, username, password, name, idcard, true);
+    public AnonymousAccount childVerificationRegistration(String creator, String username, String password) {
+        return anonymousRegistration(creator, username, password, true);
     }
     
-    public AnonymousAccount anonymousRegistration(String creator, String username, String password, String name, String idcard, Boolean isChild) {
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild) {
         String encodedPassword;
         try {
             encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());
@@ -456,10 +456,6 @@ public class UserAccountServiceImpl implements UserAccountService{
             anonymousAccount.setUpdateDate(time);
             anonymousAccount.setDelFlag("0");
             anonymousAccount.setIsChild(isChild);
-            if(isChild){
-                anonymousAccount.setName(name);
-                anonymousAccount.setIdcard(idcard);
-            }
             return anonymousAccountRepository.saveAndFlush(anonymousAccount);
         } else {
             throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
