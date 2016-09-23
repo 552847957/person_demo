@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,7 +19,7 @@ public class FamilyMemberAPIEntity {
     private String uid;
     private String avatar;
     private String name;
-    private String idcard;
+    private String idCard;
     private String memo;
     private String mobile;
     private Boolean verified;
@@ -58,7 +59,8 @@ public class FamilyMemberAPIEntity {
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
         this.isAnonymous = false;
         this.gender = register.getGender();
-        this.idcard = register.getPersoncard();
+        this.idCard = register.getPersoncard();
+        this.isChild = false;
     }
 
     public FamilyMemberAPIEntity(FamilyMember familyMember, AnonymousAccount anonymousAccount) {
@@ -71,8 +73,12 @@ public class FamilyMemberAPIEntity {
         this.recordReadableSetting = FamilyMemberAccess.recordReadable(familyMember.getAccess());
         this.isAnonymous = true;
         this.gender = null == anonymousAccount.getIdcard()?"":(anonymousAccount.getIdcard().charAt(16)%2==1?"1":"2");
-        this.idcard = anonymousAccount.getIdcard();
+        this.idCard = anonymousAccount.getIdcard();
         this.isChild = anonymousAccount.getIsChild() == null ? false : anonymousAccount.getIsChild();
+        if(isChild){
+            this.name = IdcardUtils.cardNameYard(this.name);
+            this.idCard = IdcardUtils.cardNameYard(this.idCard);
+        }
     }
 
 }

@@ -608,4 +608,37 @@ public final class IdcardUtils extends StringUtils {
         }
         return new String(bytes);
     }
+    
+    public static String cardNameYard(String name){
+        if(StringUtils.isEmpty(name)){
+            return name;
+        }
+        String result = name;
+        int leh = name.length();
+        if(leh == 2){
+            result = name.substring(0, 1) + "*";
+        }else if(leh > 2){
+            result = name.substring(0, 1);
+            for (int i = 1; i < leh - 1; i++) {
+                result += "*";
+            }
+            result +=name.substring(leh -1, leh);
+        }
+        return result;
+    }
+    
+    public static String cardYard(String idCard){
+        if(StringUtils.isEmpty(idCard)){
+            return idCard;
+        }
+        String result = "";
+        int leh = idCard.length();
+        result = idCard.substring(0, 4);
+        for (int i = 0; i < leh - 8; i++) {
+            result += "*";
+        }
+        result +=idCard.substring(leh -4, leh);
+        return result;
+    }
+    
 }
