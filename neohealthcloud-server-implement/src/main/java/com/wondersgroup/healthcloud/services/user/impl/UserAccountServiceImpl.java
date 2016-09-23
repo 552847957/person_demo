@@ -17,6 +17,7 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -354,10 +355,18 @@ public class UserAccountServiceImpl implements UserAccountService{
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
+        if(!parentUser.verified()){
+            throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
+        }else if(!"1".equals(parentUser.getIdentifytype())){
+            throw new ErrorChildVerificationException("您未通过市民云实名认证");
+        }
+        if(StringUtils.isBlank(parentUser.getRegmobilephone())){
+            throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
+        }
         byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
         byte[] birthCertFile = new ImageUtils().getImageFromURL(birthCertFileUrl);
         JsonNode result = httpWdUtils.verificationChildSubmit(childUserid, name, parentUser.getRegmobilephone(), idcard, parentUserid,
-                null, idCardFile, birthCertFile);
+                "", idCardFile, birthCertFile);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             return true;
@@ -412,6 +421,22 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
+        return anonymousRegistration(creator, username, password, null, null, false);
+    }
+    
+    /**
+     * 注册儿童实名认证
+     * @param creator
+     * @param username
+     * @param password
+     * @return
+     */
+    @Override
+    public AnonymousAccount childVerificationRegistration(String creator, String username, String password, String name, String idcard) {
+        return anonymousRegistration(creator, username, password, name, idcard, true);
+    }
+    
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password, String name, String idcard, Boolean isChild) {
         String encodedPassword;
         try {
             encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());
@@ -430,6 +455,11 @@ public class UserAccountServiceImpl implements UserAccountService{
             anonymousAccount.setCreateDate(time);
             anonymousAccount.setUpdateDate(time);
             anonymousAccount.setDelFlag("0");
+            anonymousAccount.setIsChild(isChild);
+            if(isChild){
+                anonymousAccount.setName(name);
+                anonymousAccount.setIdcard(idcard);
+            }
             return anonymousAccountRepository.saveAndFlush(anonymousAccount);
         } else {
             throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
@@ -729,9 +759,13 @@ public class UserAccountServiceImpl implements UserAccountService{
                 if(anonymousAccount==null){
                     return mergeRegistration(user);
                 }else {
-                    anonymousAccount.setName(user.name);
-                    anonymousAccount.setIdcard(user.idCard);
-                    anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                    Boolean isVerified = user.isVerified;
+                    if(isVerified){
+                        anonymousAccount.setName(user.name);
+                        anonymousAccount.setIdcard(user.idCard);
+                        anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                    }
+
                 }
                 return null;
             }

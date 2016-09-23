@@ -133,6 +133,7 @@ public class HealthActivityController {
         info.setOnlineTime(DateFormatter.parseDateTime(reader.readString("online_time", false)));
         info.setOfflineTime(DateFormatter.parseDateTime(reader.readString("offline_time", false)));
         info.setSummary(reader.readString("summary", true));
+        info.setSummaryHtml(reader.readString("summaryHtml", true));
         info.setPhoto(reader.readString("photo", true));
         info.setThumbnail(reader.readString("thumbnail", true));
         info.setDelFlag("0");

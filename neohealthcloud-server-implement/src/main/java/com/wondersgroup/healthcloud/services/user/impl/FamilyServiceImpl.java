@@ -2,11 +2,13 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import java.util.Date;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.utils.JsonConverter;
@@ -27,6 +29,8 @@ import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 
@@ -295,14 +299,22 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile) {
+        return sendRegistrationCode(uid, relation, relationName, mobile, null);
+    }
+    
+    @Override
+    public Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile, String area) {
         RegisterInfo register = findOneRegister(uid, false);
         String mobileMessage = register.getRegmobilephone() == null ? "" : String.format("（尾号%s）",
                 StringUtils.substring(register.getRegmobilephone(), 7));
         String message = "验证码：:code。您的"
                 + (StringUtils.equals("0", relation) ? "家人" : FamilyMemberRelation.getName(FamilyMemberRelation
-                        .getOppositeRelation(relation, register.getGender()))) + mobileMessage
-                + "为您创建了健康云账户，以便于更好的管理您的家人健康。请点击http://www.wdjky.com/healthcloud2 进行APP下载。";
-      
+                        .getOppositeRelation(relation, register.getGender()))) + mobileMessage;
+        if(StringUtils.isEmpty(area) || "4401".equals(area)){
+            message += "为您创建了广州健康通账户，以便于更好的管理您的家人健康。";
+        }else{
+            message += "为您创建了健康云账户，以便于更好的管理您的家人健康。请点击http://www.wdjky.com/healthcloud2 进行APP下载。";
+        }
         JsonNode node = httpWdUtils.sendCode(mobile, message);
         System.out.println("sendRegistrationCode() response1.body():" + node.toString());
         return node.get("success").asBoolean();
@@ -317,6 +329,23 @@ public class FamilyServiceImpl implements FamilyService {
         AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
         createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
         accountService.verificationSubmit(account.getId(), name, idcard, photo);
+    }
+    
+    @Transactional(readOnly = false)
+    @Override
+    public Boolean childVerificationRegistration(String userId,String name, String idCard, String idCardFile, String birthCertFile) {
+        String gender = IdcardUtils.getGenderByIdCard(idCard);
+        String relation = "1".equals(gender) ? "4" : "5";//4 儿子 5 女儿
+        String relationName = "1".equals(gender) ? "儿子" : "女儿";
+        
+        checkMemberCount(userId);
+        RegisterInfo register = findOneRegister(userId, false);
+        if(!"1".equals(register.getIdentifytype()) || StringUtils.isEmpty(register.getRegmobilephone())){
+            throw new ErrorChildVerificationException("非实名认证和未绑定手机号的用户不能添加儿童实名认证");
+        }
+        AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid(), name, idCard);
+        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
+        return  accountService.childVerificationSubmit(userId, account.getId(), name, idCard, idCardFile, birthCertFile);
     }
 
     private List<FamilyMember> findByTwoUser(String userId, String memberId, Boolean nullable) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -116,10 +117,19 @@ public class CommonController {
                     Boolean hasUpdate = CommonUtils.compareVersion(appVersion, lastVersion);
                     if (hasUpdate) {
                         Boolean forceUpdate = false;
-                        String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
-                        if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
-                            forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
-                        }
+                        // 判断iOS是否强制升级
+                        if("0".equals(platform)){
+                        	String iosForceUpdate = content.get("iosForceUpdate") == null ? "" : content.get("iosForceUpdate").asText();
+                        	if(StringUtils.isNotBlank(iosForceUpdate) && iosForceUpdate.equals("1")){
+                        		forceUpdate = true;
+                        	}
+                        }else {
+                        	String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
+                            if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
+                                forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
+                            }
+						}
+                        
                         String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
                         String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
                         String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();

@@ -52,4 +52,6 @@ public interface UserService {
     void activeInvitation(String uid, String code);
 
     String findFirstTagName();
+
+    RegisterInfo findOne(String id);
 }
