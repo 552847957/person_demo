@@ -77,7 +77,7 @@ public class FamilyMemberAPIEntity {
         this.isChild = anonymousAccount.getIsChild() == null ? false : anonymousAccount.getIsChild();
         if(isChild){
             this.name = IdcardUtils.cardNameYard(this.name);
-            this.idCard = IdcardUtils.cardNameYard(this.idCard);
+            this.idCard = IdcardUtils.cardYard(this.idCard);
         }
     }
 
