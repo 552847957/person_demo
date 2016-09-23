@@ -754,9 +754,13 @@ public class UserAccountServiceImpl implements UserAccountService{
                 if(anonymousAccount==null){
                     return mergeRegistration(user);
                 }else {
-                    anonymousAccount.setName(user.name);
-                    anonymousAccount.setIdcard(user.idCard);
-                    anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                    Boolean isVerified = user.isVerified;
+                    if(isVerified){
+                        anonymousAccount.setName(user.name);
+                        anonymousAccount.setIdcard(user.idCard);
+                        anonymousAccountRepository.saveAndFlush(anonymousAccount);
+                    }
+
                 }
                 return null;
             }
