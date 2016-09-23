@@ -152,11 +152,10 @@ public class SpecCommonController {
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity aboutApp(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                       @RequestHeader(value = "spec-area", required = false) String specArea) {
+    public JsonResponseEntity aboutApp(@RequestHeader(value = "main-area", required = true) String mainArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         try {
-            AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, specArea, "app.common.aboutApp");
+            AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.aboutApp");
             if (appConfig != null) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode aboutApp = objectMapper.readTree(appConfig.getData());
