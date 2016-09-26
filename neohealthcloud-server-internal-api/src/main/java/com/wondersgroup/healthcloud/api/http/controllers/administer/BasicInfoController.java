@@ -104,6 +104,7 @@ public class BasicInfoController {
             menuDTO.setMenuId(child.get("menu_id").toString());
             menuDTO.setMenuName(StringUtils.isEmpty(child.get("name")) ? null : child.get("name").toString());
             menuDTO.setParentId(StringUtils.isEmpty(child.get("parent_id")) ? null : child.get("parent_id").toString());
+            menuDTO.setHref(StringUtils.isEmpty(child.get("href")) ? null : child.get("href").toString());
             if (StringUtils.isEmpty(child.get("checked")) || child.get("checked").toString().equals("0")) {
                 menuDTO.setChecked(false);
             } else {
