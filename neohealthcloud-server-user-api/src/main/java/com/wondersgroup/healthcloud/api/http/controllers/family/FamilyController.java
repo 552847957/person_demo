@@ -382,12 +382,15 @@ public class FamilyController {
     @RequestMapping(value = "/member/registration/anonym", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity<String> anonymousRegistration(
-            @RequestParam String uid, 
-            @RequestParam String relation,
-            @RequestParam(value = "relation_name", required = false) String relationName,
-            @RequestParam String name,
-            @RequestParam String idcard, 
-            @RequestParam String photo) {
+            @RequestBody String request) {
+        
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String uid = reader.readString("uid", false);
+        String relation = reader.readString("relation", false);
+        String relationName = reader.readString("relation_name",true);
+        String name = reader.readString("name", false);
+        String idcard = reader.readString("idcard", false);
+        String photo = reader.readString("photo", false);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
         body.setMsg("添加成功, 正在进行实名认证");
