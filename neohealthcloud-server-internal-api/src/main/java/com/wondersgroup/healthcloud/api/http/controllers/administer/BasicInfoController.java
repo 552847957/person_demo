@@ -25,9 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zhuchunliu on 2015/11/12.
@@ -94,13 +92,12 @@ public class BasicInfoController {
     public JsonResponseEntity roleAdd(@RequestParam(value = "roleId", required = false) String roleId,
                                       @RequestParam(required = true) String rootMenuId) {
         JsonResponseEntity result = new JsonResponseEntity();
-        Map<String, Object> map = Maps.newHashMap();
         Role role = new Role();
         if (!StringUtils.isEmpty(roleId)) {
             role = roleRepo.findOne(roleId);
         }
         List<Map<String, Object>> list = menuService.getMenuByRole(roleId);//获取选中的菜单信息
-        List<MenuDTO> menuDTOList = Lists.newArrayList();
+        List<MenuDTO> treeMenu = Lists.newArrayList();
         for (Map<String, Object> child : list) {
             MenuDTO menuDTO = new MenuDTO();
             menuDTO.setMenuId(child.get("menu_id").toString());
@@ -111,17 +108,21 @@ public class BasicInfoController {
             } else {
                 menuDTO.setChecked(true);
             }
-            menuDTOList.add(menuDTO);
+            treeMenu.add(menuDTO);
         }
-        MenuUtils.addMenuChildrenToParent(menuDTOList);
-        MenuDTO menuTree = null;
-        for (int i = 0; i < menuDTOList.size(); i++) {
-            if (menuDTOList.get(i) != null && rootMenuId.equals(menuDTOList.get(i).getMenuId())) {
-                menuTree = menuDTOList.get(i);
-                break;
-            }
+        List<MenuDTO> listMenu = Lists.newArrayList();
+        Collections.addAll(listMenu, new MenuDTO[treeMenu.size()]);
+        Collections.copy(listMenu, treeMenu);
+        MenuUtils.addMenuChildrenToParent(treeMenu);
+
+        if (treeMenu.size() > 0 && listMenu.size() > 0) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("treeMenu", treeMenu);
+            data.put("listMenu", listMenu);
+            result.setData(data);
+        } else {
+            result.setMsg("未查询到相关数据！");
         }
-        result.setData(menuTree);
         return result;
     }
 

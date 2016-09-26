@@ -218,6 +218,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         sql.append(" WHERE a.del_flag = '0'                              ");
         sql.append("   AND b.del_flag = '0'                              ");
         sql.append("   AND c.del_flag = '0'                              ");
+        sql.append("   AND c.type = '1'                                  ");
         sql.append("   AND a.user_id = '" + userId + "'                  ");
         sql.append("   AND a.role_id = b.role_id                         ");
         sql.append("   AND b.menu_id = c.menu_id                         ");
