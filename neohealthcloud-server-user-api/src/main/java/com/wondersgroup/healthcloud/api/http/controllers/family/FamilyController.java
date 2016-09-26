@@ -288,20 +288,23 @@ public class FamilyController {
                         familyMember.getMemberId(), false);
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
-                if(!anonymousAccount.getIsChild()){
-                    if (anonymousAccount.getIdcard() == null) {
-                        JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
-                        if(submitInfo != null){
-                            Integer status = submitInfo.get("status").asInt();
-                            entity.setRedirectFlag(status - 1);
-                        }else{
-                            entity.setRedirectFlag(0);
-                        }
-                    } else {
-                        entity.setRedirectFlag(0);
+                entity.setRedirectFlag(0);
+                JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
+                if(submitInfo != null){
+                    Integer status = submitInfo.get("status").asInt();
+                    String  name =  submitInfo.get("name").asText();
+                    String  idcard = submitInfo.get("idcard").asText();
+                    if (!anonymousAccount.getIsChild() && anonymousAccount.getIdcard() == null) {
+                        entity.setRedirectFlag(status - 1);
+                    }else{
+                        if(status == 2){ status = 2;
+                        }else if(status == 1){ status = 3;
+                        }else{ status = 4; }
+                        
+                        entity.setRedirectFlag(status);
+                        entity.setName(name);
+                        entity.setIdCard(idcard);
                     }
-                }else{
-                    entity.setRedirectFlag(verficationStatus(anonymousAccount.getId()));
                 }
             }
             entity.setLabelColor("#666666");
@@ -379,12 +382,15 @@ public class FamilyController {
     @RequestMapping(value = "/member/registration/anonym", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity<String> anonymousRegistration(
-            @RequestParam String uid, 
-            @RequestParam String relation,
-            @RequestParam(value = "relation_name", required = false) String relationName,
-            @RequestParam String name,
-            @RequestParam String idcard, 
-            @RequestParam String photo) {
+            @RequestBody String request) {
+        
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String uid = reader.readString("uid", false);
+        String relation = reader.readString("relation", false);
+        String relationName = reader.readString("relation_name",true);
+        String name = reader.readString("name", false);
+        String idcard = reader.readString("idcard", false);
+        String photo = reader.readString("photo", false);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
         body.setMsg("添加成功, 正在进行实名认证");
@@ -520,14 +526,4 @@ public class FamilyController {
         return result;
     }
 
-    /**
-     * 市民云儿童认证状态
-     * @param uid
-     * @return int 2 成功 3审核中 4 失败
-     */
-    public int verficationStatus(String uid){
-        int status = accountService.verficationSubmitInfo(uid, true).get("status").asInt();
-        // status 1 成功 2 审核中 3 失败
-        return status + 1;
-    }
 }
