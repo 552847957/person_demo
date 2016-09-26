@@ -95,10 +95,6 @@ public class TimeAgoUtils {
         return yesterday.compareTo(_time)==0;
     }
 
-    public static void main(String[] args){
-        System.out.println(assessAgo(new DateTime(new Date()).plusHours(-14).toDate()));
-    }
-
     public static String questionAgo(Date time) {
         long now = System.currentTimeMillis();
         long t = time.getTime();
