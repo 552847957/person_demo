@@ -349,7 +349,7 @@ public class MeasureController {
     }
     
     private HttpHeaders buildHeader(){
-    	String version = request.getHeader("app-version");
+    	String version = request.getHeader("version");
     	boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
     	HttpHeaders headers = new HttpHeaders();
     	headers.add("isStandard", String.valueOf(isStandard));
