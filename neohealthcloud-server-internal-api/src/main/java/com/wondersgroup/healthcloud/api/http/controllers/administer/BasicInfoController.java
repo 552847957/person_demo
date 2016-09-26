@@ -25,7 +25,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2015/11/12.
@@ -92,10 +95,8 @@ public class BasicInfoController {
     public JsonResponseEntity roleAdd(@RequestParam(value = "roleId", required = false) String roleId,
                                       @RequestParam(required = true) String rootMenuId) {
         JsonResponseEntity result = new JsonResponseEntity();
-        Role role = new Role();
-        if (!StringUtils.isEmpty(roleId)) {
-            role = roleRepo.findOne(roleId);
-        }
+        Map<String, Object> map = Maps.newHashMap();
+
         List<Map<String, Object>> list = menuService.getMenuByRole(roleId);//获取选中的菜单信息
         List<MenuDTO> treeMenu = Lists.newArrayList();
         for (Map<String, Object> child : list) {
@@ -114,12 +115,17 @@ public class BasicInfoController {
         Collections.addAll(listMenu, new MenuDTO[treeMenu.size()]);
         Collections.copy(listMenu, treeMenu);
         MenuUtils.addMenuChildrenToParent(treeMenu);
-
-        if (treeMenu.size() > 0 && listMenu.size() > 0) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("treeMenu", treeMenu);
-            data.put("listMenu", listMenu);
-            result.setData(data);
+        MenuDTO menuTree = null;
+        for (int i = 0; i < treeMenu.size(); i++) {
+            if (treeMenu.get(i) != null && rootMenuId.equals(treeMenu.get(i).getMenuId())) {
+                menuTree = treeMenu.get(i);
+                break;
+            }
+        }
+        if (menuTree != null && list.size() > 0) {
+            map.put("listMenu", listMenu);
+            map.put("treeMenu", menuTree);
+            result.setData(map);
         } else {
             result.setMsg("未查询到相关数据！");
         }
