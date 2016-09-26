@@ -191,7 +191,7 @@ public class UserAccountServiceImpl implements UserAccountService{
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
-            throw new ErrorWondersCloudException(result.get("msg").get("error_description").asText());
+            throw new ErrorWondersCloudException(result.get("msg").asText());
         }
     }
 

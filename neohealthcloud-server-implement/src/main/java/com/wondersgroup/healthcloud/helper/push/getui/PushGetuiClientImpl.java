@@ -114,12 +114,4 @@ public class PushGetuiClientImpl implements PushClient {
         template.setAPNInfo(payload);
         return template;
     }
-
-    public static void main(String... args) {
-        IGtPush push = new IGtPush("http://sdk.open.api.igexin.com/apiex.htm", "jh3Tfp3au69APHqVb19QM3", "VbIuZ6Z1fg7cRuNaSI1ab4");
-        IQueryResult ret = push.setClientTag("OCayARRsi39MgchgX1hPo6", "6c0436278e216e755c0044d15ad47334", Lists.<String>newArrayList("test1", "test2", "test3"));
-        System.out.println(ret.getResponse().toString());
-        IPushResult result = push.getUserTags("OCayARRsi39MgchgX1hPo6", "6c0436278e216e755c0044d15ad47334");
-        System.out.println(result.getResponse().toString());
-    }
 }

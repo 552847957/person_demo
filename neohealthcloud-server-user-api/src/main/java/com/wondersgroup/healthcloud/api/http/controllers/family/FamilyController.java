@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.handler.annotation.Header;
@@ -59,6 +61,9 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 @RestController
 @RequestMapping("/api/family")
 public class FamilyController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FamilyController.class);
+
     @Autowired
     private UserAccountService      accountService;
 
@@ -471,8 +476,7 @@ public class FamilyController {
                 res = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("haveMeasureException exception " + e.getMessage());
+            logger.error(e.getMessage(), e);
         }
         
         return res;

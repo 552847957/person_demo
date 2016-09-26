@@ -316,7 +316,6 @@ public class FamilyServiceImpl implements FamilyService {
             message += "为您创建了健康云账户，以便于更好的管理您的家人健康。请点击http://www.wdjky.com/healthcloud2 进行APP下载。";
         }
         JsonNode node = httpWdUtils.sendCode(mobile, message);
-        System.out.println("sendRegistrationCode() response1.body():" + node.toString());
         return node.get("success").asBoolean();
     }
 
@@ -360,12 +359,8 @@ public class FamilyServiceImpl implements FamilyService {
         boolean result = false;
         try {
             AppMessage message = AppMessage.Builder.init().title(title).content(content).type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
-            System.out.println(JsonConverter.toJson(message.toPushMessage()));
             result = pushClientWrapper.pushToAlias(message, userId);
-            System.out.println("push result " + result + ", userId:" + userId +", title:"+title+", content:"+content);
         } catch (Exception e) {
-            System.out.println("push exception " + ", userId:" + userId +", title:"+title+", content:"+content);
-            e.printStackTrace();
             return false;
         }
         return result;

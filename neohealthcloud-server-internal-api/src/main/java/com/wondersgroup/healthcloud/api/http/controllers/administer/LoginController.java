@@ -39,8 +39,8 @@ public class LoginController {
     public JsonResponseEntity welcome() {
         JsonResponseEntity result = new JsonResponseEntity();
         User user = userHelper.getCurrentUser();
-        logger.info("------------------------------------>" + user.getUserId() + " | " + user.getUsername());
         if (user != null) {
+            logger.info("------------------------------------>" + user.getUserId() + " | " + user.getUsername());
             Map<String, Object> map = new HashMap<>();
             map.put("mainArea", user.getMainArea());
             map.put("sessionId", SecurityUtils.getSubject().getSession().getId());

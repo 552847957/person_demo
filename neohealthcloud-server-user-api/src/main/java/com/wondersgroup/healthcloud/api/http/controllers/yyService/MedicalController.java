@@ -105,7 +105,6 @@ public class MedicalController {
         } else {
             res.setCode(2000);
             res.setMsg("购买失败");
-            System.out.println(result.get("message").asText());
         }
         return res;
     }

@@ -297,7 +297,6 @@ public class HttpWdUtils {
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
 
         JsonNode result = response.convertBody();
-        System.out.println(response.body());
         return result;
     }
 
