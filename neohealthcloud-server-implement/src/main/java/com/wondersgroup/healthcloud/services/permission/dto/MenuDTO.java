@@ -21,6 +21,7 @@ public class MenuDTO {
     private String type;
     private List<MenuDTO> children;
     private Boolean checked;
+    private String permission;
 
     public MenuDTO(){}
 
@@ -31,5 +32,6 @@ public class MenuDTO {
         this.parentName = menu.getParentName();
         this.href = menu.getHref();
         this.type = menu.getType();
+        this.permission = menu.getPermission();
     }
 }
