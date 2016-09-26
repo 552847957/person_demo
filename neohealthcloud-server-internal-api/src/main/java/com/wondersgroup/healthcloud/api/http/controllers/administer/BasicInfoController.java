@@ -170,6 +170,8 @@ public class BasicInfoController {
                 User original = userRepo.findOne(user.getUserId());
                 user.setPassword(original.getPassword());
                 user.setLocked(null == original ? "0" : original.getLocked());
+                user.setCreateDate(original.getCreateDate());
+                user.setUpdateDate(new Date());
             }
             basicInfoService.updateUserInfo(user, roleIds);
             response.setMsg("保存成功");
