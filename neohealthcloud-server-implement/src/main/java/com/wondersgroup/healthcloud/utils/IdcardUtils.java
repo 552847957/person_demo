@@ -287,18 +287,14 @@ public final class IdcardUtils extends StringUtils {
         }
         if (idCard.matches("^[a-zA-Z][0-9]{9}$")) { // 台湾
             info[0] = "台湾";
-            System.out.println("11111");
             String char2 = idCard.substring(1, 2);
             if (char2.equals("1")) {
                 info[1] = "M";
-                System.out.println("MMMMMMM");
             } else if (char2.equals("2")) {
                 info[1] = "F";
-                System.out.println("FFFFFFF");
             } else {
                 info[1] = "N";
                 info[2] = "false";
-                System.out.println("NNNN");
                 return info;
             }
             info[2] = validateTWCard(idCard) ? "true" : "false";

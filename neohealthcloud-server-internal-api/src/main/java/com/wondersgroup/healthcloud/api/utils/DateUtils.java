@@ -473,35 +473,4 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
         return convertSuccess;
     }
-
-    /**
-     * @param args
-     * @throws ParseException
-     */
-    public static void main(String[] args) throws ParseException {
-        // System.out.println(formatDate(parseDate("2010/3/6")));
-        // System.out.println(getDate("yyyy年MM月dd日 E"));
-        // long time = new Date().getTime()-parseDate("2012-11-19").getTime();
-        // System.out.println(time/(24*60*60*1000));
-        //System.out.println(formatDate("20150712"));
-
-        Calendar nowCal = Calendar.getInstance();
-        Date now = new Date();
-        nowCal.setTime(now);
-
-        //    System.out.print(nowCal.get(Calendar.DAY_OF_MONTH) + 1);
-
-        SimpleDateFormat sf2 = new SimpleDateFormat(parsePatterns[0]);
-//        Date date = sf2.parse("2011-4-1");
-//
-//        System.out.print(getAge(date));
-
-//        boolean date = ifOneMonth(sf2.parse("2016-5-1"));
-//        System.out.println(date);
-
-        System.out.println(isValidDate("20160601","yyyyMMdd"));
-
-    }
-
-
 }
