@@ -133,8 +133,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (StringUtils.isEmpty(role.getRoleId())) {
             role.setRoleId(IdGen.uuid());
             role.setCreateDate(new Date());
-            role.setUpdateDate(new Date());
         }
+        role.setUpdateDate(new Date());
         HashSet<String> menuSet = new HashSet<>();
         for (String menuId : menuIds.split(",")) {
             menuSet.add(menuId);
