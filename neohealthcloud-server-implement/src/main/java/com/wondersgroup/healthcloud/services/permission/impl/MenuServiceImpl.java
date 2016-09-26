@@ -26,7 +26,7 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<Map<String, Object>> getMenuByRole(String roleId) {
-        String sql = " select menu.menu_id,menu.name,menu.parent_id, " +
+        String sql = " select menu.menu_id,menu.name,menu.parent_id, href," +
                 "   case when (select count(1) from tb_neopermission_role_menu where role_id = '"+roleId+"' and menu_id = menu.menu_id and del_flag='0') <>0 then 1 else 0 end checked" +
                 "   from tb_neopermission_menu menu where del_flag = '0'";
 
