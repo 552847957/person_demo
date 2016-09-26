@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,12 @@ public class ChildController {
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         name = name.trim();//去除空字符串
         idCard = idCard.trim();
+        idCard = StringUtils.upperCase(idCard);
+        Boolean isIdCard = IdcardUtils.validateCard(idCard);
+        if(!isIdCard){
+            throw new ErrorIdcardException();
+        }
+
         int age = IdcardUtils.getAgeByIdCard(idCard);
         if(age>18){
             throw new ErrorChildVerificationException("年龄大于18岁的不能使用儿童实名认证");

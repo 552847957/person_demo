@@ -28,6 +28,8 @@ import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -295,6 +297,11 @@ public class UserController {
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         name = name.trim();//去除空字符串
         idCard = idCard.trim();
+        idCard = StringUtils.upperCase(idCard);
+        Boolean isIdCard = IdcardUtils.validateCard(idCard);
+        if(!isIdCard){
+            throw new ErrorIdcardException();
+        }
         userAccountService.verificationSubmit(id, name, idCard, photo);
         body.setMsg("提交成功");
         return body;

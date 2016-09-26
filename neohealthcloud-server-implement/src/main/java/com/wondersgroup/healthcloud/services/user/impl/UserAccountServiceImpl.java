@@ -191,7 +191,12 @@ public class UserAccountServiceImpl implements UserAccountService{
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
-            throw new ErrorWondersCloudException(result.get("msg").asText());
+            if(result.get("code").asInt()==513){
+                throw new ErrorWondersCloudException("登录失败！市民云非实名用户无法使用该功能");
+            }else{
+                throw new ErrorWondersCloudException(result.get("msg").asText());
+            }
+
         }
     }
 
