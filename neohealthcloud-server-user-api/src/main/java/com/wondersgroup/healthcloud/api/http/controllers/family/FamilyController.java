@@ -296,11 +296,15 @@ public class FamilyController {
                 entity.setRedirectFlag(0);
                 JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
                 if(submitInfo != null){
-                    Integer status = submitInfo.get("status").asInt();
+                    Integer status = submitInfo.get("status").asInt();//1 成功 2 审核中 3失败
                     String  name =  submitInfo.get("name").asText();
                     String  idcard = submitInfo.get("idcard").asText();
                     if (!anonymousAccount.getIsChild() && anonymousAccount.getIdcard() == null) {
-                        entity.setRedirectFlag(status - 1);
+                        if(status ==3){
+                            entity.setRedirectFlag(4);
+                        }else{
+                            entity.setRedirectFlag(status - 1);
+                        }
                     }else{
                         if(status == 2){ status = 2;
                         }else if(status == 1){ status = 3;
@@ -339,9 +343,7 @@ public class FamilyController {
                 break;
             case 4:
                 entity.setLabel("实名制认证失败");
-                break;
-            default:
-                entity.setLabel("身份核实失败");
+                entity.setLabelColor("#CC0000");
                 break;
             }
 
@@ -394,7 +396,7 @@ public class FamilyController {
         String relation = reader.readString("relation", false);
         String relationName = reader.readString("relation_name",true);
         String name = reader.readString("name", false);
-        String idcard = reader.readString("idcard", false);
+        String idcard = reader.readString("idcard", false).toUpperCase();
         String photo = reader.readString("photo", false);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         familyService.anonymousRegistration(uid, relation, relationName, name, idcard, photo);
@@ -497,7 +499,7 @@ public class FamilyController {
         String birthCertFile = reader.readString("birthCertFile", false);//出生证明(照片)
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         name = name.trim();
-        idCard = idCard.trim();
+        idCard = idCard.trim().toUpperCase();
         int age = IdcardUtils.getAgeByIdCard(idCard);
         if(age >= 18){
             throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
