@@ -159,30 +159,32 @@ public class HealthActivityController {
 	@VersionRange
 	@WithoutToken
 	public JsonResponseEntity<HealthActivityAPIEntity> getHealthActivityDetail(
-			@RequestParam(value="uid",required = false) String registerId,
-			@RequestParam(value = "activityid", required = true)  String activityid,
-			@RequestHeader(value="screen-width",required = false)String width,
-			@RequestHeader(value="screen-height",required = false)String height,
-			HttpServletRequest request) {
-	        
-			JsonResponseEntity<HealthActivityAPIEntity> response = new JsonResponseEntity<HealthActivityAPIEntity>();
+            @RequestParam(value="uid",required = false) String registerId,
+            @RequestParam(value = "activityid", required = true)  String activityid,
+            @RequestHeader(value="screen-width",required = false)String width,
+            @RequestHeader(value="screen-height",required = false)String height,
+            @RequestHeader(value="main-area", defaultValue = "4401")String area,
+            HttpServletRequest request) {
+            
+            JsonResponseEntity<HealthActivityAPIEntity> response = new JsonResponseEntity<HealthActivityAPIEntity>();
 
-			HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
-			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
-			HealthActivityInfo de = detail != null ? healthActivityRepository.findOneActivityByRegId(detail.getRegisterid()) : null;
-			if (null != info) {
-				HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
-				if(de != null && de.getActivityid() != null){
-				    HealthActivityInfo in = haiService.getHealthActivityInfo(de.getActivityid());
-				    entity.setPartakeActivityDesc("您关注的活动" + in.getTitle() + "将于" + new SimpleDateFormat("MM月dd号").format(in.getStarttime()) + "开始，点击查看活动详情");
-				    entity.setPartakeActivityId(de.getActivityid());
-				}
-				entity.getActivityShare().setUrl(environment.getProperty("h5-web.connection.url") + "/activity/detail?acitivityId=" + entity.getId());
-				this.setDetailInfo(entity,info,registerId);
-				response.setData(entity);
-			}
-			return response;
-	}
+            HealthActivityInfo info = haiService.getHealthActivityInfo(activityid);
+            HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
+            HealthActivityInfo de = detail != null ? healthActivityRepository.findOneActivityByRegId(detail.getRegisterid()) : null;
+            if (null != info) {
+                HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info , detail ,"activityDetail",width,height);
+                if(de != null && de.getActivityid() != null){
+                    HealthActivityInfo in = haiService.getHealthActivityInfo(de.getActivityid());
+                    entity.setPartakeActivityDesc("您关注的活动" + in.getTitle() + "将于" + new SimpleDateFormat("MM月dd号").format(in.getStarttime()) + "开始，点击查看活动详情");
+                    entity.setPartakeActivityId(de.getActivityid());
+                }
+                String h5Url = environment.getProperty("h5-web.connection.url") + "/activity/detail?acitivityId=" + entity.getId();
+                entity.getActivityShare().setUrl(h5Url + "&area=" + area + "&isuser=true");
+                this.setDetailInfo(entity,info,registerId);
+                response.setData(entity);
+            }
+            return response;
+    }
 
 	private void setDetailInfo(HealthActivityAPIEntity entity,HealthActivityInfo info,String registerid){
 		entity.setTotalApplied(healthActivityDetailRepository.findActivityRegistrationByActivityId(info.getActivityid()));// 已报名人数
