@@ -307,8 +307,8 @@ public class FamilyController {
                         }else{ status = 4; }
                         
                         entity.setRedirectFlag(status);
-                        entity.setName(name);
-                        entity.setIdCard(idcard);
+                        entity.setName(IdcardUtils.cardNameYard(name));
+                        entity.setIdCard(IdcardUtils.cardYard(idcard));
                     }
                 }
             }
