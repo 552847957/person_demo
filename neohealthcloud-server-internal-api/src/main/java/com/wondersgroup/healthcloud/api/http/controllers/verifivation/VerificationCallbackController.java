@@ -53,6 +53,7 @@ public class VerificationCallbackController {
         String idCard = "";
         String name = "";
         String title = "实名认证";
+        String content = "您的实名认证已经有结果了,请点击查看";
 
 
         if(info!=null){
@@ -71,12 +72,13 @@ public class VerificationCallbackController {
                     title = "亲情账户实名认证";
                     type = 2;
                 }
+                content = "您的亲情账户实名认证结果已经被处理,请查看";
             }
 
         }
 
         AppMessage message = AppMessage.Builder.init().title(title)
-                .content("您的实名认证已经有结果了, 请点击查看")
+                .content(content)
                 .type(AppMessageUrlUtil.Type.SYSTEM)
                 .urlFragment(AppMessageUrlUtil.verificationCallback(id, success,type))
                 .persistence().build();
