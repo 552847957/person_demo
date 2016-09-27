@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -19,6 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
@@ -46,6 +52,8 @@ public class SpecServicesController {
     private UserService userService;
     @Autowired
     private DictCache dictCache; 
+    @Autowired
+    private HttpServletRequest request;
     
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -92,7 +100,7 @@ public class SpecServicesController {
             RegisterInfo info = userService.getOneNotNull(registerId);
             String parameters = "registerId=".concat(registerId).concat("&personCard=").concat(info.getPersoncard() == null ? "0" : info.getPersoncard()).concat("&sex=" + info.getGender());
             String url = String.format(requestFamilyPath, host, parameters);
-            ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 Map<String, Object> responseBody = response.getBody();
                 if (0 == (int) responseBody.get("code")) {
@@ -169,5 +177,17 @@ public class SpecServicesController {
         String county = StringUtils.isEmpty(info.getCounty())?"":dictCache.queryArea(info.getCounty());
         entity.setLocation(province+city+county+info.getLocate());
         entity.setHost((StringUtils.isEmpty(city)?dictCache.queryArea(info.getCounty()):city)+info.getHost());
+    }
+    
+    private HttpHeaders buildHeader(){
+        String version = request.getHeader("version");
+        boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("isStandard", String.valueOf(isStandard));
+        return headers;
+    }
+    
+    private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables){
+        return template.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
     }
 }
