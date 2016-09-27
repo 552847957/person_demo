@@ -2,9 +2,9 @@ package com.wondersgroup.healthcloud.api.http.controllers.interven;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionDetailAPIEntity;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionExportAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.interven.InterventionAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.interven.InterventionDetailAPIEntity;
+import com.wondersgroup.healthcloud.api.http.dto.interven.InterventionExportAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
