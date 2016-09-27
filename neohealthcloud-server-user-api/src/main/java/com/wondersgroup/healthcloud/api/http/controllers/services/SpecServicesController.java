@@ -90,7 +90,7 @@ public class SpecServicesController {
         // 近期异常指标 begin
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String parameters = "registerId=".concat(registerId).concat("&personCard=0").concat("&sex=" + info.getGender());
+            String parameters = "registerId=".concat(registerId).concat("&personCard=").concat(info.getPersoncard() == null ? "0" : info.getPersoncard()).concat("&sex=" + info.getGender());
             String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = template.getForEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
