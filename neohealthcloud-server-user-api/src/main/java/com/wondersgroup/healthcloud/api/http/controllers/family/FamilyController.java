@@ -303,11 +303,12 @@ public class FamilyController {
                     }else if(status == 3){
                         status = 4;
                     }
+                    if (!anonymousAccount.getIsChild() && status == 2){
+                        status = 1;
+                    }
                     entity.setRedirectFlag(status);
-//                    if (anonymousAccount.getIsChild()) {
                     entity.setName(IdcardUtils.cardNameYard(name));
                     entity.setIdCard(IdcardUtils.cardYard(idcard));
-//                    }
                 }
             }
             entity.setLabelColor("#666666");
