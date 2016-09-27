@@ -2,12 +2,12 @@ package com.wondersgroup.healthcloud.api.http.controllers.interven;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.DoctorEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionDetailAPIEntity;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.interven.InterventionExportAPIEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.interven.IntervenService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -37,7 +37,8 @@ public class IntervenController {
      * param type 干预类型 如：10000,20000【逗号间隔】
      * @return
      */
-    @RequestMapping(value = "/count", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/count", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity<Map<String,String>> getIntervenCount(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -55,7 +56,8 @@ public class IntervenController {
      * param personcards 患者身份证信息集合
      * @return
      */
-    @RequestMapping(value = "/home/list", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/home/list", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity<List<InterventionExportAPIEntity>> getIntervenHomeList(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -86,7 +88,8 @@ public class IntervenController {
      * param type 干预类型 如：10000,20000【逗号间隔】
      * @return
      */
-    @RequestMapping(value = "/list", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity<List<InterventionExportAPIEntity>> getIntervenList(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -119,7 +122,8 @@ public class IntervenController {
      *
      * @return
      */
-    @RequestMapping(value = "/page/list", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/page/list", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity<InterventionAPIEntity> getIntervenPageList(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -163,7 +167,8 @@ public class IntervenController {
      * @param
      * @return
      */
-    @RequestMapping(value = "/detail", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/detail", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity<InterventionDetailAPIEntity> getIntervenDetail(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -213,7 +218,8 @@ public class IntervenController {
      * 医生干预
      * @return
      */
-    @RequestMapping(value = "/diagnose", method = RequestMethod.POST,headers = {"version=2.[34].*"})
+    @RequestMapping(value = "/diagnose", method = RequestMethod.POST)
+    @VersionRange
     @ResponseBody
     public JsonResponseEntity doDiagnose(@RequestBody String request) {
 

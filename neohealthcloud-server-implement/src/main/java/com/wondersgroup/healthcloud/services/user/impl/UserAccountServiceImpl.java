@@ -334,6 +334,9 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Transactional
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
         //根据图片的url获取图片的byte
+        if(name.trim().length()<2 ||name.trim().length()>6 ){
+            throw new ErrorChildVerificationException("姓名的长度范围为2到6");
+        }
         byte[] photo = new ImageUtils().getImageFromURL(photoUrl);
         JsonNode result = httpWdUtils.verificationSubmit(id, name, idCard, "", photo);
         Boolean success = result.get("success").asBoolean();
@@ -360,11 +363,16 @@ public class UserAccountServiceImpl implements UserAccountService{
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
+        if(name.trim().length()<2 ||name.trim().length()>6 ){
+            throw new ErrorChildVerificationException("姓名的长度范围为2到6");
+        }
+
         if(!parentUser.verified()){
             throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
         }else if(!"1".equals(parentUser.getIdentifytype())){
             throw new ErrorChildVerificationException("您未通过市民云实名认证");
         }
+
         if(StringUtils.isBlank(parentUser.getRegmobilephone())){
             throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
         }
