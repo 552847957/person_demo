@@ -5,6 +5,7 @@ import java.util.Date;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
@@ -92,11 +93,12 @@ public class ChildController {
             account.setUpdateDate(new Date());
             anonymousAccountRepository.saveAndFlush(account);
             
-            FamilyMember menber = memberRepository.findRelationWithOrder(childId, id);
+            FamilyMember menber = memberRepository.findRelationWithOrder(id, childId);
             if(menber != null){
                 String gender = IdcardUtils.getGenderByIdCard(idCard);
                 menber.setRelation("1".equals(gender) ? "4" : "5");
                 menber.setRelationName("1".equals(gender) ? "儿子" : "女儿");
+                menber.setMemo(FamilyMemberRelation.isOther(menber.getRelation()) ? menber.getRelationName() : null);
                 menber.setUpdateDate(new Date());
                 memberRepository.saveAndFlush(menber);
             }

@@ -303,18 +303,19 @@ public class FamilyController {
                     }else if(status == 3){
                         status = 4;
                     }
+                    if (!anonymousAccount.getIsChild() && status == 2){
+                        status = 1;
+                    }
                     entity.setRedirectFlag(status);
-//                    if (anonymousAccount.getIsChild()) {
                     entity.setName(IdcardUtils.cardNameYard(name));
                     entity.setIdCard(IdcardUtils.cardYard(idcard));
-//                    }
                 }
             }
             entity.setLabelColor("#666666");
             entity.setHealthWarning(false);
             switch (entity.getRedirectFlag()) {
             case 0:
-               if (haveMeasureException(entity.getUid(), new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd"), 1)) {
+               if (haveMeasureException(entity.getUid(), entity.getIdCard(), entity.getGender(), new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd"), 1)) {
                     entity.setLabel("最近有异常指标");
                     entity.setHealthWarning(true);
                     entity.setLabelColor("#CC0000");
@@ -450,13 +451,13 @@ public class FamilyController {
      * @param isNew  1 最近是否有，2 是否有新的
      * @return boolean
      */
-    public boolean haveMeasureException(String registerId, String date, int isNew) {
+    public boolean haveMeasureException(String registerId, String personCard, String sex, String date, int isNew) {
         boolean res = false;
         try {
             String url = environment.getProperty("internal.api.service.measure.url");
             url += isNew == 1 ? "/api/measure/abnormal/afterDate" : "/api/measure/abnormal/byDate";
             String[] header = new String[] { "version", "3.0" };
-            String[] form = new String[] { "registerId", registerId, "date", date};
+            String[] form = new String[] { "registerId", registerId, "date", date, "personCard", personCard, "sex", sex};
             OkHttpClient client = new OkHttpClient();
             HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(client);
             Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();

@@ -1,13 +1,13 @@
 package com.wondersgroup.healthcloud.jpa.entity.user.member;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
-
-import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 
 /**
  * 家庭成员表
@@ -16,7 +16,7 @@ import com.wondersgroup.healthcloud.jpa.entity.BaseEntity;
 @Data
 @Entity
 @Table(name = "app_tb_family_member")
-public class FamilyMember extends BaseEntity {
+public class FamilyMember{
     @Id
     private String  id;
     private String  uid;
@@ -32,5 +32,18 @@ public class FamilyMember extends BaseEntity {
     private String  relationName; //关系名,当关系是"其他"时, 将关系名保存在这个字段',
     @Column(name = "is_anonymous")
     private Integer isAnonymous; //是否匿名账户 默认0
+    
+    @Column(name = "del_flag")
+    private String delFlag = "0";
+    @Column(name = "source_id")
+    private String sourceId;
+    @Column(name = "create_by")
+    private String createBy;
+    @Column(name = "create_date")
+    private Date createDate;
+    @Column(name = "update_by")
+    private String updateBy;
+    @Column(name = "update_date")
+    private Date updateDate;
 
 }
