@@ -1,14 +1,22 @@
 package com.wondersgroup.healthcloud.api.http.controllers.family;
 
+import java.util.Date;
+
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepository;
+import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +37,15 @@ public class ChildController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AnonymousAccountService anonymousAccountService;
+    
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
+    
+    @Autowired
+    private FamilyMemberRepository memberRepository;
+    
     /**
      * 提交实名认证信息
      *
@@ -65,6 +82,24 @@ public class ChildController {
         }
         if(StringUtils.isBlank(registerInfo.getRegmobilephone())){
             throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
+        }
+        
+        //重新提交改变身份证和名字的情况进行更新
+        AnonymousAccount account = anonymousAccountService.getAnonymousAccount(childId, false);
+        if(account != null && (!idCard.equals(account.getIdcard()) || !name.equals(account.getName()))){
+            account.setIdcard(idCard);
+            account.setName(name);
+            account.setUpdateDate(new Date());
+            anonymousAccountRepository.saveAndFlush(account);
+            
+            FamilyMember menber = memberRepository.findRelationWithOrder(childId, id);
+            if(menber != null){
+                String gender = IdcardUtils.getGenderByIdCard(idCard);
+                menber.setRelation("1".equals(gender) ? "4" : "5");
+                menber.setRelationName("1".equals(gender) ? "儿子" : "女儿");
+                menber.setUpdateDate(new Date());
+                memberRepository.saveAndFlush(menber);
+            }
         }
         userAccountService.childVerificationSubmit(id, childId,name, idCard, idCardFile, birthCertFile);
         body.setMsg("提交成功");

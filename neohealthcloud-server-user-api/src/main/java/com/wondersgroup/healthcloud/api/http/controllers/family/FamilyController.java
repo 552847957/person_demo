@@ -299,20 +299,17 @@ public class FamilyController {
                     Integer status = submitInfo.get("status").asInt();//1 成功 2 审核中 3失败
                     String  name =  submitInfo.get("name").asText();
                     String  idcard = submitInfo.get("idcard").asText();
-                    if (!anonymousAccount.getIsChild() && anonymousAccount.getIdcard() == null) {
-                        if(status ==3){
-                            entity.setRedirectFlag(4);
-                        }else{
-                            entity.setRedirectFlag(status - 1);
+                    if (anonymousAccount.getIsChild()) {
+                        if(status == 1){ 
+                            status = 3;
+                        }else if(status == 3){
+                            status = 4;
                         }
-                    }else{
-                        if(status == 2){ status = 2;
-                        }else if(status == 1){ status = 3;
-                        }else{ status = 4; }
-                        
                         entity.setRedirectFlag(status);
                         entity.setName(IdcardUtils.cardNameYard(name));
                         entity.setIdCard(IdcardUtils.cardYard(idcard));
+                    }else if(anonymousAccount.getIdcard() == null){
+                        entity.setRedirectFlag(status ==3 ? 4 : (status - 1));
                     }
                 }
             }
@@ -320,11 +317,7 @@ public class FamilyController {
             entity.setHealthWarning(false);
             switch (entity.getRedirectFlag()) {
             case 0:
-                if (haveMeasureException(entity.getUid(), DateFormatter.dateFormat(new Date()), 2)) {
-                    entity.setLabel("有新的异常指标");
-                    entity.setHealthWarning(true);
-                    entity.setLabelColor("#CC0000");
-                } else if (haveMeasureException(entity.getUid(), new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd"), 1)) {
+               if (haveMeasureException(entity.getUid(), new DateTime(new Date()).plusMonths(-6).toString("yyyy-MM-dd"), 1)) {
                     entity.setLabel("最近有异常指标");
                     entity.setHealthWarning(true);
                     entity.setLabelColor("#CC0000");
