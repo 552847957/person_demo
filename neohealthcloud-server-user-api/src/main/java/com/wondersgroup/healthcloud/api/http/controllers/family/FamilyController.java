@@ -547,8 +547,8 @@ public class FamilyController {
 
     public List<FamilyMember> deleteAnonymousByVersion(List<FamilyMember> familyMembers){
         List<FamilyMember> list = new ArrayList<FamilyMember>();
-        for (FamilyMember familyMember : list) {
-            if(familyMember.getIsAnonymous() == 0){
+        for (FamilyMember familyMember : familyMembers) {
+            if(familyMember.getIsAnonymous().intValue() == 0){
                 list.add(familyMember);
             }
         }
