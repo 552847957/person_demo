@@ -504,7 +504,7 @@ public class FamilyController {
             body.setMsg("提交失败");
             return body;
         }
-        body.setMsg("您的儿童实名认证已提交，请耐心等待");
+        body.setMsg("实名认证已提交，请耐心等待");
         return body;
     }
     
