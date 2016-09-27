@@ -17,6 +17,7 @@
  */
 package com.wondersgroup.healthcloud.utils;
 
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
@@ -479,6 +480,9 @@ public final class IdcardUtils extends StringUtils {
     public static int getAgeByBirthday(Date birthday) {
         LocalDate birthdayDate = new LocalDate(birthday);
         LocalDate now = new LocalDate();
+        if (now.isBefore(birthdayDate)) {
+            throw new CommonException(1000, "身份证的出生日期不能晚于当前时间");
+        }
         Years age = Years.yearsBetween(birthdayDate, now);
         return age.getYears();
     }
@@ -590,11 +594,11 @@ public final class IdcardUtils extends StringUtils {
     }
 
     public static String maskName(String name) {
-        if(name.length()<2){
+        if (name.length() < 2) {
             return name;
         }
         StringBuilder sb = new StringBuilder(name);
-        sb.setCharAt(1,'*');
+        sb.setCharAt(1, '*');
         return sb.toString();
     }
 
@@ -604,27 +608,27 @@ public final class IdcardUtils extends StringUtils {
         }
         return new String(bytes);
     }
-    
-    public static String cardNameYard(String name){
-        if(StringUtils.isEmpty(name)){
+
+    public static String cardNameYard(String name) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         String result = name;
         int leh = name.length();
-        if(leh == 2){
+        if (leh == 2) {
             result = name.substring(0, 1) + "*";
-        }else if(leh > 2){
+        } else if (leh > 2) {
             result = name.substring(0, 1);
             for (int i = 1; i < leh - 1; i++) {
                 result += "*";
             }
-            result +=name.substring(leh -1, leh);
+            result += name.substring(leh - 1, leh);
         }
         return result;
     }
-    
-    public static String cardYard(String idCard){
-        if(StringUtils.isEmpty(idCard)){
+
+    public static String cardYard(String idCard) {
+        if (StringUtils.isEmpty(idCard)) {
             return idCard;
         }
         String result = "";
@@ -633,8 +637,8 @@ public final class IdcardUtils extends StringUtils {
         for (int i = 0; i < leh - 8; i++) {
             result += "*";
         }
-        result +=idCard.substring(leh -4, leh);
+        result += idCard.substring(leh - 4, leh);
         return result;
     }
-    
+
 }
