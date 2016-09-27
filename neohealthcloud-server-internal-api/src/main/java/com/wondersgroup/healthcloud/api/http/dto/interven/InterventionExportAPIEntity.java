@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.dto.doctor.interven;
+package com.wondersgroup.healthcloud.api.http.dto.interven;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
