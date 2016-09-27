@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
@@ -65,9 +67,6 @@ public class MeasureController {
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/dayHistory?%s";
     private RestTemplate template = new RestTemplate();
     
-    @Autowired
-    private HttpServletRequest request;
-
     @Autowired
     private MeasureManagementService managementService;
 
@@ -349,6 +348,7 @@ public class MeasureController {
     }
     
     private HttpHeaders buildHeader(){
+    	HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     	String version = request.getHeader("version");
     	boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
     	HttpHeaders headers = new HttpHeaders();

@@ -1,5 +1,30 @@
 package com.wondersgroup.healthcloud.api.http.controllers.services;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
@@ -15,25 +40,6 @@ import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.healthactivity.HealthActivityAPIEntity;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
@@ -52,8 +58,6 @@ public class SpecServicesController {
     private UserService userService;
     @Autowired
     private DictCache dictCache; 
-    @Autowired
-    private HttpServletRequest request;
     
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -180,6 +184,7 @@ public class SpecServicesController {
     }
     
     private HttpHeaders buildHeader(){
+    	HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String version = request.getHeader("version");
         boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
         HttpHeaders headers = new HttpHeaders();
