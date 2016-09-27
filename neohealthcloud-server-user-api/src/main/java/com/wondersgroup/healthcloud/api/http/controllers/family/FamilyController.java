@@ -16,6 +16,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
+import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -262,9 +264,12 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @VersionRange
-    public JsonListResponseEntity<FamilyMemberAPIEntity> memberList(@RequestParam String uid,
-            @RequestParam(value = "member_id", required = false) String memberId) {
-
+    public JsonListResponseEntity<FamilyMemberAPIEntity> memberList(
+            @RequestParam String uid,
+            @RequestParam(value = "member_id", required = false) String memberId,
+            @RequestHeader(value = "app-version") String appVersion
+            ) {
+        Boolean hasUpdate = CommonUtils.compareVersion(appVersion, "3.1");
         List<FamilyMember> familyMembers;
         if (memberId == null) {
             familyMembers = familyService.getFamilyMembers(uid);
@@ -275,6 +280,9 @@ public class FamilyController {
             } else {
                 familyMembers = Lists.newArrayList(familyMember);
             }
+        }
+        if(hasUpdate){//小于3.1版本 去掉匿名账户
+            familyMembers = deleteAnonymousByVersion(familyMembers);
         }
         List<FamilyMemberAPIEntity> data = Lists.newLinkedList();
         for (FamilyMember familyMember : familyMembers) {
@@ -537,4 +545,13 @@ public class FamilyController {
        return true;
    }
 
+    public List<FamilyMember> deleteAnonymousByVersion(List<FamilyMember> familyMembers){
+        List<FamilyMember> list = new ArrayList<FamilyMember>();
+        for (FamilyMember familyMember : list) {
+            if(familyMember.getIsAnonymous() == 0){
+                list.add(familyMember);
+            }
+        }
+        return list;
+    }
 }
