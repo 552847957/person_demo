@@ -50,7 +50,6 @@ import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberAPIEnti
 import com.wondersgroup.healthcloud.services.user.dto.member.FamilyMemberInvitationAPIEntity;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 /**
@@ -293,24 +292,22 @@ public class FamilyController {
                         familyMember.getMemberId(), false);
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
-                entity.setRedirectFlag(0);
+                entity.setRedirectFlag(4);
                 JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
                 if(submitInfo != null){
                     Integer status = submitInfo.get("status").asInt();//1 成功 2 审核中 3失败
                     String  name =  submitInfo.get("name").asText();
                     String  idcard = submitInfo.get("idcard").asText();
-                    if (anonymousAccount.getIsChild()) {
-                        if(status == 1){ 
-                            status = 3;
-                        }else if(status == 3){
-                            status = 4;
-                        }
-                        entity.setRedirectFlag(status);
-                        entity.setName(IdcardUtils.cardNameYard(name));
-                        entity.setIdCard(IdcardUtils.cardYard(idcard));
-                    }else if(anonymousAccount.getIdcard() == null){
-                        entity.setRedirectFlag(status ==3 ? 4 : (status - 1));
+                    if(status == 1){ 
+                        status = 3;
+                    }else if(status == 3){
+                        status = 4;
                     }
+                    entity.setRedirectFlag(status);
+//                    if (anonymousAccount.getIsChild()) {
+                    entity.setName(IdcardUtils.cardNameYard(name));
+                    entity.setIdCard(IdcardUtils.cardYard(idcard));
+//                    }
                 }
             }
             entity.setLabelColor("#666666");
@@ -494,6 +491,9 @@ public class FamilyController {
         name = name.trim();
         idCard = idCard.trim().toUpperCase();
         int age = IdcardUtils.getAgeByIdCard(idCard);
+        if(!containsChinese(name)){
+            throw new ErrorChildVerificationException("姓名必须是中文");
+        }
         if(age >= 18){
             throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
         }
@@ -524,5 +524,16 @@ public class FamilyController {
         result.setMsg("查询成功");
         return result;
     }
+
+    private boolean containsChinese(String s){
+       if (null == s || "".equals(s.trim())) return false;
+       for (int i = 0; i < s.length(); i++) {
+         int v = s.charAt(i);
+         if(!(v >=19968 && v <= 171941)){
+             return false;
+         }
+       }
+       return true;
+   }
 
 }

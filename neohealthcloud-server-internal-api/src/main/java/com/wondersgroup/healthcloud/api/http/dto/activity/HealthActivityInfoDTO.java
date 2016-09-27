@@ -40,7 +40,7 @@ public class HealthActivityInfoDTO {
     private String  enroll_start_time; //活动报名开始时间'
     private String  enroll_end_time;  //活动报名结束时间
     private String  update_date;
-
+    private Integer totalApplied;     // 报名人数
     public HealthActivityInfoDTO() {
 
     }

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.api.http.dto.activity.HealthActivityInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.medicalcircle.CaseAPIEntity;
@@ -38,6 +40,7 @@ import com.wondersgroup.healthcloud.jpa.entity.circle.ArticleTransmit;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircle;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleCommunity;
 import com.wondersgroup.healthcloud.jpa.entity.medicalcircle.MedicalCircleReply;
+import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityDetailRepository;
 import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.area.DicAreaRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -75,6 +78,8 @@ public class HealthActivityController {
     private MedicalCircleService cedicalCircleService;
     @Autowired
     private ImageUtils imageUtils;
+    @Autowired
+    private HealthActivityDetailRepository healthActivityDetailRepository;
     
     @RequestMapping(value = "/listdata", method = RequestMethod.POST)
     public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(@RequestBody String request) {
@@ -105,7 +110,9 @@ public class HealthActivityController {
     public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(@RequestParam() String acitivityId) {
         JsonResponseEntity<HealthActivityInfoDTO> entity = new JsonResponseEntity<HealthActivityInfoDTO>();
         HealthActivityInfo info = activityRepo.findOne(acitivityId);
-        entity.setData(new HealthActivityInfoDTO(info));
+        HealthActivityInfoDTO infoDto = new HealthActivityInfoDTO(info);
+        infoDto.setTotalApplied(healthActivityDetailRepository.findActivityRegistrationByActivityId(info.getActivityid()));// 已报名人数
+        entity.setData(infoDto);
         entity.setMsg("查询成功");
         return entity;
     }
