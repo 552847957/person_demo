@@ -126,7 +126,7 @@ public class HealthActivityAPIEntity {
         this.enrollColor = ltDay ? "#CC0000" : "#666666";
         this.descriptionHtml = info.getSummaryHtml() == null ? info.getSummary() : info.getSummaryHtml();
         
-        this.activityShare = new ActivityShare(id, name, descriptionHtml, picture, null);
+        this.activityShare = new ActivityShare(id, "我在上海健康云发现了一个超级棒的健康活动", "赶紧点开看看吧", picture, null);
     }
 
     public String getId() {
