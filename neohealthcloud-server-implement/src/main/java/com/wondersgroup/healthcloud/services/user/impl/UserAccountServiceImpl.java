@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -19,6 +21,7 @@ import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -337,6 +340,23 @@ public class UserAccountServiceImpl implements UserAccountService{
         if(name.trim().length()<2 ||name.trim().length()>6 ){
             throw new ErrorChildVerificationException("姓名的长度范围为2到6");
         }
+        //添加身份证的校验
+        if(!IdcardUtils.validateCard(idCard)){
+            throw new ErrorIdcardException();
+        }
+
+        String birth = IdcardUtils.getBirthByIdCard(idCard);
+        Date birDate = DateFormatter.parseIdCardDate(birth);
+        Date now = new Date();
+        if (DateUtils.compareDate(birDate,now)>0) {
+            throw new ErrorIdcardException("身份证的出生日期不能晚于当前时间");
+        }
+
+        int age = IdcardUtils.getAgeByIdCard(idCard);
+        if(age<18){
+            throw new ErrorIdcardException("市民云实名制用户须年满18周岁");
+        }
+
         byte[] photo = new ImageUtils().getImageFromURL(photoUrl);
         JsonNode result = httpWdUtils.verificationSubmit(id, name, idCard, "", photo);
         Boolean success = result.get("success").asBoolean();
