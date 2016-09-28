@@ -1,10 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.dto.activity;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Transient;
 
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 
@@ -12,7 +17,11 @@ import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
 public class HealthActivityInfoDTO {
 
     private static final long serialVersionUID = -6988698188678786263L;
-
+    @JsonIgnore
+    private SimpleDateFormat                  monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
+    @JsonIgnore
+    private SimpleDateFormat                  hourMinute_sdf  = new SimpleDateFormat("HH:mm");
+    
     private String  activityid;
     private String  host;             // '主办者',
     private String  type;             // '活动类型 1：糖尿病:2：高血压',
@@ -41,6 +50,7 @@ public class HealthActivityInfoDTO {
     private String  enroll_end_time;  //活动报名结束时间
     private String  update_date;
     private Integer totalApplied;     // 报名人数
+    private String  time;     
     public HealthActivityInfoDTO() {
 
     }
@@ -77,6 +87,13 @@ public class HealthActivityInfoDTO {
         this.enroll_end_time = info.getEnrollEndTime() == null ? null : format.format(info.getEnrollEndTime());
         this.update_date = info.getUpdateDate() == null ? null : format.format(info.getUpdateDate());
         this.summaryHtml = info.getSummaryHtml();
+        
+        String startHourMin = hourMinute_sdf.format(info.getStarttime());
+        String endHourMin = hourMinute_sdf.format(info.getEndtime());
+        this.time = monthDayStr_sdf.format(info.getStarttime())
+                + (isSameDate(info.getStarttime(), info.getEndtime()) ? "" : "-"
+                        + monthDayStr_sdf.format(info.getEndtime())) + " " + startHourMin
+                + (startHourMin.equals(endHourMin) ? "" : "～" + endHourMin);
     }
 
     public static List<HealthActivityInfoDTO> infoDTO(List<HealthActivityInfo> infos) {
@@ -90,4 +107,16 @@ public class HealthActivityInfoDTO {
         return infoDTO;
     }
 
+    private static boolean isSameDate(Date date1, Date date2) {
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+
+        boolean isSameYear = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+        boolean isSameMonth = isSameYear && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
+        boolean isSameDate = isSameMonth && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
+
+        return isSameDate;
+    }
 }
