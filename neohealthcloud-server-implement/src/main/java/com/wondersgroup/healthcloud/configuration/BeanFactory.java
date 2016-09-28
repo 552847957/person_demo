@@ -140,8 +140,8 @@ public class BeanFactory {
         builder.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
         builder.put("sessionExtraApiId", "edb73abf-987a-4055-9e1f-19408468cc73");//扩展session自定义字段
 
-        builder.put("smyLoginApiId", "");//三方市民云绑定接口
-        builder.put("verificationChildSubmitApiId", "");//儿童实名信息提交
+        builder.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
+        builder.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
