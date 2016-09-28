@@ -87,6 +87,9 @@ public class ChildController {
         
         //重新提交改变身份证和名字的情况进行更新
         AnonymousAccount account = anonymousAccountService.getAnonymousAccount(childId, false);
+        if(!account.getIsChild()){
+            throw new ErrorChildVerificationException("您提交的实名认证信息不是儿童账号");
+        }
         if(account != null && (!idCard.equals(account.getIdcard()) || !name.equals(account.getName()))){
             account.setIdcard(idCard);
             account.setName(name);
