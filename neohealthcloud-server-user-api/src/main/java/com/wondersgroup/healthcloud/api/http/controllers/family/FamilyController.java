@@ -195,7 +195,7 @@ public class FamilyController {
     @RequestMapping(value = "/member/registration/code", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<String> registrationCode(
-            @Header(name = "spec-area",defaultValue = "") String area, 
+            @Header(name = "main-area",defaultValue = "") String area, 
             @RequestParam String uid, 
             @RequestParam String mobile,
             @RequestParam String relation, 
