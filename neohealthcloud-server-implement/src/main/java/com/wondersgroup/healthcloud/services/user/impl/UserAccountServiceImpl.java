@@ -349,7 +349,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         Date birDate = DateFormatter.parseIdCardDate(birth);
         Date now = new Date();
         if (DateUtils.compareDate(birDate,now)>0) {
-            throw new ErrorIdcardException("身份证的出生日期不能晚于当前时间");
+            throw new ErrorIdcardException("身份证的出生日期不能大于当前时间");
         }
 
         int age = IdcardUtils.getAgeByIdCard(idCard);
@@ -387,6 +387,12 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
 
+        String birth = IdcardUtils.getBirthByIdCard(idcard);
+        Date birDate = DateFormatter.parseIdCardDate(birth);
+        Date now = new Date();
+        if (DateUtils.compareDate(birDate,now)>0) {
+            throw new ErrorIdcardException("身份证的出生日期不能大于当前时间");
+        }
         if(!parentUser.verified()){
             throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
         }else if(!"1".equals(parentUser.getIdentifytype())){
