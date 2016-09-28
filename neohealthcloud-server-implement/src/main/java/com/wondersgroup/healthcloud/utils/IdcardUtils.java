@@ -641,4 +641,15 @@ public final class IdcardUtils extends StringUtils {
         return result;
     }
 
+    public static boolean containsChinese(String s){
+        if (null == s || "".equals(s.trim())) return false;
+        for (int i = 0; i < s.length(); i++) {
+            int v = s.charAt(i);
+            if(!(v >=19968 && v <= 171941)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
