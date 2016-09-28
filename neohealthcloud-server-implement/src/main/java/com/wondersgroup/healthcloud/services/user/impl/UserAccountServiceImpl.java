@@ -337,7 +337,11 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Transactional
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
         //根据图片的url获取图片的byte
-        if(name.trim().length()<2 ||name.trim().length()>6 ){
+
+        if(!IdcardUtils.containsChinese(name)){
+            throw new ErrorChildVerificationException("姓名必须是中文");
+        }
+        if(name.length()<2 ||name.length()>6 ){
             throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
         //添加身份证的校验
@@ -383,7 +387,10 @@ public class UserAccountServiceImpl implements UserAccountService{
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
-        if(name.trim().length()<2 ||name.trim().length()>6 ){
+        if(!IdcardUtils.containsChinese(name)){
+            throw new ErrorChildVerificationException("姓名必须是中文");
+        }
+        if(name.length()<2 ||name.length()>6 ){
             throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
 
@@ -393,6 +400,13 @@ public class UserAccountServiceImpl implements UserAccountService{
         if (DateUtils.compareDate(birDate,now)>0) {
             throw new ErrorIdcardException("身份证的出生日期不能大于当前时间");
         }
+
+        int age = IdcardUtils.getAgeByIdCard(idcard);
+        if(age >= 18){
+            throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
+        }
+
+
         if(!parentUser.verified()){
             throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
         }else if(!"1".equals(parentUser.getIdentifytype())){
@@ -819,7 +833,6 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorWondersCloudException("获取用户信息失败");
         }
     }
-
 
 
 }

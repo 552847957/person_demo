@@ -70,10 +70,12 @@ public class ChildController {
         if(!isIdCard){
             throw new ErrorIdcardException();
         }
-
+        if(!IdcardUtils.containsChinese(name)){
+            throw new ErrorChildVerificationException("姓名必须是中文");
+        }
         int age = IdcardUtils.getAgeByIdCard(idCard);
-        if(age>18){
-            throw new ErrorChildVerificationException("年龄大于18岁的不能使用儿童实名认证");
+        if(age>=18){
+            throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
         }
         RegisterInfo registerInfo = userService.getOneNotNull(id);
         if(!registerInfo.verified()){
