@@ -338,7 +338,7 @@ public class UserAccountServiceImpl implements UserAccountService{
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
         //根据图片的url获取图片的byte
         if(name.trim().length()<2 ||name.trim().length()>6 ){
-            throw new ErrorChildVerificationException("姓名的长度范围为2到6");
+            throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
         //添加身份证的校验
         if(!IdcardUtils.validateCard(idCard)){
