@@ -364,7 +364,7 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorUserAccountException();
         }
         if(name.trim().length()<2 ||name.trim().length()>6 ){
-            throw new ErrorChildVerificationException("姓名的长度范围为2到6");
+            throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
 
         if(!parentUser.verified()){
