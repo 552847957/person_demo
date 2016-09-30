@@ -40,7 +40,7 @@ public class LoginController {
         JsonResponseEntity result = new JsonResponseEntity();
         User user = userHelper.getCurrentUser();
         if (user != null) {
-            logger.info("------------------------------------>" + user.getUserId() + " | " + user.getUsername());
+            logger.info("User Login --------> userId:" + user.getUserId());
             Map<String, Object> map = new HashMap<>();
             map.put("mainArea", user.getMainArea());
             map.put("sessionId", SecurityUtils.getSubject().getSession().getId());
@@ -58,7 +58,6 @@ public class LoginController {
             if (menu != null) {
                 map.put("menu", menu);
             }
-
             result.setData(map);
         }
         return result;
@@ -78,17 +77,25 @@ public class LoginController {
 
         if (SecurityUtils.getSubject().isAuthenticated()) {
             User user = userHelper.getCurrentUser();
+            //return new ModelAndView("redirect:/welcome");
             if (user != null) {
-                //return new ModelAndView("redirect:/welcome");
+                logger.info("User Login --------> userId:" + user.getUserId());
                 Map<String, Object> map = new HashMap<>();
                 map.put("mainArea", user.getMainArea());
+                map.put("sessionId", SecurityUtils.getSubject().getSession().getId());
                 if (user.getSpecArea() != null) {
                     map.put("specArea", user.getSpecArea());
                 }
+                map.put("userId", user.getUserId());
+                map.put("loginName", user.getLoginname());
                 map.put("userName", user.getUsername());
                 AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
                 if (appKCfg != null) {
                     map.put("areaName", appKCfg.getName());
+                }
+                MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+                if (menu != null) {
+                    map.put("menu", menu);
                 }
                 result.setData(map);
             }
