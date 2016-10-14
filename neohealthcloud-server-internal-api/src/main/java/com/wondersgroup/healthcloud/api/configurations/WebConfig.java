@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParame
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalGateInterceptor;
+import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalRequestHeaderInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -95,6 +96,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new InternalGateInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new InternalRequestHeaderInterceptor(true));
         super.addInterceptors(registry);
     }
 
