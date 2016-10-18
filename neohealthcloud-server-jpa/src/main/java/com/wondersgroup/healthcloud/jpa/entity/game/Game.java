@@ -31,6 +31,7 @@ public class Game {
     private Integer weixinShare;//微信分享次数
     @Column(name="max_score")
     private Integer maxScore;//微信分享次数
+    private String type;//游戏类型  bacteria：细菌大作战，turntable：幸运大转盘
 
 
 }
