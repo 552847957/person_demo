@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Transient;
-
 import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,6 +49,8 @@ public class HealthActivityInfoDTO {
     private String  update_date;
     private Integer totalApplied;     // 报名人数
     private String  time;     
+    private String  offline_start_time;//线下活动开始时间   
+    private String  offline_end_time;  //线下活动结束时间 
     public HealthActivityInfoDTO() {
 
     }
@@ -85,6 +85,8 @@ public class HealthActivityInfoDTO {
         this.offline_time = info.getOfflineTime() == null ? null : format.format(info.getOfflineTime());
         this.enroll_start_time = info.getEnrollStartTime() == null ? null : format.format(info.getEnrollStartTime());
         this.enroll_end_time = info.getEnrollEndTime() == null ? null : format.format(info.getEnrollEndTime());
+        this.offline_start_time = info.getOfflineStartTime() == null ? null : format.format(info.getOfflineStartTime());
+        this.offline_end_time = info.getOfflineEndTime() == null ? null : format.format(info.getOfflineEndTime());
         this.update_date = info.getUpdateDate() == null ? null : format.format(info.getUpdateDate());
         this.summaryHtml = info.getSummaryHtml();
         

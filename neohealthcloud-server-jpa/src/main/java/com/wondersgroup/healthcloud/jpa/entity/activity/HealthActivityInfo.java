@@ -75,5 +75,11 @@ public class HealthActivityInfo {
     @Column(name = "update_date")
     @SerializedName("update_date")
     private Date              updateDate;
+    @Column(name = "offline_start_time")
+    @SerializedName("offline_start_time")
+    private Date              offlineStartTime;
+    @Column(name = "offline_end_time")
+    @SerializedName("offline_end_time")
+    private Date              offlineEndTime;
 
 }
