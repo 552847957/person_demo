@@ -1,23 +1,13 @@
 package com.wondersgroup.healthcloud.services.game.impl;
 
-import com.wondersgroup.healthcloud.jpa.entity.game.Game;
 import com.wondersgroup.healthcloud.jpa.entity.game.GameScore;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameScoreRepository;
 import com.wondersgroup.healthcloud.services.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.sql.DataSource;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -96,6 +86,36 @@ public class GameServiceImpl implements GameService{
         DecimalFormat format=new DecimalFormat(".00");
         format.setRoundingMode(RoundingMode.FLOOR);
         return Float.parseFloat(format.format(rate));
+    }
+
+    @Override
+    public List<Map<String, Object>> getGamePrize(String gameType) {
+        String sql = "select prize.id, game.name as gameName, prize.amount,prize.name \n" +
+                " from app_tb_game_prize prize join app_tb_game game  on prize.game_id = game.id \n" +
+                " where game.type = '"+gameType+"' and prize.del_flag = '0'" +
+                " order by prize.update_date desc ";
+        return jt.queryForList(sql);
+    }
+
+    @Override
+    public List<Map<String, Object>> getPrizeWin(int number, int size, String gameType) {
+        String sql = "select win.registerid , win.create_date as date ,prize.name\n" +
+                " from app_tb_prize_win win \n" +
+                " join app_tb_game_prize prize on win.prizeid = prize.id \n" +
+                " join app_tb_game game on prize.game_id = game.id\n" +
+                " where game.type = '"+gameType+"' and prize.del_flag = '0'\n" +
+                " limit "+(number-1) * size+","+size;
+        return jt.queryForList(sql);
+    }
+
+    @Override
+    public Integer getPrizeTotal(String gameType) {
+        String sql = "select count(1) as total" +
+                " from app_tb_prize_win win \n" +
+                " join app_tb_game_prize prize on win.prizeid = prize.id \n" +
+                " join app_tb_game game on prize.game_id = game.id\n" +
+                " where game.type = '"+gameType+"' and prize.del_flag = '0'\n";
+        return Integer.parseInt(jt.queryForMap(sql).get("total").toString());
     }
 
 
