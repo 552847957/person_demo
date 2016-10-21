@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.jpa.entity.game.Game;
 import com.wondersgroup.healthcloud.jpa.entity.game.GameScore;
 import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.enums.GameType;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameScoreRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.WechatRegisterRepository;
@@ -116,7 +117,7 @@ public class GameController {
     public JsonResponseEntity setPersonScore(
             @RequestHeader(name="access-token",required = false) String token,
             @RequestHeader(name="openid",required = false) String openid,
-            @RequestParam(required = false,defaultValue = "bacteria") String type,
+            @RequestParam(required = false) String type,
             @RequestBody String request) throws  Exception{
 
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -149,7 +150,7 @@ public class GameController {
         }
 
         int maxScore = 18000;
-        Game game = gameRepo.getTopGame(type);
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
         if(null != game && null != game.getMaxScore()){
             maxScore = game.getMaxScore();
         }
@@ -237,7 +238,7 @@ public class GameController {
     public JsonResponseEntity share(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer platform = reader.readInteger("platform", false);
-        String type = reader.readDefaultString("type","bacteria");
+        String type = reader.readDefaultString("type",GameType.bacteria.toString());
         Game game = gameRepo.getTopGame(type);
 
         if(null != game) {
@@ -259,7 +260,7 @@ public class GameController {
      */
     @GetMapping(path = "/rule")
     public JsonResponseEntity rule(@RequestParam(required = false,defaultValue = "bacteria") String type){
-        Game game = gameRepo.getTopGame(type);
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setData(ImmutableMap.of("rule",null != game?game.getRule():""));
         return entity;
@@ -271,7 +272,7 @@ public class GameController {
      */
     @GetMapping(path = "/check")
     public JsonResponseEntity check(@RequestParam(required = false,defaultValue = "bacteria") String type){
-        Game game = gameRepo.getTopGame(type);
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
 
         Boolean flag = false;
 
