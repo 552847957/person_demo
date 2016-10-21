@@ -8,7 +8,6 @@ import com.wondersgroup.healthcloud.jpa.repository.game.GamePrizeRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.PrizeWinReporistory;
 import com.wondersgroup.healthcloud.services.game.GameService;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +29,12 @@ public class PrizeController {
     private GameService gameService;
     @Autowired
     private PrizeWinReporistory prizeWinRepo;
+
+    @GetMapping(path = "/game/prize/list")
+    public JsonResponseEntity pirzeList(){
+        List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
+        return new JsonResponseEntity(0,null,list);
+    }
 
     @PostMapping(path = "/prize/update")
     public JsonResponseEntity update(@RequestBody GamePrize gamePrize){
@@ -57,7 +62,7 @@ public class PrizeController {
     public JsonResponseEntity win(@RequestBody Pager pager){
         List<Map<String,Object>> list = gameService.getPrizeWin(pager.getNumber(), pager.getSize(), GameType.turntable.toString());
         for(Map<String,Object> map : list){
-            map.put("date",map.get("date").toString().substring(0,19));
+            map.put("date",map.get("date").toString().substring(0, 19));
         }
         pager.setData(list);
         pager.setTotalElements(gameService.getPrizeTotal(GameType.turntable.toString()));
