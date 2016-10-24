@@ -63,7 +63,7 @@ public class PrizeController {
         }
         pager.setData(list);
         pager.setTotalElements(gameService.getPrizeTotal(pager.getParameter().get("activityid").toString(),GameType.turntable.toString()));
-        return new JsonResponseEntity(0,null,list);
+        return new JsonResponseEntity(0,null,pager);
     }
 
     @GetMapping(path = "/export")
