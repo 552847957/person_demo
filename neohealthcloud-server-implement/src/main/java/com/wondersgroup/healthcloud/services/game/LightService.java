@@ -12,4 +12,6 @@ public interface LightService {
     List<Map<String,Object>> getDicLight(String registerid);
 
     Map<String,Object> getRecentDicLight(String registerid);
+
+    List<Map<String,Object>> statistic(String code);
 }

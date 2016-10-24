@@ -90,7 +90,7 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public List<Map<String, Object>> getGamePrize(String gameType) {
-        String sql = "select prize.id, game.name as gameName, prize.amount,prize.name \n" +
+        String sql = "select prize.id, game.name as gameName, prize.amount,prize.name,prize.level \n" +
                 " from app_tb_game_prize prize join app_tb_game game  on prize.game_id = game.id \n" +
                 " where game.type = '"+gameType+"' and prize.del_flag = '0'" +
                 " order by prize.update_date desc ";
@@ -98,23 +98,23 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public List<Map<String, Object>> getPrizeWin(int number, int size, String gameType) {
+    public List<Map<String, Object>> getPrizeWin(int number, int size, String activityid ,String gameType) {
         String sql = "select win.registerid , win.create_date as date ,prize.name\n" +
                 " from app_tb_prize_win win \n" +
                 " join app_tb_game_prize prize on win.prizeid = prize.id \n" +
                 " join app_tb_game game on prize.game_id = game.id\n" +
-                " where game.type = '"+gameType+"' and prize.del_flag = '0'\n" +
+                " where game.type = '"+gameType+"' and prize.del_flag = '0' and win.activityid = '"+activityid+"'" +
                 " limit "+(number-1) * size+","+size;
         return jt.queryForList(sql);
     }
 
     @Override
-    public Integer getPrizeTotal(String gameType) {
+    public Integer getPrizeTotal(String activityid ,String gameType) {
         String sql = "select count(1) as total" +
                 " from app_tb_prize_win win \n" +
                 " join app_tb_game_prize prize on win.prizeid = prize.id \n" +
                 " join app_tb_game game on prize.game_id = game.id\n" +
-                " where game.type = '"+gameType+"' and prize.del_flag = '0'\n";
+                " where game.type = '"+gameType+"' and prize.del_flag = '0' and win.activityid = '"+activityid+"'";
         return Integer.parseInt(jt.queryForMap(sql).get("total").toString());
     }
 

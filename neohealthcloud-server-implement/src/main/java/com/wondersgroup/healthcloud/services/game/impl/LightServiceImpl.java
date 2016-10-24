@@ -18,9 +18,16 @@ public class LightServiceImpl implements LightService{
     private JdbcTemplate jt;
     @Override
     public List<Map<String, Object>> findAreaByParentCode(String code) {
+        String sql = null;
+        if(code.equals("310000000000")){//统计上海市
+            sql = " select code,explain_memo as name from t_dic_area where upper_code in(\n" +
+                    " select code from t_dic_area where upper_code = '"+code+"'" +
+                    " ) and del_flag = '0'";
+        }else{
+            sql = "select code,explain_memo as name from t_dic_area " +
+                    " where upper_code = '"+code+"' and del_flag = '0'";
+        }
 
-        String sql = "select code,explain_memo as name from t_dic_area " +
-                " where upper_code = '"+code+"' and del_flag = '0';\n";
         return jt.queryForList(sql);
     }
 
@@ -42,5 +49,24 @@ public class LightServiceImpl implements LightService{
                 " where light.del_flag = '0' and light.registerid = '"+registerid+"'" +
                 " order by light.create_date desc limit 1";
         return jt.queryForMap(sql);
+    }
+
+    @Override
+    public List<Map<String, Object>> statistic(String code) {
+
+        String sql = null;
+        if(code.equals("310000000000")){//统计上海市
+            sql = "select code," +
+                    " (select count(1)+1 from app_tb_area_light light where light.del_flag = '0' AND light.area_code in " +
+                    " (select code from t_dic_area where upper_code = area.code)) as count" +
+                    " from t_dic_area area where upper_code in" +
+                    "  (select code from t_dic_area where upper_code = '"+code+"') and del_flag = '0'";
+        }else{
+            sql = "select code,\n" +
+                    " (select count(1)+1 from app_tb_area_light light where light.del_flag = '0' AND light.area_code in \n" +
+                    " (select code from t_dic_area where upper_code = area.code)) as count\n" +
+                    " from t_dic_area area where upper_code = '"+code+"' and del_flag = '0'";
+        }
+        return jt.queryForList(sql);
     }
 }

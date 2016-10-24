@@ -30,11 +30,27 @@ public class PrizeController {
     @Autowired
     private PrizeWinReporistory prizeWinRepo;
 
-    @GetMapping(path = "/game/prize/list")
+    /**
+     * 中奖信息
+     * @return
+     */
+    @GetMapping(path = "/game/prize/win")
+    public JsonResponseEntity prize(){
+        List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
+        return new JsonResponseEntity(0,null,list);
+    }
+
+    /**
+     * 中奖信息
+     * @return
+     */
+    @GetMapping(path = "/game/prize/info")
     public JsonResponseEntity pirzeList(){
         List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
         return new JsonResponseEntity(0,null,list);
     }
+
+
 
     @PostMapping(path = "/prize/update")
     public JsonResponseEntity update(@RequestBody GamePrize gamePrize){
@@ -60,12 +76,13 @@ public class PrizeController {
 
     @PostMapping(path = "/prize/win")
     public JsonResponseEntity win(@RequestBody Pager pager){
-        List<Map<String,Object>> list = gameService.getPrizeWin(pager.getNumber(), pager.getSize(), GameType.turntable.toString());
+        List<Map<String,Object>> list = gameService.getPrizeWin(pager.getNumber(), pager.getSize(),
+                pager.getParameter().get("activityid").toString(), GameType.turntable.toString());
         for(Map<String,Object> map : list){
             map.put("date",map.get("date").toString().substring(0, 19));
         }
         pager.setData(list);
-        pager.setTotalElements(gameService.getPrizeTotal(GameType.turntable.toString()));
+        pager.setTotalElements(gameService.getPrizeTotal(pager.getParameter().get("activityid").toString(),GameType.turntable.toString()));
         return new JsonResponseEntity(0,null,list);
     }
 

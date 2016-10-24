@@ -18,6 +18,7 @@ public class PrizeWin {
     private Integer id;
     private String registerid;//中奖人主键
     private Integer prizeid;//奖品主键
+    private String activityid;//活动详情
     @Column(name="create_date")
     private Date createDate;//中奖时间
     @Column(name = "del_flag")

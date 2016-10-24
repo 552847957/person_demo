@@ -42,7 +42,7 @@ public class LightController {
 
     @GetMapping(path = "/area")
     public JsonResponseEntity area(
-            @RequestParam(name = "code",required = false,defaultValue = "310100000000") String code){
+            @RequestParam(name = "code",required = false,defaultValue = "310000000000") String code){
         List<Map<String, Object>> list =  lightService.findAreaByParentCode(code);
         return new JsonResponseEntity(0,null,list);
     }
@@ -82,7 +82,7 @@ public class LightController {
         dicLight.setDelFlag("0");
         dicLightRepo.save(dicLight);
 
-        return new JsonResponseEntity(0,"点亮成功!",null);
+        return new JsonResponseEntity(0,"点亮成功!",ImmutableMap.of("count",dicLightRepo.getTotal()));
     }
 
     /**
@@ -103,6 +103,14 @@ public class LightController {
         List<Map<String,Object>> list = lightService.getDicLight(registerid);
 
         return new JsonResponseEntity(0,null,this.getDicLightInfo(list));
+    }
+
+
+
+    @GetMapping("/statistic")
+    public JsonResponseEntity statistic(@RequestParam(name = "code",required = false,defaultValue = "310000000000") String code){
+        List<Map<String, Object>> list =  lightService.statistic(code);
+        return new JsonResponseEntity(0,null,list);
     }
 
     @GetMapping("/share")
