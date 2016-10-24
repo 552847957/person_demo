@@ -6,7 +6,6 @@ import com.wondersgroup.healthcloud.jpa.entity.game.GamePrize;
 import com.wondersgroup.healthcloud.jpa.enums.GameType;
 import com.wondersgroup.healthcloud.jpa.repository.game.GamePrizeRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
-import com.wondersgroup.healthcloud.jpa.repository.game.PrizeWinReporistory;
 import com.wondersgroup.healthcloud.services.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
