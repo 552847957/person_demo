@@ -16,10 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 奖品后台管理
  * Created by zhuchunliu on 2016/10/21.
  */
 @RestController
-@RequestMapping
+@RequestMapping("/prize")
 public class PrizeController {
     @Autowired
     private GamePrizeRepository gamePrizeRepo;
@@ -27,32 +28,8 @@ public class PrizeController {
     private GameRepository gameRepo;
     @Autowired
     private GameService gameService;
-    @Autowired
-    private PrizeWinReporistory prizeWinRepo;
 
-    /**
-     * 中奖信息
-     * @return
-     */
-    @GetMapping(path = "/game/prize/win")
-    public JsonResponseEntity prize(){
-        List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
-        return new JsonResponseEntity(0,null,list);
-    }
-
-    /**
-     * 中奖信息
-     * @return
-     */
-    @GetMapping(path = "/game/prize/info")
-    public JsonResponseEntity pirzeList(){
-        List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
-        return new JsonResponseEntity(0,null,list);
-    }
-
-
-
-    @PostMapping(path = "/prize/update")
+    @PostMapping(path = "/update")
     public JsonResponseEntity update(@RequestBody GamePrize gamePrize){
         gamePrize.setDelFlag("0");
         gamePrize.setGameId(gameRepo.getTopGame(GameType.turntable.toString()).getId());
@@ -61,20 +38,23 @@ public class PrizeController {
         return new JsonResponseEntity(0,"保存成功");
     }
 
-    @DeleteMapping(path = "/prize/delete")
+    @DeleteMapping(path = "/delete")
     public JsonResponseEntity update(@RequestParam(name = "id",required = true) Integer id){
-        gamePrizeRepo.delete(id);
+        GamePrize gamePrize = gamePrizeRepo.findOne(id);
+        gamePrize.setDelFlag("1");
+        gamePrize.setUpdateDate(new Date());
+        gamePrizeRepo.save(gamePrize);
         return new JsonResponseEntity(0,"删除成功");
     }
 
-    @GetMapping(path = "/prize/list")
+    @GetMapping(path = "/list")
     public JsonResponseEntity list(){
         List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
         return new JsonResponseEntity(0,null,list);
     }
 
 
-    @PostMapping(path = "/prize/win")
+    @PostMapping(path = "/win")
     public JsonResponseEntity win(@RequestBody Pager pager){
         List<Map<String,Object>> list = gameService.getPrizeWin(pager.getNumber(), pager.getSize(),
                 pager.getParameter().get("activityid").toString(), GameType.turntable.toString());
@@ -86,7 +66,7 @@ public class PrizeController {
         return new JsonResponseEntity(0,null,list);
     }
 
-    @GetMapping(path = "/prize/export")
+    @GetMapping(path = "/export")
     public JsonResponseEntity export(){
         List<Map<String,Object>> list = gameService.getGamePrize(GameType.turntable.toString());
         return new JsonResponseEntity(0,null,list);

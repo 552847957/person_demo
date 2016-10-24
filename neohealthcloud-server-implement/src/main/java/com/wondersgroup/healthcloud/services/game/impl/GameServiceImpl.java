@@ -103,7 +103,7 @@ public class GameServiceImpl implements GameService{
                 " from app_tb_prize_win win \n" +
                 " join app_tb_game_prize prize on win.prizeid = prize.id \n" +
                 " join app_tb_game game on prize.game_id = game.id\n" +
-                " where game.type = '"+gameType+"' and prize.del_flag = '0' and win.activityid = '"+activityid+"'" +
+                " where game.type = '"+gameType+"' and prize.del_flag = '0' and win.del_flag = '0' and win.activityid = '"+activityid+"'" +
                 " limit "+(number-1) * size+","+size;
         return jt.queryForList(sql);
     }
