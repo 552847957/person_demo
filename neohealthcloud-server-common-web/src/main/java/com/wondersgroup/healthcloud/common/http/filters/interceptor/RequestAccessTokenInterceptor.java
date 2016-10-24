@@ -5,6 +5,7 @@ import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.ErrorMessageSelector;
+import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.common.http.support.misc.SessionDTO;
 import com.wondersgroup.healthcloud.common.http.support.version.APIScanner;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
@@ -61,28 +62,28 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
         String method = request.getMethod();
         String URI = request.getServletPath();
 
-        if (!ifExclude(method, URI)) {
-            int code;
-            String message;
-            String token = request.getHeader(accesstokenHeader);
-            if (token == null) {
-                code = 10;
-                message = ErrorMessageSelector.getOne();
-            } else {//token!=null
-                Session session = sessionUtil.get(token);
-                if (session == null) {
-                    code = 12;
-                    message = "登录凭证过期, 请重新登录";
-                } else if (!session.getIsValid()) {
-                    code = 13;
-                    message = "账户在其他设备登录, 请重新登录";
-                } else if (session.isGuest()) {
-                    code = 1000;
-                    message = "请登录";
-                } else {
-                    return true;
-                }
+        int code;
+        String message;
+        String token = request.getHeader(accesstokenHeader);
+        if (token == null) {
+            code = 10;
+            message = ErrorMessageSelector.getOne();
+        } else {//token!=null
+            Session session = ServletAttributeCacheUtil.getSession(request, sessionUtil);
+            if (session == null) {
+                code = 12;
+                message = "登录凭证过期, 请重新登录";
+            } else if (!session.getIsValid()) {
+                code = 13;
+                message = "账户在其他设备登录, 请重新登录";
+            } else if (session.isGuest()) {
+                code = 1000;
+                message = "请登录";
+            } else {
+                return true;
             }
+        }
+        if (!ifExclude(method, URI) || code == 12 || code == 13) {
             buildGuestResponseBody(response, code, message);
             return false;
         } else {
