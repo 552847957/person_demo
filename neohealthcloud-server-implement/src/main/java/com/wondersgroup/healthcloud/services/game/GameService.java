@@ -17,5 +17,7 @@ public interface GameService {
 
     List<Map<String,Object>> getPrizeWin(int number, int size, String activityid ,String gameType);
 
-    Integer getPrizeTotal(String activityid ,String gameType);
+    Integer getPrizeWinTotal(String activityid ,String gameType);
+
+    List<Map<String,Object>> getPrizeWinList(String activityid, String gameType);
 }

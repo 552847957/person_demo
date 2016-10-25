@@ -36,7 +36,7 @@ public final class InternalRequestHeaderInterceptor extends AbstractHeaderInterc
         }
 
         String reqURI = request.getRequestURI();
-        if(!reqURI.contains("/api/login;") && !reqURI.contains("/api/welcome;") && !reqURI.contains("/game/")){
+        if(!reqURI.contains("/api/login;") && !reqURI.contains("/api/welcome;") && !reqURI.contains("/game/") && !reqURI.contains("/token/")){
             HeaderCode mainArea = new HeaderCode("main-area", -1000);
             HeaderCode userId = new HeaderCode("userId", -1000);
             if (!checkOne(request, mainArea) || !checkOne(request, userId)) {

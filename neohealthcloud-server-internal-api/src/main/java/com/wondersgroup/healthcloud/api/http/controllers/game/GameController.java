@@ -150,7 +150,7 @@ public class GameController {
         }
 
         int maxScore = 18000;
-        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type, GameType.BACTERIA.type));
         if(null != game && null != game.getMaxScore()){
             maxScore = game.getMaxScore();
         }
@@ -238,7 +238,7 @@ public class GameController {
     public JsonResponseEntity share(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer platform = reader.readInteger("platform", false);
-        String type = reader.readDefaultString("type",GameType.bacteria.toString());
+        String type = reader.readDefaultString("type",GameType.BACTERIA.type);
         Game game = gameRepo.getTopGame(type);
 
         if(null != game) {
@@ -260,7 +260,7 @@ public class GameController {
      */
     @GetMapping(path = "/rule")
     public JsonResponseEntity rule(@RequestParam(required = false,defaultValue = "bacteria") String type){
-        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.BACTERIA.type));
         JsonResponseEntity entity = new JsonResponseEntity();
         entity.setData(ImmutableMap.of("rule",null != game?game.getRule():""));
         return entity;
@@ -272,7 +272,7 @@ public class GameController {
      */
     @GetMapping(path = "/check")
     public JsonResponseEntity check(@RequestParam(required = false,defaultValue = "bacteria") String type){
-        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.bacteria.toString()));
+        Game game = gameRepo.getTopGame(StringUtils.defaultString(type,GameType.BACTERIA.type));
 
         Boolean flag = false;
 

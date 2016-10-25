@@ -56,6 +56,11 @@
             <version>${shiro.version}</version>
         </dependency>
         <!-- shiro end -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.12</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

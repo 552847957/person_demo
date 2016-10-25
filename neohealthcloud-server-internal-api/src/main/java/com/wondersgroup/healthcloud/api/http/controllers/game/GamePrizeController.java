@@ -59,7 +59,7 @@ public class GamePrizeController {
         if(null != prizeWin){
             return new JsonResponseEntity(1002,"您已抽过奖，禁止重复参与抽奖!");
         }
-        Game game = gameRepo.getTopGame(GameType.turntable.toString());
+        Game game = gameRepo.getTopGame(GameType.TURNTABLE.type);
         GamePrize gamePrize = this.drawPrize(game.getId());
         if(null == gamePrize){
             return new JsonResponseEntity(1003,"奖池奖品已经全部抽完，谢谢参与!");
