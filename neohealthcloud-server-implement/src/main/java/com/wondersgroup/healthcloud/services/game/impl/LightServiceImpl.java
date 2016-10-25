@@ -48,7 +48,8 @@ public class LightServiceImpl implements LightService{
                 " LEFT JOIN  t_dic_area parent on area.upper_code = parent.code" +
                 " where light.del_flag = '0' and light.registerid = '"+registerid+"'" +
                 " order by light.create_date desc limit 1";
-        return jt.queryForMap(sql);
+        List<Map<String,Object>> list = jt.queryForList(sql);
+        return 0 == list.size()?null : list.get(0);
     }
 
     @Override

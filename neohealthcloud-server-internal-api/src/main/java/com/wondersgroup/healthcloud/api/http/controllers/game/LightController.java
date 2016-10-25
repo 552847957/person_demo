@@ -125,6 +125,9 @@ public class LightController {
         }
 
         Map<String,Object> map = lightService.getRecentDicLight(registerid);
+        if(null == map){
+            return new JsonResponseEntity(1002,"尚未点亮任何街道!",null);
+        }
         map.put("count",dicLightRepo.getTotal());
 
         return new JsonResponseEntity(0,null,map);
