@@ -52,17 +52,17 @@ public class GamePrizeController {
             @RequestParam(name = "activityid",required = true) String activityid){
         Session session = sessionUtil.get(token);
         if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"登录已过期，请重新登录");
         }
         String registerId = session.getUserId();
         PrizeWin prizeWin = prizeWinRepo.findByRegisterId(registerId,activityid);
         if(null != prizeWin){
-            return new JsonResponseEntity(1002,"您已抽过奖，禁止重复参与抽奖!");
+            return new JsonResponseEntity(1002,"您已经中奖了，不能重复抽奖哦");
         }
         Game game = gameRepo.getTopGame(GameType.TURNTABLE.type);
         GamePrize gamePrize = this.drawPrize(game.getId());
         if(null == gamePrize){
-            return new JsonResponseEntity(1003,"奖池奖品已经全部抽完，谢谢参与!");
+            return new JsonResponseEntity(1003,"很遗憾，奖品库已空，欢迎下次参与");
         }
         PrizeWin win = new PrizeWin();
         win.setRegisterid(registerId);
@@ -89,7 +89,7 @@ public class GamePrizeController {
             ){
         Session session = sessionUtil.get(token);
         if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
-            return new JsonResponseEntity(1001,"您已长时间未登录，请重新登录!");
+            return new JsonResponseEntity(1001,"登录已过期，请重新登录");
         }
         String registerId = session.getUserId();
         PrizeWin prizeWin = prizeWinRepo.findByRegisterId(registerId,activityid);
