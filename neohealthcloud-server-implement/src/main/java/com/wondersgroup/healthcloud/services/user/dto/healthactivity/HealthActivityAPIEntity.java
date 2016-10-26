@@ -46,6 +46,9 @@ public class HealthActivityAPIEntity {
     private String  endtime;            // '结束时间',
     private String  onlineTime;         //上线时间
     private String  offlineTime;        //下线时间
+    private String  offlineStartTime;   //下线活动开始时间
+    private String  offlineEndTime;     //下线活动结束时间
+    private boolean offlineOverdue;     //是否在下线活动时间段之内
     private String  enrollStartTime;    //活动报名时间'
     private String  enrollEndTime;      //活动结束时间
 
@@ -127,8 +130,14 @@ public class HealthActivityAPIEntity {
         this.descriptionHtml = info.getSummaryHtml() == null ? info.getSummary() : info.getSummaryHtml();
         
         this.activityShare = new ActivityShare(id, "我在上海健康云发现了一个超级棒的健康活动", "赶紧点开看看吧", picture, null);
+        if(info.getOfflineStartTime() != null && info.getOfflineEndTime() != null ){
+            if(info.getOfflineStartTime().before(nowTime) && info.getOfflineEndTime().after(nowTime)){
+                offlineOverdue = true;
+            }
+        }
+        this.offlineStartTime = time_adf.format(info.getOfflineStartTime());
+        this.offlineEndTime = time_adf.format(info.getOfflineEndTime());
     }
-
     public String getId() {
         return id;
     }
@@ -492,4 +501,29 @@ public class HealthActivityAPIEntity {
             this.url = url;
         }
     }
+
+    public String getOfflineStartTime() {
+        return offlineStartTime;
+    }
+
+    public void setOfflineStartTime(String offlineStartTime) {
+        this.offlineStartTime = offlineStartTime;
+    }
+
+    public String getOfflineEndTime() {
+        return offlineEndTime;
+    }
+
+    public void setOfflineEndTime(String offlineEndTime) {
+        this.offlineEndTime = offlineEndTime;
+    }
+
+    public boolean isOfflineOverdue() {
+        return offlineOverdue;
+    }
+
+    public void setOfflineOverdue(boolean offlineOverdue) {
+        this.offlineOverdue = offlineOverdue;
+    }
+    
 }

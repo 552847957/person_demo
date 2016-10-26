@@ -74,9 +74,9 @@ public class BackArticleController {
     @PostMapping("/save")
     public JsonResponseEntity updateArticle(@RequestBody NewsArticle article){
         JsonResponseEntity response=new JsonResponseEntity();
-        if(article.getTitle().length()>10){
+        if(article.getTitle().length()>20){
             response.setCode(-1);
-            response.setMsg("字数过多，限制10个字");
+            response.setMsg("字数过多，限制20个字");
             return response;
         }
         if(article.getBrief().length()>30){

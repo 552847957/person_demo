@@ -12,4 +12,12 @@ public interface GameService {
     void updatePersonScore(String registerId, Integer score);
 
     Float getScoreRank(String registerId, Integer score);
+
+    List<Map<String,Object>> getGamePrize(String gameType);
+
+    List<Map<String,Object>> getPrizeWin(int number, int size, String activityid ,String gameType);
+
+    Integer getPrizeWinTotal(String activityid ,String gameType);
+
+    List<Map<String,Object>> getPrizeWinList(String activityid, String gameType);
 }
