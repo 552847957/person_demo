@@ -66,6 +66,7 @@ public class UserManageController {
      * @return
      */
     @GetMapping(value = "/detail")
+    @Admin
     public JsonResponseEntity<Map<String,Object>> getUserDetail(@RequestParam(required = true) String registerid){
         JsonResponseEntity<Map<String,Object>> body = new JsonResponseEntity<>();
         Map<String,Object> user = userService.findUserDetailByUid(registerid);

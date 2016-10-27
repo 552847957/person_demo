@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctorarticle.DoctorArticleCategory;
@@ -38,6 +39,7 @@ public class DoctorArticleCategoryController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "doctorArticleCategory/find", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findDoctorArticleCategory(@PageableDefault(size = 20, sort = "rank") Pageable pageable) throws JsonProcessingException {
         Page<DoctorArticleCategory> doctorArticleCategories = doctorArticleCategoryRepository.findAll(pageable);
 
@@ -61,6 +63,7 @@ public class DoctorArticleCategoryController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "doctorArticleCategory/name", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findDoctorArticleCategoryName() throws JsonProcessingException {
         List<DoctorArticleCategory> doctorArticleCategories = doctorArticleCategoryRepository.findAll();
 
@@ -83,6 +86,7 @@ public class DoctorArticleCategoryController {
      * @return
      */
     @RequestMapping(value = "doctorArticleCategoryDetail", method = RequestMethod.GET)
+    @Admin
     public JsonResponseEntity findDoctorArticleCategoryDetail(@RequestParam int id) {
         DoctorArticleCategory doctorArticleCategory = doctorArticleCategoryRepository.findById(id);
         if (doctorArticleCategory != null){
@@ -97,6 +101,7 @@ public class DoctorArticleCategoryController {
      * @return
      */
     @RequestMapping(value = "saveDoctorArticleCategory", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveDoctorArticleCategory(@RequestBody Map para) {
         DoctorArticleCategory doctorArticleCategory = MapToBeanUtil.fromMapToBean(DoctorArticleCategory.class, para);
         doctorArticleCategory.setUpdateDate(new Date());
@@ -111,6 +116,7 @@ public class DoctorArticleCategoryController {
      * @return
      */
     @PostMapping(path = "doctorArticleCategory/setVisable")
+    @Admin
     public JsonResponseEntity<String> updateCategoryVisable(@RequestBody String request ){
         JsonKeyReader reader = new JsonKeyReader(request);
         int id = reader.readInteger("id",true);

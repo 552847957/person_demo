@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreCategory;
 import com.wondersgroup.healthcloud.services.foodStore.FoodStoreService;
@@ -35,6 +36,7 @@ public class FoodStroeCategoryController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "foodStoreCategory/list", method = RequestMethod.GET)
+    @Admin
     public String findFoodStoreCategoryList(Integer isShow,
                                             @PageableDefault(size = 20, sort = "updateTime", direction = Sort.Direction.DESC)
                                             Pageable pageable) throws JsonProcessingException {
@@ -63,6 +65,7 @@ public class FoodStroeCategoryController {
      * @param id
      * @return
      * @throws JsonProcessingException
+     * H5,后台都在用
      */
     @RequestMapping(value = "foodStore/{id}", method = RequestMethod.GET)
     public String findFoodStoreCategory(@PathVariable int id) throws JsonProcessingException {
@@ -86,6 +89,7 @@ public class FoodStroeCategoryController {
      * @return
      */
     @RequestMapping(value = "saveFoodStore", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveFoodStoreCategory(@RequestBody Map para){
         FoodStoreCategory foodStoreCategory = MapToBeanUtil.fromMapToBean(FoodStoreCategory.class, para);
         foodStoreCategory.setCreateTime(new Date());
@@ -101,6 +105,7 @@ public class FoodStroeCategoryController {
      * @return
      */
     @RequestMapping(value = "updateFoodStore", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateFoodStoreCategory(@RequestBody Map para){
         FoodStoreCategory foodStoreCategory = MapToBeanUtil.fromMapToBean(FoodStoreCategory.class, para);
         foodStoreCategory.setUpdateTime(new Date());
@@ -115,6 +120,7 @@ public class FoodStroeCategoryController {
      * @return
      */
     @RequestMapping(value = "findIsShow/category", method = RequestMethod.GET)
+    @Admin
     public Object findIsShow(){
         Map<String, Object> map = new HashMap<>();
         map.put("is_show", foodStoreService.findIsShow());

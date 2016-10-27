@@ -112,6 +112,7 @@ public class FaqManageController {
      * @return
      */
     @GetMapping(value = "/detail")
+    @Admin
     public JsonResponseEntity<FaqDTO> getFaqDetail(@RequestParam(required = true) String qId){
         JsonResponseEntity<FaqDTO> response = new JsonResponseEntity<>();
         List<Map<String, Object>> faqList = faqService.findFaqListByQid(qId);

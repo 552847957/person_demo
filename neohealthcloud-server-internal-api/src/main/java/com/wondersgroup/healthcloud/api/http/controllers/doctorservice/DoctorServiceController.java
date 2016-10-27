@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceDic;
@@ -36,6 +37,7 @@ public class DoctorServiceController {
      * @return
      */
     @RequestMapping(value = "config/saveDoctorServiceDic", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveDoctorServiceDic(@RequestBody Map para) {
         para.put("id", IdGen.uuid());
         DoctorServiceDic doctorServiceDic = MapToBeanUtil.fromMapToBean(DoctorServiceDic.class, para);
@@ -50,6 +52,7 @@ public class DoctorServiceController {
      * @return
      */
     @RequestMapping(value = "config/getServiceDic", method = RequestMethod.GET)
+    @Admin
     public String queryDoctorServiceDices(String key, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<DoctorServiceDic> doctorServiceDices = doctorServiceService.queryDoctorServiceDices(key, pageable);
 
@@ -66,6 +69,7 @@ public class DoctorServiceController {
      * 医生服务包和web医生角色关联配置
      */
     @PostMapping(value = "config/saveServiceRoleMap")
+    @Admin
     public JsonResponseEntity saveDoctorServiceRoleMap(@RequestBody Map para) {
         para.put("id", IdGen.uuid());
         DoctorServiceRoleMap serviceRoleMap = MapToBeanUtil.fromMapToBean(DoctorServiceRoleMap.class, para);
@@ -77,6 +81,7 @@ public class DoctorServiceController {
      * 查询医生服务包和web医生角色关联配置列表
      */
     @RequestMapping(value = "config/getServiceRoleMap", method = RequestMethod.GET)
+    @Admin
     public String queryDoctorServiceRoleMap(String key, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<DoctorServiceRoleMap> doctorServiceRoleMaps = doctorServiceService.queryDoctorServiceRoleMap(key, pageable);
 
@@ -92,7 +97,7 @@ public class DoctorServiceController {
     /**
      * 删除医生服务包和web医生角色关联配置列表
      */
-
+    @Admin
     @RequestMapping(value = "config/deleteServiceRoleMap/{id}", method = RequestMethod.GET)
     public JsonResponseEntity deleteServiceRoleMap(@PathVariable String id) {
         int index = doctorServiceService.deleteDoctorServiceRoleMap(id);

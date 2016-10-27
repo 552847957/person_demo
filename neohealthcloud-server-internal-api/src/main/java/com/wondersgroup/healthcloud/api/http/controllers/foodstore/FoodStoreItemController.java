@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.foodStore.FoodStoreItem;
 import com.wondersgroup.healthcloud.services.foodStore.FoodStoreItemService;
@@ -51,6 +52,7 @@ public class FoodStoreItemController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "foodStoreItem/list", method = RequestMethod.GET)
+    @Admin
     public String findFoodStoreItemList(@RequestParam Integer categoryId,
                                         String foodName,
                                         @RequestParam Integer isShow,
@@ -79,6 +81,7 @@ public class FoodStoreItemController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "foodStoreItem", method = RequestMethod.GET)
+    @Admin
     public String findFoodStoreItem(@RequestParam int id) throws JsonProcessingException {
         FoodStoreItem foodStoreItem = foodStoreItemService.findById(id);
         Map<Class, Object> filterMap = new HashMap<>();
@@ -99,6 +102,7 @@ public class FoodStoreItemController {
      * @return
      */
     @RequestMapping(value = "saveFoodStoreItem", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveFoodStoreItem(@RequestBody Map para){
         FoodStoreItem foodStoreItem = MapToBeanUtil.fromMapToBean(FoodStoreItem.class, para);
         foodStoreItem.setCreateTime(new Date());
@@ -114,6 +118,7 @@ public class FoodStoreItemController {
      * @return
      */
     @RequestMapping(value = "updateFoodStoreItem", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateFoodStoreItem(@RequestBody Map para){
         FoodStoreItem foodStoreItem = MapToBeanUtil.fromMapToBean(FoodStoreItem.class, para);
         foodStoreItem.setUpdateTime(new Date());
@@ -128,6 +133,7 @@ public class FoodStoreItemController {
      * @return
      */
     @RequestMapping(value = "findIsShow/item", method = RequestMethod.GET)
+    @Admin
     public Object findIsShow(){
         Map<String, Object> map = new HashMap<>();
         map.put("is_show", foodStoreItemService.findIsShow());
@@ -139,6 +145,7 @@ public class FoodStoreItemController {
      * @return
      */
     @RequestMapping(value = "findCategoryName", method = RequestMethod.GET)
+    @Admin
     public Object findCategoryName(){
         List<Object[]> objects = foodStoreItemService.findCategoryName();
         List<Object> list = new ArrayList<>();
@@ -159,6 +166,7 @@ public class FoodStoreItemController {
      * @return
      */
     @RequestMapping(value = "updateIsShow", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateIsShow(@RequestParam int isShow,
                                            @RequestParam List<Integer> itemId){
         foodStoreItemService.updateIsShowByIds(isShow, new Date(), itemId);
@@ -175,6 +183,7 @@ public class FoodStoreItemController {
      */
     @ResponseBody
     @RequestMapping(value="postExportFood", method= RequestMethod.POST)
+    @Admin
     public JsonResponseEntity postExportFood(@RequestParam Integer category_id,
                                              @RequestParam Integer is_show,
                                              @RequestParam String export_url){

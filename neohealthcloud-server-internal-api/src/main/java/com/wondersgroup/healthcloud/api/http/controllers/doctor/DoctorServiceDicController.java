@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceDic;
@@ -35,6 +36,7 @@ public class DoctorServiceDicController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "doctorServiceDic/detail", method = RequestMethod.GET)
+    @Admin
     public JsonResponseEntity<DoctorServiceDic> findDoctorServiceDicDetail(@RequestParam String id){
         JsonResponseEntity<DoctorServiceDic> response = new JsonResponseEntity<>();
         DoctorServiceDic doctorServiceDic = doctorServiceDicRepository.findById(id);
@@ -53,6 +55,7 @@ public class DoctorServiceDicController {
      * @return
      */
     @RequestMapping(value = "updateDoctorServiceDic", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateDoctorServiceDic(@RequestBody DoctorServiceDic doctorServiceDic) {
         if(doctorServiceDic!=null){
             if(StringUtils.isBlank(doctorServiceDic.getId())){
@@ -75,6 +78,7 @@ public class DoctorServiceDicController {
      * @return
      */
     @RequestMapping(value = "serviceDic/setAvailable", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity setAvailable(@RequestBody DoctorServiceDic doctorServiceDic) {
         if(doctorServiceDic!=null&& StringUtils.isNotBlank(doctorServiceDic.getId())
                 && StringUtils.isNotBlank(doctorServiceDic.getIsAvailable())) {

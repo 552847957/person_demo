@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.utils.Pager;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
@@ -28,6 +29,7 @@ public class DoctorAccountController {
     private DoctorService doctorService;
 
     @RequestMapping(value = "/doctor/list", method = RequestMethod.POST)
+    @Admin
     public Pager findDoctorList(@RequestBody Pager pager){
         int pageNum = 1;
         if(pager.getNumber()!=0)
@@ -46,6 +48,7 @@ public class DoctorAccountController {
      * @return
      */
     @PostMapping(path = "/doctor/available")
+    @Admin
     public JsonResponseEntity updateIsAvailable(@RequestBody String body){
         JsonKeyReader reader = new JsonKeyReader(body);
         String ids = reader.readString("ids", true);
