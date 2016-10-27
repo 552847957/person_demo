@@ -78,7 +78,7 @@ public class GamePrizeController {
         int rank = gamePrizeRepo.getLessThenLevelTotal(game.getId(),gamePrize.getLevel());
 
         Map map = Maps.newHashMap();
-        HealthActivityInfo activity = activityInfoRepo.findOne(prizeWin.getActivityid());
+        HealthActivityInfo activity = activityInfoRepo.findOne(win.getActivityid());
 
         if(null != activity){
             map.put("location",activity.getLocate());
