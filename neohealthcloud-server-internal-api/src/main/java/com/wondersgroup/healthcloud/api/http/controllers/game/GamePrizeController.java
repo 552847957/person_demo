@@ -72,10 +72,25 @@ public class GamePrizeController {
         win.setDelFlag("0");
         prizeWinRepo.save(win);
 
+
+
         int total = gamePrizeRepo.getTotalByGameId(game.getId());
         int rank = gamePrizeRepo.getLessThenLevelTotal(game.getId(),gamePrize.getLevel());
 
-        return new JsonResponseEntity(0,null, ImmutableMap.of("total",total,"rank",rank));
+        Map map = Maps.newHashMap();
+        HealthActivityInfo activity = activityInfoRepo.findOne(prizeWin.getActivityid());
+
+        if(null != activity){
+            map.put("location",activity.getLocate());
+            map.put("startDate", new DateTime(activity.getOfflineEndTime()).getDayOfMonth());
+            map.put("startTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
+            map.put("endTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
+        }
+        map.put("prizeName",gamePrize.getName());
+        map.put("total",total);
+        map.put("rank",rank);
+
+        return new JsonResponseEntity(0,null, map);
     }
 
     /**
