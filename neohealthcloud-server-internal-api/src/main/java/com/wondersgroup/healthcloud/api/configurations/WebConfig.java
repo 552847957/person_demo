@@ -96,7 +96,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new InternalGateInterceptor()).addPathPatterns("/**");
-        registry.addInterceptor(new InternalRequestHeaderInterceptor(true));
+//        registry.addInterceptor(new InternalRequestHeaderInterceptor(true));
         super.addInterceptors(registry);
     }
 
