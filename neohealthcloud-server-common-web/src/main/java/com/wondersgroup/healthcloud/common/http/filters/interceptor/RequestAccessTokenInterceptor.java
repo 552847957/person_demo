@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUti
 import com.wondersgroup.healthcloud.common.http.support.misc.SessionDTO;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -50,7 +51,7 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
         int code;
         String message;
         String token = request.getHeader(accesstokenHeader);
-        if (token == null) {
+        if (StringUtils.isBlank(token)) {
             code = 10;
             message = ErrorMessageSelector.getOne();
         } else {//token!=null
