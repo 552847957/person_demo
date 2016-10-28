@@ -84,7 +84,7 @@ public class GamePrizeController {
             map.put("location",activity.getLocate());
             map.put("startDate", new DateTime(activity.getOfflineEndTime()).getDayOfMonth());
             map.put("startTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
-            map.put("endTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
+            map.put("endTime", new DateTime(activity.getOfflineEndTime()).getHourOfDay());
         }
         map.put("prizeName",gamePrize.getName());
 //        map.put("total",total);
@@ -120,7 +120,7 @@ public class GamePrizeController {
                 map.put("location",activity.getLocate());
                 map.put("startDate", new DateTime(activity.getOfflineEndTime()).getDayOfMonth());
                 map.put("startTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
-                map.put("endTime", new DateTime(activity.getOfflineStartTime()).getHourOfDay());
+                map.put("endTime", new DateTime(activity.getOfflineEndTime()).getHourOfDay());
             }
             return new JsonResponseEntity(0,null,map);
         }
