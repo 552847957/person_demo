@@ -1,22 +1,20 @@
 package com.wondersgroup.healthcloud.common.http.filters.interceptor;
 
-import com.google.common.collect.ImmutableSet;
 import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.ErrorMessageSelector;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.common.http.support.misc.SessionDTO;
-import com.wondersgroup.healthcloud.common.http.support.version.APIScanner;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -36,17 +34,7 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
 
     private static final String accesstokenHeader = "access-token";
 
-    private static final ImmutableSet<String> exclude;
-
     private SessionUtil sessionUtil;
-
-    static {
-        List<String> parseFromPackage = APIScanner.getAPIsByExistAnnotation("com.wondersgroup.healthcloud", WithoutToken.class);
-        for (String path : parseFromPackage) {
-            logger.info("without token annotated " + path);
-        }
-        exclude = ImmutableSet.copyOf(parseFromPackage);
-    }
 
     public RequestAccessTokenInterceptor(SessionUtil sessionUtil, Boolean isSandbox) {
         this.isSandbox = isSandbox;
@@ -58,9 +46,6 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
         if (skipHeaderCheck(request)) {
             return true;
         }
-
-        String method = request.getMethod();
-        String URI = request.getServletPath();
 
         int code;
         String message;
@@ -83,7 +68,14 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
                 return true;
             }
         }
-        if (!ifExclude(method, URI) || code == 12 || code == 13) {
+
+        boolean excluded = false;
+        if (o instanceof HandlerMethod) {
+            HandlerMethod hm = (HandlerMethod) o;
+            excluded = hm.getMethodAnnotation(WithoutToken.class) != null;
+        }
+
+        if (!excluded || code == 12 || code == 13) {
             buildGuestResponseBody(response, code, message);
             return false;
         } else {
@@ -114,9 +106,5 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
         } catch (IOException e) {
             //ignore
         }
-    }
-
-    private boolean ifExclude(String method, String URI) {
-        return exclude.contains(method + URI);
     }
 }
