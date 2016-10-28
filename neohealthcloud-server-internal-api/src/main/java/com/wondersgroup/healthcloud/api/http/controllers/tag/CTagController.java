@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.tag.CTag;
@@ -37,6 +38,7 @@ public class CTagController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "cTag/find", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findAllTag() throws JsonProcessingException {
         List<CTag> cTags = cTagRepository.findAll();
 
@@ -55,6 +57,7 @@ public class CTagController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "cTags", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findTags(@PageableDefault(size = 20, sort = "tagsort")Pageable pageable) throws JsonProcessingException {
         Page<CTag> cTags = cTagRepository.findAll(pageable);
 
@@ -74,6 +77,7 @@ public class CTagController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "cTag/detail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findTagDetail(@RequestParam String id) throws JsonProcessingException {
         CTag cTag = cTagRepository.findById(id);
         Map<Class, Object> filterMap = new HashMap<>();
@@ -90,6 +94,7 @@ public class CTagController {
      * @return
      */
     @RequestMapping(value = "saveCTag", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveCTag(@RequestBody Map para) {
         para.put("id", IdGen.uuid());
         CTag cTag = MapToBeanUtil.fromMapToBean(CTag.class, para);
@@ -107,6 +112,7 @@ public class CTagController {
      * @return
      */
     @RequestMapping(value = "updateCTag", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateCTag(@RequestBody Map para) {
         CTag cTag = MapToBeanUtil.fromMapToBean(CTag.class, para);
         cTag.setDelFlag("0");
@@ -123,6 +129,7 @@ public class CTagController {
      * @return
      */
     @RequestMapping(value = "batchRemoveCTag", method = RequestMethod.DELETE)
+    @Admin
     public JsonResponseEntity batchRemoveCTags(@RequestParam List<String> ids) {
         cTagRepository.batchRemoveCTag(ids);
 

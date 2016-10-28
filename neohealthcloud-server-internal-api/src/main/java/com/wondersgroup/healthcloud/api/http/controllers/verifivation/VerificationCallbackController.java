@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.verifivation;
 
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
@@ -11,10 +12,7 @@ import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -49,26 +47,26 @@ public class VerificationCallbackController {
         RegisterInfo info = userAccountService.fetchInfo(id);
 
         String pushId = id;
-        Integer type= 1;
+        Integer type = 1;
         String idCard = "";
         String name = "";
         String title = "实名认证";
         String content = "您的实名认证已经有结果了,请点击查看";
 
 
-        if(info!=null){
+        if (info != null) {
             idCard = info.getPersoncard();
             name = info.getName();
-        }else{
-            AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(id,true);
-            if(anonymousAccount!=null){
+        } else {
+            AnonymousAccount anonymousAccount = anonymousAccountService.getAnonymousAccount(id, true);
+            if (anonymousAccount != null) {
                 pushId = anonymousAccount.getCreator();//监护人的Id
                 idCard = anonymousAccount.getIdcard();
                 name = anonymousAccount.getName();
-                if(from==522 || anonymousAccount.getIsChild()){//儿童实名认证
+                if (from == 522 || anonymousAccount.getIsChild()) {//儿童实名认证
                     title = "儿童实名认证";
                     type = 3;
-                }else{
+                } else {
                     title = "亲情账户实名认证";
                     type = 2;
                 }
@@ -80,12 +78,12 @@ public class VerificationCallbackController {
         AppMessage message = AppMessage.Builder.init().title(title)
                 .content(content)
                 .type(AppMessageUrlUtil.Type.SYSTEM)
-                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success,type))
+                .urlFragment(AppMessageUrlUtil.verificationCallback(id, success, type))
                 .persistence().build();
         pushClientWrapper.pushToAlias(message, pushId);
 
-        if(success){
-            healthRecordUpdateUtil.onVerificationSuccess(idCard,name);
+        if (success) {
+            healthRecordUpdateUtil.onVerificationSuccess(idCard, name);
         }
         return "{\"success\":" + success + "}";
     }

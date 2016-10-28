@@ -72,6 +72,7 @@ public class DoctorArticleController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "doctorArticleDetail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findDoctorArticleDetail(@RequestParam int id) throws JsonProcessingException {
         DoctorArticle doctorArticle = doctorArticleRepository.findById(id);
 
@@ -95,6 +96,7 @@ public class DoctorArticleController {
      * @return
      */
     @RequestMapping(value = "updateDoctorArticle", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateDoctorArticle(@RequestBody DoctorArticle doctorArticle) {
         doctorArticle.setUpdateDate(new Date());
         doctorArticleRepository.save(doctorArticle);
@@ -107,6 +109,7 @@ public class DoctorArticleController {
      * @return
      */
     @PostMapping(path = "doctorArticle/setVisable")
+    @Admin
     public JsonResponseEntity<String> updateDoctorArticleVisable(@RequestBody String request ){
         JsonKeyReader reader = new JsonKeyReader(request);
         int id = reader.readInteger("id", true);
@@ -129,6 +132,7 @@ public class DoctorArticleController {
      * @throws JsonProcessingException
      */
     @PostMapping(value = "doctorArticle/addPv")
+    @Admin
     public JsonResponseEntity<String> addPv(@RequestBody String request) throws JsonProcessingException {
         JsonKeyReader reader = new JsonKeyReader(request);
         int id = reader.readInteger("id", true);

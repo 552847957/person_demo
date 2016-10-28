@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
@@ -46,6 +47,7 @@ public class DoctorInfoController {
      * @return
      */
     @PostMapping(path = "/doctorInfo/save")
+    @Admin
     public JsonResponseEntity saveDoctorInfo(@RequestBody Doctor doctor){
 
         if(doctor!=null && StringUtils.isNotBlank(doctor.getUid())){
@@ -84,6 +86,7 @@ public class DoctorInfoController {
      * @return
      */
     @GetMapping(path = "/doctorInfo/find")
+    @Admin
     public JsonResponseEntity<Doctor> findDoctorInfo(@RequestParam String uid) throws JsonProcessingException {
 
         JsonResponseEntity<Doctor> response = new JsonResponseEntity<>();
@@ -113,6 +116,7 @@ public class DoctorInfoController {
      * @return
      */
     @RequestMapping(value = "/doctorService/save", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveDoctorService(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         String doctorId = reader.readString("doctorId", true);
@@ -134,6 +138,7 @@ public class DoctorInfoController {
      * @return
      */
     @RequestMapping(value = "/doctorService/batchSave", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity batchSaveDoctorService(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         List<String> doctorId = reader.readObject("doctorId", true,List.class);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
 import com.wondersgroup.healthcloud.api.utils.PropertyFilterUtil;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.help.HelpCenter;
 import com.wondersgroup.healthcloud.services.help.HelpCenterService;
@@ -38,6 +39,7 @@ public class HelpCenterController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "helpCenter", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findHelpCenter() throws JsonProcessingException {
         List<HelpCenter> helpCenterList = helpCenterService.findByIsVisable("0");
 
@@ -63,6 +65,7 @@ public class HelpCenterController {
      * @throws JsonProcessingException
      */
     @RequestMapping(value = "helpCenter/find", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Admin
     public String findAllHelpCenter(@PageableDefault(size = 20, sort = "sort")
                                     Pageable pageable) throws JsonProcessingException {
         Page<HelpCenter> helpCenterList = helpCenterService.findAll(pageable);
@@ -86,6 +89,7 @@ public class HelpCenterController {
      * @param id
      * @return
      * @throws JsonProcessingException
+     * app-H5和后台都在用
      */
     @RequestMapping(value = "helpCenter/detail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public String findHelpCenterDetail(@RequestParam String id) throws JsonProcessingException {
@@ -110,6 +114,7 @@ public class HelpCenterController {
      * @return
      */
     @RequestMapping(value = "saveHelpCenter", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity saveHelpCenter(@RequestBody Map para){
         HelpCenter helpCenter = MapToBeanUtil.fromMapToBean(HelpCenter.class, para);
         helpCenter.setDelFlag("0");
@@ -126,6 +131,7 @@ public class HelpCenterController {
      * @return
      */
     @RequestMapping(value = "updateHelpCenter", method = RequestMethod.POST)
+    @Admin
     public JsonResponseEntity updateHelpCenter(@RequestBody Map para) {
         HelpCenter helpCenter = MapToBeanUtil.fromMapToBean(HelpCenter.class, para);
         helpCenter.setDelFlag("0");
@@ -142,6 +148,7 @@ public class HelpCenterController {
      * @return
      */
     @RequestMapping(value = "deleteHelpCenter", method = RequestMethod.DELETE)
+    @Admin
     public JsonResponseEntity deleteHelpCenter(@RequestParam List<String> ids) {
         helpCenterService.batchRemoveHelpCenter(ids);
 
