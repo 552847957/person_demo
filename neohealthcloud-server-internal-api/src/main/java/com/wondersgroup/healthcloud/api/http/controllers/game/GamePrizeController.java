@@ -60,7 +60,7 @@ public class GamePrizeController {
             return new JsonResponseEntity(1002,"您已经中奖了，不能重复抽奖哦");
         }
         Game game = gameRepo.getTopGame(GameType.TURNTABLE.type);
-        GamePrize gamePrize = this.drawPrize(game.getId());
+        GamePrize gamePrize = GamePrizeController.drawPrize(game.getId(),gamePrizeRepo);
         if(null == gamePrize){
             return new JsonResponseEntity(1003,"很遗憾，奖品库已空，欢迎下次参与");
         }
@@ -131,7 +131,7 @@ public class GamePrizeController {
      * 随机抽奖
      * @return
      */
-    private synchronized GamePrize drawPrize(Integer gameId){
+    private static synchronized GamePrize drawPrize(Integer gameId,GamePrizeRepository gamePrizeRepo){
         int amount = gamePrizeRepo.getAmoutByGameId(gameId);
         if(0 == amount){//奖池没有奖了，则返回null值
             return null;
