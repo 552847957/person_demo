@@ -146,6 +146,7 @@ public class GamePrizeController {
             }
             gamePrize.setAmount(gamePrize.getAmount()-1);
             gamePrize.setUpdateDate(new Date());
+            gamePrizeRepo.save(gamePrize);
             return gamePrize;
         }
         return null;
