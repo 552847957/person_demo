@@ -135,8 +135,12 @@ public class HealthActivityAPIEntity {
                 offlineOverdue = true;
             }
         }
-        this.offlineStartTime = time_adf.format(info.getOfflineStartTime());
-        this.offlineEndTime = time_adf.format(info.getOfflineEndTime());
+        if(info.getOfflineStartTime() != null){
+            this.offlineStartTime = time_adf.format(info.getOfflineStartTime());
+        }
+        if(info.getOfflineStartTime() != null){
+            this.offlineEndTime = time_adf.format(info.getOfflineEndTime());
+        }
     }
     public String getId() {
         return id;
