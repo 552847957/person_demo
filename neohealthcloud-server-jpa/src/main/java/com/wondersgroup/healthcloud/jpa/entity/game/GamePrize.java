@@ -15,7 +15,7 @@ public class GamePrize {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
-    private String name;//奖品每次
+    private String name;//奖品名称
     private Integer level;//奖品级别
     private Integer amount;//奖品数量
     @Column(name="game_id")

@@ -1,7 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.game;
 
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
@@ -13,11 +11,12 @@ import com.wondersgroup.healthcloud.jpa.repository.activity.HealthActivityInfoRe
 import com.wondersgroup.healthcloud.jpa.repository.game.GamePrizeRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.GameRepository;
 import com.wondersgroup.healthcloud.jpa.repository.game.PrizeWinReporistory;
-import com.wondersgroup.healthcloud.services.game.GameService;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +31,7 @@ import java.util.Map;
 @RequestMapping("/game/prize")
 public class GamePrizeController {
 
+    private Logger logger = LoggerFactory.getLogger(GamePrizeController.class);
     @Autowired
     private PrizeWinReporistory prizeWinRepo;
     @Autowired
@@ -52,16 +52,19 @@ public class GamePrizeController {
             @RequestParam(name = "activityid",required = true) String activityid){
         Session session = sessionUtil.get(token);
         if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())){
+            logger.info(" token : "+token+"  返回code : 1001 ");
             return new JsonResponseEntity(1001,"登录已过期，请重新登录");
         }
         String registerId = session.getUserId();
         PrizeWin prizeWin = prizeWinRepo.findByRegisterId(registerId,activityid);
         if(null != prizeWin){
+            logger.info(" token : "+token+"  返回code : 1002");
             return new JsonResponseEntity(1002,"您已经中奖了，不能重复抽奖哦");
         }
         Game game = gameRepo.getTopGame(GameType.TURNTABLE.type);
         GamePrize gamePrize = GamePrizeController.drawPrize(game.getId(),gamePrizeRepo);
         if(null == gamePrize){
+            logger.info(" token : "+token+"  返回code : 1003");
             return new JsonResponseEntity(1003,"很遗憾，奖品库已空，欢迎下次参与");
         }
         PrizeWin win = new PrizeWin();
@@ -89,7 +92,7 @@ public class GamePrizeController {
         map.put("prizeName",gamePrize.getName());
 //        map.put("total",total);
         map.put("rank",rank);
-
+        logger.info(" token : "+token+"  返回code : "+0+" 抽中奖品 ："+gamePrize.getName());
         return new JsonResponseEntity(0,null, map);
     }
 
