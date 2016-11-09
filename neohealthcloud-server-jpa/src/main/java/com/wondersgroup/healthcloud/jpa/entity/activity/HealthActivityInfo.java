@@ -81,5 +81,6 @@ public class HealthActivityInfo {
     @Column(name = "offline_end_time")
     @SerializedName("offline_end_time")
     private Date              offlineEndTime;
+    private String            url;
 
 }

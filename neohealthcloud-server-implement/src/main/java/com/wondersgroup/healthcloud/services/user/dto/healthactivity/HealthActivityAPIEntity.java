@@ -36,6 +36,7 @@ public class HealthActivityAPIEntity {
     private boolean ltDay;              //再报名时间||活动时间未过期的情况下，剩余时间是否只剩一天
     private String  enrollCountdown;    //报名倒计时
     private String  enrollColor;        //报名倒计时字体显示颜色
+    private String  url;                //活动跳转链接
 
     private HealthActivityEvaluationAPIEntity evaluation;
     private SimpleDateFormat                  monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
@@ -141,6 +142,7 @@ public class HealthActivityAPIEntity {
         if(info.getOfflineStartTime() != null){
             this.offlineEndTime = time_adf.format(info.getOfflineEndTime());
         }
+        this.url = info.getUrl();
     }
     public String getId() {
         return id;
@@ -528,6 +530,14 @@ public class HealthActivityAPIEntity {
 
     public void setOfflineOverdue(boolean offlineOverdue) {
         this.offlineOverdue = offlineOverdue;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
     
 }

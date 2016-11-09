@@ -149,6 +149,7 @@ public class HealthActivityController {
         info.setStyle(1);
         info.setUpdateDate(new Date());
         info.setIscancel("0");
+        info.setUrl(reader.readString("url", true));
         if (info.getOnlineTime().after(new Date())) {
             info.setOnlineStatus("0");//未上线
         } else if (info.getOfflineTime().before(new Date())) {
