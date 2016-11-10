@@ -132,8 +132,8 @@ public class HealthActivityController {
         info.setEndtime(DateFormatter.parseDateTime(reader.readString("endtime", false)));
         info.setEnrollStartTime(DateFormatter.parseDateTime(reader.readString("enroll_start_time", false)));
         info.setEnrollEndTime(DateFormatter.parseDateTime(reader.readString("enroll_end_time", false)));
-        info.setOfflineStartTime(DateFormatter.parseDateTime(reader.readString("offline_start_time", false)));
-        info.setOfflineEndTime(DateFormatter.parseDateTime(reader.readString("offline_end_time", false)));
+        info.setOfflineStartTime(DateFormatter.parseDateTime(reader.readString("offline_start_time", true)));
+        info.setOfflineEndTime(DateFormatter.parseDateTime(reader.readString("offline_end_time", true)));
         info.setLocate(reader.readString("locate", true));
         info.setProvince(reader.readString("province", false));
         info.setCity(reader.readString("city", false));
