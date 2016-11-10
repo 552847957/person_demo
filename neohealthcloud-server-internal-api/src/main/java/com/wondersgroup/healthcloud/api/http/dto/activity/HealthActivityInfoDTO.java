@@ -51,6 +51,7 @@ public class HealthActivityInfoDTO {
     private String  time;     
     private String  offline_start_time;//线下活动开始时间   
     private String  offline_end_time;  //线下活动结束时间 
+    private String  url;  //线下活动结束时间 
     public HealthActivityInfoDTO() {
 
     }
@@ -89,6 +90,7 @@ public class HealthActivityInfoDTO {
         this.offline_end_time = info.getOfflineEndTime() == null ? null : format.format(info.getOfflineEndTime());
         this.update_date = info.getUpdateDate() == null ? null : format.format(info.getUpdateDate());
         this.summaryHtml = info.getSummaryHtml();
+        this.url = info.getUrl();
         
         String startHourMin = hourMinute_sdf.format(info.getStarttime());
         String endHourMin = hourMinute_sdf.format(info.getEndtime());
