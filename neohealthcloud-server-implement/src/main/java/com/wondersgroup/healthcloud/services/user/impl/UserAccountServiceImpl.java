@@ -585,6 +585,7 @@ public class UserAccountServiceImpl implements UserAccountService{
             Boolean isVerified = user.isVerified;
             registerInfo.setRegisterid(user.userId);
             registerInfo.setRegmobilephone(user.mobile);
+            registerInfo.setUsername(user.username);
             registerInfo.setIdentifytype(isVerified ? "1" : registerInfo.getIdentifytype());
             if (isVerified) {
                 registerInfo.setName(user.name);
@@ -626,6 +627,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         RegisterInfo registerInfo = new RegisterInfo();
         registerInfo.setRegisterid(id);
         registerInfo.setRegmobilephone(mobile);
+        registerInfo.setUsername(username);
         if (fromThirdParty) {
             registerInfo.setNickname(thirdPartyUser.nickname);
         } else if (mobile != null) {
@@ -666,7 +668,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key,this.user_type_patient);
+        httpWdUtils.addSessionExtra(session, key,this.user_type_patient,null);
         return getAccessToken(session);
     }
 

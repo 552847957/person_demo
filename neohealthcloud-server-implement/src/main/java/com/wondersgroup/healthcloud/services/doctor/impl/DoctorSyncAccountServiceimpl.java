@@ -79,7 +79,8 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
         if(!success){
             String psw = "";
             try {
-                psw = RSAUtil.encryptByPublicKey("WondersInitPwd0913!^*", httpWdUtils.publicKey);
+//                WondersInitPwd0913!^*
+                psw = RSAUtil.encryptByPublicKey(IdGen.uuid(), httpWdUtils.publicKey);
             }catch (Exception e){
                 throw new SyncDoctorAccountException(e.getLocalizedMessage());
             }
@@ -93,7 +94,7 @@ public class DoctorSyncAccountServiceimpl implements DoctorSyncAccountService {
 
         }else{
             registerId = result.get("user").get("userid").asText();
-            loginName = result.get("user").get("username")==null?"":result.get("user").get("username").asText();
+            loginName = result.get("user").get("username").isNull() ? null:result.get("user").get("username").asText();
         }
 
         DoctorAccount account = doctorAccountRepository.findOne(registerId);

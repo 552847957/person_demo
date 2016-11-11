@@ -450,11 +450,11 @@ public class HttpWdUtils {
      * @param key
      * @return
      */
-    public JsonNode addSessionExtra(String session, String key,String userType) {
+    public JsonNode addSessionExtra(String session, String key,String userType,String docHospitalId) {
         String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sessionExtraApiId")};
-        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"token",appToken};
+        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"docHospitalId",docHospitalId,"token",appToken};
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
@@ -565,17 +565,24 @@ public class HttpWdUtils {
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
 
         //正式
-//        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
-//        httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
-//        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
-//        idMap.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
+        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
+        httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
+        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
+        idMap.put("baseInfoApiId", "53086fc7-7789-4b5d-969d-2f2452ee0cde");//获取账号基本信息
+        idMap.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
+        idMap.put("updateMobileApiId", "e95a7895-9c55-49b2-b1d5-297526a9adf1");//修改手机号
+
+        idMap.put("resetpasswordApiId", "a412c377-98ab-4bba-aad7-5d77973fe515");//重置密码
+        idMap.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
+        idMap.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
 
         httpWdUtils.setIdMap(idMap);
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-//        httpWdUtils.basicInfo("297ed4e257455c660157455cb76d0000");
+        httpWdUtils.basicInfo("2c928bb15791e7470157ada2ed8602ff");
+        httpWdUtils.basicInfo("2c928bb15791e7470157ada87d420317");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -587,6 +594,9 @@ public class HttpWdUtils {
 
         //123456
 //        String psd = "Uj95afYI6wedng49hbJXhnqiuRd5EZRtbtE+ZfdvpHwByyA895hrLwC+lRrQoY0r/5enL/9DXBWalIwHKw5IdUqZ3EcxSg/v/fTyZxgapwk4o6OEXbzBZVMbAsNU8F5pidmdPQLqAGbgcJrunUDtxFwymKS+A0SdXkKoPZ5Qdow=";
+        //1234567
+//        String psd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
+
 //        httpWdUtils.login("15639763552",psd);
 
         /*//123456
@@ -596,8 +606,15 @@ public class HttpWdUtils {
         httpWdUtils.updatePassword("15639763509",oldPsd,newPsd);*/
 
         //1234567
-        /*String newPsd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
-        httpWdUtils.resetPassword("15639763509",newPsd);*/
+//        String newPsd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
+
+//        try {
+//            String password = RSAUtil.encryptByPublicKey("888888", publicKey);
+//            httpWdUtils.resetPassword("13611723375",password);
+//        }catch (Exception e){
+//
+//        }
+
 
         /*String message = "【健康长宁】验证码:code,用于测试。";
         httpWdUtils.sendCode("15639763552",message);*/
@@ -605,28 +622,31 @@ public class HttpWdUtils {
 //        httpWdUtils.verifyCode("15639763552","354735",false);
 
 //        httpWdUtils.thirdPartyBinding("8a81c1fb572797db01573c37b4080060");
-//        httpWdUtils.updateMobile("8a81c1fb555cab53015723f43f6703f5","13900800809");
+//        httpWdUtils.updateMobile("2c928bb15791e7470157ada2ed8602ff","18918725136");
+//        httpWdUtils.updateMobile("2c928bb15791e7470157ada87d420317","18930810027");
 //        httpWdUtils.updateUserName("8a81c1fb5755c5c1015755cc81cb0002","longshaertongceshi");
 
 //        httpWdUtils.guestLogin();
 //        httpWdUtils.fastLogin("15639763552","189178",false);
 //        {"tagid":"0051000012","userid":"3a24cb5b173e4d6597f62a95d04e3340","code":202,"msg":"登录成功","success":true,"session_token":"f5a280c7315f480c94da78069530b9e3"}
 
-//        httpWdUtils.getSession("2be1e435ce2043728b51f89a1bc8acca");
+//        httpWdUtils.getSession("f7b0f2e63fad449a920a2abcd96d09c0");
 //        httpWdUtils.logout("15639763552");
 
-//        httpWdUtils.verficationSubmitInfo("8a81c01a4ed91559014eda29f2e90004");
-        httpWdUtils.verficationSubmitInfo("ff80808154177829015417bbe1970020");
+//        httpWdUtils.verficationSubmitInfo("2c928bb15774ac7101577508b6540036");
+//        httpWdUtils.verficationSubmitInfo("ff80808154177829015417bbe1970020");
 
         //匿名
-//        httpWdUtils.verficationSubmitInfo("8a81c1fb57511a840157512c15d1000b");
+//        httpWdUtils.verficationSubmitInfo("2c928bb153f19ea101562a176fe52f40");
 
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);
 //        {"code":220,"msg":"session自定义数据添加成功","success":true}
 
-//        httpWdUtils.smyLogin("57d71f1f-692d-44c0-842c-a8622388fa63","eshimin73762403");
+//        httpWdUtils.smyLogin("b926db07-7a8e-4101-9807-37bd14e76439","eshimin73762403");//测试
+//        httpWdUtils.smyLogin("4e633b91-3c77-41b3-bf1d-d6b8436dc9a3","eshimin16459301");
+
     }
 
 

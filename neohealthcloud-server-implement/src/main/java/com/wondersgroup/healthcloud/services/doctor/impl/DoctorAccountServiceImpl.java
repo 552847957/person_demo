@@ -3,18 +3,24 @@ package com.wondersgroup.healthcloud.services.doctor.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserGuestLogoutException;
+import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
+import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * Created by longshasha on 16/8/1.
@@ -27,6 +33,12 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
     @Autowired
     private HttpWdUtils httpWdUtils;
+
+    @Autowired
+    private EasemobDoctorPool easemobDoctorPool;
+
+    @Autowired
+    private DoctorInfoRepository doctorInfoRepository;
 
     private final String user_type_doctor = "0";
 
@@ -69,9 +81,36 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
         }
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
-            return fetchTokenFromWondersCloud(result.get("session_token").asText());
+            //merge
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            mergeDoctorRegistration(user,mainArea);
+            DoctorInfo doctorInfo = doctorInfoRepository.findOne(doctorAccount.getId());
+            return fetchTokenFromWondersCloud(result.get("session_token").asText(),doctorInfo.getHospitalId());
         }else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
+        }
+    }
+
+    /**
+     * 同步医生信息
+     * @param user
+     * @param mainArea
+     */
+    private void mergeDoctorRegistration(WondersUser user,String mainArea) {
+        DoctorAccount doctorAccount = repository.findDoctorByAccountAndMainArea(user.mobile,mainArea);
+        if(doctorAccount!=null){
+            doctorAccount.setLoginName(user.username);
+            doctorAccount.setMobile(user.mobile);
+            doctorAccount.setUpdateDate(new Date());
+
+            if(StringUtils.isBlank(doctorAccount.getTalkid())){
+                EasemobAccount easemobAccount = easemobDoctorPool.fetchOne();
+                if (easemobAccount!=null) {//注册环信
+                    doctorAccount.setTalkid(easemobAccount.id);
+                    doctorAccount.setTalkpwd(easemobAccount.pwd);
+                }
+            }
+            repository.saveAndFlush(doctorAccount);
         }
     }
 
@@ -86,7 +125,11 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
         }
         JsonNode result = httpWdUtils.fastLogin(mobile, verify_code, onceCode);
         if (wondersCloudResult(result)) {
-            return fetchTokenFromWondersCloud(result.get("session_token").asText());
+            //merge
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            mergeDoctorRegistration(user,mainArea);
+            DoctorInfo doctorInfo = doctorInfoRepository.findOne(doctorAccount.getId());
+            return fetchTokenFromWondersCloud(result.get("session_token").asText(),doctorInfo.getHospitalId());
         }else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
         }
@@ -185,9 +228,9 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
 
 
-    private AccessToken fetchTokenFromWondersCloud(String session) {
+    private AccessToken fetchTokenFromWondersCloud(String session,String docHospitalId) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key,this.user_type_doctor);
+        httpWdUtils.addSessionExtra(session, key,this.user_type_doctor,docHospitalId);
         AccessToken accessToken = getAccessToken(session);
         return accessToken;
     }
