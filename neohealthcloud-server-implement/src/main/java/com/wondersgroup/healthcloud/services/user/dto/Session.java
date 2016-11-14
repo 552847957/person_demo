@@ -25,7 +25,8 @@ public final class Session {
     private String secret;
     private Boolean isValid;
     private Boolean isDoctor;
-    private String docHospitalId;
+
+    private ThirdDoctor thirdDoctor;
 
     public Session() {
     }
@@ -37,7 +38,12 @@ public final class Session {
         this.secret = node.has("key") ? node.get("key").asText() : "";
 
         this.isDoctor = node.has("type")?"0".equals(node.get("type").asText()):false;
-        this.docHospitalId = node.has("docHospitalId")?node.get("docHospitalId").asText():null;
+        if(this.isDoctor){
+            this.thirdDoctor.hisHospitalId = node.has("hisHospitalId")?node.get("hisHospitalId").asText():null;
+            this.thirdDoctor.hisDoctorId = node.has("hisDoctorId")?node.get("hisDoctorId").asText():null;
+            this.thirdDoctor.hisNum = node.has("hisNum")?node.get("hisNum").asText():null;
+        }
+
     }
 
     public static Session guest(String accessToken, String secret) {
@@ -51,6 +57,12 @@ public final class Session {
 
     public Boolean isGuest() {
         return userId == null;
+    }
+
+    public class ThirdDoctor {
+        public String hisHospitalId;
+        public String hisDoctorId;
+        public String hisNum;
     }
 
 
