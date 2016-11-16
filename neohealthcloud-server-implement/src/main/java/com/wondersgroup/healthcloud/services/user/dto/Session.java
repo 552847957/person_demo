@@ -42,6 +42,8 @@ public final class Session {
             this.thirdDoctor.hisHospitalId = node.has("hisHospitalId")?node.get("hisHospitalId").asText():null;
             this.thirdDoctor.hisDoctorId = node.has("hisDoctorId")?node.get("hisDoctorId").asText():null;
             this.thirdDoctor.hisNum = node.has("hisNum")?node.get("hisNum").asText():null;
+            this.thirdDoctor.hisDoctorIdcard = node.has("hisDoctorIdcard")?node.get("hisDoctorIdcard").asText():null;
+            this.thirdDoctor.hisDoctorName = node.has("hisDoctorName")?node.get("hisDoctorName").asText():null;
         }
 
     }
@@ -62,6 +64,8 @@ public final class Session {
     public class ThirdDoctor {
         public String hisHospitalId;
         public String hisDoctorId;
+        public String hisDoctorIdcard;
+        public String hisDoctorName;
         public String hisNum;
     }
 

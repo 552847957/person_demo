@@ -6,6 +6,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.http.exception.ResponseParseException;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -450,11 +451,16 @@ public class HttpWdUtils {
      * @param key
      * @return
      */
-    public JsonNode addSessionExtra(String session, String key,String userType,String docHospitalId) {
+    public JsonNode addSessionExtra(String session, String key,String userType,DoctorInfo doctorInfo) {
         String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sessionExtraApiId")};
-        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"docHospitalId",docHospitalId,"token",appToken};
+        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"token",appToken,
+                "hisHospitalId",doctorInfo.getHisDoctorId(),
+                "hisDoctorId",doctorInfo.getHisDoctorId(),
+                "hisNum",doctorInfo.getHisNum(),
+                "hisDoctorIdcard",doctorInfo.getIdcard(),
+                "hisDoctorName",doctorInfo.getHisDoctorName()};
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();

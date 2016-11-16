@@ -39,6 +39,9 @@ public class DoctorInfo {
     @Column(name = "his_doctor_id")
     private String hisDoctorId;
 
+    @Column(name = "his_doctor_name")
+    private String hisDoctorName;
+
     @Column(name = "his_hospital_id")
     private String hisHospitalId;
 
