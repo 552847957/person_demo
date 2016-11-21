@@ -1,36 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.controllers.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityInfo;
@@ -39,7 +15,24 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.healthactivity.HealthActivityAPIEntity;
+import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
@@ -57,8 +50,10 @@ public class SpecServicesController {
     @Autowired
     private UserService userService;
     @Autowired
-    private DictCache dictCache; 
-    
+    private DictCache dictCache;
+    @Autowired
+    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+
     @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestFamilyPath = "%s/api/measure/family/abnormalByWeek?%s";
@@ -70,9 +65,10 @@ public class SpecServicesController {
     public JsonResponseEntity<Map<String, Object>> list(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                         @RequestHeader(value = "spec-area", required = false) String specArea,
                                                         @RequestHeader(value = "app-version", required = true) String version,
-                                                        @RequestHeader(value="screen-width")String width,
-                                                        @RequestHeader(value="screen-height")String height,
-                                                        @RequestParam(required = false) String registerId) {
+                                                        @RequestHeader(value = "screen-width") String width,
+                                                        @RequestHeader(value = "screen-height") String height,
+                                                        @RequestParam(required = false) String registerId,
+                                                        @AccessToken(required = false) Session session) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
         List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);
@@ -82,7 +78,7 @@ public class SpecServicesController {
             for (ImageText imageText : imageTexts) {
                 map = new HashMap<>();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", imageText.getHoplink());
+                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 funcList.add(map);
@@ -94,7 +90,7 @@ public class SpecServicesController {
         List<HealthActivityInfo> infoList = haiService.getHealthActivityInfos(null, fillingArea(mainArea), null, 1, 1);
         if (infoList != null && infoList.size() > 0) {
             HealthActivityInfo healthActivityInfo = infoList.get(0);
-            HealthActivityAPIEntity entity = new HealthActivityAPIEntity(healthActivityInfo,width,height);
+            HealthActivityAPIEntity entity = new HealthActivityAPIEntity(healthActivityInfo, width, height);
             setLocation(entity, healthActivityInfo);
             data.put("activities", entity);
         }
@@ -115,7 +111,7 @@ public class SpecServicesController {
                     if (unusuals != null && unusuals.get(0) != null) {
                         JsonNode unusual = unusuals.get(0);
                         Map<String, Object> rtnMap = new HashMap();
-                        switch (unusual.get("flag").asText()){
+                        switch (unusual.get("flag").asText()) {
                             /*case "0": rtnMap.put("status", "正常"); break;*/
                             case "1":// 偏高
                                 rtnMap.put("prefix", "您最近一次测量" + unusual.get("name").asText());
@@ -173,26 +169,26 @@ public class SpecServicesController {
         }
         return areaId;
     }
-    
-    public void setLocation(HealthActivityAPIEntity entity,HealthActivityInfo info){
-        String province = StringUtils.isEmpty(info.getProvince())?"":dictCache.queryArea(info.getProvince());
+
+    public void setLocation(HealthActivityAPIEntity entity, HealthActivityInfo info) {
+        String province = StringUtils.isEmpty(info.getProvince()) ? "" : dictCache.queryArea(info.getProvince());
         String city = (province.contains("上海") || province.contains("北京") || province.contains("重庆") || province.contains("天津") ||
-                StringUtils.isEmpty(info.getCity()))?"":dictCache.queryArea(info.getCity());
-        String county = StringUtils.isEmpty(info.getCounty())?"":dictCache.queryArea(info.getCounty());
-        entity.setLocation(province+city+county+info.getLocate());
-        entity.setHost((StringUtils.isEmpty(city)?dictCache.queryArea(info.getCounty()):city)+info.getHost());
+                StringUtils.isEmpty(info.getCity())) ? "" : dictCache.queryArea(info.getCity());
+        String county = StringUtils.isEmpty(info.getCounty()) ? "" : dictCache.queryArea(info.getCounty());
+        entity.setLocation(province + city + county + info.getLocate());
+        entity.setHost((StringUtils.isEmpty(city) ? dictCache.queryArea(info.getCounty()) : city) + info.getHost());
     }
-    
-    private HttpHeaders buildHeader(){
-    	HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+    private HttpHeaders buildHeader() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String version = request.getHeader("version");
-        boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
+        boolean isStandard = CommonUtils.compareVersion(version, "3.1");
         HttpHeaders headers = new HttpHeaders();
         headers.add("isStandard", String.valueOf(isStandard));
         return headers;
     }
-    
-    private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables){
+
+    private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
         return template.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
     }
 }

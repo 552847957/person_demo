@@ -26,6 +26,7 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
@@ -71,12 +75,16 @@ public class SpecHomeController {
 
     private RestTemplate template = new RestTemplate();
 
+    @Autowired
+    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
-                                                @RequestHeader(value = "app-version", required = true) String version) {
+                                                @RequestHeader(value = "app-version", required = true) String version,
+                                                @AccessToken(required = false) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
@@ -115,7 +123,7 @@ public class SpecHomeController {
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", imageText.getHoplink());
+                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 functionIcons.add(map);
@@ -309,6 +317,6 @@ public class SpecHomeController {
 
     private String getRandomDesc() {
         String[] subTitles = {"健康指标免费测，健康管理随时做", "家门口的健康指标免费测量中心", "在这里，健康设备免费测"};
-        return subTitles[(int)(Math.random() * 10) % subTitles.length];
+        return subTitles[(int) (Math.random() * 10) % subTitles.length];
     }
 }

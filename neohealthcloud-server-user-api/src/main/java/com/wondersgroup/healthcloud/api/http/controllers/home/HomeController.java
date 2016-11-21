@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.api.http.dto.faq.FaqDTO;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
@@ -15,7 +16,9 @@ import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -49,12 +52,16 @@ public class HomeController {
     @Autowired
     private FaqService faqService;
 
+    @Autowired
+    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
-                                                @RequestHeader(value = "app-version", required = true) String version) {
+                                                @RequestHeader(value = "app-version", required = true) String version,
+                                                @AccessToken(required = false) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
@@ -83,7 +90,7 @@ public class HomeController {
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", imageText.getHoplink());
+                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 functionIcons.add(map);

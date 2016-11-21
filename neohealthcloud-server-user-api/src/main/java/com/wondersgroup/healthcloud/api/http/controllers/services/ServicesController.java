@@ -3,16 +3,18 @@ package com.wondersgroup.healthcloud.api.http.controllers.services;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
+import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,12 +30,16 @@ public class ServicesController {
     @Autowired
     private ImageTextService imageTextService;
 
+    @Autowired
+    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
     public JsonResponseEntity list(@RequestHeader(value = "main-area", required = true) String mainArea,
                                    @RequestHeader(value = "spec-area", required = false) String specArea,
-                                   @RequestHeader(value = "app-version", required = true) String version) {
+                                   @RequestHeader(value = "app-version", required = true) String version,
+                                   @AccessToken(required = false) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
 
         List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);
@@ -43,8 +49,8 @@ public class ServicesController {
             for (ImageText imageText : imageTexts) {
                 map = new HashMap<>();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", imageText.getHoplink());
-                map.put("mainTitle",imageText.getMainTitle());
+                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("mainTitle", imageText.getMainTitle());
                 funcList.add(map);
             }
             result.setData(funcList);
