@@ -45,7 +45,7 @@ public class SessionUtil {
         if (success) {
             String token = result.get("session_token").asText();
             String key = IdGen.uuid();
-            httpWdUtils.addSessionExtra(token, key,this.user_type_patient,null);
+            httpWdUtils.addSessionExtra(token, key,this.user_type_patient);
             return Session.guest(token, key);
         } else {
             return null;

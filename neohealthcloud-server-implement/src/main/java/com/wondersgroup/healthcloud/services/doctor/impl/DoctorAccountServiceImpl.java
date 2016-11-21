@@ -84,8 +84,7 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
             //merge
             WondersUser user = getWondersBaseInfo(result.get("userid").asText());
             mergeDoctorRegistration(user,mainArea);
-            DoctorInfo doctorInfo = doctorInfoRepository.findOne(doctorAccount.getId());
-            return fetchTokenFromWondersCloud(result.get("session_token").asText(),doctorInfo);
+            return fetchTokenFromWondersCloud(result.get("session_token").asText());
         }else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
         }
@@ -128,8 +127,7 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
             //merge
             WondersUser user = getWondersBaseInfo(result.get("userid").asText());
             mergeDoctorRegistration(user,mainArea);
-            DoctorInfo doctorInfo = doctorInfoRepository.findOne(doctorAccount.getId());
-            return fetchTokenFromWondersCloud(result.get("session_token").asText(),doctorInfo);
+            return fetchTokenFromWondersCloud(result.get("session_token").asText());
         }else {
             throw new ErrorWondersCloudException(result.get("msg").asText());
         }
@@ -228,9 +226,9 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
 
 
 
-    private AccessToken fetchTokenFromWondersCloud(String session,DoctorInfo doctorInfo) {
+    private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key,this.user_type_doctor,doctorInfo);
+        httpWdUtils.addSessionExtra(session, key,this.user_type_doctor);
         AccessToken accessToken = getAccessToken(session);
         return accessToken;
     }

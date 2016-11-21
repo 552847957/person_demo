@@ -668,7 +668,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key,this.user_type_patient,null);
+        httpWdUtils.addSessionExtra(session, key,this.user_type_patient);
         return getAccessToken(session);
     }
 

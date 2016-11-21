@@ -36,18 +36,6 @@ public class DoctorInfo {
     private int actcode;//医生推广邀请码
 
 
-    @Column(name = "his_doctor_id")
-    private String hisDoctorId;
-
-    @Column(name = "his_doctor_name")
-    private String hisDoctorName;
-
-    @Column(name = "his_hospital_id")
-    private String hisHospitalId;
-
-    @Column(name = "his_num")
-    private String hisNum;
-
     @Column(name = "del_flag")
     private String delFlag;
 
