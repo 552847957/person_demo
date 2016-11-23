@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
+
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
  * ░░░▄█▀▀▄▓█▓▓▓▓▓▓▓▓▓▓▓▓▀░▓▌█
@@ -34,31 +36,34 @@ public class H5ServiceSecurityUtil {
     private RegisterInfoRepository registerInfoRepository;
 
     public String secureUrl(String originalUrl, Session session) {
-        if (originalUrl != null && session != null && session.getUserId() != null && originalUrl.contains("hcserviceid")) {
-            RegisterInfo account = registerInfoRepository.findOne(session.getUserId());
-            if (account == null) {
-                return originalUrl;
-            }
-            HttpUrl.Builder urlBuilder = HttpUrl.parse(originalUrl).newBuilder();
-            HttpUrl url = HttpUrl.parse(originalUrl);
-            String serviceId = url.queryParameter("hcserviceid");
-            if (serviceId != null) {
-                HttpUrl.Builder builder = url.newBuilder();
-                builder.removeAllQueryParameters("hcserviceid");
-                ThirdPartyH5ServiceConfiguration conf = thirdPartyH5ServiceConfigurationRepository.findOne(serviceId);
-                if (conf == null) {
+        try {
+            if (originalUrl != null && session != null && session.getUserId() != null && originalUrl.contains("hcserviceid")) {
+                RegisterInfo account = registerInfoRepository.findOne(session.getUserId());
+                if (account == null) {
                     return originalUrl;
-                } else {
-                    String result = builder.build().toString();
-                    result = StringUtils.replace(result, "${uid}", RSA.encryptByPrivateKey(account.getRegisterid(), conf.getPrivateKey()));
-                    if (account.verified()) {
-                        result = StringUtils.replace(result, "${idcard}", RSA.encryptByPrivateKey(account.getPersoncard(), conf.getPrivateKey()));
+                }
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(originalUrl).newBuilder();
+                HttpUrl url = HttpUrl.parse(originalUrl);
+                String serviceId = url.queryParameter("hcserviceid");
+                if (serviceId != null) {
+                    HttpUrl.Builder builder = url.newBuilder();
+                    builder.removeAllQueryParameters("hcserviceid");
+                    ThirdPartyH5ServiceConfiguration conf = thirdPartyH5ServiceConfigurationRepository.findOne(serviceId);
+                    if (conf == null) {
+                        return originalUrl;
+                    } else {
+                        String result = builder.build().toString();
+                        result = StringUtils.replace(result, "${uid}", URLEncoder.encode(RSA.encryptByPrivateKey(account.getRegisterid(), conf.getPrivateKey()), "UTF-8"));
+                        if (account.verified()) {
+                            result = StringUtils.replace(result, "${idcard}", URLEncoder.encode(RSA.encryptByPrivateKey(account.getPersoncard(), conf.getPrivateKey()), "UTF-8"));
+                        }
+                        return result;
                     }
-                    return result;
                 }
             }
+        } catch (Exception ex) {
+            return originalUrl;
         }
-
         return originalUrl;
     }
 }
