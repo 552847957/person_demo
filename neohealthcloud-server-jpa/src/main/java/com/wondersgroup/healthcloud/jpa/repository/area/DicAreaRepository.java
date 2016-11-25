@@ -14,5 +14,8 @@ public interface DicAreaRepository extends JpaRepository<DicArea, String> {
 
     @Query(nativeQuery = true, value = "select * from t_dic_area where upper_code =?1")
     List<DicArea> getAddressListByLevelAndFatherId(String upperCode);
+    
+    @Query(nativeQuery = true, value = "select * from t_dic_area where code =?1 limit 1")
+    DicArea getAddress(String code);
 
 }

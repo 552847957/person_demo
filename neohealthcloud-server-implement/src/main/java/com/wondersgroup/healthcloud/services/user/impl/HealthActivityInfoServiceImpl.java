@@ -93,8 +93,11 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     }
 
     @Override
-    public List<HealthActivityInfo> getHealthActivityInfos(String status, String title, String onlineTime, String offlineTime, int pageNo, int pageSize) {
+    public List<HealthActivityInfo> getHealthActivityInfos(String province, String status, String title, String onlineTime, String offlineTime, int pageNo, int pageSize) {
         String sql = "select * from app_tb_healthactivity_info where del_flag = '0'";
+        if(!StringUtils.isEmpty(province)){
+            sql += " and province = '" + province + "'";
+        }
         if(!StringUtils.isEmpty(status)){
             sql += " and online_status = '" + status + "'";
         }
