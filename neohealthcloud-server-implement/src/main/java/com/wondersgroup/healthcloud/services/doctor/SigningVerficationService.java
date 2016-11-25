@@ -95,8 +95,8 @@ public class SigningVerficationService {
         invitation.setUpdateBy(doctorId);
         invitation.setUpdateDate(invitation.getCreateDate());
         doctorInvitationRepository.saveAndFlush(invitation);
-        String content = isDefault ? "%s医生给了您一个健康云认证码：%s，用健康云认证码就能实名认证万达全程健康（下载应用http://www.wdjky.com/healthcloud2/），一般人我不告诉他。客服热线4009216519。" : "尊敬的先生/女士，您已完成上海市社区综改1+1+1签约服务。签约医生为%s,健康云认证码%s,请您尽快登录[上海健康云App]（下载地址：http://t.cn/RLp6ow8）完成身份认证,即可享受对应家庭医生提供的医疗服务。";
-        sms.send(mobile, String.format(content, doctorInfo.getName(), code));
+        String content = isDefault ? "邀请码%s。%s医生诚邀您安装“上海健康云”App，输入邀请码即成为实名用户，开启您的健康管理新模式。详询热线：4009216519，竭诚呵护您的健康。" : "邀请码%s。%s医生诚邀您安装“上海健康云”App，输入邀请码即成为实名用户，开启您的健康管理新模式。详询热线：4009216519，竭诚呵护您的健康。";
+        sms.send(mobile, String.format(content, code, doctorInfo.getName()));
 
         return true;
     }
