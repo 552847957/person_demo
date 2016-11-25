@@ -120,8 +120,11 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
     }
 
     @Override
-    public int getHealthActivityInfoCount(String status, String title, String onlineTime, String offlineTime) {
+    public int getHealthActivityInfoCount(String province, String status, String title, String onlineTime, String offlineTime) {
         String sql = "select count(*) from app_tb_healthactivity_info where del_flag = '0'";
+        if(!StringUtils.isEmpty(province)){
+            sql += " and province = '" + province + "'";
+        }
         if(!StringUtils.isEmpty(status)){
             sql += " and online_status = '" + status + "'";
         }

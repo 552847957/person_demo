@@ -97,7 +97,7 @@ public class HealthActivityController {
         DicArea dicArea = dicAreaRepository.getAddress(mainArea);
         List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(dicArea.getUpper_code() ,status, title, onlineTime, offlineTime,
                 flag, pageSize);
-        int count = infoService.getHealthActivityInfoCount(status, title, onlineTime, offlineTime);
+        int count = infoService.getHealthActivityInfoCount(dicArea.getUpper_code(), status, title, onlineTime, offlineTime);
         List<HealthActivityInfoDTO> infoDTOs = HealthActivityInfoDTO.infoDTO(infos);
         entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((flag + 1)));
         Map<String, Object> extras = new HashMap<String, Object>();
