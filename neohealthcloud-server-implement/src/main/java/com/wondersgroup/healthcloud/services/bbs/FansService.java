@@ -2,7 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Fans;
 import com.wondersgroup.healthcloud.services.bbs.dto.AttentDto;
-import org.springframework.data.domain.Page;
+import com.wondersgroup.healthcloud.utils.Page;
 
 import java.util.List;
 import java.util.Map;

@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
+import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 
@@ -32,5 +33,11 @@ public interface UserBbsService {
     boolean setUserBan(String loginUid, String uid, Integer banStatus, String reason);
 
     Map<String, Object> getUserBanInfoByUid(String uid);
+
+    /**
+     * 论坛管理员
+     * @return
+     */
+    List<AdminAccountDto> queryBBSAdminList();
 
 }

@@ -11,10 +11,13 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.UserBanLogRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
+import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,5 +138,23 @@ public class UserBbsServiceImpl implements UserBbsService {
             dataWrap.put("reason", userBanLog.getReason());
         }
         return dataWrap;
+    }
+
+    @Override
+    public List<AdminAccountDto> queryBBSAdminList() {
+        List<RegisterInfo> adminAccountList = registerInfoRepository.queryAllBBsAdmins();
+        List<AdminAccountDto> dtoList = new ArrayList<>();
+        if (adminAccountList != null && adminAccountList.size() > 0) {
+            for (RegisterInfo account : adminAccountList) {
+                AdminAccountDto dto = new AdminAccountDto();
+                dto.setAvatar(account.getHeadphoto());
+                dto.setId(account.getRegisterid());
+                dto.setNickname(account.getNickname());
+                // 昵称若超出指定长度，拼接省略号
+                dto.setNickname(StringUtils.length(account.getNickname()) > 5 ? account.getNickname().substring(5)+"…" : account.getNickname());
+                dtoList.add(dto);
+            }
+        }
+        return dtoList;
     }
 }
