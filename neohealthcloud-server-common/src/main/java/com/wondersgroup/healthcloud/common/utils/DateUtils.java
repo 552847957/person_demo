@@ -1,12 +1,20 @@
 package com.wondersgroup.healthcloud.common.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
+ *
  * Created by longshasha on 16/3/10.
  */
 public class DateUtils {
+
+    public final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public final static SimpleDateFormat sdf_day = new SimpleDateFormat("yyyy-MM-dd");
+    public final static SimpleDateFormat sdf_day_hour = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    public final static SimpleDateFormat sdf_hour = new SimpleDateFormat("HH:mm");
 
     public static String getWeekOfDate(Date date) {
         String[] weekOfDays = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
@@ -120,32 +128,86 @@ public class DateUtils {
     }
     
     public static int getAgeByBirthday(Date birthday) {
-		Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
 
-		if (cal.before(birthday)) {
-			throw new IllegalArgumentException("出生日期小于当前时间");
-		}
+        if (cal.before(birthday)) {
+            throw new IllegalArgumentException("出生日期小于当前时间");
+        }
 
-		int yearNow = cal.get(Calendar.YEAR);
-		int monthNow = cal.get(Calendar.MONTH) + 1;
-		int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);
+        int yearNow = cal.get(Calendar.YEAR);
+        int monthNow = cal.get(Calendar.MONTH) + 1;
+        int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);
 
-		cal.setTime(birthday);
-		int yearBirth = cal.get(Calendar.YEAR);
-		int monthBirth = cal.get(Calendar.MONTH) + 1;
-		int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
+        cal.setTime(birthday);
+        int yearBirth = cal.get(Calendar.YEAR);
+        int monthBirth = cal.get(Calendar.MONTH) + 1;
+        int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
 
-		int age = yearNow - yearBirth;
+        int age = yearNow - yearBirth;
 
-		if (monthNow <= monthBirth) {
-			if (monthNow == monthBirth) {
-				if (dayOfMonthNow < dayOfMonthBirth) {
-					age--;
-				}
-			} else {
-				age--;
-			}
-		}
-		return age;
-	}
+        if (monthNow <= monthBirth) {
+            if (monthNow == monthBirth) {
+                if (dayOfMonthNow < dayOfMonthBirth) {
+                    age--;
+                }
+            } else {
+                age--;
+            }
+        }
+        return age;
+    }
+
+    public static Date parseString(String str){
+        try {
+            return sdf.parse(str);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public static Date parseString(String str,String format){
+        try {
+            return new SimpleDateFormat(format).parse(str);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 转换date to string
+     * 一分钟内转为
+     * @param date
+     * @return
+     */
+    public static String formatDate2Custom(Date date){
+        int defTime = (int) ((new Date().getTime() - date.getTime())/1000);
+        if (defTime < 0){
+            return sdf.format(date);
+        }
+        String create_day = sdf_day.format(date);
+        if (defTime < 60) {
+            return "刚刚";
+        }else if (defTime < 3600){
+            return defTime/60+"分钟前";
+        }else if (defTime < 86400){
+            return defTime/3600+"小时前";
+        }else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            String last_1_day = sdf_day.format(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            String last_2_day = sdf_day.format(calendar.getTime());
+            if (last_1_day.equals(create_day)){
+                return "昨天"+sdf_hour.format(date);
+            }else if (last_2_day.equals(create_day)){
+                return "前天"+sdf_hour.format(date);
+            }
+        }
+        return sdf_day_hour.format(date);
+    }
+
+    public static String getTodayBegin(){
+        return sdf_day.format(new Date()) + " 00:00:00";
+    }
 }
