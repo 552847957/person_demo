@@ -6,7 +6,7 @@ package com.wondersgroup.healthcloud.common.utils;
  */
 public class NumberUtils {
 
-    private static final java.text.DecimalFormat decimalFormat1 = new java.text.DecimalFormat(".#");
+    private static final java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat(".#");
 
     /**
      * 格式化数字
@@ -18,9 +18,8 @@ public class NumberUtils {
         if (num < 10000){
             numStr = String.valueOf(num);
         }else {
-            java.text.DecimalFormat df = new java.text.DecimalFormat(".#");
             double dd = num/10000.0;
-            numStr = df.format(dd) + "万";
+            numStr = decimalFormat.format(dd) + "万";
         }
         return numStr;
     }

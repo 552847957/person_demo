@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 
 /**
+ *
  * Created by longshasha on 16/8/4.
  */
 public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,String> {
@@ -30,7 +31,10 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     List<RegisterInfo> getByCardOrPhone(String info);
     
     @Transactional
-	@Modifying
+    @Modifying
     @Query("update RegisterInfo set bindPersoncard=?1 where registerId =?2")
     int updateByRegister(String bindPersoncard, String registerId);
+
+    @Query("select r from RegisterInfo r where r.isBBsAdmin=1 and r.delFlag='0'")
+    List<RegisterInfo> queryAllBBsAdmins();
 }
