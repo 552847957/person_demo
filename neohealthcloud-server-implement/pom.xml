@@ -46,6 +46,12 @@
             <groupId>com.gexin.platform</groupId>
             <artifactId>gexin-rp-sdk-http</artifactId>
             <version>4.0.1.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.gexin.platform</groupId>
+                    <artifactId>gexin-rp-sdk-template</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.gexin.platform</groupId>
