@@ -84,7 +84,7 @@ public class SpecHomeController {
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
                                                 @RequestHeader(value = "app-version", required = true) String version,
-                                                @AccessToken(required = false) Session session) {
+                                                @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 

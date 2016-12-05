@@ -68,7 +68,7 @@ public class SpecServicesController {
                                                         @RequestHeader(value = "screen-width") String width,
                                                         @RequestHeader(value = "screen-height") String height,
                                                         @RequestParam(required = false) String registerId,
-                                                        @AccessToken(required = false) Session session) {
+                                                        @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<>();
         Map<String, Object> data = new HashMap<>();
         List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);

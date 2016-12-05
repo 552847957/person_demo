@@ -39,7 +39,7 @@ public class ServicesController {
     public JsonResponseEntity list(@RequestHeader(value = "main-area", required = true) String mainArea,
                                    @RequestHeader(value = "spec-area", required = false) String specArea,
                                    @RequestHeader(value = "app-version", required = true) String version,
-                                   @AccessToken(required = false) Session session) {
+                                   @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
 
         List<ImageText> imageTexts = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), version);
