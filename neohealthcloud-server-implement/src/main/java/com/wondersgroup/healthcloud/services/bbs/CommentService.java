@@ -1,10 +1,12 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
+import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ys on 2016/6/13.
@@ -37,4 +39,25 @@ public interface CommentService {
 
     Boolean delCommonByIds(Iterable<Integer> ids);
 
+
+    //----------------管理后台用--------------//
+
+    List<Map<String, Object>> getCommentListByCriteria(CommentSearchCriteria searchCriteria);
+
+    int countCommentByCriteria(CommentSearchCriteria searchCriteria);
+
+    Map<String, Object> getCommentInfoById(Integer id);
+
+    /**
+     * 查询管理员以及其小号下的回复列表
+     */
+    List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid, String adminId);
+
+    Map<String, Object> getCommentInfoByIdWithReplys(Integer id);
+
+    Comment findOne(Integer id);
+
+    Boolean delCommonByIds(String adminUid, List<Integer> ids);
+
+    Comment saveComment(Comment comment);
 }

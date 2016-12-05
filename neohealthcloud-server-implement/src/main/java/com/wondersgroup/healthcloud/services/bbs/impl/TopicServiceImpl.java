@@ -14,10 +14,7 @@ import com.wondersgroup.healthcloud.services.bbs.TopicVoteService;
 import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicTopListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
@@ -78,8 +75,8 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
-        searchCriteria.setIsTop(1);
-        searchCriteria.setCircleId(circleId);
+        searchCriteria.setIs_top(true);
+        searchCriteria.setCircle_id(circleId);
         searchCriteria.setPageSize(getNum);
         searchCriteria.setOrderInfo("topic.top_rank desc, topic.update_time desc");
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
@@ -98,15 +95,15 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setCircleId(circleId);
+        searchCriteria.setCircle_id(circleId);
         searchCriteria.setGetMoreOne(true);
         if (tabId == -1){
-            searchCriteria.setIsBest(1);
+            searchCriteria.setIs_best(true);
         }else {
-            searchCriteria.setTabId(tabId);
+            searchCriteria.setTab_id(tabId);
         }
         if (tabId == 0){
-            searchCriteria.setIsTop(0);//全部标签下 不显示置顶的
+            searchCriteria.setIs_top(true);//全部标签下 不显示置顶的
         }
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
@@ -118,9 +115,9 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setIsBest(1);
+        searchCriteria.setIs_best(true);
         searchCriteria.setGetMoreOne(true);
-        searchCriteria.setCircleId(circleId);
+        searchCriteria.setCircle_id(circleId);
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
     }
@@ -131,7 +128,7 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setIsBest(1);
+        searchCriteria.setIs_best(true);
         searchCriteria.setGetMoreOne(true);
         List<Circle> userCircles = userBbsService.getUserJoinedCircles(uid);
         if (userCircles != null && !userCircles.isEmpty()){
@@ -139,7 +136,7 @@ public class TopicServiceImpl implements TopicService {
             for (Circle circle : userCircles){
                 joinCircleIds.add(circle.getId());
             }
-            searchCriteria.setCircleIds(joinCircleIds);
+            searchCriteria.setCircle_ids(joinCircleIds);
         }
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
@@ -260,11 +257,11 @@ public class TopicServiceImpl implements TopicService {
         if (contents == null || contents.isEmpty()) {
             throw new TopicException(2002, "帖子无效");
         }
-        Circle circle = circleRepository.findOne(publishInfo.getCirclrId());
+        Circle circle = circleRepository.findOne(publishInfo.getCircleId());
         if (null == circle || circle.getDelflag().equals("1")) {
             throw new TopicException(2003, "圈子无效");
         }
-        UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCirclrId(), "0");
+        UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
         if (null == userCircle){
             throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
         }
@@ -339,7 +336,7 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = new Topic();
         topic.setTitle(publishInfo.getTitle());
         topic.setUid(publishInfo.getUid());
-        topic.setCircleId(publishInfo.getCirclrId());
+        topic.setCircleId(publishInfo.getCircleId());
         topic.setStatus(TopicConstant.Status.OK);
         topic.setIntro(intro);
         topic.setImgs(topicImgs);
@@ -382,7 +379,7 @@ public class TopicServiceImpl implements TopicService {
     private List<Topic> searchTopicByCriteria(TopicSearchCriteria searchCriteria){
         StringBuffer querySql = new StringBuffer("select topic.* from tb_bbs_topic topic ");
         querySql.append(" left join tb_account_user user on user.id = topic.uid ");
-        if (searchCriteria.getTabId() > 0){
+        if (searchCriteria.getTab_id() > 0){
             querySql.append(" left join tb_bbs_topic_tab_map tab on tab.topic_id = topic.id ");
         }
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
@@ -409,4 +406,34 @@ public class TopicServiceImpl implements TopicService {
         return list;
     }
 
+    //-------------------------//
+    @Override
+    public Topic infoTopic(Integer topicId) {
+        return null;
+    }
+
+    @Override
+    public TopicH5ViewDto getTopicViewForH5(Integer topicId) {
+        return null;
+    }
+
+    @Override
+    public Topic delTopic(String uid, Integer topicId) {
+        return null;
+    }
+
+    @Override
+    public int settingTopic(TopicSettingDto topicSettingDto) {
+        return 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria) {
+        return null;
+    }
+
+    @Override
+    public int countTopicByCriteria(TopicSearchCriteria searchCriteria) {
+        return 0;
+    }
 }

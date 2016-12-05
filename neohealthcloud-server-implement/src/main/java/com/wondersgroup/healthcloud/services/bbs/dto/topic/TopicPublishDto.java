@@ -17,7 +17,7 @@ public class TopicPublishDto {
 
     private Integer id;
     private String uid;
-    private Integer circlrId;
+    private Integer circleId;
     private String title;
     private List<TopicContent> topicContents = new ArrayList<>();
     private List<String> voteItems;

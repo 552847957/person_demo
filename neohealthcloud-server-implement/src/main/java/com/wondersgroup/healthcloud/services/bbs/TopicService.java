@@ -1,11 +1,11 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicTopListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
+import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ys on 2016/08/13.
@@ -74,4 +74,17 @@ public interface TopicService {
     int getCommentCount(Integer topicId);
 
     int getOwnerCommentCount(Integer topicId);
+
+    //------------------------------//
+    Topic infoTopic(Integer topicId);
+
+    TopicH5ViewDto getTopicViewForH5(Integer topicId);
+
+    Topic delTopic(String uid, Integer topicId);
+
+    int settingTopic(TopicSettingDto topicSettingDto);
+
+    List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria);
+
+    int countTopicByCriteria(TopicSearchCriteria searchCriteria);
 }

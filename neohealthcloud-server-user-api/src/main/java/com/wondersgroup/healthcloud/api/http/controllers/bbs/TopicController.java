@@ -68,14 +68,14 @@ public class TopicController {
 
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
-        Integer circlrId = reader.readInteger("circlrId", false);
+        Integer circleId = reader.readInteger("circleId", false);
         String title = reader.readString("title", false);
         String content = reader.readDefaultString("content", "");
         List<String> imgsList = reader.readObject("imgs", true, ArrayList.class);
         List<String> voteItems = reader.readObject("voteItems", true, ArrayList.class);
 
         TopicPublishDto topicPublishDto = new TopicPublishDto();
-        topicPublishDto.setCirclrId(circlrId);
+        topicPublishDto.setCircleId(circleId);
         topicPublishDto.setUid(uid);
         topicPublishDto.setTitle(title);
         topicPublishDto.addContent(content, imgsList);

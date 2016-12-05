@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.ReportDetailRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.ReportRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
 import com.wondersgroup.healthcloud.services.bbs.ReportService;
+import com.wondersgroup.healthcloud.services.bbs.criteria.ReportSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.exception.CommentException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 举报相关
@@ -104,4 +107,41 @@ public class ReportServiceImpl implements ReportService {
         return true;
     }
 
+    //---------------------------//
+
+
+    @Override
+    public List<Map<String, Object>> getReportTopicListByCriteria(ReportSearchCriteria searchCriteria) {
+        return null;
+    }
+
+    @Override
+    public int countReportTopicByCriteria(ReportSearchCriteria searchCriteria) {
+        return 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> getReportCommentListByCriteria(ReportSearchCriteria searchCriteria) {
+        return null;
+    }
+
+    @Override
+    public int countReportCommentByCriteria(ReportSearchCriteria searchCriteria) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> getReportInfo(Integer reportId) {
+        return null;
+    }
+
+    @Override
+    public Boolean delReportInfo(Integer reportId, String admin_uid) {
+        return null;
+    }
+
+    @Override
+    public Boolean passReportInfo(Integer reportId, String admin_uid) {
+        return null;
+    }
 }
