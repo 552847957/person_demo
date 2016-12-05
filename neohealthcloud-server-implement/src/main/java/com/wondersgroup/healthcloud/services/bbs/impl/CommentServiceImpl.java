@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CommentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
+import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
@@ -197,4 +198,46 @@ public class CommentServiceImpl implements CommentService {
         return true;
     }
 
+    //--------------------------//
+
+
+    @Override
+    public List<Map<String, Object>> getCommentListByCriteria(CommentSearchCriteria searchCriteria) {
+        return null;
+    }
+
+    @Override
+    public int countCommentByCriteria(CommentSearchCriteria searchCriteria) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> getCommentInfoById(Integer id) {
+        return null;
+    }
+
+    @Override
+    public List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid, String adminId) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getCommentInfoByIdWithReplys(Integer id) {
+        return null;
+    }
+
+    @Override
+    public Comment findOne(Integer id) {
+        return null;
+    }
+
+    @Override
+    public Boolean delCommonByIds(String adminUid, List<Integer> ids) {
+        return null;
+    }
+
+    @Override
+    public Comment saveComment(Comment comment) {
+        return null;
+    }
 }

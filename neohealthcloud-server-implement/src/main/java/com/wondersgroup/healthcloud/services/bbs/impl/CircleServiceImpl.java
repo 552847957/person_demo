@@ -311,4 +311,79 @@ public class CircleServiceImpl implements CircleService {
         return result;
     }
 
+    @Override
+    public String getRecommendCircleNames() {
+        String sql = "select GROUP_CONCAT(`name` SEPARATOR  '|') from tb_bbs_circle t where t.is_recommend = 1 and del_flag = '0'";
+        String circleNames = jdbcTemplate.queryForObject(sql, String.class);
+        return circleNames;
+    }
+
+    @Transactional
+    public Boolean saveOrUpdateCircle(Circle newData) {
+        boolean result = false;
+        Date nowDate = new Date();
+        newData.setUpdateTime(nowDate);
+        if (null == newData.getId()){
+            newData.setCreateTime(nowDate);
+        }else {
+            //update
+            Circle circle = circleRepository.findOne(newData.getId());
+            if(circle != null){
+                newData.setCreateTime(circle.getCreateTime());
+                newData.setTopicCount(circle.getTopicCount());
+                newData.setAttentionCount(circle.getAttentionCount());
+            }
+        }
+        circleRepository.save(newData);
+
+        int isRecommend = newData.getIsRecommend();
+        dealRecommendCircle(isRecommend);
+        return result;
+    }
+
+    /**
+     * 如果是推荐的圈子，需要对“推荐”圈子分类进行置顶或者添加操作
+     * @param isRecommend
+     */
+    private void dealRecommendCircle(int isRecommend) {
+        // 处理“推荐圈子”
+        if( isRecommend == CircleConstant.CIRCLE_IS_RECOMMEND) {
+            // 判断“推荐”是否存在
+            CircleCategory recommendCircleCategory = circleCategoryRepository.queryByName(CircleConstant.RECOMMEND_CATE_NAME);
+            Integer topRank = circleCategoryRepository.getTopRankExcludeName(CircleConstant.RECOMMEND_CATE_NAME);
+            // 如果“推荐”圈子不存在
+            if (recommendCircleCategory == null) {
+                CircleCategory newCate = new CircleCategory();
+                newCate.setName(CircleConstant.RECOMMEND_CATE_NAME);
+                // 默认“推荐”圈子置顶
+                newCate.setRank(++topRank);
+                newCate.setCreateTime(new Date());
+                circleCategoryRepository.save(newCate);
+            } else {// 如果“推荐”圈子存在
+                // 设置圈子置顶
+                if (recommendCircleCategory.getRank() <= topRank) {
+                    topRank++;
+                    recommendCircleCategory.setRank(topRank);
+                    circleCategoryRepository.save(recommendCircleCategory);
+                }
+            }// end if
+        }// end if
+    }
+
+    //----------------------------------//
+
+    @Override
+    public int checkCircleNameByName(int id, String circleName) {
+        return 0;
+    }
+
+    @Override
+    public List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag, int pageNo, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag) {
+        return 0;
+    }
 }
