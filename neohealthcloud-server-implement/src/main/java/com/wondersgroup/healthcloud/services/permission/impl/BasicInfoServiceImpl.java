@@ -207,7 +207,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     }
 
     @Override
-    public MenuDTO findUserMunuPermission(String userId) {
+    public MenuDTO findUserMunuPermission(User user) {
         StringBuffer sql = new StringBuffer();
         sql.append(" SELECT                                              ");
         sql.append("   c.*                                               ");
@@ -219,7 +219,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         sql.append("   AND b.del_flag = '0'                              ");
         sql.append("   AND c.del_flag = '0'                              ");
         sql.append("   AND c.type = '1'                                  ");
-        sql.append("   AND a.user_id = '" + userId + "'                  ");
+        sql.append("   AND a.user_id = '" + user.getUserId() + "'        ");
         sql.append("   AND a.role_id = b.role_id                         ");
         sql.append("   AND b.menu_id = c.menu_id                         ");
         List<Menu> menuList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<Menu>(Menu.class));
@@ -236,7 +236,28 @@ public class BasicInfoServiceImpl implements BasicInfoService {
                 break;
             }
         }
+        this.dealBbsMenu(user, menuTree);
         return menuTree;
+    }
+
+    /**
+     * 为圈子标签做特殊处理
+     * 如果管理员没有绑定手机段用户, 一级menu跳转到绑定页面
+     */
+    private void dealBbsMenu(User user, MenuDTO menuTree){
+        if (null == menuTree || null == menuTree.getChildren()){
+            return;
+        }
+        for (MenuDTO menuDTO : menuTree.getChildren()){
+            if (!StringUtils.isEmpty(menuDTO.getHref())
+                    && menuDTO.getHref().equalsIgnoreCase("app.coterieManage")){
+                if (StringUtils.isEmpty(user.getBindUid())){
+                    menuDTO.setChildren(null);
+                }else {
+                    menuDTO.setHref("");
+                }
+            }
+        }
     }
 
     /**
