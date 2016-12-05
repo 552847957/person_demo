@@ -54,7 +54,7 @@ public class LoginController {
             if (appKCfg != null) {
                 map.put("areaName", appKCfg.getName());
             }
-            MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+            MenuDTO menu = basicInfoService.findUserMunuPermission(user);
             if (menu != null) {
                 map.put("menu", menu);
             }
@@ -93,7 +93,7 @@ public class LoginController {
                 if (appKCfg != null) {
                     map.put("areaName", appKCfg.getName());
                 }
-                MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+                MenuDTO menu = basicInfoService.findUserMunuPermission(user);
                 if (menu != null) {
                     map.put("menu", menu);
                 }
