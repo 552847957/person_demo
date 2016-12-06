@@ -24,8 +24,8 @@ public class UserLockingController {
 
     @Autowired
     private UserBbsService userBbsService;
-    @Autowired
-    SysMsgService sysMsgService;
+//    @Autowired
+//    SysMsgService sysMsgService;
 
     /**
      * 根据UID，获取用户禁言信息
@@ -97,9 +97,9 @@ public class UserLockingController {
     @VersionRange
     @RequestMapping(value = "/userlocking/detail", method = RequestMethod.GET)
     public Object disableUserLocking(@RequestParam int banID){
-        Map<String, Object> data=sysMsgService.getUserBanInfoByUid(banID);
+//        Map<String, Object> data=sysMsgService.getUserBanInfoByUid(banID);
         JsonResponseEntity<Map<String, Object>> responseEntity = new JsonResponseEntity<>();
-        responseEntity.setData(data);
+//        responseEntity.setData(data);
         return responseEntity;
     }
 }
