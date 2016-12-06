@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  * Created by zhuchunliu on 2015/11/11.
  */
-
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor {
 
     @Query("select u from User u  where loginname = ?1 and delFlag = '0'")
