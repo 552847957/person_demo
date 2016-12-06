@@ -210,4 +210,9 @@ public class DateUtils {
     public static String getTodayBegin(){
         return sdf_day.format(new Date()) + " 00:00:00";
     }
+    
+
+	public static String format(Date date, String pattern) {
+		return new SimpleDateFormat(pattern).format(date);
+	}
 }
