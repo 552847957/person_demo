@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     @Query("select u from User u  where userId <> ?1 and loginname = ?2")
     User findByLoginName(String userId, String loginname);
 
-    @Query("select u from User u where bindUid = ?1")
+    @Query(nativeQuery = true, value = "select * from tb_neopermission_user u where u.bind_uid = ?1 limit 1")
     User findByBindUid(String bindUid);
 
     //@Transactional

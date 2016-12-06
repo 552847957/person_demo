@@ -18,7 +18,8 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     @Query("select r from RegisterInfo r where r.talkid =?1 and r.delFlag='0'")
     RegisterInfo findByTalkid(String talkid);
 
-    @Query("select r from RegisterInfo r where r.regmobilephone = ?1 and r.delFlag='0'")
+    @Query(nativeQuery = true,
+            value = "select * from app_tb_register_info r where r.regmobilephone = ?1 and r.del_flag='0' limit 1")
     RegisterInfo findByMobile(String mobile);
 
     @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0'")
