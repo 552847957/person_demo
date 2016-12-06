@@ -11,6 +11,8 @@ import java.util.Map;
  */
 public interface BbsAdminService {
 
+    Boolean bindAppUser(String adminId, String appUid);
+
     void cancelBBSAdmin(String mobile);
 
     /**
