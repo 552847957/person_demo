@@ -151,7 +151,7 @@ public class BbsUserController {
             return entity;
         }
         Circle circle = circleService.getCircleInfoById(circleId);
-        if (null == circle || circle.getDelflag().equals("1")){
+        if (null == circle || circle.getDelFlag().equals("1")){
             info.put("status", 2);
             info.put("info", "圈子被禁用");
             entity.setData(info);

@@ -88,7 +88,7 @@ public class TopicCollectController {
         if (null == topicCollect){
             throw new CommonException(2021, "网络异常");
         }
-        if (topicCollect.getDelflag().equals("0")){
+        if (topicCollect.getDelFlag().equals("0")){
             body.setMsg("添加收藏成功");
         }else {
             body.setMsg("取消收藏成功");

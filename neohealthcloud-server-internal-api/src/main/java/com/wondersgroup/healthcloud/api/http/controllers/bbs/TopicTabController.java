@@ -108,7 +108,7 @@ public class TopicTabController {
                 throw new RuntimeException("标签名不能重复");
             }
         }
-        topicTab.setDelflag(topicTab.getDelflag().equals("1") ? "1" : "0");
+        topicTab.setDelFlag(topicTab.getDelFlag().equals("1") ? "1" : "0");
         topicTab.setCreateTime(new Date());
         topicTabRepository.save(topicTab);
 

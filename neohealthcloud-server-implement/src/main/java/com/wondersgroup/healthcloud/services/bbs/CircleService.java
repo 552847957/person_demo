@@ -145,9 +145,9 @@ public interface CircleService {
 
     int checkCircleNameByName(int id, String circleName);
 
-    List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag, int pageNo, int pageSize);
+    List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag, int pageNo, int pageSize);
 
-    int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag);
+    int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag);
 
 
 }

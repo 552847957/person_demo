@@ -258,7 +258,7 @@ public class TopicServiceImpl implements TopicService {
             throw new TopicException(2002, "帖子无效");
         }
         Circle circle = circleRepository.findOne(publishInfo.getCircleId());
-        if (null == circle || circle.getDelflag().equals("1")) {
+        if (null == circle || circle.getDelFlag().equals("1")) {
             throw new TopicException(2003, "圈子无效");
         }
         UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");

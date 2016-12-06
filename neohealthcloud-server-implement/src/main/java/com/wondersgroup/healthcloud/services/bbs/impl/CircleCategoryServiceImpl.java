@@ -187,7 +187,7 @@ public class CircleCategoryServiceImpl implements CircleCategoryService {
             String name = String.valueOf(map.get("name"));
             dto.setName(name);
             dto.setRank(Integer.parseInt(String.valueOf(map.get("rank"))));
-            dto.setDelflag(String.valueOf(map.get("del_flag")));
+            dto.setDelFlag(String.valueOf(map.get("del_flag")));
             String cName = String.valueOf(map.get("c_name"));
             // 如果是推荐分类，统计下属圈子的方式和其他圈子不同
             if (CircleConstant.RECOMMEND_CATE_NAME.equals(name)) {

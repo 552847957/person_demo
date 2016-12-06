@@ -26,7 +26,7 @@ public class TopicCollect {
     private Integer topicId;//是否为精华贴
 
     @Column(name = "del_flag")
-    private String delflag="0";
+    private String delFlag="0";
 
     @Column(name = "create_time")
     private Date createTime;

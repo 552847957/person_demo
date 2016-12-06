@@ -28,7 +28,7 @@ public class TopicCollectServiceImpl implements TopicCollectService {
     @Override
     public Boolean isCollectedForUser(String uid, Integer topicId) {
         TopicCollect topicCollect = topicCollectRepository.findInfoByUidAndTopicId(uid, topicId);
-        return null != topicCollect && topicCollect.getDelflag().equals("0");
+        return null != topicCollect && topicCollect.getDelFlag().equals("0");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TopicCollectServiceImpl implements TopicCollectService {
             topicCollectRepository.save(topicCollect);
         }else {
             topicCollect.setCreateTime(new Date());
-            topicCollect.setDelflag(topicCollect.getDelflag().equals("0") ? "1" : "0");
+            topicCollect.setDelFlag(topicCollect.getDelFlag().equals("0") ? "1" : "0");
             topicCollectRepository.save(topicCollect);
         }
         return topicCollect;

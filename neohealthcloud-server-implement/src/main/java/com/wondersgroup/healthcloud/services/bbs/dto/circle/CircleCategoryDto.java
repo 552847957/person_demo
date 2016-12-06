@@ -17,7 +17,7 @@ public class CircleCategoryDto {
 
     private Integer rank;//排序
 
-    private String delflag;
+    private String delFlag;
 
     private String circleNames;// 下属圈子名称
 }

@@ -145,7 +145,7 @@ public class CommentServiceImpl implements CommentService {
             throw new TopicException(2001, "帖子无效,不能回复");
         }
         Circle circle = circleRepository.findOne(topic.getCircleId());
-        if (null == circle || circle.getDelflag().equals("1")) {
+        if (null == circle || circle.getDelFlag().equals("1")) {
             throw CircleException.NotExistForReply();
         }
         RegisterInfo withBabyInfo = userService.getOneNotNull(publishDto.getUid());
