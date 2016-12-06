@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,10 @@ public class BbsAdminServiceImpl implements BbsAdminService {
         User adminInfo = userRepository.findOne(adminId);
         if (null == adminInfo){
             throw new CommonException(2001, "管理员无效");
+        }
+        //暂不提供修改/取消关联, 如要做记得要先把原关联的app user管理员重置掉
+        if (StringUtils.isNotEmpty(adminInfo.getBindUid())){
+            throw new CommonException(2002, "已关联手机段用户!");
         }
         RegisterInfo registerInfo = registerInfoRepository.findByMobile(mobile);
         if (null == registerInfo){

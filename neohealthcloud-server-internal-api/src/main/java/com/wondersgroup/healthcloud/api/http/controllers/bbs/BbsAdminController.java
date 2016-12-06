@@ -66,21 +66,17 @@ public class BbsAdminController {
     public JsonResponseEntity sendPhoneCode(@RequestHeader String userId, @RequestParam String mobile) {
 
         JsonResponseEntity entity = new JsonResponseEntity();
-        getUidAndCheckIsCanBindForAdmin(userId, mobile);
-        userAccountService.getVerifyCode(mobile, 3);
-        entity.setMsg("短信验证码发送成功");
-        return entity;
-    }
-
-    private String getUidAndCheckIsCanBindForAdmin(String adminId, String mobile){
         RegisterInfo registerInfo = userService.findRegisterInfoByMobile(mobile);
         if (null == registerInfo){
             throw new CommonException(2002, "手机号没有注册!");
         }
         User bindUser = userRepository.findByBindUid(registerInfo.getRegisterid());
-        if (null != bindUser && !bindUser.getUserId().equals(adminId)){
+        if (null != bindUser && !bindUser.getUserId().equals(userId)){
             throw new CommonException(2003, "该手机号已被其他管理员绑定!");
         }
-        return bindUser.getUserId();
+        userAccountService.getVerifyCode(mobile, 3);
+        entity.setMsg("短信验证码发送成功");
+        return entity;
     }
+
 }
