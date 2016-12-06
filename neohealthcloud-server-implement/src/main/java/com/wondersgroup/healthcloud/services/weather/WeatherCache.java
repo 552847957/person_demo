@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.weather;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 /**
@@ -23,7 +24,6 @@ public class WeatherCache {
 
     @Autowired
     private JedisPool pool;
-
 
     private static final String keyPrefix = "hc:sh:weather:";
 
@@ -47,10 +47,16 @@ public class WeatherCache {
     }
 
     public void save(Type type, String code, String value) {
-
+        try (Jedis jedis = pool.getResource()) {
+            String key = key(type, code);
+            jedis.set(key, value);
+        }
     }
 
     public String get(Type type, String code) {
-        return "";
+        try (Jedis jedis = pool.getResource()) {
+            String key = key(type, code);
+            return jedis.get(key);
+        }
     }
 }
