@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
@@ -55,6 +56,7 @@ public class CommentController {
     /**
      * 评论回复
      */
+    @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> publish(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
@@ -89,6 +91,7 @@ public class CommentController {
     /**
      * 话题详情下的评论列表
      */
+    @VersionRange
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonListResponseEntity<CommentListDto> list(@RequestParam Integer topicId,
                                                @RequestParam(defaultValue = "0", required = false) Integer floor,
@@ -126,6 +129,7 @@ public class CommentController {
     /**
      * 删除评论
      */
+    @VersionRange
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public JsonResponseEntity deleteComment(@RequestParam Integer commentId, @RequestParam String uid){
         RegisterInfo account = userService.getOneNotNull(uid);

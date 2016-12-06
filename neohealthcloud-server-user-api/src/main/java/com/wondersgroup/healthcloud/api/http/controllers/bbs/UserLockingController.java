@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class UserLockingController {
     /**
      * 根据UID，获取用户禁言信息
      */
+    @VersionRange
     @RequestMapping(value = "/userlocking/search", method = RequestMethod.GET)
     public Object getUserLockingInfo(@RequestParam String uid){
         Map<String,Object> ret= userBbsService.getUserBanInfoByUid(uid);
@@ -40,6 +42,7 @@ public class UserLockingController {
     /**
      * 设置禁言
      */
+    @VersionRange
     @RequestMapping(value = "/userlocking/enable", method = RequestMethod.POST)
     public Object enableUserLocking(@RequestBody(required = false) String body){
         RequestDataReader reader = new RequestDataReader(body);
@@ -68,6 +71,7 @@ public class UserLockingController {
     /**
      * 解除禁言
      */
+    @VersionRange
     @RequestMapping(value = "/userlocking/disable", method = RequestMethod.POST)
     public Object disableUserLocking(@RequestBody(required = false) String body){
         RequestDataReader reader = new RequestDataReader(body);
@@ -90,6 +94,7 @@ public class UserLockingController {
     /**
      * 禁言详情
      */
+    @VersionRange
     @RequestMapping(value = "/userlocking/detail", method = RequestMethod.GET)
     public Object disableUserLocking(@RequestParam int banID){
         Map<String, Object> data=sysMsgService.getUserBanInfoByUid(banID);

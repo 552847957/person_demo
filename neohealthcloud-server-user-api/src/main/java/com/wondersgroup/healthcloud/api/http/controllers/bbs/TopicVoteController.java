@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
@@ -32,6 +33,7 @@ public class TopicVoteController {
     /**
      * 投票
      */
+    @VersionRange
     @RequestMapping(value = "/vote", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> vote(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();

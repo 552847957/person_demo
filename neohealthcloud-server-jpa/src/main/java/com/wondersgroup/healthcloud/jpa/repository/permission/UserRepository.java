@@ -22,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     @Query("select u from User u  where userId <> ?1 and loginname = ?2")
     User findByLoginName(String userId, String loginname);
 
+    @Query("select u from User u where bindUid = ?1")
+    User findByBindUid(String bindUid);
+
     //@Transactional
     @Modifying
     @Query("update User  set delFlag = '1' , updateDate = ?2 where userId in (?1)")

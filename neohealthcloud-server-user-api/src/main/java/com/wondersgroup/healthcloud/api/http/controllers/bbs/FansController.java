@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Fans;
 import com.wondersgroup.healthcloud.services.bbs.*;
@@ -40,6 +41,7 @@ public class FansController {
     /**
      * 粉丝列表查询
      */
+    @VersionRange
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Object getFansList(@RequestParam Map<String, Object> input) {
         RequestDataReader reader = new RequestDataReader(input);
@@ -72,14 +74,9 @@ public class FansController {
     }
 
     /**
-     * created by limenghua at 2016.09.14
-     *
-     * @param input
-     * @return
-     */
-    /**
      * 关注列表
      */
+    @VersionRange
     @RequestMapping(value = "/getAttentList", method = RequestMethod.GET)
     public Object getAttentList(@RequestParam Map<String, Object> input) {
         JsonListResponseEntity<Map<String, Object>> result = new JsonListResponseEntity<>();
@@ -125,6 +122,7 @@ public class FansController {
     /**
      * 关注某人
      */
+    @VersionRange
     @RequestMapping(value = "/attent", method = RequestMethod.POST)
     public JsonResponseEntity attentSomeone(@RequestBody String request) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -181,11 +179,8 @@ public class FansController {
 
     /**
      * 取消关注
-     *
-     * @param uId
-     * @param otherId
-     * @return
      */
+    @VersionRange
     @RequestMapping(value = "/attent", method = RequestMethod.DELETE)
     public JsonResponseEntity attentSomeone(@RequestParam String uId, @RequestParam String otherId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();

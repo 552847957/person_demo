@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicCollect;
 import com.wondersgroup.healthcloud.services.bbs.*;
@@ -37,6 +38,7 @@ public class TopicCollectController {
     @Autowired
     private TopicCollectService topicCollectService;
 
+    @VersionRange
     @RequestMapping(value = "/topicList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> topicList(@RequestParam String uid,
                                                   @RequestParam(required=false, defaultValue = "1") Integer flag){
@@ -74,6 +76,7 @@ public class TopicCollectController {
         return responseEntity;
     }
 
+    @VersionRange
     @RequestMapping(value = "/addTopic", method = RequestMethod.POST)
     public JsonResponseEntity<String> addTopic(@RequestBody String request){
 

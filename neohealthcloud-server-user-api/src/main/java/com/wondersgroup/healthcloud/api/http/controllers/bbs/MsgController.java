@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.utils.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class MsgController {
     /**
      * 动态消息列表查询
      */
+    @VersionRange
     @RequestMapping(value = "/msg/dynamic/list", method = RequestMethod.GET)
     public Object getDynamicList(@RequestParam Map<String,Object> input){
         RequestDataReader reader = new RequestDataReader(input);
@@ -51,6 +53,7 @@ public class MsgController {
     /**
      * 系统消息列表查询
      */
+    @VersionRange
     @RequestMapping(value = "/msg/sysnotice/list", method = RequestMethod.GET)
     public Object getSysList(@RequestParam Map<String,Object> input){
         RequestDataReader reader = new RequestDataReader(input);

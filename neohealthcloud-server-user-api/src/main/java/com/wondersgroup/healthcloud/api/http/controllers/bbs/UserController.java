@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
@@ -57,6 +58,7 @@ public class UserController {
     /**
      * 用户个人主页
      */
+    @VersionRange
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public JsonResponseEntity<UserHomeDto> home(@RequestParam String loginUid,
                                                 @RequestParam String uid) {
@@ -84,6 +86,7 @@ public class UserController {
      * 个人主页
      * 话题列表 / 我发布的话题
      */
+    @VersionRange
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> topics(@RequestParam String uid,
                                                        @RequestParam(defaultValue="1",required = false) Integer flag){
@@ -102,6 +105,7 @@ public class UserController {
      * 个人主页
      * 回复列表 / 我回复的
      */
+    @VersionRange
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
     public JsonListResponseEntity<CommentListDto> comments(@RequestParam String uid,
                                                            @RequestParam(defaultValue="1",required = false) Integer flag){
@@ -119,6 +123,7 @@ public class UserController {
     /**
      *  删除话题
      */
+    @VersionRange
     @RequestMapping(value = "/delTopic", method = RequestMethod.DELETE)
     public JsonResponseEntity<Object> delTopic(@RequestParam String uid,
                                                 @RequestParam Integer topicId) {
@@ -132,6 +137,7 @@ public class UserController {
         return jsonResponseEntity;
     }
 
+    @VersionRange
     @RequestMapping(value = "/isCanPublishTopic", method = RequestMethod.GET)
     public JsonResponseEntity<Map<String, Object>> isCanPublishTopic(@RequestParam String uid, @RequestParam Integer circleId) {
         JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity();
@@ -164,6 +170,7 @@ public class UserController {
         return entity;
     }
 
+    @VersionRange
     @RequestMapping(value = "/isCanPublishLetter", method = RequestMethod.GET)
     public JsonResponseEntity<Map<String, Object>> isCanPublishLetter(@RequestParam String uid, @RequestParam String letterUid) {
         JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity();

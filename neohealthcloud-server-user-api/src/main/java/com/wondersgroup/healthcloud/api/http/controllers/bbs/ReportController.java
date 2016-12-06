@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.constant.ReportConstant;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class ReportController {
     /**
      * 举报原因
      */
+    @VersionRange
     @RequestMapping(value = "/reasonList", method = RequestMethod.GET)
     public JsonResponseEntity<Map<Integer, String>> reasonList(){
         JsonResponseEntity<Map<Integer, String>> rt = new JsonResponseEntity();
@@ -38,6 +40,7 @@ public class ReportController {
     /**
      * 话题举报
      */
+    @VersionRange
     @RequestMapping(value = "/topicReport", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> topicReport(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
@@ -54,6 +57,7 @@ public class ReportController {
     /**
      * 评论举报
      */
+    @VersionRange
     @RequestMapping(value = "/commentReport", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> commentReport(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
