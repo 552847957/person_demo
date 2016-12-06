@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto;
 
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -33,4 +34,5 @@ public class UserBbsInfo {
     private String delFlag;
 
     private Date updateDate;
+
 }
