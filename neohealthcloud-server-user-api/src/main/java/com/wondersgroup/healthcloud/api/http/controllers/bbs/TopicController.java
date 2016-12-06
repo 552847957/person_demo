@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -58,6 +59,7 @@ public class TopicController {
     /**
      * 话题发布
      */
+    @VersionRange
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> publish(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
@@ -92,6 +94,7 @@ public class TopicController {
     /**
      * 圈子下的话题列表(包括全部，以及非精华的请他tab列表)
      */
+    @VersionRange
     @RequestMapping(value = "/circle/list", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> list(@RequestParam Integer circleId,
                                                     @RequestParam(defaultValue="0") Integer tabId,
@@ -116,6 +119,7 @@ public class TopicController {
     /**
      * 圈子的精华列表
      */
+    @VersionRange
     @RequestMapping(value = "/circle/bestList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> bestList(@RequestParam Integer circleId,
                                                      @RequestParam(defaultValue = "1", required = false) Integer flag){
@@ -134,6 +138,7 @@ public class TopicController {
     /**
      * 用户圈子首页下面的推荐的话题列表
      */
+    @VersionRange
     @RequestMapping(value = "/user/recommendList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> bestList(@RequestParam String uid,
                                                          @RequestParam(defaultValue = "1", required = false) Integer flag){
@@ -152,6 +157,7 @@ public class TopicController {
     /**
      * 圈子首页－热门话题列表
      */
+    @VersionRange
     @RequestMapping(value = "/hotList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> hotList(@RequestParam String uid,
                                                          @RequestParam(defaultValue = "1", required = false) Integer flag){
@@ -171,6 +177,7 @@ public class TopicController {
         return rt;
     }
 
+    @VersionRange
     @RequestMapping(value = "/view", method = RequestMethod.GET)
     public JsonResponseEntity<TopicViewDto> topicView(@RequestParam Integer topicId,
                                                       @RequestParam(defaultValue = "", required = false) String uid){

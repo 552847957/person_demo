@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.NumberUtils;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class UserFavorController {
     /**
      * 话题点赞
      */
+    @VersionRange
     @RequestMapping(value = "/topic", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> RequestMethod(@RequestBody String request){
         JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity<>();

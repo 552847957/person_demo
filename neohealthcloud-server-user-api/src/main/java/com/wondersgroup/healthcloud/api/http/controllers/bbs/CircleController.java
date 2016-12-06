@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.NumberUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
@@ -57,6 +58,7 @@ public class CircleController {
     /**
      * 圈子首页
      */
+    @VersionRange
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public JsonResponseEntity<CircleHomeDto> home(@RequestParam String uid, @RequestParam Integer circleId) {
         JsonResponseEntity<CircleHomeDto> jsonResponseEntity = new JsonResponseEntity();
@@ -90,6 +92,7 @@ public class CircleController {
      *
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/myCircleList", method = RequestMethod.GET)
     public JsonResponseEntity myCircleList(@RequestParam(required = true) String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -111,6 +114,7 @@ public class CircleController {
      *
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/circleBannerList", method = RequestMethod.GET)
     public JsonResponseEntity circleBannerList() {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -127,6 +131,7 @@ public class CircleController {
         return jsonResponseEntity;
     }
 
+    @VersionRange
     @RequestMapping(value = "/bannerAndMyCircles", method = RequestMethod.GET)
     public JsonResponseEntity bannerAndMyCircles(@RequestParam(required = true) String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -155,6 +160,7 @@ public class CircleController {
      *
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/getCircleCategory", method = RequestMethod.GET)
     public JsonResponseEntity getCircleCategory() {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -177,6 +183,7 @@ public class CircleController {
      * @param categoryId
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/getCirclesByCategoryId", method = RequestMethod.GET)
     public JsonResponseEntity getCirclesByCategoryId(@RequestParam(required = true) int categoryId, @RequestParam(required = true) String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -198,6 +205,7 @@ public class CircleController {
      *
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/joinLeaveCircle", method = RequestMethod.POST)
     public JsonResponseEntity joinLeaveCircle(@RequestBody String request) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -264,6 +272,7 @@ public class CircleController {
      * @param uId
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/joinLeaveCircle", method = RequestMethod.DELETE)
     public JsonResponseEntity leaveCircle(@RequestParam Integer circleId, @RequestParam String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -296,6 +305,7 @@ public class CircleController {
      *
      * @return
      */
+    @VersionRange
     @RequestMapping(value = "/getCircleInfo", method = RequestMethod.GET)
     public JsonResponseEntity getCircleInfo(@RequestParam Integer circleId, @RequestParam String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
