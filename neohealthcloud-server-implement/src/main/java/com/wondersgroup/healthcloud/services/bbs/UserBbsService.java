@@ -2,7 +2,9 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 
@@ -15,6 +17,9 @@ import java.util.Map;
  */
 public interface UserBbsService {
 
+    /**
+     * 删除话题
+     */
     boolean delTopic(String uid, Integer topicId);
 
     /**
@@ -32,7 +37,16 @@ public interface UserBbsService {
      */
     boolean setUserBan(String loginUid, String uid, Integer banStatus, String reason);
 
-    Map<String, Object> getUserBanInfoByUid(String uid);
+    /**
+     * 获取用户现在的禁言状态
+     * 没有被禁言 返回null
+     */
+    UserBanLog getUserBanInfoByUid(String uid);
+
+    /**
+     * 查询禁言信息
+     */
+    UserBanInfo getUserBanInfoByBanLogId(Integer banLogId);
 
     /**
      * 论坛管理员

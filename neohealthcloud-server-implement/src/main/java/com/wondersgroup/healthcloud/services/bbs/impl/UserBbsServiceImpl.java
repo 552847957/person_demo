@@ -12,9 +12,12 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.UserBanLogRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
+import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -116,28 +119,27 @@ public class UserBbsServiceImpl implements UserBbsService {
             registerInfoRepository.save(account);
         }
         //通知LTS
-        //BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
+        BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
         return true;
     }
 
-    /**
-     * 根据UID，获取用户禁言信息
-     * @param uid 用户ID
-     * @return 如果不存在用户禁言数据，返回空对象
-     */
     @Override
-    public Map<String, Object> getUserBanInfoByUid(String uid) {
+    public UserBanLog getUserBanInfoByUid(String uid) {
         RegisterInfo account = userService.getOneNotNull(uid);
         if (account.getBanStatus().intValue() == UserConstant.BanStatus.OK){
             return null;
         }
-        UserBanLog userBanLog = userBanLogRepository.findLastLogForUser(uid);
-        Map<String, Object> dataWrap=new HashMap<>();
-        if(null != userBanLog){
-            dataWrap.put("expire", userBanLog.getBanStatus());
-            dataWrap.put("reason", userBanLog.getReason());
-        }
-        return dataWrap;
+        return userBanLogRepository.findLastLogForUser(uid);
+    }
+
+    @Override
+    public UserBanInfo getUserBanInfoByBanLogId(Integer banLogId) {
+        UserBanLog userBanLog = userBanLogRepository.findOne(banLogId);
+        UserBanInfo userBanInfo = new UserBanInfo(userBanLog);
+        RegisterInfo registerInfo = registerInfoRepository.findOne(userBanLog.getUId());
+        userBanInfo.setAvatar(registerInfo.getHeadphoto());
+        userBanInfo.setNickname(registerInfo.getNickname());
+        return userBanInfo;
     }
 
     @Override

@@ -3,8 +3,11 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import com.wondersgroup.healthcloud.services.bbs.*;
+import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,31 +15,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 禁言
+ * 用户禁言设置
  * Created by jialing.yao on 2016-8-15.
  */
 @RestController
 @RequestMapping("/api/bbs")
-public class UserLockingController {
+public class UserBanController {
 
     @Autowired
     private UserBbsService userBbsService;
-//    @Autowired
-//    SysMsgService sysMsgService;
 
     /**
-     * 根据UID，获取用户禁言信息
+     * 获取用户当前的禁言信息
      */
     @VersionRange
     @RequestMapping(value = "/userlocking/search", method = RequestMethod.GET)
-    public Object getUserLockingInfo(@RequestParam String uid){
-        Map<String,Object> ret= userBbsService.getUserBanInfoByUid(uid);
-        JsonResponseEntity<Map<String,Object>> responseEntity = new JsonResponseEntity<>();
-        responseEntity.setData(ret);
-        return responseEntity;
+    public JsonResponseEntity<Map<String,Object>> getUserLockingInfo(@RequestParam String uid){
+        UserBanLog banInfo = userBbsService.getUserBanInfoByUid(uid);
+        JsonResponseEntity<Map<String,Object>> entity = new JsonResponseEntity<>();
+        if (banInfo == null){
+            return entity;
+        }
+        Map<String,Object> info = new HashMap<>();
+        info.put("expire", banInfo.getBanStatus());
+        info.put("reason", banInfo.getReason());
+        entity.setData(info);
+        return entity;
     }
 
     /**
@@ -53,16 +61,14 @@ public class UserLockingController {
 
         JsonResponseEntity<Map<String,String>> responseEntity = new JsonResponseEntity<>();
         if (!UserConstant.BanStatus.isVaildStatus(expire)){
-            responseEntity.setCode(1000);
-            responseEntity.setMsg("禁言-时效类型["+expire+"]不匹配.");
+            throw new CommonException(2001, "禁言时效无效");
         }
         Boolean isOK = userBbsService.setUserBan(loginUid, uid, expire, reason);
-
         if(isOK) {
             responseEntity.setCode(0);
             responseEntity.setMsg("设置禁言成功.");
         }else {
-            responseEntity.setCode(1000);
+            responseEntity.setCode(2040);
             responseEntity.setMsg("设置禁言失败.");
         }
         return responseEntity;
@@ -96,10 +102,10 @@ public class UserLockingController {
      */
     @VersionRange
     @RequestMapping(value = "/userlocking/detail", method = RequestMethod.GET)
-    public Object disableUserLocking(@RequestParam int banID){
-//        Map<String, Object> data=sysMsgService.getUserBanInfoByUid(banID);
-        JsonResponseEntity<Map<String, Object>> responseEntity = new JsonResponseEntity<>();
-//        responseEntity.setData(data);
+    public JsonResponseEntity<UserBanInfo> banDetail(@RequestParam int banID){
+        UserBanInfo banInfo = userBbsService.getUserBanInfoByBanLogId(banID);
+        JsonResponseEntity<UserBanInfo> responseEntity = new JsonResponseEntity<>();
+        responseEntity.setData(banInfo);
         return responseEntity;
     }
 }
