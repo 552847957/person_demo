@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.api.utils.Pager;
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
@@ -42,6 +43,7 @@ public class CircleController {
     /**
      * 获取全部圈子分类
      */
+    @Admin
     @RequestMapping(value = "/allCate", method = RequestMethod.GET)
     public JsonResponseEntity allCate(@RequestParam(required = false, defaultValue = "0") Integer getVaild) {
         JsonResponseEntity entity = new JsonResponseEntity();
@@ -53,6 +55,7 @@ public class CircleController {
     /**
      * 获取全部圈子
      */
+    @Admin
     @RequestMapping(value = "/allCircle", method = RequestMethod.GET)
     public JsonResponseEntity allCircle(@RequestParam(required = false, defaultValue = "0") Integer getVaild) {
         JsonResponseEntity entity = new JsonResponseEntity();
@@ -67,6 +70,7 @@ public class CircleController {
      * @param circleCategory
      * @return
      */
+    @Admin
     @RequestMapping(value = "/saveCircleCategory", method = RequestMethod.POST)
     public JsonResponseEntity saveCircleCategory(@RequestBody CircleCategory circleCategory) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -116,6 +120,7 @@ public class CircleController {
     /**
      * 保存圈子
      */
+    @Admin
     @RequestMapping(value = "/saveCircle", method = RequestMethod.POST)
     public JsonResponseEntity saveCircle(@RequestBody String body) {
         JsonResponseEntity response = new JsonResponseEntity();
@@ -174,6 +179,7 @@ public class CircleController {
      * @param pager
      * @return
      */
+    @Admin
     @RequestMapping(value = "/categorySearch", method = RequestMethod.POST)
     public Pager categorySearch(@RequestBody Pager pager) {
         String name = (String) pager.getParameter().get("name");
@@ -196,6 +202,7 @@ public class CircleController {
      *
      * @return
      */
+    @Admin
     @RequestMapping(value = "/comboList", method = RequestMethod.GET)
     public JsonResponseEntity categoryComboList() {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -210,6 +217,7 @@ public class CircleController {
      * @param pager
      * @return
      */
+    @Admin
     @RequestMapping(value = "/circleSearch", method = RequestMethod.POST)
     public Pager circleSearch(@RequestBody Pager pager) {
         String name = (String) pager.getParameter().get("name");
@@ -229,6 +237,7 @@ public class CircleController {
         return pager;
     }
 
+    @Admin
     @RequestMapping(value = "/getCircleCategoryById", method = RequestMethod.GET)
     public JsonResponseEntity getCircleCategoryById(@RequestParam int id) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
@@ -243,6 +252,7 @@ public class CircleController {
         return jsonResponseEntity;
     }
 
+    @Admin
     @RequestMapping(value = "/getCircleById", method = RequestMethod.GET)
     public JsonResponseEntity getCircleById(@RequestParam int id) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
