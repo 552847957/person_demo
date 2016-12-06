@@ -213,7 +213,7 @@ public class CircleController {
         Integer circleId = reader.readInteger("circleId", false);
         String uId = reader.readString("uId", false);
         Circle circle = circleService.getCircleInfoById(circleId);
-        if (null == circle || circle.getDelflag().equals("1")){
+        if (null == circle || circle.getDelFlag().equals("1")){
             jsonResponseEntity.setCode(1004);
             jsonResponseEntity.setMsg("该圈子已禁用");
             return jsonResponseEntity;

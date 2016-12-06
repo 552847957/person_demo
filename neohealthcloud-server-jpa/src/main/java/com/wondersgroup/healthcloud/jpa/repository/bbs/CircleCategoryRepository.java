@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface CircleCategoryRepository extends JpaRepository<CircleCategory, Integer> {
 
-    List<CircleCategory> queryByDelflagOrderByRankDesc(String delflag);
+    List<CircleCategory> queryByDelFlagOrderByRankDesc(String delFlag);
 
     CircleCategory queryByName(String name);
 

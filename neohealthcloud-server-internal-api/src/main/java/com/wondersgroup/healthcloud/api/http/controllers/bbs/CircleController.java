@@ -99,7 +99,7 @@ public class CircleController {
                 }
                 // 存在指定id的数据
                 if (byId != null) {
-                    byId.setDelflag(circleCategory.getDelflag());
+                    byId.setDelFlag(circleCategory.getDelFlag());
                     byId.setName(circleCategory.getName());
                     byId.setRank(circleCategory.getRank());
                     circleCategoryService.saveCircleCategory(byId);
@@ -153,7 +153,7 @@ public class CircleController {
         newData.setIsDefaultAttent(isDefaultAttent);//*
         newData.setFakeAttentionCount(fakeAttentionCount);//*
         newData.setRank(rank);
-        newData.setDelflag(delFlag);
+        newData.setDelFlag(delFlag);
 
         int _id = newData.getId() == null ? -1 : newData.getId();
         int isExists = circleService.checkCircleNameByName(_id, newData.getName());

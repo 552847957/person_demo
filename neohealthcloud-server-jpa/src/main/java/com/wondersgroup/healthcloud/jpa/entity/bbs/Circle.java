@@ -43,7 +43,7 @@ public class Circle {
     private Integer rank=100;//排序
 
     @Column(name = "del_flag")
-    private String delflag="0";
+    private String delFlag="0";
 
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)

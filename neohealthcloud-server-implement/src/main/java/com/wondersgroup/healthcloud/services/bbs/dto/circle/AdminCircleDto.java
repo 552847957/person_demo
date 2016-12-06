@@ -18,7 +18,7 @@ public class AdminCircleDto {
     private String cateName;// 所属分类名称
     private String icon;
     private Integer rank;//排序
-    private String delflag;//默认为1 不启用 0：启用
+    private String delFlag;//默认为1 不启用 0：启用
     private Integer isRecommend;//是否推荐
     private Integer isDefaultAttent;//是否默认关注
 }

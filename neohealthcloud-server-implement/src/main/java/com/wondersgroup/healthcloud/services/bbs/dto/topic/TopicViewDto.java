@@ -74,7 +74,7 @@ public class TopicViewDto {
 
     public void mergeCircleInfo(Circle circle){
         this.circleName = circle.getName();
-        if (circle.getDelflag().equals("1")){
+        if (circle.getDelFlag().equals("1")){
             //帖子所在圈子被删除 用户不能回复
             this.userCommentStatus = UserConstant.UserCommentStatus.CIRCLE_BAN;
         }

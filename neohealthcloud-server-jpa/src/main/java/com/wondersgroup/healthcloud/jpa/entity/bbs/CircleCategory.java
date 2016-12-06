@@ -25,7 +25,7 @@ public class CircleCategory {
     private Integer rank;//排序
 
     @Column(name = "del_flag")
-    private String delflag="0";
+    private String delFlag="0";
 
     @Column(name = "create_time")
     private Date createTime;

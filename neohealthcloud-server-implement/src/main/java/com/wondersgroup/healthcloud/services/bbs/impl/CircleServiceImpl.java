@@ -68,7 +68,7 @@ public class CircleServiceImpl implements CircleService {
 
     @Override
     public List<Circle> defaultAttentList() {
-        List<Circle> list = circleRepository.queryByIsDefaultAttentAndDelflag(1, "0");
+        List<Circle> list = circleRepository.queryByIsDefaultAttentAndDelFlag(1, "0");
         return list;
     }
 
@@ -77,7 +77,7 @@ public class CircleServiceImpl implements CircleService {
         List<CircleCategoryDto> cateDtoList = new ArrayList<>();
 
         List<CircleCategory> catList = null;
-        catList = circleCategoryRepository.queryByDelflagOrderByRankDesc("0");
+        catList = circleCategoryRepository.queryByDelFlagOrderByRankDesc("0");
         if (catList != null && catList.size() > 0) {
             for (CircleCategory circleCategory : catList) {
                 CircleCategoryDto dto = new CircleCategoryDto();
@@ -150,9 +150,9 @@ public class CircleServiceImpl implements CircleService {
         // 查询是否为“推荐圈子”分类
         CircleCategory circleCategory = circleCategoryRepository.findOne(categoryId);
         if (circleCategory != null && CircleConstant.RECOMMEND_CATE_NAME.equals(circleCategory.getName())) {
-            cList = circleRepository.queryByIsRecommendAndDelflagOrderByRankDesc(1, "0");
+            cList = circleRepository.queryByIsRecommendAndDelFlagOrderByRankDesc(1, "0");
         } else {
-            cList = circleRepository.queryByCateIdAndDelflagOrderByRankDesc(categoryId, "0");
+            cList = circleRepository.queryByCateIdAndDelFlagOrderByRankDesc(categoryId, "0");
         }
 
         if (cList != null && cList.size() > 0) {
@@ -378,12 +378,12 @@ public class CircleServiceImpl implements CircleService {
     }
 
     @Override
-    public List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag, int pageNo, int pageSize) {
+    public List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag, int pageNo, int pageSize) {
         return null;
     }
 
     @Override
-    public int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag) {
+    public int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag) {
         return 0;
     }
 }

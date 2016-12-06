@@ -35,7 +35,7 @@ public class CircleHomeDto {
         this.icon = circle.getIcon();
         this.name = circle.getName();
         this.description = circle.getDescription();
-        if(circle.getDelflag().equals("1")){
+        if(circle.getDelFlag().equals("1")){
             this.userPublishStatus = UserConstant.UserCommentStatus.CIRCLE_BAN;
         }
     }
