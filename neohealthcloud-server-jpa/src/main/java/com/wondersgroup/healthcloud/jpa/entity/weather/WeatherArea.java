@@ -31,4 +31,5 @@ public class WeatherArea {
     private String code;
     private String woeid;
     private String hecode;
+    private Integer actived;
 }
