@@ -112,6 +112,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean updateNickname(String userId, String nickname) {
+        //根据昵称查询用户数量
+        int counts = registerInfoRepository.countRegisterInfoByNickname(nickname);
+        if(counts>0){
+            throw new ErrorUpdateUserInfoException("昵称已被使用哦,换一个吧。");
+        }
+
         RegisterInfo register = registerInfoRepository.findOne(userId);
         register.setNickname(nickname);
         register.setUpdateDate(new Date());
