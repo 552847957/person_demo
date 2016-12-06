@@ -94,7 +94,6 @@ public class WeatherJob {
 
             saveToRedis(WeatherCache.Type.ALL, task.getCode(), cache.toString());
             saveToRedis(WeatherCache.Type.BRIEF, task.getCode(), brief.toString());
-            System.out.println(cache.toString());
         }
     }
 
