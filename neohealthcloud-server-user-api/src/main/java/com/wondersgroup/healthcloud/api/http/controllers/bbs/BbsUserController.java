@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/bbs/user")
-public class UserController {
+public class BbsUserController {
 
     @Autowired
     private TopicService topicService;
