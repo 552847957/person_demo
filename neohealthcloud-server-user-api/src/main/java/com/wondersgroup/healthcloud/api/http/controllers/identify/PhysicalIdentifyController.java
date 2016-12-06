@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.identify;
 
 import com.wondersgroup.healthcloud.api.http.dto.identify.HealthQuestionAPIEnity;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -43,6 +44,27 @@ public class PhysicalIdentifyController {
             }
         }
         response.setData(list);
+        return response;
+    }
+
+    @GetMapping(value = "/list")
+    @VersionRange
+    public JsonListResponseEntity getPhysiqueIdentify(
+            @RequestParam String registerid,@RequestParam String flag) {
+
+        JsonListResponseEntity response = new JsonListResponseEntity();
+
+        return response;
+    }
+
+    @GetMapping("/info")
+    @VersionRange
+    public JsonResponseEntity<List<HealthQuestionAPIEnity>> getPhysiqueIdentifyInfo(
+            @RequestParam String id) {
+
+        JsonResponseEntity<List<HealthQuestionAPIEnity>> response = new JsonResponseEntity<List<HealthQuestionAPIEnity>>();
+
+
         return response;
     }
 }

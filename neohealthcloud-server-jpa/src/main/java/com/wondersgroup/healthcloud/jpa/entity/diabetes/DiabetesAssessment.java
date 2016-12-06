@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -15,6 +16,7 @@ import java.util.Date;
 @Entity
 @Table(name = "app_tb_diabetes_assessment")
 public class DiabetesAssessment {
+    @Id
     private String id; // 主键
     private Integer age; // 年龄
     private Integer gender; // 性别，1：男，2：女

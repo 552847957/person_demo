@@ -52,7 +52,6 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 	private void saveHealthQuestion(String registerid ,String content, String info){
 		//如果为本人测试，保存测试结果数据
 		if(null != registerid && !"".equals(registerid)){
-			List<HealthQuestion> list= healthQuestionRepo.findResultByRegisterId(registerid);
 			HealthQuestion entity = new HealthQuestion();
 			entity.setRegisterid(registerid);
 			entity.setContent(content);
@@ -60,7 +59,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 			entity.setResult(info);
 			entity.setTesttime(new Date());
 			entity.setDelFlag("0");
-			entity.setId(list==null||list.size()==0? IdGen.uuid():list.get(0).getId());
+			entity.setId(IdGen.uuid());
 			healthQuestionRepo.save(entity);
 		}
 	}
@@ -68,7 +67,6 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 	/**
 	 * 评估测试结果
 	 * 
-	 * @param content
 	 * @return
 	 */
 	private Score[] getScoreList(Integer[] items) {
