@@ -110,7 +110,7 @@ public class WeatherJob {
 //        test.setWoeid("2151849");
 //        test.setHecode("CN101020100");
 //        return Lists.newArrayList(test);
-        return weatherAreaRepository.findAll();
+        return weatherAreaRepository.findActive();
     }
 
     public static void main(String... args) throws Exception {
