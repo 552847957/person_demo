@@ -6,6 +6,8 @@ import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,23 +28,55 @@ import org.springframework.stereotype.Component;
 @Component
 public class HeWeatherClient {
 
+    private static final Logger logger = LoggerFactory.getLogger(HeWeatherClient.class);
+
     private static final String url = "https://free-api.heweather.com/v5";
 
-    @Autowired
+    public static class HeWeather {
+        public static class AQI {
+            public String aqi;
+            public String co;
+            public String no2;
+            public String o3;
+            public String pm10;
+            public String pm25;
+            public String qlty;
+            public String so2;
+        }
+
+        public static class Basic {
+        }
+
+        public static class DailyForecast {
+        }
+
+        public static class HourlyForecast {
+        }
+
+        public static class Now {
+            public String fl;
+
+        }
+
+        public static class Suggestion {
+        }
+    }
+
+
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
-    public void weather() {
-        Request request = new RequestBuilder().get().url(url + "/weather").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+    public JsonNode weather(String hecode) {
+        Request request = new RequestBuilder().get().url(url + "/weather").param("city", hecode == null ? "shanghai" : hecode).param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        System.out.println(result.toString());
+        logger.info(result.toString());
+        return result;
     }
 
     public void now() {
         Request request = new RequestBuilder().get().url(url + "/now").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        System.out.println(result.toString());
     }
 
     public void forecast() {
@@ -59,9 +93,21 @@ public class HeWeatherClient {
         System.out.println(result.toString());
     }
 
+    public String suggestion() {
+        Request request = new RequestBuilder().get().url(url + "/suggestion").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
+        return result.get("HeWeather5").get(0).get("suggestion").toString();
+    }
+
+    @Autowired
+    public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
+        this.httpRequestExecutorManager = httpRequestExecutorManager;
+    }
+
     public static void main(String... args) {
         HeWeatherClient client = new HeWeatherClient();
         client.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        client.weather();
+        System.out.println(client.weather(null));
     }
 }
