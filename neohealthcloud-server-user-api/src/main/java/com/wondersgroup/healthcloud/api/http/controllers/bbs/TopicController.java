@@ -3,13 +3,10 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
-import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.UserHomeDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -88,9 +84,7 @@ public class TopicController {
             rt.setData(info);
             rt.setMsg("发布成功");
         }else {
-            rt.setCode(2040);
-            rt.setData(null);
-            rt.setMsg("发布失败!");
+            throw new CommonException(2040, "发布失败!");
         }
         return rt;
     }
