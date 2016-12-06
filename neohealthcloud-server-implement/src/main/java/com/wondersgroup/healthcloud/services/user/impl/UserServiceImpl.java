@@ -37,10 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -103,6 +100,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public RegisterInfo findOne(String id) {
         return registerInfoRepository.findOne(id);
+    }
+
+    @Override
+    public Map<String, RegisterInfo> findByUids(Iterable<String> uids) {
+        List<RegisterInfo> list = registerInfoRepository.findAll(uids);
+        if (null == list || list.isEmpty()){
+            return null;
+        }
+        Map<String, RegisterInfo> map = new HashMap<>();
+        for (RegisterInfo registerInfo : list){
+            map.put(registerInfo.getRegisterid(), registerInfo);
+        }
+        return map;
     }
 
     @Override

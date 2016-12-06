@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 
 /**
+ *
  * Created by longshasha on 16/8/4.
  */
 public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,String> {
@@ -17,7 +18,8 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     @Query("select r from RegisterInfo r where r.talkid =?1 and r.delFlag='0'")
     RegisterInfo findByTalkid(String talkid);
 
-    @Query("select r from RegisterInfo r where r.regmobilephone = ?1 and r.delFlag='0'")
+    @Query(nativeQuery = true,
+            value = "select * from app_tb_register_info r where r.regmobilephone = ?1 and r.del_flag='0' limit 1")
     RegisterInfo findByMobile(String mobile);
 
     @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0'")
@@ -30,10 +32,13 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     List<RegisterInfo> getByCardOrPhone(String info);
     
     @Transactional
-	@Modifying
+    @Modifying
     @Query("update RegisterInfo set bindPersoncard=?1 where registerId =?2")
     int updateByRegister(String bindPersoncard, String registerId);
 
     @Query("select count(a) from RegisterInfo where nickname=?1")
     int countRegisterInfoByNickname(String nickname);
+ 
+    @Query("select r from RegisterInfo r where r.isBBsAdmin=1 and r.delFlag='0'")
+    List<RegisterInfo> queryAllBBsAdmins();
 }

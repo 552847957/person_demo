@@ -18,6 +18,9 @@ public class User {
     private String username;
     private String password;
     private String locked;
+    @Column(name = "bind_uid")
+    private String bindUid;
+
     @Column(name = "del_flag")
     private String delFlag;
     @Column(name = "create_by")
