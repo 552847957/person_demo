@@ -85,8 +85,8 @@ public class BbsAdminController {
      * 管理员下面的关联小号
      */
     @Admin
-    @RequestMapping(value = "/allVestUsers", method = RequestMethod.GET)
-    public JsonResponseEntity<List<Map<String, Object>>> allVestUsers(@RequestHeader String appUid){
+    @RequestMapping(value = "/associations", method = RequestMethod.GET)
+    public JsonResponseEntity<List<Map<String, Object>>> associations(@RequestHeader String appUid){
         JsonResponseEntity<List<Map<String, Object>>> entity = new JsonResponseEntity();
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> info = new HashMap<>();
