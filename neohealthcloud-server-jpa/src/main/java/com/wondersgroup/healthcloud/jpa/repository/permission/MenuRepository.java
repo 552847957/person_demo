@@ -34,5 +34,5 @@ public interface MenuRepository extends JpaRepository<Menu, String>, JpaSpecific
     @Transactional
     @Modifying
     @Query("update Menu set sort = ?2  where menuId = ?1 ")
-    void updateMenuSort(String menuId, String sort);
+    void updateMenuSort(String menuId, Integer sort);
 }

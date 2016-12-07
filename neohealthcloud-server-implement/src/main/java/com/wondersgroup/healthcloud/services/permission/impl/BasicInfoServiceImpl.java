@@ -222,6 +222,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         sql.append("   AND a.user_id = '" + user.getUserId() + "'        ");
         sql.append("   AND a.role_id = b.role_id                         ");
         sql.append("   AND b.menu_id = c.menu_id                         ");
+        sql.append("   order by c.update_date desc                       ");
         List<Menu> menuList = getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<Menu>(Menu.class));
         List<MenuDTO> list = Lists.newArrayList();
         for (Menu menu : menuList) {

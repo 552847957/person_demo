@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.login;
 
-import com.google.common.collect.ImmutableMap;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
