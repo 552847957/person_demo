@@ -143,7 +143,7 @@ public interface CircleService {
 
     Boolean saveOrUpdateCircle(Circle newData);
 
-    int checkCircleNameByName(int id, String circleName);
+    Circle getCircleByName(String circleName);
 
     List<AdminCircleDto> searchCircle(String name, Integer cateId, Boolean isRecommend, Boolean isDefaultAttent, String delFlag, int pageNo, int pageSize);
 

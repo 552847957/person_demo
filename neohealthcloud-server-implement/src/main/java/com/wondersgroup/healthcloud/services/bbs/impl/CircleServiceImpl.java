@@ -384,12 +384,8 @@ public class CircleServiceImpl implements CircleService {
     //----------------------------------//
 
     @Override
-    public int checkCircleNameByName(int id, String circleName) {
-        Circle circle = circleRepository.queryByName(circleName);
-        if(null!=circle){
-            return circle.getId();
-        }
-        return 0;
+    public Circle getCircleByName(String circleName) {
+        return circleRepository.queryByName(circleName);
     }
 
     @Override

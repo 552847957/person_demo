@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.CircleCategory;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleCategoryRepository;
@@ -157,11 +158,9 @@ public class CircleController {
         newData.setDelFlag(delFlag);
 
         int _id = newData.getId() == null ? -1 : newData.getId();
-        int isExists = circleService.checkCircleNameByName(_id, newData.getName());
-        if (isExists >= 1) {
-            response.setCode(1000);
-            response.setMsg("圈子重名,请重新命名!");
-            return response;
+        Circle nameCircle = circleService.getCircleByName(newData.getName());
+        if (null != nameCircle && nameCircle.getId() != _id) {
+            throw new CommonException(2001, "圈子重名,请重新命名!");
         }
         boolean isSuccess = circleService.saveOrUpdateCircle(newData);
         if (isSuccess) {
