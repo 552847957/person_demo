@@ -37,9 +37,21 @@ public class StepCountService {
 		int gold = stepcount / 200;
 		return gold > 100 ? 100 : gold;
 	}
-	
-	
 
+	public boolean isActivityTime(Date date) {
+		String var = DateUtils.format(date, "yyyy-MM-dd ");
+		
+		Date startTime = DateUtils.parseString(var + "00:00:00", "yyyy-MM-dd HH:mm:ss");
+		Date endTime = DateUtils.parseString(var + "23:59:59", "yyyy-MM-dd HH:mm:ss");
+		
+		if(startTime.compareTo(date) > 0){
+			return false;
+		}else if(date.compareTo(endTime) > 0){
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * 查询指定日期的计步数据
 	 * 
