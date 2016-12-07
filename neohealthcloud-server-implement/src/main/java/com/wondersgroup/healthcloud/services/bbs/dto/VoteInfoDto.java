@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.VoteItem;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @author ys
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VoteInfoDto {
 

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  * 回复需要的字段
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentPublishDto {
 

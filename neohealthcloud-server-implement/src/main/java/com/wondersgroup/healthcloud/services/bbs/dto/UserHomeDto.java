@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import lombok.Data;
  * @author ys
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserHomeDto {
     private String uid;

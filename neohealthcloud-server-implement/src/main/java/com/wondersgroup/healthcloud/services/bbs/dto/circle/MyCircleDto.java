@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto.circle;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * Created by limenghua on 2016/8/11.
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MyCircleDto {
 

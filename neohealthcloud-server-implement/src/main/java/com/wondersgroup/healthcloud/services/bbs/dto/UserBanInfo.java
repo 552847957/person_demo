@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
@@ -13,6 +15,8 @@ import java.util.Date;
  * Created by ys on 16/12/01.
  */
 @Data
+@JsonNaming
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserBanInfo {
 
     private Integer id; //ban log id

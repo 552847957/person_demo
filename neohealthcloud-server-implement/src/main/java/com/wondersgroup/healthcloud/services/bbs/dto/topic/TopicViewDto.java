@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto.topic;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.NumberUtils;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
@@ -21,6 +22,7 @@ import java.util.List;
  * @author ys
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TopicViewDto {
 

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto.circle;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author ys
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CircleHomeDto {
     private Integer id;
