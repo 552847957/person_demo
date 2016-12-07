@@ -48,6 +48,7 @@ public class LoginController {
                 map.put("specArea", user.getSpecArea());
             }
             map.put("userId", user.getUserId());
+            map.put("appUid", user.getBindUid());
             map.put("loginName", user.getLoginname());
             map.put("userName", user.getUsername());
             AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
@@ -87,6 +88,7 @@ public class LoginController {
                     map.put("specArea", user.getSpecArea());
                 }
                 map.put("userId", user.getUserId());
+                map.put("appUid", user.getBindUid());
                 map.put("loginName", user.getLoginname());
                 map.put("userName", user.getUsername());
                 AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
