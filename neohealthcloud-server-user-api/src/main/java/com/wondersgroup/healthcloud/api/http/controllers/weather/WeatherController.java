@@ -1,5 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.weather;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.wondersgroup.common.http.utils.JsonConverter;
+import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.services.weather.WeatherCache;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +33,12 @@ public class WeatherController {
     private WeatherCache cache;
 
     @GetMapping(path = "/all")
-    public String all(@RequestHeader("main-area") String mainArea,
-                      @RequestHeader(value = "spec-area", required = false) String specArea) {
-        return cache.get(WeatherCache.Type.ALL, StringUtils.isEmpty(specArea) ? mainArea : specArea);
+    public JsonResponseEntity<JsonNode> all(@RequestHeader("main-area") String mainArea,
+                                            @RequestHeader(value = "spec-area", required = false) String specArea) {
+        String result = cache.get(WeatherCache.Type.ALL, StringUtils.isEmpty(specArea) ? mainArea : specArea);
+
+        JsonResponseEntity<JsonNode> response = new JsonResponseEntity<>();
+        response.setData(JsonConverter.toJsonNode(result));
+        return response;
     }
 }

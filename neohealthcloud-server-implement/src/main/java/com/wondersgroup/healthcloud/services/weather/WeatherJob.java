@@ -62,6 +62,9 @@ public class WeatherJob {
             ObjectNode cache = JsonNodeFactory.instance.objectNode();
             ObjectNode brief = JsonNodeFactory.instance.objectNode();
 
+            cache.put("name", task.getName());
+            cache.put("code", task.getCode());
+
             ObjectNode now = JsonNodeFactory.instance.objectNode();
             now.put("weather_code", channel.get("item").get("condition").get("code").asText());
             now.put("temperature", channel.get("item").get("condition").get("temp").asText());
