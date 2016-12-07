@@ -40,6 +40,7 @@ public class GoldRecordService {
 	 * @param type
 	 * @return
 	 */
+	@Transactional(readOnly = false)
 	public GoldRecord save(String userId, int goldNum, GoldRecordTypeEnum type) {
 		int restGold = findRestGoldByUserId(userId);
 

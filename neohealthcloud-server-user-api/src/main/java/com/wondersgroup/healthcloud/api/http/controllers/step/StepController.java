@@ -56,7 +56,7 @@ public class StepController {
 		StepHomeDto home = new StepHomeDto();
 		home.setAwardGold(awardGold);
 		home.setRestGold(restGold);
-		home.setGet(isGet);
+		home.setHasGet(isGet);
 		// TODO 需要设置帮助链接、规则链接
 
 		responseEntity.setData(home);
@@ -82,8 +82,9 @@ public class StepController {
 		}
 
 		int goldNum = stepCountService.findAwardGold(userId);
-		goldRecordService.save(userId, goldNum, GoldRecordTypeEnum.REWARDS);
-
+		if(goldNum > 0){
+			goldRecordService.save(userId, goldNum, GoldRecordTypeEnum.REWARDS);	
+		}
 		return responseEntity;
 	}
 
