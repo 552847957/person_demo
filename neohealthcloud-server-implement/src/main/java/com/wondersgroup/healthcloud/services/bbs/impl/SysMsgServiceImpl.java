@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
         if (null == list || list.isEmpty()){
             return null;
         }else{
-            List<Integer> ids=new ArrayList<>();
+            //List<Integer> ids=new ArrayList<>();
             //处理msgtime
             for(Map<String, Object> row:list){
                 String msgCreateTime=String.valueOf(row.get("create_time"));
