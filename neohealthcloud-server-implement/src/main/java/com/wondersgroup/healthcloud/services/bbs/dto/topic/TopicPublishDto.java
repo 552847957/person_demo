@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.dto.topic;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
  * 发布话题需要的字段
  */
 @Data
+@JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TopicPublishDto {
 

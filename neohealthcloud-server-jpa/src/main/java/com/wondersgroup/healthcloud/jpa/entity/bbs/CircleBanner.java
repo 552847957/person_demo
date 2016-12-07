@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.jpa.entity.bbs;
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,6 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
+@JsonNaming
 @Table(name = "tb_bbs_circle_banner")
 public class CircleBanner {
     @Id
