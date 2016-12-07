@@ -25,4 +25,10 @@ public class TopicTabMap {
     @Column(name = "topic_id")
     private Integer topicId;
 
+    public TopicTabMap(){}
+
+    public TopicTabMap(Integer topicId, Integer tabId){
+        this.tabId = tabId;
+        this.topicId = topicId;
+    }
 }

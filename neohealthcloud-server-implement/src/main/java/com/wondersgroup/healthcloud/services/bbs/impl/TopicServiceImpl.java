@@ -8,14 +8,12 @@ import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.*;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
-import com.wondersgroup.healthcloud.services.bbs.CircleService;
-import com.wondersgroup.healthcloud.services.bbs.TopicService;
-import com.wondersgroup.healthcloud.services.bbs.TopicVoteService;
-import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
+import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +69,9 @@ public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private CircleService circleService;
+
+    @Autowired
+    private TopicTabService topicTabService;
 
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
@@ -247,63 +248,70 @@ public class TopicServiceImpl implements TopicService {
         return topicViewDto;
     }
 
-    @Override
-    @Transactional
-    public int publishTopic(TopicPublishDto publishInfo) {
+    private void isCanPublishForUser(TopicPublishDto publishInfo){
         if (StringUtils.isEmpty(publishInfo.getUid())) {
             throw new TopicException(2001, "uid非空");
-        }
-        List<TopicPublishDto.TopicContent> contents = publishInfo.getTopicContents();
-        if (contents == null || contents.isEmpty()) {
-            throw new TopicException(2002, "帖子无效");
-        }
-        Circle circle = circleRepository.findOne(publishInfo.getCircleId());
-        if (null == circle || circle.getDelFlag().equals("1")) {
-            throw new TopicException(2003, "圈子无效");
-        }
-        UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
-        if (null == userCircle){
-            throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
         }
         RegisterInfo account = userService.getOneNotNull(publishInfo.getUid());
         if (account.getBanStatus() != UserConstant.BanStatus.OK){
             throw new CommonException(2014, "禁言状态无法发表话题哦");
         }
-        int contentCount = contents.size();
-        Topic topic = this.saveTopic(publishInfo);
-        //保存详情
-        List<String> allImgs = new ArrayList<>();
-        List<TopicContent> topicContents = new ArrayList<>();
-        for (TopicPublishDto.TopicContent contentTmp : contents) {
-            List<String> imgs = contentTmp.getImgs();
-            String imgsStr = "";
-            if (imgs != null && !imgs.isEmpty()) {
-                allImgs.addAll(imgs);
-                imgsStr = ArraysUtil.split2Sting(imgs, ",");
-            }
-            topicContents.add(new TopicContent(topic.getId(), contentTmp.getContent(), imgsStr));
+        if (null == publishInfo.getTopicContents() ||  publishInfo.getTopicContents().isEmpty()) {
+            throw new TopicException(2002, "帖子无效");
         }
-        topicContentRepository.save(topicContents);
+        //普通用户发表验证
+        if (!publishInfo.getIsAdminPublish()){
+            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
+            if (null == userCircle){
+                throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public int publishTopic(TopicPublishDto publishInfo) {
+        Circle circle = circleRepository.findOne(publishInfo.getCircleId());
+        if (null == circle || circle.getDelFlag().equals("1")) {
+            throw new TopicException(2003, "圈子无效");
+        }
+
+        this.isCanPublishForUser(publishInfo);
+
+        //该话题是否发布过
+        Boolean isPublished = false;
+        if (null != publishInfo.getId() && publishInfo.getId() > 0){
+            Topic oldTopic = topicRepository.findOne(publishInfo.getId());
+            if (oldTopic == null){
+                throw new RuntimeException("编辑的话题无效");
+            }
+            int oldStatus = oldTopic.getStatus();
+            isPublished = oldStatus != TopicConstant.Status.WAIT_PUBLISH && oldStatus == TopicConstant.Status.WAIT_VERIFY;
+        }
+
+        //保存话题基本信息
+        Topic topic = this.saveTopic(publishInfo);
+        int nowStatus = topic.getStatus();
+        Boolean isPublish = nowStatus != TopicConstant.Status.WAIT_PUBLISH && nowStatus == TopicConstant.Status.WAIT_VERIFY;
+
+        //只有第一次发布的时候才会通知用户消息
+        Boolean isFristPublist = !isPublished && isPublish;
+
+        //保存详情
+        this.saveTopicContent(publishInfo);
 
         //保存投票信息
-        Boolean isVote = this.saveTopicVote(topic.getId(), publishInfo.getVoteItems());
+        this.saveTopicVote(topic.getId(), publishInfo.getVoteItems());
 
-        //同步一些信息到主表topic里面,为了列表显示
-        if (contentCount > 1 || isVote) {
-            if (contentCount > 1) {
-                Integer imgCount = allImgs.size();
-                allImgs = allImgs.size() > 3 ? allImgs.subList(0, 3) : allImgs;
-                String listImgsStr = ArraysUtil.split2Sting(allImgs, ",");
-                topic.setImgs(listImgsStr);
-                topic.setImgCount(imgCount);
-            }
-            topic.setIsVote(isVote ? 1 : 0);
-            topicRepository.save(topic);
+        topicTabService.updateTopicTabMapInfo(topic.getId(), publishInfo.getTags());
+
+        //只有第一次发布才通知用户, 且圈子的话题数+1
+        if (isFristPublist){
+            circle.setTopicCount(circle.getTopicCount() + 1);
+            circleRepository.save(circle);
+            //lts
+            BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         }
-        circle.setTopicCount(circle.getTopicCount() + 1);
-        circleRepository.save(circle);
-        //lts
-        //BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         return topic.getId();
     }
 
@@ -319,6 +327,22 @@ public class TopicServiceImpl implements TopicService {
         return count == null ? 0 : count;
     }
 
+    private void saveTopicContent(TopicPublishDto publishInfo) {
+        if (null == publishInfo.getId() || publishInfo.getId() == 0){
+            throw new CommonException(2021, "话题不存在");
+        }
+        List<TopicContent> topicContents = new ArrayList<>();
+        for (TopicPublishDto.TopicContent contentTmp : publishInfo.getTopicContents()) {
+            List<String> imgs = contentTmp.getImgs();
+            String imgsStr = "";
+            if (imgs != null && !imgs.isEmpty()) {
+                imgsStr = ArraysUtil.split2Sting(imgs, ",");
+            }
+            topicContents.add(new TopicContent(publishInfo.getId(), contentTmp.getContent(), imgsStr));
+        }
+        topicContentRepository.save(topicContents);
+    }
+
     private Topic saveTopic(TopicPublishDto publishInfo) {
         TopicPublishDto.TopicContent firstContent = publishInfo.getTopicContents().get(0);
         String intro;
@@ -327,31 +351,68 @@ public class TopicServiceImpl implements TopicService {
         } else {
             intro = firstContent.getContent();
         }
-        String topicImgs = "";
-        if (null != firstContent.getImgs() && !firstContent.getImgs().isEmpty()){
-            List<String> listImgs = firstContent.getImgs().size() > 3 ? firstContent.getImgs().subList(0, 3) : firstContent.getImgs();
+        List<String> allImgs = getAllImgsFromPublish(publishInfo);
+        String topicImgs = "";//列表只显示3张图片
+        int imgCount = allImgs.size();
+        if (!allImgs.isEmpty()){
+            List<String> listImgs = imgCount > 3 ? allImgs.subList(0, 3) : allImgs;
             topicImgs = ArraysUtil.split2Sting(listImgs, ",");
         }
-        Integer topicImgsCount = null == firstContent.getImgs() ? 0 : firstContent.getImgs().size();
+        Date nowTime = new Date();
         Topic topic = new Topic();
+        //编辑
+        if (null != publishInfo.getId() && publishInfo.getId() > 0){
+            topic = topicRepository.findOne(publishInfo.getId());
+            //发布以后就不能在修改归属人
+            if (topic.getStatus().intValue() == TopicConstant.Status.WAIT_PUBLISH){
+                topic.setUid(publishInfo.getUid());
+            }
+        }else {
+            topic.setUid(publishInfo.getUid());
+            topic.setLastCommentTime(nowTime);
+            topic.setCreateTime(nowTime);
+        }
+        if (publishInfo.getIsTop() == 1){
+            this.checkIsCanTopTopic(publishInfo.getCircleId(), topic.getId());
+        }
         topic.setTitle(publishInfo.getTitle());
-        topic.setUid(publishInfo.getUid());
         topic.setCircleId(publishInfo.getCircleId());
-        topic.setStatus(TopicConstant.Status.OK);
+        topic.setStatus(getUserPublishTopicDefaultStatus(publishInfo.getIsAdminPublish()));
         topic.setIntro(intro);
         topic.setImgs(topicImgs);
-        topic.setImgCount(topicImgsCount);
-        topic.setIsBest(0);
-        topic.setIsVote(0);
-        Date nowTime = new Date();
-        topic.setCreateTime(nowTime);
+        topic.setImgCount(imgCount);
+        if (!publishInfo.getIsAdminPublish()){
+            topic.setIsBest(0);
+        }else {
+            topic.setIsBest(publishInfo.getIsBest());
+        }
+        topic.setIsVote(null != publishInfo.getVoteItems() && !publishInfo.getVoteItems().isEmpty() ? 1 : 0);
         topic.setUpdateTime(nowTime);
-        topic.setLastCommentTime(nowTime);
         topic = topicRepository.save(topic);
         if (topic.getId() == null) {
-            throw new TopicException(2001, "保存失败");
+            throw new TopicException(2001, "保存话题失败");
         }
+        publishInfo.setId(topic.getId());
         return topic;
+    }
+
+    private List<String> getAllImgsFromPublish(TopicPublishDto publishInfo){
+        //保存详情
+        List<String> allImgs = new ArrayList<>();
+        for (TopicPublishDto.TopicContent contentTmp : publishInfo.getTopicContents()) {
+            List<String> imgs = contentTmp.getImgs();
+            if (imgs != null && !imgs.isEmpty()) {
+                allImgs.addAll(imgs);
+            }
+        }
+        return allImgs;
+    }
+
+    /**
+     * 获取发表话题默认状态
+     */
+    private int getUserPublishTopicDefaultStatus(Boolean isAdmin){
+        return isAdmin ? TopicConstant.Status.OK : TopicConstant.Status.WAIT_VERIFY;
     }
 
     private Boolean saveTopicVote(Integer topicId, List<String> voteItems) {
@@ -423,8 +484,37 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public int settingTopic(TopicSettingDto topicSettingDto) {
-        return 0;
+    public int settingTopic(TopicSettingDto settingDto) {
+        Circle circle = circleRepository.findOne(settingDto.getCircleId());
+        if (null == circle || circle.getDelFlag().equals("1")) {
+            throw new RuntimeException("圈子无效");
+        }
+        Topic topic = topicRepository.findOne(settingDto.getId());
+        if (null == topic){
+            throw new RuntimeException("话题不存在");
+        }
+        if (topic.getStatus().intValue() == TopicConstant.Status.USER_DELETE){
+            throw new RuntimeException("该话题用户已经删除");
+        }
+        Boolean isToBest = false;
+        if (1 == settingDto.getIsBest() && 1 != topic.getIsBest()){
+            //加精
+            isToBest = true;
+        }
+        topic.setIsBest(settingDto.getIsBest());
+        if (settingDto.getIsTop() == 1 && topic.getIsTop() != 1){
+            this.checkIsCanTopTopic(settingDto.getCircleId(), topic.getId());
+        }
+        topic.setIsTop(settingDto.getIsTop());
+        topic.setTopRank(settingDto.getTopRank());
+        topic.setCircleId(settingDto.getCircleId());
+
+        topicTabService.updateTopicTabMapInfo(topic.getId(), settingDto.getTags());
+        //lts
+        if (isToBest){
+            BbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
+        }
+        return topic.getId();
     }
 
     @Override
@@ -435,5 +525,20 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public int countTopicByCriteria(TopicSearchCriteria searchCriteria) {
         return 0;
+    }
+
+    /**
+     * 置顶的时候 判断已经置顶的个数
+     * 返回已经置顶话题的ids
+     */
+    private List<Integer> checkIsCanTopTopic(Integer circleId, Integer topicId){
+        String querySql = "select id from tb_bbs_topic topic where topic.circle_id=? and topic.is_top=1 ";
+        Object[] params = new Object[]{circleId};
+        List<Integer> topTopicIds = jdbcTemplate.queryForList(querySql, params, Integer.class);
+        topicId = topicId == null ? 0 : topicId;
+        if (null != topTopicIds && !topTopicIds.contains(topicId) && topTopicIds.size() >= 5){
+            throw new RuntimeException("已经有5个置顶的话题,无法置顶了,请先去取消其他置顶");
+        }
+        return topTopicIds;
     }
 }

@@ -35,6 +35,7 @@ import java.util.Map;
  * 话题标签
  * @author ys
  */
+@Admin
 @RestController
 @RequestMapping("/api/bbs/topic")
 public class TopicController {
@@ -94,12 +95,13 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
-    public JsonResponseEntity<Map<String, Object>> publish(@RequestBody TopicPublishDto topicPublishDto){
+    public JsonResponseEntity<Map<String, Object>> publish(@RequestHeader String appUid, @RequestBody TopicPublishDto topicPublishDto){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
         Integer circleId = topicPublishDto.getCircleId();
         if (null == circleId || circleId == 0){
             throw new RuntimeException("圈子无效");
         }
+        topicPublishDto.setIsAdminPublish(true);
         int topicId = topicService.publishTopic(topicPublishDto);
         Map<String, Object> info = new HashMap<>();
         if (topicId > 0){

@@ -42,9 +42,9 @@ public class Topic {
     @Column(name = "top_rank")
     private Integer topRank=0;//置顶的优先级值越大优先级越高
 
-    private String imgs;//列表显示的图片
+    private String imgs="";//列表显示的图片
 
-    private String intro;//简介,列表显示用
+    private String intro="";//简介,列表显示用
 
     @Column(name = "img_count")
     private Integer imgCount=0;//话题包含的图片个数

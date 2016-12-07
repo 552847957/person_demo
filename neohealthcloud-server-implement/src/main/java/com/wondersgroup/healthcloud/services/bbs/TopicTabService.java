@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public interface TopicTabService {
 
+    Boolean updateTopicTabMapInfo(Integer topicId, List<Integer> tabIds);
+
     List<Map<String, Object>> getTopicTabListByCriteria(TopicTabSearchCriteria searchCriteria);
 
     int countTopicTabByCriteria(TopicTabSearchCriteria searchCriteria);

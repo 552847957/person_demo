@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTabMap;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicTabMapRepository;
 import com.wondersgroup.healthcloud.services.bbs.TopicTabService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicTabSearchCriteria;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
@@ -8,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +24,27 @@ public class TopicTabServiceImpl implements TopicTabService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private TopicTabMapRepository topicTabMapRepository;
+
+    /**
+     * 更新话题标签
+     */
+    @Override
+    public Boolean updateTopicTabMapInfo(Integer topicId, List<Integer> tabIds){
+        String delOldMap = "delete from tb_bbs_topic_tab_map where topic_id=" + topicId;
+        jdbcTemplate.execute(delOldMap);
+
+        List<TopicTabMap> maps = new ArrayList<>();
+        if (null != tabIds && !tabIds.isEmpty()){
+            for (Integer tabId : tabIds){
+                maps.add(new TopicTabMap(topicId, tabId));
+            }
+        }
+        topicTabMapRepository.save(maps);
+        return true;
+    }
 
     @Override
     public List<Map<String, Object>> getTopicTabListByCriteria(TopicTabSearchCriteria searchCriteria) {
