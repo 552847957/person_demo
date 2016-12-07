@@ -17,6 +17,6 @@ public interface BbsAdminService {
     /**
      * 通过管理员绑定的uid获取关联的app小号uids
      */
-    List<String> getAssociationUidsByAdminId(String admin_bindUid);
+    List<String> getAdminVestUidsByAdminUid(String admin_bindUid);
 
 }

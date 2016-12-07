@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.*;
+
 
 /**
  * Created by ys on 16/12/06.
@@ -76,6 +78,35 @@ public class BbsAdminController {
         }
         userAccountService.getVerifyCode(mobile, 3);
         entity.setMsg("短信验证码发送成功");
+        return entity;
+    }
+
+    /**
+     * 管理员下面的关联小号
+     */
+    @Admin
+    @RequestMapping(value = "/allVestUsers", method = RequestMethod.GET)
+    public JsonResponseEntity<List<Map<String, Object>>> allVestUsers(@RequestHeader String appUid){
+        JsonResponseEntity<List<Map<String, Object>>> entity = new JsonResponseEntity();
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> info = new HashMap<>();
+        info.put("uid", appUid);
+        info.put("name", "本人");
+        list.add(info);
+        List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(appUid);
+        if (vestUids != null && !vestUids.isEmpty()){
+            Set<String> appUids = new HashSet<>();
+            Map<String, RegisterInfo> vestUserMap = userService.findByUids(appUids);
+            if (null != vestUserMap){
+                for (RegisterInfo registerInfo : vestUserMap.values()) {
+                    Map<String, Object> infoTmp = new HashMap<>();
+                    infoTmp.put("uid", registerInfo.getRegisterid());
+                    infoTmp.put("name", registerInfo.getNickname());
+                    list.add(infoTmp);
+                }
+            }
+        }
+        entity.setData(list);
         return entity;
     }
 

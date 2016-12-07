@@ -2,8 +2,10 @@ package com.wondersgroup.healthcloud.services.bbs.impl;
 
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
@@ -27,6 +29,9 @@ public class BbsAdminServiceImpl implements BbsAdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AdminVestUserRepository adminVestUserRepository;
 
     @Transactional
     @Override
@@ -64,7 +69,15 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     }
 
     @Override
-    public List<String> getAssociationUidsByAdminId(String admin_bindUid) {
-        return null;
+    public List<String> getAdminVestUidsByAdminUid(String admin_bindUid) {
+        List<AdminVestUser> list = adminVestUserRepository.getVestUsersByAdminUid(admin_bindUid);
+        if (null == list){
+            return null;
+        }
+        List<String> vestUids = new ArrayList<>();
+        for (AdminVestUser adminVestUser : list){
+            vestUids.add(adminVestUser.getVest_uid());
+        }
+        return vestUids;
     }
 }

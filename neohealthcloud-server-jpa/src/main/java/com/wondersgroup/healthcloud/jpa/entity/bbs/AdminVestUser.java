@@ -20,9 +20,9 @@ public class AdminVestUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String admin_uid;
+    private String admin_uid;//管理员的uid(regiest_info表的id)
 
-    private String vest_uid;
+    private String vest_uid;//马甲用户uid(regiest_info表的id)
 
     @Column(name = "create_time")
     private Date createTime;

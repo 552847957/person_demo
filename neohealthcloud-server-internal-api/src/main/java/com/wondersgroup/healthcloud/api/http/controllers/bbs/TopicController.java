@@ -61,9 +61,9 @@ public class TopicController {
         if (searchCriteria.getIs_mine()){
             List<String> adminIds = new ArrayList<>();
             adminIds.add(appUid);
-            List<String> associationUids = bbsAdminService.getAssociationUidsByAdminId(appUid);
-            if (associationUids != null){
-                adminIds.addAll(associationUids);
+            List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(appUid);
+            if (vestUids != null){
+                adminIds.addAll(vestUids);
             }
             searchCriteria.setUids(adminIds);
         }
