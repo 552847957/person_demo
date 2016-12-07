@@ -63,14 +63,19 @@ public class WeatherJob {
             ObjectNode brief = JsonNodeFactory.instance.objectNode();
 
             cache.put("name", task.getName());
+            brief.put("name", task.getName());
             cache.put("code", task.getCode());
+            brief.put("code", task.getCode());
 
             cache.put("hint", "温馨提示文案");
 
             ObjectNode today = JsonNodeFactory.instance.objectNode();
             today.put("weather_code", channel.get("item").get("condition").get("code").asText());
+            brief.put("weather_code", channel.get("item").get("condition").get("code").asText());
             today.put("weather_name", "天气名称");
+            brief.put("weather_name", "天气名称");
             today.put("current_temperature", channel.get("item").get("condition").get("temp").asText());
+            brief.put("current_temperature", channel.get("item").get("condition").get("temp").asText());
             today.put("wind_direction", he.get("now").get("wind").get("dir").asText());
             today.put("wind_level", he.get("now").get("wind").get("sc").asText());
             cache.put("today", today);
@@ -79,6 +84,7 @@ public class WeatherJob {
 
             ObjectNode aqi = JsonNodeFactory.instance.objectNode();
             aqi.put("aqi", he.get("aqi").get("city").get("aqi").asText());
+            brief.put("aqi", he.get("aqi").get("city").get("aqi").asText());
             aqi.put("quality", he.get("aqi").get("city").get("qlty").asText());
             cache.put("aqi", aqi);
 

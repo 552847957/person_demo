@@ -32,6 +32,16 @@ public class WeatherController {
     @Autowired
     private WeatherCache cache;
 
+    @GetMapping(path = "/brief")
+    public JsonResponseEntity<JsonNode> brief(@RequestHeader("main-area") String mainArea,
+                                              @RequestHeader(value = "spec-area", required = false) String specArea) {
+        String result = cache.get(WeatherCache.Type.BRIEF, StringUtils.isEmpty(specArea) ? mainArea : specArea);
+
+        JsonResponseEntity<JsonNode> response = new JsonResponseEntity<>();
+        response.setData(JsonConverter.toJsonNode(result));
+        return response;
+    }
+
     @GetMapping(path = "/all")
     public JsonResponseEntity<JsonNode> all(@RequestHeader("main-area") String mainArea,
                                             @RequestHeader(value = "spec-area", required = false) String specArea) {
