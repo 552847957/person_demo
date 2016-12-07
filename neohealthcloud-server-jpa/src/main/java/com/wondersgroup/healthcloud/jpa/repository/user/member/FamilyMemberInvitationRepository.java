@@ -18,10 +18,16 @@ public interface FamilyMemberInvitationRepository extends JpaRepository<FamilyMe
 
     @Query("select fmi from FamilyMemberInvitation fmi where fmi.uid=?1 or fmi.memberId=?1 order by fmi.createDate desc")
     List<FamilyMemberInvitation> invitationList(String userId);
+    
+    @Query(nativeQuery = true, value = "select * from app_tb_family_member_invitation where (uid=?1 or member_id=?1) and status = '0'  order by create_date desc limit ?2")
+    List<FamilyMemberInvitation> invitationList(String userId, int limit);
 
     @Query("select count(1) from FamilyMemberInvitation fmi where fmi.memberId=?1 and fmi.status='0'")
     int countTodo(String userId);
 
     @Query("select count(1) from FamilyMemberInvitation fmi where fmi.uid=?1 and fmi.status='0'")
     int countSent(String userId);
+
+    @Query(nativeQuery = true, value = "update app_tb_family_member_invitation set order = ?3 where uid = ?1 and member_id = ?2")
+    int updateOrder(String userId, String memberId, int order);
 }

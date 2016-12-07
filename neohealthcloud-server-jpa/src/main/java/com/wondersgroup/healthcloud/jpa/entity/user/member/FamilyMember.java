@@ -45,5 +45,6 @@ public class FamilyMember{
     private String updateBy;
     @Column(name = "update_date")
     private Date updateDate;
+    private Integer order;
 
 }

@@ -1,18 +1,30 @@
 package com.wondersgroup.healthcloud.api.http.controllers.family;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
@@ -32,17 +47,26 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO.MemberInfo;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
+import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
+import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitation;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
@@ -64,22 +88,28 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 public class FamilyController {
 
     private static final Logger logger = LoggerFactory.getLogger(FamilyController.class);
-
     @Autowired
     private UserAccountService      accountService;
-
     @Autowired
     private UserService             userService;
-
     @Autowired
     private FamilyService           familyService;
-
+    @Autowired
+    private FamilyMemberInvitationRepository invitationRepository;
     @Autowired
     private AnonymousAccountService anonymousAccountService;
-
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
     @Autowired
     private Environment environment;
-
+    @Autowired
+    private AppUrlH5Utils h5Utils;
+//    @Autowired
+    RestTemplate restTemplate = new RestTemplate();
+    @Value("http://127.0.0.1:8080")
+    private String host;
+    private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
+    
     /**
      * 申请添加为亲情账户
      * @param request
@@ -553,5 +583,292 @@ public class FamilyController {
             }
         }
         return list;
+    }
+    
+    /**
+     * 查看手机号是否注册过健康云
+     * @param mobile
+     * @return Object
+     */
+    @RequestMapping("/isExist")
+    @VersionRange
+    public Object isVerification(@RequestParam String mobile){
+        JsonResponseEntity<Map<String, Boolean>> result = new JsonResponseEntity<Map<String, Boolean>>();
+        Map<String, Boolean> map = new HashMap<String, Boolean>();
+        map.put("isExist", accountService.checkAccount(mobile));
+        result.setData(map);
+        result.setMsg("查询成功");
+        return result; 
+    }
+    
+    /**
+     * 添加非健康云为亲情账户
+     * @param request
+     * @return JsonResponseEntity<String>
+     */
+    @RequestMapping(value = "/addMember", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<String> addMember(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String mobile = reader.readString("mobile", true);
+        String relation = reader.readString("relation", false);
+        String relationName = reader.readString("relation_name", true);
+        String memo = StringUtils.defaultString(reader.readString("memo", true));
+        Boolean recordReadable = reader.readDefaultBoolean("record_readable", true);
+        String birthDate = reader.readString("birthDate", false);
+        
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+
+        if (mobile != null && mobile.length() != 11) {
+            body.setCode(1000);
+            body.setMsg("请输入11位的手机号");
+            return body;
+        }
+        AnonymousAccount account = new AnonymousAccount();
+        account.setId(IdGen.uuid());
+        try { account.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate)); } catch (ParseException e) { e.printStackTrace(); }
+        account.setCreateDate(new Date());
+        account.setUpdateDate(new Date());
+        account.setUsername("username");
+        account.setPassword("password");
+        account.setMobile(mobile);
+        account.setDelFlag("0");
+//        account.setIsChild(false);
+        anonymousAccountRepository.saveAndFlush(account);
+        
+        String gender = "1";
+        String relationName1 = FamilyMemberRelation.getOppositeRelation(relation, gender);
+        String relationName2 = FamilyMemberRelation.getName(relation, relationName);
+        familyService.createMemberRelationPair(id, account.getId(), relation, gender, relationName1, relationName2, recordReadable, recordReadable, false);
+        
+        body.setMsg("添加成功");
+        return body;
+    }
+    
+    /**
+     * 家庭首页接口
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberTop", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<FamilyMemberDTO> memberTop(@RequestParam String uid){
+        JsonResponseEntity<FamilyMemberDTO> response = new JsonResponseEntity<FamilyMemberDTO>();
+        FamilyMemberDTO dto = new FamilyMemberDTO();
+        dto.setInvitsations(new ArrayList<FamilyMemberInvitationAPIEntity>());
+        
+        List<FamilyMemberInvitation> invitations = invitationRepository.invitationList(uid,3);
+        for (FamilyMemberInvitation invitation : invitations) {
+            dto.getInvitsations().add(new FamilyMemberInvitationAPIEntity(invitation, uid));
+        }
+        
+        dto.setMemberInfos(new ArrayList<FamilyMemberDTO.MemberInfo>());
+        Map<String, String> memberMap = getFamilyMemberByUid(uid);
+       
+        for (String regId : memberMap.keySet()) {
+            MemberInfo info = new MemberInfo(getRelationName(memberMap.get(regId)), historyMeasureAbnormal(regId));
+            if(info.getMeasures() == null || info.getMeasures().isEmpty()){
+                continue;   
+            }
+            dto.getMemberInfos().add(info);
+            if(dto.getMemberInfos().size() >= 3){
+                break;
+            }
+        }
+        response.setData(dto);
+        response.setMsg("查询成功");
+        return response;
+    }
+    
+    
+    
+    /**
+     * 家庭个人信息
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberInfo", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<FamilyMemberInfoDTO>  memberInfo(@RequestParam String uid){
+        JsonResponseEntity<FamilyMemberInfoDTO> response = new JsonResponseEntity<FamilyMemberInfoDTO>();
+        FamilyMemberInfoDTO info = new FamilyMemberInfoDTO();
+        info.setAge(18);
+        info.setNikcName("阿西霸");
+        info.setRelationName("爸爸");
+        info.setVerification(true);
+        info.setFamilyDoctor("家庭医生");
+        info.setBloodSugar("血糖管理");
+//        info.setBloodSugarValue();
+        info.setBloodPressure("血压管理");
+//        info.setBloodPressureValue();
+        info.setBmi("BMI管理");
+//        info.setBmiValue();
+        info.setDiabetes("糖尿病管理");
+//        info.setDiabetesValue();
+        info.setDoctorRecord("就医记录");
+//        info.setDoctorRecordValue();
+        info.setHealthQuestion("中医体质辨识");
+//        info.setHealthQuestionValue();
+        info.setJogging("记步管理");
+//        info.setJoggingValue();
+        info.setRiskEvaluate("风险评估");
+//        info.setRiskEvaluateValue("风险评估");
+        response.setData(info);
+        response.setMsg("查询成功");
+        return response;
+    }
+    
+    /**
+     * 家庭人员排序
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberOrder", method = RequestMethod.GET)
+    @VersionRange
+    public JsonListResponseEntity<FamilyMember> memberOrder(@RequestParam String uid){
+        JsonListResponseEntity<FamilyMember> response = new JsonListResponseEntity<FamilyMember>();
+        List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
+        for (FamilyMember familyMember : familyMembers) {
+            RegisterInfo info =  userService.getOneNotNull(familyMember.getUid());
+            FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
+            entity.setId(familyMember.getUid());
+            entity.setAvatar(info != null ? info.getHeadphoto() : null);
+            entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+        }
+        response.setMsg("查询成功");
+        return response;
+    }
+    
+    /**
+     * 家庭人员排序修改
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberOrderUpdate", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<String> memberOrderUpdate(@RequestParam String uid, @RequestParam String orderUids){
+        JsonResponseEntity<String> response = new JsonResponseEntity<String>();
+        if(!StringUtils.isBlank(orderUids)){
+            String[] orderUid = orderUids.split(",");
+            for (int i = 0; i < orderUid.length; i++) {
+                String id = orderUid[i];
+                if(!StringUtils.isBlank(id)){
+                    invitationRepository.updateOrder(uid, id, i);
+                }
+            }
+        }
+        response.setMsg("修改成功");
+        return response;
+    }
+    
+    /**
+     * 修改非JKY家人信息
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberFamilyInfoUpdate", method = RequestMethod.GET)
+    @VersionRange
+    public Object memberFamilyInfoUpdate(@RequestParam String uid){
+        
+        
+        return null;
+    }
+    
+    /**
+     * 咨询Ta-发送家庭消息
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberSendMessage", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<String> memberSendMessage(@RequestParam String uid){
+        JsonResponseEntity<String> response = new JsonResponseEntity<String>();
+        response.setMsg("发送成功");
+        return response;
+    }
+    
+    /**
+     * 获取用户异常记录
+     * @param registerId
+     * @return List<SimpleMeasure>
+     */
+    public List<SimpleMeasure> historyMeasureAbnormal(String registerId){
+        Map<String, Object> result = new HashMap<>();
+        String personCard = "";
+        String gender = null;
+        List<SimpleMeasure> list = new ArrayList<SimpleMeasure>();
+        try {
+            RegisterInfo info = userService.findOne(registerId);
+            if(info == null){
+                AnonymousAccount account = anonymousAccountService.getAnonymousAccount(registerId, false);
+                personCard = account.getIdcard();
+                gender = account.getSex();
+            }else{
+                personCard = info.getPersoncard();
+                gender = info.getGender();
+            }
+            if(StringUtils.isEmpty(personCard)){
+                result.put("h5Url", Collections.EMPTY_MAP );
+            }else{
+                result.put("h5Url", h5Utils.generateLinks(personCard)) ;
+            }
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(gender))
+                    .concat("&personCard=").concat(getPersonCard(personCard));
+            String url = String.format(requestAbnormalHistories, host, param);
+            ResponseEntity<JsonResponseEntity> response = buildGetEntity(url, JsonResponseEntity.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                JsonResponseEntity entity = response.getBody();
+                if (entity.getCode() == 0) {
+                    List<Map> content = (List<Map>)entity.getData();
+                    for (Map map : content) {
+                        SimpleMeasure sims = new SimpleMeasure();
+                        BeanUtils.populate(sims, map);
+                        list.add(sims);
+                    }
+                    return list;
+                }
+            }
+        } catch (Exception e) {
+            logger.info("近期异常数据获取失败", e);
+        }
+        return list;
+    }
+    
+    public Map<String, String> getFamilyMemberByUid(String uid){
+        Map<String, String> map = new TreeMap<String, String>();
+        List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
+        map.put(uid, "-1");
+        if(familyMembers != null){
+            for (FamilyMember familyMember : familyMembers) {
+                map.put(familyMember.getMemberId(), familyMember.getRelation());
+            }
+        }
+        return map;
+    }
+    
+    public String getPersonCard(String personcard){
+        return StringUtils.isEmpty(personcard) ? "" : personcard;
+    }
+    
+    public String getGender(String gender){
+        return StringUtils.isEmpty(gender) ? "1" : gender;
+    }
+
+    private HttpHeaders buildHeader(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String version = request.getHeader("version");
+        boolean isStandard =  CommonUtils.compareVersion(version, "3.1");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("isStandard", String.valueOf(isStandard));
+        return headers;
+    }
+    
+    private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables){
+        return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
+    }
+    
+    public String getRelationName(String relation){
+        return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "我的");
     }
 }

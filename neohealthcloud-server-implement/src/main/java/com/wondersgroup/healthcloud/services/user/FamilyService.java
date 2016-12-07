@@ -161,4 +161,21 @@ public interface FamilyService {
      * 儿童实名认证
      */
     Boolean childVerificationRegistration(String uid, String name, String idCard, String idCardFile, String birthCertFile);
+    
+    /**
+     * 添加家庭亲情账户
+     * @param user1Id
+     * @param user2Id
+     * @param relation
+     * @param gender
+     * @param relationName1
+     * @param relationName2
+     * @param recordReadable1
+     * @param recordReadable2
+     * @param isAnonymous
+     * @return String
+     */
+    String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
+            String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
+            Boolean isAnonymous);
 }

@@ -38,4 +38,14 @@ public class AnonymousAccount{
     private String updateBy;
     @Column(name = "update_date")
     private Date updateDate;
+    
+    private String appellation;
+    private String height;
+    private String weight;
+    @Column(name = "birth_date")
+    private Date birthDate;
+    private String sex;
+    private String mobile;
+    private String nickname;
+    
 }

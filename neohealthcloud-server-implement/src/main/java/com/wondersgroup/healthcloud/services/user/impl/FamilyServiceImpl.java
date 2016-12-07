@@ -36,7 +36,7 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 
 @Service
 public class FamilyServiceImpl implements FamilyService {
-    private static final int                 maxMemberCount = 5;
+    private static final int                 maxMemberCount = 10;
 
     @Autowired
     private Environment                      environment;
@@ -177,7 +177,8 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Transactional(readOnly = false)
-    private String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
+    @Override
+    public String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
             String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
             Boolean isAnonymous) {
         Date time = new Date();
