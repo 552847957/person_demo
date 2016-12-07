@@ -1,15 +1,13 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
-import com.wondersgroup.healthcloud.common.appenum.AppJumpUrlEnum;
-import com.wondersgroup.healthcloud.common.utils.DateUtils;
-import com.wondersgroup.healthcloud.jpa.constant.CircleConstant;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.CircleCategory;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
-import com.wondersgroup.healthcloud.services.bbs.CircleService;
-import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,11 +16,24 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.wondersgroup.healthcloud.common.appenum.AppJumpUrlEnum;
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.jpa.constant.CircleConstant;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.CircleCategory;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleCategoryRepository;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicTabRepository;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.UserCircleRepository;
+import com.wondersgroup.healthcloud.services.bbs.CircleService;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.AdminCircleDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleBannerDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleCategoryDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleInfoDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.circle.MyCircleDto;
 
 /**
  * Created by ys on 2016/08/11.
@@ -338,7 +349,7 @@ public class CircleServiceImpl implements CircleService {
 
         int isRecommend = newData.getIsRecommend();
         dealRecommendCircle(isRecommend);
-        return result;
+        return !result;
     }
 
     /**
@@ -374,16 +385,102 @@ public class CircleServiceImpl implements CircleService {
 
     @Override
     public int checkCircleNameByName(int id, String circleName) {
+        Circle circle = circleRepository.queryByName(circleName);
+        if(null!=circle){
+            return circle.getId();
+        }
         return 0;
     }
 
     @Override
     public List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag, int pageNo, int pageSize) {
-        return null;
+        String searchSql = "SELECT " +
+                " ci.id, " +
+                " ci. NAME, " +
+                " ci.description, " +
+                " ci.cate_id, " +
+                " ct.`name` AS cateName, " +
+                " ci.icon, " +
+                " ci.rank, " +
+                " ci.del_flag, " +
+                " ci.is_recommend, " +
+                " ci.is_default_attent " +
+                " FROM " +
+                " tb_bbs_circle ci " +
+                " LEFT JOIN tb_bbs_circle_category ct ON ci.cate_id = ct.id " +
+                " WHERE " +
+                " 1 = 1 ";
+        // 拼接条件语句
+        searchSql += appendWhereSql(name, cateId, isRecommend, isDefaultAttent, delFlag);
+        String orderSql = " order by ci.rank DESC ";
+        // 拼接排序语句
+        searchSql += orderSql;
+        // 分页
+        int offset = (pageNo - 1) * pageSize;
+        String limitSql = String.format(" limit %s,%s", offset, pageSize);
+        searchSql += limitSql;
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(searchSql);
+        List<AdminCircleDto> dtoList = null;
+        if (data != null && data.size() > 0) {
+            dtoList = new ArrayList<>();
+            for (Map<String, Object> map : data) {
+                AdminCircleDto dto = initCircleDto(map);
+                dtoList.add(dto);
+            }
+        }
+        return dtoList;
     }
 
     @Override
     public int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag) {
-        return 0;
+        String countSql = "SELECT count(ci.id) " +
+                " FROM tb_bbs_circle ci " +
+                " LEFT JOIN tb_bbs_circle_category ct ON ci.cate_id = ct.id " +
+                " WHERE 1 = 1";
+        countSql += appendWhereSql(name, cateId, isRecommend, isDefaultAttent, delFlag);
+
+        int count = 0;
+        count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        return count;
+    }
+    
+    private AdminCircleDto initCircleDto(Map<String, Object> map) {
+        AdminCircleDto dto = new AdminCircleDto();
+        try {
+            dto.setId(Integer.parseInt(String.valueOf(map.get("id"))));
+            dto.setName(String.valueOf(map.get("name")));
+            dto.setDescription(String.valueOf(map.get("description")));
+            dto.setCateId(Integer.parseInt(String.valueOf(map.get("cate_id"))));
+            dto.setCateName(String.valueOf(map.get("cateName")));
+            dto.setIcon(String.valueOf(map.get("icon")));
+            dto.setRank(Integer.parseInt(String.valueOf(map.get("rank"))));
+            dto.setDelFlag(String.valueOf(map.get("del_flag")));
+            dto.setIsRecommend(Integer.parseInt(String.valueOf(map.get("is_recommend"))));
+            dto.setIsDefaultAttent(Integer.parseInt(String.valueOf(map.get("is_default_attent"))));
+        } catch (NumberFormatException e) {
+            logger.error("设置圈子数据出错", e);
+        }
+        return dto;
+    }
+
+    private String appendWhereSql(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag) {
+        StringBuffer whereSql = new StringBuffer(" ");
+        if (StringUtils.isNotBlank(name)) {
+            whereSql.append(" AND ci.`name` LIKE '%" + name + "%'");
+        }
+        if (cateId != null) {
+            whereSql.append(" AND ci.cate_id = " + cateId);
+        }
+        if (isRecommend != null) {
+            whereSql.append(" AND ci.is_recommend = " + isRecommend);
+        }
+        if (isDefaultAttent != null) {
+            whereSql.append(" AND ci.is_default_attent = " + isDefaultAttent);
+        }
+        if (StringUtils.isNotBlank(delflag)) {
+            whereSql.append(" AND ci.del_flag = '" + delflag + "'");
+        }
+        return whereSql.toString();
     }
 }

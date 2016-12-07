@@ -32,4 +32,6 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
     @Modifying
     @Query(nativeQuery = true, value = "update tb_bbs_circle set attention_count = (select count(uid) from tb_bbs_user_circle where del_flag = '0' and circle_id = ?1) where id = ?1")
     int updateActuallyAttentionCount(Integer circleId);
+    
+    Circle queryByName(String name);
 }

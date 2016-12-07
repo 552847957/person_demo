@@ -159,7 +159,7 @@ public class CircleController {
         int isExists = circleService.checkCircleNameByName(_id, newData.getName());
         if (isExists >= 1) {
             response.setCode(1000);
-            response.setMsg("圈子重名.");
+            response.setMsg("圈子重名,请重新命名!");
             return response;
         }
         boolean isSuccess = circleService.saveOrUpdateCircle(newData);
