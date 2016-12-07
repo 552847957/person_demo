@@ -29,7 +29,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 		
 		Score[] scores = this.getScoreList(items);
 		if(scores[7].point>=9 || scores[0].point < 8 || scores[5].point >= 11){//评判无效
-			this.saveHealthQuestion(registerid, content, null);
+//			this.saveHealthQuestion(registerid, content, null);
 			return null;
 		}
 		
