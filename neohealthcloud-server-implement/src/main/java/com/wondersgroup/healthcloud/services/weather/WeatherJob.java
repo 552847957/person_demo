@@ -65,12 +65,15 @@ public class WeatherJob {
             cache.put("name", task.getName());
             cache.put("code", task.getCode());
 
-            ObjectNode now = JsonNodeFactory.instance.objectNode();
-            now.put("weather_code", channel.get("item").get("condition").get("code").asText());
-            now.put("temperature", channel.get("item").get("condition").get("temp").asText());
-            now.put("wind_direction", he.get("now").get("wind").get("dir").asText());
-            now.put("wind_level", he.get("now").get("wind").get("sc").asText());
-            cache.put("now", now);
+            cache.put("hint", "温馨提示文案");
+
+            ObjectNode today = JsonNodeFactory.instance.objectNode();
+            today.put("weather_code", channel.get("item").get("condition").get("code").asText());
+            today.put("weather_name", "天气名称");
+            today.put("current_temperature", channel.get("item").get("condition").get("temp").asText());
+            today.put("wind_direction", he.get("now").get("wind").get("dir").asText());
+            today.put("wind_level", he.get("now").get("wind").get("sc").asText());
+            cache.put("today", today);
 
             cache.put("astronomy", channel.get("astronomy"));
 
@@ -83,9 +86,13 @@ public class WeatherJob {
 
             ArrayNode forecasts = JsonNodeFactory.instance.arrayNode(10);
             ArrayNode yahooForecasts = (ArrayNode) channel.get("item").get("forecast");
-            for (JsonNode yahooForecast : yahooForecasts) {
+            today.put("low", yahooForecasts.get(0).get("low").asText());
+            today.put("high", yahooForecasts.get(0).get("high").asText());
+            for (int i = 1; i < 6; i++) {
+                JsonNode yahooForecast = yahooForecasts.get(i);
                 ObjectNode forecast = JsonNodeFactory.instance.objectNode();
                 forecast.put("weather_code", yahooForecast.get("code").asText());
+                forecast.put("weather_name", "天气名称");
                 forecast.put("high", yahooForecast.get("high").asText());
                 forecast.put("low", yahooForecast.get("low").asText());
                 DateTime date = sdf.parseDateTime(yahooForecast.get("date").asText());
@@ -110,7 +117,7 @@ public class WeatherJob {
 //        test.setId(1);
 //        test.setName("上海市");
 //        test.setCode("3101");
-//        test.setWoeid("2151849");
+//        test.setWoeid("12578012");
 //        test.setHecode("CN101020100");
 //        return Lists.newArrayList(test);
         return weatherAreaRepository.findActive();
