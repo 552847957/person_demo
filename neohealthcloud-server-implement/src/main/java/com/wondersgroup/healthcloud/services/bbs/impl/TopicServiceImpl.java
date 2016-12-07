@@ -519,12 +519,31 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria) {
-        return null;
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        StringBuffer querySql = new StringBuffer("select topic.*,circle.name as circle_name, user.nickname from tb_bbs_topic topic ");
+        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
+        querySql.append(" left join app_tb_register_info user on user.registerid=topic.uid ");
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (StringUtils.isNotEmpty(queryParams.getQueryString())){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        querySql.append(searchCriteria.getOrderInfo());
+        querySql.append(searchCriteria.getLimitInfo());
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString(), elelmentType.toArray());
+        return list;
     }
 
     @Override
     public int countTopicByCriteria(TopicSearchCriteria searchCriteria) {
-        return 0;
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        StringBuffer querySql = new StringBuffer("select count(*) from tb_bbs_topic topic ");
+        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
+        querySql.append(" left join app_tb_register_info user on user.registerid=topic.uid ");
+        if (StringUtils.isNotEmpty(queryParams.getQueryString())){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        Integer rs = jdbcTemplate.queryForObject(querySql.toString(), queryParams.getQueryElementType().toArray(), Integer.class);
+        return rs == null ? 0 : rs;
     }
 
     /**

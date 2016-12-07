@@ -92,7 +92,7 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.tab_id);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
-            where.append(" AND account.nickname like ?");
+            where.append(" AND user.nickname like ?");
             elementType.add("%"+this.nickname+"%");
         }
         if (StringUtils.isNotEmpty(this.title)){

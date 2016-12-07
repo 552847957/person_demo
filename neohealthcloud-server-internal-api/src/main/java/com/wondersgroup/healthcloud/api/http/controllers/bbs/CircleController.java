@@ -164,7 +164,7 @@ public class CircleController {
         }
         boolean isSuccess = circleService.saveOrUpdateCircle(newData);
         if (isSuccess) {
-            response.setMsg("OK");
+            response.setMsg("保存成功!");
             return response;
         } else {
             response.setCode(1000);

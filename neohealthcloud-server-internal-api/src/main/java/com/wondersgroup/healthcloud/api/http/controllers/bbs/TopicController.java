@@ -200,7 +200,7 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/view", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicViewDto> view(@RequestHeader String appUid, @RequestHeader String userid, @RequestParam Integer id){
+    public JsonResponseEntity<TopicViewDto> view(@RequestHeader String appUid, @RequestParam Integer id){
         JsonResponseEntity<TopicViewDto> entity = new JsonResponseEntity();
 
         Topic topic = topicService.infoTopic(id);
