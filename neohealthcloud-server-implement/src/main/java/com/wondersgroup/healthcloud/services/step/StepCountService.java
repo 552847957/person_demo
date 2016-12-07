@@ -35,7 +35,7 @@ public class StepCountService {
 		int stepcount = step.get("stepCount").asInt(0);
 
 		int gold = stepcount / 200;
-		return gold > 500 ? 500 : gold;
+		return gold > 100 ? 100 : gold;
 	}
 	
 	

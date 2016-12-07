@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
+
 import lombok.Data;
 
 @Data
@@ -21,7 +23,8 @@ public class GoldRecord {
 	@Column(name = "user_id")
 	private String userId; // 用户ID
 
-	private Integer type; // 金币记录类型 （0：计步奖励；1：每日计步；2：分享奖励；3：邀请好友；4：兑换商品）
+	private Integer type; // 金币记录类型 （0：计步奖励；1：每日计步；2：邀请好友；3：兑换商品,
+							// 4：QQ分享；5：微博分享；6微信分享；7：朋友圈分享；8：老用户领取邀请奖励）
 
 	@Column(name = "gold_num")
 	private Integer goldNum; // 金币数目 （负数代表消耗金币）
@@ -31,6 +34,8 @@ public class GoldRecord {
 
 	@Column(name = "create_time")
 	private Date createTime; // 创建时间
-	
 
+	public void setType(GoldRecordTypeEnum type) {
+		this.type = type.ordinal();
+	}
 }
