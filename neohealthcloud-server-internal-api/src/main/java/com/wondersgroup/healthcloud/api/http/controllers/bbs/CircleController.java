@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ys on 16/8/18.
@@ -220,10 +221,11 @@ public class CircleController {
     @Admin
     @RequestMapping(value = "/circleSearch", method = RequestMethod.POST)
     public Pager circleSearch(@RequestBody Pager pager) {
-        String name = (String) pager.getParameter().get("name");
-        Integer cateId = (Integer) pager.getParameter().get("cateId");
-        Integer isRecommend = (Integer) pager.getParameter().get("isRecommend");
-        Integer isDefaultAttent = (Integer) pager.getParameter().get("isDefaultAttent");
+        Map<String, Object> parms = pager.getParameter();
+        String name = (String) parms.get("name");
+        Integer cateId = parms.get("cateId") == null ? null : Integer.valueOf(parms.get("cateId").toString());
+        Boolean isRecommend = (Boolean) parms.get("isRecommend");
+        Boolean isDefaultAttent = (Boolean) parms.get("isDefaultAttent");
         String delFlag = (String) pager.getParameter().get("delFlag");
 
         try {

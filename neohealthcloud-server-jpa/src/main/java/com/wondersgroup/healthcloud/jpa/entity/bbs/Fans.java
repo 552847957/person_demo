@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.bbs;
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
+@JsonNaming
 @Table(name = "tb_bbs_fans")
 public class Fans {
     @Id

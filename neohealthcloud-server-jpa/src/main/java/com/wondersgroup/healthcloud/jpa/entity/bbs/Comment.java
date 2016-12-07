@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.jpa.entity.bbs;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.constant.CommentConstant;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import java.util.Date;
  */
 @Entity
 @Data
+@JsonNaming
 @Table(name = "tb_bbs_comment")
 public class Comment {
 

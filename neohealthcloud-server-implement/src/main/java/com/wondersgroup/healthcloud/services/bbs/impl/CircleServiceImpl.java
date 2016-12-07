@@ -393,10 +393,10 @@ public class CircleServiceImpl implements CircleService {
     }
 
     @Override
-    public List<AdminCircleDto> searchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag, int pageNo, int pageSize) {
+    public List<AdminCircleDto> searchCircle(String name, Integer cateId, Boolean isRecommend, Boolean isDefaultAttent, String delFlag, int pageNo, int pageSize) {
         String searchSql = "SELECT " +
                 " ci.id, " +
-                " ci. NAME, " +
+                " ci.NAME, " +
                 " ci.description, " +
                 " ci.cate_id, " +
                 " ct.`name` AS cateName, " +
@@ -433,7 +433,7 @@ public class CircleServiceImpl implements CircleService {
     }
 
     @Override
-    public int countSearchCircle(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delFlag) {
+    public int countSearchCircle(String name, Integer cateId, Boolean isRecommend, Boolean isDefaultAttent, String delFlag) {
         String countSql = "SELECT count(ci.id) " +
                 " FROM tb_bbs_circle ci " +
                 " LEFT JOIN tb_bbs_circle_category ct ON ci.cate_id = ct.id " +
@@ -464,19 +464,19 @@ public class CircleServiceImpl implements CircleService {
         return dto;
     }
 
-    private String appendWhereSql(String name, Integer cateId, Integer isRecommend, Integer isDefaultAttent, String delflag) {
+    private String appendWhereSql(String name, Integer cateId, Boolean isRecommend, Boolean isDefaultAttent, String delflag) {
         StringBuffer whereSql = new StringBuffer(" ");
         if (StringUtils.isNotBlank(name)) {
             whereSql.append(" AND ci.`name` LIKE '%" + name + "%'");
         }
-        if (cateId != null) {
+        if (cateId != null && cateId > 0 ) {
             whereSql.append(" AND ci.cate_id = " + cateId);
         }
-        if (isRecommend != null) {
-            whereSql.append(" AND ci.is_recommend = " + isRecommend);
+        if (isRecommend != null && isRecommend) {
+            whereSql.append(" AND ci.is_recommend = 1");
         }
-        if (isDefaultAttent != null) {
-            whereSql.append(" AND ci.is_default_attent = " + isDefaultAttent);
+        if (isDefaultAttent != null && isDefaultAttent) {
+            whereSql.append(" AND ci.is_default_attent = 1");
         }
         if (StringUtils.isNotBlank(delflag)) {
             whereSql.append(" AND ci.del_flag = '" + delflag + "'");
