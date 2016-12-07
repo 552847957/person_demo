@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.diabetes;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -18,13 +19,14 @@ import java.util.Date;
 public class DiabetesAssessment {
     @Id
     private String id; // 主键
+    private String registerid;//注册用户id
     private Integer age; // 年龄
     private Integer gender; // 性别，1：男，2：女
     private Double height; // 身高
     private Double weight; // 体重
     private Double waist; // 腰围
     private Integer isIGR; //是否有糖调节受损（IGR）（又称“糖尿病前期”）史
-    private Integer isSit; //是否属于静坐生活方式',
+    private Integer isSit; //是否属于静坐生活方式,
     private Integer isFamily; //一级亲属中是否有2型糖尿病家族史高危人群
     private Integer isLargeBaby; //是否有巨大儿（出生体重≥4kg）生产史
     private Integer isHighPressure; //是否有高血压
@@ -45,7 +47,7 @@ public class DiabetesAssessment {
     private Integer isEyeShadow; //是否眼前有小黑影漂浮
     private Integer isEyeGhosting; //是否看东西出现重影
     private Integer isEyeFlash;//是否看东西有闪光感
-    private Double HBA1C; //最近一次糖化血红蛋白
+    private Double  hbac; //最近一次糖化血红蛋白
     private Integer isSmoking; //是否抽烟
     private Integer isEyeProblem; //是否有视力问题
     private Integer isKidney; //是否有肾脏疾病

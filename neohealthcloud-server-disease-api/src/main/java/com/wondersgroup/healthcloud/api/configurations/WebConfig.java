@@ -61,28 +61,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         }
     }
 
-    @Override
-    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        for (int i = 0; i < converters.size(); i++) {
-            if (converters.get(i) instanceof StringHttpMessageConverter) {
-                StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(Charsets.UTF_8);
-                stringHttpMessageConverter.setWriteAcceptCharset(false);
-                converters.set(i, stringHttpMessageConverter);
-            }
-            if (converters.get(i) instanceof MappingJackson2HttpMessageConverter) {
-                ObjectMapper objectMapper = new ObjectMapper();
-
-                SimpleModule simpleModule = new SimpleModule("JsonMapSerializer", Version.unknownVersion());
-                simpleModule.addKeyDeserializer(Object.class, new MapToBeanUtil.JsonMapDeSerializer());
-                objectMapper.registerModule(simpleModule);
-                objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategy.SnakeCaseStrategy());
-                MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-                converter.setObjectMapper(objectMapper);
-                converters.set(i, converter);
-                break;
-            }
-        }
-    }
 
 
     @Override

@@ -104,13 +104,13 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         int total = assessment.getIsSmoking() + assessment.getIsEyeProblem() + assessment.getIsKidney()
                 + assessment.getIsCardiovascular() + assessment.getIsLimbsEdema() + assessment.getIsLimbsTemp()
                 + assessment.getIsDeformity() + assessment.getIsFootBeat() + assessment.getIsShinBeat();
-        if(assessment.getHBA1C() <= 7 && 0 ==total){
+        if(assessment.getHbac() <= 7 && 0 ==total){
             assessment.setResult(0);
         }
-        if(assessment.getHBA1C() > 7 && 0 ==total){
+        if(assessment.getHbac() > 7 && 0 ==total){
             assessment.setResult(1);
         }
-        if(assessment.getHBA1C() > 7 && 1 ==total){
+        if(assessment.getHbac() > 7 && 0 !=total){
             assessment.setResult(2);
         }
         assessmentRepo.save(assessment);
@@ -119,16 +119,24 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
 
 
     private Integer sickenAssement(DiabetesAssessment assessment){
-        if(null != assessment.getAge() && assessment.getAge() >= 40 || 1== assessment.getIsIGR()
-                || 1 == assessment.getIsSit() || 1 == assessment.getIsFamily() || 1 == assessment.getIsLargeBaby()
+        if(assessment.getAge() >= 40 || 1== assessment.getIsIGR()
+                || 1 == assessment.getIsSit() || 1 == assessment.getIsFamily() || (2 == assessment.getGender() && 1 == assessment.getIsLargeBaby())
                 || 1 == assessment.getIsHighPressure() || 1 == assessment.getIsBloodFat() || 1== assessment.getIsArteriesHarden()
-                || 1 == assessment.getIsSterol() || 1 == assessment.getIsPCOS() || 1 == assessment.getIsMedicineTreat()){
+                || 1 == assessment.getIsSterol() || (2 == assessment.getGender() && 1 == assessment.getIsPCOS()) || 1 == assessment.getIsMedicineTreat()){
             return 1;
         }
         if(null != assessment.getHeight() && null != assessment.getWeight()){//待定
             DecimalFormat d =new DecimalFormat("##.00");
             Double value = Double.valueOf(d.format(assessment.getWeight()/Math.pow((assessment.getHeight()/100), 2)));
-            if(value > 24 ){
+            if(value >= 24 ){
+                return 1;
+            }
+        }
+        if(null != assessment.getGender() && null != assessment.getWaist()){
+            if(1 == assessment.getGender() && assessment.getWaist() >= 90){
+                return 1;
+            }
+            if(2 == assessment.getGender() && assessment.getWaist() >= 85){
                 return 1;
             }
         }

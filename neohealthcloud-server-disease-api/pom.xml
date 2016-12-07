@@ -87,7 +87,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <warFile>${project.build.directory}/neohealthcloud-internal.war</warFile>
+                    <warFile>${project.build.directory}/neohealthcloud-disease.war</warFile>
                     <url>http://jenkins_ip/manager/text</url>
                     <server>tomcat-jenkins</server>
                     <username>jenkins</username>
