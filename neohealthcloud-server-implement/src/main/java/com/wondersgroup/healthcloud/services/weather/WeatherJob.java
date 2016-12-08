@@ -54,12 +54,17 @@ public class WeatherJob {
     private WeatherAreaRepository weatherAreaRepository;
 
     public void hourlyJob() {
-        JsonNode he = heWeatherClient.weather(null).get("HeWeather5").get(0);
+        JsonNode heShanghai = heWeatherClient.weather(null).get("HeWeather5").get(0);
         DateTimeFormatter sdf = DateTimeFormat.forPattern("dd MMM yyyy");
         DateTimeFormatter newdf = DateTimeFormat.forPattern("MM/dd");
 
         List<WeatherArea> tasks = tasks();
         for (WeatherArea task : tasks) {
+            JsonNode he = heShanghai;
+            if (task.getHecode() != null) {
+                he = heWeatherClient.weather(task.getHecode()).get("HeWeather5").get(0);
+            }
+
             JsonNode channel = yahooWeatherClient.channel(task.getWoeid());
 
             ObjectNode cache = JsonNodeFactory.instance.objectNode();
@@ -122,13 +127,6 @@ public class WeatherJob {
     }
 
     public List<WeatherArea> tasks() {
-//        WeatherArea test = new WeatherArea();
-//        test.setId(1);
-//        test.setName("上海市");
-//        test.setCode("3101");
-//        test.setWoeid("12578012");
-//        test.setHecode("CN101020100");
-//        return Lists.newArrayList(test);
         return weatherAreaRepository.findActive();
     }
 

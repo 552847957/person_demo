@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.services.weather;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
@@ -72,11 +71,5 @@ public class HeWeatherClient {
     @Autowired
     public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
         this.httpRequestExecutorManager = httpRequestExecutorManager;
-    }
-
-    public static void main(String... args) {
-        HeWeatherClient client = new HeWeatherClient();
-        client.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        System.out.println(client.weather(null));
     }
 }

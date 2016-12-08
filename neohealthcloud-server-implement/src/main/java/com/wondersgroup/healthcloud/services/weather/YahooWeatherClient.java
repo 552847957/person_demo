@@ -2,7 +2,6 @@ package com.wondersgroup.healthcloud.services.weather;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
@@ -59,12 +58,5 @@ public class YahooWeatherClient {
     @Autowired
     public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
         this.httpRequestExecutorManager = httpRequestExecutorManager;
-    }
-
-    public static void main(String... args) {
-        YahooWeatherClient client = new YahooWeatherClient();
-        client.httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
-        System.out.println(client.query("select * from weather.forecast where woeid=2151849 and u='c'").toString());
-//        client.query("SELECT * FROM geo.places.children WHERE parent_woeid=\"56043483\" and lang=\"zh-CN\"");
     }
 }
