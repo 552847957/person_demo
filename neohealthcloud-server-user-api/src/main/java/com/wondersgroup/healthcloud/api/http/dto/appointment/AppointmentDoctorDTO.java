@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctor;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Transient;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +43,6 @@ public class AppointmentDoctorDTO {
 
     private String reservationRule = ""; //预约规则
 
-    private List<DoctorScheduleDTO> schedule; //预约
 
     @JsonProperty("hospital_name")
     private String hospitalName;//医院名称
@@ -55,6 +56,7 @@ public class AppointmentDoctorDTO {
     @JsonProperty("reservation_num")
     private int reservationNum;
 
+
     /**
      * 预约状态
      * 0: 无排班
@@ -63,6 +65,11 @@ public class AppointmentDoctorDTO {
      */
     @JsonProperty("reservation_status")
     private int reservationStatus;
+
+    /**
+     * 1:医生 2:科室
+     */
+    private int type;
 
     public AppointmentDoctorDTO() {
     }
@@ -73,12 +80,14 @@ public class AppointmentDoctorDTO {
         this.avatar = doctor.getAvatar();
         this.dutyName = doctor.getDoctTile();
         this.specialty = doctor.getDoctInfo();
-        this.reservationNum = doctor.getReservationNum();
+        this.reservationNum = doctor.getReservationNum()==null?0:doctor.getReservationNum();
         this.reservationRule = doctor.getReservationRule();
 
 
-        int scheduleNum = (Integer)result.get("scheduleNum");
-        int reserveOrderNum = (Integer)result.get("reserveOrderNum");
+        int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
+
+        int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
+
         if(scheduleNum == 0){
             this.reservationStatus = 0;
         }else if(reserveOrderNum>0){
@@ -86,6 +95,47 @@ public class AppointmentDoctorDTO {
         }else{
             this.reservationStatus = 2;
         }
+        this.type = 1;
+    }
+
+    public AppointmentDoctorDTO(AppointmentL2Department department,Map<String,Object> result) {
+        this.id = department.getId();
+        this.name = department.getDeptName();
+        this.avatar = "";
+        this.dutyName = "";
+
+        this.specialty = department.getDeptDesc();
+        this.reservationNum = department.getReservationNum()==null?0:department.getReservationNum();
+
+        int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
+
+        int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
+        if(scheduleNum == 0){
+            this.reservationStatus = 0;
+        }else if(reserveOrderNum>0){
+            this.reservationStatus = 1;
+        }else{
+            this.reservationStatus = 2;
+        }
+
+        if(this.reservationStatus!=0 && StringUtils.isBlank(this.specialty)){
+            String visitLevelCode = getVisitLevelCodeView(result.get("visitLevelCode").toString());
+            this.specialty = visitLevelCode;
+        }
+        this.type = 2;
+    }
+
+    public static String getVisitLevelCodeView(String reserveOrderNum) {
+
+        if("1".equals(reserveOrderNum)){
+            return "专家门诊";
+        }else if("2".equals(reserveOrderNum)){
+            return "专病门诊";
+        }else if("3".equals(reserveOrderNum)){
+            return "普通门诊";
+        }
+
+        return "";
     }
 
     public static AppointmentDoctorDTO getDoctorDTOList(AppointmentDoctor doctor){
@@ -156,13 +206,6 @@ public class AppointmentDoctorDTO {
         this.reservationRule = reservationRule;
     }
 
-    public List<DoctorScheduleDTO> getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(List<DoctorScheduleDTO> schedule) {
-        this.schedule = schedule;
-    }
 
     public String getHospitalName() {
         return hospitalName;
@@ -194,5 +237,13 @@ public class AppointmentDoctorDTO {
 
     public void setReservationStatus(int reservationStatus) {
         this.reservationStatus = reservationStatus;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

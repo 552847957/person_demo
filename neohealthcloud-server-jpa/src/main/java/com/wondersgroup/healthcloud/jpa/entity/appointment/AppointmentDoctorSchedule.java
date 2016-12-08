@@ -81,6 +81,12 @@ public class AppointmentDoctorSchedule {
     private String status;//1 正常 2停诊
 
     /**
+     * 本次排班的预约数
+     */
+    @Column(name = "reservation_num")
+    private Integer reservationNum;
+
+    /**
      * 就诊类型
      * 1|2|3  1专家.2专病3.普通 为空查询所有，为3时不能填医生ID，普通类型没有医生ID。
      */
@@ -97,4 +103,7 @@ public class AppointmentDoctorSchedule {
     private Date updateDate;
     @Column(name = "update_by")
     private String updateBy;
+
+
+
 }

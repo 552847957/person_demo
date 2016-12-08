@@ -1,16 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.AppointmentDoctorDTO;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.AppointmentHospitalDTO;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.AreaDTO;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.SearchDTO;
+import com.wondersgroup.healthcloud.api.http.dto.appointment.*;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctor;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
+import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by longshasha on 16/12/5.
+ * 预约挂号api接口
  */
 @RestController
 @RequestMapping("/api/reservation")
@@ -128,7 +128,7 @@ public class AppointmentResourceController {
         int pageSize = 10;
         int pageNum = 1;
 
-        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,pageNum);
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,pageNum,false);
         if(appointmentDoctors.size()>2){
             moreDoctor = true;
         }
@@ -180,7 +180,7 @@ public class AppointmentResourceController {
 
 
     /**
-     * 搜索
+     * 搜索更多医生
      *
      * @param kw 搜索词
      * @param flag 分页
@@ -197,7 +197,7 @@ public class AppointmentResourceController {
         Boolean moreDoctor = false;
         int pageSize = 10;
 
-        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,flag);
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,flag,false);
         if(appointmentDoctors.size()>pageSize){
             moreDoctor = true;
         }
@@ -226,6 +226,175 @@ public class AppointmentResourceController {
         AppointmentHospital hospital = appointmentApiService.findHospitalById(hospitalId);
         AppointmentHospitalDTO hospitalDTO = AppointmentHospitalDTO.getHospitalDetail(hospital);
         body.setData(hospitalDTO);
+        return body;
+    }
+
+
+    /**
+     * 根据医院Id查询一级科室列表
+     * @param hospital_id
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/department1/list", method = RequestMethod.GET)
+    public JsonListResponseEntity<DepartmentDTO> getdepartment1Lists(@RequestParam(required = true) String hospital_id) {
+        JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
+        List<AppointmentL1Department> appointmentL1Departments = appointmentApiService.findAllAppointmentL1Department(hospital_id);
+        List<DepartmentDTO> list = Lists.newArrayList();
+        DepartmentDTO apiEntity;
+        for (AppointmentL1Department _appointmentL1Department : appointmentL1Departments) {
+            apiEntity = new DepartmentDTO(_appointmentL1Department);
+            list.add(apiEntity);
+        }
+        body.setContent(list);
+        return body;
+
+    }
+
+    /**
+     * 根据医院Id和一级科室Id查询二级科室列表
+     *
+     * @param hospital_id
+     * @param department_l1_id
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/department2/list", method = RequestMethod.GET)
+    public JsonListResponseEntity<DepartmentDTO> getdepartment2Lists(@RequestParam(required = true) String hospital_id,
+                                                                     @RequestParam(required = true) String department_l1_id) {
+        JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
+        List<AppointmentL2Department> appointmentL2Departments = appointmentApiService.findAppointmentL2Department(hospital_id, department_l1_id);
+        List<DepartmentDTO> list = Lists.newArrayList();
+        DepartmentDTO apiEntity;
+        for (AppointmentL2Department _appointmentL2Department : appointmentL2Departments) {
+            apiEntity = new DepartmentDTO(_appointmentL2Department);
+            list.add(apiEntity);
+        }
+        body.setContent(list);
+        return body;
+
+    }
+
+    /**
+     * 根据二级科室查询医生列表(按专家预约)
+     *
+     * @param department_l2_id
+     * @param flag
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/doctor/expertList", method = RequestMethod.GET)
+    public JsonListResponseEntity getDcotorList(@RequestParam(required = false) String department_l2_id,
+                                                @RequestParam(required = false, defaultValue = "1") Integer flag) {
+        JsonListResponseEntity<AppointmentDoctorDTO> body = new JsonListResponseEntity<>();
+        Boolean has_more = false;
+        List<AppointmentDoctorDTO> list = new ArrayList<>();
+        int pageSize = 10;
+
+        Boolean hasDepartRegistration = false;
+
+        //判断二级科室有没有科室预约
+        Map<String,Object> result = appointmentApiService.countDepartmentReserveOrderNumByDepartmentId(department_l2_id);
+        AppointmentL2Department department = appointmentApiService.findAppointmentL2DepartmentById(department_l2_id);
+
+        AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO(department,result);
+        /**
+         * 第一页请求把科室预约放在第一条
+         */
+        int doctorNum = pageSize;
+        if(flag ==1 && doctorDTO!=null && doctorDTO.getReservationStatus()!=0){
+            hasDepartRegistration = true;
+            list.add(doctorDTO);
+            doctorNum = doctorNum - 1;
+        }
+
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(null,pageSize,flag,hasDepartRegistration);
+
+
+        int count = 1;
+        for (AppointmentDoctor doctor : appointmentDoctors) {
+            if(count > doctorNum){
+                has_more = true;
+                break;
+            }
+            Map<String,Object> re = appointmentApiService.countDoctorReserveOrderNumByDoctorId(doctor.getId());
+            doctorDTO = new AppointmentDoctorDTO(doctor,re);
+            list.add(doctorDTO);
+            count +=1;
+        }
+
+        body.setContent(list, has_more, null, has_more?String.valueOf(flag+1):String.valueOf(flag));
+        return body;
+
+    }
+
+    /**
+     * 科室下面-按照日期预约列表-日期列表(14天)
+     * @param department_l2_id
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/doctor/dateList", method = RequestMethod.GET)
+    public JsonListResponseEntity getDcotorList(@RequestParam(required = false) String department_l2_id) {
+        JsonListResponseEntity<AppointmentDateDTO> body = new JsonListResponseEntity<>();
+
+        List<AppointmentDateDTO> list = Lists.newArrayList();
+        //判断医院支不支持当天预约
+        AppointmentHospital hospital = appointmentApiService.findHospitalByDepartmentL2Id(department_l2_id);
+        Date firstDate = new Date();
+
+        //如果不支持当天预约 则第一天加1天
+        if("0".equals(hospital.getIsOrderToday()==null?0:hospital.getIsOrderToday())){
+            firstDate = DateUtils.addDay(firstDate,1);
+        }
+
+        Date currentDate = firstDate;
+        AppointmentDateDTO dateDTO;
+        for(int i = 0; i<14; i++){
+            dateDTO = new AppointmentDateDTO(currentDate);
+            list.add(dateDTO);
+            currentDate = DateUtils.addDay(currentDate,1);
+        }
+
+        body.setContent(list, false, null, null);
+        return body;
+
+    }
+
+    /**
+     * 根据二级科室和就诊时间查询 排班列表
+     * @param department_l2_id
+     * @param schedule_date
+     * @param flag
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/doctor/dateRegistrationList", method = RequestMethod.GET)
+    public JsonListResponseEntity getDateRegistrationList(@RequestParam(required = true ) String department_l2_id,
+                                                          @RequestParam(required = true ) String schedule_date,
+                                                @RequestParam(required = false, defaultValue = "1") Integer flag) {
+        JsonListResponseEntity<ScheduleDetailDTO> body = new JsonListResponseEntity<>();
+        int pageSize = 10;
+        Boolean more = false;
+        List<ScheduleDto> schedules = appointmentApiService.findScheduleByDepartmentL2IdAndScheduleDate(department_l2_id,schedule_date,flag,pageSize);
+
+        if(schedules.size()>pageSize)
+            more = true;
+
+        List<ScheduleDetailDTO> list = Lists.newArrayList();
+        ScheduleDetailDTO detailDTO;
+        int count = 1;
+        for(ScheduleDto schedule : schedules){
+            if(count>pageSize){
+                break;
+            }
+            detailDTO = new ScheduleDetailDTO(schedule);
+            list.add(detailDTO);
+            count += 1;
+        }
+
+
+        body.setContent(list, more, null, more?String.valueOf(flag+1):String.valueOf(flag));
         return body;
     }
 

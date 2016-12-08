@@ -41,7 +41,7 @@ public class AppointmentL2Department {
      * 科室级别预约数
      */
     @Column(name = "reservation_num")
-    private int reservationNum;
+    private Integer reservationNum;
 
 
     @Column(name = "del_flag")

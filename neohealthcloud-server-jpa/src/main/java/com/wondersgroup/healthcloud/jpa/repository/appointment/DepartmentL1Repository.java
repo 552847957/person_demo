@@ -58,5 +58,7 @@ public interface DepartmentL1Repository extends JpaRepository<AppointmentL1Depar
      * @return
      */
     @Query(value = "select a from AppointmentL1Department a where a.delFlag=0 and a.hospitalId =?1")
-    List<AppointmentL1Department> findAppointmentL1DepartmentList(String hospital_id);
+    List<AppointmentL1Department> findAllAppointmentL1Department(String hospital_id);
+
+
 }

@@ -2,6 +2,8 @@ package com.wondersgroup.healthcloud.api.http.dto.appointment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL1Department;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
 
 /**
  * Created by longshasha on 16/5/21.
@@ -13,10 +15,25 @@ public class DepartmentDTO {
     private String id;
     private String name;
     private String level;
-    private String avatar = url;
 
-    @JsonProperty("can_reserve")
-    private Boolean  canReserve; //二级科室是否可预约
+
+    public DepartmentDTO(AppointmentL1Department l1Department){
+        if(l1Department!=null){
+            this.id = l1Department.getId();
+            this.name = l1Department.getDeptName();
+            this.level = "1";
+        }
+
+    }
+
+    public DepartmentDTO(AppointmentL2Department l2Department){
+        if(l2Department!=null){
+            this.id = l2Department.getId();
+            this.name = l2Department.getDeptName();
+            this.level = "2";
+        }
+
+    }
 
     public String getId() {
         return id;
@@ -42,19 +59,4 @@ public class DepartmentDTO {
         this.level = level;
     }
 
-    public Boolean getCanReserve() {
-        return canReserve;
-    }
-
-    public void setCanReserve(Boolean canReserve) {
-        this.canReserve = canReserve;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
 }
