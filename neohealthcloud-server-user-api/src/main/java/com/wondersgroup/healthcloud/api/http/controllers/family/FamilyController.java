@@ -49,7 +49,10 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO.MemberInfo;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.Info;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.InfoTemplet;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.MemberInfoTemplet;
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -698,29 +701,21 @@ public class FamilyController {
     @VersionRange
     public JsonResponseEntity<FamilyMemberInfoDTO>  memberInfo(@RequestParam String uid){
         JsonResponseEntity<FamilyMemberInfoDTO> response = new JsonResponseEntity<FamilyMemberInfoDTO>();
-        FamilyMemberInfoDTO info = new FamilyMemberInfoDTO();
+        List<InfoTemplet>  tems = new ArrayList<FamilyMemberInfoDTO.InfoTemplet>();
+        FamilyMemberInfoDTO infoDto = new FamilyMemberInfoDTO();
+        Info info = new Info();
         info.setAge(18);
         info.setNikcName("阿西霸");
         info.setRelationName("爸爸");
-        info.setVerification(true);
-        info.setFamilyDoctor("家庭医生");
-        info.setBloodSugar("血糖管理");
-        info.setBloodSugarValue("Value");
-        info.setBloodPressure("血压管理");
-        info.setBloodPressureValue("Value");
-        info.setBmi("BMI管理");
-        info.setBmiValue("Value");
-        info.setDiabetes("糖尿病管理");
-        info.setDiabetesValue("Value");
-        info.setDoctorRecord("就医记录");
-        info.setDoctorRecordValue("Value");
-        info.setHealthQuestion("中医体质辨识");
-        info.setHealthQuestionValue("Value");
-        info.setJogging("记步管理");
-        info.setJoggingValue("Value");
-        info.setRiskEvaluate("风险评估Value");
-        info.setRiskEvaluateValue("风险评估");
-        response.setData(info);
+        info.setIsVerification(true);
+        info.setMobile("18075627538");
+        info.setIsStandalone(false);
+        for (Integer id : MemberInfoTemplet.map.keySet()) {
+            tems.add(new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null));
+        }
+        infoDto.setInfo(info);
+        infoDto.setInfoTemplets(tems);
+        response.setData(infoDto);
         response.setMsg("查询成功");
         return response;
     }
@@ -732,16 +727,19 @@ public class FamilyController {
      */
     @RequestMapping(value = "/memberOrder", method = RequestMethod.GET)
     @VersionRange
-    public JsonListResponseEntity<FamilyMember> memberOrder(@RequestParam String uid){
-        JsonListResponseEntity<FamilyMember> response = new JsonListResponseEntity<FamilyMember>();
+    public JsonListResponseEntity<FamilyMemberInvitationAPIEntity> memberOrder(@RequestParam String uid){
+        JsonListResponseEntity<FamilyMemberInvitationAPIEntity> response = new JsonListResponseEntity<FamilyMemberInvitationAPIEntity>();
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
+        List<FamilyMemberInvitationAPIEntity> list = new ArrayList<FamilyMemberInvitationAPIEntity>();
         for (FamilyMember familyMember : familyMembers) {
             RegisterInfo info =  userService.getOneNotNull(familyMember.getUid());
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
             entity.setId(familyMember.getUid());
             entity.setAvatar(info != null ? info.getHeadphoto() : null);
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+            list.add(entity);
         }
+        response.setContent(list);
         response.setMsg("查询成功");
         return response;
     }
