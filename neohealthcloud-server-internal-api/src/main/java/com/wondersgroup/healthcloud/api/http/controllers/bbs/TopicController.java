@@ -18,10 +18,12 @@ import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicSettingDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
+import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ import java.util.Map;
 public class TopicController {
 
     private static final Logger logger = LoggerFactory.getLogger("TopicController");
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private TopicService topicService;
@@ -81,7 +86,7 @@ public class TopicController {
                 vestUids.add(appUser.getVest_uid());
             }
         }
-        List<Map<String, Object>> list= topicService.getTopicListByCriteria(searchCriteria);
+        List<Map<String, Object>> list= this.getTopicListByCriteria(searchCriteria);
         if (null != list && !list.isEmpty()){
             for (Map<String, Object> map : list){
                 map.put("is_mine", vestUids.contains(map.get("uid").toString()) ? 1 :0);
@@ -92,6 +97,20 @@ public class TopicController {
         return pager;
     }
 
+    private List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria) {
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        StringBuffer querySql = new StringBuffer("select topic.*,circle.name as circle_name, user.nickname from tb_bbs_topic topic ");
+        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
+        querySql.append(" left join app_tb_register_info user on user.registerid=topic.uid ");
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (StringUtils.isNotEmpty(queryParams.getQueryString())){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        querySql.append(searchCriteria.getOrderInfo());
+        querySql.append(searchCriteria.getLimitInfo());
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString(), elelmentType.toArray());
+        return list;
+    }
 
     @Admin
     @RequestMapping(value = "/publish", method = RequestMethod.POST)

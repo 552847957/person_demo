@@ -432,41 +432,6 @@ public class TopicServiceImpl implements TopicService {
         return isVote;
     }
 
-    /**
-     * 使用jdbc查询
-     * 对topic查询的简单封装
-     * 支持TopicSearchCriteria条件的各种组合查询
-     */
-    private List<Topic> searchTopicByCriteria(TopicSearchCriteria searchCriteria){
-        StringBuffer querySql = new StringBuffer("select topic.* from tb_bbs_topic topic ");
-        querySql.append(" left join tb_account_user user on user.id = topic.uid ");
-        if (searchCriteria.getTab_id() > 0){
-            querySql.append(" left join tb_bbs_topic_tab_map tab on tab.topic_id = topic.id ");
-        }
-        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
-        List<Object> elelmentType = queryParams.getQueryElementType();
-        if (!elelmentType.isEmpty()){
-            querySql.append(" where " + queryParams.getQueryString());
-        }
-        if (StringUtils.isEmpty(searchCriteria.getOrderInfo())){
-            querySql.append(" order by topic.create_time desc ");
-        }else {
-            querySql.append(" order by " + searchCriteria.getOrderInfo());
-        }
-        if (searchCriteria.getPageSize() > 0){
-            querySql.append(" limit ?,? ");
-            elelmentType.add((searchCriteria.getPage()-1)*searchCriteria.getPageSize());
-            if (searchCriteria.getGetMoreOne()){
-                elelmentType.add(searchCriteria.getPageSize()+1);
-            }else {
-                elelmentType.add(searchCriteria.getPageSize());
-            }
-        }
-        System.out.println(querySql.toString());
-        List<Topic> list = jdbcTemplate.query(querySql.toString(), elelmentType.toArray(), new BeanPropertyRowMapper(Topic.class));
-        return list;
-    }
-
     //-------------------------//
     @Override
     public Topic infoTopic(Integer topicId) {
@@ -552,19 +517,25 @@ public class TopicServiceImpl implements TopicService {
         return topic.getId();
     }
 
-    @Override
-    public List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria) {
+    /**
+     * 使用jdbc查询
+     * 对topic查询的简单封装
+     * 支持TopicSearchCriteria条件的各种组合查询
+     */
+    private List<Topic> searchTopicByCriteria(TopicSearchCriteria searchCriteria){
+        StringBuffer querySql = new StringBuffer("select topic.* from tb_bbs_topic topic ");
+        querySql.append(" left join app_tb_register_info user on user.registerid = topic.uid ");
+        if (searchCriteria.getTab_id() > 0){
+            querySql.append(" left join tb_bbs_topic_tab_map tab on tab.topic_id = topic.id ");
+        }
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
-        StringBuffer querySql = new StringBuffer("select topic.*,circle.name as circle_name, user.nickname from tb_bbs_topic topic ");
-        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
-        querySql.append(" left join app_tb_register_info user on user.registerid=topic.uid ");
         List<Object> elelmentType = queryParams.getQueryElementType();
-        if (StringUtils.isNotEmpty(queryParams.getQueryString())){
+        if (!elelmentType.isEmpty()){
             querySql.append(" where " + queryParams.getQueryString());
         }
         querySql.append(searchCriteria.getOrderInfo());
         querySql.append(searchCriteria.getLimitInfo());
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString(), elelmentType.toArray());
+        List<Topic> list = jdbcTemplate.query(querySql.toString(), elelmentType.toArray(), new BeanPropertyRowMapper(Topic.class));
         return list;
     }
 

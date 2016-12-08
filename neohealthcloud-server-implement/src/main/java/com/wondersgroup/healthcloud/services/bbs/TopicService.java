@@ -89,7 +89,5 @@ public interface TopicService {
 
     int settingTopic(TopicSettingDto topicSettingDto);
 
-    List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria);
-
     int countTopicByCriteria(TopicSearchCriteria searchCriteria);
 }
