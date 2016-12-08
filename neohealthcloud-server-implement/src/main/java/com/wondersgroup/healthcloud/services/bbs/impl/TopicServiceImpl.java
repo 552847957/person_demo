@@ -500,6 +500,24 @@ public class TopicServiceImpl implements TopicService {
         return topic;
     }
 
+    @Transactional
+    @Override
+    public int verifyPass(Iterable<Integer> topicIds) {
+        topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
+        //lts
+        BbsMsgHandler.publishMultTopics(topicIds);
+        return 0;
+    }
+
+    @Transactional
+    @Override
+    public int verifyUnPass(Iterable<Integer> topicIds) {
+        topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
+        //lts
+        BbsMsgHandler.publishMultTopics(topicIds);
+        return 0;
+    }
+
     @Override
     public int settingTopic(TopicSettingDto settingDto) {
         Circle circle = circleRepository.findOne(settingDto.getCircleId());

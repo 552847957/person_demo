@@ -32,4 +32,9 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
     @Modifying
     @Query(nativeQuery = true, value = "update tb_bbs_topic t set t.pv=t.pv+1 where t.id=?1")
     void incTopicPv(Integer topicId);
+
+    @Transactional
+    @Modifying
+    @Query("update Topic t set t.status=?1 where t.id in ?2")
+    void multSettingStatus(Integer status, Iterable<Integer> topicIds);
 }

@@ -126,6 +126,24 @@ public class TopicController {
     }
 
     @Admin
+    @RequestMapping(value = "/verifyUnPass", method = RequestMethod.POST)
+    public JsonResponseEntity<Object> verifyUnPass(@RequestHeader String appUid, @RequestParam List<Integer> ids){
+        JsonResponseEntity<Object> entity = new JsonResponseEntity();
+        topicService.verifyPass(ids);
+        entity.setMsg("设置成功");
+        return entity;
+    }
+
+    @Admin
+    @RequestMapping(value = "/verifyPass", method = RequestMethod.POST)
+    public JsonResponseEntity<Object> verifyPass(@RequestHeader String appUid, @RequestParam List<Integer> ids){
+        JsonResponseEntity<Object> entity = new JsonResponseEntity();
+        topicService.verifyUnPass(ids);
+        entity.setMsg("设置成功");
+        return entity;
+    }
+
+    @Admin
     @RequestMapping(value = "/setting", method = RequestMethod.POST)
     public JsonResponseEntity<Map<String, Object>> setting(@RequestHeader String appUid, @RequestBody TopicSettingDto settingDto){
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();

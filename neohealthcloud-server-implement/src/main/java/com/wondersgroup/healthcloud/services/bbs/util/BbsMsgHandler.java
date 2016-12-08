@@ -8,6 +8,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.appenum.SysMsgTypeEnum;
+import com.wondersgroup.healthcloud.common.utils.ArraysUtil;
 import com.wondersgroup.healthcloud.common.utils.PropertiesUtils;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 
@@ -55,6 +56,15 @@ public class BbsMsgHandler {
     public static void publishTopic(String uid, Integer topicId){
         String url = baseUrl + "/api/bbs/msg/push/dynamic";
         String[] parms = new String[]{"uid", uid, "topic_id", String.valueOf(topicId), "msg_type", "0"};
+        requestGet(url, parms);
+    }
+
+    /**
+     * 批量审核通过
+     */
+    public static void publishMultTopics(Iterable<Integer> topicIds){
+        String url = baseUrl + "/api/bbs/msg/push/dynamic";
+        String[] parms = new String[]{"topic_ids", ArraysUtil.splitInts2Sting(topicIds, ","), "msg_type", "0"};
         requestGet(url, parms);
     }
 

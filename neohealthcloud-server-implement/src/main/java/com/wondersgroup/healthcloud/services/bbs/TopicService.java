@@ -82,6 +82,11 @@ public interface TopicService {
 
     Topic delTopic(String uid, Integer topicId);
 
+    //审核通过
+    int verifyPass(Iterable<Integer> topicIds);
+    //审核不通过
+    int verifyUnPass(Iterable<Integer> topicIds);
+
     int settingTopic(TopicSettingDto topicSettingDto);
 
     List<Map<String, Object>> getTopicListByCriteria(TopicSearchCriteria searchCriteria);
