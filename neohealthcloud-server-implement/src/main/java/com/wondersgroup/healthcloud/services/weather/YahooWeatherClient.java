@@ -38,16 +38,6 @@ public class YahooWeatherClient {
 
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
-    public static class YahooWeather {
-        public static class Forecast {
-            public String code;
-            public String date;
-            public String day;
-            public String high;
-            public String low;
-            public String text;
-        }
-    }
 
     public JsonNode channel(String woeid) {
         try {

@@ -32,37 +32,6 @@ public class HeWeatherClient {
 
     private static final String url = "https://free-api.heweather.com/v5";
 
-    public static class HeWeather {
-        public static class AQI {
-            public String aqi;
-            public String co;
-            public String no2;
-            public String o3;
-            public String pm10;
-            public String pm25;
-            public String qlty;
-            public String so2;
-        }
-
-        public static class Basic {
-        }
-
-        public static class DailyForecast {
-        }
-
-        public static class HourlyForecast {
-        }
-
-        public static class Now {
-            public String fl;
-
-        }
-
-        public static class Suggestion {
-        }
-    }
-
-
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
     public JsonNode weather(String hecode) {
