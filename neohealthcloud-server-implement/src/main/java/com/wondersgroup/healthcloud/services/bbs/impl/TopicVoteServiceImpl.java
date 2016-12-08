@@ -7,7 +7,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.VoteItemRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.VoteRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.VoteUserRepository;
 import com.wondersgroup.healthcloud.services.bbs.TopicVoteService;
-import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

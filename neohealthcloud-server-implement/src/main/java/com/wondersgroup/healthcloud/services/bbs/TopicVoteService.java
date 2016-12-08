@@ -1,7 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
 
-import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 
 /**
  * Created by ys on 2016/08/13.

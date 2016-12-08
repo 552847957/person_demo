@@ -1,18 +1,23 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
+import com.wondersgroup.healthcloud.api.http.dto.article.ShareH5APIDTO;
+import com.wondersgroup.healthcloud.api.http.dto.bbs.TopicViewDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +42,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/bbs/topic")
 public class TopicController {
+
+    //@Value("${bbs.topic.shareThumb}")
+    private String bbsDefaultShareThumb="http://img.wdjky.com/6022087dfdd751471409614922.png?imageView2";
+
+    @Autowired
+    private AppUrlH5Utils appUrlH5Utils;
 
     @Autowired
     private TopicService topicService;
@@ -182,7 +193,11 @@ public class TopicController {
     public JsonResponseEntity<TopicViewDto> topicView(@RequestParam Integer topicId,
                                                       @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
-        TopicViewDto viewDto = topicService.getTopicView(topicId);
+        TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
+
+        TopicViewDto viewDto = new TopicViewDto(detailInfo);
+        viewDto.setShareInfo(this.getShareInfo(detailInfo));
+
         if (StringUtils.isNotEmpty(uid)){
             viewDto.setIsCollected(topicCollectService.isCollectedForUser(uid, topicId) ? 1 : 0);
             if (viewDto.getVoteInfo() != null){
@@ -199,6 +214,16 @@ public class TopicController {
 
         responseEntity.setData(viewDto);
         return responseEntity;
+    }
+
+    private ShareH5APIDTO getShareInfo(TopicDetailDto detailInfo){
+        ShareH5APIDTO shareH5APIDTO = new ShareH5APIDTO();
+        shareH5APIDTO.setId(detailInfo.getId());
+        shareH5APIDTO.setTitle(detailInfo.getTitle());
+        shareH5APIDTO.setThumb(this.bbsDefaultShareThumb);
+        shareH5APIDTO.setDesc(detailInfo.getIntro());
+        shareH5APIDTO.setUrl(appUrlH5Utils.buildBbsTopicView(detailInfo.getId()));
+        return shareH5APIDTO;
     }
 
 }

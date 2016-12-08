@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.BeanUtils;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
@@ -17,7 +18,8 @@ import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicSettingDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicViewDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
+import com.wondersgroup.healthcloud.services.bbs.exception.CommentException;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -216,11 +218,11 @@ public class TopicController {
     @RequestMapping(value = "/settingView", method = RequestMethod.GET)
     public JsonResponseEntity<Map<String, Object>> settingView(@RequestHeader String userid, @RequestHeader String appUid, @RequestParam Integer id){
         JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity();
-        TopicViewDto view = topicService.getTopicView(id);
+        TopicDetailDto view = topicService.getTopicDetailInfo(id);
         Map<String, Object> info = BeanUtils.beanToMap(view);
         StringBuffer contents = new StringBuffer();
         if (view.getTopicContents() != null && !view.getTopicContents().isEmpty()){
-            for(TopicViewDto.TopicContentInfo contentInfo : view.getTopicContents()){
+            for(TopicDetailDto.TopicContentInfo contentInfo : view.getTopicContents()){
                 if (StringUtils.isNotEmpty(contentInfo.getContent())){
                     contents.append(contentInfo.getContent() + "\n");
                 }
@@ -235,8 +237,8 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/view", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicViewDto> view(@RequestHeader String appUid, @RequestParam Integer id){
-        JsonResponseEntity<TopicViewDto> entity = new JsonResponseEntity();
+    public JsonResponseEntity<TopicDetailDto> view(@RequestHeader String appUid, @RequestParam Integer id){
+        JsonResponseEntity<TopicDetailDto> entity = new JsonResponseEntity();
 
         Topic topic = topicService.infoTopic(id);
         if (topic == null){
@@ -256,8 +258,7 @@ public class TopicController {
                 return entity;
             }
         }
-
-        TopicViewDto view = topicService.getTopicView(id);
+        TopicDetailDto view = topicService.getTopicDetailInfo(id);
         entity.setCode(0);
         entity.setData(view);
         return entity;
@@ -265,28 +266,13 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/getTopicTitleById", method = RequestMethod.GET)
-    public JsonResponseEntity getTopicTitleById(@RequestParam String topicId) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
-        try {
-            Integer topicIdInt = Integer.parseInt(topicId);
-            if (topicId == null) {
-                // 输入为空，不进行提示
-                jsonResponseEntity.setData("");
-                return jsonResponseEntity;
-            }
-            Topic topic = topicService.infoTopic(topicIdInt);
-            if (topic != null && StringUtils.isNotBlank(topic.getTitle())) {
-                jsonResponseEntity.setData(topic.getTitle());
-                return jsonResponseEntity;
-            } else {
-                jsonResponseEntity.setCode(1001);
-                jsonResponseEntity.setMsg("未查询到话题标题");
-            }
-        } catch (Exception e) {
-            logger.error("根据话题id查询话题标题出错", e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg("您的输入有误");
+    public JsonResponseEntity getTopicTitleById(@RequestParam Integer topicId) {
+        JsonResponseEntity entity = new JsonResponseEntity();
+        Topic topic = topicService.infoTopic(topicId);
+        if (null == topic || StringUtils.isEmpty(topic.getTitle())){
+            throw new CommonException(2021, "未查询到话题标题");
         }
-        return jsonResponseEntity;
+        entity.setData(topic.getTitle());
+        return entity;
     }
 }

@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.services.bbs.dto;
+package com.wondersgroup.healthcloud.services.bbs.dto.topic;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

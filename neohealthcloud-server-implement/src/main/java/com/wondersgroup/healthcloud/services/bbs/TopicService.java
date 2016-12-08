@@ -5,7 +5,6 @@ import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ys on 2016/08/13.
@@ -63,7 +62,10 @@ public interface TopicService {
      */
     List<TopicListDto> getTopicsByUid(String uid, Integer page, Integer pageSize);
 
-    TopicViewDto getTopicView(Integer topicId);
+    TopicDetailDto getTopicDetailInfo(Integer topicId);
+
+    //给话题增加pv
+    void incTopicPv(Integer topicId);
 
     /**
      * 发布话题

@@ -10,7 +10,6 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicContent;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 

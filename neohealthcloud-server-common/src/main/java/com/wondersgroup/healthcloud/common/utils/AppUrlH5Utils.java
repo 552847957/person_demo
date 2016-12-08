@@ -17,23 +17,22 @@ public class AppUrlH5Utils {
     @Value("${h5-web.connection.url}")
     private String basePath;
 
+    /**
+     * 圈子的话题详情
+     */
+    public String buildBbsTopicView(int topic_id) {
+        return basePath + "theme?topicId="+topic_id+"&isToken=1";
+    }
 
     /**
      * 获取资讯文章h5页面
-     * @param articleId
-     * @return
      */
-    public String buildNewsArticleView(int articleId,String area) {
+    public String buildNewsArticleView(int articleId, String area) {
         //for_type 用于判断 app进入h5页面的时候，是否需要去请求 检查改h5用户时候收藏过,以及分享信息等
         return basePath + "/article/detail?id="+articleId+"&source=h5&for_type=article&area="+area;
     }
 
-    public String buildDiseaseArticleView(int articleId) {
-        return "";
-    }
-
     public String buildFoodStoreView(int id) {
-
         return basePath + "/foodstore/detail?id="+id;
     }
 
@@ -63,7 +62,6 @@ public class AppUrlH5Utils {
         return basePath + "/healthRecords/seedoctorList?idc="+idc;
     }
 
-
     /**
      * 健康档案 - 检验报告
      */
@@ -85,6 +83,7 @@ public class AppUrlH5Utils {
     public String buildHealthRecordYongyao(String idc){
         return basePath + "/healthRecords/drugList?idc="+idc;
     }
+
 
     public Map<String, String> generateLinks(String idc) {
         Map<String, String> result = new HashMap<>();

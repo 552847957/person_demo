@@ -10,10 +10,9 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
-import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
-import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -212,29 +211,35 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public TopicViewDto getTopicView(Integer topicId) {
+    public TopicDetailDto getTopicDetailInfo(Integer topicId) {
         Topic topic = topicRepository.findOne(topicId);
         if (null == topic || TopicConstant.Status.isDelStatus(topic.getStatus())){
             throw TopicException.notExist();
         }
+        TopicDetailDto topicDetailDto = new TopicDetailDto();
+
+        List<TopicContent> topicContents = topicContentRepository.findContentsByTopicId(topicId);
+        topicDetailDto.mergeTopicInfo(topic, topicContents);
+
         RegisterInfo userInfo = userService.getOneNotNull(topic.getUid());
-        if (userInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
-            throw TopicException.notExist();
-        }
+        topicDetailDto.mergeUserInfo(userInfo);
+
         Circle circle = circleRepository.findOne(topic.getCircleId());
         if (circle == null){
             throw TopicException.notExist();
         }
-        List<TopicContent> topicContents = topicContentRepository.findContentsByTopicId(topicId);
-        TopicViewDto topicViewDto = new TopicViewDto();
-        topicViewDto.mergeTopicInfo(topic, topicContents);
-        topicViewDto.mergeCircleInfo(circle);
+        topicDetailDto.mergeCircleInfo(circle);
+
         if (1 == topic.getIsVote()){
             VoteInfoDto voteInfoDto = voteService.getVoteInfoByTopicId(topicId);
-            topicViewDto.setVoteInfo(voteInfoDto);
+            topicDetailDto.setVoteInfo(voteInfoDto);
         }
-        topicViewDto.mergeUserInfo(userInfo);
-        //pv+1
+
+        return topicDetailDto;
+    }
+
+    @Override
+    public void incTopicPv(Integer topicId){
         topicRepository.incTopicPv(topicId);
         String pvKey = "bbs_topic_pv_"+topicId;
         try(Jedis jedis = jedisPool.getResource()){
@@ -245,7 +250,6 @@ public class TopicServiceImpl implements TopicService {
                 jedis.hset(pvKey, day, "1");
             }
         }
-        return topicViewDto;
     }
 
     private void isCanPublishForUser(TopicPublishDto publishInfo){

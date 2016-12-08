@@ -5,7 +5,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.services.bbs.*;
-import com.wondersgroup.healthcloud.services.bbs.dto.VoteInfoDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
