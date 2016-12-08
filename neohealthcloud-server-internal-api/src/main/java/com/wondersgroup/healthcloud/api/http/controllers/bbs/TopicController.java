@@ -56,7 +56,7 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public Pager list(@RequestBody Pager pager, @RequestHeader String appUid, @RequestHeader String userid){
+    public Pager list(@RequestBody Pager pager, @RequestHeader String appUid){
         Map<String, Object> parms = pager.getParameter();
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria(parms);
         if (searchCriteria.getIs_mine()){

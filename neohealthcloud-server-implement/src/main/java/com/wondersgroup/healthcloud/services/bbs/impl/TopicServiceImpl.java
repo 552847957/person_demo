@@ -470,17 +470,34 @@ public class TopicServiceImpl implements TopicService {
     //-------------------------//
     @Override
     public Topic infoTopic(Integer topicId) {
-        return null;
-    }
-
-    @Override
-    public TopicH5ViewDto getTopicViewForH5(Integer topicId) {
-        return null;
+        return topicRepository.findOne(topicId);
     }
 
     @Override
     public Topic delTopic(String uid, Integer topicId) {
-        return null;
+        RegisterInfo account = userService.getOneNotNull(uid);
+        if (account.getIsBBsAdmin() != 1){
+            throw new RuntimeException("您不是管理员,不能操作该话题");
+        }
+        Topic topic = topicRepository.findOne(topicId);
+        if (topic == null){
+            throw new RuntimeException("话题不存在");
+        }
+        if (topic.getStatus().intValue() == TopicConstant.Status.USER_DELETE){
+            throw new RuntimeException("该话题用户已经删除");
+        }
+        if (topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE){
+            topic.setStatus(TopicConstant.Status.OK);
+        }else {
+            topic.setIsTop(0);
+            topic.setTopRank(0);
+            topic.setStatus(TopicConstant.Status.ADMIN_DELETE);
+        }
+        topicRepository.save(topic);
+        if (topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE){
+            BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+        }
+        return topic;
     }
 
     @Override
@@ -559,5 +576,33 @@ public class TopicServiceImpl implements TopicService {
             throw new RuntimeException("已经有5个置顶的话题,无法置顶了,请先去取消其他置顶");
         }
         return topTopicIds;
+    }
+
+    @Override
+    public TopicH5ViewDto getTopicViewForH5(Integer topicId) {
+        Topic topic = topicRepository.findOne(topicId);
+        if (null == topic || TopicConstant.Status.isDelStatus(topic.getStatus())){
+            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
+        }
+        RegisterInfo userInfo = userService.getOneNotNull(topic.getUid());
+        if (userInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
+            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
+        }
+        Circle circle = circleRepository.findOne(topic.getCircleId());
+        if (circle == null){
+            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
+        }
+        List<TopicContent> topicContents = topicContentRepository.findContentsByTopicId(topicId);
+        TopicH5ViewDto topicH5ViewDto = new TopicH5ViewDto();
+        topicH5ViewDto.mergeTopicInfo(topic, topicContents);
+        topicH5ViewDto.mergeCircleInfo(circle);
+        if (1 == topic.getIsVote()){
+            VoteInfoDto voteInfoDto = voteService.getVoteInfoByTopicId(topicId);
+            topicH5ViewDto.setVoteInfo(voteInfoDto);
+        }
+        topicH5ViewDto.mergeUserInfo(userInfo);
+        //pv+1
+        topicRepository.incTopicPv(topicId);
+        return topicH5ViewDto;
     }
 }
