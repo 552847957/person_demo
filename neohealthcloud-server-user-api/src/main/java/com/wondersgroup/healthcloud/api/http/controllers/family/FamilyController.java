@@ -123,6 +123,9 @@ public class FamilyController {
         String mobile = reader.readString("mobile", true);
         String memberId = reader.readString("member_id", true);
         String relation = reader.readString("relation", false);
+        if(Integer.parseInt(relation) > 38){
+            relation = "0";
+        }
         String relationName = reader.readString("relation_name", true);
         String memo = StringUtils.defaultString(reader.readString("memo", true));
         Boolean recordReadable = reader.readDefaultBoolean("record_readable", false);
@@ -613,6 +616,9 @@ public class FamilyController {
         String id = reader.readString("uid", false);
         String mobile = reader.readString("mobile", true);
         String relation = reader.readString("relation", false);
+        if(Integer.parseInt(relation) > 38){
+            relation = "0";
+        }
         String relationName = reader.readString("relation_name", true);
         String memo = StringUtils.defaultString(reader.readString("memo", true));
         Boolean recordReadable = reader.readDefaultBoolean("record_readable", true);
@@ -699,21 +705,21 @@ public class FamilyController {
         info.setVerification(true);
         info.setFamilyDoctor("家庭医生");
         info.setBloodSugar("血糖管理");
-//        info.setBloodSugarValue();
+        info.setBloodSugarValue("Value");
         info.setBloodPressure("血压管理");
-//        info.setBloodPressureValue();
+        info.setBloodPressureValue("Value");
         info.setBmi("BMI管理");
-//        info.setBmiValue();
+        info.setBmiValue("Value");
         info.setDiabetes("糖尿病管理");
-//        info.setDiabetesValue();
+        info.setDiabetesValue("Value");
         info.setDoctorRecord("就医记录");
-//        info.setDoctorRecordValue();
+        info.setDoctorRecordValue("Value");
         info.setHealthQuestion("中医体质辨识");
-//        info.setHealthQuestionValue();
+        info.setHealthQuestionValue("Value");
         info.setJogging("记步管理");
-//        info.setJoggingValue();
-        info.setRiskEvaluate("风险评估");
-//        info.setRiskEvaluateValue("风险评估");
+        info.setJoggingValue("Value");
+        info.setRiskEvaluate("风险评估Value");
+        info.setRiskEvaluateValue("风险评估");
         response.setData(info);
         response.setMsg("查询成功");
         return response;
@@ -782,9 +788,23 @@ public class FamilyController {
      */
     @RequestMapping(value = "/memberSendMessage", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<String> memberSendMessage(@RequestParam String uid){
+    public JsonResponseEntity<String> memberSendMessage(@RequestParam String uid, @RequestParam int type){
         JsonResponseEntity<String> response = new JsonResponseEntity<String>();
         response.setMsg("发送成功");
+        return response;
+    }
+    
+    /**
+     * 所有家庭关系
+     */
+    @RequestMapping(value = "/memberFooting", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<Object> memberFooting(){
+        JsonResponseEntity<Object> response = new JsonResponseEntity<Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("memberFooting", FamilyMemberRelation.getMemberFooting());
+        response.setData(map);
+        response.setMsg("查询成功");
         return response;
     }
     

@@ -1,5 +1,9 @@
 package com.wondersgroup.healthcloud.helper.family;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -42,4 +46,27 @@ public class FamilyMemberRelation {
             }
         }
     }
+    
+    public static List<List<String>> getMemberFooting(){
+        List<List<String>> result = new ArrayList<List<String>>();
+        List<String> list = Arrays.asList(relationNames);
+        List<String> list1 = new ArrayList<String>();
+        List<String> list2 = new ArrayList<String>();
+        List<String> list3 = new ArrayList<String>();
+        for (int i = 1; i < list.size(); i++) {
+            if(i <= 9){
+                list1.add(list.get(i));
+            }else if(i <= 23){
+                list2.add(list.get(i));
+            }else{
+                list3.add(list.get(i));
+            }
+        }
+        list3.add(relationNames[0]);
+        result.add(list1);
+        result.add(list2);
+        result.add(list3);
+        return result;
+    }
+ 
 }
