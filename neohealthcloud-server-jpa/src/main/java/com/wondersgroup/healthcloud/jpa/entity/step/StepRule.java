@@ -19,7 +19,7 @@ public class StepRule {
 
 	private String content;
 
-	private Integer type;
+	private Integer type; // 0：计步活动；1：计步红包
 
 	@Column(name = "create_time")
 	private Date createTime;

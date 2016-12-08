@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 /**
@@ -36,6 +38,9 @@ public class ExchangeOrder {
 	private String tel; // 联系方式
 
 	private String area; // 地区
+	
+	@Column(name = "area_code")
+	private String areaCode;
 
 	private String address; // 详细地址
 
@@ -44,6 +49,7 @@ public class ExchangeOrder {
 	@Column(name = "operator_id")
 	private String operatorId; // 操作员ID
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "create_time")
 	private Date createTime; // 创建时间
 

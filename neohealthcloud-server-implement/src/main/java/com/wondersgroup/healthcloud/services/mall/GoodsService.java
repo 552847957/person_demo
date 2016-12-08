@@ -24,12 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.dto.mall.GoodsForm;
-import com.wondersgroup.healthcloud.dto.mall.GoodsSearchForm;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsItemRepository;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsRepository;
+import com.wondersgroup.healthcloud.services.mall.dto.GoodsForm;
+import com.wondersgroup.healthcloud.services.mall.dto.GoodsSearchForm;
 
 @Service
 @Transactional
@@ -131,9 +131,6 @@ public class GoodsService {
 		return new PageImpl<>(list, new PageRequest(page, size), count);
 	}
 
-	public static void main(String[] args) {
-		String sql = "select a.*, b.`nickname`,b.`name` from goods_item_tb a left join app_tb_register_info b on a.user_id = b.registerid ";
-	}
 
 	private Specification<Goods> buildSpecification(final GoodsSearchForm searchForm) {
 		Specification<Goods> specification = new Specification<Goods>() {

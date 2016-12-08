@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.dto.mall;
+package com.wondersgroup.healthcloud.services.mall.dto;
 
 import java.util.Map;
 

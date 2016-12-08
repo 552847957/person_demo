@@ -24,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.dto.mall.GoodsForm;
-import com.wondersgroup.healthcloud.dto.mall.GoodsSearchForm;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
 import com.wondersgroup.healthcloud.services.mall.GoodsService;
+import com.wondersgroup.healthcloud.services.mall.dto.GoodsForm;
+import com.wondersgroup.healthcloud.services.mall.dto.GoodsSearchForm;
 
 @RestController
 @RequestMapping("/api/goods")
