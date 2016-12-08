@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 /**
@@ -30,7 +32,7 @@ public class Goods {
 
 	private Integer type; // 商品类型 0：虚拟物品；1：单品
 
-	private Integer picture; // 商品图片
+	private String picture; // 商品图片
 
 	private String introduce; // 商品介绍
 
@@ -47,8 +49,9 @@ public class Goods {
 	@Column(name = "stock_num")
 	private Integer stockNum; // 库存数量
 
-	private Integer status; // 商品状态
+	private Integer status; // 商品状态(0：未上架；1：上架)
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "end_time")
 	private Date endTime; // 截止时间
 

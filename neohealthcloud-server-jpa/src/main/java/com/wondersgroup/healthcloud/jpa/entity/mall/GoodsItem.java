@@ -6,6 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
@@ -18,6 +25,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "goods_item_tb")
+@JsonInclude(Include.NON_NULL)
 public class GoodsItem {
 
 	@Id
@@ -42,5 +50,19 @@ public class GoodsItem {
 
 	@Column(name = "update_time")
 	private Date updateTime; // 更新时间
+
+	@Transient
+	private String name;
+
+	@Transient
+	@JsonIgnore
+	private String nickname;
+
+	public String getName() {
+		if (StringUtils.isBlank(name)) {
+			name = this.nickname;
+		}
+		return name;
+	}
 
 }

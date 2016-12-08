@@ -9,7 +9,9 @@ public class StepHomeDto {
 
 	private Integer awardGold;
 
-	private boolean hasGet = true;
+	private boolean isAccess = true;
+	
+	private boolean isActivityTime;
 
 	private String helpUrl;
 

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.step;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,20 @@ public class StepRuleService {
 	@Autowired
 	StepRuleRepository stepRuleRepository;
 
+	public void save(List<StepRule> rules) {
+		if (rules != null && rules.size() > 0) {
+			for (StepRule stepRule : rules) {
+				save(stepRule);
+			}
+		}
+	}
+
 	public void save(StepRule rule) {
 		StepRule ruleTb = stepRuleRepository.findByType(rule.getType());
-		if(ruleTb != null){
+		if (ruleTb != null) {
 			stepRuleRepository.delete(ruleTb);
 		}
-		
+
 		rule.setId(IdGen.uuid());
 		rule.setCreateTime(new Date());
 		rule.setUpdateTime(rule.getCreateTime());

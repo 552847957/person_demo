@@ -48,15 +48,17 @@ public class StepController {
 		int awardGold = stepCountService.findAwardGold(userId);
 
 		// 判断是否在活动时间内
-		boolean isGet = stepCountService.isActivityTime(new Date());
-		if (isGet) {
-			isGet = !goldRecordService.isGet(userId, GoldRecordTypeEnum.REWARDS);
+		boolean isAccess = false;
+		boolean isActivityTime = stepCountService.isActivityTime(new Date());
+		if (isActivityTime) {
+			isAccess = !goldRecordService.isGet(userId, GoldRecordTypeEnum.REWARDS);
 		}
 
 		StepHomeDto home = new StepHomeDto();
 		home.setAwardGold(awardGold);
 		home.setRestGold(restGold);
-		home.setHasGet(isGet);
+		home.setAccess(isAccess);
+		home.setActivityTime(isActivityTime);
 		// TODO 需要设置帮助链接、规则链接
 
 		responseEntity.setData(home);

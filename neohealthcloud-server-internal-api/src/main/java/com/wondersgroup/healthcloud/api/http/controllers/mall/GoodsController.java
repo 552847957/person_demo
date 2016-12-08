@@ -2,12 +2,19 @@ package com.wondersgroup.healthcloud.api.http.controllers.mall;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,62 +22,128 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.dto.mall.GoodsForm;
+import com.wondersgroup.healthcloud.dto.mall.GoodsSearchForm;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
+import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
+import com.wondersgroup.healthcloud.services.mall.GoodsService;
 
 @RestController
 @RequestMapping("/api/goods")
 public class GoodsController {
 
+	@Autowired
+	GoodsService goodsService;
+
+	/**
+	 * 导入券码
+	 * 
+	 * @param file
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/excel", method = RequestMethod.POST)
-	public Object readExcel(@RequestParam MultipartFile file) throws IOException {
-		JsonResponseEntity<List<String>> responseEntity = new JsonResponseEntity<>();
+	public Object readExcel(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
+		JsonResponseEntity<Set<String>> responseEntity = new JsonResponseEntity<>();
 		InputStream stream = file.getInputStream();
-		List<String> list = readExcel(stream);
+		Set<String> list = readExcel(stream);
 		responseEntity.setData(list);
 		return responseEntity;
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public Object save(@RequestBody Goods goods) {
-		return null;
+	public Object save(@RequestBody GoodsForm form) {
+		JsonResponseEntity<Set<String>> responseEntity = new JsonResponseEntity<>();
+
+		Goods goods = form.getGoods();
+		Integer id = goods.getId();
+		if (id == null) {
+			goodsService.save(form);
+		} else {
+			goodsService.update(goods);
+		}
+		return responseEntity;
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public Object list(String name, String type, Integer status) {
-		return null;
+	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	public Object list(@RequestBody Pager pager) {
+		Map params = pager.getParameter();
+		int number = pager.getNumber();
+		int size = pager.getSize();
+		GoodsSearchForm searchForm = new GoodsSearchForm(params, number, size);
+
+		Page<Goods> page = goodsService.search(searchForm);
+
+		pager.setData(page.getContent());
+		pager.setTotalElements(Integer.valueOf(page.getTotalElements() + ""));
+		pager.setTotalPages(page.getTotalPages());
+		return pager;
 	}
 
 	@RequestMapping(value = "/stocknum", method = RequestMethod.GET)
 	public Object updateStocknum(int id, int stocknum) {
-		return null;
+		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
+
+		Goods goods = goodsService.findById(id);
+		if (goods != null) {
+			goods.setNum(goods.getNum() + stocknum);
+			goods.setStockNum(goods.getStockNum() + stocknum);
+			goods.setUpdateTime(new Date());
+			goodsService.save(goods);
+		}
+
+		responseEntity.setMsg("OK");
+		return responseEntity;
 	}
 
 	@RequestMapping(value = "/status", method = RequestMethod.GET)
 	public Object updateStatus(int id) {
-		return null;
+		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
+
+		Goods goods = goodsService.findById(id);
+		if (goods != null) {
+			int status = goods.getStatus() == 0 ? 1 : 0;
+			goods.setStatus(status);
+			goods.setUpdateTime(new Date());
+			goodsService.save(goods);
+		}
+		responseEntity.setMsg("OK");
+		return responseEntity;
 	}
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
-	public Object details(String id) {
-		return null;
+	public Object details(Integer id) {
+		JsonResponseEntity<Goods> responseEntity = new JsonResponseEntity<>();
+		Goods goods = goodsService.findById(id);
+		responseEntity.setData(goods);
+		return responseEntity;
 	}
 
-	@RequestMapping(value = "/items", method = RequestMethod.GET)
-	public Object items(Integer id) {
-		return null;
+	@RequestMapping(value = "/items", method = RequestMethod.POST)
+	public Object items(@RequestBody Pager pager) {
+		Page<GoodsItem> page = goodsService.findItems(pager.getParameter(), pager.getNumber(), pager.getSize());
+
+		pager.setData(page.getContent());
+		pager.setTotalElements(Integer.valueOf(page.getTotalElements() + ""));
+		pager.setTotalPages(page.getTotalPages());
+		return pager;
 	}
 
-	private List<String> readExcel(InputStream stream) throws IOException {
-		List<String> list = new ArrayList<>();
-		HSSFWorkbook workbook = new HSSFWorkbook(stream);
-		HSSFSheet sheet = workbook.getSheetAt(0);
+	private Set<String> readExcel(InputStream stream) throws IOException {
+		Set<String> list = new HashSet<>();
+		XSSFWorkbook workbook = new XSSFWorkbook(stream);
+		XSSFSheet sheet = workbook.getSheetAt(0);
 		if (sheet != null) {
 			int rowNum = sheet.getLastRowNum();
-			for (int i = 1; i < rowNum; i++) {
-				HSSFRow row = sheet.getRow(i);
-				String code = row.getCell(1).getStringCellValue();
-				list.add(code);
+			for (int i = 0; i <= rowNum; i++) {
+				XSSFRow row = sheet.getRow(i);
+				String code = row.getCell(0).getStringCellValue();
+				if (StringUtils.isNotBlank(code)) {
+					list.add(code);
+				}
 			}
 		}
 		return list;

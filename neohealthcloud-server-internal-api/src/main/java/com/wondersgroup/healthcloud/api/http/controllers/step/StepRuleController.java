@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.step;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +20,9 @@ public class StepRuleController {
 	StepRuleService stepRuleService;
 
 	@RequestMapping(method = RequestMethod.POST)
-	public Object save(@RequestBody StepRule rule) {
+	public Object save(@RequestBody List<StepRule> rule) {
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
-
 		stepRuleService.save(rule);
-
 		responseEntity.setMsg("新增成功");
 		return responseEntity;
 	}
@@ -30,9 +30,7 @@ public class StepRuleController {
 	@RequestMapping(method = RequestMethod.GET)
 	public Object findByType(int type) {
 		JsonResponseEntity<StepRule> responseEntity = new JsonResponseEntity<>();
-
 		StepRule rule = stepRuleService.findByType(type);
-
 		responseEntity.setData(rule);
 		return responseEntity;
 
