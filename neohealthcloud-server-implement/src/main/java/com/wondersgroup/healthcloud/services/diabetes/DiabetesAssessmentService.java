@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.services.diabetes;
 
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessment;
+import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2016/12/6.
@@ -35,4 +37,27 @@ public interface DiabetesAssessmentService {
      * @return
      */
     Integer foot(DiabetesAssessment assessment);
+
+    /**
+     * 高危筛查列表
+     * @param pageNo
+     * @param pageSize
+     * @param param
+     * @return
+     */
+    List<DiabetesAssessmentDTO> findAssessment(Integer pageNo, Integer pageSize, Map param);
+
+    /**
+     * 高危筛查列表数
+     * @param param
+     * @return
+     */
+    Integer findAssessmentTotal(Map param);
+
+    /**
+     * 高危筛查列表推送
+     * @param ids
+     * @return
+     */
+    Boolean remind(String[] ids);
 }
