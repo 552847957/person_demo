@@ -21,11 +21,11 @@ public class TopicTabSearchCriteria extends BaseSearchCriteria {
 
     private List<Integer> ids;//id in 查询
 
-    private String tab_name;
+    private String tabName;
 
-    private Integer circle_id;//根据圈子id查询
+    private Integer circleId;//根据圈子id查询
 
-    private String del_flag;//是否置顶
+    private String delFlag;//是否置顶
 
     public TopicTabSearchCriteria(){}
 
@@ -49,17 +49,17 @@ public class TopicTabSearchCriteria extends BaseSearchCriteria {
             where.append(" AND topic_tab.id=?");
             elementType.add(this.id);
         }
-        if (StringUtils.isNotEmpty(this.tab_name)){
+        if (StringUtils.isNotEmpty(this.tabName)){
             where.append(" AND topic_tab.tab_name like ? ");
-            elementType.add("%"+this.tab_name+"%");
+            elementType.add("%"+this.tabName+"%");
         }
-        if (circle_id != null && circle_id > 0){
+        if (circleId != null && circleId > 0){
             where.append(" AND topic_tab.circle_id=?");
-            elementType.add(circle_id);
+            elementType.add(circleId);
         }
-        if (StringUtils.isNotEmpty(this.del_flag)){
+        if (StringUtils.isNotEmpty(this.delFlag)){
             where.append(" AND topic_tab.del_flag=?");
-            elementType.add(this.del_flag);
+            elementType.add(this.delFlag);
         }
         if (this.ids != null && !this.ids.isEmpty()){
             String idsStr = "";

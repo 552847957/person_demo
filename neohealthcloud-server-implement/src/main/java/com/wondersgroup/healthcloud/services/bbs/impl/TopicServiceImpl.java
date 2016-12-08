@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import javax.transaction.Transactional;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -76,8 +76,8 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
-        searchCriteria.setIs_top(true);
-        searchCriteria.setCircle_id(circleId);
+        searchCriteria.setIsTop(true);
+        searchCriteria.setCircleId(circleId);
         searchCriteria.setPageSize(getNum);
         searchCriteria.setOrderInfo("topic.top_rank desc, topic.update_time desc");
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
@@ -96,15 +96,15 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setCircle_id(circleId);
+        searchCriteria.setCircleId(circleId);
         searchCriteria.setGetMoreOne(true);
         if (tabId == -1){
-            searchCriteria.setIs_best(true);
+            searchCriteria.setIsBest(true);
         }else {
-            searchCriteria.setTab_id(tabId);
+            searchCriteria.setTabId(tabId);
         }
         if (tabId == 0){
-            searchCriteria.setIs_top(true);//全部标签下 不显示置顶的
+            searchCriteria.setIsTop(true);//全部标签下 不显示置顶的
         }
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
@@ -116,9 +116,9 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setIs_best(true);
+        searchCriteria.setIsBest(true);
         searchCriteria.setGetMoreOne(true);
-        searchCriteria.setCircle_id(circleId);
+        searchCriteria.setCircleId(circleId);
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
     }
@@ -129,7 +129,7 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
-        searchCriteria.setIs_best(true);
+        searchCriteria.setIsBest(true);
         searchCriteria.setGetMoreOne(true);
         List<Circle> userCircles = userBbsService.getUserJoinedCircles(uid);
         if (userCircles != null && !userCircles.isEmpty()){
@@ -137,7 +137,7 @@ public class TopicServiceImpl implements TopicService {
             for (Circle circle : userCircles){
                 joinCircleIds.add(circle.getId());
             }
-            searchCriteria.setCircle_ids(joinCircleIds);
+            searchCriteria.setCircleIds(joinCircleIds);
         }
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);
@@ -310,7 +310,7 @@ public class TopicServiceImpl implements TopicService {
             circle.setTopicCount(circle.getTopicCount() + 1);
             circleRepository.save(circle);
             //lts
-            BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
+            //BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }
@@ -460,7 +460,7 @@ public class TopicServiceImpl implements TopicService {
         }
         topicRepository.save(topic);
         if (topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE){
-            BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+            //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return topic;
     }
@@ -470,16 +470,16 @@ public class TopicServiceImpl implements TopicService {
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
         //lts
-        BbsMsgHandler.publishMultTopics(topicIds);
+        //BbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
     @Transactional
     @Override
     public int verifyUnPass(Iterable<Integer> topicIds) {
-        topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
+        topicRepository.multSettingStatus(TopicConstant.Status.ADMIN_DELETE, topicIds);
         //lts
-        BbsMsgHandler.publishMultTopics(topicIds);
+        //BbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
@@ -512,7 +512,7 @@ public class TopicServiceImpl implements TopicService {
         topicTabService.updateTopicTabMapInfo(topic.getId(), settingDto.getTags());
         //lts
         if (isToBest){
-            BbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
+            //BbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }
@@ -525,7 +525,7 @@ public class TopicServiceImpl implements TopicService {
     private List<Topic> searchTopicByCriteria(TopicSearchCriteria searchCriteria){
         StringBuffer querySql = new StringBuffer("select topic.* from tb_bbs_topic topic ");
         querySql.append(" left join app_tb_register_info user on user.registerid = topic.uid ");
-        if (searchCriteria.getTab_id() > 0){
+        if (searchCriteria.getTabId() > 0){
             querySql.append(" left join tb_bbs_topic_tab_map tab on tab.topic_id = topic.id ");
         }
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();

@@ -13,14 +13,12 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
-import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,7 +117,7 @@ public class UserBbsServiceImpl implements UserBbsService {
             registerInfoRepository.save(account);
         }
         //通知LTS
-        BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
+        //BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
         return true;
     }
 

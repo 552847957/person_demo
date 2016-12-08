@@ -4,8 +4,7 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
-
+import javax.transaction.Transactional;
 import java.util.List;
 
 
@@ -34,7 +33,7 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
     void incTopicPv(Integer topicId);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update Topic t set t.status=?1 where t.id in ?2")
     void multSettingStatus(Integer status, Iterable<Integer> topicIds);
 }

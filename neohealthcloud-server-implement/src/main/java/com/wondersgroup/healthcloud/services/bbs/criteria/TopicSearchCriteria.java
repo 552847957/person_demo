@@ -29,21 +29,21 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
 
     private String title;
 
-    private Boolean is_mine=false;//仅获取我 和我的小号 发布的
+    private Boolean isMine=false;//仅获取我 和我的小号 发布的
 
-    private Integer circle_id;//根据圈子id查询
+    private Integer circleId;//根据圈子id查询
 
-    private List<Integer> circle_ids;//可多圈子查询 circle_id in (?)
+    private List<Integer> circleIds;//可多圈子查询 circle_id in (?)
 
-    private int tab_id=0; //0:表示查询全部分类下面的帖子
+    private int tabId=0; //0:表示查询全部分类下面的帖子
 
-    private Boolean is_best=false;//精华帖
+    private Boolean isBest=false;//精华帖
 
-    private Boolean is_top=false;//置顶帖
+    private Boolean isTop=false;//置顶帖
 
-    private String publish_startTime;
+    private String publishStartTime;
 
-    private String publish_endTime;
+    private String publishEndTime;
 
     private Integer status;//根据帖子状态进行查询
 
@@ -76,20 +76,21 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.status);
         }else {
             where.append(" AND topic.status!="+ TopicConstant.Status.USER_DELETE);
+            where.append(" AND topic.status!="+ TopicConstant.Status.WAIT_VERIFY);
         }
-        if (this.circle_id != null && this.circle_id > 0){
+        if (this.circleId != null && this.circleId > 0){
             where.append(" AND topic.circle_id=?");
-            elementType.add(this.circle_id);
+            elementType.add(this.circleId);
         }
-        if (this.is_best){
+        if (this.isBest){
             where.append(" AND topic.is_best=1");
         }
-        if (this.is_top){
+        if (this.isTop){
             where.append(" AND topic.is_top=1");
         }
-        if (this.tab_id > 0){
+        if (this.tabId > 0){
             where.append(" AND tab.tab_id=?");
-            elementType.add(this.tab_id);
+            elementType.add(this.tabId);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
             where.append(" AND user.nickname like ?");
@@ -99,13 +100,13 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             where.append(" AND topic.title like ?");
             elementType.add("%"+this.title+"%");
         }
-        if (StringUtils.isNotEmpty(this.publish_startTime)){
+        if (StringUtils.isNotEmpty(this.publishStartTime)){
             where.append(" AND topic.create_time >= ?");
-            elementType.add(this.publish_startTime + " 00:00:00");
+            elementType.add(this.publishStartTime + " 00:00:00");
         }
-        if (StringUtils.isNotEmpty(this.publish_endTime)){
+        if (StringUtils.isNotEmpty(this.publishEndTime)){
             where.append(" AND topic.create_time <= ?");
-            elementType.add(this.publish_endTime + " 23:59:59");
+            elementType.add(this.publishEndTime + " 23:59:59");
         }
         if (this.ids != null && !this.ids.isEmpty()){
             String idsStr = "";
@@ -124,9 +125,9 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             uidsStr = uidsStr.substring(1);
             where.append(" AND topic.uid in ("+uidsStr+")");
         }
-        if (this.circle_ids != null && !this.circle_ids.isEmpty()){
+        if (this.circleIds != null && !this.circleIds.isEmpty()){
             String circleIdsStr = "";
-            for (Integer circleIdTmp : this.circle_ids){
+            for (Integer circleIdTmp : this.circleIds){
                 circleIdsStr += "," + circleIdTmp;
             }
             circleIdsStr = circleIdsStr.substring(1);

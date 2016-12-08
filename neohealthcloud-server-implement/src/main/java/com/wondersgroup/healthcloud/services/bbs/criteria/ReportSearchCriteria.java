@@ -29,11 +29,11 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
 
     private String comment;
 
-    private Integer circle_id;//根据圈子id查询
+    private Integer circleId;//根据圈子id查询
 
-    private String report_startTime;
+    private String reportStartTime;
 
-    private String report_endTime;
+    private String reportEndTime;
 
     private Integer status;//审核状态0待处理，1：忽略 2：已处理
 
@@ -67,9 +67,9 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
         }else {
             where.append(" AND report.status="+ ReportConstant.ReportStatus.WAIT_REVIEW);
         }
-        if (this.circle_id != null && this.circle_id > 0){
+        if (this.circleId != null && this.circleId > 0){
             where.append(" AND topic.circle_id=?");
-            elementType.add(this.circle_id);
+            elementType.add(this.circleId);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
             where.append(" AND account.nickname like ?");
@@ -83,13 +83,13 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
             where.append(" AND comment.content like ?");
             elementType.add("%"+this.comment+"%");
         }
-        if (StringUtils.isNotEmpty(this.report_startTime)){
+        if (StringUtils.isNotEmpty(this.reportStartTime)){
             where.append(" AND report.create_time >= ?");
-            elementType.add(this.report_startTime + " 00:00:00");
+            elementType.add(this.reportStartTime + " 00:00:00");
         }
-        if (StringUtils.isNotEmpty(this.report_endTime)){
+        if (StringUtils.isNotEmpty(this.reportEndTime)){
             where.append(" AND report.create_time <= ?");
-            elementType.add(this.report_endTime + " 23:59:59");
+            elementType.add(this.reportEndTime + " 23:59:59");
         }
         if (this.ids != null && !this.ids.isEmpty()){
             String idsStr = "";

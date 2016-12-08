@@ -64,7 +64,7 @@ public class TopicController {
     public Pager list(@RequestBody Pager pager, @RequestHeader String appUid){
         Map<String, Object> parms = pager.getParameter();
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria(parms);
-        if (searchCriteria.getIs_mine()){
+        if (searchCriteria.getIsMine()){
             List<String> adminIds = new ArrayList<>();
             adminIds.add(appUid);
             List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(appUid);
@@ -148,8 +148,7 @@ public class TopicController {
     @RequestMapping(value = "/verifyUnPass", method = RequestMethod.POST)
     public JsonResponseEntity<Object> verifyUnPass(@RequestHeader String appUid, @RequestParam List<Integer> ids){
         JsonResponseEntity<Object> entity = new JsonResponseEntity();
-        topicService.verifyPass(ids);
-        entity.setMsg("设置成功");
+        topicService.verifyUnPass(ids);
         return entity;
     }
 
@@ -157,8 +156,7 @@ public class TopicController {
     @RequestMapping(value = "/verifyPass", method = RequestMethod.POST)
     public JsonResponseEntity<Object> verifyPass(@RequestHeader String appUid, @RequestParam List<Integer> ids){
         JsonResponseEntity<Object> entity = new JsonResponseEntity();
-        topicService.verifyUnPass(ids);
-        entity.setMsg("设置成功");
+        topicService.verifyPass(ids);
         return entity;
     }
 
