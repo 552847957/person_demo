@@ -48,6 +48,9 @@ public class WeatherJob {
     private WeatherCache weatherCache;
 
     @Autowired
+    private YahooWeatherCodeCacheUtil codeCache;
+
+    @Autowired
     private WeatherAreaRepository weatherAreaRepository;
 
     public void hourlyJob() {
@@ -72,8 +75,8 @@ public class WeatherJob {
             ObjectNode today = JsonNodeFactory.instance.objectNode();
             today.put("weather_code", channel.get("item").get("condition").get("code").asText());
             brief.put("weather_code", channel.get("item").get("condition").get("code").asText());
-            today.put("weather_name", "天气名称");
-            brief.put("weather_name", "天气名称");
+            today.put("weather_name", codeCache.get(today.get("weather_code").asText()).getName());
+            brief.put("weather_name", codeCache.get(brief.get("weather_code").asText()).getName());
             today.put("current_temperature", channel.get("item").get("condition").get("temp").asText());
             brief.put("current_temperature", channel.get("item").get("condition").get("temp").asText());
             today.put("wind_direction", he.get("now").get("wind").get("dir").asText());
@@ -98,7 +101,7 @@ public class WeatherJob {
                 JsonNode yahooForecast = yahooForecasts.get(i);
                 ObjectNode forecast = JsonNodeFactory.instance.objectNode();
                 forecast.put("weather_code", yahooForecast.get("code").asText());
-                forecast.put("weather_name", "天气名称");
+                forecast.put("weather_name", codeCache.get(yahooForecast.get("code").asText()).getName());
                 forecast.put("high", yahooForecast.get("high").asText());
                 forecast.put("low", yahooForecast.get("low").asText());
                 DateTime date = sdf.parseDateTime(yahooForecast.get("date").asText());
