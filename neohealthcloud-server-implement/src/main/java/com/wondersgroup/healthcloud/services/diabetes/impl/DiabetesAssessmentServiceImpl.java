@@ -27,6 +27,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     @Override
     public Integer sicken(DiabetesAssessment assessment) {
         assessment.setId(IdGen.uuid());
+        assessment.setHasRemind(0);
         assessment.setType(1);
         assessment.setResult(this.sickenAssement(assessment));
         assessment.setCreateDate(new Date());
@@ -59,6 +60,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                 assessment.setResult(2);
         }
         assessment.setId(IdGen.uuid());
+        assessment.setHasRemind(0);
         assessment.setType(2);
         assessment.setCreateDate(new Date());
         assessment.setUpdateDate(new Date());
@@ -75,6 +77,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     @Override
     public Integer eye(DiabetesAssessment assessment) {
         assessment.setId(IdGen.uuid());
+        assessment.setHasRemind(0);
         assessment.setType(3);
         assessment.setCreateDate(new Date());
         assessment.setUpdateDate(new Date());
@@ -97,6 +100,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     @Override
     public Integer foot(DiabetesAssessment assessment) {
         assessment.setId(IdGen.uuid());
+        assessment.setHasRemind(0);
         assessment.setType(4);
         assessment.setCreateDate(new Date());
         assessment.setUpdateDate(new Date());
