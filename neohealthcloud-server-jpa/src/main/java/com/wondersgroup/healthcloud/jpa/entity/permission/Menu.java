@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * Created by zhuchunliu on 2015/11/11.
+ * 
  */
 @Data
 @Entity
@@ -17,6 +18,7 @@ public class Menu {
     private String menuId;
     @Column(name = "parent_id")
     private String parentId;
+    private Integer level=1;
     private String name;
     private String icon;
     private Integer sort=100;

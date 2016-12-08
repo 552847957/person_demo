@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.services.permission.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.permission.Menu;
+import com.wondersgroup.healthcloud.jpa.repository.permission.MenuRepository;
 import com.wondersgroup.healthcloud.services.permission.MenuService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,6 +20,9 @@ import java.util.Map;
  */
 @Service("menuServiceImpl")
 public class MenuServiceImpl implements MenuService {
+
+    @Autowired
+    private MenuRepository menuRepo;
 
     @Autowired
     private DataSource dataSource;
@@ -98,9 +103,16 @@ public class MenuServiceImpl implements MenuService {
                 return menu;
             }
         });
-
     }
 
+    @Override
+    public Integer getMunuLevelByParentId(String parentId) {
+        if (StringUtils.isEmpty(parentId)){
+            return 0;
+        }
+        Menu parentMenu = menuRepo.findOne(parentId);
+        return getMunuLevelByParentId(parentMenu.getParentId()) + 1;
+    }
 
     /**
      * 获取jdbc template

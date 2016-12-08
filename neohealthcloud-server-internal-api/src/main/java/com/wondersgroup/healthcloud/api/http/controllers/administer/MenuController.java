@@ -166,6 +166,7 @@ public class MenuController{
                 menu.setMenuId(IdGen.uuid());
                 menu.setCreateDate(new Date());
             }
+            menu.setLevel(menuService.getMunuLevelByParentId(menu.getParentId()));
             menu.setUpdateDate(new Date());
             menuRepo.save(menu);
             response.setMsg("保存成功");

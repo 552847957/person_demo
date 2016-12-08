@@ -14,7 +14,7 @@ import java.util.List;
  * Created by zhuchunliu on 2015/11/12.
  */
 public interface MenuRepository extends JpaRepository<Menu, String>, JpaSpecificationExecutor {
-    @Query("select m from Menu m where delFlag = '0' order by parentId asc , sort asc")
+    @Query("select m from Menu m where delFlag = '0' order by level asc , sort asc, updateDate desc")
     List<Menu> findAllMenu();
 
     @Transactional

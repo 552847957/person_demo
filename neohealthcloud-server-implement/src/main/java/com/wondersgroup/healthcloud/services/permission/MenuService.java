@@ -20,4 +20,6 @@ public interface MenuService {
     Integer getNextSort(String menuId);
 
     List<Menu> getMenuExpectButtonByParentId(String menuId, String userId);
+
+    Integer getMunuLevelByParentId(String parentId);
 }
