@@ -78,6 +78,7 @@ public class WeatherJob {
             cache.put("code", task.getCode());
             brief.put("code", task.getCode());
 
+            brief.put("hint", "温馨提示文案");
             cache.put("hint", "温馨提示文案");
 
             ObjectNode today = JsonNodeFactory.instance.objectNode();
