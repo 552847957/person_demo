@@ -1,10 +1,13 @@
-package com.wondersgroup.healthcloud.services.bbs.dto;
+package com.wondersgroup.healthcloud.api.http.dto.bbs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 import lombok.Data;
+import org.apache.commons.beanutils.BeanUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 /**
@@ -15,7 +18,7 @@ import java.util.Date;
 @Data
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserBbsInfo {
+public class UserFansAttentListDto {
 
     private String uid; //主键
 
@@ -31,4 +34,16 @@ public class UserBbsInfo {
     private Date birthday;
 
     private String delFlag="0";
+
+    private int myAttentStatus=0;//0:未关注, 1:已关注, 2:已相互关注
+
+    public UserFansAttentListDto(UserBbsInfo userBbsInfo) {
+        try {
+            BeanUtils.copyProperties(this, userBbsInfo);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
 }
