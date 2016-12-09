@@ -1,11 +1,21 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleCategoryRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.UserBanLogRepository;
@@ -46,6 +56,9 @@ public class UserBbsServiceImpl implements UserBbsService {
 
     @Autowired
     private UserBanLogRepository userBanLogRepository;
+    
+    @Autowired
+    private CircleCategoryRepository circleCategoryRepository;
 
     @Override
     public boolean delTopic(String uid, Integer topicId) {
@@ -157,4 +170,5 @@ public class UserBbsServiceImpl implements UserBbsService {
         }
         return dtoList;
     }
+
 }

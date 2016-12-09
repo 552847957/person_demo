@@ -53,5 +53,5 @@ public interface UserBbsService {
      * @return
      */
     List<AdminAccountDto> queryBBSAdminList();
-
+    
 }

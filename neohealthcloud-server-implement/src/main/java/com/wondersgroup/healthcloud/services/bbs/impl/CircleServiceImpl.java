@@ -347,8 +347,8 @@ public class CircleServiceImpl implements CircleService {
         }
         circleRepository.save(newData);
 
-        int isRecommend = newData.getIsRecommend();
-        dealRecommendCircle(isRecommend);
+//        int isRecommend = newData.getIsRecommend();
+//        dealRecommendCircle(isRecommend);
         return !result;
     }
 
@@ -479,4 +479,24 @@ public class CircleServiceImpl implements CircleService {
         }
         return whereSql.toString();
     }
+
+    @Override
+    public List<CircleListDto> findGuessLikeCircles(String uid) {
+        List<Circle> cList = circleRepository.findGuessLikeCircles(uid);
+        List<CircleListDto> dtoList = new ArrayList<>();
+        if (cList != null && cList.size() > 0) {
+            for (Circle circle : cList) {
+                CircleListDto dto = new CircleListDto();
+                dto.setId(circle.getId());
+                dto.setName(circle.getName());
+                dto.setIcon(circle.getIcon());
+                dto.setForbidden(circle.getDelFlag().equals("0")? false : true);
+                // 我的圈子，都是已关注，无需展示，json会忽略
+                dto.setIfAttent(null);
+                dtoList.add(dto);
+            }
+        }
+        return dtoList;
+    }
+    
 }

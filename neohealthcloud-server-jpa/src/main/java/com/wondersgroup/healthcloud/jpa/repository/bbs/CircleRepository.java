@@ -34,4 +34,8 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
     int updateActuallyAttentionCount(Integer circleId);
     
     Circle queryByName(String name);
+    
+    //查询猜你喜欢的圈子s
+    @Query(value="SELECT t.* FROM tb_bbs_circle t WHERE t.is_recommend=1 AND t.del_flag = 0 AND t.id NOT in(SELECT bc.id FROM tb_bbs_circle bc LEFT JOIN tb_bbs_user_circle buc ON bc.id=buc.circle_id WHERE bc.is_recommend=1 AND buc.del_flag=0 AND buc.uid= ?1 GROUP BY bc.id)",nativeQuery=true)
+    List<Circle> findGuessLikeCircles(String uid);
 }

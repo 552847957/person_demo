@@ -149,5 +149,5 @@ public interface CircleService {
 
     int countSearchCircle(String name, Integer cateId, Boolean isRecommend, Boolean isDefaultAttent, String delFlag);
 
-
+    List<CircleListDto> findGuessLikeCircles(String uid);
 }

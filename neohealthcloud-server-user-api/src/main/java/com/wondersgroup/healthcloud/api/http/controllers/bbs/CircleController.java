@@ -13,8 +13,10 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.BannerAndMyCirclesDto;
+import com.wondersgroup.healthcloud.services.bbs.dto.JoinedAndGuessLikeCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
 import com.wondersgroup.healthcloud.services.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -88,7 +90,7 @@ public class CircleController {
     }
 
     /**
-     * 我的圈
+     * 我的圈(我的圈子+[我的喜欢]推荐圈子下的未加入圈子) modify zhongshuqing
      *
      * @return
      */
@@ -97,11 +99,15 @@ public class CircleController {
     public JsonResponseEntity myCircleList(@RequestParam(required = true) String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
+            JoinedAndGuessLikeCirclesDto dto = new JoinedAndGuessLikeCirclesDto();
             List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uId);
-            jsonResponseEntity.setData(myCircleList);
+            dto.setJoinedList(myCircleList);
+            List<CircleListDto> guessLikeList = circleService.findGuessLikeCircles(uId);
+            dto.setGuessLikeList(guessLikeList);
+            jsonResponseEntity.setData(dto);
             return jsonResponseEntity;
         } catch (Exception e) {
-            String errorMsg = "查询我关注的圈子出错";
+            String errorMsg = "查询我关注的圈子&猜你喜欢出错";
             logger.error(errorMsg, e);
             jsonResponseEntity.setCode(1001);
             jsonResponseEntity.setMsg(errorMsg);
@@ -187,6 +193,7 @@ public class CircleController {
     @RequestMapping(value = "/getCirclesByCategoryId", method = RequestMethod.GET)
     public JsonResponseEntity getCirclesByCategoryId(@RequestParam(required = true) int categoryId, @RequestParam(required = true) String uId) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        
         try {
             List<CircleListDto> cList = circleService.getCirclesByCId(categoryId, uId);
             jsonResponseEntity.setData(cList);
