@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 /**
@@ -30,9 +32,11 @@ public class MallBanner {
 	@Column(name = "sort_no")
 	private Integer sortNo; // 排序
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "start_time")
 	private Date startTime; // 开始时间
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "end_time")
 	private Date endTime; // 结束时间
 
