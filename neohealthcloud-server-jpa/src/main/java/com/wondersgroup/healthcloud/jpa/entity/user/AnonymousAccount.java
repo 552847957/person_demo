@@ -47,5 +47,7 @@ public class AnonymousAccount{
     private String sex;
     private String mobile;
     private String nickname;
+    @Column(name = "is_standalone")
+    private Boolean isStandalone;
     
 }

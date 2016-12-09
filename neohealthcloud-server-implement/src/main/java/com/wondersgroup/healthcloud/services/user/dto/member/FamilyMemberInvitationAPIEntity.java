@@ -24,6 +24,7 @@ public class FamilyMemberInvitationAPIEntity {
     private String relation;
     @JsonProperty("relation_name")
     private String relationName;
+    private Boolean isStandalone;//是否单机版
 
     public FamilyMemberInvitationAPIEntity() {
     }

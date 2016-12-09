@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
  * Created by zhangzhixiu on 15/9/4.
  */
 public class FamilyMemberRelation {
+    public static String SEX_MAN  = "男";
+    public static String SEX_GIRL = "女";
     private static final String[] relationNames = {"其他", "爸爸", "妈妈", "爱人", "儿子", "女儿"
         ,"爷爷","奶奶","外公","外婆","岳父","岳母","公公","婆婆","叔叔" ,"姑姑" ,"舅舅" ,"舅妈"
         ,"姐姐" ,"妹妹" ,"哥哥" ,"弟弟" ,"侄子" ,"侄女" ,"女婿" ,"儿媳妇" ,"孙子" ,"孙女" ,"外孙"
@@ -18,7 +20,7 @@ public class FamilyMemberRelation {
     public static Boolean isOther(String code) {
         return "0".equals(code);
     }
-
+    
     public static String getName(String code) {
         Integer _code = Integer.valueOf(code);
         Preconditions.checkArgument(-1 < _code && _code < 39, "错误的关系代码, 只能为0~5之间的整数");
@@ -36,17 +38,22 @@ public class FamilyMemberRelation {
         Integer _gender = Integer.valueOf(gender);
         Preconditions.checkArgument(-1 < _code && _code < 39, "错误的关系代码, 只能为0~5之间的整数");
         Preconditions.checkArgument(_gender == 1 || _gender == 2, "必须确定性别");
-        if (_code == 0 || _code == 3) {
-            return String.valueOf(_code);
-        } else {
-            if (_code == 1 || _code == 2) {
-                return _gender == 1 ? "4" : "5";
-            } else {
-                return _gender == 1 ? "1" : "2";
-            }
-        }
+//        if (_code == 0 || _code == 3) {
+//            return String.valueOf(_code);
+//        } else {
+//            if (_code == 1 || _code == 2) {
+//                return _gender == 1 ? "4" : "5";
+//            } else {
+//                return _gender == 1 ? "1" : "2";
+//            }
+//        };
+        return getNameByRelationAndSex(code, _gender);
     }
     
+    /**
+     * 获取所有关系，分3组
+     * @return List<List<String>>
+     */
     public static List<List<String>> getMemberFooting(){
         List<List<String>> result = new ArrayList<List<String>>();
         List<String> list = Arrays.asList(relationNames);
@@ -69,4 +76,95 @@ public class FamilyMemberRelation {
         return result;
     }
  
+    public static String getSexByRelationAndSex(String relation, String gender){
+        Integer sex = gender == null ? null : Integer.parseInt(gender);
+        switch (relation) {
+        case "1": return SEX_MAN;
+        case "2": return SEX_GIRL;
+        case "3": 
+            if(sex != null){
+                return sex == 2 ? SEX_GIRL : SEX_MAN; 
+            }
+        case "4": return SEX_MAN;
+        case "5": return SEX_GIRL;
+        case "6": return SEX_MAN;
+        case "7": return SEX_GIRL;
+        case "8": return SEX_MAN;
+        case "9": return SEX_GIRL;
+        case "10": return SEX_MAN;
+        case "11": return SEX_GIRL;
+        case "12": return SEX_MAN;
+        case "13": return SEX_GIRL;
+        case "14": return SEX_MAN;
+        case "15": return SEX_GIRL;
+        case "16": return SEX_MAN;
+        case "17": return SEX_GIRL;
+        case "18": return SEX_GIRL;
+        case "19": return SEX_GIRL;
+        case "20": return SEX_MAN;
+        case "21": return SEX_MAN;
+        case "22": return SEX_MAN;
+        case "23": return SEX_GIRL;
+        case "24": return SEX_MAN;
+        case "25": return SEX_GIRL;
+        case "26": return SEX_MAN;
+        case "27": return SEX_GIRL;
+        case "28": return SEX_MAN;
+        case "29": return SEX_GIRL;
+        case "30": return SEX_MAN;
+        case "31": return SEX_GIRL;
+        case "32": return SEX_GIRL;
+        case "33": return SEX_MAN;
+        case "34": return SEX_MAN;
+        case "35": return SEX_GIRL;
+        case "36": return SEX_MAN;
+
+        default: return SEX_MAN;
+        }
+    }
+    
+    public static String getNameByRelationAndSex(String relation, Integer sex){
+        switch (relation) {
+        case "1": return sex == 2 ? "女儿" : "儿子"; 
+        case "2": return sex == 2 ? "女儿" : "儿子";
+        case "3": return "爱人"; 
+        case "4": return sex == 2 ? "妈妈" : "爸爸";
+        case "5": return sex == 2 ? "妈妈" : "爸爸";
+        case "6": return sex == 2 ? "孙女" : "孙子";
+        case "7": return sex == 2 ? "孙女" : "孙子";
+        case "8": return sex == 2 ? "外孙女" : "外孙";
+        case "9": return sex == 2 ? "外孙女" : "外孙";
+        case "10": return "女婿";
+        case "11": return "女婿";
+        case "12": return "儿媳妇";
+        case "13": return "儿媳妇";
+        case "14": return sex == 2 ? "侄女" : "侄子";
+        case "15": return sex == 2 ? "侄女" : "侄子";
+        case "16": return sex == 2 ? "外甥女" : "外甥";
+        case "17": return sex == 2 ? "外甥女" : "外甥";
+        case "18": return sex == 2 ? "妹妹" : "弟弟";
+        case "19": return sex == 2 ? "妹妹" : "弟弟";
+        case "20": return sex == 2 ? "姐姐" : "哥哥";
+        case "21": return sex == 2 ? "姐姐" : "哥哥";
+        case "22": return sex == 2 ? "姑姑" : "叔叔";
+        case "23": return sex == 2 ? "姑姑" : "叔叔";
+        case "24": return sex == 2 ? "岳母" : "岳父";
+        case "25": return sex == 2 ? "婆婆" : "公公";
+        case "26": return sex == 2 ? "奶奶" : "爷爷";
+        case "27": return sex == 2 ? "奶奶" : "爷爷";
+        case "28": return sex == 2 ? "外婆" : "外公";
+        case "29": return sex == 2 ? "外婆" : "外公";
+        case "30": return sex == 2 ? "舅妈" : "舅舅";
+        case "31": return sex == 2 ? "舅妈" : "舅舅";
+        case "32": return sex == 2 ? "干女儿" : "干儿子";
+        case "33": return sex == 2 ? "干女儿" : "干儿子";
+        case "34": return sex == 2 ? "干妈" : "干爹";
+        case "35": return sex == 2 ? "干妈" : "干爹";
+        case "36": return "女朋友";
+        case "37": return "男朋友";
+        case "38": return "朋友";
+
+        default: return SEX_MAN;
+        }
+    }
 }

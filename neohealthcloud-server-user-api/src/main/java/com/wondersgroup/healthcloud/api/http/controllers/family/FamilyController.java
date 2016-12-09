@@ -9,9 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -36,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -69,6 +66,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitation;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -95,6 +93,8 @@ public class FamilyController {
     private UserAccountService      accountService;
     @Autowired
     private UserService             userService;
+    @Autowired
+    private RegisterInfoRepository registerInfoRepository;
     @Autowired
     private FamilyService           familyService;
     @Autowired
@@ -634,6 +634,7 @@ public class FamilyController {
             body.setMsg("请输入11位的手机号");
             return body;
         }
+        RegisterInfo info = userService.findOne(id);
         AnonymousAccount account = new AnonymousAccount();
         account.setId(IdGen.uuid());
         try { account.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate)); } catch (ParseException e) { e.printStackTrace(); }
@@ -643,7 +644,8 @@ public class FamilyController {
         account.setPassword("password");
         account.setMobile(mobile);
         account.setDelFlag("0");
-//        account.setIsChild(false);
+        account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
+        account.setIsChild(false);
         anonymousAccountRepository.saveAndFlush(account);
         
         String gender = "1";
@@ -699,17 +701,31 @@ public class FamilyController {
      */
     @RequestMapping(value = "/memberInfo", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<FamilyMemberInfoDTO>  memberInfo(@RequestParam String uid){
+    public JsonResponseEntity<FamilyMemberInfoDTO>  memberInfo(@RequestParam String uid, @RequestParam String memberId){
         JsonResponseEntity<FamilyMemberInfoDTO> response = new JsonResponseEntity<FamilyMemberInfoDTO>();
         List<InfoTemplet>  tems = new ArrayList<FamilyMemberInfoDTO.InfoTemplet>();
         FamilyMemberInfoDTO infoDto = new FamilyMemberInfoDTO();
         Info info = new Info();
-        info.setAge(18);
-        info.setNikcName("阿西霸");
-        info.setRelationName("爸爸");
-        info.setIsVerification(true);
-        info.setMobile("18075627538");
-        info.setIsStandalone(false);
+        info.setIsStandalone(true);
+        RegisterInfo regInfo = userService.findOne(uid);
+        FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
+        if(regInfo == null){
+            AnonymousAccount ano = anonymousAccountRepository.getOne(uid);
+            if(ano != null && ano.getIsStandalone()){
+                info.setIsStandalone(false);
+            }
+            info.setNikcName(ano.getNickname());
+//            info.setAge(info.getAge());
+            info.setMobile(ano.getMobile());
+        }else{
+            info.setIsVerification("1".equals(regInfo.getIdentifytype()));
+            info.setNikcName(info.getNikcName());
+            info.setAge(info.getAge());
+            info.setMobile(info.getMobile());
+        }
+        
+        info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+        
         for (Integer id : MemberInfoTemplet.map.keySet()) {
             tems.add(new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null));
         }
@@ -732,11 +748,18 @@ public class FamilyController {
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
         List<FamilyMemberInvitationAPIEntity> list = new ArrayList<FamilyMemberInvitationAPIEntity>();
         for (FamilyMember familyMember : familyMembers) {
-            RegisterInfo info =  userService.getOneNotNull(familyMember.getUid());
+            RegisterInfo info =  registerInfoRepository.getOne(familyMember.getUid());
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
             entity.setId(familyMember.getUid());
             entity.setAvatar(info != null ? info.getHeadphoto() : null);
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+            entity.setIsStandalone(false);
+            if(info == null){
+                AnonymousAccount ano = anonymousAccountRepository.getOne(familyMember.getUid());
+                if(ano != null && ano.getIsStandalone()){
+                    ano.setIsStandalone(true);
+                }
+            }
             list.add(entity);
         }
         response.setContent(list);
@@ -771,12 +794,52 @@ public class FamilyController {
      * @param uid
      * @return Object
      */
-    @RequestMapping(value = "/memberFamilyInfoUpdate", method = RequestMethod.GET)
+    @RequestMapping(value = "/memberFamilyInfoUpdate", method = RequestMethod.POST)
     @VersionRange
-    public Object memberFamilyInfoUpdate(@RequestParam String uid){
+    public JsonResponseEntity<String> memberFamilyInfoUpdate(@RequestBody String body){
+        JsonResponseEntity<String> response = new JsonResponseEntity<String>();
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String id = reader.readString("uid", false);
+        String mobile = reader.readString("mobile", true);
+        String appellation = reader.readString("appellation", true);
+        String height = reader.readString("height", true);
+        String weight = reader.readString("weight", true);
+        String birthDate = reader.readString("birthDate", true);
+        String sex = reader.readString("sex", true);
+        String nickname = reader.readString("nickname", true);
         
-        
-        return null;
+        AnonymousAccount ano =  anonymousAccountRepository.findOne(id);
+        if(!StringUtils.isBlank(mobile)){
+            ano.setMobile(mobile);
+        }
+        if(!StringUtils.isBlank(appellation)){
+            ano.setAppellation(appellation);
+        }
+        if(!StringUtils.isBlank(height)){
+            ano.setHeight(height);
+        }
+        if(!StringUtils.isBlank(mobile)){
+            ano.setMobile(mobile);
+        }
+        if(!StringUtils.isBlank(weight)){
+            ano.setWeight(weight);
+        }
+        if(!StringUtils.isBlank(birthDate)){
+            try {
+                ano.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!StringUtils.isBlank(sex)){
+            ano.setSex(sex);
+        }
+        if(!StringUtils.isBlank(nickname)){
+            ano.setNickname(nickname);
+        }
+        anonymousAccountRepository.saveAndFlush(ano);
+        response.setMsg("修改成功");
+        return response;
     }
     
     /**
