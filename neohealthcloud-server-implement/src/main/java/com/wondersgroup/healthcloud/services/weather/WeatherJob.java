@@ -54,6 +54,7 @@ public class WeatherJob {
     private WeatherAreaRepository weatherAreaRepository;
 
     public void hourlyJob() {
+        String updateTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(new DateTime());
         JsonNode heShanghai = heWeatherClient.weather(null).get("HeWeather5").get(0);
         DateTimeFormatter sdf = DateTimeFormat.forPattern("dd MMM yyyy");
         DateTimeFormatter newdf = DateTimeFormat.forPattern("MM/dd");
@@ -70,6 +71,8 @@ public class WeatherJob {
             ObjectNode cache = JsonNodeFactory.instance.objectNode();
             ObjectNode brief = JsonNodeFactory.instance.objectNode();
 
+            cache.put("update_time", updateTime);
+            brief.put("update_time", updateTime);
             cache.put("name", task.getName());
             brief.put("name", task.getName());
             cache.put("code", task.getCode());
