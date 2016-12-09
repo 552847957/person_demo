@@ -235,10 +235,7 @@ public class TopicController {
     public JsonResponseEntity<TopicDetailDto> view(@RequestHeader String appUid, @RequestParam Integer id){
         JsonResponseEntity<TopicDetailDto> entity = new JsonResponseEntity();
 
-        Topic topic = topicService.infoTopic(id);
-        if (topic == null){
-            throw new RuntimeException("话题无效");
-        }
+        TopicDetailDto view = topicService.getTopicDetailInfo(id);
 
         List<String> adminAppUids = new ArrayList<>();
         adminAppUids.add(appUid);
@@ -247,13 +244,13 @@ public class TopicController {
             for (AdminVestUser appUser : adminAppUsers){
                 adminAppUids.add(appUser.getVest_uid());
             }
-            if (!adminAppUids.contains(topic.getUid())){
+            if (!adminAppUids.contains(view.getUid())){
                 entity.setCode(1200);
                 entity.setMsg("只能编辑自己以及小号发的话题");
                 return entity;
             }
         }
-        TopicDetailDto view = topicService.getTopicDetailInfo(id);
+
         entity.setCode(0);
         entity.setData(view);
         return entity;

@@ -53,7 +53,7 @@ public class TopicListDto {
         this.title = topic.getTitle();
         this.content = topic.getIntro();
         this.imgCount = topic.getImgCount();
-        if (topic.getStatus().intValue() != TopicConstant.Status.OK){
+        if (topic.getStatus() != TopicConstant.Status.OK){
             this.status = TopicConstant.AppListStatus.DELETE;
         }
         this.isBest = topic.getIsBest();

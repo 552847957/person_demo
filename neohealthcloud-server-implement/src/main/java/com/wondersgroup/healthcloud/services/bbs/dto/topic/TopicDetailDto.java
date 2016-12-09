@@ -51,7 +51,7 @@ public class TopicDetailDto {
     private List<TopicContentInfo> topicContents = new ArrayList<>();
     private VoteInfoDto voteInfo;
 
-    public void mergeTopicInfo(Topic topic, List<TopicContent> topicContents){
+    public TopicDetailDto(Topic topic){
         this.id = topic.getId();
         this.status = topic.getStatus();
         this.title = topic.getTitle();
@@ -61,10 +61,20 @@ public class TopicDetailDto {
         this.createTime = topic.getCreateTime();
         this.commentCount = NumberUtils.formatCustom1(topic.getCommentCount());
         this.favorCount = NumberUtils.formatCustom1(topic.getFavorCount());
-        this.mergeTopicContents(topicContents);
-        if (topic.getStatus().intValue() == TopicConstant.Status.FORBID_REPLY){
+        if (topic.getStatus() == TopicConstant.Status.FORBID_REPLY){
             this.userCommentStatus = UserConstant.UserCommentStatus.CIRCLE_BAN;
         }
+    }
+    public boolean isCanShowForUser(String uid, Boolean isAdmin){
+        //管理员可以查看, 话题正常可以查看
+        if (isAdmin || this.status == TopicConstant.Status.OK){
+            return true;
+        }
+        //查看自己的不受限制
+        if (StringUtils.isNotEmpty(uid) && uid.equals(this.uid)){
+            return true;
+        }
+        return false;
     }
 
     public void mergeCircleInfo(Circle circle){
@@ -86,7 +96,7 @@ public class TopicDetailDto {
         }
     }
 
-    private void mergeTopicContents(List<TopicContent> topicContentList){
+    public void mergeTopicContents(List<TopicContent> topicContentList){
         if (topicContentList != null){
             for (TopicContent topicContent : topicContentList){
                 this.topicContents.add(new TopicContentInfo(topicContent));

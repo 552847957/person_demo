@@ -174,13 +174,13 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicDetailDto getTopicDetailInfo(Integer topicId) {
         Topic topic = topicRepository.findOne(topicId);
-        if (null == topic || TopicConstant.Status.isDelStatus(topic.getStatus())){
+        if (null == topic){
             throw TopicException.notExist();
         }
-        TopicDetailDto topicDetailDto = new TopicDetailDto();
+        TopicDetailDto topicDetailDto = new TopicDetailDto(topic);
 
         List<TopicContent> topicContents = topicContentRepository.findContentsByTopicId(topicId);
-        topicDetailDto.mergeTopicInfo(topic, topicContents);
+        topicDetailDto.mergeTopicContents(topicContents);
 
         RegisterInfo userInfo = userService.getOneNotNull(topic.getUid());
         topicDetailDto.mergeUserInfo(userInfo);
@@ -309,7 +309,7 @@ public class TopicServiceImpl implements TopicService {
         if (null != publishInfo.getId() && publishInfo.getId() > 0){
             topic = topicRepository.findOne(publishInfo.getId());
             //发布以后就不能在修改归属人
-            if (topic.getStatus().intValue() == TopicConstant.Status.WAIT_PUBLISH){
+            if (topic.getStatus() == TopicConstant.Status.WAIT_PUBLISH){
                 topic.setUid(publishInfo.getUid());
             }
         }else {
@@ -451,10 +451,10 @@ public class TopicServiceImpl implements TopicService {
         if (topic == null){
             throw new RuntimeException("话题不存在");
         }
-        if (topic.getStatus().intValue() == TopicConstant.Status.USER_DELETE){
+        if (topic.getStatus() == TopicConstant.Status.USER_DELETE){
             throw new RuntimeException("该话题用户已经删除");
         }
-        if (topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE){
+        if (topic.getStatus() == TopicConstant.Status.ADMIN_DELETE){
             topic.setStatus(TopicConstant.Status.OK);
         }else {
             topic.setIsTop(0);
@@ -462,7 +462,7 @@ public class TopicServiceImpl implements TopicService {
             topic.setStatus(TopicConstant.Status.ADMIN_DELETE);
         }
         topicRepository.save(topic);
-        if (topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE){
+        if (topic.getStatus() == TopicConstant.Status.ADMIN_DELETE){
             //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return topic;
@@ -496,7 +496,7 @@ public class TopicServiceImpl implements TopicService {
         if (null == topic){
             throw new RuntimeException("话题不存在");
         }
-        if (topic.getStatus().intValue() == TopicConstant.Status.USER_DELETE){
+        if (topic.getStatus() == TopicConstant.Status.USER_DELETE){
             throw new RuntimeException("该话题用户已经删除");
         }
         Boolean isToBest = false;

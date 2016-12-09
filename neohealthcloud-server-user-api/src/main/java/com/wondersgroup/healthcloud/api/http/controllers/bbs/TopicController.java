@@ -8,16 +8,16 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
+import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.user.UserService;
-import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -194,9 +194,7 @@ public class TopicController {
                                                       @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
-
         TopicViewDto viewDto = new TopicViewDto(detailInfo);
-        viewDto.setShareInfo(this.getShareInfo(detailInfo));
 
         if (StringUtils.isNotEmpty(uid)){
             viewDto.setIsCollected(topicCollectService.isCollectedForUser(uid, topicId) ? 1 : 0);
@@ -211,6 +209,11 @@ public class TopicController {
             Boolean isFavor = favorService.isFavorTopic(uid, topicId);
             viewDto.setIsFavor(isFavor ? 1 : 0);
         }
+
+        if (TopicConstant.Status.isDelStatus(detailInfo.getStatus())){
+            throw TopicException.notExist();
+        }
+        viewDto.setShareInfo(this.getShareInfo(detailInfo));
 
         responseEntity.setData(viewDto);
         return responseEntity;

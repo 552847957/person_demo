@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.DispatcherType;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -78,6 +79,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 simpleModule.addKeyDeserializer(Object.class, new MapToBeanUtil.JsonMapDeSerializer());
                 objectMapper.registerModule(simpleModule);
                 objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategy.SnakeCaseStrategy());
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
                 converter.setObjectMapper(objectMapper);
                 converters.set(i, converter);
