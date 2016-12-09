@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.jpa.entity.mall.MallBanner;
 import com.wondersgroup.healthcloud.jpa.repository.mall.MallBannerRepository;
 import com.wondersgroup.healthcloud.services.mall.dto.MallBannerDto;
@@ -43,7 +45,8 @@ public class MallBannerService {
 		}
 
 		int start = page > 0 ? (page - 1) * size : 0;
-		String query = "select a.*, b.name as goodsName " + sql + " limit " + start + "," + (start + size);
+		String query = "select a.*, b.name as goodsName " + sql + " order by a.sort_no asc limit " + start + ","
+				+ (start + size);
 		List<MallBannerDto> content = jdbcTemplate.query(query,
 				new BeanPropertyRowMapper<MallBannerDto>(MallBannerDto.class));
 
@@ -54,6 +57,11 @@ public class MallBannerService {
 	}
 
 	public void save(MallBanner banner) {
+		MallBanner tbBanner = mallBannerRepository.findByGoodsId(banner.getGoodsId());
+		if (tbBanner != null) {
+			throw new CommonException(1001, "不能重复设置同一商品");
+		}
+
 		Date date = new Date();
 		banner.setId(IdGen.uuid());
 		banner.setCreateTime(date);
@@ -83,6 +91,12 @@ public class MallBannerService {
 			}
 			mallBannerRepository.save(tbBanner);
 		}
+	}
+
+	public List<Goods> findHomeBanner() {
+		String sql = "select b.*  from `mall_banner_tb` a inner join  goods_tb b on a.goods_id = b.id and a.status = 1 order by sort_no asc limit 3";
+		List<Goods> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Goods>(Goods.class));
+		return list;
 	}
 
 }

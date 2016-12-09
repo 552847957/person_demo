@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
 
@@ -34,6 +35,7 @@ public class GoldRecord {
 	@Column(name = "rest_num")
 	private Integer restNum; // 剩余金币数目
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "create_time")
 	private Date createTime; // 创建时间
 

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -131,7 +132,6 @@ public class GoodsService {
 		return new PageImpl<>(list, new PageRequest(page, size), count);
 	}
 
-
 	private Specification<Goods> buildSpecification(final GoodsSearchForm searchForm) {
 		Specification<Goods> specification = new Specification<Goods>() {
 			@Override
@@ -162,6 +162,10 @@ public class GoodsService {
 			}
 		};
 		return specification;
+	}
+
+	public Page<Goods> findByStatus(int status, Pageable pageable) {
+		return goodsRepository.findByStatus(status, pageable);
 	}
 
 }

@@ -40,11 +40,22 @@ public class ExchangeOrder {
 	private String tel; // 联系方式
 
 	private String area; // 地区
-	
+
 	@Column(name = "area_code")
-	private String areaCode;
+	private String areaCode; // 地区编码
+
+	private String street; // 街道
+
+	@Column(name = "street_code")
+	private String streetCode; // 街道代码
 
 	private String address; // 详细地址
+
+	@Column(name = "tracking_number")
+	private String trackingNumber; // 快递单号
+
+	@Column(name = "express_company")
+	private String expressCompany; // 快递公司
 
 	private Integer status; // 状态 (0：未发货； 1：已发货)
 

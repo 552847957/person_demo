@@ -32,7 +32,15 @@ public class Goods {
 
 	private String name; // 商品名称
 
-	private Integer type; // 商品类型 0：虚拟物品；1：单品
+	private Integer type; // 商品类型 0：虚拟物品；1：单品； 2：服务包
+	
+	private String area; //区域
+	
+	@Column(name = "hospital_id")
+	private String hospitalId; //医院代码
+	
+	@Column(name = "hospital_name")
+	private String hospitalName;
 
 	private String picture; // 商品图片
 

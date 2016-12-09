@@ -11,4 +11,6 @@ public interface GoodsRepository extends JpaRepository<Goods, Integer> {
 
 	Page<Goods> findAll(Specification<Goods> specification, Pageable pageable);
 
+	Page<Goods> findByStatus(Integer status, Pageable pageable);
+
 }

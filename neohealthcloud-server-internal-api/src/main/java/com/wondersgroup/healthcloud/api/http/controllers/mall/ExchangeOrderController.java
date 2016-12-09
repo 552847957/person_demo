@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
 import com.wondersgroup.healthcloud.services.mall.ExchangeOrderService;
 import com.wondersgroup.healthcloud.services.mall.dto.ExchangeOrderDto;
 
@@ -31,8 +32,8 @@ public class ExchangeOrderController {
 		return pager;
 	}
 
-	@RequestMapping(value = "/status", method = RequestMethod.GET)
-	public Object send(String orderId) {
+	@RequestMapping(value = "/send", method = RequestMethod.POST)
+	public Object send(@RequestBody ExchangeOrder orderId) {
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
 		exchangeOrderService.send(orderId);
 		return responseEntity;
