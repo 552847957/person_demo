@@ -13,15 +13,21 @@ import java.util.List;
  */
 public interface ContactRepository extends JpaRepository<AppointmentContact, String> {
 
-    @Query("select a from AppointmentContact a where a.uid = ?1 and a.delFlag = '0' order by a.isDefault desc,a.createTime asc")
+    @Query("select a from AppointmentContact a where a.uid = ?1 and a.delFlag = '0' order by a.createDate desc")
     List<AppointmentContact> getAppointmentContactListByUid(String uid);
+
+    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isMain ='1' ")
+    AppointmentContact findMainContactByUid(String uid);
+
+    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isDefault ='1' ")
+    AppointmentContact getDefaultAppointmentContactByUid(String uid);
 
     @Modifying
     @Query("update AppointmentContact a set a.isDefault='0' where a.uid=?1 and  a.id<>?2 and a.delFlag='0' ")
     Integer updateIsDefaultContactByuid(String uid, String id);
 
-    @Query("select a from AppointmentContact a where a.uid = ?1 and a.idcard = ?2 and a.delFlag ='0' ")
-    AppointmentContact getAppointmentContactByIdCard(String uid, String idcard);
+    @Query("select a from AppointmentContact a where a.idcard = ?1 and a.delFlag ='0' ")
+    AppointmentContact getAppointmentContactByIdCard(String idcard);
 
     @Modifying
     @Query("update AppointmentContact a set a.isDefault='1' where a.id=?1 and a.delFlag='0' ")
@@ -33,4 +39,6 @@ public interface ContactRepository extends JpaRepository<AppointmentContact, Str
 
     @Query("select a from AppointmentContact a where a.id = ?1 and a.delFlag ='0' ")
     AppointmentContact getAppointmentContactById(String id);
+
+
 }

@@ -58,13 +58,17 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Autowired
     private EasemobDoctorPool easemobDoctorPool;
 
+    /**
+     * `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码, 4 :修改手机号 ,5:绑定手机号,6:预约挂号确认
+     */
     private static final String[] smsContent = {
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您正在更改绑定的手机号，验证码:code。慎重操作，打死都不能告诉别人",
-            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。"
+            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。",
+            "您正在使用预约挂号功能,验证码:code。希望您身体健康哦"
     };
 
     @Override

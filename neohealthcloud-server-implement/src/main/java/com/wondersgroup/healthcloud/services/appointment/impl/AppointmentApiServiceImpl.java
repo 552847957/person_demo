@@ -45,6 +45,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     private JdbcTemplate jt;
 
 
+
     /**
      * 查询上海市下面的区
      * @param areaCode
@@ -252,4 +253,5 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         return jt.query(sql.toString(), new BeanPropertyRowMapper(ScheduleDto.class));
     }
+
 }

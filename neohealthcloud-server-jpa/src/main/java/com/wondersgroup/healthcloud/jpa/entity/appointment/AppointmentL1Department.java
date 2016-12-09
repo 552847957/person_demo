@@ -37,12 +37,19 @@ public class AppointmentL1Department {
     private Integer weight;//权重
     @Column(name = "del_flag")
     private String delFlag;
+
     @Column(name = "source_id")
     private String sourceId;
+
     @Column(name = "create_date")
     private Date createDate;
+
+    @Column(name = "create_by")
+    private String createBy;
+
     @Column(name = "update_date")
     private Date updateDate;
+
     @Column(name = "update_by")
     private String updateBy;
 

@@ -170,6 +170,8 @@ public class AppointmentOrder {
     private String sourceId;
     @Column(name = "create_date")
     private Date createDate;
+    @Column(name = "create_by")
+    private String createBy;
     @Column(name = "update_date")
     private Date updateDate;
     @Column(name = "update_by")

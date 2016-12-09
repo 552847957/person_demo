@@ -38,4 +38,5 @@ public interface AppointmentApiService {
     AppointmentHospital findHospitalByDepartmentL2Id(String department_l2_id);
 
     List<ScheduleDto> findScheduleByDepartmentL2IdAndScheduleDate(String department_l2_id, String schedule_date, Integer pageNum, int pageSize);
+
 }

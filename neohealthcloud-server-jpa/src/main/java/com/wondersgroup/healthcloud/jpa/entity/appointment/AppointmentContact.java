@@ -52,22 +52,40 @@ public class AppointmentContact {
 
     @Column(name = "is_default")
     private String isDefault;//是否默认
+
+    /**
+     * 是否是主注册账号
+     */
+    @Column(name = "is_main")
+    private String isMain = "0";
+
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag = "0";
 
+    @Column(name = "source_id")
+    private String sourceId;
 
-    @Column(name = "create_time")
-    private Date createTime;
+    @Column(name = "create_date")
+    private Date createDate;
+
+    @Column(name = "create_by")
+    private String createBy;
+
+    @Column(name = "update_date")
+    private Date updateDate;
+
+    @Column(name = "update_by")
+    private String updateBy;
 
     public AppointmentContact() {
     }
 
-    public AppointmentContact(String id, String uid, String name, String idcard, String mobile, String isDefault) {
-        this.id = id;
+
+    public AppointmentContact(String uid, String name, String idcard, String mobile, String mediCardId) {
         this.uid = uid;
         this.name = name;
         this.idcard = idcard;
         this.mobile = mobile;
-        this.isDefault = isDefault;
+        this.mediCardId = mediCardId;
     }
 }

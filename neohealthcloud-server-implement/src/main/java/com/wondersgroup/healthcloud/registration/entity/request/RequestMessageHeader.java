@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.registration.entity.request;
 
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -11,20 +13,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class RequestMessageHeader {
 
     @Value("${web-service.frontproviderId}")
-    private String frontproviderId = "wdjky";
+    private String frontproviderId;
 
     @Value("${web-service.inputCharset}")
-    private String inputCharset = "utf-8";
+    private String inputCharset;
 
     @Value("${web-service.signType}")
-    private String signType = "MD5";
+    private String signType;
 
     private String sign;
 
-    public RequestMessageHeader() {
-//        this.frontproviderId = ConfigUtils.getConfig("web-service.frontproviderId");
-//        this.inputCharset = ConfigUtils.getConfig("web-service.inputCharset");
-//        this.signType = ConfigUtils.getConfig("web-service.signType");
+    public RequestMessageHeader(Environment environment) {
+        this.frontproviderId = environment.getProperty("web-service.frontproviderId");
+        this.inputCharset = environment.getProperty("web-service.inputCharset");
+        this.signType = environment.getProperty("web-service.signType");
     }
 
     public RequestMessageHeader(String frontproviderId, String sign) {

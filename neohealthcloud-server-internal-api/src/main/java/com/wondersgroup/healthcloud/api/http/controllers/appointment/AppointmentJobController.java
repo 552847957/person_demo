@@ -16,6 +16,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,6 +62,9 @@ public class AppointmentJobController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private Environment environment;
 
 
 
@@ -420,7 +424,7 @@ public class AppointmentJobController {
      */
     private List<NumSourceInfo> getDeptNumSourceByTwoDeptInfo(TwoDeptInfo twoDeptInfo) {
         NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
-        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader();
+        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         NumSourceInfoR numSourceInfoR = new NumSourceInfoR(twoDeptInfo);
         numSourceInfoRequest.numSourceInfoR = numSourceInfoR;
 
@@ -448,7 +452,7 @@ public class AppointmentJobController {
         segmentNumberInfoR.setHosOrgCode(schedule.getHosOrgCode());
         segmentNumberInfoR.setScheduleId(schedule.getScheduleId());
         segmentNumberInfoRequest.segmentNumberInfoR = segmentNumberInfoR;
-        segmentNumberInfoRequest.requestMessageHeader = new RequestMessageHeader();
+        segmentNumberInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         segmentNumberInfoRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(segmentNumberInfoRequest));
 
         String xmlRequest = JaxbUtil.convertToXml(segmentNumberInfoRequest);
@@ -467,7 +471,7 @@ public class AppointmentJobController {
      */
     private List<NumSourceInfo> getDoctorNumSourceByDoctInfo(TwoDeptInfo twoDeptInfo,DoctInfo doctInfo) {
         NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
-        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader();
+        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         numSourceInfoRequest.numSourceInfoR = new NumSourceInfoR(twoDeptInfo,doctInfo);
 
         String sign = SignatureGenerator.generateSignature(numSourceInfoRequest);
@@ -491,7 +495,7 @@ public class AppointmentJobController {
     private List<DoctInfo> getDoctorListByTwoDept(TwoDeptInfo twoDeptInfo) {
 
         DoctInfoRequest doctInfoRequest = new DoctInfoRequest();
-        doctInfoRequest.requestMessageHeader = new RequestMessageHeader();
+        doctInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         doctInfoRequest.deptInfoR = new DeptInfoR(twoDeptInfo.getHosOrgCode(),twoDeptInfo.getTopHosDeptCode(),twoDeptInfo.getHosDeptCode());
 
         String sign = SignatureGenerator.generateSignature(doctInfoRequest);
@@ -516,7 +520,7 @@ public class AppointmentJobController {
      */
     private List<TwoDeptInfo> getTwoDeptInfoListByTopDept(String hosOrgCode,TopDeptInfo topDeptInfo) {
         DeptInfoTwoRequest deptInfoTwoRequest = new DeptInfoTwoRequest();
-        deptInfoTwoRequest.requestMessageHeader = new RequestMessageHeader();
+        deptInfoTwoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         deptInfoTwoRequest.deptInfoR = new DeptInfoR(hosOrgCode,topDeptInfo.getHosDeptCode());
 
         String sign = SignatureGenerator.generateSignature(deptInfoTwoRequest);
@@ -543,7 +547,7 @@ public class AppointmentJobController {
      */
     private List<TopDeptInfo> getTopDeptListByHosInfo(HosInfo hosInfo) {
         DeptInfoTopRequest deptInfoTopRequest = new DeptInfoTopRequest();
-        deptInfoTopRequest.requestMessageHeader = new RequestMessageHeader();
+        deptInfoTopRequest.requestMessageHeader = new RequestMessageHeader(environment);
         deptInfoTopRequest.hosInfoR = new HosInfoR(hosInfo.getHosOrgCode());
 
         String sign = SignatureGenerator.generateSignature(deptInfoTopRequest);
@@ -570,7 +574,7 @@ public class AppointmentJobController {
     private List<HosInfo> getAllHosInfo() {
         HosInfoRequest hosInfoRequest = new HosInfoRequest();
         hosInfoRequest.hosInfoR = new HosInfoR();
-        hosInfoRequest.requestMessageHeader = new RequestMessageHeader();
+        hosInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         String sign = SignatureGenerator.generateSignature(hosInfoRequest);
         hosInfoRequest.requestMessageHeader.setSign(sign);
 

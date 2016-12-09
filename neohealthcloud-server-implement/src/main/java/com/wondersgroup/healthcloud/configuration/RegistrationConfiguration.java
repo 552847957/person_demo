@@ -67,4 +67,13 @@ public class RegistrationConfiguration {
         return client;
     }
 
+    @Bean
+    public UserInfoClient userInfoClient(Jaxb2Marshaller marshaller) {
+        UserInfoClient client = new UserInfoClient();
+        client.setDefaultUri(url);
+        client.setMarshaller(marshaller);
+        client.setUnmarshaller(marshaller);
+        return client;
+    }
+
 }
