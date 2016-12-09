@@ -17,6 +17,10 @@ public interface BbsAdminService {
     void cancelBBSAdmin(String mobile);
 
     void addUpdateAdminVestUser(String adminUid, AdminVestInfoDto vestUser);
+
+    List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize);
+
+    int countAdminVestNum(String adminUid);
     /**
      * 通过管理员绑定的uid获取关联的app小号uids
      */

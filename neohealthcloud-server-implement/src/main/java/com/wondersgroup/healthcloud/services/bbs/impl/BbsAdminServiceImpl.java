@@ -13,6 +13,8 @@ import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,9 @@ public class BbsAdminServiceImpl implements BbsAdminService {
 
     @Autowired
     private AdminVestUserRepository adminVestUserRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Transactional
     @Override
@@ -68,6 +73,26 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     @Override
     public void cancelBBSAdmin(String mobile) {
 
+    }
+
+    @Override
+    public List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize) {
+        String sql = "select user.registerid as uid, user.nickName,user.headphoto as avatar, user.birthday, user.gender from tb_bbs_admin_vest vest " +
+                " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
+                " where vest.admin_uid=? order by vest.create_time desc " +
+                " limit ?,? ";
+        Object[] parms = new Object[]{adminUid, (page-1)*pageSize, pageSize};
+        List<AdminVestInfoDto> vestUsers = jdbcTemplate.query(sql, parms, new BeanPropertyRowMapper(AdminVestInfoDto.class));
+        return vestUsers;
+    }
+
+    @Override
+    public int countAdminVestNum(String adminUid) {
+        String sql = "select count(*) from tb_bbs_admin_vest vest " +
+                " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
+                " where vest.admin_uid=? ";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{adminUid}, Integer.class);
+        return count == null ? 0 : count;
     }
 
     @Transactional

@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
+import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
@@ -80,6 +82,16 @@ public class BbsAdminController {
         userAccountService.getVerifyCode(mobile, 3);
         entity.setMsg("短信验证码发送成功");
         return entity;
+    }
+
+    @Admin
+    @RequestMapping(value = "/associationList", method = RequestMethod.POST)
+    public Pager associationList(@RequestHeader String appUid, @RequestBody Pager pager) {
+        List<AdminVestInfoDto> vestInfoDtos = bbsAdminService.findAdminVestUsers(appUid, pager.getNumber(), pager.getSize());
+        int count = bbsAdminService.countAdminVestNum(appUid);
+        pager.setData(vestInfoDtos);
+        pager.setTotalElements(count);
+        return pager;
     }
 
     @Admin
