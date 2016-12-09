@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 import com.wondersgroup.healthcloud.services.mall.MallBannerService;
@@ -25,6 +26,7 @@ public class MallBannerController {
 	GoldRecordService goldRecordService;
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
+	@VersionRange
 	public Object home(String userId) {
 		JsonResponseEntity<Map<String, Object>> responseEntity = new JsonResponseEntity<>();
 		Map<String, Object> map = new HashMap<>();

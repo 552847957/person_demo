@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 
@@ -23,6 +24,7 @@ public class GoldRecordController {
 	GoldRecordService goldRecordService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@VersionRange
 	public Object list(String userId, int flag) {
 		JsonListResponseEntity<GoldRecord> responseEntity = new JsonListResponseEntity<>();
 		int restGold = goldRecordService.findRestGoldByUserId(userId);
