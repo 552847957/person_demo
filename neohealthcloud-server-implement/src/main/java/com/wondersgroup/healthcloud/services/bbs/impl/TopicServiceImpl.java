@@ -171,45 +171,6 @@ public class TopicServiceImpl implements TopicService {
         return this.buildListDto(topics);
     }
 
-    /**
-     * 拼装话题列表需要的字段
-     */
-    private List<TopicListDto> buildListDto(List<Topic> topics){
-        if (topics == null || topics.isEmpty()){
-            return null;
-        }
-        Set<String> uids = new HashSet<>();
-        Set<Integer> circleIds = new HashSet<>();
-        for (Topic topic : topics) {
-            uids.add(topic.getUid());
-            circleIds.add(topic.getCircleId());
-        }
-
-        //圈子信息
-        List<Circle> circles = circleRepository.findAll(circleIds);
-        Map<Integer, Circle> circleMap = new HashMap<>();
-        for (Circle circle : circles){
-            circleMap.put(circle.getId(), circle);
-        }
-        //用户以及小孩信息
-        Map<String, RegisterInfo> userInfos = userService.findByUids(uids);
-
-        List<TopicListDto> listDtos = new ArrayList<>();
-        for (Topic topic : topics) {
-            TopicListDto listDto = new TopicListDto(topic);
-            if (userInfos.containsKey(topic.getUid())){
-                RegisterInfo userInfo = userInfos.get(topic.getUid());
-                listDto.mergeUserInfo(userInfo);
-            }
-            if (circleMap.containsKey(topic.getCircleId())){
-                listDto.setCircleName(circleMap.get(topic.getCircleId()).getName());
-            }
-            listDtos.add(listDto);
-        }
-
-        return listDtos;
-    }
-
     @Override
     public TopicDetailDto getTopicDetailInfo(Integer topicId) {
         Topic topic = topicRepository.findOne(topicId);
@@ -248,26 +209,6 @@ public class TopicServiceImpl implements TopicService {
                 jedis.hincrBy(pvKey, day, 1);
             }else {
                 jedis.hset(pvKey, day, "1");
-            }
-        }
-    }
-
-    private void isCanPublishForUser(TopicPublishDto publishInfo){
-        if (StringUtils.isEmpty(publishInfo.getUid())) {
-            throw new TopicException(2001, "uid非空");
-        }
-        RegisterInfo account = userService.getOneNotNull(publishInfo.getUid());
-        if (account.getBanStatus() != UserConstant.BanStatus.OK){
-            throw new CommonException(2014, "禁言状态无法发表话题哦");
-        }
-        if (null == publishInfo.getTopicContents() ||  publishInfo.getTopicContents().isEmpty()) {
-            throw new TopicException(2002, "帖子无效");
-        }
-        //普通用户发表验证
-        if (!publishInfo.getIsAdminPublish()){
-            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
-            if (null == userCircle){
-                throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
             }
         }
     }
@@ -400,6 +341,65 @@ public class TopicServiceImpl implements TopicService {
         return topic;
     }
 
+    /**
+     * 拼装话题列表需要的字段
+     */
+    private List<TopicListDto> buildListDto(List<Topic> topics){
+        if (topics == null || topics.isEmpty()){
+            return null;
+        }
+        Set<String> uids = new HashSet<>();
+        Set<Integer> circleIds = new HashSet<>();
+        for (Topic topic : topics) {
+            uids.add(topic.getUid());
+            circleIds.add(topic.getCircleId());
+        }
+
+        //圈子信息
+        List<Circle> circles = circleRepository.findAll(circleIds);
+        Map<Integer, Circle> circleMap = new HashMap<>();
+        for (Circle circle : circles){
+            circleMap.put(circle.getId(), circle);
+        }
+        //用户以及小孩信息
+        Map<String, RegisterInfo> userInfos = userService.findByUids(uids);
+
+        List<TopicListDto> listDtos = new ArrayList<>();
+        for (Topic topic : topics) {
+            TopicListDto listDto = new TopicListDto(topic);
+            if (userInfos.containsKey(topic.getUid())){
+                RegisterInfo userInfo = userInfos.get(topic.getUid());
+                listDto.mergeUserInfo(userInfo);
+            }
+            if (circleMap.containsKey(topic.getCircleId())){
+                listDto.setCircleName(circleMap.get(topic.getCircleId()).getName());
+            }
+            listDtos.add(listDto);
+        }
+
+        return listDtos;
+    }
+
+    private void isCanPublishForUser(TopicPublishDto publishInfo){
+        if (StringUtils.isEmpty(publishInfo.getUid())) {
+            throw new TopicException(2001, "uid非空");
+        }
+        RegisterInfo account = userService.getOneNotNull(publishInfo.getUid());
+        if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+            throw new CommonException(2014, "禁言状态无法发表话题哦");
+        }
+        if (null == publishInfo.getTopicContents() ||  publishInfo.getTopicContents().isEmpty()) {
+            throw new TopicException(2002, "帖子无效");
+        }
+        //普通用户发表验证
+        if (!publishInfo.getIsAdminPublish()){
+            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
+            if (null == userCircle){
+                throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
+            }
+        }
+    }
+
     private List<String> getAllImgsFromPublish(TopicPublishDto publishInfo){
         //保存详情
         List<String> allImgs = new ArrayList<>();
@@ -436,7 +436,6 @@ public class TopicServiceImpl implements TopicService {
         return isVote;
     }
 
-    //-------------------------//
     @Override
     public Topic infoTopic(Integer topicId) {
         return topicRepository.findOne(topicId);
@@ -571,31 +570,4 @@ public class TopicServiceImpl implements TopicService {
         return topTopicIds;
     }
 
-    @Override
-    public TopicH5ViewDto getTopicViewForH5(Integer topicId) {
-        Topic topic = topicRepository.findOne(topicId);
-        if (null == topic || TopicConstant.Status.isDelStatus(topic.getStatus())){
-            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
-        }
-        RegisterInfo userInfo = userService.getOneNotNull(topic.getUid());
-        if (userInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
-            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
-        }
-        Circle circle = circleRepository.findOne(topic.getCircleId());
-        if (circle == null){
-            throw new RuntimeException("抱歉,内容不存在,可能被河蟹了");
-        }
-        List<TopicContent> topicContents = topicContentRepository.findContentsByTopicId(topicId);
-        TopicH5ViewDto topicH5ViewDto = new TopicH5ViewDto();
-        topicH5ViewDto.mergeTopicInfo(topic, topicContents);
-        topicH5ViewDto.mergeCircleInfo(circle);
-        if (1 == topic.getIsVote()){
-            VoteInfoDto voteInfoDto = voteService.getVoteInfoByTopicId(topicId);
-            topicH5ViewDto.setVoteInfo(voteInfoDto);
-        }
-        topicH5ViewDto.mergeUserInfo(userInfo);
-        //pv+1
-        topicRepository.incTopicPv(topicId);
-        return topicH5ViewDto;
-    }
 }

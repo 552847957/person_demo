@@ -80,8 +80,6 @@ public interface TopicService {
     //------------------------------//
     Topic infoTopic(Integer topicId);
 
-    TopicH5ViewDto getTopicViewForH5(Integer topicId);
-
     Topic delTopic(String uid, Integer topicId);
 
     //审核通过
