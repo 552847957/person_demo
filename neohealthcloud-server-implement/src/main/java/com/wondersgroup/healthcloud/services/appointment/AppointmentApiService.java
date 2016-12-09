@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.appointment;
 
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
+import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 
 import java.util.List;
@@ -44,4 +45,10 @@ public interface AppointmentApiService {
     AppointmentL2Department findL2DepartmentById(String id);
 
     List<ScheduleDto> findScheduleByDepartmentL2IdOrDoctorId(String id,String type, Integer flag, int pageSize);
+
+    List<OrderDto> findOrderByUidOrId(String id, Integer pageNum, Integer pageSize,Boolean isList);
+
+    OrderDto submitUserReservation(String contactId, String scheduleId, String orderType);
+
+    void cancelReservationOrderById(String id);
 }

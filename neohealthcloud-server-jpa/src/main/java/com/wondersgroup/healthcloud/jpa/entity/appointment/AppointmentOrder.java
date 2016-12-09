@@ -45,6 +45,10 @@ public class AppointmentOrder {
     @Column(name = "appointment_schedule_id")
     private String appointmentScheduleId;
 
+    //用户平台Id
+    @Column(name = "platform_user_id")
+    private String platformUserId;
+
     /**
      * 预约平台订单Id
      */
@@ -56,6 +60,12 @@ public class AppointmentOrder {
      */
     @Column(name = "visit_no")
     private String visitNo;
+
+    /**
+     * 取号密码
+     */
+    @Column(name = "take_password")
+    private String takePassword;
 
     /**
      * 预约平台排班Id

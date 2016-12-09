@@ -63,6 +63,12 @@ public class ScheduleDto {
      */
     private String visitLevelCode;
 
+    private String hospitalName;//医院名称
+
+    private String departmentName;//二级科室名称
+
+    private String doctorId;//科室排班时为科室Id 医生排班时为医生Id
+
 
 
 

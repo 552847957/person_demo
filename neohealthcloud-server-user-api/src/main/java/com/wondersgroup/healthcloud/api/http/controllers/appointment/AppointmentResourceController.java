@@ -390,6 +390,8 @@ public class AppointmentResourceController {
                 break;
             }
             detailDTO = new ScheduleDetailDTO(schedule);
+            detailDTO.setScheduleId(schedule.getId());
+            detailDTO.setId(schedule.getDoctorId());
             list.add(detailDTO);
             count += 1;
         }

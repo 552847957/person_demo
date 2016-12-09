@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ScheduleDetailDTO {
 
     /**
-     * 排班Id
+     * 排班Id(按日期预约列表中表示医生Id)
      */
     public String id;
 
@@ -74,6 +74,21 @@ public class ScheduleDetailDTO {
     @JsonProperty("visit_level")
     private String visitLevelCode;
 
+    /**
+     * 按日期查询时是排班Id
+     */
+    @JsonProperty("schedule_id")
+    private String scheduleId;
+
+
+    @JsonProperty("hospital_name")
+    private String hospitalName;//医院名称
+
+    @JsonProperty("department_name")
+    private String departmentName;//二级科室名称
+
+
+
 
     public ScheduleDetailDTO(){
 
@@ -93,6 +108,8 @@ public class ScheduleDetailDTO {
             this.week = DateUtils.getWeekOfDate(schedule.getScheduleDate());
             this.time = DateFormatter.hourDateFormat(schedule.getStartTime())+"-"+DateFormatter.hourDateFormat(schedule.getEndTime());
             this.fee = schedule.getVisitCost();
+            this.departmentName = schedule.getDepartmentName();
+            this.hospitalName = schedule.getHospitalName();
 
             this.reservationStatus = "1";
             int reserveOrderNum = schedule.getReserveOrderNum()==null?0:schedule.getReserveOrderNum();
