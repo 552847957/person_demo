@@ -7,10 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
 
 import lombok.Data;
 
+@JsonNaming
 @Data
 @Entity
 @Table(name = "gold_record_tb")

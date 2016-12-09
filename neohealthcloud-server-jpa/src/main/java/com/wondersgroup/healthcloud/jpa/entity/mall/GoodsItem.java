@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Data;
 
@@ -22,6 +23,7 @@ import lombok.Data;
  * @author tanxueliang
  *
  */
+@JsonNaming
 @Data
 @Entity
 @Table(name = "goods_item_tb")

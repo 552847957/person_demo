@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.mall.MallBanner;
 import com.wondersgroup.healthcloud.services.mall.MallBannerService;
 import com.wondersgroup.healthcloud.services.mall.dto.MallBannerDto;
+import com.wondersgroup.healthcloud.utils.mapper.JsonMapper;
 
 @RestController
 @RequestMapping("/api/mall/banner")
@@ -32,7 +33,8 @@ public class MallBannerController {
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public Object save(@RequestBody MallBanner banner) {
+	public Object save(@RequestBody String json) {
+		MallBanner banner = JsonMapper.nonDefaultMapper().fromJson(json, MallBanner.class);
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
 		String id = banner.getId();
 		if (StringUtils.isBlank(id)) {

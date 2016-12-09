@@ -7,11 +7,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "step_rule_tb")
+@JsonNaming
 public class StepRule {
 
 	@Id

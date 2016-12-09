@@ -29,6 +29,7 @@ import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
 import com.wondersgroup.healthcloud.services.mall.GoodsService;
 import com.wondersgroup.healthcloud.services.mall.dto.GoodsForm;
 import com.wondersgroup.healthcloud.services.mall.dto.GoodsSearchForm;
+import com.wondersgroup.healthcloud.utils.mapper.JsonMapper;
 
 @RestController
 @RequestMapping("/api/goods")
@@ -55,7 +56,8 @@ public class GoodsController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public Object save(@RequestBody GoodsForm form) {
+	public Object save(@RequestBody String json) {
+		GoodsForm form = JsonMapper.nonDefaultMapper().fromJson(json, GoodsForm.class);
 		JsonResponseEntity<Set<String>> responseEntity = new JsonResponseEntity<>();
 
 		Goods goods = form.getGoods();

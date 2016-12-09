@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Data;
 
@@ -17,6 +18,7 @@ import lombok.Data;
  * @author tanxueliang
  *
  */
+@JsonNaming
 @Data
 @Entity
 @Table(name = "mall_banner_tb")

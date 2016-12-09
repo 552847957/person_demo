@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Data;
 
@@ -20,6 +21,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "exchange_order_tb")
+@JsonNaming
 public class ExchangeOrder {
 
 	@Id
