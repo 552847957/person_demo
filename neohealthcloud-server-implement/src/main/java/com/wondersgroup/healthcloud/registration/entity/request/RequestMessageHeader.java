@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.registration.entity.request;
 
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,13 +11,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "MessageHeader")
 public class RequestMessageHeader {
 
-    @Value("${web-service.frontproviderId}")
     private String frontproviderId;
 
-    @Value("${web-service.inputCharset}")
     private String inputCharset;
 
-    @Value("${web-service.signType}")
     private String signType;
 
     private String sign;

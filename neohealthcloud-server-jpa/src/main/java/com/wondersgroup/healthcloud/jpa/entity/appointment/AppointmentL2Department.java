@@ -59,5 +59,7 @@ public class AppointmentL2Department {
 
     @Transient
     private String hospitalName;
+    @Transient
+    private String reservationRule;
 
 }

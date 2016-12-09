@@ -25,6 +25,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
+import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
@@ -80,6 +81,9 @@ public class UserController {
         this.decimalFormat = new DecimalFormat("###########");
         this.decimalFormat.setRoundingMode(RoundingMode.FLOOR);
     }
+
+    @Autowired
+    private FriendRelationshipService friendRelationshipService;
 
 
     /**
@@ -253,6 +257,8 @@ public class UserController {
         body.setData(new UserAccountAndSessionDTO(userAccountService.register(mobile, verifyCode, password)));
         body.getData().setInfo(getInfo(body.getData().getUid()));
         body.setMsg("注册成功");
+
+        friendRelationshipService.register(body.getData().getUid());
         return body;
     }
 

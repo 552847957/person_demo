@@ -245,11 +245,70 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
                 " left join app_tb_appointment_doctor doc on s.doctor_id = doc.id " +
                 " left join app_tb_appointment_department_l2 d on s.department_l2_id = d.id " +
                 " where s.`status`= '1' and s.del_flag = '0' and s.department_l2_id='%s'  " +
-                " and s.schedule_date = '%s' and s.start_time > '%s' ";
+                " and s.schedule_date = '%s' and s.start_time > '%s' order by s.start_time asc ";
 
         sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
 
         sql = String.format(sql,department_l2_id,schedule_date, DateFormatter.dateTimeFormat(new Date()));
+
+        return jt.query(sql.toString(), new BeanPropertyRowMapper(ScheduleDto.class));
+    }
+
+    /**
+     * 根据医生Id查询医生详情
+     * @param id
+     * @return
+     */
+    @Override
+    public AppointmentDoctor findDoctorById(String id) {
+        String sql = "select a.* , h.hos_name as 'hospitalName',h.hospital_rule as 'reservationRule', d.dept_name as 'departmentName'  " +
+                " from app_tb_appointment_doctor a  " +
+                " left join app_tb_appointment_hospital h on a.hospital_id = h.id " +
+                " left join app_tb_appointment_department_l2 d on a.department_l2_id = d.id " +
+                " where a.id = '%s' " ;
+        sql = String.format(sql,id);
+
+        return jt.queryForObject(sql, new BeanPropertyRowMapper<>(AppointmentDoctor.class));
+    }
+
+    /**
+     * 根据二级科室Id查询二级科室详情
+     * @param id
+     * @return
+     */
+    @Override
+    public AppointmentL2Department findL2DepartmentById(String id) {
+        String sql = "select a.* , h.hos_name as 'hospitalName',h.hospital_rule as 'reservationRule' " +
+                " from app_tb_appointment_department_l2 a  " +
+                " left join app_tb_appointment_hospital h on a.hospital_id = h.id " +
+                " where a.id = '%s' " ;
+        sql = String.format(sql,id);
+
+        return jt.queryForObject(sql, new BeanPropertyRowMapper<>(AppointmentL2Department.class));
+    }
+
+
+    @Override
+    public List<ScheduleDto> findScheduleByDepartmentL2IdOrDoctorId(String id,String type, Integer pageNum, int pageSize) {
+        String sql = "select s.*,if(s.doctor_id is null,d.dept_name,doc.doct_name) as name ,if(s.doctor_id is null,'2','1') as type," +
+                " if(s.doctor_id is null,d.reservation_num,doc.reservation_num) as reservationNum," +
+                " doc.avatar,doc.doct_tile as dutyName,doc.doct_info as specialty " +
+                " from app_tb_appointment_doctor_schedule s " +
+                " left join app_tb_appointment_doctor doc on s.doctor_id = doc.id " +
+                " left join app_tb_appointment_department_l2 d on s.department_l2_id = d.id " +
+                " where s.`status`= '1' and s.del_flag = '0'" ;
+
+        //医生
+        if("1".equals(type)){
+            sql += " and s.doctor_id='%s' ";
+         //科室
+        }else if("2".equals(type)){
+            sql += " and s.department_l2_id='%s' and s.doctor_id is null  ";
+        }
+        sql += " and s.start_time > '%s'  order by s.start_time asc";
+        sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
+
+        sql = String.format(sql,id, DateFormatter.dateTimeFormat(new Date()));
 
         return jt.query(sql.toString(), new BeanPropertyRowMapper(ScheduleDto.class));
     }

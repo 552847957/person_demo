@@ -55,7 +55,7 @@ public class AppointmentHospitalDTO {
             this.address = hospital.getHospitalAdd();
             this.picSmall = hospital.getPicSmall();
             this.isOrderToday = hospital.getIsOrderToday();
-            this.doctorNum = hospital.getDoctorNum();
+            this.doctorNum = hospital.getDoctorNum()==null?0:hospital.getDoctorNum();
         }
 
     }

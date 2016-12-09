@@ -5,11 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * Created by longshasha on 16/5/21.
  */
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScheduleDetailDTO {
 
@@ -65,6 +68,12 @@ public class ScheduleDetailDTO {
      */
     public String fee;//费用
 
+    /**
+     * 门诊类型
+     */
+    @JsonProperty("visit_level")
+    private String visitLevelCode;
+
 
     public ScheduleDetailDTO(){
 
@@ -90,104 +99,18 @@ public class ScheduleDetailDTO {
             if(reserveOrderNum==0){
                 this.reservationStatus = "2";
             }
+            if(StringUtils.isBlank(schedule.getVisitLevelCode())){
+                this.visitLevelCode = "其他";
+            }else if("1".equals(schedule.getVisitLevelCode())){
+                this.visitLevelCode = "专家门诊";
+            }else if("2".equals(schedule.getVisitLevelCode())){
+                this.visitLevelCode = "专病门诊";
+            }else if("3".equals(schedule.getVisitLevelCode())){
+                this.visitLevelCode = "普通门诊";
+            }
+
         }
 
     }
 
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getDutyName() {
-        return dutyName;
-    }
-
-    public void setDutyName(String dutyName) {
-        this.dutyName = dutyName;
-    }
-
-    public String getSpecialty() {
-        return specialty;
-    }
-
-    public void setSpecialty(String specialty) {
-        this.specialty = specialty;
-    }
-
-    public String getReservationNum() {
-        return reservationNum;
-    }
-
-    public void setReservationNum(String reservationNum) {
-        this.reservationNum = reservationNum;
-    }
-
-    public String getReservationStatus() {
-        return reservationStatus;
-    }
-
-    public void setReservationStatus(String reservationStatus) {
-        this.reservationStatus = reservationStatus;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getScheduleDate() {
-        return scheduleDate;
-    }
-
-    public void setScheduleDate(String scheduleDate) {
-        this.scheduleDate = scheduleDate;
-    }
-
-    public String getWeek() {
-        return week;
-    }
-
-    public void setWeek(String week) {
-        this.week = week;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getFee() {
-        return fee;
-    }
-
-    public void setFee(String fee) {
-        this.fee = fee;
-    }
 }

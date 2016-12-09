@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class UserAccessTokenController {
     @Autowired
     private UserController userController;
 
+    @Autowired
+    private FriendRelationshipService friendRelationshipService;
+
     /**
      * 账号 密码登录
      * @param account
@@ -40,6 +44,8 @@ public class UserAccessTokenController {
 
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.login(account,password)));
+
+        friendRelationshipService.login(account,body.getData().getUid());
         body.setMsg("登录成功");
         attachInfo(body);
         logger.info("GET url = api/token ,requestId="+requestId+"&uid="+body.getData().getUid());
@@ -74,6 +80,7 @@ public class UserAccessTokenController {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.fastLogin(mobile, verify_code,false)));//改为false
         body.setMsg("登录成功");
+        friendRelationshipService.login(mobile,body.getData().getUid());
         attachInfo(body);
         logger.info("GET, url = api/token/fast,requestId="+requestId+"&uid="+body.getData().getUid());
         return body;

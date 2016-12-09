@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
+import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentException;
 import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,7 @@ public class AppointmentResourceController {
         int count = 1;
         for (AppointmentDoctor doctor : appointmentDoctors) {
             if(count<3){
-                doctorDTO = doctorDTO.getDoctorDTOList(doctor);
+                doctorDTO = doctorDTO.getDoctorDTOSearchList(doctor);
                 doctorDTOList.add(doctorDTO);
                 count+=1;
             }
@@ -203,7 +204,7 @@ public class AppointmentResourceController {
         }
         AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO();
         for (AppointmentDoctor doctor : appointmentDoctors) {
-            doctorDTO = doctorDTO.getDoctorDTOList(doctor);
+            doctorDTO = doctorDTO.getDoctorDTOSearchList(doctor);
                 doctorDTOList.add(doctorDTO);
         }
 
@@ -397,6 +398,78 @@ public class AppointmentResourceController {
         body.setContent(list, more, null, more?String.valueOf(flag+1):String.valueOf(flag));
         return body;
     }
+
+
+    /**
+     * 医生详情
+     *
+     * @param id type为1时是医生的Id,type为2时是二级科室的Id
+     * @return type 1:医生 2:科室
+     */
+    @VersionRange
+    @RequestMapping(value = "/doctor/detail", method = RequestMethod.GET)
+    public JsonResponseEntity getDcotorDetail(@RequestParam(required = true) String id,
+                                              @RequestParam(required = true) String type) {
+        JsonResponseEntity<AppointmentDoctorDTO> body = new JsonResponseEntity<>();
+        AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO();
+        /**
+         * 医生详情
+         */
+        if("1".equals(type)){
+            AppointmentDoctor doctor = appointmentApiService.findDoctorById(id);
+            doctorDTO = new AppointmentDoctorDTO(doctor,null);
+            doctorDTO.setReservationRule(doctor.getReservationRule());
+            doctorDTO.setHospitalName(doctor.getHospitalName());
+            doctorDTO.setDepartmentName(doctor.getDepartmentName());
+        //科室详情
+        }else if("2".equals(type)){
+            AppointmentL2Department department = appointmentApiService.findL2DepartmentById(id);
+            doctorDTO = new AppointmentDoctorDTO(department,null);
+            doctorDTO.setReservationRule(department.getReservationRule());
+            doctorDTO.setHospitalName(department.getHospitalName());
+            doctorDTO.setDepartmentName(department.getDeptName());
+        }
+
+        body.setData(doctorDTO);
+        return body;
+    }
+
+
+    @VersionRange
+    @RequestMapping(value = "/doctor/scheduleList", method = RequestMethod.GET)
+    public JsonListResponseEntity getDcotorscheduleList(@RequestParam(required = true) String id,
+                                                @RequestParam(required = true) String type,
+                                                @RequestParam(required = false, defaultValue = "1") Integer flag) {
+        JsonListResponseEntity<ScheduleDetailDTO> body = new JsonListResponseEntity<>();
+        int pageSize = 10;
+        Boolean more = false;
+        List<ScheduleDetailDTO> list = Lists.newArrayList();
+
+        if(!"1".equals(type) && !"2".equals(type)){
+            body.setContent(list, more, null, more?String.valueOf(flag+1):String.valueOf(flag));
+            return body;
+        }
+        List<ScheduleDto> schedules = appointmentApiService.findScheduleByDepartmentL2IdOrDoctorId(id,type, flag, pageSize);
+        if(schedules.size()>pageSize)
+            more = true;
+        ScheduleDetailDTO detailDTO;
+        int count = 1;
+        for(ScheduleDto schedule : schedules){
+            if(count>pageSize){
+                break;
+            }
+            detailDTO = new ScheduleDetailDTO(schedule);
+            list.add(detailDTO);
+            count += 1;
+        }
+
+        body.setContent(list, more, null, more?String.valueOf(flag+1):String.valueOf(flag));
+        return body;
+
+    }
+
+
+
 
 
 

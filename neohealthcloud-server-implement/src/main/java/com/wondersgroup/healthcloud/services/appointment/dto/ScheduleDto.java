@@ -57,6 +57,12 @@ public class ScheduleDto {
 
     private Integer reserveOrderNum;
 
+    /**
+     * 门诊类型
+     * 1专家2专病3普通
+     */
+    private String visitLevelCode;
+
 
 
 

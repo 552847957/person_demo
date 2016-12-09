@@ -39,4 +39,9 @@ public interface AppointmentApiService {
 
     List<ScheduleDto> findScheduleByDepartmentL2IdAndScheduleDate(String department_l2_id, String schedule_date, Integer pageNum, int pageSize);
 
+    AppointmentDoctor findDoctorById(String id);
+
+    AppointmentL2Department findL2DepartmentById(String id);
+
+    List<ScheduleDto> findScheduleByDepartmentL2IdOrDoctorId(String id,String type, Integer flag, int pageSize);
 }

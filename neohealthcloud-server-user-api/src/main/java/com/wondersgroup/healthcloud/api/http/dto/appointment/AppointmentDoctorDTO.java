@@ -83,18 +83,20 @@ public class AppointmentDoctorDTO {
         this.reservationNum = doctor.getReservationNum()==null?0:doctor.getReservationNum();
         this.reservationRule = doctor.getReservationRule();
 
+        if(result!=null){
+            int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
 
-        int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
+            int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
 
-        int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
-
-        if(scheduleNum == 0){
-            this.reservationStatus = 0;
-        }else if(reserveOrderNum>0){
-            this.reservationStatus = 1;
-        }else{
-            this.reservationStatus = 2;
+            if(scheduleNum == 0){
+                this.reservationStatus = 0;
+            }else if(reserveOrderNum>0){
+                this.reservationStatus = 1;
+            }else{
+                this.reservationStatus = 2;
+            }
         }
+
         this.type = 1;
     }
 
@@ -107,21 +109,23 @@ public class AppointmentDoctorDTO {
         this.specialty = department.getDeptDesc();
         this.reservationNum = department.getReservationNum()==null?0:department.getReservationNum();
 
-        int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
+        if(result!=null){
+            int scheduleNum = result.get("scheduleNum") == null ? 0:((Long)result.get("scheduleNum")).intValue();
 
-        int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
-        if(scheduleNum == 0){
-            this.reservationStatus = 0;
-        }else if(reserveOrderNum>0){
-            this.reservationStatus = 1;
-        }else{
-            this.reservationStatus = 2;
+            int reserveOrderNum = result.get("reserveOrderNum") == null ? 0 : ((BigDecimal)result.get("reserveOrderNum")).intValue();
+            if(scheduleNum == 0){
+                this.reservationStatus = 0;
+            }else if(reserveOrderNum>0){
+                this.reservationStatus = 1;
+            }else{
+                this.reservationStatus = 2;
+            }
+            if(this.reservationStatus!=0 && StringUtils.isBlank(this.specialty)){
+                String visitLevelCode = getVisitLevelCodeView(result.get("visitLevelCode").toString());
+                this.specialty = visitLevelCode;
+            }
         }
 
-        if(this.reservationStatus!=0 && StringUtils.isBlank(this.specialty)){
-            String visitLevelCode = getVisitLevelCodeView(result.get("visitLevelCode").toString());
-            this.specialty = visitLevelCode;
-        }
         this.type = 2;
     }
 
@@ -138,7 +142,7 @@ public class AppointmentDoctorDTO {
         return "";
     }
 
-    public static AppointmentDoctorDTO getDoctorDTOList(AppointmentDoctor doctor){
+    public static AppointmentDoctorDTO getDoctorDTOSearchList(AppointmentDoctor doctor){
         AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO();
         doctorDTO.setId(doctor.getId());
         doctorDTO.setName(doctor.getDoctName());
@@ -150,13 +154,6 @@ public class AppointmentDoctorDTO {
         return doctorDTO;
     }
 
-    public AppointmentDoctorDTO(AppointmentL2Department department) {
-        this.id = department.getId();
-        this.name = department.getDeptName()+"门诊";
-        this.avatar = DepartmentDTO.url;
-        this.dutyName = "";
-        this.specialty = "";
-    }
 
     public String getId() {
         return id;
