@@ -18,6 +18,7 @@ import java.util.Date;
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdminVestInfoDto {
+    private Integer id;
     private String uid;
     private String nickName;
     private String avatar;

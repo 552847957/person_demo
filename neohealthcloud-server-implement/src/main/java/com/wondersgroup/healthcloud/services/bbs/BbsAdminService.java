@@ -20,6 +20,8 @@ public interface BbsAdminService {
 
     List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize);
 
+    AdminVestInfoDto getAdminVestInfo(Integer id);
+
     int countAdminVestNum(String adminUid);
     /**
      * 通过管理员绑定的uid获取关联的app小号uids

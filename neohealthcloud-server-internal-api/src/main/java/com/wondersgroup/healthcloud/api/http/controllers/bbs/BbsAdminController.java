@@ -95,6 +95,15 @@ public class BbsAdminController {
     }
 
     @Admin
+    @RequestMapping(value = "/associationInfo", method = RequestMethod.GET)
+    public JsonResponseEntity associationInfo(@RequestHeader String appUid, @RequestParam Integer id) {
+        JsonResponseEntity entity = new JsonResponseEntity();
+        AdminVestInfoDto vestInfoDtos = bbsAdminService.getAdminVestInfo(id);
+        entity.setData(vestInfoDtos);
+        return entity;
+    }
+
+    @Admin
     @RequestMapping(value = "/addAssociationUser", method = RequestMethod.POST)
     public JsonResponseEntity addAssociationUser(@RequestHeader String appUid, @RequestBody AdminVestInfoDto vestInfoDto) {
         JsonResponseEntity entity = new JsonResponseEntity();

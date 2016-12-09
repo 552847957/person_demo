@@ -77,13 +77,22 @@ public class BbsAdminServiceImpl implements BbsAdminService {
 
     @Override
     public List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize) {
-        String sql = "select user.registerid as uid, user.nickName,user.headphoto as avatar, user.birthday, user.gender from tb_bbs_admin_vest vest " +
+        String sql = "select vest.id, user.registerid as uid, user.nickname,user.headphoto as avatar, user.birthday, user.gender from tb_bbs_admin_vest vest " +
                 " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
                 " where vest.admin_uid=? order by vest.create_time desc " +
                 " limit ?,? ";
         Object[] parms = new Object[]{adminUid, (page-1)*pageSize, pageSize};
         List<AdminVestInfoDto> vestUsers = jdbcTemplate.query(sql, parms, new BeanPropertyRowMapper(AdminVestInfoDto.class));
         return vestUsers;
+    }
+
+    @Override
+    public AdminVestInfoDto getAdminVestInfo(Integer id) {
+        String sql = "select vest.id, user.registerid as uid, user.nickname,user.headphoto as avatar, user.birthday, user.gender from tb_bbs_admin_vest vest " +
+                " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
+                " where vest.id=?";
+        List<AdminVestInfoDto> vestUsers = jdbcTemplate.query(sql, new Object[]{id}, new BeanPropertyRowMapper(AdminVestInfoDto.class));
+        return null != vestUsers ? vestUsers.get(0) : null;
     }
 
     @Override
