@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
+import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -16,6 +18,7 @@ import com.wondersgroup.healthcloud.services.bbs.dto.BannerAndMyCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.JoinedAndGuessLikeCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.Page;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +32,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 1. 圈子首页
@@ -185,26 +189,32 @@ public class CircleController {
 
     /**
      * 根据分类id，查询该分类下的所有圈子
-     *
+     * 改为下拉分页   modify zhongshuqing
      * @param categoryId
      * @return
      */
     @VersionRange
     @RequestMapping(value = "/getCirclesByCategoryId", method = RequestMethod.GET)
-    public JsonResponseEntity getCirclesByCategoryId(@RequestParam(required = true) int categoryId, @RequestParam(required = true) String uId) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
-        
+    public JsonListResponseEntity getCirclesByCategoryId(@RequestParam(required = true) int categoryId, @RequestParam(required = true) String uId,@RequestParam(defaultValue = "1", required = false) Integer flag) {
+        JsonListResponseEntity jsonListResponseEntity = new JsonListResponseEntity();
+        int pageSize = 10;
         try {
-            List<CircleListDto> cList = circleService.getCirclesByCId(categoryId, uId);
-            jsonResponseEntity.setData(cList);
-            return jsonResponseEntity;
+            List<CircleListDto> cList = circleService.getCirclesByCId(categoryId, uId, flag, pageSize);
+            
+            Boolean hasMore = false;
+            if (cList != null && cList.size() > pageSize){
+                cList = cList.subList(0, pageSize);
+                hasMore = true;
+            }
+            jsonListResponseEntity.setContent(cList, hasMore, null, String.valueOf(flag+1));
+            return jsonListResponseEntity;
         } catch (Exception e) {
             String errorMsg = "查询分类圈子出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            jsonListResponseEntity.setCode(1001);
+            jsonListResponseEntity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return jsonListResponseEntity;
     }
 
     /**

@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.CircleCategory;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
+import com.wondersgroup.healthcloud.utils.Page;
 
 import java.util.List;
 
@@ -66,10 +67,11 @@ public interface CircleService {
 
     /**
      * 根据圈子分类id获取该分类下的所有圈子,包含用户是否关注
+     * @param page 
      *
      * @return
      */
-    List<CircleListDto> getCirclesByCId(Integer categoryId, String uId);
+    List<CircleListDto> getCirclesByCId(Integer categoryId, String uId,Integer flag,Integer pageSize);
 
     /**
      * 根据用户id和圈子id，查询该用户是否已加入这个圈子

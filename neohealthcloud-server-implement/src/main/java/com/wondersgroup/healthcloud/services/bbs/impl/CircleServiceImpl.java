@@ -34,6 +34,7 @@ import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleCategoryDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.MyCircleDto;
+import com.wondersgroup.healthcloud.utils.Page;
 
 /**
  * Created by ys on 2016/08/11.
@@ -95,9 +96,15 @@ public class CircleServiceImpl implements CircleService {
                 BeanUtils.copyProperties(circleCategory, dto);
                 cateDtoList.add(dto);
             }
+            CircleCategoryDto categoryDto = new CircleCategoryDto();
+            CircleCategoryDto copyRecCirle  = copyRecommendCirle(categoryDto);
+            //将推荐的放到第一个位置
+            cateDtoList.add(0,copyRecCirle);
         }
         return cateDtoList;
     }
+
+    
 
     @Override
     public List<MyCircleDto> getMyCircleList(String userId) {
@@ -155,15 +162,17 @@ public class CircleServiceImpl implements CircleService {
     }
 
     @Override
-    public List<CircleListDto> getCirclesByCId(Integer categoryId, String uId) {
+    public List<CircleListDto> getCirclesByCId(Integer categoryId, String uId ,Integer flag,Integer pageSize) {
         List<CircleListDto> cDtoList = new ArrayList<>();
         List<Circle> cList = null;
         // 查询是否为“推荐圈子”分类
         CircleCategory circleCategory = circleCategoryRepository.findOne(categoryId);
-        if (circleCategory != null && CircleConstant.RECOMMEND_CATE_NAME.equals(circleCategory.getName())) {
-            cList = circleRepository.queryByIsRecommendAndDelFlagOrderByRankDesc(1, "0");
+        if (circleCategory != null && categoryId == CircleConstant.CIRCLE_CATEGORY_ID) {
+            cList = getRecommendCircles(flag,pageSize);
+            // circleRepository.queryByIsRecommendAndDelFlagOrderByRankDesc(1, "0");
         } else {
-            cList = circleRepository.queryByCateIdAndDelFlagOrderByRankDesc(categoryId, "0");
+            cList = getCateIdCircles(categoryId,flag,pageSize);
+            //circleRepository.queryByCateIdAndDelFlagOrderByRankDesc(categoryId, "0");
         }
 
         if (cList != null && cList.size() > 0) {
@@ -181,6 +190,7 @@ public class CircleServiceImpl implements CircleService {
 
         return cDtoList;
     }
+
 
     @Override
     public UserCircle queryByUIdAndCircleIdAndDelFlag(String uId, Integer circleId, String delFlag) {
@@ -498,5 +508,106 @@ public class CircleServiceImpl implements CircleService {
         }
         return dtoList;
     }
+    //推荐分类圈子
+    private CircleCategoryDto copyRecommendCirle(CircleCategoryDto categoryDto) {
+        categoryDto.setId(CircleConstant.CIRCLE_CATEGORY_ID);
+        categoryDto.setName(CircleConstant.RECOMMEND_CATE_NAME);
+        categoryDto.setDelFlag("0");
+        Integer topRank = circleCategoryRepository.getTopRankExcludeName(CircleConstant.RECOMMEND_CATE_NAME);
+        categoryDto.setRank(topRank+1);
+        return categoryDto;
+    }
     
+    private List<Circle> getCateIdCircles(Integer categoryId, Integer flag, Integer pageSize) {
+        String searchSql = "SELECT " +
+                " ci.id, " +
+                " ci.NAME, " +
+                " ci.description, " +
+                " ci.cate_id, " +
+                " ci.icon, " +
+                " ci.rank, " +
+                " ci.del_flag, " +
+                " ci.is_recommend, " +
+                " ci.is_default_attent " +
+                " FROM " +
+                " tb_bbs_circle ci " +
+                " WHERE " +
+                " 1 = 1 ";
+        // 拼接条件语句
+        searchSql += appendWhereSql("", categoryId, false, false,"0");
+        String orderSql = " order by ci.rank DESC ";
+        // 拼接排序语句
+        searchSql += orderSql;
+        // 分页
+        int offset = (flag - 1) * pageSize;
+        String limitSql = String.format(" limit %s,%s", offset, pageSize);
+        searchSql += limitSql;
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(searchSql);
+        List<Circle> list = null;
+        if (data != null && data.size() > 0) {
+            list = new ArrayList<>();
+            for (Map<String, Object> map : data) {
+                Circle dto = initCircle(map);
+                list.add(dto);
+            }
+        }
+        return list;
+        
+    }
+
+    private List<Circle> getRecommendCircles(Integer flag, Integer pageSize) {
+        String searchSql = "SELECT " +
+                " ci.id, " +
+                " ci.NAME, " +
+                " ci.description, " +
+                " ci.cate_id, " +
+                " ci.icon, " +
+                " ci.rank, " +
+                " ci.del_flag, " +
+                " ci.is_recommend, " +
+                " ci.is_default_attent " +
+                " FROM " +
+                " tb_bbs_circle ci " +
+                " WHERE " +
+                " 1 = 1 ";
+        // 拼接条件语句
+        searchSql += appendWhereSql("", 0, true, false, "0");
+        String orderSql = " order by ci.rank DESC ";
+        // 拼接排序语句
+        searchSql += orderSql;
+        // 分页
+        int offset = (flag - 1) * pageSize;
+        String limitSql = String.format(" limit %s,%s", offset, pageSize);
+        searchSql += limitSql;
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(searchSql);
+        List<Circle> list = null;
+        if (data != null && data.size() > 0) {
+            list = new ArrayList<>();
+            for (Map<String, Object> map : data) {
+                Circle dto = initCircle(map);
+                list.add(dto);
+            }
+        }
+        return list;
+    }
+    
+    private Circle initCircle(Map<String, Object> map) {
+        Circle dto = new Circle();
+        try {
+            dto.setId(Integer.parseInt(String.valueOf(map.get("id"))));
+            dto.setName(String.valueOf(map.get("name")));
+            dto.setDescription(String.valueOf(map.get("description")));
+            dto.setCateId(Integer.parseInt(String.valueOf(map.get("cate_id"))));
+            dto.setIcon(String.valueOf(map.get("icon")));
+            dto.setRank(Integer.parseInt(String.valueOf(map.get("rank"))));
+            dto.setDelFlag(String.valueOf(map.get("del_flag")));
+            dto.setIsRecommend(Integer.parseInt(String.valueOf(map.get("is_recommend"))));
+            dto.setIsDefaultAttent(Integer.parseInt(String.valueOf(map.get("is_default_attent"))));
+        } catch (Exception e) {
+            logger.error("设置圈子数据出错", e);
+        }
+        return dto;
+    }
 }
