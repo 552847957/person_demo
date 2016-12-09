@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
 
+import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +16,7 @@ public interface BbsAdminService {
 
     void cancelBBSAdmin(String mobile);
 
+    void addUpdateAdminVestUser(String adminUid, AdminVestInfoDto vestUser);
     /**
      * 通过管理员绑定的uid获取关联的app小号uids
      */

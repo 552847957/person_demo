@@ -23,7 +23,7 @@ public class RegisterInfo {
     @Column(name = "userid")
     private String username; //用户id
 
-    private String identifytype; //认证类型（0.未认证，1.市民云认证,2:医生邀请码认证）
+    private String identifytype="0"; //认证类型（0.未认证，1.市民云认证,2:医生邀请码认证）
 
     private String personcard; //身份证
 
@@ -52,10 +52,10 @@ public class RegisterInfo {
     private String gender;
     private Date birthday;
     private String tagid;
-    private Integer channelType; // 渠道类型：1:健康云、2:QQ、3:微信、4:微博
+    private Integer channelType; // 渠道类型：1:健康云、2:QQ、3:微信、4:微博, 5:市民云 6:圈子管理员的马甲用户
 
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag="0";
 
     @Column(name = "source_id")
     private String sourceId;

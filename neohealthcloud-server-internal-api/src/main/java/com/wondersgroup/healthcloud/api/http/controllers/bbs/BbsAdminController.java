@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.slf4j.Logger;
@@ -78,6 +79,15 @@ public class BbsAdminController {
         }
         userAccountService.getVerifyCode(mobile, 3);
         entity.setMsg("短信验证码发送成功");
+        return entity;
+    }
+
+    @Admin
+    @RequestMapping(value = "/addAssociationUser", method = RequestMethod.POST)
+    public JsonResponseEntity addAssociationUser(@RequestHeader String appUid, @RequestBody AdminVestInfoDto vestInfoDto) {
+        JsonResponseEntity entity = new JsonResponseEntity();
+        bbsAdminService.addUpdateAdminVestUser(appUid, vestInfoDto);
+        entity.setMsg("绑定成功");
         return entity;
     }
 

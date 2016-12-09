@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
@@ -9,6 +10,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,6 +68,40 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     @Override
     public void cancelBBSAdmin(String mobile) {
 
+    }
+
+    @Transactional
+    @Override
+    public void addUpdateAdminVestUser(String adminUid, AdminVestInfoDto vestUser){
+        RegisterInfo registerInfo;
+        Date nowDate = new Date();
+        if (StringUtils.isNotEmpty(vestUser.getUid())){
+            registerInfo = registerInfoRepository.findOne(vestUser.getUid());
+            if (registerInfo == null){
+                throw new CommonException(2001, "编辑马甲不存在");
+            }
+        }else {
+            registerInfo = new RegisterInfo();
+            registerInfo.setCreateDate(nowDate);
+            registerInfo.setRegisterid(IdGen.uuid());
+            AdminVestUser adminVest = new AdminVestUser();
+            adminVest.setAdmin_uid(adminUid);
+            adminVest.setCreateTime(nowDate);
+            adminVest.setVest_uid(registerInfo.getRegisterid());
+            adminVestUserRepository.saveAndFlush(adminVest);
+        }
+        registerInfo.setUpdateDate(nowDate);
+        Boolean isUsedNickName = registerInfoRepository.checkNickNameisUsedIgnoreAppointUid(vestUser.getNickName(), registerInfo.getRegisterid());
+        if (isUsedNickName){
+            throw new CommonException(2002, "昵称被使用,请重新设置");
+        }
+        registerInfo.setNickname(vestUser.getNickName());
+        registerInfo.setBirthday(vestUser.getBirthday());
+        registerInfo.setGender(vestUser.getGender());
+        registerInfo.setHeadphoto(vestUser.getAvatar());
+        registerInfo.setRegtime(nowDate);
+        registerInfo.setChannelType(6);
+        registerInfoRepository.saveAndFlush(registerInfo);
     }
 
     @Override

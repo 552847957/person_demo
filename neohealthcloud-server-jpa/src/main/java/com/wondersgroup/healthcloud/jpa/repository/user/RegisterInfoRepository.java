@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.jpa.repository.user;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,12 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
 
     @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0'")
     List<RegisterInfo> findByPersoncard(String personcard);
+
+    /**
+     * 检查昵称是否被用 (uid!=""除去当前uid)
+     */
+    @Query("select count(r) > 0 as c from RegisterInfo r where r.nickname =?1 and r.registerid <> ?2")
+    Boolean checkNickNameisUsedIgnoreAppointUid(String nickname, String uid);
 
     @Query("select r from RegisterInfo r where r.registerid =?1 and r.delFlag='0'")
     RegisterInfo findByRegisterid(String registerId);
