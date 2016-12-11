@@ -112,7 +112,7 @@ public class GoodsService {
 		String code = (String) map.get("code");
 		Integer status = (Integer) map.get("status");
 
-		sql = sql + " and a.goods_id =" + goodsId;
+		sql = sql + " where a.goods_id =" + goodsId;
 		if (StringUtils.isNotBlank(code)) {
 			sql = sql + " and a.code like '%" + code + "%'";
 		}
