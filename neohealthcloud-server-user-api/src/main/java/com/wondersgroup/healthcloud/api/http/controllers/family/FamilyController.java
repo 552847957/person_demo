@@ -109,7 +109,7 @@ public class FamilyController {
     private AppUrlH5Utils h5Utils;
 //    @Autowired
     RestTemplate restTemplate = new RestTemplate();
-    @Value("http://127.0.0.1:8080")
+    @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     
@@ -640,8 +640,9 @@ public class FamilyController {
         try { account.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate)); } catch (ParseException e) { e.printStackTrace(); }
         account.setCreateDate(new Date());
         account.setUpdateDate(new Date());
-        account.setUsername("username");
-        account.setPassword("password");
+        account.setCreator(id);
+        account.setUsername("HCGEN" + IdGen.uuid());
+        account.setPassword(IdGen.uuid());
         account.setMobile(mobile);
         account.setDelFlag("0");
         account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
@@ -718,7 +719,7 @@ public class FamilyController {
 //            info.setAge(info.getAge());
             info.setMobile(ano.getMobile());
         }else{
-            info.setIsVerification("1".equals(regInfo.getIdentifytype()));
+            info.setIsVerification(regInfo.verified());
             info.setNikcName(info.getNikcName());
             info.setAge(info.getAge());
             info.setMobile(info.getMobile());
@@ -748,10 +749,10 @@ public class FamilyController {
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
         List<FamilyMemberInvitationAPIEntity> list = new ArrayList<FamilyMemberInvitationAPIEntity>();
         for (FamilyMember familyMember : familyMembers) {
-            RegisterInfo info =  registerInfoRepository.getOne(familyMember.getUid());
+            RegisterInfo info =  registerInfoRepository.findByRegisterid(familyMember.getUid());
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
-            entity.setId(familyMember.getUid());
-            entity.setAvatar(info != null ? info.getHeadphoto() : null);
+            entity.setId(familyMember.getMemberId());
+            entity.setAvatar((info != null && info.getRegisterid() != null) ? info.getHeadphoto() : null);
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
             entity.setIsStandalone(false);
             if(info == null){
