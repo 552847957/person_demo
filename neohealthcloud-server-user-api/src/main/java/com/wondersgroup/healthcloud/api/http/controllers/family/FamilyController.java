@@ -72,6 +72,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitatio
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepository;
 import com.wondersgroup.healthcloud.services.step.StepCountService;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -105,6 +106,8 @@ public class FamilyController {
     @Autowired
     private FamilyMemberInvitationRepository invitationRepository;
     @Autowired
+    private FamilyMemberRepository familyMemberRepository;
+    @Autowired
     private AnonymousAccountService anonymousAccountService;
     @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
@@ -116,7 +119,7 @@ public class FamilyController {
     private AppUrlH5Utils h5Utils;
 //    @Autowired
     RestTemplate restTemplate = new RestTemplate();
-    @Value("${internal.api.service.measure.url}")
+    @Value("http://127.0.0.1:8080")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -826,7 +829,7 @@ public class FamilyController {
             for (int i = 0; i < orderUid.length; i++) {
                 String id = orderUid[i];
                 if(!StringUtils.isBlank(id)){
-                    invitationRepository.updateOrder(uid, id, i);
+                    familyMemberRepository.updateOrder(uid, id, i);
                 }
             }
         }
@@ -1042,6 +1045,6 @@ public class FamilyController {
     }
     
     public String getRelationName(String relation){
-        return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "我的");
+        return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "");
     }
 }
