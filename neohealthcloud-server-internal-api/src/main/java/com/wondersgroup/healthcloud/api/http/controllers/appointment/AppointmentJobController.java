@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
 import com.wondersgroup.healthcloud.utils.registration.SignatureGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -573,16 +574,15 @@ public class AppointmentJobController {
      */
     private List<HosInfo> getAllHosInfo() {
         HosInfoRequest hosInfoRequest = new HosInfoRequest();
-        hosInfoRequest.hosInfoR = new HosInfoR();
+        HosInfoR hosInfoR = new HosInfoR();
+        hosInfoRequest.hosInfoR = hosInfoR;
         hosInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
-        String sign = SignatureGenerator.generateSignature(hosInfoRequest);
-        hosInfoRequest.requestMessageHeader.setSign(sign);
-
+        hosInfoRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(hosInfoRequest));
 
         String xmlRequest = JaxbUtil.convertToXml(hosInfoRequest);
-        HosInfoResponse hosInfoResponse = hospitalInfoClient.getHospitalInfoList(xmlRequest);
-
         List<HosInfo> hosInfoList = Lists.newArrayList();
+
+        HosInfoResponse hosInfoResponse = hospitalInfoClient.getHospitalInfoList(xmlRequest);
         if(hosInfoResponse!=null&&"0".equals(hosInfoResponse.messageHeader.getCode())){
             hosInfoList = hosInfoResponse.hosInfoList;
         }else{

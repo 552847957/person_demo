@@ -25,6 +25,7 @@ public interface ScheduleRepository extends JpaRepository<AppointmentDoctorSched
 //    @Query("update AppointmentDoctorSchedule a set a.delFlag = '1' where a.updateDate < ?1 " +
 //            "or a.orderedNum >= a.reserveOrderNum")
 
+    @Modifying
     @Query("update AppointmentDoctorSchedule a set a.delFlag = '1' where a.updateDate < ?1 ")
     void deleteSchedule(Date nowDate);
 }

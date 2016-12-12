@@ -51,7 +51,7 @@ public class AppointmentDoctor {
      * 医生预约数
      */
     @Column(name = "reservation_num")
-    private Integer reservationNum;
+    private Integer reservationNum = 0;
 
     @Column(name = "del_flag")
     private String delFlag;
