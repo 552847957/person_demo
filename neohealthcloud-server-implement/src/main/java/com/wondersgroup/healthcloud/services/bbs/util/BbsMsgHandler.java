@@ -9,7 +9,10 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.appenum.SysMsgTypeEnum;
 import com.wondersgroup.healthcloud.common.utils.ArraysUtil;
+import com.wondersgroup.healthcloud.exceptions.Exceptions;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,13 +28,19 @@ public class BbsMsgHandler {
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
 
+    private static final Logger logger = LoggerFactory.getLogger("exlog");
+
     private final HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
     private void requestGet(String url,String[] parm){
-        Request request = new RequestBuilder().post().url(url).params(parm).build();
-        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-        JsonNode body = response.convertBody();
-        System.out.println(body.get("code").asInt());
+        try {
+            Request request = new RequestBuilder().post().url(url).params(parm).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+            JsonNode body = response.convertBody();
+        }catch (Exception e){
+            logger.info("bbs msq notify error : " + url);
+            logger.info(Exceptions.getStackTraceAsString(e));
+        }
     }
 
     /**
