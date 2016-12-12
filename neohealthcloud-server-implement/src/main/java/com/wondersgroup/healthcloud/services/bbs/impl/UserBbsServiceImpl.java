@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,6 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleCategoryRepository;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.UserBanLogRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.UserBbsService;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
@@ -55,10 +52,15 @@ public class UserBbsServiceImpl implements UserBbsService {
     private TopicRepository topicRepository;
 
     @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private UserBanLogRepository userBanLogRepository;
     
     @Autowired
     private CircleCategoryRepository circleCategoryRepository;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public boolean delTopic(String uid, Integer topicId) {
@@ -77,7 +79,7 @@ public class UserBbsServiceImpl implements UserBbsService {
         }
         topicRepository.save(topic);
         if (account.getIsBBsAdmin() == 1){
-            //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+            bbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return true;
     }
@@ -97,9 +99,10 @@ public class UserBbsServiceImpl implements UserBbsService {
                 dto.setId(circle.getId());
                 dto.setName(circle.getName());
                 dto.setIcon(circle.getIcon());
+                dto.setDescription(circle.getDescription());
                 dto.setForbidden(circle.getDelFlag().equals("0")? false : true);
-                // 我的圈子，都是已关注，无需展示，json会忽略
-                dto.setIfAttent(null);
+                // 我的圈子，都是已关注
+                dto.setIfAttent(1);
                 dtoList.add(dto);
             }
         }
@@ -130,7 +133,7 @@ public class UserBbsServiceImpl implements UserBbsService {
             registerInfoRepository.save(account);
         }
         //通知LTS
-        //BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
+        bbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
         return true;
     }
 
@@ -171,4 +174,13 @@ public class UserBbsServiceImpl implements UserBbsService {
         return dtoList;
     }
 
+    @Override
+    public int countTopicByUid(String uid) {
+        return topicRepository.countAllByPublishUid(uid);
+    }
+
+    @Override
+    public int countCommentByUid(String uid) {
+        return commentRepository.countAllByReplyUid(uid);
+    }
 }

@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.mall;
+package com.wondersgroup.healthcloud.api.http.controllers.mall.h5;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,14 +10,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 import com.wondersgroup.healthcloud.services.mall.MallBannerService;
 
 @RestController
-@RequestMapping("/api/mall")
-public class MallBannerController {
+@RequestMapping("/api/h5/mall")
+public class H5MallBannerController {
 
 	@Autowired
 	MallBannerService bannerService;
@@ -26,7 +25,6 @@ public class MallBannerController {
 	GoldRecordService goldRecordService;
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
-	@VersionRange
 	public Object home(String userId) {
 		JsonResponseEntity<Map<String, Object>> responseEntity = new JsonResponseEntity<>();
 		Map<String, Object> map = new HashMap<>();

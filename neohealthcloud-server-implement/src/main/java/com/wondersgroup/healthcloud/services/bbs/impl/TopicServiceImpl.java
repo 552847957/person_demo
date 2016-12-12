@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -65,12 +66,12 @@ public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private CircleService circleService;
-
     @Autowired
     private TopicTabService topicTabService;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
@@ -255,7 +256,7 @@ public class TopicServiceImpl implements TopicService {
             circle.setTopicCount(circle.getTopicCount() + 1);
             circleRepository.save(circle);
             //lts
-            //BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
+            bbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }
@@ -283,7 +284,11 @@ public class TopicServiceImpl implements TopicService {
             if (imgs != null && !imgs.isEmpty()) {
                 imgsStr = ArraysUtil.split2Sting(imgs, ",");
             }
-            topicContents.add(new TopicContent(publishInfo.getId(), contentTmp.getContent(), imgsStr));
+            TopicContent topicContentTmp = new TopicContent(publishInfo.getId(), contentTmp.getContent(), imgsStr);
+            if (null != contentTmp.getId() && contentTmp.getId()>0){
+                topicContentTmp.setId(contentTmp.getId());
+            }
+            topicContents.add(topicContentTmp);
         }
         topicContentRepository.save(topicContents);
     }
@@ -339,6 +344,25 @@ public class TopicServiceImpl implements TopicService {
         }
         publishInfo.setId(topic.getId());
         return topic;
+    }
+
+    private void saveTopicVote(Integer topicId, List<String> voteItems) {
+        List<VoteItem> voteItemModels = new ArrayList<>();
+        List<Vote> oldVotes = voteRepository.findVoteInfosByTopicId(topicId);
+        //投票暂时不可以编辑
+        if (oldVotes != null && !oldVotes.isEmpty()){
+            return;
+        }
+        if (null != voteItems && !voteItems.isEmpty()) {
+            Vote vote = new Vote(topicId);
+            vote = voteRepository.save(vote);
+            if (vote.getId() != null) {
+                for (String voteItem : voteItems) {
+                    voteItemModels.add(new VoteItem(vote.getId(), voteItem));
+                }
+            }
+            voteItemRepository.save(voteItemModels);
+        }
     }
 
     /**
@@ -419,23 +443,6 @@ public class TopicServiceImpl implements TopicService {
         return isAdmin ? TopicConstant.Status.OK : TopicConstant.Status.WAIT_VERIFY;
     }
 
-    private Boolean saveTopicVote(Integer topicId, List<String> voteItems) {
-        List<VoteItem> voteItemModels = new ArrayList<>();
-        Boolean isVote = false;
-        if (null != voteItems && !voteItems.isEmpty()) {
-            Vote vote = new Vote(topicId);
-            vote = voteRepository.save(vote);
-            if (vote.getId() != null) {
-                for (String voteItem : voteItems) {
-                    voteItemModels.add(new VoteItem(vote.getId(), voteItem));
-                }
-            }
-            voteItemRepository.save(voteItemModels);
-            isVote = true;
-        }
-        return isVote;
-    }
-
     @Override
     public Topic infoTopic(Integer topicId) {
         return topicRepository.findOne(topicId);
@@ -463,7 +470,7 @@ public class TopicServiceImpl implements TopicService {
         }
         topicRepository.save(topic);
         if (topic.getStatus() == TopicConstant.Status.ADMIN_DELETE){
-            //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+            bbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return topic;
     }
@@ -473,7 +480,7 @@ public class TopicServiceImpl implements TopicService {
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
         //lts
-        //BbsMsgHandler.publishMultTopics(topicIds);
+        bbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
@@ -482,7 +489,7 @@ public class TopicServiceImpl implements TopicService {
     public int verifyUnPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.ADMIN_DELETE, topicIds);
         //lts
-        //BbsMsgHandler.publishMultTopics(topicIds);
+        bbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
@@ -515,7 +522,7 @@ public class TopicServiceImpl implements TopicService {
         topicTabService.updateTopicTabMapInfo(topic.getId(), settingDto.getTags());
         //lts
         if (isToBest){
-            //BbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
+            bbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }

@@ -44,8 +44,8 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
 
         String isDefault = "0";
         Boolean isFirstContact = false;
-        if(name.length()>5){
-            throw new ErrorAppointmentException("就诊人名字长度不能超过5");
+        if(name.length()>32){
+            throw new ErrorAppointmentException("就诊人名字过长");
         }
         if (!IdcardUtils.validateCard(idcard)) {
             throw new IdCardErrorException();
@@ -61,6 +61,13 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
         if(list == null || list.size()<1){
             isDefault = "1";//设置为默认
             isFirstContact = true;
+        }else{
+            int age = IdcardUtils.getAgeByIdCard(idcard);
+            if(age>16 || age<55){
+                throw new ErrorAppointmentException("只能添加16岁及以下,55岁及以上的就诊人");
+            }
+            if(StringUtils.isBlank(mediCardId))
+                throw new ErrorAppointmentException("请填写医保卡");
         }
 
         //调用接口注册

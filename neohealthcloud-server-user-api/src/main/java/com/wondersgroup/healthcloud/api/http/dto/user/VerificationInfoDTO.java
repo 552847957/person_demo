@@ -21,6 +21,7 @@ public class VerificationInfoDTO {
     private String msg;
     private String name;
     private String idcard;
+    private String identifyType;
 
     public VerificationInfoDTO() {
 
@@ -30,6 +31,7 @@ public class VerificationInfoDTO {
         this.uid = uid;
         if (info == null) {
             this.canSubmit = true;
+            this.identifyType = "0";
         } else {
             Integer status = info.get("status").asInt();
             this.status = statusArray[status - 1];
@@ -38,6 +40,11 @@ public class VerificationInfoDTO {
             this.name = IdcardUtils.maskName(info.get("name").asText());
             this.idcard = IdcardUtils.maskIdcard(info.get("idcard").asText());
             this.msg = info.get("msg").isNull() ? null : info.get("msg").asText();
+            if (success) {
+                this.identifyType = "1";
+            } else {
+                this.identifyType = "0";
+            }
         }
     }
 
@@ -95,5 +102,13 @@ public class VerificationInfoDTO {
 
     public void setIdcard(String idcard) {
         this.idcard = idcard;
+    }
+
+    public String getIdentifyType() {
+        return identifyType;
+    }
+
+    public void setIdentifyType(String identifyType) {
+        this.identifyType = identifyType;
     }
 }

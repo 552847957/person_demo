@@ -3,13 +3,12 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
+import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ys on 2016/08/11.
@@ -53,5 +52,15 @@ public interface UserBbsService {
      * @return
      */
     List<AdminAccountDto> queryBBSAdminList();
-    
+
+    /**
+     * 用户发表的话题数量
+     */
+    int countTopicByUid(String uid);
+
+    /**
+     * 用户回复的评论数量
+     */
+    int countCommentByUid(String uid);
+
 }

@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.mall;
+package com.wondersgroup.healthcloud.api.http.controllers.mall.h5;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,19 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.services.mall.GoodsService;
 
 @RestController
-@RequestMapping("/api/goods")
-public class GoodsController {
+@RequestMapping("/api/h5/goods")
+public class H5GoodsController {
 
 	@Autowired
 	GoodsService goodsService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	@VersionRange
 	public Object list(int flag) {
 		JsonListResponseEntity<Goods> responseEntity = new JsonListResponseEntity<>();
 		PageRequest pageable = new PageRequest(flag, 20, Direction.ASC, "sortNo");
@@ -36,7 +34,6 @@ public class GoodsController {
 	}
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
-	@VersionRange
 	public Object details(Integer goodsId) {
 		JsonResponseEntity<Goods> responseEntity = new JsonResponseEntity<>();
 		Goods goods = goodsService.findById(goodsId);

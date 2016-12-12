@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Data;
@@ -24,6 +26,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "goods_tb")
+@JsonInclude(Include.NON_NULL)
 public class Goods {
 
 	@Id
@@ -33,12 +36,12 @@ public class Goods {
 	private String name; // 商品名称
 
 	private Integer type; // 商品类型 0：虚拟物品；1：单品； 2：服务包
-	
-	private String area; //区域
-	
+
+	private String area; // 区域
+
 	@Column(name = "hospital_id")
-	private String hospitalId; //医院代码
-	
+	private String hospitalId; // 医院代码
+
 	@Column(name = "hospital_name")
 	private String hospitalName;
 

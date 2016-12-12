@@ -224,7 +224,7 @@ public class TopicController {
             }
         }
         info.put("contents", contents);
-        List<Map<String, Object>> comments = commentService.getCommentListByAdminAppUid(id, appUid, userid);
+        List<Map<String, Object>> comments = commentService.getCommentListByAdminAppUid(id, appUid);
         info.put("comments", comments);
         entity.setData(info);
         return entity;

@@ -131,11 +131,13 @@ public class AppointmentOrderDTO {
             this.orderId = order.getOrderId();
             this.patientName = order.getUserName();//患者姓名
 
-            this.patientIdcard = IdcardUtils.maskIdcard(order.getUserIdcard());//患者身份证
+            this.patientIdcard = IdcardUtils.maskIdcard(order.getUserCardId());//患者身份证
 
-            this.patientMobile = IdcardUtils.maskMobile(order.getUserMobile());//患者手机号
+            this.patientMobile = IdcardUtils.maskMobile(order.getUserPhone());//患者手机号
 
-            this.mediCardId = order.getMediCardId();//社保卡
+            if(StringUtils.isNotBlank(order.getMediCardId())){
+                this.mediCardId = IdcardUtils.maskIdcard(order.getMediCardId());//社保卡
+            }
 
             this.orderTime = DateFormatter.dateTimeFormat(order.getCreateDate());
 
@@ -161,6 +163,7 @@ public class AppointmentOrderDTO {
             }
             if("1".equals(this.status) || DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
                 this.canCancel = true;
+                this.status = "1";
                 /**
                  * 取消预约的备注
                  * 不迟于2016年11月20日16点50分前取消，逾期取消失败。
@@ -169,7 +172,7 @@ public class AppointmentOrderDTO {
                     int closeDays = Integer.valueOf(order.getCloseDays());
                     int closeTimeHour = Integer.valueOf(order.getCloseTimeHour());
                     String cancelDate = DateFormatter.scheduleDateFormat(DateUtils.addDay(order.getScheduleDate(), -closeDays));
-                    this.cancelDesc = "不迟于"+cancelDate+closeTimeHour+"前取消，逾期取消失败。";
+                    this.cancelDesc = "不迟于"+cancelDate+closeTimeHour+"点前取消，逾期取消失败。";
                 }catch (Exception e){
                     log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getLocalizedMessage());
                 }

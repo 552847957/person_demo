@@ -98,5 +98,14 @@ public class MallBannerService {
 		List<Goods> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Goods>(Goods.class));
 		return list;
 	}
+	
+	public void soldOut(Integer goodsId) {
+		MallBanner banner = mallBannerRepository.findByGoodsId(goodsId);
+		if(banner != null){
+			banner.setStatus(0);
+		}
+		banner.setUpdateTime(new Date());
+		mallBannerRepository.save(banner);
+	}
 
 }

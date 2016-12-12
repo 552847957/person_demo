@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CommentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
+import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
@@ -17,8 +18,12 @@ import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.CircleException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +47,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private CircleRepository circleRepository;
+    @Autowired
+    private BbsAdminService bbsAdminService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public List<CommentListDto> getTopicOwnerCommentsList(Integer topicId, Integer page, Integer pageSize) {
@@ -161,9 +172,9 @@ public class CommentServiceImpl implements CommentService {
         topicRepository.save(topic);
         //通知相关消息
         if (comment.getReferCommentId() > 0){
-            //BbsMsgHandler.commentNewReply(comment.getReferUId(),topic.getId(), comment.getUid(),comment.getFloor());
+            bbsMsgHandler.commentNewReply(comment.getReferUId(),topic.getId(), comment.getUid(),comment.getFloor());
         }else {
-            //BbsMsgHandler.topicNewReply(topic.getUid(), topic.getId());
+            bbsMsgHandler.topicNewReply(topic.getUid(), topic.getId());
         }
         return comment;
     }
@@ -198,46 +209,120 @@ public class CommentServiceImpl implements CommentService {
         return true;
     }
 
-    //--------------------------//
-
-
     @Override
     public List<Map<String, Object>> getCommentListByCriteria(CommentSearchCriteria searchCriteria) {
-        return null;
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        StringBuffer querySql = new StringBuffer("select `comment`.*,topic.title as title,circle.name as circle_name,user.nickname ");
+        querySql.append(" from tb_bbs_comment `comment`  ");
+        querySql.append(" left join tb_bbs_topic topic on topic.id=`comment`.topic_id ");
+        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
+        querySql.append(" LEFT JOIN app_tb_register_info user on user.registerid=`comment`.uid ");
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        querySql.append(searchCriteria.getOrderInfo());
+        querySql.append(searchCriteria.getLimitInfo());
+        System.out.println(querySql.toString());
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString(), elelmentType.toArray());
+        return list;
     }
 
     @Override
     public int countCommentByCriteria(CommentSearchCriteria searchCriteria) {
-        return 0;
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        StringBuffer querySql = new StringBuffer("select count(*) from tb_bbs_comment `comment` ");
+        querySql.append(" left join tb_bbs_topic topic on topic.id=`comment`.topic_id ");
+        querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
+        querySql.append(" LEFT JOIN app_tb_register_info user on user.registerid=`comment`.uid ");
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+
+        Integer rs = jdbcTemplate.queryForObject(querySql.toString(), queryParams.getQueryElementType().toArray(), Integer.class);
+        return rs == null ? 0 : rs;
     }
 
     @Override
     public Map<String, Object> getCommentInfoById(Integer id) {
+        StringBuffer querySql = new StringBuffer("SELECT `comment`.id, topic.id as topicId, topic.title AS title, `comment`.floor," +
+                " user.nickname, `comment`.create_time, circle.`name` AS circle_name, `comment`.content " +
+                " FROM tb_bbs_comment `comment` " +
+                " LEFT JOIN tb_bbs_topic topic ON topic.id = `comment`.topic_id " +
+                " LEFT JOIN tb_bbs_circle circle ON circle.id = topic.circle_id " +
+                " LEFT JOIN app_tb_register_info user on user.registerid = `comment`.uid" +
+                " where `comment`.id = ");
+        querySql.append(id);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString());
+        if(list!=null&&list.size()>0){
+            return list.get(0);
+        }
         return null;
     }
 
     @Override
-    public List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid, String adminId) {
-        return null;
+    public List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid) {
+        if (StringUtils.isEmpty(uid)){
+            return null;
+        }
+        Set<String> uids = new HashSet<>();
+        uids.add(uid);
+        List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(uid);
+        if (null != vestUids){
+            uids.addAll(vestUids);
+        }
+        String uidsIn = "";
+        for (String str : uids) {
+            uidsIn += "'" + str + "',";
+        }
+        uidsIn = uidsIn.length() > 0 ? uidsIn.substring(0, uidsIn.length()-1) : "";
+        String queryReply = "select c.id, c.floor, c.content, c.create_time, user.nickname " +
+                " from tb_bbs_comment c " +
+                " LEFT JOIN app_tb_register_info user on user.registerid = c.uid " +
+                " where c.uid in ("+uidsIn+") and c.topic_id="+topicId;
+        List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
+        return replys;
     }
 
     @Override
     public Map<String, Object> getCommentInfoByIdWithReplys(Integer id) {
-        return null;
+        Map<String, Object> info = this.getCommentInfoById(id);
+        if (info == null){
+            return null;
+        }
+        String queryReply = "select c.id, c.floor, c.content, c.create_time, user.nickname " +
+                " from tb_bbs_comment c " +
+                " LEFT JOIN app_tb_register_info user on user.registerid = c.uid " +
+                " where c.refer_comment_id="+id;
+        List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
+        if(replys != null && replys.size()>0){
+            info.put("replys", replys);
+        }
+        return info;
     }
 
     @Override
     public Comment findOne(Integer id) {
-        return null;
+        Comment comment = commentRepository.findOne(id);
+        return comment;
     }
 
     @Override
     public Boolean delCommonByIds(String adminUid, List<Integer> ids) {
-        return null;
+        if (null == ids || ids.isEmpty()){
+            return false;
+        }
+        //删除回复
+        commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, ids);
+
+        bbsMsgHandler.adminDelComment(adminUid, ids);
+        return true;
     }
 
     @Override
     public Comment saveComment(Comment comment) {
-        return null;
+        Comment result = commentRepository.saveAndFlush(comment);
+        return result;
     }
 }

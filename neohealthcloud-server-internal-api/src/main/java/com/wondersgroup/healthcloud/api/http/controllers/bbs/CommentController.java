@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
@@ -46,7 +47,7 @@ public class CommentController {
     public Pager list(@RequestBody Pager pager, @RequestHeader String appUid, @RequestHeader String userid){
         Map<String, Object> parms = pager.getParameter();
         CommentSearchCriteria searchCriteria = new CommentSearchCriteria(parms);
-        if (searchCriteria.getIs_mine()){
+        if (searchCriteria.getIsMine()){
             List<String> adminIds = new ArrayList<>();
             List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(appUid);
             if (vestUids != null){
@@ -57,7 +58,7 @@ public class CommentController {
         }
         searchCriteria.setPage(pager.getNumber());
         searchCriteria.setPageSize(pager.getSize());
-        searchCriteria.setOrderInfo("comment.create_time desc");
+        searchCriteria.setOrderInfo("`comment`.create_time desc");
         int totalSize = commentService.countCommentByCriteria(searchCriteria);
         List<Map<String, Object>> list= commentService.getCommentListByCriteria(searchCriteria);
         pager.setTotalElements(totalSize);
@@ -135,17 +136,14 @@ public class CommentController {
         commentPublishDto.setUid(uid);
 
         Comment comment = commentService.publishComment(commentPublishDto);
-        Map<String, Object> info = new HashMap<>();
-        if (comment != null){
-            info.put("commentId", comment.getId());
-            info.put("floor", comment.getFloor());
-            entity.setData(info);
-            entity.setMsg("回复成功");
-        }else {
-            entity.setCode(2040);
-            entity.setData(null);
-            entity.setMsg("回复失败!");
+        if (null == comment){
+            throw new CommonException(2040, "回复失败!");
         }
+        Map<String, Object> info = new HashMap<>();
+        info.put("commentId", comment.getId());
+        info.put("floor", comment.getFloor());
+        entity.setData(info);
+        entity.setMsg("回复成功");
         return entity;
     }
 
@@ -159,21 +157,18 @@ public class CommentController {
     @Admin
     @RequestMapping(value="/modifyComment",method = RequestMethod.POST)
     public JsonResponseEntity modifyComment(@RequestBody String request) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer id = reader.readInteger("id", false);
         String content = reader.readString("content", false);
 
         Comment exist = commentService.findOne(id);
-        if (exist != null) {
-            exist.setContent(content);
-            commentService.saveComment(exist);
-            jsonResponseEntity.setMsg("修改成功");
-            return jsonResponseEntity;
-        } else {
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(String.format("评论id[%s]不存在", id));
+        if (null == exist){
+            throw new CommonException(2021, "评论id不存在");
         }
-        return jsonResponseEntity;
+        exist.setContent(content);
+        commentService.saveComment(exist);
+        entity.setMsg("修改成功");
+        return entity;
     }
 }

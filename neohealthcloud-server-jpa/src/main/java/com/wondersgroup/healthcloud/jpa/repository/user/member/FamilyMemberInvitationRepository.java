@@ -28,6 +28,4 @@ public interface FamilyMemberInvitationRepository extends JpaRepository<FamilyMe
     @Query("select count(1) from FamilyMemberInvitation fmi where fmi.uid=?1 and fmi.status='0'")
     int countSent(String userId);
 
-    @Query(nativeQuery = true, value = "update app_tb_family_member_invitation set order = ?3 where uid = ?1 and member_id = ?2")
-    int updateOrder(String userId, String memberId, int order);
 }

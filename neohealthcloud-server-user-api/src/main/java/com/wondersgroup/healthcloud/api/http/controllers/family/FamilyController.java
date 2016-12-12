@@ -3,13 +3,16 @@ package com.wondersgroup.healthcloud.api.http.controllers.family;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -68,6 +72,8 @@ import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitatio
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepository;
+import com.wondersgroup.healthcloud.services.step.StepCountService;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
@@ -100,9 +106,13 @@ public class FamilyController {
     @Autowired
     private FamilyMemberInvitationRepository invitationRepository;
     @Autowired
+    private FamilyMemberRepository familyMemberRepository;
+    @Autowired
     private AnonymousAccountService anonymousAccountService;
     @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
+    @Autowired
+    StepCountService stepCountService;
     @Autowired
     private Environment environment;
     @Autowired
@@ -112,6 +122,7 @@ public class FamilyController {
     @Value("http://127.0.0.1:8080")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
+    private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
     
     /**
      * 申请添加为亲情账户
@@ -640,8 +651,9 @@ public class FamilyController {
         try { account.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate)); } catch (ParseException e) { e.printStackTrace(); }
         account.setCreateDate(new Date());
         account.setUpdateDate(new Date());
-        account.setUsername("username");
-        account.setPassword("password");
+        account.setCreator(id);
+        account.setUsername("HCGEN" + IdGen.uuid());
+        account.setPassword(IdGen.uuid());
         account.setMobile(mobile);
         account.setDelFlag("0");
         account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
@@ -705,6 +717,8 @@ public class FamilyController {
         JsonResponseEntity<FamilyMemberInfoDTO> response = new JsonResponseEntity<FamilyMemberInfoDTO>();
         List<InfoTemplet>  tems = new ArrayList<FamilyMemberInfoDTO.InfoTemplet>();
         FamilyMemberInfoDTO infoDto = new FamilyMemberInfoDTO();
+        String registerId = null;
+        String sex = null;
         Info info = new Info();
         info.setIsStandalone(true);
         RegisterInfo regInfo = userService.findOne(uid);
@@ -717,23 +731,57 @@ public class FamilyController {
             info.setNikcName(ano.getNickname());
 //            info.setAge(info.getAge());
             info.setMobile(ano.getMobile());
+            registerId = ano.getId();
+            sex = ano.getSex();
         }else{
-            info.setIsVerification("1".equals(regInfo.getIdentifytype()));
+            registerId = regInfo.getRegisterid();
+            sex = regInfo.getGender();
+            info.setIsVerification(regInfo.verified());
             info.setNikcName(info.getNikcName());
             info.setAge(info.getAge());
             info.setMobile(info.getMobile());
         }
         
         info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
-        
+        List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {
-            tems.add(new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null));
+            InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
+            if(id == 4){
+                JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
+                templet.setValues(Arrays.asList(new Object[]{node.get("stepCount")}));
+            }else if(id == 6){
+                
+            }else if(id == 7){
+                
+            }else{
+                templet.setValues(getMeasure(measures, id));
+            }
+            tems.add(templet);
         }
         infoDto.setInfo(info);
         infoDto.setInfoTemplets(tems);
         response.setData(infoDto);
         response.setMsg("查询成功");
         return response;
+    }
+    
+    public List<Object> getMeasure(List<SimpleMeasure> measures, int type){
+        List<Object> list = new ArrayList<Object>();
+        for (SimpleMeasure measure : measures) {
+            if(type == 5 && measure.getName().contains("BMI")){
+                list.add(measure.getFlag());
+                list.add("BMI");
+                list.add(measure.getValue());
+            }else if(type == 6 && measure.getName().contains("血糖")){
+                list.add("血糖");
+                list.add(measure.getValue());
+            }else if(type == 7 && measure.getName().contains("血压")){
+                list.add("血压");
+                list.add(measure.getValue());
+                list.add(measure.getFlag());
+            }
+        }
+        return list;
     }
     
     /**
@@ -748,10 +796,10 @@ public class FamilyController {
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
         List<FamilyMemberInvitationAPIEntity> list = new ArrayList<FamilyMemberInvitationAPIEntity>();
         for (FamilyMember familyMember : familyMembers) {
-            RegisterInfo info =  registerInfoRepository.getOne(familyMember.getUid());
+            RegisterInfo info =  registerInfoRepository.findByRegisterid(familyMember.getUid());
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
-            entity.setId(familyMember.getUid());
-            entity.setAvatar(info != null ? info.getHeadphoto() : null);
+            entity.setId(familyMember.getMemberId());
+            entity.setAvatar((info != null && info.getRegisterid() != null) ? info.getHeadphoto() : null);
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
             entity.setIsStandalone(false);
             if(info == null){
@@ -781,7 +829,7 @@ public class FamilyController {
             for (int i = 0; i < orderUid.length; i++) {
                 String id = orderUid[i];
                 if(!StringUtils.isBlank(id)){
-                    invitationRepository.updateOrder(uid, id, i);
+                    familyMemberRepository.updateOrder(uid, id, i);
                 }
             }
         }
@@ -916,6 +964,53 @@ public class FamilyController {
         return list;
     }
     
+    /**
+     * 获取用户最新一条 bmi 血压 血氧数据
+     * @param registerId
+     * @return List<SimpleMeasure>
+     */
+    public List<SimpleMeasure> historyMeasureNew(String registerId, String gender){
+        Map<String, Object> result = new HashMap<>();
+        String personCard = "";
+//        String gender = null;
+        List<SimpleMeasure> list = new ArrayList<SimpleMeasure>();
+        try {
+//            RegisterInfo info = userService.findOne(registerId);
+//            if(info == null){
+//                AnonymousAccount account = anonymousAccountService.getAnonymousAccount(registerId, false);
+//                personCard = account.getIdcard();
+//                gender = account.getSex();
+//            }else{
+//                personCard = info.getPersoncard();
+//                gender = info.getGender();
+//            }
+            if(StringUtils.isEmpty(personCard)){
+                result.put("h5Url", Collections.EMPTY_MAP );
+            }else{
+                result.put("h5Url", h5Utils.generateLinks(personCard)) ;
+            }
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(gender))
+                    .concat("&personCard=").concat(getPersonCard(personCard));
+            String url = String.format(requestHistoryMeasureNew, host, param);
+            ResponseEntity<JsonResponseEntity> response = buildGetEntity(url, JsonResponseEntity.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                JsonResponseEntity entity = response.getBody();
+                if (entity.getCode() == 0) {
+                    List<Map> content = (List<Map>)entity.getData();
+                    for (Map map : content) {
+                        SimpleMeasure sims = new SimpleMeasure();
+                        BeanUtils.populate(sims, map);
+                        list.add(sims);
+                    }
+                    return list;
+                }
+            }
+        } catch (Exception e) {
+            logger.info("近期异常数据获取失败", e);
+        }
+        return list;
+    }
+    
     public Map<String, String> getFamilyMemberByUid(String uid){
         Map<String, String> map = new TreeMap<String, String>();
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
@@ -950,6 +1045,6 @@ public class FamilyController {
     }
     
     public String getRelationName(String relation){
-        return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "我的");
+        return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "");
     }
 }

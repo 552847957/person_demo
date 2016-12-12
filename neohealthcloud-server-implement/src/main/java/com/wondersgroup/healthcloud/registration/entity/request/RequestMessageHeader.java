@@ -19,6 +19,9 @@ public class RequestMessageHeader {
 
     private String sign;
 
+    public RequestMessageHeader() {
+
+    }
     public RequestMessageHeader(Environment environment) {
         this.frontproviderId = environment.getProperty("web-service.frontproviderId");
         this.inputCharset = environment.getProperty("web-service.inputCharset");

@@ -125,46 +125,46 @@ public class FamilyMemberRelation {
     
     public static String getNameByRelationAndSex(String relation, Integer sex){
         switch (relation) {
-        case "1": return sex == 2 ? "女儿" : "儿子"; 
-        case "2": return sex == 2 ? "女儿" : "儿子";
-        case "3": return "爱人"; 
-        case "4": return sex == 2 ? "妈妈" : "爸爸";
-        case "5": return sex == 2 ? "妈妈" : "爸爸";
-        case "6": return sex == 2 ? "孙女" : "孙子";
-        case "7": return sex == 2 ? "孙女" : "孙子";
-        case "8": return sex == 2 ? "外孙女" : "外孙";
-        case "9": return sex == 2 ? "外孙女" : "外孙";
-        case "10": return "女婿";
-        case "11": return "女婿";
-        case "12": return "儿媳妇";
-        case "13": return "儿媳妇";
-        case "14": return sex == 2 ? "侄女" : "侄子";
-        case "15": return sex == 2 ? "侄女" : "侄子";
-        case "16": return sex == 2 ? "外甥女" : "外甥";
-        case "17": return sex == 2 ? "外甥女" : "外甥";
-        case "18": return sex == 2 ? "妹妹" : "弟弟";
-        case "19": return sex == 2 ? "妹妹" : "弟弟";
-        case "20": return sex == 2 ? "姐姐" : "哥哥";
-        case "21": return sex == 2 ? "姐姐" : "哥哥";
-        case "22": return sex == 2 ? "姑姑" : "叔叔";
-        case "23": return sex == 2 ? "姑姑" : "叔叔";
-        case "24": return sex == 2 ? "岳母" : "岳父";
-        case "25": return sex == 2 ? "婆婆" : "公公";
-        case "26": return sex == 2 ? "奶奶" : "爷爷";
-        case "27": return sex == 2 ? "奶奶" : "爷爷";
-        case "28": return sex == 2 ? "外婆" : "外公";
-        case "29": return sex == 2 ? "外婆" : "外公";
-        case "30": return sex == 2 ? "舅妈" : "舅舅";
-        case "31": return sex == 2 ? "舅妈" : "舅舅";
-        case "32": return sex == 2 ? "干女儿" : "干儿子";
-        case "33": return sex == 2 ? "干女儿" : "干儿子";
-        case "34": return sex == 2 ? "干妈" : "干爹";
-        case "35": return sex == 2 ? "干妈" : "干爹";
-        case "36": return "女朋友";
-        case "37": return "男朋友";
-        case "38": return "朋友";
+        case "1": return sex == 2 ? "5" : "4"; 
+        case "2": return sex == 2 ? "5" : "4";
+        case "3": return "3"; 
+        case "4": return sex == 2 ? "2" : "1";
+        case "5": return sex == 2 ? "2" : "1";
+        case "6": return sex == 2 ? "27" : "26";
+        case "7": return sex == 2 ? "27" : "26";
+        case "8": return sex == 2 ? "29" : "28";
+        case "9": return sex == 2 ? "29" : "28";
+        case "10": return "24";
+        case "11": return "24";
+        case "12": return "25";
+        case "13": return "25";
+        case "14": return sex == 2 ? "23" : "22";
+        case "15": return sex == 2 ? "23" : "22";
+        case "16": return sex == 2 ? "31" : "30";
+        case "17": return sex == 2 ? "31" : "30";
+        case "18": return sex == 2 ? "19" : "21";
+        case "19": return sex == 2 ? "19" : "21";
+        case "20": return sex == 2 ? "18" : "20";
+        case "21": return sex == 2 ? "18" : "20";
+        case "22": return sex == 2 ? "15" : "14";
+        case "23": return sex == 2 ? "15" : "14";
+        case "24": return sex == 2 ? "11" : "10";
+        case "25": return sex == 2 ? "13" : "12";
+        case "26": return sex == 2 ? "7" : "6";
+        case "27": return sex == 2 ? "7" : "6";
+        case "28": return sex == 2 ? "9" : "8";
+        case "29": return sex == 2 ? "9" : "8";
+        case "30": return sex == 2 ? "17" : "16";
+        case "31": return sex == 2 ? "17" : "16";
+        case "32": return sex == 2 ? "34" : "35";
+        case "33": return sex == 2 ? "34" : "35";
+        case "34": return sex == 2 ? "33" : "32";
+        case "35": return sex == 2 ? "33" : "32";
+        case "36": return "37";
+        case "37": return "36";
+        case "38": return "38";
 
-        default: return SEX_MAN;
+        default: return "0";
         }
     }
 }

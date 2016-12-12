@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.common.utils.RandomUtil;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendRelationship;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
@@ -57,7 +56,7 @@ public class FriendRelationshipService {
 			return;
 		}
 
-		int goldNum = RandomUtil.randomInt(10, 100);
+		int goldNum = 100;
 		goldRecordService.save(invite.getUserId(), goldNum, GoldRecordTypeEnum.INVITATION);
 	}
 

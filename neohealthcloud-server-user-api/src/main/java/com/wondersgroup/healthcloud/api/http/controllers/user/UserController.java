@@ -29,7 +29,6 @@ import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -305,7 +304,7 @@ public class UserController {
         idCard = idCard.trim();
         idCard = StringUtils.upperCase(idCard);
         Boolean isIdCard = IdcardUtils.validateCard(idCard);
-        if(!isIdCard){
+        if (!isIdCard) {
             throw new ErrorIdcardException();
         }
         userAccountService.verificationSubmit(id, name, idCard, photo);
@@ -339,18 +338,19 @@ public class UserController {
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo(@RequestParam("uid") String id) {
         JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
         RegisterInfo person = userService.findOne(id);
-        if (person!=null&&person.verified()) {
+        if (person != null && person.verified()) {
             VerificationInfoDTO data = new VerificationInfoDTO();
             data.setUid(id);
             data.setName(IdcardUtils.maskName(person.getName()));
             data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+            data.setIdentifyType(person.getIdentifytype());
             data.setSuccess(true);
             data.setStatus(VerificationInfoDTO.statusArray[0]);
             data.setCanSubmit(false);
             body.setData(data);
-        } else if(person!=null) {
+        } else if (person != null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
-        }else if(person==null){
+        } else if (person == null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
         }
         return body;

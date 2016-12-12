@@ -354,7 +354,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
                 " d.dept_name as departmentName,e.hos_name as hospitalName," +
                 " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus," +
-                " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost," +
+                " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
                 " from app_tb_appointment_order a " +
                 " left join app_tb_appointment_doctor_schedule b on a.appointment_schedule_id = b.id " +
@@ -538,12 +538,15 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setOrderId(orderId);
         order.setVisitNo(visitNo);
         order.setTakePassword(takePassword);
-        order.setScheduleId(schedule.getId());
+        order.setAppointmentScheduleId(schedule.getId());
+        order.setScheduleId(schedule.getScheduleId());
         order.setNumSourceId(schedule.getNumSourceId());
+        order.setStatus(schedule.getStatus());
         order.setHospitalId(l2Department.getHospitalId());
         order.setL1DepartmentId(l2Department.getL1DepartmentId());
         order.setL2DepartmentId(l2Department.getId());
         order.setContactId(contact.getId());
+
         if(StringUtils.isNotBlank(schedule.getDoctorId())){
             order.setOrderType("2");
         }else{
@@ -562,7 +565,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setUserPhone(contact.getMobile());
         order.setUserSex(IdcardUtils.getGenderByIdCard(contact.getIdcard()));
         order.setUserBd(IdcardUtils.getBirthStrByIdCard(contact.getIdcard()));
-        order.setStatus("1");//1:预约成功
+        order.setOrderStatus("1");//1:预约成功
         order.setOrderTime(new Date());
         order.setCreateDate(new Date());
         order.setUpdateDate(new Date());

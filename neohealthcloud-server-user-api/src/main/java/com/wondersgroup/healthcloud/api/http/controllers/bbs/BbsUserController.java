@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class BbsUserController {
     private UserService userService;
 
     @Autowired
-    private FansService fansService;
+    private UserFansService fansService;
 
     @Autowired
     private CircleService circleService;
@@ -60,23 +61,18 @@ public class BbsUserController {
      */
     @VersionRange
     @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public JsonResponseEntity<UserHomeDto> home(@RequestParam String loginUid,
-                                                @RequestParam String uid) {
+    public JsonResponseEntity<UserHomeDto> home(@RequestParam String uid,
+                                                @RequestParam String targetUid) {
         JsonResponseEntity<UserHomeDto> jsonResponseEntity = new JsonResponseEntity();
         RegisterInfo userInfo = userService.getOneNotNull(uid);
         UserHomeDto userHomeDto = new UserHomeDto();
-
-        int fansCount = fansService.countFansByTopUid(uid);
-        int attentCount = fansService.countAttentByUid(uid);
+        int fansCount = fansService.countFansNum(targetUid);
+        int attentCount = fansService.countAttentNum(targetUid);
         userHomeDto.mergeOwnerUserInfo(userInfo);
         userHomeDto.setAttentCount(attentCount);
         userHomeDto.setFansCount(fansCount);
-        userHomeDto.setIsAttent(fansService.isAttentUser(loginUid, uid) ? 1 : 0);
-        if(fansService.ifAttentEachOther(loginUid, uid)){// 相互关注
-            userHomeDto.setAttentStatus(1);
-        }else{
-            userHomeDto.setAttentStatus(0);
-        }
+        Integer attentStatus = fansService.getMyAttentStatus(uid, targetUid);
+        userHomeDto.setAttentStatus(fansService.getMyAttentStatus(uid, targetUid));
         jsonResponseEntity.setData(userHomeDto);
         return jsonResponseEntity;
     }

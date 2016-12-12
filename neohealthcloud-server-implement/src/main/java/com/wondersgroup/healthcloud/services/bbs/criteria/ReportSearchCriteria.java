@@ -72,7 +72,7 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.circleId);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
-            where.append(" AND account.nickname like ?");
+            where.append(" AND user.nickname like ?");
             elementType.add("%"+this.nickname+"%");
         }
         if (StringUtils.isNotEmpty(this.title)){
@@ -80,7 +80,7 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
             elementType.add("%"+this.title+"%");
         }
         if (StringUtils.isNotEmpty(this.comment)){
-            where.append(" AND comment.content like ?");
+            where.append(" AND `comment`.content like ?");
             elementType.add("%"+this.comment+"%");
         }
         if (StringUtils.isNotEmpty(this.reportStartTime)){

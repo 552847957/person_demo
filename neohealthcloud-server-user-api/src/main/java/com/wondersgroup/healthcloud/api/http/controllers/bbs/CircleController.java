@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
-import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -18,7 +17,6 @@ import com.wondersgroup.healthcloud.services.bbs.dto.BannerAndMyCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.JoinedAndGuessLikeCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
 import com.wondersgroup.healthcloud.services.user.UserService;
-import com.wondersgroup.healthcloud.utils.Page;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +30,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 1. 圈子首页
@@ -100,13 +97,13 @@ public class CircleController {
      */
     @VersionRange
     @RequestMapping(value = "/myCircleList", method = RequestMethod.GET)
-    public JsonResponseEntity myCircleList(@RequestParam(required = true) String uId) {
+    public JsonResponseEntity myCircleList(@RequestParam String uid) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
             JoinedAndGuessLikeCirclesDto dto = new JoinedAndGuessLikeCirclesDto();
-            List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uId);
+            List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uid);
             dto.setJoinedList(myCircleList);
-            List<CircleListDto> guessLikeList = circleService.findGuessLikeCircles(uId);
+            List<CircleListDto> guessLikeList = circleService.findGuessLikeCircles(uid);
             dto.setGuessLikeList(guessLikeList);
             jsonResponseEntity.setData(dto);
             return jsonResponseEntity;
@@ -143,12 +140,12 @@ public class CircleController {
 
     @VersionRange
     @RequestMapping(value = "/bannerAndMyCircles", method = RequestMethod.GET)
-    public JsonResponseEntity bannerAndMyCircles(@RequestParam(required = true) String uId) {
+    public JsonResponseEntity bannerAndMyCircles(@RequestParam String uid) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
             BannerAndMyCirclesDto dto = new BannerAndMyCirclesDto();
 
-            List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uId);
+            List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uid);
             dto.setMyCircleList(myCircleList);
 
             List<CircleBannerDto> bannerList = circleService.getCircleBannerList();
@@ -195,11 +192,12 @@ public class CircleController {
      */
     @VersionRange
     @RequestMapping(value = "/getCirclesByCategoryId", method = RequestMethod.GET)
-    public JsonListResponseEntity getCirclesByCategoryId(@RequestParam(required = true) int categoryId, @RequestParam(required = true) String uId,@RequestParam(defaultValue = "1", required = false) Integer flag) {
+    public JsonListResponseEntity getCirclesByCategoryId(@RequestParam int categoryId, @RequestParam String uid,
+                                                         @RequestParam(defaultValue = "1", required = false) Integer flag) {
         JsonListResponseEntity jsonListResponseEntity = new JsonListResponseEntity();
         int pageSize = 10;
         try {
-            List<CircleListDto> cList = circleService.getCirclesByCId(categoryId, uId, flag, pageSize);
+            List<CircleListDto> cList = circleService.getCirclesByCId(categoryId, uid, flag, pageSize);
             
             Boolean hasMore = false;
             if (cList != null && cList.size() > pageSize){
@@ -228,7 +226,7 @@ public class CircleController {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer circleId = reader.readInteger("circleId", false);
-        String uId = reader.readString("uId", false);
+        String uid = reader.readString("uid", false);
         Circle circle = circleService.getCircleInfoById(circleId);
         if (null == circle || circle.getDelFlag().equals("1")){
             jsonResponseEntity.setCode(1004);
@@ -236,7 +234,7 @@ public class CircleController {
             return jsonResponseEntity;
         }
         try {
-            UserCircle exist = circleService.queryByUIdAndCircleId(uId, circleId);
+            UserCircle exist = circleService.queryByUIdAndCircleId(uid, circleId);
             if (exist != null) {
                 String delFlag = exist.getDelFlag();
                 // 未删除
@@ -248,7 +246,7 @@ public class CircleController {
                 if ("1".equals(delFlag)) {
                     exist.setDelFlag("0");
                     UserCircle updateResult = circleService.updateUserCircle(exist);
-                    logger.info(String.format("[%s]重新加入[%s]圈子成功", uId, circleId));
+                    logger.info(String.format("[%s]重新加入[%s]圈子成功", uid, circleId));
                     // 更新关注人数
                     circleService.updateActuallyAttentionCount(circleId);
                     jsonResponseEntity.setMsg("加入成功");
@@ -258,12 +256,12 @@ public class CircleController {
             } else {
                 UserCircle userCircle = new UserCircle();
                 userCircle.setCircleId(circleId);
-                userCircle.setUId(uId);
+                userCircle.setUId(uid);
                 UserCircle result = circleService.saveUserCircle(userCircle);
                 if (result != null) {
                     jsonResponseEntity.setData(result);
                     jsonResponseEntity.setMsg("加入成功");
-                    logger.info(String.format("[%s]加入[%s]圈子成功", uId, circleId));
+                    logger.info(String.format("[%s]加入[%s]圈子成功", uid, circleId));
                     // 更新关注人数
                     circleService.updateActuallyAttentionCount(circleId);
                     return jsonResponseEntity;
@@ -286,20 +284,20 @@ public class CircleController {
      * 离开圈子，DELETE
      *
      * @param circleId
-     * @param uId
+     * @param uid
      * @return
      */
     @VersionRange
     @RequestMapping(value = "/joinLeaveCircle", method = RequestMethod.DELETE)
-    public JsonResponseEntity leaveCircle(@RequestParam Integer circleId, @RequestParam String uId) {
+    public JsonResponseEntity leaveCircle(@RequestParam Integer circleId, @RequestParam String uid) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
-            UserCircle exist = circleService.queryByUIdAndCircleIdAndDelFlag(uId, circleId, "0");
+            UserCircle exist = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
             if (exist != null) {
                 exist.setDelFlag("1");
                 circleService.updateUserCircle(exist);
                 jsonResponseEntity.setMsg("成功退出圈子");
-                logger.info(String.format("[%s]退出[%s]圈子成功", uId, circleId));
+                logger.info(String.format("[%s]退出[%s]圈子成功", uid, circleId));
                 // 更新关注人数
                 circleService.updateActuallyAttentionCount(circleId);
                 return jsonResponseEntity;
@@ -324,7 +322,7 @@ public class CircleController {
      */
     @VersionRange
     @RequestMapping(value = "/getCircleInfo", method = RequestMethod.GET)
-    public JsonResponseEntity getCircleInfo(@RequestParam Integer circleId, @RequestParam String uId) {
+    public JsonResponseEntity getCircleInfo(@RequestParam Integer circleId, @RequestParam String uid) {
         JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
         try {
             CircleFullInfoDto fullInfoDto = new CircleFullInfoDto();
@@ -332,7 +330,7 @@ public class CircleController {
             CircleInfoDto dto = circleService.getCircleInfo(circleId);
             BeanUtils.copyProperties(dto, fullInfoDto);
             // 是否关注
-            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(uId, circleId, "0");
+            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
             if (userCircle != null) {
                 fullInfoDto.setIfAttent(1);
             }
