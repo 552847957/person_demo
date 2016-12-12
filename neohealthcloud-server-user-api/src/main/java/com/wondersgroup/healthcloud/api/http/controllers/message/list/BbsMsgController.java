@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.bbs;
+package com.wondersgroup.healthcloud.api.http.controllers.message.list;
 
 import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 消息中心(动态消息列表、系统通知列表)
+ * 消息列表-健康圈-动态消息接口 <br/>
+ * 消息列表-健康圈-通知消息接口 <br/>
  * Created by jialing.yao on 2016-8-17.
  */
 @RestController
@@ -30,7 +32,7 @@ public class BbsMsgController {
      * 动态消息列表查询
      */
     @VersionRange
-    @RequestMapping(value = "/msg/dynamic/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/dynamic/message/list", method = RequestMethod.GET)
     public Object getDynamicList(@RequestParam Map<String,Object> input){
         RequestDataReader reader = new RequestDataReader(input);
         String uid=reader.readString("uid",false);
@@ -40,6 +42,7 @@ public class BbsMsgController {
         Page page=new Page(pageNo,pageSize);
         Page data=dynamicMsgService.queryMsgListByUid(uid,page);
         List<Map<String, Object>> list = (List<Map<String, Object>>) data.getResult();
+        list = list == null?new ArrayList():list;
         JsonListResponseEntity<Map<String, Object>> result = new JsonListResponseEntity<>();
         result.setCode(0);
         if(data.getHasNext()){
@@ -54,7 +57,7 @@ public class BbsMsgController {
      * 系统消息列表查询
      */
     @VersionRange
-    @RequestMapping(value = "/msg/sysnotice/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/sysnotice/message/list", method = RequestMethod.GET)
     public Object getSysList(@RequestParam Map<String,Object> input){
         RequestDataReader reader = new RequestDataReader(input);
         String uid=reader.readString("uid",false);
@@ -64,6 +67,7 @@ public class BbsMsgController {
         Page page=new Page(pageNo,pageSize);
         Page data=sysMsgService.queryMsgListByUid(uid,page);
         List<Map<String, Object>> list = (List<Map<String, Object>>) data.getResult();
+        list = list == null?new ArrayList():list;
         JsonListResponseEntity<Map<String, Object>> result = new JsonListResponseEntity<>();
         result.setCode(0);
         if(data.getHasNext()){
