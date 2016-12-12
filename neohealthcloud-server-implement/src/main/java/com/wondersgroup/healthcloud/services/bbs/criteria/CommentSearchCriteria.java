@@ -63,15 +63,15 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
         StringBuffer where = new StringBuffer();
         List<Object> elementType = new ArrayList<>();
         if (this.id != null && this.id > 0){
-            where.append(" AND comment.id=?");
+            where.append(" AND `comment`.id=?");
             elementType.add(this.id);
         }
         if (StringUtils.isNotEmpty(this.uid)){
-            where.append(" AND comment.uid=?");
+            where.append(" AND `comment`.uid=?");
             elementType.add(this.uid);
         }
         if (this.status != null){
-            where.append(" AND comment.status=?");
+            where.append(" AND `comment`.status=?");
             elementType.add(this.status);
         }
         if (this.circle_id != null && this.circle_id > 0){
@@ -94,15 +94,15 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.topicStatus);
         }
         if (StringUtils.isNotEmpty(this.comment)){
-            where.append(" AND comment.content like ?");
+            where.append(" AND `comment`.content like ?");
             elementType.add("%"+this.comment+"%");
         }
         if (StringUtils.isNotEmpty(this.publish_startTime)){
-            where.append(" AND comment.create_time >= ?");
+            where.append(" AND `comment`.create_time >= ?");
             elementType.add(this.publish_startTime + " 00:00:00");
         }
         if (StringUtils.isNotEmpty(this.publish_endTime)){
-            where.append(" AND comment.create_time <= ?");
+            where.append(" AND `comment`.create_time <= ?");
             elementType.add(this.publish_endTime + " 23:59:59");
         }
         if (this.ids != null && !this.ids.isEmpty()){
@@ -111,7 +111,7 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
                 idsStr += "," + id;
             }
             idsStr = idsStr.substring(1);
-            where.append(" AND comment.id in ("+idsStr+")");
+            where.append(" AND `comment`.id in ("+idsStr+")");
         }
         if (this.uids != null && !this.uids.isEmpty()){
             String uidsStr = "";
@@ -119,7 +119,7 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
                 uidsStr += ",'" + uid+"'";
             }
             uidsStr = uidsStr.substring(1);
-            where.append(" AND comment.uid in ("+uidsStr+")");
+            where.append(" AND `comment`.uid in ("+uidsStr+")");
         }
         String whereStr = "";
         if (where.length() > 0){
