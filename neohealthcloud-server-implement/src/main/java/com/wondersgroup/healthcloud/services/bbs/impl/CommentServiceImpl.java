@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CommentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
+import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
@@ -17,8 +18,11 @@ import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.CircleException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private CircleRepository circleRepository;
+    @Autowired
+    private BbsAdminService bbsAdminService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public List<CommentListDto> getTopicOwnerCommentsList(Integer topicId, Integer page, Integer pageSize) {
@@ -217,27 +225,67 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid, String adminId) {
-        return null;
+    public List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid) {
+        if (StringUtils.isEmpty(uid)){
+            return null;
+        }
+        Set<String> uids = new HashSet<>();
+        uids.add(uid);
+        List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(uid);
+        if (null != vestUids){
+            uids.addAll(vestUids);
+        }
+        String uidsIn = "";
+        for (String str : uids) {
+            uidsIn += "'" + str + "',";
+        }
+        uidsIn = uidsIn.length() > 0 ? uidsIn.substring(0, uidsIn.length()-1) : "";
+        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, account.nickname " +
+                " from tb_bbs_comment comment " +
+                " LEFT JOIN tb_account_user account ON account.id = comment.uid " +
+                " where comment.uid in ("+uidsIn+") and comment.topic_id="+topicId;
+        List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
+        return replys;
     }
 
     @Override
     public Map<String, Object> getCommentInfoByIdWithReplys(Integer id) {
-        return null;
+        Map<String, Object> info = this.getCommentInfoById(id);
+        if (info == null){
+            return null;
+        }
+        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, account.nickname " +
+                " from tb_bbs_comment comment " +
+                " LEFT JOIN tb_account_user account ON account.id = comment.uid " +
+                " where comment.refer_comment_id="+id;
+        List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
+        if(replys != null && replys.size()>0){
+            info.put("replys", replys);
+        }
+        return info;
     }
 
     @Override
     public Comment findOne(Integer id) {
-        return null;
+        Comment comment = commentRepository.findOne(id);
+        return comment;
     }
 
     @Override
     public Boolean delCommonByIds(String adminUid, List<Integer> ids) {
-        return null;
+        if (null == ids || ids.isEmpty()){
+            return false;
+        }
+        //删除回复
+        commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, ids);
+
+//        BbsMsgHandler.adminDelComment(adminUid, ids);
+        return true;
     }
 
     @Override
     public Comment saveComment(Comment comment) {
-        return null;
+        Comment result = commentRepository.saveAndFlush(comment);
+        return result;
     }
 }

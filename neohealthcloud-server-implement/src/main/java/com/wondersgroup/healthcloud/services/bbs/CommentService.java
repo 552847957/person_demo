@@ -51,7 +51,7 @@ public interface CommentService {
     /**
      * 查询管理员以及其小号下的回复列表
      */
-    List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid, String adminId);
+    List<Map<String, Object>> getCommentListByAdminAppUid(Integer topicId, String uid);
 
     Map<String, Object> getCommentInfoByIdWithReplys(Integer id);
 
