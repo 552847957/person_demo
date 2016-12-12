@@ -196,7 +196,7 @@ public class ExchangeOrderService {
 	}
 
 	private void goodsItem(Integer goodsId, String userId, String orderId) {
-		GoodsItem goodsItem = goodsItemRepository.findByGoodsIdAndStatusTop1(goodsId, 0);
+		GoodsItem goodsItem = goodsItemRepository.findByGoodsIdAndStatus(goodsId, 0);
 		goodsItem.setUserId(userId);
 		goodsItem.setOrderId(orderId);
 		goodsItem.setStatus(1);
