@@ -97,9 +97,10 @@ public class UserBbsServiceImpl implements UserBbsService {
                 dto.setId(circle.getId());
                 dto.setName(circle.getName());
                 dto.setIcon(circle.getIcon());
+                dto.setDescription(circle.getDescription());
                 dto.setForbidden(circle.getDelFlag().equals("0")? false : true);
-                // 我的圈子，都是已关注，无需展示，json会忽略
-                dto.setIfAttent(null);
+                // 我的圈子，都是已关注
+                dto.setIfAttent(1);
                 dtoList.add(dto);
             }
         }
