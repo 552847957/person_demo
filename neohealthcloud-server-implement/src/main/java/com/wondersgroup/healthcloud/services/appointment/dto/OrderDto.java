@@ -21,9 +21,9 @@ public class OrderDto {
 
     private String userName;//患者姓名
 
-    private String userIdcard;//患者身份证
+    private String userCardId;//患者身份证
 
-    private String userMobile;//患者手机号
+    private String userPhone;//患者手机号
 
     private String mediCardId;//社保卡
 
