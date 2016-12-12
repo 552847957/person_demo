@@ -31,6 +31,15 @@ public class ExchangeOrder {
 	@Column(name = "goods_id")
 	private Integer goodsId; // 关联商品ID
 
+	@Column(name = "goods_type")
+	private Integer goodsType; // 商品类型
+
+	@Column(name = "goods_name")
+	private String goodsName; // 商品名称
+
+	@Column(name = "gold_num")
+	private Integer goldNum; // 兑换金币数
+
 	@Column(name = "user_id")
 	private String userId; // 关联用户ID
 
@@ -61,6 +70,9 @@ public class ExchangeOrder {
 
 	@Column(name = "operator_id")
 	private String operatorId; // 操作员ID
+
+	@Column(name = "end_time")
+	private Date endTime; // 结束时间
 
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "create_time")

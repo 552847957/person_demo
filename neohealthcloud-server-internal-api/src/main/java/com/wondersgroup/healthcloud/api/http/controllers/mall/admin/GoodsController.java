@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.mall;
+package com.wondersgroup.healthcloud.api.http.controllers.mall.admin;
 
 import java.io.IOException;
 import java.io.InputStream;

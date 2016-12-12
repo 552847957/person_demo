@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,9 +15,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
+import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
+import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
 import com.wondersgroup.healthcloud.jpa.repository.mall.ExchangeOrderRepository;
+import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.mall.dto.ExchangeOrderDto;
+
+import scala.collection.mutable.StringBuilder;
 
 @Service
 @Transactional
@@ -27,6 +36,15 @@ public class ExchangeOrderService {
 
 	@Autowired
 	ExchangeOrderRepository exchangeOrderRepository;
+
+	@Autowired
+	GoodsRepository goodsRepository;
+
+	@Autowired
+	RegisterInfoRepository registerInfoRepository;
+
+	@Autowired
+	GoldRecordService goldRecordService;
 
 	public Page<ExchangeOrderDto> list(Map map, int page, int size) {
 		String goodsName = (String) map.get("goodsName");
@@ -94,13 +112,76 @@ public class ExchangeOrderService {
 		int start = flag > 0 ? (flag - 1) * size : 0;
 		int end = start + size;
 		String sql = "from exchange_order_tb a left join goods_tb b on a.goods_id = b.id and a.user_id = ?";
-		String query = "select a.*, b.name as goodsName, b.picture, b.type as goodsType " + sql + " order by a.create_time desc limit ?, ?";
+		String query = "select a.*, b.name as goodsName, b.picture, b.type as goodsType " + sql
+				+ " order by a.create_time desc limit ?, ?";
 
 		List<ExchangeOrderDto> list = jdbcTemplate.query(query, new Object[] { userId, start, end },
 				new BeanPropertyRowMapper<ExchangeOrderDto>(ExchangeOrderDto.class));
 
 		int total = jdbcTemplate.queryForObject("select count(1)" + sql, new Object[] { userId }, Integer.class);
 		return new PageImpl<>(list, new PageRequest(flag, size), total);
+	}
+
+	public ExchangeOrderDto orderDetails(String orderId) {
+		ExchangeOrder order = exchangeOrderRepository.findOne(orderId);
+		ExchangeOrderDto exchangeOrderDto = new ExchangeOrderDto();
+		BeanUtils.copyProperties(order, exchangeOrderDto);
+
+		Goods goods = goodsRepository.findOne(order.getGoodsId());
+		if (goods != null) {
+			exchangeOrderDto.setPicture(goods.getPicture());
+		}
+		return exchangeOrderDto;
+	}
+
+	public void exchange(ExchangeOrder order) {
+		Goods goods = goodsRepository.findOne(order.getGoodsId());
+		Date date = new Date();
+		Integer orderType = goods.getType();
+
+		int restGold = goldRecordService.findRestGoldByUserId(order.getUserId());
+		if (0 >= goods.getStockNum()) {
+			throw new CommonException(1001, "商品已兑完");
+		}
+
+		if (goods.getPrice() > restGold) {
+			throw new CommonException(1002, "金币不足");
+		}
+
+		if (goods.getStatus() != 1) {
+			throw new CommonException(1003, "商品已下架");
+		}
+
+		order.setId(generateOrderId(orderType));
+		order.setGoodsType(goods.getType());
+		order.setGoodsName(goods.getName());
+		order.setEndTime(goods.getEndTime());
+		order.setGoldNum(goods.getPrice());
+		order.setCreateTime(date);
+		order.setUpdateTime(date);
+		order.setStatus(orderType == 1 ? 0 : 1);
+		exchangeOrderRepository.save(order);
+
+		int stockNum = goods.getStockNum();
+		goods.setStockNum(stockNum - 1);
+		goods.setSalesNum(goods.getSalesNum() + 1);
+		goods.setUpdateTime(date);
+		goodsRepository.save(goods);
+
+		int goldNum = -(goods.getPrice());
+		goldRecordService.save(order.getUserId(), goldNum, GoldRecordTypeEnum.EXCHANGE);
+
+	}
+
+	private String generateOrderId(int orderType) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("0");
+		sb.append(orderType + 1);
+
+		Date date = new Date();
+		sb.append(DateUtils.format(date, "MMddHHmmssSSS"));
+		return sb.toString();
+
 	}
 
 }

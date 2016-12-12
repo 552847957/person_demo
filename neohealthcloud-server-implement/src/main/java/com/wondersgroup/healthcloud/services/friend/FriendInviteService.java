@@ -17,10 +17,16 @@ import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
 import com.wondersgroup.healthcloud.jpa.repository.friend.FriendInviteRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
+import com.wondersgroup.healthcloud.utils.sms.SMS;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 @Service
 @Transactional
 public class FriendInviteService {
+
+	final static String prefix = "neoheathcloud:friendInvite:smscode:";
 
 	@Autowired
 	FriendInviteRepository friendInviteRepository;
@@ -30,6 +36,12 @@ public class FriendInviteService {
 
 	@Autowired
 	GoldRecordService goldRecordService;
+
+	@Autowired
+	SMS sms;
+
+	@Autowired
+	JedisPool jedisPool;
 
 	public List<FriendInvite> findByUserIdAndActived(String userId) {
 		return friendInviteRepository.findByUserIdAndStatus(userId, 1);
@@ -72,6 +84,31 @@ public class FriendInviteService {
 		map.put("code", 0);
 		map.put("data", 100);
 		return map;
+	}
+
+	public void sendCode(String mobile) {
+		Jedis jedis = jedisPool.getResource();
+		String content = "您的验证码为:%s，10分钟内有效。";
+		String key = prefix + mobile;
+		String code = generateCode();
+		sms.send(mobile, String.format(content, code));
+		jedis.set(key, code);
+		jedis.expire(key, 60 * 10);
+	}
+
+	public boolean verifySmsCode(String mobile, String code) {
+		Jedis jedis = jedisPool.getResource();
+		String key = prefix + mobile;
+		String redisCode = jedis.get(key);
+		if (code.equals(redisCode)) {
+			return true;
+		}
+		return false;
+	}
+
+	private String generateCode() {
+		int code = (int) (Math.random() * 1000000);
+		return code + "";
 	}
 
 }

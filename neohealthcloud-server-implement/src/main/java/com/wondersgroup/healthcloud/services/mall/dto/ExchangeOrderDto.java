@@ -16,8 +16,6 @@ public class ExchangeOrderDto extends ExchangeOrder {
 
 	private Integer goodsType; 
 	
-	private String goodsName;
-
 	private String userName;
 
 	private String picture;

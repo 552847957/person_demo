@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.mall;
+package com.wondersgroup.healthcloud.api.http.controllers.mall.h5;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,19 +12,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 
 @RestController
-@RequestMapping("/api/gold/record")
-public class GoldRecordController {
+@RequestMapping("/api/h5/gold/record")
+public class H5GoldRecordController {
 
 	@Autowired
 	GoldRecordService goldRecordService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	@VersionRange
 	public Object list(String userId, int flag) {
 		JsonListResponseEntity<GoldRecord> responseEntity = new JsonListResponseEntity<>();
 		int restGold = goldRecordService.findRestGoldByUserId(userId);
@@ -40,4 +38,5 @@ public class GoldRecordController {
 		responseEntity.setExtras(extras);
 		return responseEntity;
 	}
+	
 }

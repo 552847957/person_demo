@@ -52,7 +52,7 @@ public class GoldRecordService {
 		entity.setType(type);
 		entity.setId(IdGen.uuid());
 		entity.setCreateTime(new Date());
-		entity.setRestNum(restGold + entity.getGoldNum());
+		entity.setRestNum(restGold + goldNum);
 
 		return goldRecordRepository.save(entity);
 	}

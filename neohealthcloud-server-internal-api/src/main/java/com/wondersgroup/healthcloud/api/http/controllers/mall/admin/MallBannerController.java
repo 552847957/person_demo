@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.mall;
+package com.wondersgroup.healthcloud.api.http.controllers.mall.admin;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
