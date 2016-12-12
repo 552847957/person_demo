@@ -28,7 +28,7 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
 
     private String nickname;//回贴人昵称
 
-    private Boolean is_mine=false;//仅获取我 和我的小号 回复的
+    private Boolean isMine=false;//仅获取我 和我的小号 回复的
 
     private Boolean filterUserBanForever = true;//过滤掉回帖人被永久禁言的
 
@@ -38,11 +38,11 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
 
     private String comment;
 
-    private Integer circle_id;//根据圈子id查询
+    private Integer circleId;//根据圈子id查询
 
-    private String publish_startTime;
+    private String publishStartTime;
 
-    private String publish_endTime;
+    private String publishEndTime;
 
     private Integer status= TopicConstant.Status.OK;//根据帖子状态进行查询
 
@@ -74,9 +74,9 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
             where.append(" AND `comment`.status=?");
             elementType.add(this.status);
         }
-        if (this.circle_id != null && this.circle_id > 0){
+        if (this.circleId != null && this.circleId > 0){
             where.append(" AND topic.circle_id=?");
-            elementType.add(this.circle_id);
+            elementType.add(this.circleId);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
             where.append(" AND user.nickname like ?");
@@ -97,13 +97,13 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
             where.append(" AND `comment`.content like ?");
             elementType.add("%"+this.comment+"%");
         }
-        if (StringUtils.isNotEmpty(this.publish_startTime)){
+        if (StringUtils.isNotEmpty(this.publishStartTime)){
             where.append(" AND `comment`.create_time >= ?");
-            elementType.add(this.publish_startTime + " 00:00:00");
+            elementType.add(this.publishStartTime + " 00:00:00");
         }
-        if (StringUtils.isNotEmpty(this.publish_endTime)){
+        if (StringUtils.isNotEmpty(this.publishEndTime)){
             where.append(" AND `comment`.create_time <= ?");
-            elementType.add(this.publish_endTime + " 23:59:59");
+            elementType.add(this.publishEndTime + " 23:59:59");
         }
         if (this.ids != null && !this.ids.isEmpty()){
             String idsStr = "";
