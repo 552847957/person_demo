@@ -283,7 +283,11 @@ public class TopicServiceImpl implements TopicService {
             if (imgs != null && !imgs.isEmpty()) {
                 imgsStr = ArraysUtil.split2Sting(imgs, ",");
             }
-            topicContents.add(new TopicContent(publishInfo.getId(), contentTmp.getContent(), imgsStr));
+            TopicContent topicContentTmp = new TopicContent(publishInfo.getId(), contentTmp.getContent(), imgsStr);
+            if (null != contentTmp.getId() && contentTmp.getId()>0){
+                topicContentTmp.setId(contentTmp.getId());
+            }
+            topicContents.add(topicContentTmp);
         }
         topicContentRepository.save(topicContents);
     }
@@ -339,6 +343,25 @@ public class TopicServiceImpl implements TopicService {
         }
         publishInfo.setId(topic.getId());
         return topic;
+    }
+
+    private void saveTopicVote(Integer topicId, List<String> voteItems) {
+        List<VoteItem> voteItemModels = new ArrayList<>();
+        List<Vote> oldVotes = voteRepository.findVoteInfosByTopicId(topicId);
+        //投票暂时不可以编辑
+        if (oldVotes != null && !oldVotes.isEmpty()){
+            return;
+        }
+        if (null != voteItems && !voteItems.isEmpty()) {
+            Vote vote = new Vote(topicId);
+            vote = voteRepository.save(vote);
+            if (vote.getId() != null) {
+                for (String voteItem : voteItems) {
+                    voteItemModels.add(new VoteItem(vote.getId(), voteItem));
+                }
+            }
+            voteItemRepository.save(voteItemModels);
+        }
     }
 
     /**
@@ -417,23 +440,6 @@ public class TopicServiceImpl implements TopicService {
      */
     private int getUserPublishTopicDefaultStatus(Boolean isAdmin){
         return isAdmin ? TopicConstant.Status.OK : TopicConstant.Status.WAIT_VERIFY;
-    }
-
-    private Boolean saveTopicVote(Integer topicId, List<String> voteItems) {
-        List<VoteItem> voteItemModels = new ArrayList<>();
-        Boolean isVote = false;
-        if (null != voteItems && !voteItems.isEmpty()) {
-            Vote vote = new Vote(topicId);
-            vote = voteRepository.save(vote);
-            if (vote.getId() != null) {
-                for (String voteItem : voteItems) {
-                    voteItemModels.add(new VoteItem(vote.getId(), voteItem));
-                }
-            }
-            voteItemRepository.save(voteItemModels);
-            isVote = true;
-        }
-        return isVote;
     }
 
     @Override
