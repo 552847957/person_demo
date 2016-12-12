@@ -240,9 +240,9 @@ public class CommentServiceImpl implements CommentService {
             uidsIn += "'" + str + "',";
         }
         uidsIn = uidsIn.length() > 0 ? uidsIn.substring(0, uidsIn.length()-1) : "";
-        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, account.nickname " +
+        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, user.nickname " +
                 " from tb_bbs_comment comment " +
-                " LEFT JOIN tb_account_user account ON account.id = comment.uid " +
+                " LEFT JOIN app_tb_register_info user on user.registerid = comment.uid " +
                 " where comment.uid in ("+uidsIn+") and comment.topic_id="+topicId;
         List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
         return replys;
@@ -254,9 +254,9 @@ public class CommentServiceImpl implements CommentService {
         if (info == null){
             return null;
         }
-        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, account.nickname " +
+        String queryReply = "select comment.id, comment.floor, comment.content, comment.create_time, user.nickname " +
                 " from tb_bbs_comment comment " +
-                " LEFT JOIN tb_account_user account ON account.id = comment.uid " +
+                " LEFT JOIN app_tb_register_info user on user.registerid = comment.uid " +
                 " where comment.refer_comment_id="+id;
         List<Map<String, Object>> replys = jdbcTemplate.queryForList(queryReply);
         if(replys != null && replys.size()>0){

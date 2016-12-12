@@ -79,11 +79,11 @@ public class CommentSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.circle_id);
         }
         if (StringUtils.isNotEmpty(this.nickname)){
-            where.append(" AND account.nickname like ?");
+            where.append(" AND user.nickname like ?");
             elementType.add("%"+this.nickname+"%");
         }
         if (this.filterUserBanForever){
-            where.append(" AND account.ban_status != " + UserConstant.BanStatus.FOREVER);
+            where.append(" AND user.ban_status != " + UserConstant.BanStatus.FOREVER);
         }
         if (StringUtils.isNotEmpty(this.title)){
             where.append(" AND topic.title like ?");
