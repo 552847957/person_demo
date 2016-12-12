@@ -15,4 +15,8 @@ public interface GoodsItemRepository extends JpaRepository<GoodsItem, String> {
 
 	Page<GoodsItem> findAll(Specification<GoodsItem> specification, Pageable pageable);
 
+	GoodsItem findByGoodsIdAndStatusTop1(Integer goodsId, Integer status);
+	
+	GoodsItem findByOrderId(String orderId);
+
 }

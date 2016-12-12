@@ -19,5 +19,7 @@ public class ExchangeOrderDto extends ExchangeOrder {
 	private String userName;
 
 	private String picture;
+	
+	private String ticketCode;
 
 }

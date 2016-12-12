@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.common.utils.RandomUtil;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -51,9 +52,11 @@ public class FriendInviteService {
 		Map<String, Object> map = new HashMap<>();
 		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
 		if (user != null) {
+			// 老用户走的流程
 			boolean isGet = goldRecordService.isGet(user.getRegisterid(), GoldRecordTypeEnum.INVITATION_OLD);
 			if (!isGet) {
-				GoldRecord record = goldRecordService.save(user.getRegisterid(), 100,
+				int goldNum = RandomUtil.randomInt(1, 50);
+				GoldRecord record = goldRecordService.save(user.getRegisterid(), goldNum,
 						GoldRecordTypeEnum.INVITATION_OLD);
 				map.put("code", 0);
 				map.put("data", record.getGoldNum());
@@ -63,27 +66,29 @@ public class FriendInviteService {
 				map.put("msg", "今日不能再领取更多红包了:(");
 				return map;
 			}
-		}
+		} else {
+			// 新用户走的流程
+			FriendInvite friendInvite = friendInviteRepository.findByMobileNum(mobileNum);
+			if (friendInvite != null) {
+				map.put("code", 1002);
+				map.put("msg", "使用以下手机登陆领取更多红包");
+				return map;
+			}
 
-		FriendInvite friendInvite = friendInviteRepository.findByMobileNum(mobileNum);
-		if (friendInvite != null) {
-			map.put("code", 1002);
-			map.put("msg", "使用以下手机登陆领取更多红包");
+			friendInvite = new FriendInvite();
+			friendInvite.setId(IdGen.uuid());
+			friendInvite.setMobileNum(mobileNum);
+			friendInvite.setStatus(0);
+			friendInvite.setUserId(userId);
+			friendInvite.setCreateTime(new Date());
+			friendInvite.setUpdateTime(new Date());
+			friendInviteRepository.save(friendInvite);
+
+			map.put("code", 0);
+			map.put("data", 100);
 			return map;
 		}
 
-		friendInvite = new FriendInvite();
-		friendInvite.setId(IdGen.uuid());
-		friendInvite.setMobileNum(mobileNum);
-		friendInvite.setStatus(0);
-		friendInvite.setUserId(userId);
-		friendInvite.setCreateTime(new Date());
-		friendInvite.setUpdateTime(new Date());
-		friendInviteRepository.save(friendInvite);
-
-		map.put("code", 0);
-		map.put("data", 100);
-		return map;
 	}
 
 	public void sendCode(String mobile) {

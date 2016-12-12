@@ -21,7 +21,7 @@ public class StepCountService {
 	/**
 	 * 查询昨日可领取金币
 	 * <p>
-	 * 默认规则：步数/200，最多可领取500金币
+	 * 默认规则：步数/200，最多可领取100金币
 	 * </p>
 	 * 
 	 * @param userId

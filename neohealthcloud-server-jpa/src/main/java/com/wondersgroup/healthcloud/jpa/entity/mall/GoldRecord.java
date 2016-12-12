@@ -74,7 +74,7 @@ public class GoldRecord {
 			typeName = "分享奖励";
 			break;
 		case 8:
-			typeName = "邀请好友";
+			typeName = "计步红包";
 			break;
 		default:
 			typeName = "";

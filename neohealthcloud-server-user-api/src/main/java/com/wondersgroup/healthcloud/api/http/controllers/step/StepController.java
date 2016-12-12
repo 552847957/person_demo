@@ -1,11 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers.step;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wondersgroup.healthcloud.api.http.dto.step.StepHomeDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.RandomUtil;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.friend.FriendInviteService;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 import com.wondersgroup.healthcloud.services.step.StepCountService;
@@ -34,6 +36,9 @@ public class StepController {
 	@Autowired
 	FriendInviteService friendInviteService;
 
+	@Autowired
+	AppConfigService appConfigService;
+
 	/**
 	 * 获取计步首页数据
 	 * 
@@ -42,7 +47,10 @@ public class StepController {
 	 */
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	@VersionRange
-	public Object home(String userId) {
+	public Object home(
+			@RequestHeader(value = "main-area", required = true) String mainArea,
+			@RequestHeader(value = "spec-area", required = false) String specArea, 
+			String userId) {
 		JsonResponseEntity<StepHomeDto> responseEntity = new JsonResponseEntity<>();
 		int restGold = goldRecordService.findRestGoldByUserId(userId);
 		int awardGold = stepCountService.findAwardGold(userId);
@@ -60,6 +68,18 @@ public class StepController {
 		home.setAccess(isAccess);
 		home.setActivityTime(isActivityTime);
 		// TODO 需要设置帮助链接、规则链接
+
+		List<String> keyWords = new ArrayList<>();
+		keyWords.add("app.step.help");// 帮助
+		keyWords.add("app.step.rule");// 规则
+		keyWords.add("app.step.invite");// 邀请
+		keyWords.add("app.step.share.logo");// 邀请，分享Log
+
+		Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
+		home.setHelpUrl(cfgMap.get("app.step.help"));
+		home.setInviteUrl(cfgMap.get("app.step.rule"));
+		home.setLogoUrl(cfgMap.get("app.step.invite"));
+		home.setRuleUrl(cfgMap.get("app.step.share.logo"));
 
 		responseEntity.setData(home);
 		return responseEntity;
@@ -84,8 +104,8 @@ public class StepController {
 		}
 
 		int goldNum = stepCountService.findAwardGold(userId);
-		if(goldNum > 0){
-			goldRecordService.save(userId, goldNum, GoldRecordTypeEnum.REWARDS);	
+		if (goldNum > 0) {
+			goldRecordService.save(userId, goldNum, GoldRecordTypeEnum.REWARDS);
 		}
 		return responseEntity;
 	}
@@ -108,7 +128,7 @@ public class StepController {
 			return responseEntity;
 		}
 
-		int goldNum = RandomUtil.randomInt(1, 50);
+		int goldNum = 10;
 		goldRecordService.save(userId, goldNum, type);
 		return responseEntity;
 	}

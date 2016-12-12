@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsItemRepository;
@@ -44,6 +45,9 @@ public class GoodsService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	MallBannerService mallBannerService;
 
 	public void save(GoodsForm form) {
 		Date date = new Date();
@@ -79,11 +83,15 @@ public class GoodsService {
 
 	public void update(Goods goods) {
 		Goods tbGoods = goodsRepository.findOne(goods.getId());
+		if (tbGoods.getStatus() == 1) {
+			throw new CommonException(1001, "上架中的商品不能修改");
+		}
 
 		tbGoods.setName(goods.getName());
 		tbGoods.setIntroduce(goods.getIntroduce());
 		tbGoods.setSortNo(goods.getSortNo());
 		tbGoods.setUpdateTime(new Date());
+		tbGoods.setPrice(goods.getPrice());
 		goodsRepository.save(tbGoods);
 	}
 
@@ -102,6 +110,10 @@ public class GoodsService {
 	}
 
 	public void save(Goods goods) {
+		// 下线的时候需要把首页Banner下线
+		if (goods.getStatus() == 0) {
+			mallBannerService.soldOut(goods.getId());
+		}
 		goodsRepository.save(goods);
 	}
 
