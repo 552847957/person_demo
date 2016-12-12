@@ -316,7 +316,7 @@ public class CommentServiceImpl implements CommentService {
         //删除回复
         commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, ids);
 
-//        BbsMsgHandler.adminDelComment(adminUid, ids);
+        bbsMsgHandler.adminDelComment(adminUid, ids);
         return true;
     }
 

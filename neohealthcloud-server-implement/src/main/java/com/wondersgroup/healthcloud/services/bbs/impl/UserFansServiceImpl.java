@@ -26,6 +26,8 @@ public class UserFansServiceImpl implements UserFansService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
+    private BbsMsgHandler bbsMsgHandler;
+    @Autowired
     private UserFansRepository fansRepository;
 
     @Override
@@ -131,7 +133,7 @@ public class UserFansServiceImpl implements UserFansService {
     public UserFans saveFans(UserFans fans) {
         UserFans result = fansRepository.saveAndFlush(fans);
         if (fans.getDelFlag().equals("0")) {
-//            BbsMsgHandler.addAttent(fans.getUid(), fans.getFansUid());
+            bbsMsgHandler.addAttent(fans.getUid(), fans.getFansUid());
         }
         return result;
     }
