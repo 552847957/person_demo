@@ -57,7 +57,7 @@ public class CommentController {
         }
         searchCriteria.setPage(pager.getNumber());
         searchCriteria.setPageSize(pager.getSize());
-        searchCriteria.setOrderInfo("comment.create_time desc");
+        searchCriteria.setOrderInfo("`comment`.create_time desc");
         int totalSize = commentService.countCommentByCriteria(searchCriteria);
         List<Map<String, Object>> list= commentService.getCommentListByCriteria(searchCriteria);
         pager.setTotalElements(totalSize);

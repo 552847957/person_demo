@@ -51,6 +51,8 @@ public class CommentServiceImpl implements CommentService {
     private BbsAdminService bbsAdminService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public List<CommentListDto> getTopicOwnerCommentsList(Integer topicId, Integer page, Integer pageSize) {
@@ -170,9 +172,9 @@ public class CommentServiceImpl implements CommentService {
         topicRepository.save(topic);
         //通知相关消息
         if (comment.getReferCommentId() > 0){
-            //BbsMsgHandler.commentNewReply(comment.getReferUId(),topic.getId(), comment.getUid(),comment.getFloor());
+            bbsMsgHandler.commentNewReply(comment.getReferUId(),topic.getId(), comment.getUid(),comment.getFloor());
         }else {
-            //BbsMsgHandler.topicNewReply(topic.getUid(), topic.getId());
+            bbsMsgHandler.topicNewReply(topic.getUid(), topic.getId());
         }
         return comment;
     }

@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.services.bbs.criteria.ReportSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.CommentException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportDetailRepository reportDetailRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Transactional
     @Override
@@ -59,7 +62,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Boolean reportComment(String uid, Integer commentId, Integer reportReason) {
         Comment comment = commentRepository.findOne(commentId);
-        if (null == comment || comment.getStatus().intValue() == CommentConstant.Status.DELETE){
+        if (null == comment || comment.getStatus() == CommentConstant.Status.DELETE){
             throw CommentException.NotExistForReport();
         }
         return report(commentId, ReportConstant.ReportType.COMMENT, comment.getUid(), uid, reportReason);
@@ -155,10 +158,10 @@ public class ReportServiceImpl implements ReportService {
     public List<Map<String, Object>> getReportCommentListByCriteria(ReportSearchCriteria searchCriteria) {
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
         StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, report.create_time, " +
-                "comment.content,topic.title,topic.status as topic_status,comment.status as comment_status," +
+                "`comment`.content,topic.title,topic.status as topic_status,`comment`.status as comment_status," +
                 "user.nickname, circle.name as circle_name from tb_bbs_report report ");
-        querySql.append(" left join tb_bbs_comment comment on comment.id=report.target_id ");
-        querySql.append(" left join tb_bbs_topic topic on topic.id=comment.topic_id ");
+        querySql.append(" left join tb_bbs_comment `comment` on `comment`.id=report.target_id ");
+        querySql.append(" left join tb_bbs_topic topic on topic.id=`comment`.topic_id ");
         querySql.append(" left join app_tb_register_info user on user.registerid=report.target_uid ");
         querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
         querySql.append(" where target_type="+ReportConstant.ReportType.COMMENT);
@@ -177,8 +180,8 @@ public class ReportServiceImpl implements ReportService {
     public int countReportCommentByCriteria(ReportSearchCriteria searchCriteria) {
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
         StringBuffer querySql = new StringBuffer("select count(*) from tb_bbs_report report ");
-        querySql.append(" left join tb_bbs_comment comment on comment.id=report.target_id ");
-        querySql.append(" left join tb_bbs_topic topic on topic.id=comment.topic_id ");
+        querySql.append(" left join tb_bbs_comment `comment` on `comment`.id=report.target_id ");
+        querySql.append(" left join tb_bbs_topic topic on topic.id=`comment`.topic_id ");
         querySql.append(" left join app_tb_register_info user on user.registerid=report.target_uid ");
         querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
         querySql.append(" where target_type="+ReportConstant.ReportType.COMMENT);
@@ -213,11 +216,11 @@ public class ReportServiceImpl implements ReportService {
                 info.put("voteInfo", voteInfoDto);
             }
         }else if (report.getTargetType().intValue() == ReportConstant.ReportType.COMMENT){
-            StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, comment.create_time, " +
-                    "comment.content,topic.id as topicId, topic.title,topic.status as topic_status,comment.status as comment_status,comment.floor, " +
+            StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, `comment`.create_time, " +
+                    "`comment`.content,topic.id as topicId, topic.title,topic.status as topic_status,`comment`.status as comment_status,`comment`.floor, " +
                     "user.nickname, circle.name as circle_name from tb_bbs_report report ");
-            querySql.append(" left join tb_bbs_comment comment on comment.id=report.target_id ");
-            querySql.append(" left join tb_bbs_topic topic on topic.id=comment.topic_id ");
+            querySql.append(" left join tb_bbs_comment `comment` on `comment`.id=report.target_id ");
+            querySql.append(" left join tb_bbs_topic topic on topic.id=`comment`.topic_id ");
             querySql.append(" left join app_tb_register_info user on user.registerid=report.target_uid ");
             querySql.append(" left join tb_bbs_circle circle on circle.id=topic.circle_id ");
             querySql.append(" where report.id="+reportId);
@@ -258,14 +261,14 @@ public class ReportServiceImpl implements ReportService {
             topic.setStatus(TopicConstant.Status.ADMIN_DELETE);
             topic.setUpdateTime(nowDate);
             topicRepository.save(topic);
-//            BbsMsgHandler.adminDelTopic(topic.getUid(), topic.getId());
+            bbsMsgHandler.adminDelTopic(topic.getUid(), topic.getId());
         }else if (report.getTargetType().intValue() == ReportConstant.ReportType.COMMENT){
             Comment comment = commentRepository.findOne(report.getTargetId());
             comment.setStatus(CommentConstant.Status.DELETE);
             comment.setUpdateTime(nowDate);
             commentRepository.save(comment);
             //通知用户
-//            BbsMsgHandlendler.adminDelComment(admin_uid, comment.getId());
+            bbsMsgHandler.adminDelComment(admin_uid, comment.getId());
         }
         return true;
     }

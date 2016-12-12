@@ -59,6 +59,8 @@ public class UserBbsServiceImpl implements UserBbsService {
     
     @Autowired
     private CircleCategoryRepository circleCategoryRepository;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public boolean delTopic(String uid, Integer topicId) {
@@ -77,7 +79,7 @@ public class UserBbsServiceImpl implements UserBbsService {
         }
         topicRepository.save(topic);
         if (account.getIsBBsAdmin() == 1){
-            //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+            bbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return true;
     }
@@ -131,7 +133,7 @@ public class UserBbsServiceImpl implements UserBbsService {
             registerInfoRepository.save(account);
         }
         //通知LTS
-        //BbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
+        bbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
         return true;
     }
 

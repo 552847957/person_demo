@@ -50,6 +50,8 @@ public class CommentController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     private static final int ADMIN = 1;
 
@@ -142,7 +144,7 @@ public class CommentController {
         List<Integer> idList = Lists.newArrayList();
         idList.add(commentId);
         commentService.delCommonByIds(idList);
-        BbsMsgHandler.adminDelComment(uid, commentId);
+        bbsMsgHandler.adminDelComment(uid, commentId);
         responseEntity.setMsg("删除成功");
         return responseEntity;
     }

@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -65,12 +66,12 @@ public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private CircleService circleService;
-
     @Autowired
     private TopicTabService topicTabService;
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
@@ -255,7 +256,7 @@ public class TopicServiceImpl implements TopicService {
             circle.setTopicCount(circle.getTopicCount() + 1);
             circleRepository.save(circle);
             //lts
-            //BbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
+            bbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }
@@ -469,7 +470,7 @@ public class TopicServiceImpl implements TopicService {
         }
         topicRepository.save(topic);
         if (topic.getStatus() == TopicConstant.Status.ADMIN_DELETE){
-            //BbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
+            bbsMsgHandler.adminDelTopic(topic.getUid(), topicId);
         }
         return topic;
     }
@@ -479,7 +480,7 @@ public class TopicServiceImpl implements TopicService {
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
         //lts
-        //BbsMsgHandler.publishMultTopics(topicIds);
+        bbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
@@ -488,7 +489,7 @@ public class TopicServiceImpl implements TopicService {
     public int verifyUnPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.ADMIN_DELETE, topicIds);
         //lts
-        //BbsMsgHandler.publishMultTopics(topicIds);
+        bbsMsgHandler.publishMultTopics(topicIds);
         return 0;
     }
 
@@ -521,7 +522,7 @@ public class TopicServiceImpl implements TopicService {
         topicTabService.updateTopicTabMapInfo(topic.getId(), settingDto.getTags());
         //lts
         if (isToBest){
-            //BbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
+            bbsMsgHandler.adminSetTopicBest(topic.getUid(), topic.getId());
         }
         return topic.getId();
     }

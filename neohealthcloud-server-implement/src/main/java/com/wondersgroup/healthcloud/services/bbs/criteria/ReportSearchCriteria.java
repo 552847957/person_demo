@@ -80,7 +80,7 @@ public class ReportSearchCriteria extends BaseSearchCriteria {
             elementType.add("%"+this.title+"%");
         }
         if (StringUtils.isNotEmpty(this.comment)){
-            where.append(" AND comment.content like ?");
+            where.append(" AND `comment`.content like ?");
             elementType.add("%"+this.comment+"%");
         }
         if (StringUtils.isNotEmpty(this.reportStartTime)){
