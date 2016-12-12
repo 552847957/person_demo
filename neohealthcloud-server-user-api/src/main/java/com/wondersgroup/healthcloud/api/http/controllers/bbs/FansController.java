@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserFans;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBbsInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,8 +40,11 @@ public class FansController {
      */
     @VersionRange
     @RequestMapping(value = "/fansList", method = RequestMethod.GET)
-    public JsonListResponseEntity fansList(@RequestParam String uid, @RequestParam String targetUid,
+    public JsonListResponseEntity fansList(@RequestParam String uid, @RequestParam(required = false) String targetUid,
                                               @RequestParam(required = false,defaultValue = "1") Integer flag) {
+        if (StringUtils.isEmpty(targetUid)){
+            targetUid = uid;
+        }
         JsonListResponseEntity entity = new JsonListResponseEntity<>();
         List<UserFansAttentListDto> listDtos = new ArrayList<>();
         List<UserBbsInfo> fansUsers = fansService.getFansUsers(targetUid, flag, pageSize);
@@ -71,8 +75,11 @@ public class FansController {
      */
     @VersionRange
     @RequestMapping(value = "/attentList", method = RequestMethod.GET)
-    public JsonListResponseEntity attentList(@RequestParam String uid, @RequestParam String targetUid,
+    public JsonListResponseEntity attentList(@RequestParam String uid, @RequestParam(required = false) String targetUid,
                                               @RequestParam(required = false,defaultValue = "1") Integer flag) {
+        if (StringUtils.isEmpty(targetUid)){
+            targetUid = uid;
+        }
         JsonListResponseEntity entity = new JsonListResponseEntity<>();
         List<UserFansAttentListDto> listDtos = new ArrayList<>();
         List<UserBbsInfo> attentlist = fansService.getAttentUsers(targetUid, flag, pageSize);

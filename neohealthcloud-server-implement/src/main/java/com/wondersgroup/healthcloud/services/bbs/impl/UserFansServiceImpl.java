@@ -23,8 +23,6 @@ import java.util.Map;
 @Service("fansService")
 public class UserFansServiceImpl implements UserFansService {
 
-    private static final Logger logger = LoggerFactory.getLogger("FansServiceImpl");
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
