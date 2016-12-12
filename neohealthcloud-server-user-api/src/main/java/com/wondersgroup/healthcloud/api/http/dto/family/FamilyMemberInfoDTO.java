@@ -74,7 +74,6 @@ public class FamilyMemberInfoDTO {
             map.put(BLOODPRESSURE, "血压管理");
             map.put(RISKEVALUATE, "风险评估");
             map.put(HEALTHQUESTION, "中医体质辨识");
-            map.put(HEALTHQUESTION, "中医体质辨识");
         }
 
     }

@@ -15,7 +15,7 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Stri
     @Query("select fm from FamilyMember fm where fm.pairId=?1")
     List<FamilyMember> findByPairId(String pairId);
 
-    @Query("select fm from FamilyMember fm where fm.uid=?1 order by fm.order,fm.createDate")
+    @Query("select fm from FamilyMember fm where fm.uid=?1 order by fm.sequence,fm.createDate")
     List<FamilyMember> members(String userId);
 
     @Query("select count(1) from FamilyMember fm where fm.uid=?1")
