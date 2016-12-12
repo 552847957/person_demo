@@ -129,11 +129,10 @@ public class FansController {
                 exist.setDelFlag("0");
                 exist.setUpdateTime(nowDate);
                 fansService.saveFans(exist);// 更新del_flag状态
-                entity.setMsg("关注成功");
                 Map<String, Object> info = new HashMap<>();
                 info.put("attentStatus", fansService.isAttentEachOther(uid, targetUid) ? 1 : 0);
+                entity.setMsg("关注成功");
                 entity.setData(info);
-                logger.info(String.format("[%s]重新关注[%s]成功", uid, targetUid));
                 return entity;
             }
         } else {
@@ -143,11 +142,10 @@ public class FansController {
             fans.setCreateTime(nowDate);
             fans.setUpdateTime(nowDate);
             fansService.saveFans(fans);
-            entity.setMsg("关注成功");
             Map<String, Object> info = new HashMap<>();
             info.put("attentStatus", fansService.isAttentEachOther(uid, targetUid) ? 1 : 0);
+            entity.setMsg("关注成功");
             entity.setData(info);
-            logger.info(String.format("[%s]关注[%s]成功", uid, targetUid));
             return entity;
         }// end else
         return entity;

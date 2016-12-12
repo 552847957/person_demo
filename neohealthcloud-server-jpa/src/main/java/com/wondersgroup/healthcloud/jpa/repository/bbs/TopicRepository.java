@@ -27,6 +27,9 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
                     " where a.circle_id=?1 and a.status=1 and b.tab_id=?2 ORDER BY a.last_comment_time desc limit ?3,?4")
     List<Topic> findListByCicleTab(Integer cirleId, Integer tabId, int offset, int limit);
 
+    @Query("select count(id) from Topic a where a.uid=?1")
+    int countAllByPublishUid(String uid);
+
     @Transactional
     @Modifying
     @Query(nativeQuery = true, value = "update tb_bbs_topic t set t.pv=t.pv+1 where t.id=?1")

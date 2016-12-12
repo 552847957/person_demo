@@ -24,16 +24,14 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findListByUid(String uid, int offset, int pageSize);
 
     @Query(nativeQuery = true,
-            value = "select * from tb_bbs_comment a where a.topic_id=?1 and a.uid=?2 order by a.floor asc limit ?3,?4")
-    List<Comment> findListByTopicIdAndUid(Integer topicId, String uid, int offset, int pageSize);
-
-    @Query(nativeQuery = true,
             value = "select * from tb_bbs_comment a where a.topic_id=?1 and a.is_owner=1 order by a.floor asc limit ?2,?3")
     List<Comment> findTopicOwnerComments(Integer topicId, int offset, int pageSize);
 
-    @Query(nativeQuery = true,
-            value = "select count(*) from tb_bbs_comment a where a.topic_id=?1 and a.uid=?2")
-    Integer getTopicUserReplyCount(Integer topicId, String uid);
+    @Query("select count(*) from Comment a where a.topicId=?1 and a.uid=?2")
+    Integer countAllByTopicIdAndReplyUid(Integer topicId, String uid);
+
+    @Query("select count(id) from Comment a where a.uid=?1")
+    int countAllByReplyUid(String uid);
 
     @Query(nativeQuery = true,
             value = "select count(*) from tb_bbs_comment a where a.topic_id=?1 and a.is_owner=1")
