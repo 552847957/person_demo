@@ -45,4 +45,12 @@ public class H5ExchangeOrderController {
 		return responseEntity;
 	}
 
+	@RequestMapping(value = "/address", method = RequestMethod.GET)
+	public Object address(String userId, Integer goodsType) {
+		JsonResponseEntity<ExchangeOrder> responseEntity = new JsonResponseEntity<>();
+		ExchangeOrder order = exchangeOrderService.address(userId, goodsType);
+		responseEntity.setData(order);
+		return responseEntity;
+	}
+
 }

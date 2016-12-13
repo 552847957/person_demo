@@ -60,13 +60,7 @@ public class ExchangeOrderService {
 		String startTime = (String) map.get("startTime");
 		String endTime = (String) map.get("endTime");
 
-		String sql = "select  a.*, if(c.identifytype=1,c.name,c.nickname)  userName " + "from exchange_order_tb a";
-
-		sql += " left join  app_tb_register_info c on a.user_id = c.`registerid`";
-		if (StringUtils.isNotBlank(userName)) {
-			sql += " and ((c.identifytype = 0 and c.nickname like '%" + userName
-					+ "%') or (c.identifytype = 1 and c.name like '%" + userName + "%'))";
-		}
+		String sql = "select  a.* " + "from exchange_order_tb a";
 
 		sql += " where 1=1 ";
 		if (goodsType != null) {
@@ -77,6 +71,9 @@ public class ExchangeOrderService {
 		}
 		if (StringUtils.isNotBlank(orderId)) {
 			sql += " and a.id like  '%" + orderId + "%'";
+		}
+		if (StringUtils.isNotBlank(userName)) {
+			sql += " and a.customer_name like '% "+ userName +"%' ";
 		}
 		if (orderStatus != null) {
 			sql += " and a.status = " + orderStatus;
@@ -203,6 +200,10 @@ public class ExchangeOrderService {
 		goodsItem.setStatus(1);
 		goodsItem.setUpdateTime(new Date());
 		goodsItemRepository.save(goodsItem);
+	}
+
+	public ExchangeOrder address(String userId, Integer goodsType) {
+		return exchangeOrderRepository.findByUserIdAndGoodsType(userId, goodsType);
 	}
 
 }
