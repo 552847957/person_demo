@@ -169,19 +169,19 @@ public class CircleController {
      */
     @VersionRange
     @RequestMapping(value = "/getCircleCategory", method = RequestMethod.GET)
-    public JsonResponseEntity getCircleCategory() {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+    public JsonListResponseEntity getCircleCategory() {
+        JsonListResponseEntity jsonListResponseEntity = new JsonListResponseEntity();
         try {
             List<CircleCategoryDto> cateList = circleService.getCircleCategoryDtoList();
-            jsonResponseEntity.setData(cateList);
-            return jsonResponseEntity;
+            jsonListResponseEntity.setContent(cateList);
+            return jsonListResponseEntity;
         } catch (Exception e) {
             String errorMsg = "查询圈子分类出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            jsonListResponseEntity.setCode(1001);
+            jsonListResponseEntity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return jsonListResponseEntity;
     }
 
     /**
