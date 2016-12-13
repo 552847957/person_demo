@@ -46,6 +46,7 @@ public class UserAccountDTO {
     private String height;
     private String weight;
     private String waist;
+    private Boolean isChangedNickName=true;
 
     @JsonUnwrapped(prefix = "address_")
     private AddressDTO addressDTO;
@@ -277,5 +278,13 @@ public class UserAccountDTO {
 
     public void setIdentifytype(String identifytype) {
         this.identifytype = identifytype;
+    }
+
+    public void setChangedNickName(Boolean changedNickName) {
+        isChangedNickName = changedNickName;
+    }
+
+    public Boolean getChangedNickName() {
+        return StringUtils.isNoneEmpty(nickName) && !nickName.startsWith("健康用户");
     }
 }
