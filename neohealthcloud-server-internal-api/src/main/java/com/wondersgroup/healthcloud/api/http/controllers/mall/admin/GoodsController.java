@@ -140,6 +140,14 @@ public class GoodsController {
 		return pager;
 	}
 
+	@RequestMapping(value = "/autoSoldOut", method = RequestMethod.GET)
+	public Object autoSoldOut() {
+		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
+		goodsService.autoSoldOut();
+		responseEntity.setMsg("OK");
+		return responseEntity;
+	}
+
 	private Set<String> readExcel(InputStream stream) throws IOException {
 		Set<String> list = new HashSet<>();
 		XSSFWorkbook workbook = new XSSFWorkbook(stream);

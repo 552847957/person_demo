@@ -182,4 +182,17 @@ public class GoodsService {
 		return goodsRepository.findByStatus(status, pageable);
 	}
 
+	public void autoSoldOut() {
+		Date date = new Date();
+		List<Goods> goodsList = goodsRepository.findByStatusAndEndTime(1, date);
+
+		if (goodsList != null && !goodsList.isEmpty()) {
+			for (Goods goods : goodsList) {
+				goods.setStatus(0);
+				save(goods);
+			}
+		}
+
+	}
+
 }
