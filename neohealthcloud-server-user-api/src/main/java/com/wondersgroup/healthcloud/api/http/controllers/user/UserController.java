@@ -403,7 +403,7 @@ public class UserController {
         body.setMsg("修改成功");
         Map<String, String> data = Maps.newHashMap();
         data.put("nick_name", nickname);
-        data.put("avatar", avatar)
+        data.put("avatar", avatar);
         body.setData(data);
         return body;
     }
