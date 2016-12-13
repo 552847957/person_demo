@@ -113,6 +113,28 @@ public class CloudTopLineServiceImpl implements CloudTopLineService {
         return list;
     }
 
+    @Override
+    public List<CloudTopLine> queryAllCloudTopLine() {
+        final String sql = "select * from app_tb_cloud_top_line where del_flag = '0' ";
+        List<CloudTopLine> list = jdbcTemplate.query(sql, new RowMapper(){
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                CloudTopLine entity = new CloudTopLine();
+                entity.setId(rs.getInt("id"));
+                entity.setName(rs.getString("name"));
+                entity.setTitle(rs.getString("title"));
+                entity.setJumpUrl(rs.getString("jump_url"));
+                entity.setType(rs.getInt("type"));
+                entity.setIconUrl(rs.getString("icon_url"));
+                entity.setDelFlag(rs.getString("del_flag"));
+                entity.setCreateTime(rs.getDate("create_time"));
+                entity.setUpdateTime(rs.getDate("update_time"));
+                return entity;
+            }
+        });
+
+        return list;
+    }
+
 
     @Override
     public boolean updateCloudTopLineById(CloudTopLine entity) {

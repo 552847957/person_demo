@@ -38,6 +38,11 @@ public interface CloudTopLineService {
      */
     List<CloudTopLine> queryCloudTopLineByCondition(Map<String,Object> paramMap);
 
+    /**
+     * 查询满足条件的 云头条信息
+     * @return
+     */
+    List<CloudTopLine> queryAllCloudTopLine();
 
 
     /**
