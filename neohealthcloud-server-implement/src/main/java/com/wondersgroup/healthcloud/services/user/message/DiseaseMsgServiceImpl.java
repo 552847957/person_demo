@@ -77,6 +77,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
         }
         return list;
     }
+    @Override
     public void setRead(List<Integer> ids){
         Joiner joiner = Joiner.on(",").skipNulls();
         String sql=String.format("update app_tb_disease_message set is_read=1 where id in(%s)",joiner.join(ids));

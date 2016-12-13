@@ -27,6 +27,8 @@ public interface MsgService {
      */
     int countOfUnReadMessages(String uid);
 
+    //批量设为已读
+    void setRead(List<Integer> ids);
     //设置全部未读消息为已读
     void setAllRead(String uid);
 }
