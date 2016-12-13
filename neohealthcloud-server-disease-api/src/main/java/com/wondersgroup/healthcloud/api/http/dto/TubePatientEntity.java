@@ -1,13 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDTO;
-import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDetailDTO;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-
-import java.util.Date;
 
 /**
  * Created by Administrator on 2016/12/12.

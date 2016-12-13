@@ -1,8 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.RiskScreeningEntity;
 import com.wondersgroup.healthcloud.api.http.dto.TubePatientDetailEntity;
 import com.wondersgroup.healthcloud.api.http.dto.TubePatientEntity;
 import com.wondersgroup.healthcloud.api.utls.Pager;
@@ -14,10 +12,8 @@ import com.wondersgroup.healthcloud.jpa.repository.diabetes.BaseInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
-import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
 import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDTO;
 import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDetailDTO;
-import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +79,12 @@ public class TubePatientController {
         }
         TubePatientDetailEntity entity = new TubePatientDetailEntity(dto);
         if(!StringUtils.isEmpty(dto.getProfession())){
-            entity.setProfession(baseInfoRepo.getExplainMemo("profession",dto.getProfession()));
+            if(!StringUtils.isEmpty(dto.getProfession())) {
+                entity.setProfession(baseInfoRepo.getExplainMemo("profession", dto.getProfession()));
+            }
+            if(!StringUtils.isEmpty(dto.getCardType())) {
+                entity.setCardTypeName(baseInfoRepo.getExplainMemo("personcardType", dto.getCardType()));
+            }
         }
         return new JsonResponseEntity(0,null,entity);
 

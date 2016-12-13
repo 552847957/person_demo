@@ -10,12 +10,14 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.*;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -113,7 +115,7 @@ public class DiabetesServiceImpl implements DiabetesService {
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
-            JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, TubePatientDTO.class);
+            JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportScreeningDTO.class);
             return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
         }
         return null;
@@ -144,9 +146,9 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @throws Exception
      */
     @Override
-    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum,String reportDate) throws Exception {
+    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum,Date reportDate) throws Exception {
         Request request = new RequestBuilder().get().url(url+this.REPORT_INSPECT_DETAIL).
-                params(new String[]{"reportNo",reportNum,"reportDate",reportDate}).build();
+                params(new String[]{"reportNo",reportNum,"reportDate",new DateTime(reportDate).toString("yyyyMMdd")}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
@@ -178,22 +180,23 @@ public class DiabetesServiceImpl implements DiabetesService {
 
     public static void main(String[] args) throws  Exception{
         DiabetesServiceImpl diabetesService = new DiabetesServiceImpl();
+        diabetesService.url = "http://10.1.93.111:8380/hds";
 //        int total = diabetesService.getTubePatientNumber("42509835700","王庆杰");
 //        System.err.println(total);
-
+//
 //        List<TubePatientDTO> list = diabetesService.getTubePatientList("42509835700","王庆杰",1,10);
 //        System.err.println(list.size());
+//
+//        TubePatientDetailDTO detailDTO = diabetesService.getTubePatientDetail("01","310110193606134623");
+//        System.err.println(detailDTO.getName()+"  "+detailDTO.getHospitalCode()+"   "+detailDTO.getDoctorName());
 
-        TubePatientDetailDTO detailDTO = diabetesService.getTubePatientDetail("01","310110193606134623");
-        System.err.println(detailDTO.getName()+"  "+detailDTO.getHospitalCode()+"   "+detailDTO.getDoctorName());
-
-//        List<ReportScreeningDTO> screening = diabetesService.getReportScreening("420621198811200612");
-//        System.err.println(screening.size());
+        List<ReportScreeningDTO> screening = diabetesService.getReportScreening("01","420621198811200612");
+        System.err.println(screening.size());
 //
 //        List<ReportInspectDTO> inspect = diabetesService.getReportInspectList("123456789");
 //        System.err.println(inspect.size());
 //
-//        List<ReportInspectDetailDTO> inspectDetail = diabetesService.getReportInspectDetail("4250983570010000000001","20160907");
+//        List<ReportInspectDetailDTO> inspectDetail = diabetesService.getReportInspectDetail("4250983570010000000001",new DateTime("20160907").toDate());
 //        System.err.println(inspectDetail.size());
 //
 //        List<ReportFollowDTO> follow = diabetesService.getReportFollowList("310223195206141425");

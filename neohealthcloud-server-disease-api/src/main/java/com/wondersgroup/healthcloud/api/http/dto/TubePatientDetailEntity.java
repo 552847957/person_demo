@@ -13,7 +13,8 @@ public class TubePatientDetailEntity {
     private String name;//姓名
     private String gender;//性别
     private String birthDay;//出生年月
-    private String personcard;//身份证号码
+    private String cardTypeName;//证件类型 01:身份证
+    private String cardNumber;//证件号码
     private String profession;//职业
     private String employStatus;//就业状况
     private String moblilePhone;//手机号码
@@ -26,12 +27,11 @@ public class TubePatientDetailEntity {
         this.moblilePhone = dto.getMoblilePhone();
         this.fixedPhone = dto.getFixedPhone();
         this.contactPhone = dto.getContactPhone();
+        this.cardNumber = dto.getCardNumber();
         if(null != dto.getBirthDay()){
             this.birthDay = new DateTime(dto.getBirthDay()).toString("yyyy-MM-dd");
         }
-        if(!StringUtils.isEmpty(dto.getCardType()) && "01".equals(dto.getCardType())){
-            this.personcard = dto.getCardNumber();
-        }
+
 
         if(!StringUtils.isEmpty(dto.getEmployStatus())){
             if("31".equals(dto.getEmployStatus())){

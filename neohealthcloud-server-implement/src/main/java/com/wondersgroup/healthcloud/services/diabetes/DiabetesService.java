@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.services.diabetes;
 
 import com.wondersgroup.healthcloud.services.diabetes.dto.*;
+import lombok.Data;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,7 +48,7 @@ public interface DiabetesService {
     /**
      * 检查报告详情
      */
-    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum,String reportDate) throws Exception;
+    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum, Date reportDate) throws Exception;
 
 
     /**

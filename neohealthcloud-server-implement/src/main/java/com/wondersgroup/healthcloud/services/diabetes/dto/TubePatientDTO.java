@@ -10,8 +10,8 @@ import java.util.Date;
  * 在管人群列表
  * Created by zhuchunliu on 2016/12/9.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TubePatientDTO {
     @JsonProperty("xm")
     private String name; //姓名

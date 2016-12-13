@@ -19,9 +19,7 @@ public class ReportInspectDTO {
     @JsonProperty("yljgdm")
     private String hospitalCode;//医疗机构代码
     @JsonProperty("bgrq")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private String reportDate;//报告日期
-    private String reportResult;//指标结果
     @JsonProperty("bgdlb")
     private String reportType;//报告类型
 }
