@@ -22,6 +22,8 @@ public interface UserService {
 
     Boolean updateNickname(String id, String nickname);
 
+    Boolean updateNicknameAndAvatar(String id, String nickname, String avatar);
+
     Boolean updateGender(String id, String gender);
 
     RegisterInfo findRegisterInfoByMobile(String mobile);

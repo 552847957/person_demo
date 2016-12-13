@@ -385,6 +385,30 @@ public class UserController {
     }
 
     /**
+     * 修改昵称
+     *
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/nicknameAndAvatar/update")
+    public JsonResponseEntity<Map<String, String>> changeNicknameAndAvatar(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String nickname = reader.readString("nick_name", false);
+        String avatar = reader.readString("avatar", false);
+
+        userService.updateNicknameAndAvatar(id, nickname, avatar);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("修改成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("nick_name", nickname);
+        data.put("avatar", avatar)
+        body.setData(data);
+        return body;
+    }
+
+    /**
      * 修改性别
      *
      * @param request

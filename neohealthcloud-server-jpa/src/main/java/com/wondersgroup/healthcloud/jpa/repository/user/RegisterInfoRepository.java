@@ -43,9 +43,6 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     @Query("update RegisterInfo set bindPersoncard=?1 where registerId =?2")
     int updateByRegister(String bindPersoncard, String registerId);
 
-    @Query("select count(a) from RegisterInfo where nickname=?1")
-    int countRegisterInfoByNickname(String nickname);
- 
     @Query("select r from RegisterInfo r where r.isBBsAdmin=1 and r.delFlag='0'")
     List<RegisterInfo> queryAllBBsAdmins();
 }
