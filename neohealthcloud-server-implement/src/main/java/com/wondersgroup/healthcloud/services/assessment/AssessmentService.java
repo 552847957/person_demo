@@ -51,4 +51,18 @@ public interface AssessmentService {
      * @return 只要用户用糖尿病、高血压、脑卒中中一种即为true，否则为false
      */
     Boolean hasDiseases(String uid);
+
+    /**
+     * 获取用户最近一次的风险评估结果
+     * @param uid
+     * @return
+     */
+    Assessment getRecentAssess(String uid);
+
+    /**
+     * 获取用户最近一次的风险评估结果,正常则返回true, 高危则返回false
+     * @param uid
+     * @return
+     */
+    Boolean getRecentAssessIsNormal(String uid);
 }

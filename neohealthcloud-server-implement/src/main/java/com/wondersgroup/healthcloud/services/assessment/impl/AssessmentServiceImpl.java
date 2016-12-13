@@ -375,4 +375,30 @@ public class AssessmentServiceImpl implements AssessmentService {
         }
         return false;
     }
+
+    /**
+     * 获取用户最近的一次风险评估
+     * @param uid
+     * @return
+     */
+    @Override
+    public Assessment getRecentAssess(String uid) {
+        return assessmentRepository.getRecentAssess(uid);
+    }
+
+    @Override
+    public Boolean getRecentAssessIsNormal(String uid) {
+        Assessment assessment =  assessmentRepository.getRecentAssess(uid);
+        if(null == assessment){
+            return  true;
+        }
+        String risk = this.getResult(assessment);
+        if(StringUtils.isEmpty(risk)){
+            return true;
+        }
+        if(risk.contains("-3") || risk.contains("-2")){
+            return false;
+        }
+        return true;
+    }
 }

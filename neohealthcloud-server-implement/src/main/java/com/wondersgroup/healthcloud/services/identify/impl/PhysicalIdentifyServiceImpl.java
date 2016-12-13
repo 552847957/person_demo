@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.repository.identify.HealthQuestionRepository;
 import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,14 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 
 	@Autowired
 	private HealthQuestionRepository healthQuestionRepo;
-	
 
+
+	/**
+	 * 提交中医体质标识
+	 * @param registerid
+	 * @param content
+	 * @return
+	 */
 	@Override
 	public String physiqueIdentify(String registerid, String content) {
 		String[] arr = content.split(",");
@@ -48,7 +55,21 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 		this.saveHealthQuestion(registerid, content, info);
 		return info;
 	}
-	
+
+	/**
+	 * 根据用户获取最近一次中医体质辨识结果
+	 * @param registerid
+	 * @return
+	 */
+	@Override
+	public String getRecentPhysicalIdentify(String registerid) {
+		HealthQuestion question = healthQuestionRepo.findRecent(registerid);
+		if(null == question){
+			return null;
+		}
+		return question.getResult();
+	}
+
 	private void saveHealthQuestion(String registerid ,String content, String info){
 		//如果为本人测试，保存测试结果数据
 		if(null != registerid && !"".equals(registerid)){

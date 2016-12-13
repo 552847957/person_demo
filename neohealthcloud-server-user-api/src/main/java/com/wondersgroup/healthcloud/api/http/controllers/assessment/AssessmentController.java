@@ -134,6 +134,28 @@ public class AssessmentController {
         return response;
     }
 
+    @GetMapping(value = "/recent")
+    @VersionRange
+    public JsonResponseEntity<AssessmentHistoryAPIEntity> recent(@RequestParam("uid") String uid){
+
+        Assessment assessment = assessmentService.getRecentAssess(uid);
+        if(null == assessment){
+            return new JsonResponseEntity();
+        }
+        AssessmentHistoryAPIEntity entity = new AssessmentHistoryAPIEntity();
+        entity.setId(assessment.getId());
+        entity.setRisk(assessmentService.getResult(assessment));
+        entity.setAssesstime(TimeAgoUtils.assessAgo(assessment.getCreateDate()));
+        entity.setAge(assessment.getAge());
+        entity.setIsFat(assessmentService.isFat(assessment.getGender(),assessment.getWaist()));
+        entity.setIsOverWeight(assessmentService.overWeight(assessment.getHeight(),assessment.getWeight()));
+        entity.setIsHypertension(assessmentService.isHypertension(3,assessment.getPressure()));
+        entity.setNeedMovement(assessmentService.needMovement(assessment.getSport()));
+        entity.setNeedAmendLife(assessmentService.needAmendLife(assessment));
+        entity.setHasFamilyHistory(assessmentService.hasFamilyHistory(assessment));
+        return new JsonResponseEntity(0,null,entity);
+    }
+
 
     @GetMapping(value = "/count")
     @VersionRange
