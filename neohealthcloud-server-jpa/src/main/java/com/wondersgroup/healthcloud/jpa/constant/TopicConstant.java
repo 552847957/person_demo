@@ -18,6 +18,13 @@ public class TopicConstant {
         public final static int USER_BAN=3;//回复用户被删除
     }
 
+    public static class DefaultTab{
+
+        public final static int NEW_PUBLISH = -2;//新鲜
+        public final static int BASE_RECOMMEND = -1;//精华推荐
+
+    }
+
     public static class Status{
         public final static int WAIT_PUBLISH = -1;
 

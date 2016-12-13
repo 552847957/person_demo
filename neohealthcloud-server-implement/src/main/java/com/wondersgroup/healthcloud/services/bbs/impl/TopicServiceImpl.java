@@ -98,8 +98,10 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
         searchCriteria.setCircleId(circleId);
         searchCriteria.setGetMoreOne(true);
-        if (tabId == -1){
+        if (tabId == TopicConstant.DefaultTab.BASE_RECOMMEND){
             searchCriteria.setIsBest(true);
+        }else if (tabId == TopicConstant.DefaultTab.NEW_PUBLISH){
+            searchCriteria.setOrderInfo("topic.create_time desc");
         }else {
             searchCriteria.setTabId(tabId);
         }

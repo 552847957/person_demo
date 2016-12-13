@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs.dto.circle;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
@@ -44,7 +45,8 @@ public class CircleHomeDto {
 
     public void mergeCircleTopicTab(List<TopicTab> topicTabs){
         tabs.add(new CircleTabs(0, "全部"));
-        tabs.add(new CircleTabs(-1, "精华"));
+        tabs.add(new CircleTabs(TopicConstant.DefaultTab.NEW_PUBLISH, "新鲜"));
+        tabs.add(new CircleTabs(TopicConstant.DefaultTab.BASE_RECOMMEND, "精华"));
         if (topicTabs != null){
             for (TopicTab topicTab : topicTabs){
                 tabs.add(new CircleTabs(topicTab.getId(), topicTab.getTabName()));
