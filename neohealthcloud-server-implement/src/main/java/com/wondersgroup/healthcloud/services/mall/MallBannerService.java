@@ -122,9 +122,9 @@ public class MallBannerService {
 		MallBanner banner = mallBannerRepository.findByGoodsId(goodsId);
 		if (banner != null) {
 			banner.setStatus(0);
+			banner.setUpdateTime(new Date());
+			mallBannerRepository.save(banner);
 		}
-		banner.setUpdateTime(new Date());
-		mallBannerRepository.save(banner);
 	}
 
 }

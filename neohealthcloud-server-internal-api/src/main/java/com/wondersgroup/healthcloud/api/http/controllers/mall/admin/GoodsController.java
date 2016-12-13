@@ -91,8 +91,10 @@ public class GoodsController {
 
 		Goods goods = goodsService.findById(id);
 		if (goods != null) {
-			goods.setNum(goods.getNum() + stocknum);
-			goods.setStockNum(goods.getStockNum() + stocknum);
+			int num = goods.getNum();
+			int tbstocknum = goods.getStockNum();
+			goods.setNum(num + stocknum);
+			goods.setStockNum(tbstocknum + stocknum);
 			goods.setUpdateTime(new Date());
 			goodsService.save(goods);
 		}

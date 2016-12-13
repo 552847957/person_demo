@@ -53,7 +53,9 @@ public class GoodsService {
 		Date date = new Date();
 
 		Goods goods = form.getGoods();
-		goods.setNum(goods.getStockNum());
+		Integer stockNum = goods.getStockNum();
+		goods.setNum(stockNum == null ? 0 : stockNum);
+		goods.setStockNum(stockNum == null ? 0 : stockNum);
 		goods.setSalesNum(0);
 		goods.setCreateTime(date);
 		goods.setUpdateTime(date);
