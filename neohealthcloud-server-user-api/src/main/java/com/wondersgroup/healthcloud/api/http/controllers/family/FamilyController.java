@@ -117,9 +117,8 @@ public class FamilyController {
     private Environment environment;
     @Autowired
     private AppUrlH5Utils h5Utils;
-//    @Autowired
     RestTemplate restTemplate = new RestTemplate();
-    @Value("http://127.0.0.1:8080")
+    @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -741,8 +740,11 @@ public class FamilyController {
             info.setAge(info.getAge());
             info.setMobile(info.getMobile());
         }
-        
-        info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+        if(uid.equals(memberId)){
+            info.setNikcName("我");
+        }else{
+            info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+        }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
