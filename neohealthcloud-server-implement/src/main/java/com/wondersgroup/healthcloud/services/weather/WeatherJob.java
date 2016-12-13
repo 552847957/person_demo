@@ -53,6 +53,9 @@ public class WeatherJob {
     @Autowired
     private WeatherAreaRepository weatherAreaRepository;
 
+    @Autowired
+    private WeatherHintUtil weatherHintUtil;
+
     public void hourlyJob() {
         String updateTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(new DateTime());
         JsonNode heShanghai = heWeatherClient.weather(null).get("HeWeather5").get(0);
@@ -78,8 +81,6 @@ public class WeatherJob {
             cache.put("code", task.getCode());
             brief.put("code", task.getCode());
 
-            brief.put("hint", "温馨提示文案");
-            cache.put("hint", "温馨提示文案");
 
             ObjectNode today = JsonNodeFactory.instance.objectNode();
             today.put("weather_code", channel.get("item").get("condition").get("code").asText());
@@ -119,6 +120,11 @@ public class WeatherJob {
                 forecasts.add(forecast);
             }
             cache.put("forecast", forecasts);
+
+            String hint = weatherHintUtil.get(Integer.valueOf(he.get("aqi").get("city").get("aqi").asText()), Integer.valueOf(channel.get("item").get("condition").get("code").asText()), Integer.valueOf(channel.get("item").get("condition").get("temp").asText()));
+
+            brief.put("hint", hint);
+            cache.put("hint", hint);
 
             saveToRedis(WeatherCache.Type.ALL, task.getCode(), cache.toString());
             saveToRedis(WeatherCache.Type.BRIEF, task.getCode(), brief.toString());
