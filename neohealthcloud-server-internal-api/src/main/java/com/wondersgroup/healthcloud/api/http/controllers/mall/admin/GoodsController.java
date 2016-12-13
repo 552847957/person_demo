@@ -99,7 +99,7 @@ public class GoodsController {
 			goodsService.save(goods);
 		}
 
-		responseEntity.setMsg("OK");
+		responseEntity.setMsg("补货成功：)");
 		return responseEntity;
 	}
 
@@ -107,14 +107,18 @@ public class GoodsController {
 	public Object updateStatus(int id) {
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
 
+		String message = "";
 		Goods goods = goodsService.findById(id);
 		if (goods != null) {
 			int status = goods.getStatus() == 0 ? 1 : 0;
 			goods.setStatus(status);
 			goods.setUpdateTime(new Date());
 			goodsService.save(goods);
+
+			message = status == 1 ? "商品上架成功" : "商品下架成功";
 		}
-		responseEntity.setMsg("OK");
+
+		responseEntity.setMsg(message);
 		return responseEntity;
 	}
 

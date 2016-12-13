@@ -54,7 +54,7 @@ public class ExchangeOrderService {
 	public Page<ExchangeOrderDto> list(Map map, int page, int size) {
 		String goodsName = (String) map.get("goodsName");
 		Integer goodsType = (Integer) map.get("goodsType");
-		String userName = (String) map.get("userName");
+		String customerName = (String) map.get("customerName");
 		Integer orderStatus = (Integer) map.get("orderStatus");
 		String orderId = (String) map.get("orderId");
 		String startTime = (String) map.get("startTime");
@@ -72,8 +72,8 @@ public class ExchangeOrderService {
 		if (StringUtils.isNotBlank(orderId)) {
 			sql += " and a.id like  '%" + orderId + "%'";
 		}
-		if (StringUtils.isNotBlank(userName)) {
-			sql += " and a.customer_name like '% " + userName + "%' ";
+		if (StringUtils.isNotBlank(customerName)) {
+			sql += " and a.customer_name like '% " + customerName + "%' ";
 		}
 		if (orderStatus != null) {
 			sql += " and a.status = " + orderStatus;

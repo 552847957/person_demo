@@ -42,8 +42,8 @@ public class MallBannerController {
 		} else {
 			mallBannerService.update(banner);
 		}
-		
-		responseEntity.setMsg("OK");
+
+		responseEntity.setMsg("更新横幅成功");
 		return responseEntity;
 	}
 }

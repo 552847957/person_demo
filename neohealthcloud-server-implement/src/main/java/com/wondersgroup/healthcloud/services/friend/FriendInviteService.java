@@ -106,6 +106,7 @@ public class FriendInviteService {
 		String key = prefix + mobile;
 		String redisCode = jedis.get(key);
 		if (code.equals(redisCode)) {
+			jedis.del(key);
 			return true;
 		}
 		return false;
