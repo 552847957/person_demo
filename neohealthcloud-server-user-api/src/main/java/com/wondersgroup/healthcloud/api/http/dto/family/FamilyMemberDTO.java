@@ -16,14 +16,17 @@ public class FamilyMemberDTO {
     
     @Data
     public static class MemberInfo{
+        private String id;
         private String name;
+        private String avatar;
         private List<SimpleMeasure> measures;
         
         public MemberInfo() {
         }
         
-        public MemberInfo(String name, List<SimpleMeasure> measures) {
+        public MemberInfo(String name,String avatar, List<SimpleMeasure> measures) {
             this.name = name;
+            this.avatar = avatar;
             this.measures = measures;
         }
         

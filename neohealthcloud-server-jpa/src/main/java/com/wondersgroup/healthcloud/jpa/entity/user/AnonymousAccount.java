@@ -49,5 +49,6 @@ public class AnonymousAccount{
     private String nickname;
     @Column(name = "is_standalone")
     private Boolean isStandalone;
+    private String headphoto;
     
 }

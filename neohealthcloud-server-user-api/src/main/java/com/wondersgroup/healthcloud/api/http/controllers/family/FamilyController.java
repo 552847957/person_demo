@@ -347,6 +347,9 @@ public class FamilyController {
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
                 entity.setRedirectFlag(4);
+//                if(anonymousAccount.getBirthDate()){
+//                    
+//                }
                 JsonNode submitInfo = accountService.verficationSubmitInfo(anonymousAccount.getId(), true);
                 if(submitInfo != null){
                     Integer status = submitInfo.get("status").asInt();//1 成功 2 审核中 3失败
@@ -636,6 +639,7 @@ public class FamilyController {
         String memo = StringUtils.defaultString(reader.readString("memo", true));
         Boolean recordReadable = reader.readDefaultBoolean("record_readable", true);
         String birthDate = reader.readString("birthDate", false);
+        String headphoto = reader.readString("headphoto", true);
         
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
 
@@ -657,6 +661,7 @@ public class FamilyController {
         account.setDelFlag("0");
         account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
         account.setIsChild(false);
+        account.setHeadphoto(headphoto);
         anonymousAccountRepository.saveAndFlush(account);
         
         String gender = "1";
@@ -689,7 +694,10 @@ public class FamilyController {
         Map<String, String> memberMap = getFamilyMemberByUid(uid);
        
         for (String regId : memberMap.keySet()) {
-            MemberInfo info = new MemberInfo(getRelationName(memberMap.get(regId)), historyMeasureAbnormal(regId));
+            RegisterInfo reg = registerInfoRepository.findOne(regId);
+            MemberInfo info = new MemberInfo(getRelationName(memberMap.get(regId)), null, historyMeasureAbnormal(regId));
+            info.setId(regId);
+            info.setAvatar(reg == null ? null : reg.getHeadphoto());
             if(info.getMeasures() == null || info.getMeasures().isEmpty()){
                 continue;   
             }
@@ -743,6 +751,7 @@ public class FamilyController {
         if(uid.equals(memberId)){
             info.setNikcName("我");
         }else{
+            info.setAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
             info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
@@ -774,13 +783,16 @@ public class FamilyController {
                 list.add(measure.getFlag());
                 list.add("BMI");
                 list.add(measure.getValue());
+                list.add(measure.getTestTime());
             }else if(type == 6 && measure.getName().contains("血糖")){
                 list.add("血糖");
                 list.add(measure.getValue());
+                list.add(measure.getTestTime());
             }else if(type == 7 && measure.getName().contains("血压")){
                 list.add("血压");
                 list.add(measure.getValue());
                 list.add(measure.getFlag());
+                list.add(measure.getTestTime());
             }
         }
         return list;
@@ -836,6 +848,21 @@ public class FamilyController {
             }
         }
         response.setMsg("修改成功");
+        return response;
+    }
+    
+    /**
+     * 查看非JKY家人信息
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/memberFamilyInfo", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<AnonymousAccount> memberFamilyInfo(@RequestParam String uid, @RequestParam String memberId){
+        JsonResponseEntity<AnonymousAccount> response = new JsonResponseEntity<AnonymousAccount>();
+        AnonymousAccount ano =  anonymousAccountRepository.findOne(memberId);
+        response.setData(ano);
+        response.setMsg("查询成功");
         return response;
     }
     

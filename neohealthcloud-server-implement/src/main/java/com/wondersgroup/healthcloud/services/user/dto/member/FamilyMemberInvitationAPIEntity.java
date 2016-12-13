@@ -44,7 +44,7 @@ public class FamilyMemberInvitationAPIEntity {
     }
     
     public FamilyMemberInvitationAPIEntity(FamilyMemberInvitation invitation, String uid) {
-        this.id = invitation.getUid();
+        this.id = invitation.getId();
         this.memo = invitation.getMemo();
         Boolean isSelf = uid.equals(invitation.getUid());
         this.todo = (!isSelf) && "0".equals(invitation.getStatus());

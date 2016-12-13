@@ -27,7 +27,8 @@ public class FamilyMemberInfoDTO {
         private String  relationName;  //关系名称
         private int     age;           //年龄
         private Boolean isVerification; //是否实名
-        private Boolean isStandalone;    //是否单机版
+        private Boolean isStandalone;  //是否单机版
+        private Boolean access;        //是否有权限
         private String  mobile;
 
     }
