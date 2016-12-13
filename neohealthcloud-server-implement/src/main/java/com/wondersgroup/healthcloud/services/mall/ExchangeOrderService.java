@@ -73,7 +73,7 @@ public class ExchangeOrderService {
 			sql += " and a.id like  '%" + orderId + "%'";
 		}
 		if (StringUtils.isNotBlank(customerName)) {
-			sql += " and a.customer_name like '% " + customerName + "%' ";
+			sql += " and a.customer_name like '%" + customerName + "%' ";
 		}
 		if (orderStatus != null) {
 			sql += " and a.status = " + orderStatus;
