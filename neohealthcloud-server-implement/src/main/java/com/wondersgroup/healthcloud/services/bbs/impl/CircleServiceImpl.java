@@ -133,12 +133,12 @@ public class CircleServiceImpl implements CircleService {
         String sql = "SELECT " +
                 " t.id, " +
                 " t.img_url, " +
-                " t.hoplinks, " +
+                " t.hoplink, " +
                 " t.sequence " +
                 " FROM " +
-                " tb_app_advertisement t " +
+                " app_tb_neoimage_text t " +
                 " WHERE " +
-                " t.adcode = 3 " +
+                " t.adcode = 13 " +
                 " AND start_time <= '" + DateUtils.sdf.format(now) + "' " +
                 " AND end_time >= '" + DateUtils.sdf.format(now) + "' " +
                 " AND t.del_flag = '0' order by sequence DESC";
@@ -148,7 +148,7 @@ public class CircleServiceImpl implements CircleService {
                 CircleBannerDto dto = new CircleBannerDto();
                 dto.setId(String.valueOf(map.get("id")));
                 dto.setPic(String.valueOf(map.get("img_url")));
-                Integer topicId = Integer.parseInt(String.valueOf(map.get("hoplinks")));
+                Integer topicId = Integer.parseInt(String.valueOf(map.get("hoplink")));
                 dto.setTopicId(topicId);// 存的是id
                 dto.setPicOrder(Integer.parseInt(String.valueOf(map.get("sequence"))));
                 dto.setJumpUrl(AppUrlSchemaUtils.bbsTopicView(topicId));
