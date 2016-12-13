@@ -82,12 +82,13 @@ public class ExchangeOrderService {
 			sql += " and a.status = " + orderStatus;
 		}
 		if (StringUtils.isNotBlank(startTime)) {
-			sql += " and date_format(a.create_time, 'yyyy-MM-dd') >= '" + startTime + "'";
+			sql += " and date_format(a.create_time, '%Y-%m-%d') >= '" + startTime + "'";
 		}
 		if (StringUtils.isNotBlank(endTime)) {
-			sql += " and '" + endTime + "' > date_format(a.create_time, 'yyyy-MM-dd') ";
+			sql += " and '" + endTime + "' >= date_format(a.create_time, '%Y-%m-%d') ";
 		}
 
+		System.out.println(sql);
 		int start = page > 0 ? (page - 1) * size : 0;
 		String querySql = sql + " limit " + start + "," + (start + size);
 		List<ExchangeOrderDto> list = jdbcTemplate.query(querySql,
