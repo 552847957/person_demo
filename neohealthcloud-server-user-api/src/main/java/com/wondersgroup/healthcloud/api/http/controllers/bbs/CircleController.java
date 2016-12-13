@@ -13,7 +13,6 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.BannerAndMyCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.JoinedAndGuessLikeCirclesDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
 import com.wondersgroup.healthcloud.services.user.UserService;
@@ -64,7 +63,7 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public JsonResponseEntity<CircleHomeDto> home(@RequestParam String uid, @RequestParam Integer circleId) {
-        JsonResponseEntity<CircleHomeDto> jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity<CircleHomeDto> entity = new JsonResponseEntity();
 
         RegisterInfo account = userService.getOneNotNull(uid);
         Circle circle = circleService.getCircleInfoById(circleId);
@@ -72,7 +71,7 @@ public class CircleController {
             throw new CommonException(2001, "圈子无效");
         }
         CircleHomeDto circleHomeDto = new CircleHomeDto();
-        if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (account.getBanStatus() != UserConstant.BanStatus.OK){
             circleHomeDto.setUserPublishStatus(UserConstant.UserCommentStatus.USER_BAN);
         }
         circleHomeDto.mergeCircleInfo(circle);
@@ -86,8 +85,8 @@ public class CircleController {
         int publishTopicCount = circleService.getTodayPublishTopicCount(circleId);
         int publishTopicCommentCount = circleService.getTodayPublishTopicCommentCount(circleId);
         circleHomeDto.setTodayActiveCount(publishTopicCount + publishTopicCommentCount);
-        jsonResponseEntity.setData(circleHomeDto);
-        return jsonResponseEntity;
+        entity.setData(circleHomeDto);
+        return entity;
     }
 
     /**
@@ -98,22 +97,22 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/myCircleList", method = RequestMethod.GET)
     public JsonResponseEntity myCircleList(@RequestParam String uid) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         try {
             JoinedAndGuessLikeCirclesDto dto = new JoinedAndGuessLikeCirclesDto();
             List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uid);
             dto.setJoinedList(myCircleList);
             List<CircleListDto> guessLikeList = circleService.findGuessLikeCircles(uid);
             dto.setGuessLikeList(guessLikeList);
-            jsonResponseEntity.setData(dto);
-            return jsonResponseEntity;
+            entity.setData(dto);
+            return entity;
         } catch (Exception e) {
             String errorMsg = "查询我关注的圈子&猜你喜欢出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            entity.setCode(1001);
+            entity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return entity;
     }
 
     /**
@@ -124,64 +123,33 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/circleBannerList", method = RequestMethod.GET)
     public JsonResponseEntity circleBannerList() {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         try {
             List<CircleBannerDto> bannerList = circleService.getCircleBannerList();
-            jsonResponseEntity.setData(bannerList);
-            return jsonResponseEntity;
+            entity.setData(bannerList);
+            return entity;
         } catch (Exception e) {
             String errorMsg = "查询圈子banner出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            entity.setCode(1001);
+            entity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
-    }
-
-    @VersionRange
-    @RequestMapping(value = "/bannerAndMyCircles", method = RequestMethod.GET)
-    public JsonResponseEntity bannerAndMyCircles(@RequestParam String uid) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
-        try {
-            BannerAndMyCirclesDto dto = new BannerAndMyCirclesDto();
-
-            List<CircleListDto> myCircleList = userBbsService.getUserJoinedCirclesDto(uid);
-            dto.setMyCircleList(myCircleList);
-
-            List<CircleBannerDto> bannerList = circleService.getCircleBannerList();
-            dto.setBannerList(bannerList);
-
-            jsonResponseEntity.setData(dto);
-            return jsonResponseEntity;
-        } catch (Exception e) {
-            String errorMsg = "查询我关注的圈子和banner出错";
-            logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
-        }
-        return jsonResponseEntity;
+        return entity;
     }
 
     /**
      * 圈子分类
-     *
-     * @return
      */
     @VersionRange
     @RequestMapping(value = "/getCircleCategory", method = RequestMethod.GET)
-    public JsonListResponseEntity getCircleCategory() {
-        JsonListResponseEntity jsonListResponseEntity = new JsonListResponseEntity();
-        try {
-            List<CircleCategoryDto> cateList = circleService.getCircleCategoryDtoList();
-            jsonListResponseEntity.setContent(cateList);
-            return jsonListResponseEntity;
-        } catch (Exception e) {
-            String errorMsg = "查询圈子分类出错";
-            logger.error(errorMsg, e);
-            jsonListResponseEntity.setCode(1001);
-            jsonListResponseEntity.setMsg(errorMsg);
+    public JsonResponseEntity<List<CircleCategoryDto>> getCircleCategory() {
+        JsonResponseEntity<List<CircleCategoryDto>> entity = new JsonResponseEntity();
+        List<CircleCategoryDto> cateList = circleService.getCircleCategoryDtoList();
+        if (null == cateList){
+            throw new CommonException(1001, "查询圈子分类出错");
         }
-        return jsonListResponseEntity;
+        entity.setData(cateList);
+        return entity;
     }
 
     /**
@@ -223,15 +191,15 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/joinLeaveCircle", method = RequestMethod.POST)
     public JsonResponseEntity joinLeaveCircle(@RequestBody String request) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer circleId = reader.readInteger("circleId", false);
         String uid = reader.readString("uid", false);
         Circle circle = circleService.getCircleInfoById(circleId);
         if (null == circle || circle.getDelFlag().equals("1")){
-            jsonResponseEntity.setCode(1004);
-            jsonResponseEntity.setMsg("该圈子已禁用");
-            return jsonResponseEntity;
+            entity.setCode(1004);
+            entity.setMsg("该圈子已禁用");
+            return entity;
         }
         try {
             UserCircle exist = circleService.queryByUIdAndCircleId(uid, circleId);
@@ -239,8 +207,8 @@ public class CircleController {
                 String delFlag = exist.getDelFlag();
                 // 未删除
                 if ("0".equals(delFlag)) {
-                    jsonResponseEntity.setMsg("您已加入该圈子");
-                    return jsonResponseEntity;
+                    entity.setMsg("您已加入该圈子");
+                    return entity;
                 }
                 // 已删除
                 if ("1".equals(delFlag)) {
@@ -249,9 +217,9 @@ public class CircleController {
                     logger.info(String.format("[%s]重新加入[%s]圈子成功", uid, circleId));
                     // 更新关注人数
                     circleService.updateActuallyAttentionCount(circleId);
-                    jsonResponseEntity.setMsg("加入成功");
-                    jsonResponseEntity.setData(updateResult);
-                    return jsonResponseEntity;
+                    entity.setMsg("加入成功");
+                    entity.setData(updateResult);
+                    return entity;
                 }
             } else {
                 UserCircle userCircle = new UserCircle();
@@ -259,25 +227,25 @@ public class CircleController {
                 userCircle.setUId(uid);
                 UserCircle result = circleService.saveUserCircle(userCircle);
                 if (result != null) {
-                    jsonResponseEntity.setData(result);
-                    jsonResponseEntity.setMsg("加入成功");
+                    entity.setData(result);
+                    entity.setMsg("加入成功");
                     logger.info(String.format("[%s]加入[%s]圈子成功", uid, circleId));
                     // 更新关注人数
                     circleService.updateActuallyAttentionCount(circleId);
-                    return jsonResponseEntity;
+                    return entity;
                 } else {
-                    jsonResponseEntity.setCode(1003);
-                    jsonResponseEntity.setMsg("操作失败");
-                    return jsonResponseEntity;
+                    entity.setCode(1003);
+                    entity.setMsg("操作失败");
+                    return entity;
                 }
             }
         } catch (Exception e) {
             String errorMsg = "加入圈子出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            entity.setCode(1001);
+            entity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return entity;
     }
 
     /**
@@ -290,28 +258,28 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/joinLeaveCircle", method = RequestMethod.DELETE)
     public JsonResponseEntity leaveCircle(@RequestParam Integer circleId, @RequestParam String uid) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         try {
             UserCircle exist = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
             if (exist != null) {
                 exist.setDelFlag("1");
                 circleService.updateUserCircle(exist);
-                jsonResponseEntity.setMsg("成功退出圈子");
+                entity.setMsg("成功退出圈子");
                 logger.info(String.format("[%s]退出[%s]圈子成功", uid, circleId));
                 // 更新关注人数
                 circleService.updateActuallyAttentionCount(circleId);
-                return jsonResponseEntity;
+                return entity;
             } else {
-                jsonResponseEntity.setMsg("您未加入该圈子");
-                return jsonResponseEntity;
+                entity.setMsg("您未加入该圈子");
+                return entity;
             }
         } catch (Exception e) {
             String errorMsg = "退出圈子出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            entity.setCode(1001);
+            entity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return entity;
     }
 
 
@@ -323,7 +291,7 @@ public class CircleController {
     @VersionRange
     @RequestMapping(value = "/getCircleInfo", method = RequestMethod.GET)
     public JsonResponseEntity getCircleInfo(@RequestParam Integer circleId, @RequestParam String uid) {
-        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        JsonResponseEntity entity = new JsonResponseEntity();
         try {
             CircleFullInfoDto fullInfoDto = new CircleFullInfoDto();
             // 圈子资料
@@ -350,14 +318,14 @@ public class CircleController {
             List<AdminAccountDto> dtoList = userBbsService.queryBBSAdminList();
             fullInfoDto.setAdminList(dtoList);
 
-            jsonResponseEntity.setData(fullInfoDto);
-            return jsonResponseEntity;
+            entity.setData(fullInfoDto);
+            return entity;
         } catch (BeansException e) {
             String errorMsg = "查询圈子资料出错";
             logger.error(errorMsg, e);
-            jsonResponseEntity.setCode(1001);
-            jsonResponseEntity.setMsg(errorMsg);
+            entity.setCode(1001);
+            entity.setMsg(errorMsg);
         }
-        return jsonResponseEntity;
+        return entity;
     }
 }
