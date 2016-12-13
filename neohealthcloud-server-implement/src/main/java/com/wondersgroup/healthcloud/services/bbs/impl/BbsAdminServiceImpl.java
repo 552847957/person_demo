@@ -4,13 +4,16 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
+import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -149,5 +152,34 @@ public class BbsAdminServiceImpl implements BbsAdminService {
             vestUids.add(adminVestUser.getVest_uid());
         }
         return vestUids;
+    }
+
+
+    @Override
+    public List<Map<String, Object>> findUserListByCriteria(UserSearchCriteria searchCriteria) {
+        StringBuffer querySql = new StringBuffer("select user.registerid as uid, user.regmobilephone as phone, user.nickname," +
+                " user.create_date, user.ban_status, user.is_bbs_admin, user.identifytype " +
+                " from app_tb_register_info user ");
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where user.channeltype<>6 and " + queryParams.getQueryString());
+        }
+        querySql.append(searchCriteria.getOrderInfo());
+        querySql.append(searchCriteria.getLimitInfo());
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(querySql.toString(), elelmentType.toArray());
+        return list;
+    }
+
+    @Override
+    public int countUserByCriteria(UserSearchCriteria searchCriteria) {
+        StringBuffer querySql = new StringBuffer("select count(*) from app_tb_register_info user ");
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        Integer rs = jdbcTemplate.queryForObject(querySql.toString(), queryParams.getQueryElementType().toArray(), Integer.class);
+        return rs == null ? 0 : rs;
     }
 }

@@ -10,9 +10,12 @@ import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
+import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,25 @@ public class BbsAdminController {
 
     @Autowired
     private BbsAdminService bbsAdminService;
+    /**
+     * 用户列表
+     */
+    @Admin
+    @PostMapping(value = "/userList")
+    public Pager userList(@RequestBody Pager pager){
+        Map<String,Object> parms = pager.getParameter();
+        UserSearchCriteria searchCriteria = new UserSearchCriteria(parms);
+        searchCriteria.setPage(pager.getNumber());
+        searchCriteria.setPageSize(pager.getSize());
+        searchCriteria.setOrderInfo("user.create_date desc");
+
+        List<Map<String,Object>> mapList = bbsAdminService.findUserListByCriteria(searchCriteria);
+        int totalSize = bbsAdminService.countUserByCriteria(searchCriteria);
+        pager.setTotalElements(totalSize);
+        pager.setData(mapList);
+        return pager;
+    }
+
     /**
      * 绑定手机段用户
      * @return

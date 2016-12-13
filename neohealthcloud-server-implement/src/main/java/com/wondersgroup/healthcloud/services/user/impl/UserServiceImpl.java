@@ -350,8 +350,6 @@ public class UserServiceImpl implements UserService {
 
 
     //----------------------后台使用----------------------
-
-
     @Override
     public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
 

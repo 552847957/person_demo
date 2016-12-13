@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
 
+import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 
 import java.util.List;
@@ -28,4 +29,7 @@ public interface BbsAdminService {
      */
     List<String> getAdminVestUidsByAdminUid(String admin_bindUid);
 
+    List<Map<String,Object>> findUserListByCriteria(UserSearchCriteria searchCriteria);
+
+    int countUserByCriteria(UserSearchCriteria searchCriteria);
 }
