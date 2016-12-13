@@ -71,4 +71,12 @@ public interface DepartmentL2Repository extends JpaRepository<AppointmentL2Depar
     @Modifying
     @Query("update AppointmentL2Department a set a.isonsale = ?1  where a.id = ?2")
     void updateDeptIsonsaleById(String isonsale, String id);
+
+    /**
+     * 后台管理根据一级科室ID查询所有的二级科室
+     * @param department_l1_id
+     * @return
+     */
+    @Query(value = "select a from AppointmentL2Department a where  a.l1DepartmentId =?1")
+    List<AppointmentL2Department> findManageAppointmentL2Department(String department_l1_id);
 }

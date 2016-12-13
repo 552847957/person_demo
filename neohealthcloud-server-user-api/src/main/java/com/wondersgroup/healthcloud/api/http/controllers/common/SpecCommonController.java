@@ -31,6 +31,7 @@ import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
+ * 上海健康云全局接口
  */
 @RestController
 @RequestMapping("/api/spec/common")
@@ -49,7 +50,7 @@ public class SpecCommonController {
     @GetMapping(value = "/appConfig")
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = false) String platform,
+    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = true) String platform,
                                                              @RequestHeader(name = "main-area", required = true) String mainArea,
                                                              @RequestHeader(name = "spec-area", required = false) String specArea,
                                                              @RequestHeader(value = "app-version", required = false) String appVersion) {
@@ -88,6 +89,28 @@ public class SpecCommonController {
             } catch (Exception ex) {
                 log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
             }
+        }
+
+        AppConfig registrationConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.registration");
+        if(registrationConfig != null){
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(registrationConfig.getData());
+                String registrationNotice = content.get("registrationRule") == null ? "" : content.get("registrationRule").asText();
+                String addContactDesc = content.get("addContactDesc") == null ? "" : content.get("addContactDesc").asText();
+                String registrationTel = content.get("registrationTel") == null ? "" : content.get("registrationTel").asText();
+                String registrationTelDesc = content.get("registrationTelDesc") == null ? "" : content.get("registrationTelDesc").asText();
+                Map registration = new HashMap();
+                registration.put("registration_notice", registrationNotice);
+                registration.put("add_contact_desc", addContactDesc);
+                registration.put("registration_tel", registrationTel);
+                registration.put("registration_tel_desc", registrationTelDesc);
+                data.put("registration", registration);
+
+            }catch (Exception ex){
+                log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+            }
+
         }
 
         ImageText imgText = new ImageText();

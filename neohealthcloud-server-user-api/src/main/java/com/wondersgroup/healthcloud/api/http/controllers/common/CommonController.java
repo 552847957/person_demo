@@ -30,6 +30,7 @@ import java.util.Map;
 
 /**
  * Created by longshasha on 16/8/12.
+ * 广州的全局接口
  */
 
 @RestController
@@ -66,7 +67,6 @@ public class CommonController {
         keyWords.add("app.common.help.center");// 帮助中心
         keyWords.add("app.common.userAgreement");// 用户协议
         keyWords.add("app.common.intellectualPropertyAgreement");// 知识产权协议
-        keyWords.add("app.common.registration");//预约挂号相关信息
 
         keyWords.add("app.common.appUpdate");// APP更新
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
@@ -117,27 +117,7 @@ public class CommonController {
                 }
             }
 
-            if(cfgMap.get("app.common.registration") != null){
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode content = objectMapper.readTree(cfgMap.get("app.common.registration").toString());
-                    String registrationNotice = content.get("registrationRule") == null ? "" : content.get("registrationRule").asText();
-                    String addContactDesc = content.get("addContactDesc") == null ? "" : content.get("addContactDesc").asText();
-                    String registrationTel = content.get("registrationTel") == null ? "" : content.get("registrationTel").asText();
-                    String registrationTelDesc = content.get("registrationTelDesc") == null ? "" : content.get("registrationTelDesc").asText();
-                    Map registration = new HashMap();
-                    registration.put("registration_notice", registrationNotice);
-                    registration.put("add_contact_desc", addContactDesc);
-                    registration.put("registration_tel", registrationTel);
-                    registration.put("registration_tel_desc", registrationTelDesc);
-                    data.put("registration", registration);
 
-                }catch (Exception ex){
-                    log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
-                }
-
-
-            }
         }
         data.put("common", common);
 

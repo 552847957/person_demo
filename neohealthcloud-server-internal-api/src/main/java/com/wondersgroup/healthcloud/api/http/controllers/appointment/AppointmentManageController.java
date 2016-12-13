@@ -1,17 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.AreaDTO;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.ManageHospitalDTO;
-import com.wondersgroup.healthcloud.api.http.dto.appointment.ManageOrderDTO;
+import com.wondersgroup.healthcloud.api.http.dto.appointment.*;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentOrder;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorServiceEntity;
@@ -165,7 +162,6 @@ public class AppointmentManageController {
             return new JsonResponseEntity(3011, "保存失败,参数有误");
         }
 
-
     }
 
     /**
@@ -203,7 +199,7 @@ public class AppointmentManageController {
      * @param id
      * @return
      */
-    @VersionRange
+    @Admin
     @RequestMapping(value = "/order/detail", method = RequestMethod.GET)
     public JsonResponseEntity<ManageOrderDTO> orderDetail(@RequestParam(required = true) String id) {
         JsonResponseEntity<ManageOrderDTO> response = new JsonResponseEntity<>();
@@ -218,14 +214,116 @@ public class AppointmentManageController {
     }
 
 
+    /**
+     * 根据医院Id查询一级科室列表
+     * @param hospital_id
+     * @return
+     */
+    @Admin
+    @RequestMapping(value = "/department1/list", method = RequestMethod.GET)
+    public JsonListResponseEntity<DepartmentDTO> getdepartment1Lists(@RequestParam(required = true) String hospital_id) {
+        JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
+        List<AppointmentL1Department> appointmentL1Departments = appointmentManangeService.findManageAppointmentL1Department(hospital_id);
+        List<DepartmentDTO> list = Lists.newArrayList();
+        DepartmentDTO apiEntity;
+        for (AppointmentL1Department _appointmentL1Department : appointmentL1Departments) {
+            apiEntity = new DepartmentDTO(_appointmentL1Department);
+            list.add(apiEntity);
+        }
+        body.setContent(list);
+        return body;
+
+    }
+
+    /**
+     * 根据一级科室Id查询二级科室列表
+     *
+     * @param department_l1_id
+     * @return
+     */
+    @Admin
+    @RequestMapping(value = "/department2/list", method = RequestMethod.GET)
+    public JsonListResponseEntity<DepartmentDTO> getdepartment2Lists(@RequestParam(required = true) String department_l1_id) {
+        JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
+        List<AppointmentL2Department> appointmentL2Departments = appointmentManangeService.findManageAppointmentL2Department(department_l1_id);
+        List<DepartmentDTO> list = Lists.newArrayList();
+        DepartmentDTO apiEntity;
+        for (AppointmentL2Department _appointmentL2Department : appointmentL2Departments) {
+            apiEntity = new DepartmentDTO(_appointmentL2Department);
+            list.add(apiEntity);
+        }
+        body.setContent(list);
+        return body;
+
+    }
+
+    /**
+     * 医生列表
+     * @param pager
+     * @return
+     */
+    @Admin
+    @PostMapping(value = "/doctor/list")
+    public Pager doctorList(@RequestBody Pager pager){
+        int pageNum = 1;
+        if(pager.getNumber()!=0)
+            pageNum = pager.getNumber();
+
+        List<ManageDoctorDTO> list = Lists.newArrayList();
+        List<AppointmentDoctor> doctorList = appointmentManangeService.findAllManageDoctorListByMap(pager.getParameter(), pageNum, pager.getSize());
+        ManageDoctorDTO manageDoctorDTO;
+        for(AppointmentDoctor doctor : doctorList){
+            if(list.size()>pager.getSize())
+                break;
+            manageDoctorDTO = new ManageDoctorDTO(doctor);
+            list.add(manageDoctorDTO);
+        }
+        int totalSize = appointmentManangeService.countDoctorByMap(pager.getParameter());
+        pager.setTotalElements(totalSize);
+        pager.setData(list);
+        return pager;
+    }
+
+    /**
+     * 查询医院详情
+     * @param doctorId
+     * @return
+     */
+    @Admin
+    @RequestMapping(value = "/doctor/detail", method = RequestMethod.GET)
+    public JsonResponseEntity doctorDetail(
+            @RequestParam(required = true, defaultValue = "",value = "id" ) String doctorId) {
+        JsonResponseEntity<ManageDoctorDTO> body = new JsonResponseEntity<>();
+        AppointmentDoctor doctor = appointmentApiService.findDoctorById(doctorId);
+        ManageDoctorDTO manageDoctorDTO = new ManageDoctorDTO(doctor);
+        body.setData(manageDoctorDTO);
+        return body;
+    }
 
 
+    /**
+     * 保存医生信息
+     * @param manageDoctorDTO
+     * @return
+     */
+    @Admin
+    @PostMapping(path = "/doctor/save")
+    public JsonResponseEntity saveDoctor(@RequestBody ManageDoctorDTO manageDoctorDTO){
 
+        if(manageDoctorDTO!=null && StringUtils.isNotBlank(manageDoctorDTO.getId())){
+            AppointmentDoctor doctor = appointmentApiService.findDoctorById(manageDoctorDTO.getId());
+            if(doctor!=null){
+                doctor = manageDoctorDTO.mergeDoctor(doctor, manageDoctorDTO);
+                appointmentService.saveAndFlush(doctor);
+            }else{
+                return new JsonResponseEntity(3011, "保存失败,该医院不存在");
+            }
+            return new JsonResponseEntity(0, "保存成功");
+        }else{
+            return new JsonResponseEntity(3011, "保存失败,参数有误");
+        }
 
-
-
-
-
+    }
 
 
 }

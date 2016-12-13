@@ -1,12 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.dto.appointment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL1Department;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
 
 /**
  * Created by longshasha on 16/5/21.
+ * 后台管理
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DepartmentDTO {

@@ -1,6 +1,11 @@
 package com.wondersgroup.healthcloud.services.appointment.impl;
 
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctor;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL1Department;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
+import com.wondersgroup.healthcloud.jpa.repository.appointment.DepartmentL1Repository;
+import com.wondersgroup.healthcloud.jpa.repository.appointment.DepartmentL2Repository;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.HospitalRepository;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentManangeService;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by longshasha on 16/12/12.
@@ -26,7 +32,13 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
     private JdbcTemplate jt;
 
     @Autowired
-    HospitalRepository hospitalRepository;
+    private HospitalRepository hospitalRepository;
+
+    @Autowired
+    private DepartmentL1Repository departmentL1Repository;
+
+    @Autowired
+    private DepartmentL2Repository departmentL2Repository;
 
 
     /**
@@ -150,5 +162,85 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
         }
         hospitalRepository.batchSetIsonsaleByHospitalIds(isonsale,hospitalIds);
 
+    }
+
+    @Override
+    public List<AppointmentL1Department> findManageAppointmentL1Department(String hospital_id) {
+        return departmentL1Repository.findManageAppointmentL1Department(hospital_id);
+    }
+
+    @Override
+    public List<AppointmentL2Department> findManageAppointmentL2Department(String department_l1_id) {
+        return departmentL2Repository.findManageAppointmentL2Department(department_l1_id);
+    }
+
+    /**
+     * 查询医生列表
+     * @param parameter
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public List<AppointmentDoctor> findAllManageDoctorListByMap(Map<String, Object> parameter, int pageNum, int pageSize) {
+        String sql = "select a.* " +
+                " from app_tb_appointment_doctor a  " +
+                " left join app_tb_appointment_hospital h on a.hospital_id = h.id ";
+
+
+        String whereSql = getManageDoctorListWhereSql(parameter);
+        sql += whereSql;
+        sql += " limit " + ((pageNum - 1) * pageSize -1) + " , " + pageSize;
+        List<AppointmentDoctor> list = jt.query(sql, new BeanPropertyRowMapper(AppointmentDoctor.class));
+        return list;
+    }
+
+    /**
+     * 根据参数查询医生列表
+     * @param parameter
+     * @return
+     */
+    private String getManageDoctorListWhereSql(Map<String, Object> parameter) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" where 1=1 ");
+        String areaCode = parameter.get("areaCode")==null?"":parameter.get("areaCode").toString();
+        String hospitalId = parameter.get("hospitalId")==null?"":parameter.get("hospitalId").toString();
+        String departL1Id = parameter.get("departL1Id")==null?"":parameter.get("departL1Id").toString();
+        String departL2Id = parameter.get("departL2Id")==null?"":parameter.get("departL2Id").toString();
+        String name = parameter.get("name")==null?"":parameter.get("name").toString();
+
+        if(StringUtils.isNotBlank(areaCode) || "310100000000".equals(areaCode) ){
+            sb.append(" and h.address_county = '"+areaCode+"' ");
+        }
+        if(StringUtils.isNotBlank(hospitalId)){
+            sb.append(" and a.hospital_id = '"+hospitalId+"' ");
+        }
+        if(StringUtils.isNotBlank(departL1Id)){
+            sb.append(" and a.department_l1_id = '"+departL1Id+"' ");
+        }
+        if(StringUtils.isNotBlank(departL2Id)){
+            sb.append(" and a.department_l2_id = '"+departL2Id+"' ");
+        }
+        if(StringUtils.isNotBlank(name)){
+            sb.append(" and a.doct_name like '%"+name+"%' ");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 查询医生总数
+     * @param parameter
+     * @return
+     */
+    @Override
+    public int countDoctorByMap(Map parameter) {
+        String sql = "select count(a.id) " +
+                " from app_tb_appointment_doctor a  " +
+                " left join app_tb_appointment_hospital h on a.hospital_id = h.id ";
+
+        sql += getManageDoctorListWhereSql(parameter);
+        Integer count = jt.queryForObject(sql, Integer.class);
+        return count == null ? 0 : count;
     }
 }

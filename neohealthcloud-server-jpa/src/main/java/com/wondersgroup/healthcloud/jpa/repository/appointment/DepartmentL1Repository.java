@@ -61,4 +61,11 @@ public interface DepartmentL1Repository extends JpaRepository<AppointmentL1Depar
     List<AppointmentL1Department> findAllAppointmentL1Department(String hospital_id);
 
 
+    /**
+     * 后台管理查询所有的一级科室
+     * @param hospital_id
+     * @return
+     */
+    @Query(value = "select a from AppointmentL1Department a where a.hospitalId =?1")
+    List<AppointmentL1Department> findManageAppointmentL1Department(String hospital_id);
 }
