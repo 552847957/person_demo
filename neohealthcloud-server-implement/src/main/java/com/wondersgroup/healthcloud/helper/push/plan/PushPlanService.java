@@ -54,6 +54,9 @@ public class PushPlanService {
                     if (parameter.containsKey("endTime") && StringUtils.isNotEmpty(parameter.get("endTime").toString())) {
                         list.add(criteriaBuilder.lessThanOrEqualTo(root.get("planTime").as(String.class), parameter.get("endTime").toString()));
                     }
+                    if (parameter.containsKey("type") && StringUtils.isNotEmpty(parameter.get("type").toString())) {
+                        list.add(criteriaBuilder.equal(root.get("type").as(Integer.class), parameter.get("type").toString()));
+                    }
                     list.add(criteriaBuilder.equal(root.get("area").as(String.class),user.getMainArea()));//查找同意区域的
                 }
                 criteriaQuery.where(list.toArray(new Predicate[list.size()]));

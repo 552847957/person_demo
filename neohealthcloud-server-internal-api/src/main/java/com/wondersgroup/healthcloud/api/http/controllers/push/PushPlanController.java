@@ -19,6 +19,7 @@ import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.helper.push.plan.PushPlanService;
+import com.wondersgroup.healthcloud.jpa.constant.AppPushConstant;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2016/8/26.
@@ -93,7 +95,8 @@ public class PushPlanController {
 
             };
         }
-
+        Map<String, Object> params = pager.getParameter();
+        params.put("type", AppPushConstant.PushType.ARTICLE);
         Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter(),user);
 
 
@@ -127,6 +130,7 @@ public class PushPlanController {
         pushPlan.setArea(user.getMainArea());
         pushPlan.setCreator(user.getUserId());
         pushPlan.setTarget_type(1);
+        pushPlan.setType(AppPushConstant.PushType.ARTICLE);
         pushPlan.setCreateTime(new Date());
         pushPlan.setUpdateTime(new Date());
         pushPlan.setStatus(0);
