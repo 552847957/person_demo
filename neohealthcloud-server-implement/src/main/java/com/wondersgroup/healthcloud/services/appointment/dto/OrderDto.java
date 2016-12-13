@@ -6,6 +6,7 @@ import java.util.Date;
 
 /**
  * Created by longshasha on 16/12/9.
+ * 用于数据库查询
  */
 @Data
 public class OrderDto {
@@ -76,6 +77,13 @@ public class OrderDto {
      * 0-24的整数，代表时间，同上两个字段结合，起来为提前closeDays天closeTimeHour点之前不能预约和退号明天的号源
      */
     private String closeTimeHour;
+
+    /**
+     * 用户的手机号(用于后台管理订单信息)
+     */
+    private String regmobilephone;
+
+    private String timeRange;
 
 
 }

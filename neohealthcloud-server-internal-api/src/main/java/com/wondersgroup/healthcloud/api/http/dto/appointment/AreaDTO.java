@@ -21,7 +21,7 @@ public class AreaDTO {
     @JsonProperty("area_upper_code")
     private String areaUpperCode;
 
-    public AreaDTO(Map<String,Object> result) {
+    public AreaDTO(Map<String, Object> result) {
         this.areaName=(String) result.get("explain_memo");
         this.areaCode= (String) result.get("code");
     }

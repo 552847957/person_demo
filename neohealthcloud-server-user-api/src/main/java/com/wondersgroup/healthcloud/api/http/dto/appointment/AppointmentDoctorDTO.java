@@ -149,6 +149,7 @@ public class AppointmentDoctorDTO {
         doctorDTO.setAvatar(doctor.getAvatar());
         doctorDTO.setDutyName(doctor.getDoctTile());
 
+        doctorDTO.setType(1);
         doctorDTO.setHospitalName(doctor.getHospitalName());
         doctorDTO.setDepartmentName(doctor.getDepartmentName());
         return doctorDTO;

@@ -7,7 +7,7 @@ import com.wondersgroup.healthcloud.exceptions.BaseException;
  */
 public class ErrorAppointmentException extends BaseException {
     public ErrorAppointmentException(){
-        super(3001, "请绑定手机号", null);
+        super(3001, "欲享受预约挂号服务,请先绑定手机号", null);
     }
 
     public ErrorAppointmentException(String msg){

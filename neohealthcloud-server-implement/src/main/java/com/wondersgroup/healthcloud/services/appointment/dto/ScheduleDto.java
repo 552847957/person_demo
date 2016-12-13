@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * Created by longshasha on 16/12/7.
+ * 用于数据库查询
  */
 @Data
 public class ScheduleDto {

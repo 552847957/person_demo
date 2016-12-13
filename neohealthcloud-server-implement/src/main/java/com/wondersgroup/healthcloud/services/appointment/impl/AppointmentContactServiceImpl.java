@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
  * 预约挂号就诊人
  */
 @Service
+@Transactional(readOnly = true)
 public class AppointmentContactServiceImpl implements AppointmentContactService {
 
     private static final Logger log = Logger.getLogger(AppointmentContactServiceImpl.class);
@@ -40,6 +42,7 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
     private Environment environment;
 
     @Override
+    @Transactional(readOnly = false)
     public AppointmentContact addAppointmentContact(String uid, String name, String idcard, String mobile, String mediCardId) {
 
         String isDefault = "0";
@@ -122,6 +125,7 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
      * @param mediCardId
      * @return
      */
+    @Transactional(readOnly = false)
     private AppointmentContact registerUserOrMember(String uid, String name, String idcard,
                                                     String mobile, String mediCardId,Boolean isFirstContact) {
 

@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.Map;
  * 用于api 客户端接口
  */
 @Service
+@Transactional(readOnly = true)
 public class AppointmentApiServiceImpl implements AppointmentApiService {
 
     @Autowired
@@ -381,6 +383,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
      * @return
      */
     @Override
+    @Transactional(readOnly = false)
     public OrderDto submitUserReservation(String contactId, String scheduleId, String orderType) {
         AppointmentContact contact = contactRepository.findOne(contactId);
 
@@ -487,6 +490,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
      * @param id
      */
     @Override
+    @Transactional(readOnly = false)
     public void cancelReservationOrderById(String id) {
         AppointmentOrder order = orderRepository.findOne(id);
         AppointmentHospital hospital = hospitalRepository.findOne(order.getHospitalId());
@@ -515,6 +519,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setUpdateDate(new Date());
         orderRepository.saveAndFlush(order);
     }
+
+
 
     /**
      * 将订单保存到本地
