@@ -41,4 +41,9 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     @Transactional
     @Query("update Comment a set a.status=?1 where a.id in ?2")
     void updateStatusByIds(Integer status, Iterable<Integer> ids);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("update Comment a set a.status=?1 where a.id = ?2")
+    void updateStatusById(Integer status, Integer ids);
 }

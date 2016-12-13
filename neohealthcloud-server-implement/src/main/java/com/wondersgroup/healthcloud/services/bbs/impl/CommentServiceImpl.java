@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.CommentConstant;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
@@ -190,7 +192,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setCreateTime(nowDate);
         comment.setFloor(publishDto.getFloor());
         if (publishDto.getReferCommentId() != null && publishDto.getReferCommentId() > 0){
-            Comment referComment = this.getCommentInfoByCommentId(publishDto.getReferCommentId());
+            Comment referComment = commentRepository.findOne(publishDto.getReferCommentId());
             if (null != referComment){
                 comment.setReferCommentId(publishDto.getReferCommentId());
                 comment.setReferUId(referComment.getUid());
@@ -199,13 +201,32 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.save(comment);
     }
 
-    public Comment getCommentInfoByCommentId(int commentId){
-        return commentRepository.findOne(commentId);
+    @Override
+    public Boolean delCommonById(String uid, Integer commentId) {
+        RegisterInfo account = userService.getOneNotNull(uid);
+        //普通用户不能删除评论
+        if(account.getIsBBsAdmin() != 1){
+            throw new CommonException(1000, "您当前没有权限删除该评论");
+        }
+        commentRepository.updateStatusById(CommentConstant.Status.DELETE, commentId);
+        bbsMsgHandler.adminDelComment(uid, commentId);
+        return true;
     }
 
     @Override
-    public Boolean delCommonByIds(Iterable<Integer> ids) {
-        commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, ids);
+    public Boolean delCommonByIds(String adminUid, List<Integer> commentIds) {
+        if (null == commentIds || commentIds.isEmpty()){
+            return false;
+        }
+        RegisterInfo account = userService.getOneNotNull(adminUid);
+        //普通用户不能删除评论
+        if(account.getIsBBsAdmin() != 1){
+            throw new CommonException(1000, "您当前没有权限删除评论");
+        }
+        //删除回复
+        commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, commentIds);
+
+        bbsMsgHandler.adminDelComment(adminUid, commentIds);
         return true;
     }
 
@@ -304,25 +325,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment findOne(Integer id) {
-        Comment comment = commentRepository.findOne(id);
-        return comment;
-    }
-
-    @Override
-    public Boolean delCommonByIds(String adminUid, List<Integer> ids) {
-        if (null == ids || ids.isEmpty()){
-            return false;
-        }
-        //删除回复
-        commentRepository.updateStatusByIds(CommentConstant.Status.DELETE, ids);
-
-        bbsMsgHandler.adminDelComment(adminUid, ids);
-        return true;
+        return commentRepository.findOne(id);
     }
 
     @Override
     public Comment saveComment(Comment comment) {
-        Comment result = commentRepository.saveAndFlush(comment);
-        return result;
+        return commentRepository.saveAndFlush(comment);
     }
 }

@@ -53,8 +53,6 @@ public class CommentController {
     @Autowired
     private BbsMsgHandler bbsMsgHandler;
 
-    private static final int ADMIN = 1;
-
     /**
      * 评论回复
      */
@@ -134,17 +132,8 @@ public class CommentController {
     @VersionRange
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public JsonResponseEntity deleteComment(@RequestParam Integer commentId, @RequestParam String uid){
-        RegisterInfo account = userService.getOneNotNull(uid);
-        if(account!=null){
-            int isAdmin = account.getIsBBsAdmin();
-            if(isAdmin != ADMIN)
-                throw new CommonException(1000, "您当前没有权限删除该评论");
-        }
         JsonResponseEntity responseEntity = new JsonResponseEntity();
-        List<Integer> idList = Lists.newArrayList();
-        idList.add(commentId);
-        commentService.delCommonByIds(idList);
-        bbsMsgHandler.adminDelComment(uid, commentId);
+        commentService.delCommonById(uid, commentId);
         responseEntity.setMsg("删除成功");
         return responseEntity;
     }

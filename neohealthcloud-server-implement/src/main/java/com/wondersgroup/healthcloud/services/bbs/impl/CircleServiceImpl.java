@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import com.wondersgroup.healthcloud.common.utils.AppUrlSchemaUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.wondersgroup.healthcloud.common.appenum.AppJumpUrlEnum;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.constant.CircleConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
@@ -34,7 +34,6 @@ import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleCategoryDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.MyCircleDto;
-import com.wondersgroup.healthcloud.utils.Page;
 
 /**
  * Created by ys on 2016/08/11.
@@ -152,7 +151,7 @@ public class CircleServiceImpl implements CircleService {
                 Integer topicId = Integer.parseInt(String.valueOf(map.get("hoplinks")));
                 dto.setTopicId(topicId);// 存的是id
                 dto.setPicOrder(Integer.parseInt(String.valueOf(map.get("sequence"))));
-                dto.setJumpUrl(String.format(AppJumpUrlEnum.TOPIC_URL.getValue(), topicId));
+                dto.setJumpUrl(AppUrlSchemaUtils.bbsTopicView(topicId));
                 dtoList.add(dto);
             }
         } else {

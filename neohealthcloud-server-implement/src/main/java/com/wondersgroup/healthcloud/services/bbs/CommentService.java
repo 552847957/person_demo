@@ -37,9 +37,9 @@ public interface CommentService {
 
     Comment publishComment(CommentPublishDto publishDto);
 
-    Boolean delCommonByIds(Iterable<Integer> ids);
+    Boolean delCommonById(String uid, Integer commentId);
 
-
+    Boolean delCommonByIds(String adminUid, List<Integer> commentIds);
     //----------------管理后台用--------------//
 
     List<Map<String, Object>> getCommentListByCriteria(CommentSearchCriteria searchCriteria);
@@ -56,8 +56,6 @@ public interface CommentService {
     Map<String, Object> getCommentInfoByIdWithReplys(Integer id);
 
     Comment findOne(Integer id);
-
-    Boolean delCommonByIds(String adminUid, List<Integer> ids);
 
     Comment saveComment(Comment comment);
 }

@@ -47,7 +47,7 @@ public class CommentListDto {
     }
 
     public String getContent(){
-        if (this.status.intValue() != CommentConstant.AppListStatus.OK){
+        if (this.status != CommentConstant.AppListStatus.OK){
             this.content = "";
         }
         return this.content;
@@ -59,7 +59,7 @@ public class CommentListDto {
         this.uid = comment.getUid();
         this.floor = comment.getFloor();
         this.content = comment.getContent();
-        if (comment.getStatus().intValue() != CommentConstant.Status.OK){
+        if (comment.getStatus() != CommentConstant.Status.OK){
             this.status = CommentConstant.AppListStatus.DELETE;
         }
         this.isOwner = comment.getIsOwner();
@@ -87,7 +87,7 @@ public class CommentListDto {
         referCommentInfo.setContent(referComment.getContent());
         referCommentInfo.setCreateTime(DateUtils.formatDate2Custom(referComment.getCreateTime()));
         referCommentInfo.setFloor(referComment.getFloor());
-        if (referComment.getStatus().intValue() != CommentConstant.Status.OK){
+        if (referComment.getStatus() != CommentConstant.Status.OK){
             referCommentInfo.setStatus(CommentConstant.AppListStatus.DELETE);
         }
         referCommentInfo.setIsOwner(referComment.getIsOwner());
@@ -116,7 +116,7 @@ public class CommentListDto {
         String createTime;//回复时间
 
         public String getContent(){
-            if (this.status.intValue() != CommentConstant.AppListStatus.OK){
+            if (this.status != CommentConstant.AppListStatus.OK){
                 this.content = "";
             }
             return this.content;
