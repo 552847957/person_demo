@@ -21,7 +21,7 @@ public class AppUrlH5Utils {
      * 圈子的话题详情
      */
     public String buildBbsTopicView(int topic_id) {
-        return basePath + "theme?topicId="+topic_id+"&isToken=1";
+        return basePath + "/topic/detail?topicId="+topic_id+"&area=3101";
     }
 
     /**
