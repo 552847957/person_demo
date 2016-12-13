@@ -73,7 +73,7 @@ public class ExchangeOrderService {
 			sql += " and a.id like  '%" + orderId + "%'";
 		}
 		if (StringUtils.isNotBlank(userName)) {
-			sql += " and a.customer_name like '% "+ userName +"%' ";
+			sql += " and a.customer_name like '% " + userName + "%' ";
 		}
 		if (orderStatus != null) {
 			sql += " and a.status = " + orderStatus;
@@ -145,7 +145,8 @@ public class ExchangeOrderService {
 		Integer orderType = goods.getType();
 
 		int restGold = goldRecordService.findRestGoldByUserId(order.getUserId());
-		if (0 >= goods.getStockNum()) {
+		// 服务包没有库存限制
+		if (orderType != 2 && 0 >= goods.getStockNum()) {
 			throw new CommonException(1001, "商品已兑完");
 		}
 
