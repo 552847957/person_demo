@@ -121,6 +121,9 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     public void addUpdateAdminVestUser(String adminUid, AdminVestInfoDto vestUser){
         RegisterInfo registerInfo;
         Date nowDate = new Date();
+        if (StringUtils.isEmpty(vestUser.getNickname())) {
+            throw new CommonException(2001, "昵称不能为空");
+        }
         if (StringUtils.isNotEmpty(vestUser.getUid())){
             registerInfo = registerInfoRepository.findOne(vestUser.getUid());
             if (registerInfo == null){
