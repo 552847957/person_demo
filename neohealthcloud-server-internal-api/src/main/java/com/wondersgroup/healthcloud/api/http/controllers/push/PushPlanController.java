@@ -213,11 +213,11 @@ public class PushPlanController {
     public JsonResponseEntity cancel(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer id = Integer.parseInt(reader.readString("id", false));
-        PushPlan pushPlan = pushPlanRepo.findOne(id);
-        this.updatPlan(id,3);
+        Integer preStatus = pushPlanRepo.findOne(id).getStatus();
+        PushPlan pushPlan = this.updatPlan(id,3);
 
         //取消定时任务
-        if(1 == pushPlan.getStatus()) {//之前状态为待推送状态，则可以取消定时任务
+        if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
             Request build=null;
             if(pushPlan.getType()==AppPushConstant.PushType.ARTICLE){
                 build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
@@ -267,7 +267,7 @@ public class PushPlanController {
         return reponse;
     }
 
-    private void updatPlan(Integer id ,Integer status){
+    private PushPlan updatPlan(Integer id ,Integer status){
         PushPlan pushPlan = pushPlanRepo.findOne(id);
         if((1 == status || 4 == status) && 0 != pushPlan.getStatus()){//通过
             throw new BadRequestException(1001,"问题非待审核状态");
@@ -275,6 +275,8 @@ public class PushPlanController {
         pushPlan.setStatus(status);
         pushPlan.setUpdateTime(new Date());
         pushPlanRepo.save(pushPlan);
+        return pushPlan;
+        
     }
 
 }
