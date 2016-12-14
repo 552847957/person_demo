@@ -752,7 +752,7 @@ public class FamilyController {
             info.setNikcName("我");
         }else{
             info.setAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
-            info.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
+            info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {

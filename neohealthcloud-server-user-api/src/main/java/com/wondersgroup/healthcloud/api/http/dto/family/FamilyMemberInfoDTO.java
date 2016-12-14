@@ -24,7 +24,7 @@ public class FamilyMemberInfoDTO {
     @Data
     public static class Info {
         private String  nikcName;      //昵称
-        private String  relationName;  //关系名称
+        private String  relation_name;  //关系名称
         private int     age;           //年龄
         private Boolean isVerification; //是否实名
         private Boolean isStandalone;  //是否单机版
