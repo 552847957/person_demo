@@ -21,7 +21,7 @@ public class VerificationInfoDTO {
     private String msg;
     private String name;
     private String idcard;
-    private String identifyType;
+    private String identifytype;
 
     public VerificationInfoDTO() {
 
@@ -31,7 +31,7 @@ public class VerificationInfoDTO {
         this.uid = uid;
         if (info == null) {
             this.canSubmit = true;
-            this.identifyType = "0";
+            this.identifytype = "0";
         } else {
             Integer status = info.get("status").asInt();
             this.status = statusArray[status - 1];
@@ -41,9 +41,9 @@ public class VerificationInfoDTO {
             this.idcard = IdcardUtils.maskIdcard(info.get("idcard").asText());
             this.msg = info.get("msg").isNull() ? null : info.get("msg").asText();
             if (success) {
-                this.identifyType = "1";
+                this.identifytype = "1";
             } else {
-                this.identifyType = "0";
+                this.identifytype = "0";
             }
         }
     }
@@ -104,11 +104,11 @@ public class VerificationInfoDTO {
         this.idcard = idcard;
     }
 
-    public String getIdentifyType() {
-        return identifyType;
+    public String getIdentifytype() {
+        return identifytype;
     }
 
-    public void setIdentifyType(String identifyType) {
-        this.identifyType = identifyType;
+    public void setIdentifytype(String identifytype) {
+        this.identifytype = identifytype;
     }
 }

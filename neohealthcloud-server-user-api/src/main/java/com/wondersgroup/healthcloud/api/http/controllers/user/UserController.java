@@ -343,7 +343,7 @@ public class UserController {
             data.setUid(id);
             data.setName(IdcardUtils.maskName(person.getName()));
             data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
-            data.setIdentifyType(person.getIdentifytype());
+            data.setIdentifytype(person.getIdentifytype());
             data.setSuccess(true);
             data.setStatus(VerificationInfoDTO.statusArray[0]);
             data.setCanSubmit(false);
