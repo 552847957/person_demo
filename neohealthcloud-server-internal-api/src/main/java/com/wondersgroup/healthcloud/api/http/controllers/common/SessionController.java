@@ -22,8 +22,11 @@ public class SessionController {
         JsonResponseEntity<Session> response = new JsonResponseEntity<>();
         Session session = sessionUtil.get(token);
         if (session == null) {
-            response.setCode(1001);
-
+            response.setCode(12);
+            response.setMsg("登录凭证过期, 请重新登录");
+        } else if (!session.getIsValid()) {
+            response.setCode(13);
+            response.setMsg("账户在其他设备登录, 请重新登录");
         } else {
             response.setData(sessionUtil.get(token));
         }
