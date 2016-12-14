@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.step;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wondersgroup.healthcloud.api.http.dto.step.StepHomeDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
@@ -38,6 +38,9 @@ public class StepController {
 
 	@Autowired
 	AppConfigService appConfigService;
+
+	@Autowired
+	AppUrlH5Utils appUrlH5Utils;
 
 	/**
 	 * 获取计步首页数据
@@ -64,19 +67,9 @@ public class StepController {
 		home.setRestGold(restGold);
 		home.setAccess(isAccess);
 		home.setActivityTime(isActivityTime);
-
-		List<String> keyWords = new ArrayList<>();
-		keyWords.add("app.step.help");// 帮助
-		keyWords.add("app.step.rule");// 规则
-		keyWords.add("app.step.invite");// 邀请
-		keyWords.add("app.step.share.logo");// 邀请，分享Log
-
-		Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, null, keyWords);
-		home.setHelpUrl(cfgMap.get("app.step.help"));
-		home.setInviteUrl(cfgMap.get("app.step.rule"));
-		home.setLogoUrl(cfgMap.get("app.step.invite"));
-		home.setRuleUrl(cfgMap.get("app.step.share.logo"));
-
+		home.setHelpUrl(appUrlH5Utils.buildStepHelpUrl());
+		home.setInviteUrl(appUrlH5Utils.buildStepInviteUrl(userId));
+		home.setRuleUrl(appUrlH5Utils.buildStepRuleUrl());
 		responseEntity.setData(home);
 		return responseEntity;
 	}
