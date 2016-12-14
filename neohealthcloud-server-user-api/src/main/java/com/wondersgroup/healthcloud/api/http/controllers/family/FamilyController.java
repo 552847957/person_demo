@@ -48,6 +48,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.common.image.utils.ImagePath;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO.MemberInfo;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.Info;
@@ -56,6 +57,7 @@ import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.MemberInfoTemplet;
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
+import com.wondersgroup.healthcloud.common.converter.gender.GenderConverter;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -63,6 +65,7 @@ import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -714,7 +717,7 @@ public class FamilyController {
     
     
     /**
-     * 家庭个人信息
+     * 家庭首页个人信息
      * @param uid
      * @return Object
      */
@@ -727,13 +730,13 @@ public class FamilyController {
         String registerId = null;
         String sex = null;
         Info info = new Info();
-        info.setIsStandalone(true);
+        info.setIsStandalone(false);
         RegisterInfo regInfo = userService.findOne(uid);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if(regInfo == null){
             AnonymousAccount ano = anonymousAccountRepository.getOne(uid);
             if(ano != null && ano.getIsStandalone()){
-                info.setIsStandalone(false);
+                info.setIsStandalone(true);
             }
             info.setNikcName(ano.getNickname());
 //            info.setAge(info.getAge());
@@ -744,9 +747,9 @@ public class FamilyController {
             registerId = regInfo.getRegisterid();
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
-            info.setNikcName(info.getNikcName());
+            info.setNikcName(regInfo.getNickname());
             info.setAge(info.getAge());
-            info.setMobile(info.getMobile());
+            info.setMobile(regInfo.getRegmobilephone());
         }
         if(uid.equals(memberId)){
             info.setNikcName("我");
@@ -799,7 +802,51 @@ public class FamilyController {
     }
     
     /**
-     * 家庭人员排序
+     * 家人信息
+     * @param uid
+     * @return Object
+     */
+    @RequestMapping(value = "/familyInfo", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<FamilyInfoDTO>  familyInfo(@RequestParam String uid, @RequestParam String memberId){
+        JsonResponseEntity<FamilyInfoDTO> response = new JsonResponseEntity<FamilyInfoDTO>();
+        FamilyInfoDTO info = new FamilyInfoDTO();
+        info.setIsStandalone(false);
+        RegisterInfo regInfo = userService.findOne(uid);
+        FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
+        if(familyMember == null){
+            throw new CommonException(1000, "不是您的家庭成员");
+        }
+        if(regInfo == null){
+            AnonymousAccount ano = anonymousAccountRepository.getOne(uid);
+            if(ano != null && ano.getIsStandalone()){
+                info.setIsStandalone(true);
+            }
+            info.setId(ano.getId());
+            info.setNickname(ano.getNickname());
+//            info.setAge(info.getAge());
+            info.setMobile(ano.getMobile());
+            info.setSex(GenderConverter.toChinese(ano.getSex()));
+            info.setAvatar(ano.getHeadphoto());
+            info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
+        }else{
+            info.setSex(GenderConverter.toChinese(regInfo.getGender()));
+            info.setId(regInfo.getRegisterid());
+            info.setIsVerification(regInfo.verified());
+            info.setNickname(regInfo.getNickname());
+            info.setMobile(regInfo.getRegmobilephone());
+            info.setAvatar(regInfo.getHeadphoto());
+            info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
+        }
+        info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
+        
+        response.setData(info);
+        response.setMsg("查询成功");
+        return response;
+    }
+    
+    /**
+     * 家庭首页人员排序
      * @param uid
      * @return Object
      */
@@ -830,7 +877,7 @@ public class FamilyController {
     }
     
     /**
-     * 家庭人员排序修改
+     * 家庭首页人员排序修改
      * @param uid
      * @return Object
      */
@@ -941,6 +988,20 @@ public class FamilyController {
         JsonResponseEntity<Object> response = new JsonResponseEntity<Object>();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("memberFooting", FamilyMemberRelation.getMemberFooting());
+        response.setData(map);
+        response.setMsg("查询成功");
+        return response;
+    }
+    
+    /**
+     * 所有家庭关系
+     */
+    @RequestMapping(value = "/memberFootings", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<Object> memberFootings(){
+        JsonResponseEntity<Object> response = new JsonResponseEntity<Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("memberFooting", FamilyMemberRelation.getMemberFootings());
         response.setData(map);
         response.setMsg("查询成功");
         return response;

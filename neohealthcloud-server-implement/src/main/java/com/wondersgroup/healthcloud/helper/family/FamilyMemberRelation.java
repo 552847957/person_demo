@@ -2,7 +2,10 @@ package com.wondersgroup.healthcloud.helper.family;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.base.Preconditions;
 
@@ -47,7 +50,7 @@ public class FamilyMemberRelation {
 //                return _gender == 1 ? "1" : "2";
 //            }
 //        };
-        return getNameByRelationAndSex(code, _gender);
+        return getIndexByRelationAndSex(code, _gender);
     }
     
     /**
@@ -75,7 +78,22 @@ public class FamilyMemberRelation {
         result.add(list3);
         return result;
     }
- 
+    
+    /**
+     * 获取所有关系，分1组
+     * @return List<List<String>>
+     */
+    public static List<Map<String,Object>> getMemberFootings(){
+        List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
+        for (int i = 0; i < relationNames.length; i++) {
+            Map<String,Object> map = new TreeMap<String,Object>();
+            map.put("relation", i);
+            map.put("relation_name", relationNames[i]);
+            result.add(map);
+        }
+        return result;
+    }
+    
     public static String getSexByRelationAndSex(String relation, String gender){
         Integer sex = gender == null ? null : Integer.parseInt(gender);
         switch (relation) {
@@ -123,7 +141,7 @@ public class FamilyMemberRelation {
         }
     }
     
-    public static String getNameByRelationAndSex(String relation, Integer sex){
+    public static String getIndexByRelationAndSex(String relation, Integer sex){
         switch (relation) {
         case "1": return sex == 2 ? "5" : "4"; 
         case "2": return sex == 2 ? "5" : "4";
