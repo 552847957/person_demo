@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.mall.h5;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.services.mall.GoodsService;
+import com.wondersgroup.healthcloud.services.mall.dto.GoodsDto;
 
 @RestController
 @RequestMapping("/api/h5/goods")
@@ -34,10 +36,19 @@ public class H5GoodsController {
 	}
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
-	public Object details(Integer goodsId) {
-		JsonResponseEntity<Goods> responseEntity = new JsonResponseEntity<>();
+	public Object details(Integer goodsId, String userId) {
+		JsonResponseEntity<GoodsDto> responseEntity = new JsonResponseEntity<>();
 		Goods goods = goodsService.findById(goodsId);
-		responseEntity.setData(goods);
+
+		GoodsDto target = new GoodsDto();
+		BeanUtils.copyProperties(goods, target);
+
+		if (goods.getType() != 1) {
+			// 判断用户今天是否已经兑换过此商品
+			target.setHasExchange(goodsService.hasExchange(goodsId, userId));
+		}
+
+		responseEntity.setData(target);
 		return responseEntity;
 	}
 }

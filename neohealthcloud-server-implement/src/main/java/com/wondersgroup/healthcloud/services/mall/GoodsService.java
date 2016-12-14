@@ -26,8 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
 import com.wondersgroup.healthcloud.jpa.entity.mall.Goods;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoodsItem;
+import com.wondersgroup.healthcloud.jpa.repository.mall.ExchangeOrderRepository;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsItemRepository;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoodsRepository;
 import com.wondersgroup.healthcloud.services.mall.dto.GoodsForm;
@@ -48,6 +50,9 @@ public class GoodsService {
 
 	@Autowired
 	MallBannerService mallBannerService;
+
+	@Autowired
+	ExchangeOrderRepository exchangeOrderRepository;
 
 	public void save(GoodsForm form) {
 		Date date = new Date();
@@ -109,6 +114,18 @@ public class GoodsService {
 
 	public Goods findById(Integer id) {
 		return goodsRepository.findOne(id);
+	}
+
+	/**
+	 * 今天是否已兑换该商品
+	 * 
+	 * @param goodsId
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasExchange(Integer goodsId, String userId) {
+		List<ExchangeOrder> orders = exchangeOrderRepository.findByUserIdAndGoodsId(userId, goodsId);
+		return orders != null && !orders.isEmpty();
 	}
 
 	public void save(Goods goods) {

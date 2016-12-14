@@ -51,6 +51,9 @@ public class ExchangeOrderService {
 	@Autowired
 	GoodsItemRepository goodsItemRepository;
 
+	@Autowired
+	GoodsService goodsService;
+
 	public Page<ExchangeOrderDto> list(Map map, int page, int size) {
 		String goodsName = (String) map.get("goodsName");
 		Integer goodsType = (Integer) map.get("goodsType");
@@ -158,6 +161,13 @@ public class ExchangeOrderService {
 			throw new CommonException(1003, "商品已下架");
 		}
 
+		if (orderType != 1) {
+			boolean hasExchange = goodsService.hasExchange(order.getGoodsId(), order.getUserId());
+			if (hasExchange) {
+				throw new CommonException(1004, "您已经兑换过此商品了:(");
+			}
+		}
+
 		order.setId(generateOrderId(orderType));
 		order.setGoodsType(goods.getType());
 		order.setGoodsName(goods.getName());
@@ -218,7 +228,7 @@ public class ExchangeOrderService {
 		if (status == 0) {
 			return true;
 		}
-		
+
 		Date endTime = goods.getEndTime();
 		if (endTime != null) {
 			return endTime.compareTo(new Date()) <= 0;
