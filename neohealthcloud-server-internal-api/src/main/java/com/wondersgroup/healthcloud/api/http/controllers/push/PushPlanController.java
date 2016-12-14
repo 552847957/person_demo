@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.BadRequestException;
 import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.utils.AppUrlSchemaUtils;
 import com.wondersgroup.healthcloud.exceptions.BaseException;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
@@ -29,6 +30,7 @@ import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 import com.wondersgroup.healthcloud.jpa.repository.push.PushTagRepository;
 import com.wondersgroup.healthcloud.services.permission.PermissionService;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -95,8 +97,8 @@ public class PushPlanController {
 
             };
         }
-        Map<String, Object> params = pager.getParameter();
-        params.put("type", AppPushConstant.PushType.ARTICLE);
+//        Map<String, Object> params = pager.getParameter();
+//        params.put("type", AppPushConstant.PushType.ARTICLE);
         Page<PushPlan> page = pushPlanService.findAll(pager.getNumber()-1,pager.getSize(),pager.getParameter(),user);
 
 
@@ -130,10 +132,14 @@ public class PushPlanController {
         pushPlan.setArea(user.getMainArea());
         pushPlan.setCreator(user.getUserId());
         pushPlan.setTarget_type(1);
-        pushPlan.setType(AppPushConstant.PushType.ARTICLE);
+        pushPlan.setType(pushPlan.getType());
         pushPlan.setCreateTime(new Date());
         pushPlan.setUpdateTime(new Date());
         pushPlan.setStatus(0);
+        if(null!=pushPlan.getTopicId()){
+            pushPlan.setTopicId(pushPlan.getTopicId());
+            pushPlan.setUrl(AppUrlSchemaUtils.bbsTopicView(pushPlan.getTopicId()));
+        }
         if(null != pushPlan.getArticleId()){
             pushPlan.setUrl(h5Url+"/article/detail?id="+pushPlan.getArticleId()+"&area="+pushPlan.getArea()+"&for_type=article");
         }
@@ -161,9 +167,15 @@ public class PushPlanController {
         this.updatPlan(id,1);
 
         logger.error("开始创建push定时任务，pushId :"+id);
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
         //创建定时任务
-        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlanRepo.findOne(id).getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
-        Request build= new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
+        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
+        Request build=null;
+        if(pushPlan.getType()==AppPushConstant.PushType.ARTICLE){
+            build = new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
+        }else if(pushPlan.getType()==AppPushConstant.PushType.TOPIC){
+            build = new RequestBuilder().post().url(AppUrlSchemaUtils.basePath+"/api/healthcloud/push").body(param).build();
+        }
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
 
@@ -201,12 +213,17 @@ public class PushPlanController {
     public JsonResponseEntity cancel(@RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer id = Integer.parseInt(reader.readString("id", false));
-        Integer preStatus = pushPlanRepo.findOne(id).getStatus();
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
         this.updatPlan(id,3);
 
         //取消定时任务
-        if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
-            Request build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
+        if(1 == pushPlan.getStatus()) {//之前状态为待推送状态，则可以取消定时任务
+            Request build=null;
+            if(pushPlan.getType()==AppPushConstant.PushType.ARTICLE){
+                build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
+            }else if(pushPlan.getType()==AppPushConstant.PushType.TOPIC){
+                build = new RequestBuilder().delete().url(AppUrlSchemaUtils.basePath + "/api/healthcloud/push").param("planId", id.toString()).build();
+            }
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
             logger.error("定时任务(pushId = "+id+")取消成功，返回结果"+result);

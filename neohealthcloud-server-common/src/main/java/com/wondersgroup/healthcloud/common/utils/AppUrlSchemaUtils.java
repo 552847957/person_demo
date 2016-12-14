@@ -8,7 +8,7 @@ package com.wondersgroup.healthcloud.common.utils;
  */
 public class AppUrlSchemaUtils {
 
-    private static String basePath = "com.wondersgroup.healthcloud.${area}://user/";
+    public static String basePath = "com.wondersgroup.healthcloud.${area}://user/";
 
     private static String getBasePath(String area){
         return basePath.replace("${area}", area);
