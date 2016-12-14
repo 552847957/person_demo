@@ -22,7 +22,7 @@ public class RegistrationConfiguration {
     }
 
     @Bean
-    public HospitalInfoClient weatherClient(Jaxb2Marshaller marshaller) {
+    public HospitalInfoClient hospitalInfoClientClient(Jaxb2Marshaller marshaller) {
         HospitalInfoClient client = new HospitalInfoClient();
         client.setDefaultUri(url);
         client.setMarshaller(marshaller);

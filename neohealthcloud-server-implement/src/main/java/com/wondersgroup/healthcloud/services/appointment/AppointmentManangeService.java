@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface AppointmentManangeService {
 
-    List<AppointmentHospital> findAllManageHospitalListByAreaCodeAndName(String name, String areaCode, int pageNum, int size);
+    List<AppointmentHospital> findAllManageHospitalListByAreaCodeAndName(String name, String areaCode, int pageNum, int size,Boolean isPage);
 
     int countHospitalsByAreaCode(String name, String areaCode);
 
@@ -31,4 +31,5 @@ public interface AppointmentManangeService {
     List<AppointmentDoctor> findAllManageDoctorListByMap(Map<String,Object> parameter, int pageNum, int size);
 
     int countDoctorByMap(Map parameter);
+
 }

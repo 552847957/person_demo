@@ -50,7 +50,7 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
      * @return
      */
     @Override
-    public List<AppointmentHospital> findAllManageHospitalListByAreaCodeAndName(String name, String areaCode, int pageNum, int pageSize) {
+    public List<AppointmentHospital> findAllManageHospitalListByAreaCodeAndName(String name, String areaCode, int pageNum, int pageSize,Boolean isPage) {
         String sql = "select * from app_tb_appointment_hospital a where 1=1 ";
 
         if(StringUtils.isNotBlank(name)){
@@ -60,7 +60,10 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
             sql += " and a.address_county = '"+areaCode+"' ";
         }
 
-        sql += " order by a.address_county asc limit  "+ (pageNum - 1) * pageSize + " , " + pageSize;
+        sql += " order by a.address_county asc " ;
+        if(isPage){
+            sql +=  " limit  "+ (pageNum - 1) * pageSize + " , " + pageSize;
+        }
 
         return jt.query(sql.toString(), new BeanPropertyRowMapper(AppointmentHospital.class));
     }
@@ -190,7 +193,7 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
 
         String whereSql = getManageDoctorListWhereSql(parameter);
         sql += whereSql;
-        sql += " limit " + ((pageNum - 1) * pageSize -1) + " , " + pageSize;
+        sql += "order by h.address_county,a.hospital_id,a.department_l1_id,a.department_l2_id,a.doct_code limit " + (pageNum - 1) * pageSize  + " , " + pageSize;
         List<AppointmentDoctor> list = jt.query(sql, new BeanPropertyRowMapper(AppointmentDoctor.class));
         return list;
     }
@@ -243,4 +246,5 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
     }
+
 }

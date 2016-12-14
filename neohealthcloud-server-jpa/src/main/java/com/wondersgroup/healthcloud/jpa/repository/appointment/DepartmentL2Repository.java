@@ -77,6 +77,6 @@ public interface DepartmentL2Repository extends JpaRepository<AppointmentL2Depar
      * @param department_l1_id
      * @return
      */
-    @Query(value = "select a from AppointmentL2Department a where  a.l1DepartmentId =?1")
+    @Query(value = "select a from AppointmentL2Department a where  a.l1DepartmentId =?1 order by a.hosDeptCode asc ")
     List<AppointmentL2Department> findManageAppointmentL2Department(String department_l1_id);
 }

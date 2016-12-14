@@ -33,6 +33,10 @@ public class ManageDoctorDTO {
      */
     private String avatar;
 
+    public ManageDoctorDTO(){
+
+    }
+
     public ManageDoctorDTO(AppointmentDoctor doctor) {
         if(doctor!=null){
             this.id = doctor.getId();

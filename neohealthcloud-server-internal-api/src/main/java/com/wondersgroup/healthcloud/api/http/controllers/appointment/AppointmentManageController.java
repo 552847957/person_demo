@@ -84,7 +84,7 @@ public class AppointmentManageController {
         String areaCode = map.get("areaCode")==null?"":map.get("areaCode").toString();
         String name = map.get("name")==null?"":map.get("name").toString();
         List<ManageHospitalDTO> list = Lists.newArrayList();
-        List<AppointmentHospital> appointmentHospitals = appointmentManangeService.findAllManageHospitalListByAreaCodeAndName(name, areaCode, pageNum, pager.getSize());
+        List<AppointmentHospital> appointmentHospitals = appointmentManangeService.findAllManageHospitalListByAreaCodeAndName(name, areaCode, pageNum, pager.getSize(),true);
         ManageHospitalDTO manageHospitalDTO;
         for(AppointmentHospital hospital : appointmentHospitals){
             if(list.size()>pager.getSize())
@@ -127,7 +127,7 @@ public class AppointmentManageController {
         String isonsale = reader.readString("isonsale", true);
         List<String> hospitalIds = reader.readObject("hospitalIds", true,List.class);
 
-        if(!"1".equals(isonsale) || !"0".equals(isonsale)){
+        if(!"1".equals(isonsale) && !"0".equals(isonsale)){
             throw new ErrorAppointmentManageException("启用或停用状态错误");
         }
         if(hospitalIds.size()<1){
@@ -215,13 +215,36 @@ public class AppointmentManageController {
 
 
     /**
+     * 医生列表页面的医院列表下拉框
+     * @param area_code
+     * @return
+     */
+    @Admin
+    @RequestMapping(value = "/doctor/hospitalList", method = RequestMethod.GET)
+    public JsonListResponseEntity<ManageHospitalDTO> getHospitalList(@RequestParam(required = false) String area_code) {
+        JsonListResponseEntity<ManageHospitalDTO> body = new JsonListResponseEntity<>();
+        List<AppointmentHospital> hospitalList = appointmentManangeService.findAllManageHospitalListByAreaCodeAndName(null, area_code, 0, 0,false);
+        List<ManageHospitalDTO> list = Lists.newArrayList();
+        ManageHospitalDTO apiEntity;
+        for (AppointmentHospital hospital : hospitalList) {
+            apiEntity = new ManageHospitalDTO();
+            apiEntity.setId(hospital.getId());
+            apiEntity.setName(hospital.getHosName());
+            list.add(apiEntity);
+        }
+        body.setContent(list);
+        return body;
+
+    }
+
+    /**
      * 根据医院Id查询一级科室列表
      * @param hospital_id
      * @return
      */
     @Admin
     @RequestMapping(value = "/department1/list", method = RequestMethod.GET)
-    public JsonListResponseEntity<DepartmentDTO> getdepartment1Lists(@RequestParam(required = true) String hospital_id) {
+    public JsonListResponseEntity<DepartmentDTO> getdepartment1List(@RequestParam(required = true) String hospital_id) {
         JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
         List<AppointmentL1Department> appointmentL1Departments = appointmentManangeService.findManageAppointmentL1Department(hospital_id);
         List<DepartmentDTO> list = Lists.newArrayList();
@@ -243,7 +266,7 @@ public class AppointmentManageController {
      */
     @Admin
     @RequestMapping(value = "/department2/list", method = RequestMethod.GET)
-    public JsonListResponseEntity<DepartmentDTO> getdepartment2Lists(@RequestParam(required = true) String department_l1_id) {
+    public JsonListResponseEntity<DepartmentDTO> getdepartment2List(@RequestParam(required = true) String department_l1_id) {
         JsonListResponseEntity<DepartmentDTO> body = new JsonListResponseEntity<>();
         List<AppointmentL2Department> appointmentL2Departments = appointmentManangeService.findManageAppointmentL2Department(department_l1_id);
         List<DepartmentDTO> list = Lists.newArrayList();
@@ -316,7 +339,7 @@ public class AppointmentManageController {
                 doctor = manageDoctorDTO.mergeDoctor(doctor, manageDoctorDTO);
                 appointmentService.saveAndFlush(doctor);
             }else{
-                return new JsonResponseEntity(3011, "保存失败,该医院不存在");
+                return new JsonResponseEntity(3011, "保存失败,该医生不存在");
             }
             return new JsonResponseEntity(0, "保存成功");
         }else{
