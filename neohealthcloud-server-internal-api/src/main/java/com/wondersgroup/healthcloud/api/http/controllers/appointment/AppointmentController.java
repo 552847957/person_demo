@@ -10,6 +10,7 @@ import java.util.Map;
 
 /**
  * Created by longshasha on 16/12/14.
+ * 后台提供给H5的接口
  */
 @RestController
 @RequestMapping(value = "/api/reservation")

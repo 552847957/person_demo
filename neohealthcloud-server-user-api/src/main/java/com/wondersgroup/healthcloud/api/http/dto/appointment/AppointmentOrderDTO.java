@@ -161,13 +161,23 @@ public class AppointmentOrderDTO {
             if("2".equals(order.getScheduleStatus())){
                 this.status = "5";
             }
-            if("1".equals(this.status) && DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
+            if("1".equals(orderStatus) && DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
                 this.canCancel = true;
                 this.status = "1";
                 /**
                  * 取消预约的备注
                  * 不迟于2016年11月20日16点50分前取消，逾期取消失败。
                  */
+                try {
+                    int closeDays = Integer.valueOf(order.getCloseDays());
+                    int closeTimeHour = Integer.valueOf(order.getCloseTimeHour());
+                    String cancelDate = DateFormatter.scheduleDateFormat(DateUtils.addDay(order.getScheduleDate(), -closeDays));
+                    this.cancelDesc = "不迟于"+cancelDate+closeTimeHour+"点前取消，逾期取消失败。";
+                }catch (Exception e){
+                    log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getLocalizedMessage());
+                }
+            }else if("1".equals(orderStatus) && DateUtils.compareDate(new Date(),order.getScheduleDate())>0){
+                this.status = "1";
                 try {
                     int closeDays = Integer.valueOf(order.getCloseDays());
                     int closeTimeHour = Integer.valueOf(order.getCloseTimeHour());
