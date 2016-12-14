@@ -8,7 +8,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
-import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
+import com.wondersgroup.healthcloud.utils.security.ServicePlaceholderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +31,7 @@ public class ServicesController {
     private ImageTextService imageTextService;
 
     @Autowired
-    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+    private ServicePlaceholderUtil servicePlaceholderUtil;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
@@ -49,7 +49,7 @@ public class ServicesController {
             for (ImageText imageText : imageTexts) {
                 map = new HashMap<>();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("hoplink", servicePlaceholderUtil.secureUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 funcList.add(map);
             }
