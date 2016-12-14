@@ -39,7 +39,10 @@ public class TopicServiceImpl implements TopicService {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private JedisPool jedisPool;
-
+    @Autowired
+    private BbsMsgHandler bbsMsgHandler;
+    @Autowired
+    private BadWordsService badWordsService;
     @Autowired
     private TopicRepository topicRepository;
 
@@ -70,8 +73,6 @@ public class TopicServiceImpl implements TopicService {
     private CircleService circleService;
     @Autowired
     private TopicTabService topicTabService;
-    @Autowired
-    private BbsMsgHandler bbsMsgHandler;
 
     @Override
     public List<TopicTopListDto> getCircleTopRecommendTopics(Integer circleId, Integer getNum) {
@@ -393,6 +394,7 @@ public class TopicServiceImpl implements TopicService {
         List<TopicListDto> listDtos = new ArrayList<>();
         for (Topic topic : topics) {
             TopicListDto listDto = new TopicListDto(topic);
+            listDto.setTitle(badWordsService.dealBadWords(listDto.getTitle()));
             if (userInfos.containsKey(topic.getUid())){
                 RegisterInfo userInfo = userInfos.get(topic.getUid());
                 listDto.mergeUserInfo(userInfo);

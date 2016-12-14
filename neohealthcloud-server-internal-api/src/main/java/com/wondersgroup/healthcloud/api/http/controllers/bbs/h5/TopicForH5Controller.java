@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
+import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.TopicService;
@@ -50,6 +51,9 @@ public class TopicForH5Controller {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private BadWordsService badWordsService;
+
     @RequestMapping(value = "/viewForH5", method = RequestMethod.GET)
     public JsonResponseEntity<TopicH5ViewDto> viewForH5(@RequestParam Integer topicId,
                                                         @RequestParam(defaultValue = "", required = false) String uid){
@@ -57,6 +61,7 @@ public class TopicForH5Controller {
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
 
         TopicH5ViewDto viewDto = new TopicH5ViewDto(detailInfo);
+        viewDto.dealBadWords(badWordsService);
         //pv+1
         topicService.incTopicPv(topicId);
         responseEntity.setData(viewDto);
@@ -68,6 +73,15 @@ public class TopicForH5Controller {
                                                                 @RequestParam(defaultValue = "1", required = false) Integer page){
         JsonListResponseEntity<CommentListDto> responseEntity = new JsonListResponseEntity();
         List<CommentListDto> commentListDtos = this.commentService.getCommentListByTopicId(topicId, page, 3);
+        if (badWordsService.isDealBadWords() && commentListDtos != null){
+            //违禁词屏蔽
+            for (CommentListDto commentListDto : commentListDtos){
+                commentListDto.setContent(badWordsService.dealBadWords(commentListDto.getContent()));
+                if (commentListDto.getReferCommentInfo() != null){
+                    commentListDto.getReferCommentInfo().setContent(badWordsService.dealBadWords(commentListDto.getReferCommentInfo().getContent()));
+                }
+            }
+        }
         responseEntity.setContent(commentListDtos);
         return responseEntity;
     }

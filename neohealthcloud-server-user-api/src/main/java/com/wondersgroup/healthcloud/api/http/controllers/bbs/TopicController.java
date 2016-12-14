@@ -63,6 +63,8 @@ public class TopicController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private BadWordsService badWordsService;
 
 
     private final static int pageSize = 10;
@@ -195,7 +197,7 @@ public class TopicController {
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
         TopicViewDto viewDto = new TopicViewDto(detailInfo);
-
+        viewDto.dealBadWords(badWordsService);
         if (StringUtils.isNotEmpty(uid)){
             viewDto.setIsCollected(topicCollectService.isCollectedForUser(uid, topicId) ? 1 : 0);
             if (viewDto.getVoteInfo() != null){
@@ -203,7 +205,7 @@ public class TopicController {
             }
             //用户被禁言 不能回复
             RegisterInfo account = userService.getOneNotNull(uid);
-            if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+            if (account.getBanStatus() != UserConstant.BanStatus.OK){
                 viewDto.setUserCommentStatus(UserConstant.UserCommentStatus.USER_BAN);
             }
             Boolean isFavor = favorService.isFavorTopic(uid, topicId);

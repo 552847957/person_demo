@@ -11,4 +11,7 @@ public interface BadWordsService {
 
     void setBadWords(String badWords);
 
+    String dealBadWords(String text);
+
+    Boolean isDealBadWords();
 }
