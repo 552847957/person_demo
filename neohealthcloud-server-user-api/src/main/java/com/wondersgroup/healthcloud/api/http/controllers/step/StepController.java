@@ -47,10 +47,7 @@ public class StepController {
 	 */
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	@VersionRange
-	public Object home(
-			@RequestHeader(value = "main-area", required = true) String mainArea,
-			@RequestHeader(value = "spec-area", required = false) String specArea, 
-			String userId) {
+	public Object home(@RequestHeader(value = "main-area", required = true) String mainArea, String userId) {
 		JsonResponseEntity<StepHomeDto> responseEntity = new JsonResponseEntity<>();
 		int restGold = goldRecordService.findRestGoldByUserId(userId);
 		int awardGold = stepCountService.findAwardGold(userId);
@@ -74,7 +71,7 @@ public class StepController {
 		keyWords.add("app.step.invite");// 邀请
 		keyWords.add("app.step.share.logo");// 邀请，分享Log
 
-		Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
+		Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, null, keyWords);
 		home.setHelpUrl(cfgMap.get("app.step.help"));
 		home.setInviteUrl(cfgMap.get("app.step.rule"));
 		home.setLogoUrl(cfgMap.get("app.step.invite"));
