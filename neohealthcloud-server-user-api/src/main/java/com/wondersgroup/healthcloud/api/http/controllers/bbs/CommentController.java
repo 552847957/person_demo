@@ -1,21 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
-import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.exceptions.CommonException;
-import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
-import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.UserHomeDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -52,6 +43,8 @@ public class CommentController {
     private UserService userService;
     @Autowired
     private BbsMsgHandler bbsMsgHandler;
+    @Autowired
+    private BadWordsService badWordsService;
 
     /**
      * 评论回复
@@ -104,19 +97,29 @@ public class CommentController {
         //最后一页
         JsonListResponseEntity<CommentListDto> responseEntity = new JsonListResponseEntity();
         int totalPage = 1;
+        List<CommentListDto> commentListDtos;
         if (getOwnerReply == 1){
             int commentCount = topicService.getOwnerCommentCount(topicId);
             totalPage =  (commentCount-1)/TOPIC_COMMENT_PAGESIZE + 1;
             page = page == -1 ? totalPage : page;
-            List<CommentListDto> commentListDtos = this.commentService.getTopicOwnerCommentsList(topicId, page, TOPIC_COMMENT_PAGESIZE);
+            commentListDtos = this.commentService.getTopicOwnerCommentsList(topicId, page, TOPIC_COMMENT_PAGESIZE);
             responseEntity.setContent(commentListDtos, totalPage > page, null, String.valueOf(page+1));
         }else {
             int commentCount = topicService.getCommentCount(topicId);
             totalPage =  (commentCount-1)/TOPIC_COMMENT_PAGESIZE + 1;
             page = page == -1 ? totalPage : page;
-            List<CommentListDto> commentListDtos = this.commentService.getCommentListByTopicId(topicId, page, TOPIC_COMMENT_PAGESIZE);
-            responseEntity.setContent(commentListDtos, totalPage > page, null, String.valueOf(page+1));
+            commentListDtos = this.commentService.getCommentListByTopicId(topicId, page, TOPIC_COMMENT_PAGESIZE);
         }
+        if (badWordsService.isDealBadWords() && commentListDtos != null){
+            //违禁词屏蔽
+            for (CommentListDto commentListDto : commentListDtos){
+                commentListDto.setContent(badWordsService.dealBadWords(commentListDto.getContent()));
+                if (commentListDto.getReferCommentInfo() != null){
+                    commentListDto.getReferCommentInfo().setContent(badWordsService.dealBadWords(commentListDto.getReferCommentInfo().getContent()));
+                }
+            }
+        }
+        responseEntity.setContent(commentListDtos, totalPage > page, null, String.valueOf(page+1));
 
         Map<String, Object> pageInfo = new HashMap<>();
         pageInfo.put("totalPage", totalPage);

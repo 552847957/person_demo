@@ -28,32 +28,32 @@ public interface DiabetesService {
      * @param pageSize
      * @return
      */
-    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize) throws IOException;
+    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize);
 
     /**
      * 根据身份证获取在管人群详情
      */
-    public TubePatientDetailDTO getTubePatientDetail(String cardType,String cardNumber) throws Exception;
+    public TubePatientDetailDTO getTubePatientDetail(String cardType,String cardNumber);
 
     /**
      * 筛查报告
      */
-    public List<ReportScreeningDTO> getReportScreening(String cardType,String cardNumber) throws Exception;
+    public List<ReportScreeningDTO> getReportScreening(String cardType,String cardNumber);
 
     /**
      * 检查报告
      */
-    public List<ReportInspectDTO> getReportInspectList(String cardType,String cardNumber) throws Exception;
+    public List<ReportInspectDTO> getReportInspectList(String cardType,String cardNumber);
 
     /**
      * 检查报告详情
      */
-    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum, Date reportDate) throws Exception;
+    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum, Date reportDate);
 
 
     /**
      * 随访报告
      */
-    public List<ReportFollowDTO> getReportFollowList(String cardType,String cardNumber) throws Exception;
+    public List<ReportFollowDTO> getReportFollowList(String cardType,String cardNumber);
 }
 

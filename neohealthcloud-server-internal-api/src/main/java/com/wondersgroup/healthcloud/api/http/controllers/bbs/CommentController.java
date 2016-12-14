@@ -134,6 +134,7 @@ public class CommentController {
         commentPublishDto.setReferCommentId(referCommentId);
         commentPublishDto.setContent(content);
         commentPublishDto.setUid(uid);
+        commentPublishDto.setIsAdminPublish(true);
 
         Comment comment = commentService.publishComment(commentPublishDto);
         if (null == comment){

@@ -1,12 +1,21 @@
 package com.wondersgroup.healthcloud.services.diabetes.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessment;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -27,8 +36,19 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     private DiabetesAssessmentRepository assessmentRepo;
 
     @Autowired
+    private TubeRelationServiceImpl tubeRelationService;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private DiabetesAssessmentRemindRepository remindRepo;
+
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
     /**
      * 患病风险评估
      * @param assessment
@@ -37,13 +57,14 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     @Override
     public Integer sicken(DiabetesAssessment assessment) {
         assessment.setId(IdGen.uuid());
-        assessment.setHasRemind(0);
         assessment.setType(1);
         assessment.setResult(this.sickenAssement(assessment));
         assessment.setCreateDate(new Date());
         assessment.setUpdateDate(new Date());
         assessment.setDelFlag("0");
         assessmentRepo.save(assessment);
+
+        tubeRelationService.getTubeRelation(assessment.getRegisterid(),null);
         return assessment.getResult();
     }
 
@@ -134,16 +155,18 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         buffer.append("select t1.id, t1.age, t1.gender, t1.height, " +
                 " t1.weight, t1.waist, t1.isIGR, t1.isSit, t1.isFamily, t1.isLargeBaby, t1.isHighPressure, t1.isBloodFat, " +
                 " t1.isArteriesHarden, t1.isSterol, t1.isPCOS, t1.isMedicineTreat," +
-                " t1.create_date,t2.name from app_tb_diabetes_assessment t1 ");
+                " t1.create_date,t2.name " +
+                " from (select * from app_tb_diabetes_assessment order by create_date desc) t1 ");
         buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
-        buffer.append(" where  t1.type = 1 and t1.result = 1 and t1.hasRemind = 0\n" );
-        buffer.append(" and t1.id = ( select id from app_tb_diabetes_assessment " +
-                "               where registerid = t1.registerid and hasRemind = 0 and type = 1 and result = 1 order by create_date desc LIMIT 1)");
+        buffer.append(" where  t1.type = 1 and t1.result = 1 " );
         if(param.containsKey("name") &&  null != param.get("name") && !StringUtils.isEmpty(param.get("name").toString())){
             buffer.append(" and t2.name like '%"+ param.get("name")+"%'");
         }
+        buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
+        buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +
+                " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
         buffer.append(" and t1.del_flag = '0'");
-        buffer.append(" order by t1.create_date desc");
+        buffer.append(" group by t1.registerid ");
         buffer.append(" limit "+(pageNo-1)*pageSize+","+pageSize);
 //        return jdbcTemplate.queryForList(buffer.toString(),DiabetesAssessmentDTO.class);
         return jdbcTemplate.query(buffer.toString(), new RowMapper<DiabetesAssessmentDTO>() {
@@ -176,23 +199,42 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     @Override
     public Integer findAssessmentTotal(Map param) {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("select t1.registerid from app_tb_diabetes_assessment t1 ");
+        buffer.append("select t1.registerid from " +
+                "   (select * from app_tb_diabetes_assessment order by create_date desc) t1 ");
         if(param.containsKey("name") &&  null != param.get("name")){
             buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
         }
-        buffer.append(" where  t1.type = 1 and t1.result = 1 and t1.hasRemind = 0\n" );
+        buffer.append(" where  t1.type = 1 and t1.result = 1 " );
         if(param.containsKey("name") &&  null != param.get("name") && !StringUtils.isEmpty(param.get("name").toString())){
             buffer.append(" and t2.name like '%"+ param.get("name")+"%'");
         }
+        buffer.append(" and not exists (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
+        buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +
+                " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
         buffer.append(" and t1.del_flag = '0'");
         buffer.append(" GROUP BY t1.registerid");
+
         return jdbcTemplate.queryForList(buffer.toString()).size();
     }
 
     @Override
-    public Boolean remind(String[] ids) {
-        List<String> registerIds = assessmentRepo.findRegisterById(ids);
-        assessmentRepo.updateRemindByRegister(registerIds,new Date());
+    public Boolean  remind(String ids , String doctorId) {
+        List<String> registerIds = assessmentRepo.findRegisterById(ids.split(","));;
+        for(String registerid : registerIds){
+            DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
+            remind.setId(IdGen.uuid());
+            remind.setRegisterid(registerid);
+            remind.setDoctorId(doctorId);
+            remind.setCreateDate(new Date());
+            remind.setUpdateDate(new Date());
+            remind.setDelFlag("0");
+            remindRepo.save(remind);
+
+            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\"0\",\"msgTitle\":\"糖尿病高危筛查\",\"msgContent\":\"您的风险评估结果存在异常，建议您到所属社区卫生服务中心进行糖尿病高危筛查。\"}";
+            Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+        }
         return true;
     }
 

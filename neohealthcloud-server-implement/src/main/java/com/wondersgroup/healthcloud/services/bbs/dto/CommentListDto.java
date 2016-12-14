@@ -73,7 +73,7 @@ public class CommentListDto {
         this.avatar = registerInfo.getHeadphoto();
         this.nickName = registerInfo.getNickname();
         this.isAdmin = registerInfo.getIsBBsAdmin();
-        if (registerInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
+        if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = CommentConstant.AppListStatus.USER_BAN;
         }
     }
@@ -95,7 +95,7 @@ public class CommentListDto {
             referCommentInfo.setReferUid(referUserInfo.getRegisterid());
             referCommentInfo.setReferNickName(referUserInfo.getNickname());
             referCommentInfo.setAvatar(referUserInfo.getHeadphoto());
-            if (referUserInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
+            if (referUserInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
                 referCommentInfo.setStatus(CommentConstant.AppListStatus.USER_BAN);
             }
             referCommentInfo.setIsAdmin(referUserInfo.getIsBBsAdmin()==1 ? 1 : 0);
@@ -104,7 +104,7 @@ public class CommentListDto {
     }
 
     @Data
-    class ReferCommentInfo{
+    public class ReferCommentInfo{
         String referUid;
         String referNickName;
         String avatar;

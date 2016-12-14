@@ -17,7 +17,6 @@ public class DiabetesAssessment {
     @Id
     private String id; // 主键
     private String registerid;//注册用户id
-    private Integer hasRemind;//评估异常时，是否进行过异常提醒，0：否，1：是
     private Integer age; // 年龄
     private Integer gender; // 性别，1：男，2：女
     private Double height; // 身高

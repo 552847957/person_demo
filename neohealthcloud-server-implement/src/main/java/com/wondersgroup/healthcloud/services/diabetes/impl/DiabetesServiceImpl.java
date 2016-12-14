@@ -11,6 +11,8 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.*;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.List;
 @Service("diabetesService")
 public class DiabetesServiceImpl implements DiabetesService {
 
+    private Logger logger = LoggerFactory.getLogger("ex");
     @Autowired
     private Environment environment;
 
@@ -73,7 +76,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @return
      */
     @Override
-    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize) throws IOException {
+    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize) {
         Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_LIST).
                 params(new String[]{"hospitalId",hospitalCode,"docName",doctorName}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
@@ -81,7 +84,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, TubePatientDTO.class);
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
@@ -90,14 +97,18 @@ public class DiabetesServiceImpl implements DiabetesService {
      * 根据身份证获取在管人群详情
      */
     @Override
-    public TubePatientDetailDTO getTubePatientDetail(String cardType,String cardNumber) throws Exception{
+    public TubePatientDetailDTO getTubePatientDetail(String cardType,String cardNumber){
         Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_DETAIL).
                 params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), TubePatientDetailDTO.class);
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), TubePatientDetailDTO.class);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
@@ -108,7 +119,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @throws Exception
      */
     @Override
-    public List<ReportScreeningDTO> getReportScreening(String cardType,String cardNumber) throws Exception {
+    public List<ReportScreeningDTO> getReportScreening(String cardType,String cardNumber){
         Request request = new RequestBuilder().get().url(url+this.REPORT_SCREENING_LIST).
                 params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
@@ -116,7 +127,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportScreeningDTO.class);
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
@@ -127,7 +142,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @throws Exception
      */
     @Override
-    public List<ReportInspectDTO> getReportInspectList(String cardType,String cardNumber) throws Exception {
+    public List<ReportInspectDTO> getReportInspectList(String cardType,String cardNumber){
         Request request = new RequestBuilder().get().url(url+this.REPORT_INSPECT_LIST).
                 params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
@@ -135,7 +150,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportInspectDTO.class);
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
@@ -146,7 +165,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @throws Exception
      */
     @Override
-    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum,Date reportDate) throws Exception {
+    public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum,Date reportDate) {
         Request request = new RequestBuilder().get().url(url+this.REPORT_INSPECT_DETAIL).
                 params(new String[]{"reportNo",reportNum,"reportDate",new DateTime(reportDate).toString("yyyyMMdd")}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
@@ -154,7 +173,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportInspectDetailDTO.class);
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
@@ -165,7 +188,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @throws Exception
      */
     @Override
-    public List<ReportFollowDTO> getReportFollowList(String cardType,String cardNumber) throws Exception {
+    public List<ReportFollowDTO> getReportFollowList(String cardType,String cardNumber){
         Request request = new RequestBuilder().get().url(url+this.REPORT_FOLLOW_LIST).
                 params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
@@ -173,12 +196,17 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportFollowDTO.class);
-            return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+
+            try {
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
         }
         return null;
     }
 
-    public static void main(String[] args) throws  Exception{
+    public static void main(String[] args){
         DiabetesServiceImpl diabetesService = new DiabetesServiceImpl();
         diabetesService.url = "http://10.1.93.111:8380/hds";
 //        int total = diabetesService.getTubePatientNumber("42509835700","王庆杰");

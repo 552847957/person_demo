@@ -59,5 +59,6 @@ public interface DiabetesAssessmentService {
      * @param ids
      * @return
      */
-    Boolean remind(String[] ids);
+    Boolean remind(String ids ,String doctorId);
+
 }

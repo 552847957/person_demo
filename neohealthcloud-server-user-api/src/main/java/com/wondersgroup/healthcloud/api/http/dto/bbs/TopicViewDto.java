@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.api.http.dto.article.ShareH5APIDTO;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
 import lombok.Data;
@@ -58,6 +59,15 @@ public class TopicViewDto {
             e.printStackTrace();
         }
         this.createTime = DateUtils.formatDate2Custom(detailInfo.getCreateTime());
+    }
+
+    public void dealBadWords(BadWordsService badWordsService){
+        this.title = badWordsService.dealBadWords(this.title);
+        if (topicContents != null){
+            for (TopicDetailDto.TopicContentInfo topicContentInfo : topicContents){
+                topicContentInfo.setContent(badWordsService.dealBadWords(topicContentInfo.getContent()));
+            }
+        }
     }
 
 }

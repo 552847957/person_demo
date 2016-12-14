@@ -21,6 +21,7 @@ import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.CircleException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
+import com.wondersgroup.healthcloud.services.config.ConfigSwitch;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +56,8 @@ public class CommentServiceImpl implements CommentService {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private BbsMsgHandler bbsMsgHandler;
+    @Autowired
+    private ConfigSwitch configSwitch;
 
     @Override
     public List<CommentListDto> getTopicOwnerCommentsList(Integer topicId, Integer page, Integer pageSize) {
@@ -162,7 +165,7 @@ public class CommentServiceImpl implements CommentService {
             throw CircleException.NotExistForReply();
         }
         RegisterInfo withBabyInfo = userService.getOneNotNull(publishDto.getUid());
-        if (withBabyInfo.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (withBabyInfo.getBanStatus() != UserConstant.BanStatus.OK){
             throw BbsUserException.UserBanForReply();
         }
         int commentCount = topic.getCommentCount();
@@ -191,6 +194,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setUpdateTime(nowDate);
         comment.setCreateTime(nowDate);
         comment.setFloor(publishDto.getFloor());
+        comment.setStatus(getUserPublishCommentDefaultStatus(publishDto.getIsAdminPublish()));
         if (publishDto.getReferCommentId() != null && publishDto.getReferCommentId() > 0){
             Comment referComment = commentRepository.findOne(publishDto.getReferCommentId());
             if (null != referComment){
@@ -199,6 +203,16 @@ public class CommentServiceImpl implements CommentService {
             }
         }
         return commentRepository.save(comment);
+    }
+
+    /**
+     * 获取发表评论默认状态
+     */
+    private int getUserPublishCommentDefaultStatus(Boolean isAdmin){
+        if (isAdmin){
+            return TopicConstant.Status.OK;
+        }
+        return configSwitch.isVerifyComment() ? CommentConstant.Status.WAIT_VERIFY : CommentConstant.Status.OK;
     }
 
     @Override

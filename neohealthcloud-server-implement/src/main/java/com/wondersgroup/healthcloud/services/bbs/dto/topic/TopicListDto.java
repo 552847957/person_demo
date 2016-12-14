@@ -82,4 +82,5 @@ public class TopicListDto {
             this.status = TopicConstant.AppListStatus.USER_BAN;
         }
     }
+
 }
