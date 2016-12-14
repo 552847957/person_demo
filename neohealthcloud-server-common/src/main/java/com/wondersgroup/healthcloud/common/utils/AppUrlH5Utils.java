@@ -106,4 +106,12 @@ public class AppUrlH5Utils {
 		return basePath + "/hb/?uid=" + userId;
 	}
 
+	public String buildStepLogoUrl() {
+		return basePath + "/";
+	}
+
+	public String buildStepMallUrl(String userId) {
+		return basePath + "/?userId=" + userId;
+	}
+
 }

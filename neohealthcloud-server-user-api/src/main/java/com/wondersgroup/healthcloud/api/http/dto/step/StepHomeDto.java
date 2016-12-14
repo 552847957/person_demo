@@ -19,4 +19,8 @@ public class StepHomeDto {
 
 	private String inviteUrl;
 
+	private String logoUrl;
+
+	private String mallUrl;
+
 }

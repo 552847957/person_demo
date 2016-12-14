@@ -70,6 +70,8 @@ public class StepController {
 		home.setHelpUrl(appUrlH5Utils.buildStepHelpUrl());
 		home.setInviteUrl(appUrlH5Utils.buildStepInviteUrl(userId));
 		home.setRuleUrl(appUrlH5Utils.buildStepRuleUrl());
+		home.setMallUrl(appUrlH5Utils.buildStepMallUrl(userId));
+		home.setLogoUrl(appUrlH5Utils.buildStepLogoUrl());
 		responseEntity.setData(home);
 		return responseEntity;
 	}
