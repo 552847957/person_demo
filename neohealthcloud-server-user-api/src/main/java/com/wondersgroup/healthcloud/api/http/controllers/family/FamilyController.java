@@ -665,6 +665,7 @@ public class FamilyController {
         account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
         account.setIsChild(false);
         account.setHeadphoto(headphoto);
+        account.setIsStandalone(true);
         anonymousAccountRepository.saveAndFlush(account);
         
         String gender = "1";
@@ -857,16 +858,16 @@ public class FamilyController {
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
         List<FamilyMemberInvitationAPIEntity> list = new ArrayList<FamilyMemberInvitationAPIEntity>();
         for (FamilyMember familyMember : familyMembers) {
-            RegisterInfo info =  registerInfoRepository.findByRegisterid(familyMember.getUid());
+            RegisterInfo info =  registerInfoRepository.findByRegisterid(familyMember.getMemberId());
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
             entity.setId(familyMember.getMemberId());
             entity.setAvatar((info != null && info.getRegisterid() != null) ? info.getHeadphoto() : null);
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
             entity.setIsStandalone(false);
             if(info == null){
-                AnonymousAccount ano = anonymousAccountRepository.getOne(familyMember.getUid());
+                AnonymousAccount ano = anonymousAccountRepository.findOne(familyMember.getMemberId());
                 if(ano != null && ano.getIsStandalone()){
-                    ano.setIsStandalone(true);
+                    entity.setIsStandalone(true);
                 }
             }
             list.add(entity);
