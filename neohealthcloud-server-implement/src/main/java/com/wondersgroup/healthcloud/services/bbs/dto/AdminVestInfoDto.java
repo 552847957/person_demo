@@ -20,7 +20,7 @@ import java.util.Date;
 public class AdminVestInfoDto {
     private Integer id;
     private String uid;
-    private String nickName;
+    private String nickname;
     private String avatar;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date birthday;

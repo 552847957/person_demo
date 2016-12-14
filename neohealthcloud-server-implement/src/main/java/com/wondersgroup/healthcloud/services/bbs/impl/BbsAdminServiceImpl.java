@@ -4,13 +4,13 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
+import com.wondersgroup.healthcloud.services.bbs.criteria.AdminVestSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
@@ -79,13 +79,18 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     }
 
     @Override
-    public List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize) {
-        String sql = "select vest.id, user.registerid as uid, user.nickname,user.headphoto as avatar, user.birthday, user.gender from tb_bbs_admin_vest vest " +
-                " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
-                " where vest.admin_uid=? order by vest.create_time desc " +
-                " limit ?,? ";
-        Object[] parms = new Object[]{adminUid, (page-1)*pageSize, pageSize};
-        List<AdminVestInfoDto> vestUsers = jdbcTemplate.query(sql, parms, new BeanPropertyRowMapper(AdminVestInfoDto.class));
+    public List<AdminVestInfoDto> findAdminVestUsers(AdminVestSearchCriteria searchCriteria) {
+        StringBuffer querySql = new StringBuffer("select vest.id, user.registerid as uid, user.nickname,user.headphoto as avatar," +
+                " user.birthday, user.gender from tb_bbs_admin_vest vest " +
+                " left join app_tb_register_info user on user.registerid=vest.vest_uid ");
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        querySql.append(searchCriteria.getOrderInfo());
+        querySql.append(searchCriteria.getLimitInfo());
+        List<AdminVestInfoDto> vestUsers = jdbcTemplate.query(querySql.toString(), elelmentType.toArray(), new BeanPropertyRowMapper(AdminVestInfoDto.class));
         return vestUsers;
     }
 
@@ -99,11 +104,15 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     }
 
     @Override
-    public int countAdminVestNum(String adminUid) {
-        String sql = "select count(*) from tb_bbs_admin_vest vest " +
-                " left join app_tb_register_info user on user.registerid=vest.vest_uid " +
-                " where vest.admin_uid=? ";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{adminUid}, Integer.class);
+    public int countAdminVestNum(AdminVestSearchCriteria searchCriteria) {
+        StringBuffer querySql = new StringBuffer("select count(*) from tb_bbs_admin_vest vest " +
+                " left join app_tb_register_info user on user.registerid=vest.vest_uid ");
+        JdbcQueryParams queryParams = searchCriteria.toQueryParams();
+        List<Object> elelmentType = queryParams.getQueryElementType();
+        if (!elelmentType.isEmpty()){
+            querySql.append(" where " + queryParams.getQueryString());
+        }
+        Integer count = jdbcTemplate.queryForObject(querySql.toString(), queryParams.getQueryElementType().toArray(), Integer.class);
         return count == null ? 0 : count;
     }
 
@@ -128,11 +137,11 @@ public class BbsAdminServiceImpl implements BbsAdminService {
             adminVestUserRepository.saveAndFlush(adminVest);
         }
         registerInfo.setUpdateDate(nowDate);
-        Boolean isUsedNickName = registerInfoRepository.checkNickNameisUsedIgnoreAppointUid(vestUser.getNickName(), registerInfo.getRegisterid());
+        Boolean isUsedNickName = registerInfoRepository.checkNickNameisUsedIgnoreAppointUid(vestUser.getNickname(), registerInfo.getRegisterid());
         if (isUsedNickName){
             throw new CommonException(2002, "昵称被使用,请重新设置");
         }
-        registerInfo.setNickname(vestUser.getNickName());
+        registerInfo.setNickname(vestUser.getNickname());
         registerInfo.setBirthday(vestUser.getBirthday());
         registerInfo.setGender(vestUser.getGender());
         registerInfo.setHeadphoto(vestUser.getAvatar());

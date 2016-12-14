@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs;
 
 
+import com.wondersgroup.healthcloud.services.bbs.criteria.AdminVestSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 
@@ -19,11 +20,11 @@ public interface BbsAdminService {
 
     void addUpdateAdminVestUser(String adminUid, AdminVestInfoDto vestUser);
 
-    List<AdminVestInfoDto> findAdminVestUsers(String adminUid, int page, int pageSize);
+    List<AdminVestInfoDto> findAdminVestUsers(AdminVestSearchCriteria searchCriteria);
 
     AdminVestInfoDto getAdminVestInfo(Integer id);
 
-    int countAdminVestNum(String adminUid);
+    int countAdminVestNum(AdminVestSearchCriteria searchCriteria);
     /**
      * 通过管理员绑定的uid获取关联的app小号uids
      */

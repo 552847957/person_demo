@@ -2,7 +2,6 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
-import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
@@ -10,12 +9,11 @@ import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
-import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
+import com.wondersgroup.healthcloud.services.bbs.criteria.AdminVestSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.criteria.UserSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminVestInfoDto;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,8 +107,14 @@ public class BbsAdminController {
     @Admin
     @RequestMapping(value = "/associationList", method = RequestMethod.POST)
     public Pager associationList(@RequestHeader String appUid, @RequestBody Pager pager) {
-        List<AdminVestInfoDto> vestInfoDtos = bbsAdminService.findAdminVestUsers(appUid, pager.getNumber(), pager.getSize());
-        int count = bbsAdminService.countAdminVestNum(appUid);
+        Map<String,Object> parms = pager.getParameter();
+        AdminVestSearchCriteria searchCriteria = new AdminVestSearchCriteria(parms);
+        searchCriteria.setPage(pager.getNumber());
+        searchCriteria.setPageSize(pager.getSize());
+        searchCriteria.setAdminUid(appUid);
+        searchCriteria.setOrderInfo("vest.create_time desc");
+        List<AdminVestInfoDto> vestInfoDtos = bbsAdminService.findAdminVestUsers(searchCriteria);
+        int count = bbsAdminService.countAdminVestNum(searchCriteria);
         pager.setData(vestInfoDtos);
         pager.setTotalElements(count);
         return pager;
