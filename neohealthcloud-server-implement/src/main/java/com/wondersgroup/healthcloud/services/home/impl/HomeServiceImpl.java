@@ -1,16 +1,17 @@
 package com.wondersgroup.healthcloud.services.home.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
-import com.wondersgroup.healthcloud.services.home.apachclient.HealthApiClient;
-import com.wondersgroup.healthcloud.services.home.apachclient.HealthRecordResponse;
-import com.wondersgroup.healthcloud.services.home.apachclient.HealthResponse;
-import com.wondersgroup.healthcloud.services.home.apachclient.JsonConverter;
+import com.wondersgroup.healthcloud.services.home.apachclient.*;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.cloudTopLine.CloudTopLineDTO;
@@ -19,12 +20,19 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.*;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
+import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
+import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
+import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,6 +42,7 @@ import java.util.*;
  * 首页接口服务
  * Created by xianglinhai on 2016/12/13.
  */
+@Service("homeService")
 public class HomeServiceImpl implements HomeService {
 
     @Autowired
@@ -50,6 +59,26 @@ public class HomeServiceImpl implements HomeService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PhysicalIdentifyService physicalIdentifyService;
+
+    @Autowired
+    private ImageTextService imageTextService;
+
+    @Autowired
+    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+
+    @Autowired
+    RegisterInfoRepository registerInfoRepo;
+
+    private static final String requestStationNearby = "%s/api/exam/station/nearby?";
+    private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
+
+    @Value("${internal.api.service.measure.url}")
+    private String host;
+
+    private RestTemplate template = new RestTemplate();
 
     @Override
     public List<ModulePortalDTO> findModulePortal() {
@@ -91,51 +120,58 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public FamilyHealthDTO findfamilyHealth(String registerId) {
         FamilyHealthDTO dto = new FamilyHealthDTO();
-        UserHealthDTO userHealth = null; //用户健康
-        FamilyMemberDTO familyMember = null; //家人健康
+        UserHealthDTO userHealth = new UserHealthDTO(); //用户健康对象
+        FamilyMemberDTO familyMember = new FamilyMemberDTO(); //家人健康对象
 
         Map<String, Object> input = new HashMap<String, Object>();
-//        input.put("registerId","8a81c1fb555cab530155e7ef379e00a1");
+//      input.put("registerId","8a81c1fb555cab530155e7ef379e00a1");
         input.put("registerId", registerId);
-        input.put("sex", "2");//性别
-        input.put("moreThanDays", "100");
+        input.put("sex", "2");//性别要查询出来
+        input.put("moreThanDays", "100");//个人取一周的数据
         input.put("limit", "10");
         input.put("personCard", "");
         input.put("cardType", "");
         input.put("cardId", "");
 
         //个人健康信息
-        userHealth = getFamilyHealth(input);
+        userHealth = getUserHealthInfo(input);
 
 
         //家人健康信息
+        registerId = "ff80808154177829015417bbe1970020"; //TODO 开发环境下写死
         List<FamilyMember> fmList = familyService.getFamilyMembers(registerId);
         if (!CollectionUtils.isEmpty(fmList)) {
             for (FamilyMember fm : fmList) {
-                Map<String, Object> userInfoMap = userService.findUserInfoByUid(fm.getMemberId());
+//                Map<String, Object> userInfoMap = userService.findUserInfoByUid(fm.getMemberId());
+                Map<String, Object> userInfoMap = userService.findUserInfoByUid("ff80808154177829015417bbe1970020"); // TODO 开发环境 测试数据
                 if (null != userInfoMap && null != userInfoMap.get("personcard")) {
                     String idc = String.valueOf(userInfoMap.get("personcard"));
-                    //1 家人最佳住院信息
-                    UserHealthRecordDTO userhealthRecord = getFamilyHealthRecord(idc);
+
+                    //1 家人最近住院信息
+                    UserHealthRecordDTO userhealthRecord = getFamilyLastHealthRecord(idc); // 问题：如果多个家人都有就医记录，如何选择
+                    if (null != userhealthRecord) {
+                        buildFamilyLastHealthRecord(fm, familyMember, userhealthRecord);
+                    }
+
 
                     // 2 家人健康信息
                     Map<String, Object> familyMemberInput = new HashMap<String, Object>();
                     familyMemberInput.put("registerId", userInfoMap.get("registerid"));
                     familyMemberInput.put("sex", userInfoMap.get("gender"));//性别
-                    familyMemberInput.put("moreThanDays", "100");
+                    familyMemberInput.put("moreThanDays", "30");//家人取一个月的数据
                     familyMemberInput.put("limit", "10");
                     familyMemberInput.put("personCard", "");
                     familyMemberInput.put("cardType", "");
                     familyMemberInput.put("cardId", "");
-
-                    UserHealthDTO familyMemberHealth = getFamilyHealth(familyMemberInput);
-                    if(null != familyMemberHealth){ //家庭成员有健康异常
-                        buildFamilyMemberDTO(fm,familyMember,familyMemberHealth);
+                    UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput);
+                    if (null != familyMemberHealth) { //家庭成员有健康异常
+                        buildFamilyMemberHealth(fm, familyMember, familyMemberHealth);
                     }
 
-                    //3 家人风险评估结果 --春柳提供接口 TODO
+                    //3 家人风险评估结果
+                    buildFamilyDangerousResult(fm, familyMember, String.valueOf(userInfoMap.get("registerid")));
 
-                    //4 育苗信息 家庭栏目提供算法 TODO
+                    //4 育苗信息 养橙：孟华实现接口
 
 
                 }
@@ -156,24 +192,104 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public List<CenterAdDTO> findCenterAdDTO() {
-        return null;
+    public List<CenterAdDTO> findCenterAdDTO(String mainArea) {
+        ImageText imgTextC = new ImageText();
+        imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
+        List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextC);
+        List<CenterAdDTO> list = new ArrayList<CenterAdDTO>();
+
+        if (!CollectionUtils.isEmpty(imageTextsC)) {
+            int flag = imageTextsC.size() <= 3 ? imageTextsC.size() : 3; //最多3个
+            for (int i = 0; i < flag; i++) {
+                list.add(new CenterAdDTO(imageTextsC.get(i)));
+            }
+        }
+
+        return list;
+    }
+
+
+    @Override
+    public SideAdDTO findSideAdDTO(String mainArea) {
+        SideAdDTO sideAd = new SideAdDTO();
+        ImageText imgTextD = new ImageText();
+        imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());
+        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextD);
+        if (!CollectionUtils.isEmpty(imageTextsD)) {
+            sideAd = new SideAdDTO(imageTextsD.get(0));
+        }
+        return sideAd;
     }
 
     @Override
-    public SideAdDTO findSideAdDTO() {
-        return null;
+    public List<SpecialServiceDTO> findSpecialServiceDTO(Session session,String appVersion,String mainArea, String specArea) {
+        List<SpecialServiceDTO> list = new ArrayList<SpecialServiceDTO>();
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+
+        if (!CollectionUtils.isEmpty(imageTextsB)) {
+            String idCard = null;
+            int loginOrRealName = 0;// 0:需登录,1:需实名制,2:正常
+            if (session != null && StringUtils.isNotEmpty(session.getUserId())) {
+                String userId = session.getUserId();
+                RegisterInfo registerInfo = registerInfoRepo.findOne(userId);
+                if (registerInfo != null) {
+                    // 未实名认证
+                    if (!"1".equals(registerInfo.getIdentifytype()) && !"2".equals(registerInfo.getIdentifytype())) {
+                        loginOrRealName = 1;
+                    } else {
+                        loginOrRealName = 2;
+                        idCard = registerInfo.getPersoncard();
+                    }
+                }
+            }
+
+
+            for (ImageText imageText : imageTextsB) {
+                SpecialServiceDTO dto = new SpecialServiceDTO();
+                dto.setImgUrl(imageText.getImgUrl());
+
+                if (imageText.getHoplink() != null && imageText.getHoplink().contains("{sfzh}")) {// 需获取身份证
+                    if (loginOrRealName == 2) {
+                        dto.setLoginOrRealName(2);
+                        dto.setHoplink(imageText.getHoplink().replace("{sfzh}", idCard));
+                    } else {
+                        dto.setLoginOrRealName(loginOrRealName);
+                        dto.setHoplink(imageText.getHoplink());
+                    }
+
+                } else {// 不需要身份证信息
+                    dto.setLoginOrRealName(2);
+                    dto.setHoplink(imageText.getHoplink());
+                }
+
+                dto.setMainTitle(imageText.getMainTitle());
+                dto.setSubTitle(imageText.getSubTitle());
+                list.add(dto);
+            }
+        }
+
+
+        return list;
     }
 
     @Override
-    public List<SpecialServiceDTO> findSpecialServiceDTO() {
-        return null;
+    public List<FunctionIconsDTO> findFunctionIconsDTO(Session session,String appVersion,String mainArea, String specArea) {
+        List<FunctionIconsDTO> list = new ArrayList<FunctionIconsDTO>();
+
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_FUNCTION.getType(), null);
+        if (imageTextsB != null && imageTextsB.size() > 0) {
+            for (ImageText imageText : imageTextsB) {
+                FunctionIconsDTO dto = new FunctionIconsDTO();
+                dto.setImgUrl(imageText.getImgUrl());
+                dto.setHoplink(h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+                dto.setMainTitle(imageText.getMainTitle());
+                dto.setSubTitle(imageText.getSubTitle());
+                list.add(dto);
+            }
+        }
+        return list;
     }
 
-    @Override
-    public List<FunctionIconsDTO> findFunctionIconsDTO() {
-        return null;
-    }
 
     private static Date parseDate(String dateStr, String formatStr) {
         Date date = null;
@@ -189,39 +305,40 @@ public class HomeServiceImpl implements HomeService {
 
 
     /**
-     * 根据身份证号查询出最近住院信息
+     * 家庭成员最近住院信息
      *
      * @return
      */
-    private UserHealthRecordDTO getFamilyHealthRecord(String idc) {
+    private UserHealthRecordDTO getFamilyLastHealthRecord(String idc) {
         UserHealthRecordDTO dto = null;
         Map<String, Object> userHealthInput = new HashMap<String, Object>();
-//        userHealthInput.put("idc","310104194004244814");
-        userHealthInput.put("idc", idc);
+        userHealthInput.put("idc","310104194004244814");// TODO 开发环境 测试数据
+
+        final int theDayBeforeToday = -30; //最近一个月
+        Calendar calendar = Calendar.getInstance(); //得到日历
+        calendar.setTime(new Date());//把当前时间赋给日历
+        calendar.add(Calendar.DAY_OF_MONTH, theDayBeforeToday);
+
 
         String userHealthResponse = healthApiClient.userHealthRecord(userHealthInput);
         if (StringUtils.isNotBlank(userHealthResponse)) {
-            HealthRecordResponse<List<UserHealthRecordDTO>> healthResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<HealthRecordResponse<List<UserHealthRecordDTO>>>() {
+            /*HealthRecordResponse<List<UserHealthRecordDTO>> healthResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<HealthRecordResponse<List<UserHealthRecordDTO>>>() {
+            });*/
+            DataMsg<HealthRecordResponse<List<UserHealthRecordDTO>>> dataMsg = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthRecordResponse<List<UserHealthRecordDTO>>>>() {
             });
-            if (!CollectionUtils.isEmpty(healthResponse.getContent())) {
-                Date maxDate = null;
-                for (UserHealthRecordDTO healthDto : healthResponse.getContent()) {
+            if ( null != dataMsg.getData()) {
+                List<UserHealthRecordDTO>  healthResponse = (List<UserHealthRecordDTO>) dataMsg.getData().getContent();
+                for (UserHealthRecordDTO healthDto : healthResponse) {
                     Date compareDate = parseDate(healthDto.getDate(), "YYYY-MM-DD");
-                    if (null != compareDate && null == maxDate) {
-                        maxDate = compareDate;
-                    } else if (null != compareDate && null != maxDate && compareDate.getTime() > maxDate.getTime()) {
-                        maxDate = compareDate;
+                    if (null != compareDate && compareDate.getTime() >= calendar.getTime().getTime()) { // 有最近的就医记录
+                        dto = healthDto;
+                        break;
                     }
 
                 }
-
-                if (null != maxDate /*比较时间逻辑*/) { //TODO 提示家人有住院信息
-
-
-                }
-
             }
         }
+
         return dto;
     }
 
@@ -229,21 +346,26 @@ public class HomeServiceImpl implements HomeService {
     /**
      * 查询个人健康信息
      *
-     * @param userHealthInput
+     * @param userInfoMap
      * @return
      */
-    private UserHealthDTO getFamilyHealth(Map<String, Object> userHealthInput) {
+    private UserHealthDTO getUserHealthInfo(Map<String, Object> userInfoMap) {
         UserHealthDTO dto = null;
-        String userHealthResponse = healthApiClient.userHealth(userHealthInput);
+        String userHealthResponse = healthApiClient.userHealth(userInfoMap);
         if (StringUtils.isNotBlank(userHealthResponse)) {
-            HealthResponse<List<UserHealthItemDTO>> healthResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<HealthResponse<List<UserHealthItemDTO>>>() {
+            /*HealthResponse<List<UserHealthItemDTO>> healthResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<HealthResponse<List<UserHealthItemDTO>>>() {
+            });*/
+
+            DataMsg<HealthResponse<List<UserHealthItemDTO>>> dataResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthResponse<List<UserHealthItemDTO>>>>() {
             });
 
-            if (null != healthResponse) {
+            if (null != dataResponse && null != dataResponse.getData()) {
+                HealthResponse healthResponse = dataResponse.getData();
+
                 dto = new UserHealthDTO();
                 dto.setHealthStatus(healthResponse.getHealthStatus());
                 dto.setMainTitle(healthResponse.getMainTitle());
-                dto.setExceptionItems(healthResponse.getExceptionItems());
+                dto.setExceptionItems((List<UserHealthItemDTO>) healthResponse.getExceptionItems());
             }
 
         }
@@ -251,20 +373,71 @@ public class HomeServiceImpl implements HomeService {
         return dto;
     }
 
+    /**
+     * 家人评估结果异常
+     *
+     * @param fm
+     * @param familyMember
+     * @param registerid
+     */
+    private void buildFamilyDangerousResult(FamilyMember fm, FamilyMemberDTO familyMember, String registerid) {
 
-    private void buildFamilyMemberDTO(FamilyMember fm,FamilyMemberDTO familyMember,UserHealthDTO familyMemberHealth){
-        if(null == familyMember){
+        String dangerousResult = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
+        if (StringUtils.isNotBlank(dangerousResult)) {
+            if (null == familyMember) {
+                familyMember = new FamilyMemberDTO();
+                familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+            }
+
+            FamilyMemberItemDTO familyMemberItemDTO = new FamilyMemberItemDTO();
+            familyMemberItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+            familyMemberItemDTO.setPrompt(familyMemberItemDTO.getRelationship() + " ,风险评估结果 " + dangerousResult);//话术
+            familyMember.getExceptionItems().add(familyMemberItemDTO);
+
+        }
+
+    }
+
+
+    /**
+     * 家人健康异常
+     *
+     * @param fm
+     * @param familyMember
+     * @param familyMemberHealth
+     */
+    private void buildFamilyMemberHealth(FamilyMember fm, FamilyMemberDTO familyMember, UserHealthDTO familyMemberHealth) {
+        if (null == familyMember) {
             familyMember = new FamilyMemberDTO();
             familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
         }
 
-        for(UserHealthItemDTO dto:familyMemberHealth.getExceptionItems()){
-            FamilyMemberItemDTO  familyMemberItemDTO = new FamilyMemberItemDTO();
-            familyMemberItemDTO.setPrompt("");//TODO 拼接话术
+        for (UserHealthItemDTO dto : familyMemberHealth.getExceptionItems()) {
+            FamilyMemberItemDTO familyMemberItemDTO = new FamilyMemberItemDTO();
             familyMemberItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-
+            familyMemberItemDTO.setPrompt(dto.getName()+" "+dto.getData()+" "+(dto.getHightAndLow().equals("1")?"偏高":"偏低"));
+            familyMember.getExceptionItems().add(familyMemberItemDTO);
+            break;//家人有多项异常，只取一项
         }
 
+    }
+
+    /**
+     * 家人就医记录
+     *
+     * @param fm
+     * @param familyMember
+     * @param userhealthRecord
+     */
+    private void buildFamilyLastHealthRecord(FamilyMember fm, FamilyMemberDTO familyMember, UserHealthRecordDTO userhealthRecord) {
+        if (null == familyMember) {
+            familyMember = new FamilyMemberDTO();
+            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+        }
+        FamilyMemberItemDTO familyMemberItemDTO = new FamilyMemberItemDTO();
+        familyMemberItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+        familyMemberItemDTO.setPrompt(familyMemberItemDTO.getRelationship() + " ，有新的就医记录");//话术
+        familyMember.getExceptionItems().add(familyMemberItemDTO);
 
     }
 

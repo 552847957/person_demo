@@ -17,19 +17,19 @@ import java.util.Map;
 @Component
 public class HealthApiClient {
 
-//   @Value("${his.huayang.api.url}")
-    private String API_URL="http://localhost:8080";
-    private String API_USERHEALTH_RECORD_URL = "http://10.1.64.195/healthRecord-api";
+   @Value("${api.measure.url}")
+    private String API_MEASURE_URL;
+    @Value("${api.userhealth.record.url}")
+    private String API_USERHEALTH_RECORD_URL;
 
-//    @Autowired(required=true)
-    public RestTemplate restTemplate;
+    public RestTemplate restTemplate = new RestTemplate();
 
     /** ***************************
      *  个人健康
      *  ***************************
      */
     public String userHealth(Map<String,Object> input){
-        String reqUrl=API_URL+"/api/measure/userHealth?registerId={registerId}&sex={sex}&moreThanDays={moreThanDays}&limit={limit}&personCard={personCard}&cardType={cardType}&cardId={cardId}";
+        String reqUrl=API_MEASURE_URL+"/api/measure/userHealth?registerId={registerId}&sex={sex}&moreThanDays={moreThanDays}&limit={limit}&personCard={personCard}&cardType={cardType}&cardId={cardId}";
         return doGet(reqUrl,input);
     }
 
@@ -40,7 +40,7 @@ public class HealthApiClient {
 
     //查床添加、修改
     public String requestS01(String body){
-        String reqUrl=API_URL+"/SaveBedCheck";
+        String reqUrl=API_MEASURE_URL+"/SaveBedCheck";
         return doPost(reqUrl,body);
     }
 

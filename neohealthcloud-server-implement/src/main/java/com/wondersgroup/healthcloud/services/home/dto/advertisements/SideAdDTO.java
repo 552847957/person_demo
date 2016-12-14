@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.home.dto.advertisements;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import lombok.Data;
 
 /**
@@ -16,5 +17,13 @@ public class SideAdDTO {
     private String imgUrl;
     private String hoplink;
 
+    public SideAdDTO() {
+    }
+
+    public SideAdDTO(ImageText imageText) {
+        this.imgUrl = imageText.getImgUrl();
+        this.hoplink = imageText.getHoplink();
+        this.position = imageText.getPosition();
+    }
 
 }

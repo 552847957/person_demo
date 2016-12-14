@@ -6,19 +6,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 健康档案
- *  接口返回JSON封装
- * Created by jialing.yao on 2016-11-15.
+ * Created by xianglinhai on 2016/12/14.
  */
 @Data
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HealthRecordResponse<T> {
-    @JsonProperty("more")
-    private String more;
+public class DataMsg <T>{
+    @JsonProperty("code")
+    private String code ;
+    @JsonProperty("msg")
+    private String msg;
 
-    @JsonProperty("content")
-    private T content;//数据实体
+    @JsonProperty("data")
+    private T data;
 
+    public boolean isSuccessFul(){
+        if(code.equals("0")){
+            return true;
+        }
+
+        return false;
+    }
 
 }

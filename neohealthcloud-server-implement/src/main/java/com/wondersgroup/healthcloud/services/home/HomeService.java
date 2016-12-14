@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthD
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 
 import java.util.List;
 
@@ -39,25 +40,25 @@ public interface HomeService {
      * 中央区广告
      * @return
      */
-    public List<CenterAdDTO> findCenterAdDTO();
+    public List<CenterAdDTO> findCenterAdDTO(String mainArea);
 
     /**
      * 侧边浮层广告
      * @return
      */
-    public SideAdDTO findSideAdDTO();
+    public SideAdDTO findSideAdDTO(String mainArea);
 
     /**
      * 特色服务
      * @return
      */
-    public List<SpecialServiceDTO> findSpecialServiceDTO();
+    public List<SpecialServiceDTO> findSpecialServiceDTO(Session session,String appVersion,String mainArea, String specArea);
 
     /**
      * 主要功能区
      * @return
      */
-    public List<FunctionIconsDTO> findFunctionIconsDTO();
+    public List<FunctionIconsDTO> findFunctionIconsDTO(Session session,String appVersion,String mainArea, String specArea);
 
 
 
