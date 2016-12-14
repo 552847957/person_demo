@@ -29,6 +29,13 @@ public class BadWordsController {
         return entity;
     }
 
+    public static void main(String[] args) {
+        String info = "个哥哥飞蛾瓦妹妹房和外观符合我来开发和外卡号";
+        String badWords = "哥哥|妹妹";
+        info = info.replaceAll(badWords, "**");
+        System.out.println(info);
+    }
+
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public JsonResponseEntity save(@RequestBody String request){
         JsonResponseEntity entity = new JsonResponseEntity();

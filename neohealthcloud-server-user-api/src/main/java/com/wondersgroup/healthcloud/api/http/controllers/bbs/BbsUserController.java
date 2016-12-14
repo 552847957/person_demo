@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,14 +63,11 @@ public class BbsUserController {
     public JsonResponseEntity<UserHomeDto> home(@RequestParam String uid,
                                                 @RequestParam String targetUid) {
         JsonResponseEntity<UserHomeDto> jsonResponseEntity = new JsonResponseEntity();
-        RegisterInfo userInfo = userService.getOneNotNull(uid);
+        RegisterInfo userInfo = userService.getOneNotNull(targetUid);
         UserHomeDto userHomeDto = new UserHomeDto();
-        int fansCount = fansService.countFansNum(targetUid);
-        int attentCount = fansService.countAttentNum(targetUid);
         userHomeDto.mergeOwnerUserInfo(userInfo);
-        userHomeDto.setAttentCount(attentCount);
-        userHomeDto.setFansCount(fansCount);
-        Integer attentStatus = fansService.getMyAttentStatus(uid, targetUid);
+        userHomeDto.setAttentCount(fansService.countAttentNum(targetUid));
+        userHomeDto.setFansCount(fansService.countFansNum(targetUid));
         userHomeDto.setAttentStatus(fansService.getMyAttentStatus(uid, targetUid));
         jsonResponseEntity.setData(userHomeDto);
         return jsonResponseEntity;
