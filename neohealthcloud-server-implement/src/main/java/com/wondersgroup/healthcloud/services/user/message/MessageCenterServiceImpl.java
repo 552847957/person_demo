@@ -65,7 +65,9 @@ public class MessageCenterServiceImpl {
         return false;
     }
 
-    //消息中心的消息类型按照健康圈消息1，家庭消息2，慢病消息3，我的咨询4和系统消息5顺序排列
+    /**
+     * 消息中心的消息类型按照健康圈消息1，家庭消息2，慢病消息3，我的咨询4和系统消息5顺序排列
+     */
     public List<MessageCenterDto> getRootList(String area, String uid){
         List<MessageCenterDto> messages = Lists.newLinkedList();
         List<MessageCenterDto> lastSystem=this.getLastSystem(area,uid);
@@ -81,21 +83,38 @@ public class MessageCenterServiceImpl {
     //家庭消息
     private MessageCenterDto getFamilyMsg(String uid){
         Map<String, Object> msg=familyMsgService.findOneMessageByUid(uid);
+        if(msg ==null){
+            MessageCenterDto message = new MessageCenterDto();
+            message.setTitle(MsgTypeEnum.msgType2.getTypeName());
+            message.setContent("暂无新消息");
+            message.setType(MsgTypeEnum.msgType2.getTypeCode());
+            message.setSort(2);
+            return message;
+        }
         String content="您有一条新消息";
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
         String time=MessageCenterDto.parseDate(date);
         MessageCenterDto message = new MessageCenterDto();
-        message.setTitle(MsgTypeEnum.msgType4.getTypeName());
+        message.setTitle(MsgTypeEnum.msgType2.getTypeName());
         message.setContent(content);
+        message.setType(MsgTypeEnum.msgType2.getTypeCode());
         message.setTime(time);
-        message.setRead(true);//是否有未读的消息
-        message.setSort(1);
+        message.setIsRead(true);//是否有未读的消息
+        message.setSort(2);
         return message;
     }
     //慢病消息
     private MessageCenterDto getDiseaseMsg(String uid){
         Map<String, Object> msg=diseaseMsgService.findOneMessageByUid(uid);
+        if(msg ==null){
+            MessageCenterDto message = new MessageCenterDto();
+            message.setTitle(MsgTypeEnum.msgType5.getTypeName());
+            message.setContent("暂无新消息");
+            message.setType(MsgTypeEnum.msgType5.getTypeCode());
+            message.setSort(3);
+            return message;
+        }
         String content="";
         String type=String.valueOf(msg.get("type"));
         //干预提醒0、筛查提醒1
@@ -108,11 +127,12 @@ public class MessageCenterServiceImpl {
         Date date= DateUtils.parseString(msgCreateTime);
         String time=MessageCenterDto.parseDate(date);
         MessageCenterDto message = new MessageCenterDto();
-        message.setTitle(MsgTypeEnum.msgType4.getTypeName());
+        message.setTitle(MsgTypeEnum.msgType5.getTypeName());
         message.setContent(content);
+        message.setType(MsgTypeEnum.msgType5.getTypeCode());
         message.setTime(time);
-        message.setRead(true);//是否有未读的消息
-        message.setSort(1);
+        message.setIsRead(true);//是否有未读的消息
+        message.setSort(3);
         return message;
     }
     /*
@@ -131,6 +151,7 @@ public class MessageCenterServiceImpl {
             MessageCenterDto bbsMsg = new MessageCenterDto();
             bbsMsg.setTitle(MsgTypeEnum.msgType4.getTypeName());
             bbsMsg.setContent("暂无新消息");
+            bbsMsg.setType(MsgTypeEnum.msgType4.getTypeCode());
             bbsMsg.setSort(1);
             messages.add(bbsMsg);
             return messages;
@@ -154,8 +175,9 @@ public class MessageCenterServiceImpl {
         MessageCenterDto message = new MessageCenterDto();
         message.setTitle(MsgTypeEnum.msgType4.getTypeName());
         message.setContent(content);
+        message.setType(MsgTypeEnum.msgType4.getTypeCode());
         message.setTime(time);
-        message.setRead(true);//是否有未读的消息
+        message.setIsRead(true);//是否有未读的消息
         message.setSort(1);
         messages.add(message);
         return messages;
@@ -169,10 +191,12 @@ public class MessageCenterServiceImpl {
             MessageCenterDto sysMsg = new MessageCenterDto();
             sysMsg.setTitle(AppMessageUrlUtil.Type.SYSTEM.name);
             sysMsg.setContent("暂无新消息");
+            sysMsg.setType(AppMessageUrlUtil.Type.SYSTEM.id);
             sysMsg.setSort(5);
             MessageCenterDto questionMsg = new MessageCenterDto();
             questionMsg.setTitle(AppMessageUrlUtil.Type.QUESTION.name);
             questionMsg.setContent("暂无新消息");
+            questionMsg.setType(AppMessageUrlUtil.Type.QUESTION.id);
             questionMsg.setSort(4);
             messages.add(questionMsg);
             messages.add(sysMsg);
@@ -185,13 +209,15 @@ public class MessageCenterServiceImpl {
                 message.setTitle(type.name);
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
                 message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
-                message.setRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
+                message.setType(AppMessageUrlUtil.Type.QUESTION.id);
+                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
                 message.setSort(4);
             }else if( result.getType().equals(AppMessageUrlUtil.Type.SYSTEM.id)){
                 message.setTitle(type.name);
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
+                message.setType(AppMessageUrlUtil.Type.SYSTEM.id);
                 message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
-                message.setRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
+                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
                 message.setSort(5);
             }
             messages.add(message);

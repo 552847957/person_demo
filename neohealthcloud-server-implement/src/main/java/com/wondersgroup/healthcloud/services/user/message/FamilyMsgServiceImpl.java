@@ -2,7 +2,9 @@ package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -40,7 +42,7 @@ public class FamilyMsgServiceImpl implements MsgService{
 
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
-        String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,req_record_id as reqRecordID,create_time" +
+        String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,req_record_id as reqRecordID,'' as avatar,create_time" +
                 " from app_tb_family_message where receiver_uid='%s'" +
                 " order by create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
@@ -48,8 +50,8 @@ public class FamilyMsgServiceImpl implements MsgService{
         if (null == list || list.isEmpty()){
             return new ArrayList<>();
         }else{
-
-            List<Integer> setReadIds=new ArrayList<>();
+            List<Integer> setReadIds=new ArrayList<>();//需设置为已读的消息ID
+            List<String> notifierUids=new ArrayList<>();//需查询头像用的消息通知人UID
             for(Map<String, Object> row:list){
                 //处理消息时间
                 String msgCreateTime=String.valueOf(row.get("create_time"));
@@ -81,9 +83,27 @@ public class FamilyMsgServiceImpl implements MsgService{
                     row.put("isReaded",true);
                     setReadIds.add(Integer.valueOf(id));
                 }
+                String notifierUID=String.valueOf(row.get("notifierUID"));
+                notifierUids.add(notifierUID);
+                //MAP null值处理为""
+                MapChecker.checkMap(row);
             }
             //消息设为已读
             this.setRead(setReadIds);
+            //补全头像字段
+            List<Map<String, Object>> avatarList=this.getAvatarByUids(notifierUids);
+            if(avatarList != null){
+                for(Map<String, Object> avatarData:avatarList){
+                    String notifierUID=String.valueOf(avatarData.get("uid"));
+                    String headphoto=String.valueOf(avatarData.get("headphoto"));
+                    for(Map<String, Object> row:list){
+                        String target_notifierUID=String.valueOf(row.get("notifierUID"));
+                        if(target_notifierUID.equals(notifierUID)){
+                            row.put("avatar", StringUtils.defaultIfBlank(headphoto,""));
+                        }
+                    }
+                }
+            }
         }
         return list;
     }
@@ -94,10 +114,21 @@ public class FamilyMsgServiceImpl implements MsgService{
         jdbcTemplate.update(sql);
     }
     //根据邀请记录ID，获取邀请状态
-    public String getReqStatusByReqID(String reqID) {
+    private String getReqStatusByReqID(String reqID) {
         String query =String.format("select status from app_tb_family_member_invitation where id='%s' and del_flag=0",reqID);
         String reqStatus = jdbcTemplate.queryForObject(query, String.class);
         return reqStatus != null ? reqStatus : "";
+    }
+    //批量获取请求人头像
+    private List<Map<String, Object>> getAvatarByUids(List<String> ids){
+        Joiner joiner = Joiner.on("','").skipNulls();
+        String query =String.format("SELECT registerid as uid,ifnull(headphoto,(select headphoto from app_tb_anonymous_account where id=registerid  and del_flag=0)) as headphoto" +
+                " FROM app_tb_register_info WHERE registerid in ('%s') AND del_flag=0",joiner.join(ids));
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return null;
+        }
+        return list;
     }
 
     @Override

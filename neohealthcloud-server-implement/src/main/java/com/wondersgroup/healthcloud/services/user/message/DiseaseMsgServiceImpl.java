@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -95,6 +96,8 @@ public class DiseaseMsgServiceImpl implements MsgService{
             return null;
         }else {
             data = list.get(0);
+            //MAP null值处理为""
+            MapChecker.checkMap(data);
         }
         return data;
     }
