@@ -44,14 +44,15 @@ public class RiskScreeningController {
     }
 
     /**
-     * 高危筛查列表
+     * 高危提醒
      * @return
      */
     @PostMapping("/remind")
     public JsonResponseEntity remind(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String ids = reader.readString("ids",false);
-        Boolean flag = assessmentService.remind(ids.split(","));
+        String doctorId = reader.readString("doctorId",false);
+        Boolean flag = assessmentService.remind(ids,doctorId);
         JsonResponseEntity entity = new JsonResponseEntity();
         if(flag){
             entity.setMsg("您的糖尿病高危筛查提醒已经发送成功");

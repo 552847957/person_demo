@@ -41,11 +41,11 @@ public class TubePatientController {
     @Autowired
     private BaseInfoRepository baseInfoRepo;
     /**
-     * 高危筛查列表
+     * 在管人群列表
      * @return
      */
     @PostMapping("/list")
-    public Pager list(@RequestBody Pager pager) throws Exception{
+    public Pager list(@RequestBody Pager pager){
         Map<String,Object> param = pager.getParameter();
         if(!param.containsKey("doctorId") || null == param.get("doctorId")
                 || StringUtils.isEmpty(param.get("doctorId").toString())){
@@ -72,7 +72,7 @@ public class TubePatientController {
     @GetMapping("/detail")
     public JsonResponseEntity detail(
             @RequestParam(name="cardType") String cardType,
-            @RequestParam(name="cardNumber") String cardNumber) throws Exception{
+            @RequestParam(name="cardNumber") String cardNumber){
         TubePatientDetailDTO dto = diabetesService.getTubePatientDetail(cardType,cardNumber);
         if(null == dto){
             return new JsonResponseEntity();

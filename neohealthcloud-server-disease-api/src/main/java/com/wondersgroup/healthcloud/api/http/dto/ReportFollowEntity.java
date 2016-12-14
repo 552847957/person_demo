@@ -7,6 +7,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +24,9 @@ public class ReportFollowEntity {
     private String followNextDate;//预约下次随访时间
     private String doctorName;//随访医生
     private List<String> symptom;//糖尿病临床症状
+    private BigDecimal emptyBloodSugar;//空腹血糖
+    private BigDecimal ogtt;//餐后两小时血糖OGTT
+    private BigDecimal hemoglobin;//糖化血红蛋白
     private List advice;//随访建议
     private String adviceOther;//其他随访建议
 
@@ -31,6 +35,9 @@ public class ReportFollowEntity {
         this.followNextDate = null == dto.getFollowNextDate() ? null : new DateTime(dto.getFollowNextDate()).toString("yyyy-MM-dd");
         this.doctorName = dto.getDoctorName();
         this.adviceOther = dto.getAdviceOther();
+        this.emptyBloodSugar = dto.getEmptyBloodSugar();
+        this.ogtt = dto.getOgtt();
+        this.hemoglobin = dto.getHemoglobin();
 
         if(!StringUtils.isEmpty(dto.getFollowStyle())){
             if("1".equals(dto.getFollowStyle())){

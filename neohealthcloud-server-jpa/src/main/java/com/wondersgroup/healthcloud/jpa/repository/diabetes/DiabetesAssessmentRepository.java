@@ -22,4 +22,5 @@ public interface DiabetesAssessmentRepository extends JpaRepository<DiabetesAsse
     @Transactional
     @Query(value = "update DiabetesAssessment set hasRemind = 1 , updateDate = ?2 where type = 1 and registerid in ?1")
     void updateRemindByRegister(List ids, Date date);
+
 }

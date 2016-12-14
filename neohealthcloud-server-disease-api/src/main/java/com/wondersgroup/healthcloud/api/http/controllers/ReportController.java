@@ -40,7 +40,7 @@ public class ReportController {
     @GetMapping("/screening")
     public JsonResponseEntity screening(
             @RequestParam(name="cardType") String cardType,
-            @RequestParam(name="cardNumber") String cardNumber) throws Exception {
+            @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportScreeningDTO> source = diabetesService.getReportScreening(cardType,cardNumber);
         List<ReportScreeningEntity> list = Lists.newArrayList();
@@ -61,7 +61,7 @@ public class ReportController {
     @GetMapping("/inspect")
     public JsonResponseEntity inspect(
             @RequestParam(name="cardType") String cardType,
-            @RequestParam(name="cardNumber") String cardNumber) throws Exception {
+            @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportInspectDTO> source = diabetesService.getReportInspectList(cardType,cardNumber);
         List<ReportInspectEntity> list = Lists.newArrayList();
@@ -82,7 +82,7 @@ public class ReportController {
     @GetMapping("/inspect/detail")
     public JsonResponseEntity inspectDetail(
             @RequestParam(name="reportNum") String reportNum,
-            @RequestParam(name="reportDate")@DateTimeFormat(pattern = "yyyy-MM-dd") Date reportDate) throws Exception {
+            @RequestParam(name="reportDate")@DateTimeFormat(pattern = "yyyy-MM-dd") Date reportDate){
 
         List<ReportInspectDetailDTO> resoure = diabetesService.getReportInspectDetail(reportNum,reportDate);
         List<ReportInspectDetailEntity> list = Lists.newArrayList();
@@ -99,7 +99,7 @@ public class ReportController {
     @GetMapping("/follow")
     public JsonResponseEntity follow(
             @RequestParam(name="cardType") String cardType,
-            @RequestParam(name="cardNumber") String cardNumber) throws Exception {
+            @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportFollowDTO> source = diabetesService.getReportFollowList(cardType,cardNumber);
         List<ReportFollowEntity> list = Lists.newArrayList();
