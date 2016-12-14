@@ -6,12 +6,14 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentContact;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentContactService;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentException;
+import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentIsOffException;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +41,7 @@ public class AppointmentOrderController {
 
     @Autowired
     private AppointmentContactService appointmentContactService;
+
 
     /**
      * 发送(验证)短信
@@ -69,7 +72,14 @@ public class AppointmentOrderController {
      */
     @VersionRange
     @RequestMapping(value = "/order", method = RequestMethod.POST)
-    public JsonResponseEntity<AppointmentOrderDTO>  getUserReservation(@RequestBody String request) {
+    public JsonResponseEntity<AppointmentOrderDTO>  getUserReservation(@RequestBody String request,
+                                                    @RequestHeader(name = "main-area", required = true) String mainArea) {
+
+        Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(!registrationIsOn){
+            throw new ErrorAppointmentIsOffException();
+        }
+
         JsonResponseEntity<AppointmentOrderDTO> body = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(request);
         String scheduleId = reader.readString("schedule_id", false);
@@ -102,7 +112,12 @@ public class AppointmentOrderController {
      */
     @VersionRange
     @RequestMapping(value = "/cancelOrder", method = RequestMethod.DELETE)
-    public JsonResponseEntity<AppointmentOrderDTO> cancel(@RequestParam String id) {
+    public JsonResponseEntity<AppointmentOrderDTO> cancel(@RequestParam String id,
+                                                          @RequestHeader(name = "main-area", required = true) String mainArea) {
+        Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(!registrationIsOn){
+            throw new ErrorAppointmentIsOffException();
+        }
         JsonResponseEntity<AppointmentOrderDTO> body = new JsonResponseEntity<>();
         appointmentApiService.cancelReservationOrderById(id);
         OrderDto orderDto = appointmentApiService.findOrderByUidOrId(id,null,null,false).get(0);
@@ -123,7 +138,13 @@ public class AppointmentOrderController {
     @VersionRange
     @RequestMapping(value = "/orderHistory", method = RequestMethod.GET)
     public JsonListResponseEntity<AppointmentOrderDTO> history(@RequestParam(required = true) String uid,
-                                                               @RequestParam(value = "flag", defaultValue = "1", required = false) String flag) {
+                                                               @RequestParam(value = "flag", defaultValue = "1", required = false) String flag,
+                                                               @RequestHeader(name = "main-area", required = true) String mainArea) {
+        Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(!registrationIsOn){
+            throw new ErrorAppointmentIsOffException();
+        }
+
         JsonListResponseEntity<AppointmentOrderDTO> response = new JsonListResponseEntity<>();
         int pageSize = 10;
         boolean has_more = false;
@@ -147,7 +168,12 @@ public class AppointmentOrderController {
      */
     @VersionRange
     @RequestMapping(value = "/orderDetail", method = RequestMethod.GET)
-    public JsonResponseEntity<AppointmentOrderDTO> orderDetail(@RequestParam(required = true) String id) {
+    public JsonResponseEntity<AppointmentOrderDTO> orderDetail(@RequestParam(required = true) String id,
+                                                               @RequestHeader(name = "main-area", required = true) String mainArea) {
+        Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(!registrationIsOn){
+            throw new ErrorAppointmentIsOffException();
+        }
         JsonResponseEntity<AppointmentOrderDTO> response = new JsonResponseEntity<>();
         OrderDto orderDto = appointmentApiService.findOrderByUidOrId(id,null,null,false).get(0);
 

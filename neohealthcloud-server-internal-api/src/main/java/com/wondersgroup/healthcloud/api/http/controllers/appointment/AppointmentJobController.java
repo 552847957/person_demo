@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.registration.client.*;
 import com.wondersgroup.healthcloud.registration.entity.request.*;
@@ -67,6 +68,9 @@ public class AppointmentJobController {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private DictCache dictCache;
+
 
 
     private ExecutorService executor = Executors.newFixedThreadPool(15);
@@ -121,6 +125,11 @@ public class AppointmentJobController {
 
         //逻辑删除没有更新的预约资源信息
         appointmentService.deleteSchedule(nowDate);
+
+        //逻辑删除没有二级科室的一级科室
+        appointmentService.deleteDept1HasNoDept2();
+
+
 
     }
 
@@ -405,6 +414,10 @@ public class AppointmentJobController {
             hospital.setCreateDate(new Date());
             hospital.setUpdateDate(new Date());
             hospital.setId(IdGen.uuid());
+            String addressCounty = dictCache.queryHospitalAddressCounty(hospital.getHosOrgCode());
+            if(StringUtils.isNotBlank(addressCounty)){
+                hospital.setAddressCounty(addressCounty);
+            }
             appointmentService.saveAndFlush(hospital);
         }else{
             BeanUtils.copyProperties(hosInfo,localHospital,"hospitalAdd","hospitalRule","hospitalWeb","trafficGuide",
