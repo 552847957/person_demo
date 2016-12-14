@@ -334,7 +334,7 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
-    @VersionRange
+    @VersionRange(to = "3.9")
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo(@RequestParam("uid") String id) {
         JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
         RegisterInfo person = userService.findOne(id);
@@ -350,6 +350,49 @@ public class UserController {
             body.setData(data);
         } else if (person != null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
+        } else if (person == null) {
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
+        }
+        return body;
+    }
+
+    @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
+    @VersionRange(from = "4.0")
+    public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id) {
+        JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
+        RegisterInfo person = userService.findOne(id);
+        if (person != null && person.verified()) {
+            if ("1".equals(person.getIdentifytype())) {
+                VerificationInfoDTO data = new VerificationInfoDTO();
+                data.setUid(id);
+                data.setName(IdcardUtils.maskName(person.getName()));
+                data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                data.setIdentifytype(person.getIdentifytype());
+                data.setSuccess(true);
+                data.setStatus(VerificationInfoDTO.statusArray[0]);
+                data.setCanSubmit(false);
+                body.setData(data);
+            } else if ("2".equals(person.getIdentifytype())) {
+                JsonNode info = userAccountService.verficationSubmitInfo(id, false);
+                if (info != null) {
+                    VerificationInfoDTO data = new VerificationInfoDTO(id, info);
+                    data.setSuccess(false);
+                    data.setIdentifytype("2");
+                    body.setData(data);
+                } else {
+                    VerificationInfoDTO data = new VerificationInfoDTO();
+                    data.setUid(id);
+                    data.setName(IdcardUtils.maskName(person.getName()));
+                    data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                    data.setIdentifytype(person.getIdentifytype());
+                    data.setSuccess(true);
+                    data.setStatus(VerificationInfoDTO.statusArray[0]);
+                    data.setCanSubmit(true);
+                    body.setData(data);
+                }
+            } else {
+                body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
+            }
         } else if (person == null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
         }
