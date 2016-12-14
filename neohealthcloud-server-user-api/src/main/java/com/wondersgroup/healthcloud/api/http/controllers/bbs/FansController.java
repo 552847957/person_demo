@@ -63,7 +63,7 @@ public class FansController {
         Map<String, Integer> myAttentStatus = fansService.getMyAttentStatus(uid, fansUids);
         for (UserBbsInfo userBbsInfo : fansUsers){
             UserFansAttentListDto userFansAttentList = new UserFansAttentListDto(userBbsInfo);
-            userFansAttentList.setMyAttentStatus(myAttentStatus.get(userBbsInfo.getUid()));
+            userFansAttentList.setAttentStatus(myAttentStatus.get(userBbsInfo.getUid()));
             listDtos.add(userFansAttentList);
         }
         entity.setContent(listDtos, hasMore, null, String.valueOf(flag + 1));
@@ -98,7 +98,7 @@ public class FansController {
         Map<String, Integer> myAttentStatus = fansService.getMyAttentStatus(uid, fansUids);
         for (UserBbsInfo userBbsInfo : attentlist){
             UserFansAttentListDto userFansAttentList = new UserFansAttentListDto(userBbsInfo);
-            userFansAttentList.setMyAttentStatus(myAttentStatus.get(userBbsInfo.getUid()));
+            userFansAttentList.setAttentStatus(myAttentStatus.get(userBbsInfo.getUid()));
             listDtos.add(userFansAttentList);
         }
         entity.setContent(listDtos, hasMore, null, String.valueOf(flag + 1));

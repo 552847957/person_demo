@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
+import com.wondersgroup.healthcloud.services.config.ConfigSwitch;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,8 @@ public class TopicServiceImpl implements TopicService {
     private BadWordsService badWordsService;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private ConfigSwitch configSwitch;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -444,7 +447,10 @@ public class TopicServiceImpl implements TopicService {
      * 获取发表话题默认状态
      */
     private int getUserPublishTopicDefaultStatus(Boolean isAdmin){
-        return isAdmin ? TopicConstant.Status.OK : TopicConstant.Status.WAIT_VERIFY;
+        if (isAdmin){
+            return TopicConstant.Status.OK;
+        }
+        return configSwitch.isVerifyTopic() ? TopicConstant.Status.WAIT_VERIFY : TopicConstant.Status.OK;
     }
 
     @Override

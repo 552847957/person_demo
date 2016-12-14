@@ -14,6 +14,8 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentPublishDto {
 
+    private Boolean isAdminPublish = false;//是否是管理员发布
+
     private Integer id;
     private String uid;
     private Integer floor;

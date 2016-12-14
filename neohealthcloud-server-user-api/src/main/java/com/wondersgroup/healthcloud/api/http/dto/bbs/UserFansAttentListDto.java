@@ -35,7 +35,7 @@ public class UserFansAttentListDto {
 
     private String delFlag="0";
 
-    private int myAttentStatus=0;//0:未关注, 1:已关注, 2:已相互关注
+    private int attentStatus=0;//0:未关注, 1:已关注, 2:已相互关注
 
     public UserFansAttentListDto(UserBbsInfo userBbsInfo) {
         try {

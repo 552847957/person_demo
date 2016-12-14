@@ -1,9 +1,9 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
 import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
+import com.wondersgroup.healthcloud.services.config.ConfigSwitch;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -23,12 +23,13 @@ public class BadWordsServiceImpl implements BadWordsService {
     private JedisPool jedisPool;
     private String badWordsCacheKey = "wd_app_bbs_badWords";
 
-    @Value("${bbs_badwords_open}")
-    private String isDealBadWords = "1";//是否处理违禁词
+
+    @Autowired
+    private ConfigSwitch configSwitch;
 
     @Override
     public Boolean isDealBadWords(){
-        return "1".equals(isDealBadWords);
+        return configSwitch.isDealBbsBadWords();
     }
 
     @Override
