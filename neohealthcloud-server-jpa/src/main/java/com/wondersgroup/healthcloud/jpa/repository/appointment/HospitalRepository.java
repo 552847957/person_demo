@@ -79,7 +79,7 @@ public interface HospitalRepository extends JpaRepository<AppointmentHospital, S
     @Query("update AppointmentHospital a set a.isonsale = ?1 where a.id in ?2")
     void batchSetIsonsaleByHospitalIds(String isonsale, List<String> hospitalIds);
 
-    @Query("select a from AppointmentHospital a where a.id in ?1 and a.picSmall is null" +
-            " or a.picSmall = '' or a.picBig is null  or a.picBig = '' ")
+    @Query("select a from AppointmentHospital a where a.id in ?1 and (a.picSmall is null" +
+            " or a.picSmall = '' or a.picBig is null  or a.picBig = '' )")
     List<AppointmentHospital> findPicIsBlankHosiptalsByIds(List<String> hospitalIds);
 }
