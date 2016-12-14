@@ -13,11 +13,13 @@ public class FamilyInfoDTO {
     private String weight;
     private String birthDate;
     private String sex;
+    private Integer age;
     private String mobile;
     private String nickname;
     private String avatar;
     private Boolean isStandalone;
     private Boolean isVerification;
+    private Boolean isAccess;
     
     
 }

@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -740,7 +741,7 @@ public class FamilyController {
                 info.setIsStandalone(true);
             }
             info.setNikcName(ano.getNickname());
-//            info.setAge(info.getAge());
+            info.setAge(getAge(ano.getBirthDate()));
             info.setMobile(ano.getMobile());
             registerId = ano.getId();
             sex = ano.getSex();
@@ -749,7 +750,7 @@ public class FamilyController {
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
             info.setNikcName(regInfo.getNickname());
-            info.setAge(info.getAge());
+            info.setAge(getAge(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
         }
         if(uid.equals(memberId)){
@@ -825,7 +826,6 @@ public class FamilyController {
             }
             info.setId(ano.getId());
             info.setNickname(ano.getNickname());
-//            info.setAge(info.getAge());
             info.setMobile(ano.getMobile());
             info.setSex(GenderConverter.toChinese(ano.getSex()));
             info.setAvatar(ano.getHeadphoto());
@@ -837,10 +837,11 @@ public class FamilyController {
             info.setNickname(regInfo.getNickname());
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
+            info.setAge(getAge(regInfo.getBirthday()));
             info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
         }
         info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
-        
+        info.setIsAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
         response.setData(info);
         response.setMsg("查询成功");
         return response;
@@ -932,6 +933,7 @@ public class FamilyController {
         String birthDate = reader.readString("birthDate", true);
         String sex = reader.readString("sex", true);
         String nickname = reader.readString("nickname", true);
+        String avatar = reader.readString("avatar", true);
         
         AnonymousAccount ano =  anonymousAccountRepository.findOne(id);
         if(!StringUtils.isBlank(mobile)){
@@ -948,6 +950,9 @@ public class FamilyController {
         }
         if(!StringUtils.isBlank(weight)){
             ano.setWeight(weight);
+        }
+        if(!StringUtils.isBlank(avatar)){
+            ano.setHeadphoto(avatar);
         }
         if(!StringUtils.isBlank(birthDate)){
             try {
@@ -1138,4 +1143,36 @@ public class FamilyController {
     public String getRelationName(String relation){
         return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "");
     }
+    
+    public Integer getAge(Date birthDay) {
+        if(birthDay == null){
+            return null;
+        }
+        Calendar cal = Calendar.getInstance();  
+      
+        if (cal.before(birthDay)) {  
+            return 0;  
+        }  
+        int yearNow = cal.get(Calendar.YEAR);  
+        int monthNow = cal.get(Calendar.MONTH);  
+        int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);  
+        cal.setTime(birthDay);  
+      
+        int yearBirth = cal.get(Calendar.YEAR);  
+        int monthBirth = cal.get(Calendar.MONTH);  
+        int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);  
+      
+        int age = yearNow - yearBirth;  
+      
+        if (monthNow <= monthBirth) {
+            if (monthNow == monthBirth) {  
+                if (dayOfMonthNow < dayOfMonthBirth) {  
+                    age--;  
+                }  
+            } else {  
+                age--;  
+            }  
+        }  
+        return age;  
+    }  
 }
