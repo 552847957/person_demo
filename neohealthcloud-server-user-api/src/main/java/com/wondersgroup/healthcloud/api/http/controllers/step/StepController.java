@@ -67,7 +67,6 @@ public class StepController {
 		home.setRestGold(restGold);
 		home.setAccess(isAccess);
 		home.setActivityTime(isActivityTime);
-		// TODO 需要设置帮助链接、规则链接
 
 		List<String> keyWords = new ArrayList<>();
 		keyWords.add("app.step.help");// 帮助

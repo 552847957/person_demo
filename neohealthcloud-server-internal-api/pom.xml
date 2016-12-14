@@ -66,6 +66,11 @@
 			<artifactId>poi-excelant</artifactId>
 			<version>3.12</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.11</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

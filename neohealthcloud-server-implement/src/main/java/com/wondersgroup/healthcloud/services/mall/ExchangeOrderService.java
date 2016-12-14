@@ -154,7 +154,7 @@ public class ExchangeOrderService {
 			throw new CommonException(1002, "金币不足");
 		}
 
-		if (goods.getStatus() != 1) {
+		if (isSoldOut(goods)) {
 			throw new CommonException(1003, "商品已下架");
 		}
 
@@ -205,6 +205,25 @@ public class ExchangeOrderService {
 
 	public ExchangeOrder address(String userId, Integer goodsType) {
 		return exchangeOrderRepository.findByUserIdAndGoodsType(userId, goodsType);
+	}
+
+	/**
+	 * 判断商品是否下架
+	 * 
+	 * @param goods
+	 * @return true:已下架;false:未下架
+	 */
+	private boolean isSoldOut(Goods goods) {
+		int status = goods.getStatus();
+		if (status == 0) {
+			return true;
+		}
+		
+		Date endTime = goods.getEndTime();
+		if (endTime != null) {
+			return endTime.compareTo(new Date()) <= 0;
+		}
+		return false;
 	}
 
 }
