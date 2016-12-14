@@ -1,8 +1,11 @@
 package com.wondersgroup.healthcloud.services.appointment.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.*;
 import com.wondersgroup.healthcloud.registration.client.OrderClient;
 import com.wondersgroup.healthcloud.registration.entity.request.*;
@@ -15,11 +18,13 @@ import com.wondersgroup.healthcloud.services.appointment.exception.ErrorReservat
 import com.wondersgroup.healthcloud.services.appointment.exception.NoneContactException;
 import com.wondersgroup.healthcloud.services.appointment.exception.NoneScheduleException;
 import com.wondersgroup.healthcloud.services.appointment.exception.NoneSchedulePayModeException;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
 import com.wondersgroup.healthcloud.utils.registration.SignatureGenerator;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +46,7 @@ import java.util.Map;
 @Service
 @Transactional(readOnly = true)
 public class AppointmentApiServiceImpl implements AppointmentApiService {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AppointmentApiServiceImpl.class);
 
     @Autowired
     private HospitalRepository hospitalRepository;
@@ -71,6 +77,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
     @Autowired
     private OrderClient orderClient;//调用第三方webservice接口
+
+    @Autowired
+    private AppConfigService appConfigService;
 
 
 
@@ -520,6 +529,29 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         orderRepository.saveAndFlush(order);
     }
 
+    /**
+     * 查询预约挂号开关是否开启
+     * @return
+     */
+    @Override
+    public Boolean getRegistrationIsOn(String mainArea) {
+        Boolean isOn = false;
+        AppConfig registrationConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.registration");
+        if(registrationConfig != null){
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(registrationConfig.getData());
+                String isOnStr = content.get("isOn") == null ? "" : content.get("isOn").asText();
+                if(StringUtils.isNotBlank(isOnStr) && "1".equals(isOnStr)){
+                    isOn = true;
+                }
+            }catch (Exception ex){
+                logger.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+            }
+
+        }
+        return isOn;
+    }
 
 
     /**

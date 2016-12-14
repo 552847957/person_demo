@@ -161,7 +161,7 @@ public class AppointmentOrderDTO {
             if("2".equals(order.getScheduleStatus())){
                 this.status = "5";
             }
-            if("1".equals(this.status) || DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
+            if("1".equals(this.status) && DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
                 this.canCancel = true;
                 this.status = "1";
                 /**

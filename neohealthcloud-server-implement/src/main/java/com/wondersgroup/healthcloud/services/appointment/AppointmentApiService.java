@@ -51,4 +51,6 @@ public interface AppointmentApiService {
     OrderDto submitUserReservation(String contactId, String scheduleId, String orderType);
 
     void cancelReservationOrderById(String id);
+
+    Boolean getRegistrationIsOn(String mainArea);
 }
