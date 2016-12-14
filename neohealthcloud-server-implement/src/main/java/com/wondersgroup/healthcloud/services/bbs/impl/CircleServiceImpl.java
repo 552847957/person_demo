@@ -58,23 +58,8 @@ public class CircleServiceImpl implements CircleService {
     private UserCircleRepository userCircleRepository;
 
     @Override
-    public List<Circle> getCircleList(Integer page, Integer pageSize) {
-        return null;
-    }
-
-    @Override
-    public List<Circle> getCircleListByCateId(Integer cateId, Integer page, Integer pageSize) {
-        return null;
-    }
-
-    @Override
     public Circle getCircleInfoById(Integer circleId) {
         return circleRepository.findOne(circleId);
-    }
-
-    @Override
-    public List<CircleCategory> getCircleCateList() {
-        return null;
     }
 
     @Override
@@ -101,29 +86,6 @@ public class CircleServiceImpl implements CircleService {
             cateDtoList.add(0,copyRecCirle);
         }
         return cateDtoList;
-    }
-
-    
-
-    @Override
-    public List<MyCircleDto> getMyCircleList(String userId) {
-        List<MyCircleDto> circleList = new ArrayList<>();
-
-        MyCircleDto circleDto01 = new MyCircleDto();
-        circleDto01.setId(10001);
-        circleDto01.setRank(1);
-        circleDto01.setIcon("http://circleIco01.com");
-        circleDto01.setName("圈子1");
-
-        MyCircleDto circleDto02 = new MyCircleDto();
-        circleDto02.setId(10002);
-        circleDto02.setRank(2);
-        circleDto02.setIcon("http://circleIco02.com");
-        circleDto02.setName("圈子2");
-
-        circleList.add(circleDto01);
-        circleList.add(circleDto02);
-        return circleList;
     }
 
     @Override

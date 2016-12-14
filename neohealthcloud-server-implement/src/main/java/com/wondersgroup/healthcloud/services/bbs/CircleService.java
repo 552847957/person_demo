@@ -2,11 +2,9 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.CircleCategory;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserCircle;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.*;
-import com.wondersgroup.healthcloud.utils.Page;
 
 import java.util.List;
 
@@ -16,26 +14,12 @@ import java.util.List;
  */
 public interface CircleService {
 
-    /**
-     * 获取有效的圈子列表
-     */
-    List<Circle> getCircleList(Integer page, Integer pageSize);
-
-    /**
-     * 获取圈子分类下面的有效的圈子列表
-     */
-    List<Circle> getCircleListByCateId(Integer cateId, Integer page, Integer pageSize);
-
 
     /**
      * 获取圈子信息
      */
     Circle getCircleInfoById(Integer circleId);
 
-    /**
-     * 获取圈子 有效的分类
-     */
-    List<CircleCategory> getCircleCateList();
 
     /**
      * 获取默认加入的圈子列表
@@ -50,13 +34,6 @@ public interface CircleService {
      */
     List<CircleCategoryDto> getCircleCategoryDtoList();
 
-    /**
-     * 获取“我的圈”信息
-     *
-     * @param userId
-     * @return
-     */
-    List<MyCircleDto> getMyCircleList(String userId);
 
     /**
      * 获取我的圈子中banner轮换图
@@ -67,8 +44,6 @@ public interface CircleService {
 
     /**
      * 根据圈子分类id获取该分类下的所有圈子,包含用户是否关注
-     * @param page 
-     *
      * @return
      */
     List<CircleListDto> getCirclesByCId(Integer categoryId, String uId,Integer flag,Integer pageSize);
