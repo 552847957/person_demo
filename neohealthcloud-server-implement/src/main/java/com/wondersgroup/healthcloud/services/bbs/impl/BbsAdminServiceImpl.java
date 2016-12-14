@@ -158,7 +158,7 @@ public class BbsAdminServiceImpl implements BbsAdminService {
     @Override
     public List<Map<String, Object>> findUserListByCriteria(UserSearchCriteria searchCriteria) {
         StringBuffer querySql = new StringBuffer("select user.registerid as uid, user.regmobilephone as phone,user.name, user.gender,user.nickname," +
-                " user.create_date, user.ban_status, user.is_bbs_admin, user.identifytype " +
+                " user.create_date, user.ban_status, user.is_bbs_admin, user.identifytype,user.headphoto as avatar " +
                 " from app_tb_register_info user ");
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
         List<Object> elelmentType = queryParams.getQueryElementType();
