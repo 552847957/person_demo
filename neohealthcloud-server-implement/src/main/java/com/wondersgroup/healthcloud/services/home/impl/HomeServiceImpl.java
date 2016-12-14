@@ -26,7 +26,6 @@ import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
-import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,8 +65,8 @@ public class HomeServiceImpl implements HomeService {
     @Autowired
     private ImageTextService imageTextService;
 
-    @Autowired
-    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+//    @Autowired
+//    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
 
     @Autowired
     RegisterInfoRepository registerInfoRepo;
@@ -281,7 +280,8 @@ public class HomeServiceImpl implements HomeService {
             for (ImageText imageText : imageTextsB) {
                 FunctionIconsDTO dto = new FunctionIconsDTO();
                 dto.setImgUrl(imageText.getImgUrl());
-                dto.setHoplink(h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+//                dto.setHoplink(h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+                dto.setHoplink(imageText.getHoplink());
                 dto.setMainTitle(imageText.getMainTitle());
                 dto.setSubTitle(imageText.getSubTitle());
                 list.add(dto);
