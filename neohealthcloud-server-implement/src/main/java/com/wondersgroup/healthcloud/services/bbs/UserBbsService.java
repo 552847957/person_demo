@@ -3,7 +3,6 @@ package com.wondersgroup.healthcloud.services.bbs;
 
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
-import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.AdminAccountDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserBanInfo;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
@@ -34,7 +33,7 @@ public interface UserBbsService {
     /**
      * 设置用户禁言状态
      */
-    boolean setUserBan(String loginUid, String uid, Integer banStatus, String reason);
+    boolean setUserBan(String adminUid, String uid, Integer banStatus, String reason);
 
     /**
      * 获取用户现在的禁言状态

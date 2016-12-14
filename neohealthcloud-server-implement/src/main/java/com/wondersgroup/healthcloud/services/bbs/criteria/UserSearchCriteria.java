@@ -61,7 +61,7 @@ public class UserSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.phone);
         }
         if (StringUtils.isNotEmpty(this.name)){
-            where.append(" AND user.name=?");
+            where.append(" AND user.name like ?");
             elementType.add("%"+this.name+"%");
         }
         if (null != this.banStatus){

@@ -56,9 +56,6 @@ public class UserBbsServiceImpl implements UserBbsService {
 
     @Autowired
     private UserBanLogRepository userBanLogRepository;
-    
-    @Autowired
-    private CircleCategoryRepository circleCategoryRepository;
     @Autowired
     private BbsMsgHandler bbsMsgHandler;
 
@@ -111,19 +108,19 @@ public class UserBbsServiceImpl implements UserBbsService {
 
     @Transactional
     @Override
-    public boolean setUserBan(String loginUid, String uid, Integer banStatus, String reason) {
+    public boolean setUserBan(String adminUid, String uid, Integer banStatus, String reason) {
         RegisterInfo account = userService.getOneNotNull(uid);
         if(account.getIsBBsAdmin() == 1){
             throw new BbsUserException("不能操作管理员");
         }
-        RegisterInfo loginInfo = userService.getOneNotNull(loginUid);
+        RegisterInfo loginInfo = userService.getOneNotNull(adminUid);
         if (null == loginInfo || loginInfo.getIsBBsAdmin() != 1){
             throw new BbsUserException("非管理员,没有相关权限");
         }
 
         UserBanLog banLog = new UserBanLog();
         banLog.setBanStatus(banStatus);
-        banLog.setAdminUid(loginUid);
+        banLog.setAdminUid(adminUid);
         banLog.setReason(reason);
         banLog.setUId(uid);
         banLog.setCreateTime(new Date());
@@ -133,14 +130,14 @@ public class UserBbsServiceImpl implements UserBbsService {
             registerInfoRepository.save(account);
         }
         //通知LTS
-        bbsMsgHandler.userBan(uid, loginUid, banStatus, banLog.getId());
+        bbsMsgHandler.userBan(uid, adminUid, banStatus, banLog.getId());
         return true;
     }
 
     @Override
     public UserBanLog getUserBanInfoByUid(String uid) {
         RegisterInfo account = userService.getOneNotNull(uid);
-        if (account.getBanStatus().intValue() == UserConstant.BanStatus.OK){
+        if (account.getBanStatus() == UserConstant.BanStatus.OK){
             return null;
         }
         return userBanLogRepository.findLastLogForUser(uid);
