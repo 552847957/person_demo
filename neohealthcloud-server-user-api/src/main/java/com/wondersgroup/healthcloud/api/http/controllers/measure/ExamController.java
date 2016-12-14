@@ -47,7 +47,12 @@ public class ExamController {
 
 		ResponseEntity<Map> response = template.getForEntity(url, Map.class);
 		if (response.getStatusCode().equals(HttpStatus.OK)) {
-			return formatResponse(response.getBody());
+			Map result = response.getBody();
+			int code = (int) result.get("code");
+			if (code == 101) {
+				return new JsonResponseEntity(101, (String) result.get("msg"));
+			}
+			return formatResponse(result);
 		}
 		return new JsonResponseEntity(500, "附近免费测量点获取失败");
 	}
@@ -64,7 +69,7 @@ public class ExamController {
 
 	private JsonResponseEntity formatResponse(Map responseBody) {
 		int code = (int) responseBody.get("code");
-		if (0 != code && 101 != code) {
+		if (0 != code) {
 			return new JsonResponseEntity(500, "信息获取失败");
 		}
 		JsonResponseEntity<Object> result = new JsonResponseEntity<>(0, null);
