@@ -56,6 +56,7 @@ import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.Info
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.InfoTemplet;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.MemberInfoTemplet;
+import com.wondersgroup.healthcloud.api.http.dto.measure.MeasureInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.converter.gender.GenderConverter;
@@ -753,7 +754,7 @@ public class FamilyController {
             info.setAge(getAge(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
         }
-        info.setId(registerId);
+        info.setId(familyMember.getMemberId());
         if(uid.equals(memberId)){
             info.setNikcName("我");
         }else{
@@ -765,10 +766,10 @@ public class FamilyController {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
             if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                templet.setValues(Arrays.asList(new Object[]{node.get("stepCount")}));
-            }else if(id == 6){
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("计步", "今日", null, (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+            }else if(id == 8){
                 
-            }else if(id == 7){
+            }else if(id == 9){
                 
             }else{
                 templet.setValues(getMeasure(measures, id));
@@ -782,23 +783,30 @@ public class FamilyController {
         return response;
     }
     
-    public List<Object> getMeasure(List<SimpleMeasure> measures, int type){
-        List<Object> list = new ArrayList<Object>();
+    public List<MeasureInfoDTO> getMeasure(List<SimpleMeasure> measures, int type){
+        List<MeasureInfoDTO> list = new ArrayList<MeasureInfoDTO>();
         for (SimpleMeasure measure : measures) {
-            if(type == 5 && measure.getName().contains("BMI")){
-                list.add(measure.getFlag());
-                list.add("BMI");
-                list.add(measure.getValue());
-                list.add(measure.getTestTime());
-            }else if(type == 6 && measure.getName().contains("血糖")){
-                list.add("血糖");
-                list.add(measure.getValue());
-                list.add(measure.getTestTime());
-            }else if(type == 7 && measure.getName().contains("血压")){
-                list.add("血压");
-                list.add(measure.getValue());
-                list.add(measure.getFlag());
-                list.add(measure.getTestTime());
+            MeasureInfoDTO info = new MeasureInfoDTO();
+            if(type == 5 && measure.getType() == 0){
+                info.setTitle("BMI");
+                info.setValue(measure.getValue());
+                info.setFlag(measure.getFlag());
+                info.setDate(measure.getTestTime());
+            }else if(type == 6 && measure.getType() == 3){
+                info.setTitle("血糖");
+                info.setName(measure.getName());
+                info.setValue(measure.getValue());
+                info.setFlag(measure.getFlag());
+                info.setDate(measure.getTestTime());
+            }else if(type == 7 && measure.getType() == 2){
+                info.setTitle("血压");
+                info.setName(measure.getName());
+                info.setValue(measure.getValue());
+                info.setFlag(measure.getFlag());
+                info.setDate(measure.getTestTime());
+            }
+            if(info.getTitle() != null){
+                list.add(info);
             }
         }
         return list;
@@ -1176,4 +1184,6 @@ public class FamilyController {
         }  
         return age;  
     }  
+    
+    
 }

@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wondersgroup.healthcloud.api.http.dto.measure.MeasureInfoDTO;
 
 /**
  * 家庭首页个人信息DTO
@@ -39,13 +40,13 @@ public class FamilyMemberInfoDTO {
         int          type;
         String       title;
         String       desc;
-        List<Object> values;
+        List<MeasureInfoDTO> values;
 
         public InfoTemplet() {
 
         }
 
-        public InfoTemplet(int type, String title, String desc, List<Object> values) {
+        public InfoTemplet(int type, String title, String desc, List<MeasureInfoDTO> values) {
             this.type = type;
             this.title = title;
             this.desc = desc;

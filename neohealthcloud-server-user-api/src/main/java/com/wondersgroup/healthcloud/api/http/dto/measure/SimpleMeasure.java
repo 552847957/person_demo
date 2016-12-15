@@ -14,6 +14,8 @@ public class SimpleMeasure {
     private String flag;
 
     private String source;
+    
+    private int type;
 
     public SimpleMeasure() {
     }
@@ -64,4 +66,13 @@ public class SimpleMeasure {
     public void setSource(String source) {
         this.source = source;
     }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+    
 }
