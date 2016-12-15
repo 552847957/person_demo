@@ -17,9 +17,9 @@ import java.util.Map;
 @Component
 public class HealthApiClient {
 
-   //@Value("${api.measure.url}")
+//    @Value("${api.measure.url}")
     private String API_MEASURE_URL;
-    @Value("${api.userhealth.record.url}")
+//    @Value("${api.userhealth.record.url}")
     private String API_USERHEALTH_RECORD_URL;
 
     public RestTemplate restTemplate = new RestTemplate();
