@@ -227,38 +227,52 @@ public class TopicServiceImpl implements TopicService {
         if (null == circle || circle.getDelFlag().equals("1")) {
             throw new TopicException(2003, "圈子无效");
         }
-
         this.isCanPublishForUser(publishInfo);
 
-        //该话题是否发布过
+        //该话题是否发布过(话题只能发布一次，发布会推送相关消息)
         Boolean isPublished = false;
+        Topic oldTopic = null;
         if (null != publishInfo.getId() && publishInfo.getId() > 0){
-            Topic oldTopic = topicRepository.findOne(publishInfo.getId());
+            oldTopic = topicRepository.findOne(publishInfo.getId());
             if (oldTopic == null){
                 throw new RuntimeException("编辑的话题无效");
             }
             int oldStatus = oldTopic.getStatus();
-            isPublished = oldStatus != TopicConstant.Status.WAIT_PUBLISH && oldStatus == TopicConstant.Status.WAIT_VERIFY;
+            isPublished = oldStatus != TopicConstant.Status.WAIT_PUBLISH && oldStatus != TopicConstant.Status.WAIT_VERIFY;
+            //已发布的 就不能在设置为待发布状态了
+            if (isPublished){
+                publishInfo.setIsPublish(1);
+            }
         }
-
         //保存话题基本信息
-        Topic topic = this.saveTopic(publishInfo);
+        Topic topic = initTopicBaseInfo(publishInfo, oldTopic);
+        if (publishInfo.getIsTop() == 1){
+            this.checkIsCanTopTopic(publishInfo.getCircleId(), topic.getId());
+        }
+        topic.setIsTop(publishInfo.getIsTop());
+        topic = topicRepository.save(topic);
+        if (topic.getId() == null) {
+            throw new TopicException(2001, "保存话题失败");
+        }
+        publishInfo.setId(topic.getId());
+
         int nowStatus = topic.getStatus();
-        Boolean isPublish = nowStatus != TopicConstant.Status.WAIT_PUBLISH && nowStatus == TopicConstant.Status.WAIT_VERIFY;
+        Boolean isPublish = nowStatus != TopicConstant.Status.WAIT_PUBLISH && nowStatus != TopicConstant.Status.WAIT_VERIFY;
 
         //只有第一次发布的时候才会通知用户消息
-        Boolean isFristPublist = !isPublished && isPublish;
-
+        Boolean isFirstPublish = !isPublished && isPublish;
         //保存详情
         this.saveTopicContent(publishInfo);
 
-        //保存投票信息
-        this.saveTopicVote(topic.getId(), publishInfo.getVoteItems());
+        if (!isPublished){
+            //发布以后 投票信息不可修改
+            this.saveTopicVote(topic.getId(), publishInfo.getVoteItems());
+        }
 
         topicTabService.updateTopicTabMapInfo(topic.getId(), publishInfo.getTags());
 
         //只有第一次发布才通知用户, 且圈子的话题数+1
-        if (isFristPublist){
+        if (isFirstPublish){
             circle.setTopicCount(circle.getTopicCount() + 1);
             circleRepository.save(circle);
             //lts
@@ -299,7 +313,7 @@ public class TopicServiceImpl implements TopicService {
         topicContentRepository.save(topicContents);
     }
 
-    private Topic saveTopic(TopicPublishDto publishInfo) {
+    private Topic initTopicBaseInfo(TopicPublishDto publishInfo, Topic oldTopic){
         TopicPublishDto.TopicContent firstContent = publishInfo.getTopicContents().get(0);
         String intro;
         if (firstContent.getContent().length() > 50) {
@@ -315,41 +329,46 @@ public class TopicServiceImpl implements TopicService {
             topicImgs = ArraysUtil.split2Sting(listImgs, ",");
         }
         Date nowTime = new Date();
-        Topic topic = new Topic();
-        //编辑
-        if (null != publishInfo.getId() && publishInfo.getId() > 0){
-            topic = topicRepository.findOne(publishInfo.getId());
+        Topic topic = oldTopic == null ? new Topic() : oldTopic;
+        //新增
+        Integer status;
+        if (topic.getId() == null){
+            topic.setUid(publishInfo.getUid());
+            topic.setLastCommentTime(nowTime);
+            topic.setCreateTime(nowTime);
+            status = this.getStatusFromPublishInfo(publishInfo);
+        }else {
+            //编辑
             //发布以后就不能在修改归属人
             if (topic.getStatus() == TopicConstant.Status.WAIT_PUBLISH){
                 topic.setUid(publishInfo.getUid());
             }
-        }else {
-            topic.setUid(publishInfo.getUid());
-            topic.setLastCommentTime(nowTime);
-            topic.setCreateTime(nowTime);
+            if (topic.getStatus() != TopicConstant.Status.WAIT_PUBLISH){
+                status = topic.getStatus();
+            }else {
+                status = this.getStatusFromPublishInfo(publishInfo);
+            }
         }
-        if (publishInfo.getIsTop() == 1){
-            this.checkIsCanTopTopic(publishInfo.getCircleId(), topic.getId());
-        }
+        topic.setStatus(status);
         topic.setTitle(publishInfo.getTitle());
         topic.setCircleId(publishInfo.getCircleId());
-        topic.setStatus(getUserPublishTopicDefaultStatus(publishInfo.getIsAdminPublish()));
         topic.setIntro(intro);
         topic.setImgs(topicImgs);
         topic.setImgCount(imgCount);
-        if (!publishInfo.getIsAdminPublish()){
-            topic.setIsBest(0);
-        }else {
-            topic.setIsBest(publishInfo.getIsBest());
-        }
+        topic.setIsBest(publishInfo.getIsBest());
         topic.setIsVote(null != publishInfo.getVoteItems() && !publishInfo.getVoteItems().isEmpty() ? 1 : 0);
         topic.setUpdateTime(nowTime);
-        topic = topicRepository.save(topic);
-        if (topic.getId() == null) {
-            throw new TopicException(2001, "保存话题失败");
-        }
-        publishInfo.setId(topic.getId());
         return topic;
+    }
+
+    private Integer getStatusFromPublishInfo(TopicPublishDto publishInfo){
+        Integer status;
+        if (publishInfo.getIsAdminPublish()){
+            status = publishInfo.getIsPublish() == 0 ? TopicConstant.Status.WAIT_PUBLISH : TopicConstant.Status.OK;
+        }else {
+            status = configSwitch.isVerifyTopic() ? TopicConstant.Status.WAIT_VERIFY : TopicConstant.Status.OK;
+        }
+        return status;
     }
 
     private void saveTopicVote(Integer topicId, List<String> voteItems) {
@@ -416,7 +435,7 @@ public class TopicServiceImpl implements TopicService {
             throw new TopicException(2001, "uid非空");
         }
         RegisterInfo account = userService.getOneNotNull(publishInfo.getUid());
-        if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (account.getBanStatus() != UserConstant.BanStatus.OK){
             throw new CommonException(2014, "禁言状态无法发表话题哦");
         }
         if (null == publishInfo.getTopicContents() ||  publishInfo.getTopicContents().isEmpty()) {
@@ -441,16 +460,6 @@ public class TopicServiceImpl implements TopicService {
             }
         }
         return allImgs;
-    }
-
-    /**
-     * 获取发表话题默认状态
-     */
-    private int getUserPublishTopicDefaultStatus(Boolean isAdmin){
-        if (isAdmin){
-            return TopicConstant.Status.OK;
-        }
-        return configSwitch.isVerifyTopic() ? TopicConstant.Status.WAIT_VERIFY : TopicConstant.Status.OK;
     }
 
     @Override

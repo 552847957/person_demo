@@ -26,11 +26,11 @@ public class TopicConstant {
     }
 
     public static class Status{
-        public final static int WAIT_PUBLISH = -1;
+        public final static int WAIT_PUBLISH = -1;//待发布
 
-        public final static int WAIT_VERIFY = 0;
+        public final static int WAIT_VERIFY = 0;//待审核
 
-        public final static int OK = 1;
+        public final static int OK = 1;//正常
 
         public final static int FORBID_REPLY = 2;//禁止回复
 

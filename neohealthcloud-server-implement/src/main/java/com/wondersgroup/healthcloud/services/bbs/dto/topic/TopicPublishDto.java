@@ -31,13 +31,18 @@ public class TopicPublishDto {
     private Integer isBest=0;//是否精华推荐
     private Integer isTop=0;
     private Integer topRank=0;
-    private Integer isPublish=0;
+    private Integer isPublish=0;//是否发布
     private List<Integer> tags = new ArrayList<>();
 
     private List<TopicContent> topicContents = new ArrayList<>();
     private List<String> voteItems;
 
-
+    public void setIsAdminPublish(Boolean isAdminPublish){
+        this.isAdminPublish = isAdminPublish;
+        if (!isAdminPublish){
+            this.isPublish = 1;
+        }
+    }
     public void setTopicContents(List<Map<String, Object>> contents) {
         if (topicContents != null){
             for (Map<String, Object> info : contents){
