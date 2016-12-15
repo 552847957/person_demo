@@ -3,7 +3,6 @@ package com.wondersgroup.healthcloud.jpa.entity.user.monitor;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 
-import com.sun.istack.internal.NotNull;
 import lombok.Data;
 import javax.persistence.*;
 
