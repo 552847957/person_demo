@@ -6,16 +6,20 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.exceptions.Exceptions;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessment;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,9 @@ import java.util.Map;
  */
 @Service("diabetesAssessmentService")
 public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
+
+    private static final Logger logger = LoggerFactory.getLogger("exlog");
+
     @Autowired
     private DiabetesAssessmentRepository assessmentRepo;
 
@@ -262,5 +269,55 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
             }
         }
         return 0;
+    }
+
+    @Override
+    public String getLastAssessmentResult(String uid) {
+        String sql = "SELECT type, result FROM app_tb_diabetes_assessment WHERE del_flag = '0' AND registerid = '" + uid + "' ORDER BY update_date DESC LIMIT 0, 1";
+        try {
+            AssessmentResult ar = jdbcTemplate.queryForObject(sql.toString(), new BeanPropertyRowMapper<>(AssessmentResult.class));
+            if (ar.getType() == 1) {// 患病风险评估
+                switch (ar.getResult()) {
+                    case 0:// 正常
+                        return "您的糖尿病患病风险评估结果为：正常。祝您身体健康！";
+                    case 1:// 高危
+                        return "您的糖尿病患病风险评估结果为：高危。请到医院进行诊断。";
+                }
+            } else if (ar.getType() == 2) {// 肾病症状评估
+                switch (ar.getResult()) {
+                    case 0:// 正常
+                        return "您的糖尿病肾病症状评估结果为：正常。祝您身体健康！";
+                    case 1:// 满足1-2项
+                        return "您的糖尿病肾病症状评估结果为：满足1-2项。请到医院进行诊断。";
+                    case 2:// 满足3项及以上
+                        return "您的糖尿病肾病症状评估结果为：满足3项及以上。请到医院进行诊断。";
+                }
+            } else if (ar.getType() == 3) {// 眼病症状评估
+                switch (ar.getResult()) {
+                    case 0:// 正常
+                        return "您的糖尿病眼病症状评估结果为：正常。祝您身体健康！";
+                    case 1:// 出现症状
+                        return "您的糖尿病眼病症状评估结果为：出现症状。请到医院进行诊断。";
+                }
+            } else if (ar.getType() == 4) {// 足部风险评估
+                switch (ar.getResult()) {
+                    case 0:// 正常
+                        return "您的糖尿病足部风险评估结果为：正常。祝您身体健康！";
+                    case 1:// 轻度
+                        return "您的糖尿病足部风险评估结果为：轻度。请到医院进行诊断。";
+                    case 2:// 属于高度
+                        return "您的糖尿病足部风险评估结果为：高度。请到医院进行诊断。";
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(Exceptions.getStackTraceAsString(ex));
+        }
+        return "您尚未进行糖尿病风险评估，请点击右上角进行评估。";
+    }
+
+    @Data
+    public static class AssessmentResult {
+        Integer type;
+        Integer result;
     }
 }

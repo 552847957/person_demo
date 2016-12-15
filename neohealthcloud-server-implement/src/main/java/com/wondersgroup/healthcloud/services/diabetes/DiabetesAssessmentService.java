@@ -61,4 +61,10 @@ public interface DiabetesAssessmentService {
      */
     Boolean remind(String ids ,String doctorId);
 
+    /**
+     * 获取最后一次评估结果
+     * @param uid
+     * @return
+     */
+    String getLastAssessmentResult(String uid);
 }
