@@ -26,7 +26,7 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.ImageTextPositionDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
-import com.wondersgroup.healthcloud.utils.security.ServicePlaceholderUtil;
+import com.wondersgroup.healthcloud.utils.security.ServiceUrlPlaceholderResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class SpecHomeController {
     private RestTemplate template = new RestTemplate();
 
     @Autowired
-    private ServicePlaceholderUtil servicePlaceholderUtil;
+    private ServiceUrlPlaceholderResolver serviceUrlPlaceholderResolver;
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
@@ -123,7 +123,7 @@ public class SpecHomeController {
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", servicePlaceholderUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("hoplink", serviceUrlPlaceholderResolver.parseUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 functionIcons.add(map);

@@ -111,7 +111,7 @@ public class FansController {
      */
     @VersionRange
     @RequestMapping(value = "/attent", method = RequestMethod.POST)
-    public JsonResponseEntity attentSomeone(@RequestBody String request) {
+    public JsonResponseEntity attent(@RequestBody String request) {
         JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
@@ -122,6 +122,8 @@ public class FansController {
         UserFans exist = fansService.queryByUidAndFansUid(targetUid, uid);
         if (exist != null) {// 已经关注过
             if ("0".equals(exist.getDelFlag())) {// 没有删除
+                Map<String, Object> info = new HashMap<>();
+                info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
                 entity.setMsg("您已关注了该用户");
                 return entity;
             }
@@ -130,7 +132,7 @@ public class FansController {
                 exist.setUpdateTime(nowDate);
                 fansService.saveFans(exist);// 更新del_flag状态
                 Map<String, Object> info = new HashMap<>();
-                info.put("attentStatus", fansService.isAttentEachOther(uid, targetUid) ? 1 : 0);
+                info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
                 entity.setMsg("关注成功");
                 entity.setData(info);
                 return entity;
@@ -143,7 +145,7 @@ public class FansController {
             fans.setUpdateTime(nowDate);
             fansService.saveFans(fans);
             Map<String, Object> info = new HashMap<>();
-            info.put("attentStatus", fansService.isAttentEachOther(uid, targetUid) ? 1 : 0);
+            info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
             entity.setMsg("关注成功");
             entity.setData(info);
             return entity;
@@ -157,7 +159,7 @@ public class FansController {
      */
     @VersionRange
     @RequestMapping(value = "/attent", method = RequestMethod.DELETE)
-    public JsonResponseEntity attentSomeone(@RequestParam String uid, @RequestParam String targetUid) {
+    public JsonResponseEntity cancelAttent(@RequestParam String uid, @RequestParam String targetUid) {
         JsonResponseEntity entity = new JsonResponseEntity();
         // 注意，查询关注，fansUid为自己
         UserFans exist = fansService.queryByUidAndFansUid(targetUid, uid);
@@ -166,7 +168,6 @@ public class FansController {
             exist.setUpdateTime(new Date());
             fansService.saveFans(exist);
             entity.setMsg("取消关注成功");
-            logger.info(String.format("[%s]取消关注[%s]", uid, targetUid));
             return entity;
         } else {
             entity.setMsg("您未关注该用户");

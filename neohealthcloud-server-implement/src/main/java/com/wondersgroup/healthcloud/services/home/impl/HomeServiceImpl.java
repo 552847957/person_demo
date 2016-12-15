@@ -292,7 +292,7 @@ public class HomeServiceImpl implements HomeService {
             for (ImageText imageText : imageTextsB) {
                 FunctionIconsDTO dto = new FunctionIconsDTO();
                 dto.setImgUrl(imageText.getImgUrl());
-//                dto.setHoplink(h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+//                dto.setHoplink(h5ServiceSecurityUtil.parseUrl(imageText.getHoplink(), session));
                 dto.setHoplink(imageText.getHoplink());
                 dto.setMainTitle(imageText.getMainTitle());
                 dto.setSubTitle(imageText.getSubTitle());

@@ -4,6 +4,10 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * 家人信息
+ * Created by sunhaidi on 2016年12月14日
+ */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FamilyInfoDTO {
