@@ -129,7 +129,7 @@ public class FamilyController {
     @Autowired
     private AppUrlH5Utils h5Utils;
     RestTemplate restTemplate = new RestTemplate();
-    @Value("http://127.0.0.1:8080")
+    @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -780,8 +780,7 @@ public class FamilyController {
         for (Integer id : MemberInfoTemplet.map.keySet()) {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
             if(id == 1 && !info.getIsVerification()){
-                JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("", getDateStr(), null)));
             }else if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                 templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
@@ -954,6 +953,8 @@ public class FamilyController {
         JsonResponseEntity<String> response = new JsonResponseEntity<String>();
         JsonKeyReader reader = new JsonKeyReader(body);
         String id = reader.readString("uid", false);
+        String memberId = reader.readString("memberId", false);
+        String relation = reader.readString("relation", true);
         String mobile = reader.readString("mobile", true);
         String appellation = reader.readString("appellation", true);
         String height = reader.readString("height", true);
@@ -963,7 +964,7 @@ public class FamilyController {
         String nickname = reader.readString("nickname", true);
         String avatar = reader.readString("avatar", true);
         
-        AnonymousAccount ano =  anonymousAccountRepository.findOne(id);
+        AnonymousAccount ano =  anonymousAccountRepository.findOne(memberId);
         if(!StringUtils.isBlank(mobile)){
             ano.setMobile(mobile);
         }
@@ -996,6 +997,16 @@ public class FamilyController {
             ano.setNickname(nickname);
         }
         anonymousAccountRepository.saveAndFlush(ano);
+        
+        if(!StringUtils.isBlank(relation)){
+            FamilyMember memb = familyService.getFamilyMemberWithOrder(id, memberId);
+            if(memb != null){
+                memb.setRelation(relation);
+                memb.setRelationName(FamilyMemberRelation.getName(relation));
+                familyMemberRepository.saveAndFlush(memb);
+            }
+        }
+        
         response.setMsg("修改成功");
         return response;
     }
