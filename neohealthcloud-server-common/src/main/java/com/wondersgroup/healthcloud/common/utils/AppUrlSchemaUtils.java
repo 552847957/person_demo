@@ -10,7 +10,7 @@ public class AppUrlSchemaUtils {
 
     public static String basePath = "com.wondersgroup.healthcloud.${area}://user/";
     
-    public static String areaCode="3031";
+    public static String areaCode="3101";
     
     public static String getBasePath(String area){
         return basePath.replace("${area}", area);

@@ -16,7 +16,7 @@ public class ConfigSwitch {
     private AppConfigService appConfigService;
 
     public Boolean isVerifyTopic() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3031", null, "bbs.publishTopic.verify");
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.publishTopic.verify");
         if (null == appConfig){
             return true;
         }
@@ -25,7 +25,7 @@ public class ConfigSwitch {
     }
 
     public Boolean isVerifyComment() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3031", null, "bbs.publishComment.verify");
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.publishComment.verify");
         if (null == appConfig){
             return false;
         }
@@ -34,7 +34,7 @@ public class ConfigSwitch {
     }
 
     public Boolean isDealBbsBadWords() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3031", null, "bbs.badwords.deal");
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.badwords.deal");
         if (null == appConfig){
             return true;
         }
