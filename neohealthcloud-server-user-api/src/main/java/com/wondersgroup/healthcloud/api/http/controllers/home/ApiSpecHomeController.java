@@ -90,6 +90,7 @@ public class ApiSpecHomeController {
 
         result.setCode(0);
         result.setData(data);
+        result.setMsg("获取数据成功");
         return result;
     }
 

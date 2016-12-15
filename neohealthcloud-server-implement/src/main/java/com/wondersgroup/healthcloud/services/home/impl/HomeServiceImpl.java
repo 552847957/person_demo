@@ -123,7 +123,6 @@ public class HomeServiceImpl implements HomeService {
         FamilyMemberDTO familyMember = null; //家人健康对象
 
         Map<String, Object> input = new HashMap<String, Object>();
-//      input.put("registerId","8a81c1fb555cab530155e7ef379e00a1");
         input.put("registerId", registerId);
         input.put("sex", "2");//性别要查询出来
         input.put("moreThanDays", "100");//个人取一周的数据
@@ -180,19 +179,40 @@ public class HomeServiceImpl implements HomeService {
         }
 
 
+        //情况一：个人健康无数据情况
+        //情况二：个人健康有数据，且数据正常情况
+        //情况三：个人健康有数据，且数据异常情况
         if (null == userHealth) {
             userHealth = new UserHealthDTO();
+            userHealth.setMainTitle("请录入您的健康数据");
+            userHealth.setSubTitle("添加您的健康数据>>");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
             dto.setUserHealth(userHealth);
+        }else if(userHealth.getHealthStatus().equals(UserHealthStatusEnum.HAVE_GOOD_HEALTH.getId())){
+            userHealth.setMainTitle("您的健康状况：良好");
+            userHealth.setSubTitle("你的健康状况良好，要继续保持哦");
         }
 
         dto.setUserHealth(userHealth);
 
 
+        //情况一：无家人，显示添加家人。
+        //情况二：有家人，家人正常，近期无通知提示。
+        //情况三：有家人，家人无任何数据。
+
         if (null == familyMember) {
             familyMember = new FamilyMemberDTO();
+            familyMember.setMainTitle("设置您的家庭成员数据");
+            familyMember.setSubTitle("您可以添加家人>>");
+
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
             familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+        }else if(familyMember.getHealthStatus().equals(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId())){
+            familyMember.setMainTitle("家庭成员 健康状况良好");
+            familyMember.setSubTitle("家人健康状况良好，要继续保持>>");
+        }else if (familyMember.getHealthStatus().equals(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId())){
+            familyMember.setMainTitle("设置您的家庭成员数据");
+            familyMember.setSubTitle("添加您家人的健康数据吧>>");
         }
 
         dto.setFamilyMember(familyMember);
@@ -373,6 +393,7 @@ public class HomeServiceImpl implements HomeService {
                 dto = new UserHealthDTO();
                 dto.setHealthStatus(healthResponse.getHealthStatus());
                 dto.setMainTitle(healthResponse.getMainTitle());
+                dto.setSubTitle("[显示最新的2项异常指标数据]");
                 dto.setExceptionItems((List<UserHealthItemDTO>) healthResponse.getExceptionItems());
             }
 
@@ -394,7 +415,6 @@ public class HomeServiceImpl implements HomeService {
         FamilyMemberDTO familyMember = new FamilyMemberDTO();
         familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
         familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
-        ;
 
         String dangerousResult = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
         if (StringUtils.isNotBlank(dangerousResult)) {
