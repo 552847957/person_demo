@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class MeasureInfoDTO {
 
-    private String title;
     private String name;
     private String desc;
     private String date;
@@ -16,16 +15,14 @@ public class MeasureInfoDTO {
         
     }
     
-    public MeasureInfoDTO(String title, String name, String date, String value) {
-        this.title = title;
+    public MeasureInfoDTO(String name, String date, String value) {
         this.name = name;
         this.date = date;
         this.value = value;
     }
     
     
-    public MeasureInfoDTO(String title, String name, String desc, String date, String value, String flag) {
-        this.title = title;
+    public MeasureInfoDTO(String name, String desc, String date, String value, String flag) {
         this.name = name;
         this.desc = desc;
         this.date = date;

@@ -617,9 +617,16 @@ public class FamilyController {
     @RequestMapping("/isExist")
     @VersionRange
     public Object isVerification(@RequestParam String mobile){
-        JsonResponseEntity<Map<String, Boolean>> result = new JsonResponseEntity<Map<String, Boolean>>();
-        Map<String, Boolean> map = new HashMap<String, Boolean>();
-        map.put("isExist", accountService.checkAccount(mobile));
+        JsonResponseEntity<Map<String, Object>> result = new JsonResponseEntity<Map<String, Object>>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        Boolean exist = accountService.checkAccount(mobile);
+        map.put("isExist", exist);
+        if(exist){
+            RegisterInfo info = userService.findRegisterInfoByMobile(mobile);
+            if(info != null){
+                map.put("avatar", info.getHeadphoto());
+            }
+        }
         result.setData(map);
         result.setMsg("查询成功");
         return result; 
@@ -734,10 +741,10 @@ public class FamilyController {
         String sex = null;
         Info info = new Info();
         info.setIsStandalone(false);
-        RegisterInfo regInfo = userService.findOne(uid);
+        RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if(regInfo == null){
-            AnonymousAccount ano = anonymousAccountRepository.getOne(uid);
+            AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
             if(ano != null && ano.getIsStandalone()){
                 info.setIsStandalone(true);
             }
@@ -767,7 +774,7 @@ public class FamilyController {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
             if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("计步", "今日", null, (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", null, (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
             }else if(id == 8){
                 
             }else if(id == 9){
@@ -789,24 +796,21 @@ public class FamilyController {
         for (SimpleMeasure measure : measures) {
             MeasureInfoDTO info = new MeasureInfoDTO();
             if(type == 5 && measure.getType() == 0){
-                info.setTitle("BMI");
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
             }else if(type == 6 && measure.getType() == 3){
-                info.setTitle("血糖");
                 info.setName(measure.getName());
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
             }else if(type == 7 && measure.getType() == 2){
-                info.setTitle("血压");
                 info.setName(measure.getName());
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
             }
-            if(info.getTitle() != null){
+            if(info.getValue() != null){
                 list.add(info);
             }
         }
@@ -824,13 +828,13 @@ public class FamilyController {
         JsonResponseEntity<FamilyInfoDTO> response = new JsonResponseEntity<FamilyInfoDTO>();
         FamilyInfoDTO info = new FamilyInfoDTO();
         info.setIsStandalone(false);
-        RegisterInfo regInfo = userService.findOne(uid);
+        RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if(familyMember == null){
             throw new CommonException(1000, "不是您的家庭成员");
         }
         if(regInfo == null){
-            AnonymousAccount ano = anonymousAccountRepository.getOne(uid);
+            AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
             if(ano != null && ano.getIsStandalone()){
                 info.setIsStandalone(true);
             }
