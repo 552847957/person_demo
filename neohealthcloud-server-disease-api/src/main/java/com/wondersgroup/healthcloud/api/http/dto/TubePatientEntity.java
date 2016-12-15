@@ -1,9 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDTO;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+
+import java.util.Date;
 
 /**
  * Created by Administrator on 2016/12/12.
@@ -17,6 +20,10 @@ public class TubePatientEntity {
     private String diabetesType;
     private String cardType;//证件类型 01:身份证
     private String cardNumber;//证件号码
+    private String flag; // 0 正常 1 偏高 2 偏低
+    private String measureDate;//测量日期
+    private Double bloodGlucose;//血糖值
+    private String interval;//区间 0 早餐前 1 早餐后 2 午餐前 3 午餐后 4 晚餐前 5 晚餐后 6睡前 7 凌晨 8 随机
 
     public TubePatientEntity(TubePatientDTO dto){
         this.name = dto.getName();

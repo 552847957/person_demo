@@ -22,7 +22,7 @@ public class ReportScreeningEntity {
     private BigDecimal peripheralBloodSugar;//空腹末梢血糖
     private BigDecimal venousBloodSugar;//空腹静脉血糖
     private BigDecimal dgtt;//dgtt2h静脉血糖
-    private List<String> riskFactors; //风险因素
+    private String riskFactors; //风险因素
     private String reportResult;//筛查结果  1:糖尿病、2：糖尿病前期、3：血糖正常
 
     public ReportScreeningEntity(ReportScreeningDTO dto){
@@ -45,9 +45,7 @@ public class ReportScreeningEntity {
             if(null == dto.getFilterResult()){
                 this.reportDate = null == dto.getRiskAssess().getReportDate() ? null : new DateTime(dto.getRiskAssess().getReportDate()).toString("yyyy-MM-dd");
             }
-            if(StringUtils.isEmpty(dto.getRiskAssess().getRiskFactors())){
-                this.riskFactors = Lists.newArrayList(dto.getRiskAssess().getRiskFactors().split(","));
-            }
+            this.riskFactors = dto.getRiskAssess().getRiskFactors();
         }
     }
 }
