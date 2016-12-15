@@ -123,7 +123,7 @@ public class FamilyController {
     @Autowired
     private AppUrlH5Utils h5Utils;
     RestTemplate restTemplate = new RestTemplate();
-    @Value("http://127.0.0.1:8080")
+    @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
