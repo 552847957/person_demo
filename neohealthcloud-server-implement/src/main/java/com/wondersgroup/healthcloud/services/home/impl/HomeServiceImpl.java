@@ -75,8 +75,7 @@ public class HomeServiceImpl implements HomeService {
     private static final String requestStationNearby = "%s/api/exam/station/nearby?";
     private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
 
-    @Value("${internal.api.service.measure.url}")
-    private String host;
+
 
     private RestTemplate template = new RestTemplate();
 
@@ -118,7 +117,7 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public FamilyHealthDTO findfamilyHealth(String registerId) {
+    public FamilyHealthDTO findfamilyHealth(String registerId,String apiMeasureUrl,String apiUserhealthRecordUrl) {
         FamilyHealthDTO dto = new FamilyHealthDTO();
         UserHealthDTO userHealth = null; //用户健康对象
         FamilyMemberDTO familyMember = null; //家人健康对象
@@ -134,7 +133,7 @@ public class HomeServiceImpl implements HomeService {
         input.put("cardId", "");
 
         //个人健康信息
-        userHealth = getUserHealthInfo(input);
+        userHealth = getUserHealthInfo(input,apiMeasureUrl);
 
 
         //家人健康信息
@@ -148,7 +147,7 @@ public class HomeServiceImpl implements HomeService {
                     String idc = String.valueOf(userInfoMap.get("personcard"));
 
                     //1 家人最近住院信息
-                    UserHealthRecordDTO userhealthRecord = getFamilyLastHealthRecord(idc); // 问题：如果多个家人都有就医记录，如何选择
+                    UserHealthRecordDTO userhealthRecord = getFamilyLastHealthRecord(idc,apiUserhealthRecordUrl); // 问题：如果多个家人都有就医记录，如何选择
                     if (null != userhealthRecord) {
                         buildFamilyLastHealthRecord(fm, familyMember, userhealthRecord);
                     }
@@ -164,7 +163,7 @@ public class HomeServiceImpl implements HomeService {
                     familyMemberInput.put("personCard", "");
                     familyMemberInput.put("cardType", "");
                     familyMemberInput.put("cardId", "");
-                    UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput);
+                    UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput,apiMeasureUrl);
                     if (null != familyMemberHealth) { //家庭成员有健康异常
                         buildFamilyMemberHealth(fm, familyMember, familyMemberHealth);
                     }
@@ -320,7 +319,7 @@ public class HomeServiceImpl implements HomeService {
      *
      * @return
      */
-    private UserHealthRecordDTO getFamilyLastHealthRecord(String idc) {
+    private UserHealthRecordDTO getFamilyLastHealthRecord(String idc,String apiUserhealthRecordUrl) {
         UserHealthRecordDTO dto = null;
         Map<String, Object> userHealthInput = new HashMap<String, Object>();
         userHealthInput.put("idc", "310104194004244814");// TODO 开发环境 测试数据
@@ -331,7 +330,7 @@ public class HomeServiceImpl implements HomeService {
         calendar.add(Calendar.DAY_OF_MONTH, theDayBeforeToday);
 
 
-        String userHealthResponse = healthApiClient.userHealthRecord(userHealthInput);
+        String userHealthResponse = healthApiClient.userHealthRecord(apiUserhealthRecordUrl,userHealthInput);
         if (StringUtils.isNotBlank(userHealthResponse)) {
 
             DataMsg<HealthRecordResponse<List<UserHealthRecordDTO>>> dataMsg = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthRecordResponse<List<UserHealthRecordDTO>>>>() {
@@ -359,9 +358,9 @@ public class HomeServiceImpl implements HomeService {
      * @param userInfoMap
      * @return
      */
-    private UserHealthDTO getUserHealthInfo(Map<String, Object> userInfoMap) {
+    private UserHealthDTO getUserHealthInfo(Map<String, Object> userInfoMap,String apiMeasureUrl) {
         UserHealthDTO dto = null;
-        String userHealthResponse = healthApiClient.userHealth(userInfoMap);
+        String userHealthResponse = healthApiClient.userHealth(apiMeasureUrl,userInfoMap);
         if (StringUtils.isNotBlank(userHealthResponse)) {
 
             DataMsg<HealthResponse<List<UserHealthItemDTO>>> dataResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthResponse<List<UserHealthItemDTO>>>>() {

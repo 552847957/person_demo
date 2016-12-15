@@ -17,33 +17,28 @@ import java.util.Map;
 @Component
 public class HealthApiClient {
 
-//    @Value("${api.measure.url}")
-    private String API_MEASURE_URL;
-//    @Value("${api.userhealth.record.url}")
-    private String API_USERHEALTH_RECORD_URL;
 
     public RestTemplate restTemplate = new RestTemplate();
 
     /** ***************************
-     *  个人健康
+     *  查询个人健康
      *  ***************************
      */
-    public String userHealth(Map<String,Object> input){
-        String reqUrl=API_MEASURE_URL+"/api/measure/userHealth?registerId={registerId}&sex={sex}&moreThanDays={moreThanDays}&limit={limit}&personCard={personCard}&cardType={cardType}&cardId={cardId}";
+    public String userHealth(String apiMeasureUrl,Map<String,Object> input){
+        String reqUrl=apiMeasureUrl+"/api/measure/userHealth?registerId={registerId}&sex={sex}&moreThanDays={moreThanDays}&limit={limit}&personCard={personCard}&cardType={cardType}&cardId={cardId}";
         return doGet(reqUrl,input);
     }
 
-    public String userHealthRecord(Map<String,Object> input){
-        String reqUrl=API_USERHEALTH_RECORD_URL+"/api/healthRecord/jiuzhen?idc={idc}";
+    /**
+     * 查询健康档案
+     * @param apiUserhealthRecordUrl
+     * @param input
+     * @return
+     */
+    public String userHealthRecord(String apiUserhealthRecordUrl,Map<String,Object> input){
+        String reqUrl=apiUserhealthRecordUrl+"/api/healthRecord/jiuzhen?idc={idc}";
         return doGet(reqUrl,input);
     }
-
-    //查床添加、修改
-    public String requestS01(String body){
-        String reqUrl=API_MEASURE_URL+"/SaveBedCheck";
-        return doPost(reqUrl,body);
-    }
-
 
 
 

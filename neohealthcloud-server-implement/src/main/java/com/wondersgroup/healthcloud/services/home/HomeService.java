@@ -33,7 +33,7 @@ public interface HomeService {
      * @param registerId 当前用户ID
      * @return
      */
-    public FamilyHealthDTO findfamilyHealth(String registerId);
+    public FamilyHealthDTO findfamilyHealth(String registerId,String apiMeasureUrl,String apiUserhealthRecordUrl);
 
 
     /**

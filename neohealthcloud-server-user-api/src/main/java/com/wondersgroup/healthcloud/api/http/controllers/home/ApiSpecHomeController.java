@@ -14,6 +14,7 @@ import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalD
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +33,11 @@ public class ApiSpecHomeController {
 
     @Autowired
     private HomeService homeService;
+
+    @Value("${internal.api.service.measure.url}")
+    private String API_MEASURE_URL;
+    @Value("${api.userhealth.record.url}")
+    private String API_USERHEALTH_RECORD_URL;
 
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -61,7 +67,7 @@ public class ApiSpecHomeController {
         data.put("sideAd",sideAd);
 
         //家庭健康栏目
-        FamilyHealthDTO familyHealth = homeService.findfamilyHealth("8a81c1fb555cab530155e7ef379e00a1");//用户注册id
+        FamilyHealthDTO familyHealth = homeService.findfamilyHealth("8a81c1fb555cab530155e7ef379e00a1",API_MEASURE_URL,API_USERHEALTH_RECORD_URL);//用户注册id
         data.put("familyHealth",familyHealth);
 
         //热门话题
