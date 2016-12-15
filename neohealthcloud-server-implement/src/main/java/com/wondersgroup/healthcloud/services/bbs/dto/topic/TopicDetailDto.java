@@ -38,6 +38,8 @@ public class TopicDetailDto {
     private String avatar;
     private Integer banStatus;//发帖用户禁言状态
 
+    private Integer isTop;//是否置顶
+    private Integer topRank=0;//置顶的优先级值越大优先级越高
     private Integer isBest;//是否精华推荐
     private Integer isVoted=0;//用户是否投过票
     private Integer isCollected=0;//用户是否收藏该话题
@@ -58,6 +60,8 @@ public class TopicDetailDto {
         this.intro = StringUtils.isEmpty(topic.getIntro()) ? topic.getTitle() : topic.getIntro();
         this.circleId = topic.getCircleId();
         this.isBest = topic.getIsBest();
+        this.isTop = topic.getIsTop();
+        this.topRank = topic.getTopRank();
         this.createTime = topic.getCreateTime();
         this.commentCount = NumberUtils.formatCustom1(topic.getCommentCount());
         this.favorCount = NumberUtils.formatCustom1(topic.getFavorCount());
