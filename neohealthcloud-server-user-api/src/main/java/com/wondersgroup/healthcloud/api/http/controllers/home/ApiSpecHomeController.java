@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.home.HomeService;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
@@ -12,6 +13,7 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthD
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
+import com.wondersgroup.healthcloud.services.home.impl.TopicManageServiceImpl;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +36,12 @@ public class ApiSpecHomeController {
     @Autowired
     private HomeService homeService;
 
-    @Value("${internal.api.service.measure.url}")
-    private String API_MEASURE_URL;
+    @Autowired
+    private TopicManageServiceImpl topicManageService;
+
+    @Value("${api.measure.url}")
+    private String API_MEASURE_URL ;
+
     @Value("${api.userhealth.record.url}")
     private String API_USERHEALTH_RECORD_URL;
 
@@ -71,6 +77,8 @@ public class ApiSpecHomeController {
         data.put("familyHealth",familyHealth);
 
         //热门话题
+        List<TopicListDto> hotTopic = topicManageService.getHotTopicList("8a81c1fb555cab530155e7ef379e00a1",mainArea);
+        data.put("hotTopic",hotTopic);
 
         //云头条
         CloudTopLineDTO cloudTopLine = homeService.findCloudTopLine();

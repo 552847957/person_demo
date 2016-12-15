@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.home.apachclient.JsonConverter;
 import com.wondersgroup.healthcloud.services.home.dto.topic.TopicConfigDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,16 @@ public class TopicManageServiceImpl {
         }
         TopicConfigDto topicConfigDto=JsonConverter.toObject(appConfig.getData(), TopicConfigDto.class);
         Integer []hotTopocBox=topicConfigDto.getHotTopicBox();
-        List<Integer> topicIds= Arrays.asList(hotTopocBox);
+
+
+        List<Integer> topicIds= null;
+        if(null == hotTopocBox || hotTopocBox.length == 0 ){
+            topicIds = new ArrayList<Integer>();
+        }else{
+            topicIds = Arrays.asList(hotTopocBox);
+        }
+
+
         //根据话题ID，获取话题信息
         List<TopicListDto> listDtos = topicService.getTopicsByIds(topicIds);
         if(listDtos == null){
