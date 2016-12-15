@@ -78,6 +78,8 @@ import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountReposito
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
+import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
 import com.wondersgroup.healthcloud.services.step.StepCountService;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -116,6 +118,10 @@ public class FamilyController {
     private AnonymousAccountService anonymousAccountService;
     @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
+    @Autowired
+    private PhysicalIdentifyService physicalIdentifyService;
+    @Autowired
+    private AssessmentService assessmentService;
     @Autowired
     StepCountService stepCountService;
     @Autowired
@@ -774,11 +780,15 @@ public class FamilyController {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
             if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", null, (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
             }else if(id == 8){
-                
+                Boolean result = assessmentService.getRecentAssessIsNormal(memberId);
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", null, result ? "正常人群" : "风险人群")));
             }else if(id == 9){
-                
+                String result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
+                if(!StringUtils.isBlank(result)){
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, null, result)));
+                }
             }else{
                 templet.setValues(getMeasure(measures, id));
             }
@@ -1190,5 +1200,7 @@ public class FamilyController {
         return age;  
     }  
     
-    
+    public String getDateStr(){
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    }
 }
