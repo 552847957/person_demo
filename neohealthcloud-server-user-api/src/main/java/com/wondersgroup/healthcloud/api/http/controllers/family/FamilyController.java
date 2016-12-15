@@ -123,7 +123,7 @@ public class FamilyController {
     @Autowired
     private AppUrlH5Utils h5Utils;
     RestTemplate restTemplate = new RestTemplate();
-    @Value("${internal.api.service.measure.url}")
+    @Value("http://127.0.0.1:8080")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -754,8 +754,9 @@ public class FamilyController {
             info.setAge(getAge(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
         }
-        info.setId(familyMember.getMemberId());
+        info.setId(memberId);
         if(uid.equals(memberId)){
+            info.setAccess(true);
             info.setNikcName("我");
         }else{
             info.setAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
