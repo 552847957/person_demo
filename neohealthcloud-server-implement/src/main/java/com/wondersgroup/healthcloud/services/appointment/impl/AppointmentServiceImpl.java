@@ -4,8 +4,11 @@ import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.*;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentService;
+import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
+import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,29 +158,31 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     /**
-     * 查询本地需要修改状态的订单(就诊时间为昨天和今天的)
+     * 查询本地需要修改状态的订单(job时间是晚上11点,查询的是当天和昨天的)
      * @return
      */
     @Override
-    public List<Map<String, Object>> findOrderListNeedUpdateStatus() {
-        String sql = " select o.user_card_id,o.user_card_type,s.schedule_date ,o.`status` " +
-                " from appointment_order_tb o " +
-                " left join appointment_doctor_schedule_tb s on o.schedule_id = s.id " +
-                " where s.schedule_date >= '%s' and s.schedule_date<= '%s' " +
-                " and o.`status` !='4' and o.`status` !='5' " +
+    public List<OrderDto> findOrderListNeedUpdateStatus() {
+        String sql = " select o.*,s.schedule_date " +
+                " from app_tb_appointment_order o " +
+                " left join app_tb_appointment_doctor_schedule s on o.schedule_id = s.id " +
+                " where 1=1 " +
+                " s.schedule_date >= '%s' and s.schedule_date<= '%s' " +
+                " and o.`status` !='3' and o.`status` !='4' and o.`status` !='9' " +
                 " GROUP BY o.user_card_id ";
 
         String startDate = DateFormatter.dateFormat(DateUtils.addDay(new Date(), -1));
         String endDate = DateFormatter.dateFormat(new Date());
-//        String endDate = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 1));
         sql = String.format(sql,startDate,endDate);
-        return jt.queryForList(sql);
+        sql = String.format(sql);
+        return jt.query(sql, new BeanPropertyRowMapper(OrderDto.class));
     }
 
     /**
      * 给医院表设置医生数量
      */
     @Override
+    @Transactional(readOnly = true)
     public void setDoctorNumToHospital() {
         hospitalRepository.setDoctorNumToHospital();
     }

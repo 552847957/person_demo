@@ -37,10 +37,10 @@ import java.util.concurrent.FutureTask;
  *
  */
 @RestController
-@RequestMapping(value = "/api/reservation/manage")
-public class AppointmentJobController {
+@RequestMapping(value = "/api/reservation/job")
+public class AppointmentResourceJobController {
 
-    private static final Logger log = Logger.getLogger(AppointmentJobController.class);
+    private static final Logger log = Logger.getLogger(AppointmentResourceJobController.class);
     public static final String DEL_FLAG_NORMAL = "0";
     public static final String DEL_FLAG_DELETE = "1";
     public static final String ONSALE_FLAG_ON = "1";
@@ -75,7 +75,7 @@ public class AppointmentJobController {
 
     private ExecutorService executor = Executors.newFixedThreadPool(15);
 
-    @RequestMapping(value = "/job", method = RequestMethod.GET)
+    @RequestMapping(value = "/resource", method = RequestMethod.GET)
     public JsonResponseEntity updateAppointmentSource() {
 
         JsonResponseEntity responseEntity = new JsonResponseEntity();

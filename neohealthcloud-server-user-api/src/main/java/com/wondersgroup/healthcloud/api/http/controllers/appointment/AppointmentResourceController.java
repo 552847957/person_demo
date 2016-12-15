@@ -13,10 +13,7 @@ import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointm
 import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -74,10 +71,17 @@ public class AppointmentResourceController {
     public JsonListResponseEntity getHospitalList(
             @RequestParam(required = false, defaultValue = "",value = "area_code" ) String areaCode,
             @RequestParam(required = false, defaultValue = "1") Integer flag,
-            @RequestParam(required = false, defaultValue = "") String kw) {
+            @RequestParam(required = false, defaultValue = "") String kw,
+            @RequestHeader(name = "main-area", required = true) String mainArea) {
 
         JsonListResponseEntity<AppointmentHospitalDTO> body = new JsonListResponseEntity<>();
         List<AppointmentHospitalDTO> list = Lists.newArrayList();
+
+        Boolean isOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(!isOn){
+            body.setCode(1);//与前端约定code为1时 是服务未开通
+            body.setMsg("该服务暂未开通,敬请期待");
+        }
 
         int pageSize = 10;
         Boolean more = false;

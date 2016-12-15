@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.appointment;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
+import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 
 import java.util.Date;
 import java.util.List;
@@ -51,7 +52,7 @@ public interface AppointmentService {
 
     void deleteHospitalHasNoDept1();
 
-    List<Map<String,Object>> findOrderListNeedUpdateStatus();
+    List<OrderDto> findOrderListNeedUpdateStatus();
 
     void setDoctorNumToHospital();
 

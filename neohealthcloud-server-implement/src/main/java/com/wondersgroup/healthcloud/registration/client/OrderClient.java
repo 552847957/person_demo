@@ -122,7 +122,7 @@ public class OrderClient extends WebServiceGatewaySupport {
 
         QueryOrderInfoListService request = new QueryOrderInfoListService();
         JAXBElement<String> xmlElements = new JAXBElement(
-                new QName("http://impl.webservice.booking.icarefx.net","xmlString"), String.class, xml);
+                new QName("http://impl.webservice.booking.icarefx.net","xmlStr"), String.class, xml);
         request.setXmlStr(xmlElements);
 
         QueryOrderInfoListServiceResponse response = (QueryOrderInfoListServiceResponse)getWebServiceTemplate()
