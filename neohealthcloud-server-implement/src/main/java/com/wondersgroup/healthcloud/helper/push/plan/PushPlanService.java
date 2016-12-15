@@ -10,6 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
-import com.wondersgroup.healthcloud.jpa.constant.AppPushConstant;
 import com.wondersgroup.healthcloud.jpa.entity.permission.User;
 import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
 import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
@@ -86,7 +86,7 @@ public class PushPlanService {
     }
     
     @Transactional
-    public String cancel(Integer id,Integer preStatus,String jobClientUrl,String topicUrl,Integer status){
+    public String cancel(Integer id,Integer preStatus,String jobClientUrl,Integer status){
         PushPlan pushPlan = pushPlanRepo.findOne(id);
         if((1 == status || 4 == status) && 0 != pushPlan.getStatus()){//通过
             return "问题非待审核状态";
@@ -97,16 +97,32 @@ public class PushPlanService {
         //取消定时任务
         if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
             Request build=null;
-            if(pushPlan.getType()==AppPushConstant.PushType.ARTICLE){
-                build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
-            }else if(pushPlan.getType()==AppPushConstant.PushType.TOPIC){
-                build = new RequestBuilder().delete().url(topicUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
-            }
+            build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
             logger.error("定时任务(pushId = "+id+")取消成功，返回结果"+result);
     }
      return "取消成功";   
-}
+    }
+    
+    @Transactional
+    public JsonNode pass(Integer id, int status,String jobClientUrl) {
+        PushPlan pushPlan = this.updatPlan(id, status);
+        logger.error("开始创建push定时任务，pushId :"+id);
+        //创建定时任务
+        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
+        Request build = new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        return response.convertBody();
+    }
+    
+    public PushPlan updatPlan(Integer id ,Integer status){
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
+        pushPlan.setStatus(status);
+        pushPlan.setUpdateTime(new Date());
+        pushPlanRepo.save(pushPlan);
+        return pushPlan;
+        
+    }
 
 }

@@ -168,34 +168,20 @@ public class PushPlanController {
      */
     @PostMapping(path = "/pass")
     public JsonResponseEntity pass(@RequestBody String request){
+        JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         Integer id = Integer.parseInt(reader.readString("id", false));
-        this.updatPlan(id,1);
-
-        logger.error("开始创建push定时任务，pushId :"+id);
-        PushPlan pushPlan = pushPlanRepo.findOne(id);
-        //创建定时任务
-        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
-        Request build=null;
-        if(pushPlan.getType()==AppPushConstant.PushType.ARTICLE){
-            build = new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
-        }else if(pushPlan.getType()==AppPushConstant.PushType.TOPIC){
-            build = new RequestBuilder().post().url(TOPIC_URL+"/api/healthcloud/push").body(param).build();
-        }
-        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
-        JsonNode result = response.convertBody();
-
-        JsonResponseEntity entity = new JsonResponseEntity();
-        if(0 == result.get("code").asInt()){
-            entity.setMsg("审核通过");
-            logger.error("定时任务(pushId = "+id+")创建成功，返回结果"+result);
-        }else{
-            this.updatPlan(id,0);
+        JsonNode result=null;
+        try {
+             result = pushPlanService.pass(id,1,jobClientUrl);
+             if(0 == result.get("code").asInt()){
+                 entity.setMsg("审核通过");
+                 logger.error("定时任务(pushId = "+id+")创建成功，返回结果"+result);
+             }
+        } catch (Exception e) {
             logger.error("定时任务(pushId = "+id+")创建错误，返回结果"+result);
             entity.setMsg("定时任务创建出错，适合失败");
         }
-
-
         return entity;
     }
 
@@ -222,7 +208,7 @@ public class PushPlanController {
         Integer id = Integer.parseInt(reader.readString("id", false));
         Integer preStatus = pushPlanRepo.findOne(id).getStatus();
         try {
-            String message = pushPlanService.cancel(id,preStatus,jobClientUrl,TOPIC_URL,3);
+            String message = pushPlanService.cancel(id,preStatus,jobClientUrl,3);
             entity.setMsg(message);
             return entity;
         } catch (Exception e) {
