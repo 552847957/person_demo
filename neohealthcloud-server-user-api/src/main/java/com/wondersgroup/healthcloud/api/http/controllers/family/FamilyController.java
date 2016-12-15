@@ -129,7 +129,7 @@ public class FamilyController {
     @Autowired
     private AppUrlH5Utils h5Utils;
     RestTemplate restTemplate = new RestTemplate();
-    @Value("${internal.api.service.measure.url}")
+    @Value("http://127.0.0.1:8080")
     private String host;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -747,6 +747,7 @@ public class FamilyController {
         String sex = null;
         Info info = new Info();
         info.setIsStandalone(false);
+        info.setIsVerification(false);
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if(regInfo == null){
@@ -778,7 +779,10 @@ public class FamilyController {
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {
             InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
-            if(id == 4){
+            if(id == 1 && !info.getIsVerification()){
+                JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
+                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+            }else if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                 templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
             }else if(id == 8){
