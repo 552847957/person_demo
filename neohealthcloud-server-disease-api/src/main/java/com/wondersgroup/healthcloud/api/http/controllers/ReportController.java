@@ -46,8 +46,10 @@ public class ReportController {
         List<ReportScreeningEntity> list = Lists.newArrayList();
         for(ReportScreeningDTO dto : source){
             ReportScreeningEntity entity = new ReportScreeningEntity(dto);
-            if(!StringUtils.isEmpty(dto.getHospitalCode())){
-                entity.setHospitalName(dictCache.queryHospitalName(dto.getHospitalCode()));
+            if(null != dto.getFilterResult() && !StringUtils.isEmpty(dto.getFilterResult().getHospitalCode())){
+                entity.setHospitalName(dictCache.queryHospitalName(dto.getFilterResult().getHospitalCode()));
+            }else if(null != dto.getRiskAssess() && !StringUtils.isEmpty(dto.getRiskAssess().getHospitalCode())){
+                entity.setHospitalName(dictCache.queryHospitalName(dto.getRiskAssess().getHospitalCode()));
             }
             list.add(entity);
         }

@@ -1,14 +1,17 @@
 package com.wondersgroup.healthcloud.api.http.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.services.diabetes.dto.ReportScreeningDTO;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
+ * 筛查报告
+ *
  * Created by zhuchunliu on 2016/12/13.
  */
 @Data
@@ -19,20 +22,31 @@ public class ReportScreeningEntity {
     private BigDecimal peripheralBloodSugar;//空腹末梢血糖
     private BigDecimal venousBloodSugar;//空腹静脉血糖
     private BigDecimal dgtt;//dgtt2h静脉血糖
+    private List<String> riskFactors; //风险因素
     private String reportResult;//筛查结果  1:糖尿病、2：糖尿病前期、3：血糖正常
 
     public ReportScreeningEntity(ReportScreeningDTO dto){
-        this.reportDate = null == dto.getReportDate() ?null : new DateTime(dto.getReportDate()).toString("yyyy-MM-dd");
-        this.peripheralBloodSugar = dto.getPeripheralBloodSugar();
-        this.venousBloodSugar = dto.getVenousBloodSugar();
-        this.dgtt = dto.getDgtt();
-        if(!StringUtils.isEmpty(dto.getReportResult())){
-            if("1".equals(dto.getReportResult())){
-                this.reportResult = "糖尿病";
-            }else if("2".equals(dto.getReportResult())){
-                this.reportResult = "糖尿病前期";
-            }else if("3".equals(dto.getReportResult())){
-                this.reportResult = "血糖正常";
+        if(null != dto.getFilterResult()) {
+            this.reportDate = null == dto.getFilterResult().getReportDate() ? null : new DateTime(dto.getFilterResult().getReportDate()).toString("yyyy-MM-dd");
+            this.peripheralBloodSugar = dto.getFilterResult().getPeripheralBloodSugar();
+            this.venousBloodSugar = dto.getFilterResult().getVenousBloodSugar();
+            this.dgtt = dto.getFilterResult().getDgtt();
+            if (!StringUtils.isEmpty(dto.getFilterResult().getReportResult())) {
+                if ("1".equals(dto.getFilterResult().getReportResult())) {
+                    this.reportResult = "糖尿病";
+                } else if ("2".equals(dto.getFilterResult().getReportResult())) {
+                    this.reportResult = "糖尿病前期";
+                } else if ("3".equals(dto.getFilterResult().getReportResult())) {
+                    this.reportResult = "血糖正常";
+                }
+            }
+        }
+        if(null != dto.getRiskAssess()){
+            if(null == dto.getFilterResult()){
+                this.reportDate = null == dto.getRiskAssess().getReportDate() ? null : new DateTime(dto.getRiskAssess().getReportDate()).toString("yyyy-MM-dd");
+            }
+            if(StringUtils.isEmpty(dto.getRiskAssess().getRiskFactors())){
+                this.riskFactors = Lists.newArrayList(dto.getRiskAssess().getRiskFactors().split(","));
             }
         }
     }
