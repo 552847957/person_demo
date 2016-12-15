@@ -753,6 +753,7 @@ public class FamilyController {
             info.setAge(getAge(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
         }
+        info.setId(registerId);
         if(uid.equals(memberId)){
             info.setNikcName("我");
         }else{

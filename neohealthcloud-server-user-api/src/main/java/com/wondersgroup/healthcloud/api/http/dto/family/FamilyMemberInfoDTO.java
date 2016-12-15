@@ -9,7 +9,7 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * 家庭个人信息DTO
+ * 家庭首页个人信息DTO
  * Created by sunhaidi on 2016年12月7日
  */
 @Data
@@ -23,6 +23,7 @@ public class FamilyMemberInfoDTO {
 
     @Data
     public static class Info {
+        private String  id;             //id
         private String  nikcName;      //昵称
         private String  relation_name;  //关系名称
         private int     age;           //年龄
