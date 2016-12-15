@@ -307,7 +307,7 @@ public class HomeServiceImpl implements HomeService {
     public List<FunctionIconsDTO> findFunctionIconsDTO(Session session, String appVersion, String mainArea, String specArea) {
         List<FunctionIconsDTO> list = new ArrayList<FunctionIconsDTO>();
 
-        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE_4.getType(), null);
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
         if (imageTextsB != null && imageTextsB.size() > 0) {
             for (ImageText imageText : imageTextsB) {
                 FunctionIconsDTO dto = new FunctionIconsDTO();
