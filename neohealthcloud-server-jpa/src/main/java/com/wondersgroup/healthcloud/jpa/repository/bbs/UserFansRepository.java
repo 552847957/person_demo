@@ -26,13 +26,13 @@ public interface UserFansRepository extends JpaRepository<UserFans, Integer> {
     /**
      * 从filterUids筛选出我关注的用户
      */
-    @Query("select t.uid from UserFans t where t.fansUid = ?1 and t.uid in ?2")
+    @Query("select t.uid from UserFans t where t.fansUid = ?1 and t.uid in ?2 and t.delFlag='0'")
     List<String> filterMyAttentUser(String myUid, List<String> filterUids);
 
     /**
      * 从filterUids筛选出我的粉丝
      */
-    @Query("select t.uid from UserFans t where t.uid = ?1 and t.fansUid in ?2")
+    @Query("select t.uid from UserFans t where t.uid = ?1 and t.fansUid in ?2 and t.delFlag='0'")
     List<String> filterMyFans(String myUid, List<String> filterUids);
 
 }
