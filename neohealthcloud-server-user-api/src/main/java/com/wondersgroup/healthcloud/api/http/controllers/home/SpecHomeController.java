@@ -123,7 +123,7 @@ public class SpecHomeController {
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", servicePlaceholderUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("hoplink", servicePlaceholderUtil.parseUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 functionIcons.add(map);

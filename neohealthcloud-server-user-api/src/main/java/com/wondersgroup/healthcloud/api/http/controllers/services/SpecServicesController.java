@@ -78,7 +78,7 @@ public class SpecServicesController {
             for (ImageText imageText : imageTexts) {
                 map = new HashMap<>();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", servicePlaceholderUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("hoplink", servicePlaceholderUtil.parseUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 funcList.add(map);
