@@ -182,7 +182,7 @@ public class AppointmentServiceImpl implements AppointmentService {
      * 给医院表设置医生数量
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public void setDoctorNumToHospital() {
         hospitalRepository.setDoctorNumToHospital();
     }
