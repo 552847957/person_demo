@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
+import com.wondersgroup.healthcloud.api.http.dto.bbs.TopicViewDto;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -232,11 +233,11 @@ public class TopicController {
 
     @Admin
     @RequestMapping(value = "/view", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicDetailDto> view(@RequestHeader String appUid, @RequestParam Integer id){
-        JsonResponseEntity<TopicDetailDto> entity = new JsonResponseEntity();
+    public JsonResponseEntity<TopicViewDto> view(@RequestHeader String appUid, @RequestParam Integer id){
+        JsonResponseEntity<TopicViewDto> entity = new JsonResponseEntity();
 
-        TopicDetailDto view = topicService.getTopicDetailInfo(id);
-
+        TopicDetailDto detailInfo = topicService.getTopicDetailInfo(id);
+        TopicViewDto viewDto = new TopicViewDto(detailInfo);
         List<String> adminAppUids = new ArrayList<>();
         adminAppUids.add(appUid);
         List<AdminVestUser> adminAppUsers = adminVestUserRepository.getVestUsersByAdminUid(appUid);
@@ -244,15 +245,14 @@ public class TopicController {
             for (AdminVestUser appUser : adminAppUsers){
                 adminAppUids.add(appUser.getVest_uid());
             }
-            if (!adminAppUids.contains(view.getUid())){
+            if (!adminAppUids.contains(viewDto.getUid())){
                 entity.setCode(1200);
                 entity.setMsg("只能编辑自己以及小号发的话题");
                 return entity;
             }
         }
-
         entity.setCode(0);
-        entity.setData(view);
+        entity.setData(viewDto);
         return entity;
     }
 
