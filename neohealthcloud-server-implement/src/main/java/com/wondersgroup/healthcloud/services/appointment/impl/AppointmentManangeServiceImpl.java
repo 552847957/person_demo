@@ -212,7 +212,7 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
         String departL2Id = parameter.get("departL2Id")==null?"":parameter.get("departL2Id").toString();
         String name = parameter.get("name")==null?"":parameter.get("name").toString();
 
-        if(StringUtils.isNotBlank(areaCode) || "310100000000".equals(areaCode) ){
+        if(StringUtils.isNotBlank(areaCode) && !"310100000000".equals(areaCode) ){
             sb.append(" and h.address_county = '"+areaCode+"' ");
         }
         if(StringUtils.isNotBlank(hospitalId)){

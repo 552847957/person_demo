@@ -90,7 +90,6 @@ public class AppointmentResourceController {
         AppointmentHospitalDTO hospitalDTO;
         for (AppointmentHospital hospital : appointmentHospitals) {
             hospitalDTO = new AppointmentHospitalDTO(hospital);
-            hospitalDTO.setDoctorNum(appointmentApiService.countDoctorNumByHospitalId(hospital.getId()));
             list.add(hospitalDTO);
         }
 
@@ -162,7 +161,6 @@ public class AppointmentResourceController {
         for (AppointmentHospital hospital : appointmentHospitals) {
             if(c<3){
                 hospitalDTO = new AppointmentHospitalDTO(hospital);
-                hospitalDTO.setDoctorNum(appointmentApiService.countDoctorNumByHospitalId(hospital.getId()));
                 hospitalDTOList.add(hospitalDTO);
                 c+=1;
             }

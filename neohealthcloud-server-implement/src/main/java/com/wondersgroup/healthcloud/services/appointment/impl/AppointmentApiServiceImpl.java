@@ -179,9 +179,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         String sql = "select count(a.id) as scheduleNum ,SUM(a.reserve_order_num) as reserveOrderNum "+
                 " from app_tb_appointment_doctor_schedule a where a.del_flag = '0' AND a.status = '1'" +
-                " AND a.doctor_id = '%s' ";
+                " AND a.doctor_id = '%s' and a.start_time > '%s'";
 
-        sql = String.format(sql, doctorId);
+        sql = String.format(sql, doctorId,DateFormatter.dateTimeFormat(new Date()));
         return jt.queryForMap(sql);
     }
 
@@ -231,9 +231,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String sql = "select count(a.id) as scheduleNum,SUM(a.reserve_order_num) as reserveOrderNum,MAX(a.visit_level_code) as visitLevelCode "+
                 " from app_tb_appointment_doctor_schedule a  " +
                 " where a.del_flag = '0' AND a.status = '1' AND a.doctor_id is null " +
-                " AND a.department_l2_id = '%s'" ;
+                " AND a.department_l2_id = '%s' and a.start_time > '%s' " ;//todo 这个时间要确定一下
 
-        sql = String.format(sql, department_l2_id);
+        sql = String.format(sql, department_l2_id,DateFormatter.dateTimeFormat(new Date()));
         return jt.queryForMap(sql);
     }
 

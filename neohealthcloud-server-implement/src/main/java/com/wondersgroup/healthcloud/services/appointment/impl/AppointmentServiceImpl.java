@@ -174,5 +174,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         return jt.queryForList(sql);
     }
 
+    /**
+     * 给医院表设置医生数量
+     */
+    @Override
+    public void setDoctorNumToHospital() {
+        hospitalRepository.setDoctorNumToHospital();
+    }
+
 
 }

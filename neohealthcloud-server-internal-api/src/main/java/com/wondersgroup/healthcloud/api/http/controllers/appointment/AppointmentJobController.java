@@ -129,6 +129,9 @@ public class AppointmentJobController {
         //逻辑删除没有二级科室的一级科室
         appointmentService.deleteDept1HasNoDept2();
 
+        //给医院设置医生数量
+        appointmentService.setDoctorNumToHospital();
+
 
 
     }

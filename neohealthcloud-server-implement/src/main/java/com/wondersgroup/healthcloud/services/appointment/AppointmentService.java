@@ -52,4 +52,7 @@ public interface AppointmentService {
     void deleteHospitalHasNoDept1();
 
     List<Map<String,Object>> findOrderListNeedUpdateStatus();
+
+    void setDoctorNumToHospital();
+
 }

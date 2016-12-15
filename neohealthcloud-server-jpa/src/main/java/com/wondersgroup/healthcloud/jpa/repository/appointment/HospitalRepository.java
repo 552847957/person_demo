@@ -82,4 +82,15 @@ public interface HospitalRepository extends JpaRepository<AppointmentHospital, S
     @Query("select a from AppointmentHospital a where a.id in ?1 and (a.picSmall is null" +
             " or a.picSmall = '' or a.picBig is null  or a.picBig = '' )")
     List<AppointmentHospital> findPicIsBlankHosiptalsByIds(List<String> hospitalIds);
+
+
+    /**
+     * 给医院表设置医生数量
+     */
+    @Modifying
+    @Query(value = "update app_tb_appointment_hospital a " +
+            "left JOIN(select hospital_id,count(id) cc " +
+            "from app_tb_appointment_doctor where del_flag=0 group by hospital_id) b" +
+            " on a.id=b.hospital_id set a.doctor_num=ifnull(b.cc,0)",nativeQuery = true)
+    void setDoctorNumToHospital();
 }
