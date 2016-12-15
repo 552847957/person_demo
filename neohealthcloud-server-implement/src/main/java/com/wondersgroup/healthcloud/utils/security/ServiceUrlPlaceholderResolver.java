@@ -25,7 +25,7 @@ import java.net.URLEncoder;
  * Created by zhangzhixiu on 21/11/2016.
  */
 @Component
-public class ServicePlaceholderUtil {
+public class ServiceUrlPlaceholderResolver {
 
     @Autowired
     private ThirdPartyH5ServiceConfigurationRepository thirdPartyH5ServiceConfigurationRepository;

@@ -17,7 +17,7 @@ import com.wondersgroup.healthcloud.services.user.HealthActivityInfoService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.healthactivity.HealthActivityAPIEntity;
-import com.wondersgroup.healthcloud.utils.security.ServicePlaceholderUtil;
+import com.wondersgroup.healthcloud.utils.security.ServiceUrlPlaceholderResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class SpecServicesController {
     @Autowired
     private DictCache dictCache;
     @Autowired
-    private ServicePlaceholderUtil servicePlaceholderUtil;
+    private ServiceUrlPlaceholderResolver serviceUrlPlaceholderResolver;
 
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -78,7 +78,7 @@ public class SpecServicesController {
             for (ImageText imageText : imageTexts) {
                 map = new HashMap<>();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", servicePlaceholderUtil.parseUrl(imageText.getHoplink(), session));
+                map.put("hoplink", serviceUrlPlaceholderResolver.parseUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 funcList.add(map);
