@@ -877,6 +877,8 @@ public class FamilyController {
             if(ano != null && ano.getIsStandalone()){
                 info.setIsStandalone(true);
             }
+            info.setWeight(ano.getWeight());
+            info.setHeight(ano.getHeight());
             info.setId(ano.getId());
             info.setNickname(ano.getNickname());
             info.setMobile(ano.getMobile());
