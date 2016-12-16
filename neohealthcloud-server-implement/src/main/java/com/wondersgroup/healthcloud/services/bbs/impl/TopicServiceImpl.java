@@ -222,7 +222,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     @Transactional
-    public int publishTopic(TopicPublishDto publishInfo) {
+    public Topic publishTopic(TopicPublishDto publishInfo) {
         Circle circle = circleRepository.findOne(publishInfo.getCircleId());
         if (null == circle || circle.getDelFlag().equals("1")) {
             throw new TopicException(2003, "圈子无效");
@@ -277,7 +277,7 @@ public class TopicServiceImpl implements TopicService {
             //lts
             bbsMsgHandler.publishTopic(topic.getUid(), topic.getId());
         }
-        return topic.getId();
+        return topic;
     }
 
     @Override

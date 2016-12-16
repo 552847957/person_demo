@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
+import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
@@ -92,12 +93,16 @@ public class TopicController {
         topicPublishDto.addContent(content, imgsList);
         topicPublishDto.setVoteItems(voteItems);
 
-        int topicId = topicService.publishTopic(topicPublishDto);
+        Topic topic = topicService.publishTopic(topicPublishDto);
         Map<String, Object> info = new HashMap<>();
-        if (topicId > 0){
-            info.put("topicId", topicId);
+        if (topic.getId() > 0){
+            info.put("topicId", topic);
             rt.setData(info);
-            rt.setMsg("发布成功");
+            if (topic.getStatus() == TopicConstant.Status.WAIT_VERIFY){
+                rt.setMsg("请等待管理员审核话题，先看看其他话题吧～");
+            }else {
+                rt.setMsg("发布成功");
+            }
         }else {
             throw new CommonException(2040, "发布失败!");
         }
