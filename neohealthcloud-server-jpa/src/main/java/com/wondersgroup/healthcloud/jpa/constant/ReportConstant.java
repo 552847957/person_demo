@@ -13,19 +13,19 @@ public class ReportConstant {
 
     public static class ReportType{
 
-        public final static Integer TOPIC = 1;//话题举报
+        public final static int TOPIC = 1;//话题举报
 
-        public final static Integer COMMENT = 2;//评论举报
+        public final static int COMMENT = 2;//评论举报
 
     }
 
     public static class ReportStatus{
 
-        public final static Integer WAIT_REVIEW = 0;//等待处理
+        public final static int WAIT_REVIEW = 0;//等待处理
 
-        public final static Integer SET_OK = 1;//已处理，忽略举报
+        public final static int SET_OK = 1;//已处理，忽略举报
 
-        public final static Integer DEL_TARGET = 2;//已处理，删除举报内容
+        public final static int DEL_TARGET = 2;//已处理，删除举报内容
     }
 
     /**

@@ -98,7 +98,7 @@ public class ReportServiceImpl implements ReportService {
                 return true;
             }
             //不在处理 管理员已经处理过的举报
-            if (report.getStatus().intValue() != ReportConstant.ReportStatus.WAIT_REVIEW){
+            if (report.getStatus() != ReportConstant.ReportStatus.WAIT_REVIEW){
                 return true;
             }
             //举报详情
@@ -199,7 +199,7 @@ public class ReportServiceImpl implements ReportService {
             throw new RuntimeException("举报内容无效");
         }
         Map<String, Object> info=null;
-        if (report.getTargetType().intValue() == ReportConstant.ReportType.TOPIC){
+        if (report.getTargetType() == ReportConstant.ReportType.TOPIC){
             StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, report.create_time, " +
                     "topic.title,topic.status as topic_status,topic.id as topicId,topic.is_vote," +
                     "user.nickname, circle.name as circle_name from tb_bbs_report report ");
@@ -215,7 +215,7 @@ public class ReportServiceImpl implements ReportService {
                 VoteInfoDto voteInfoDto = topicVoteService.getVoteInfoByTopicId(topicId);
                 info.put("voteInfo", voteInfoDto);
             }
-        }else if (report.getTargetType().intValue() == ReportConstant.ReportType.COMMENT){
+        }else if (report.getTargetType() == ReportConstant.ReportType.COMMENT){
             StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, `comment`.create_time, " +
                     "`comment`.content,topic.id as topicId, topic.title,topic.status as topic_status,`comment`.status as comment_status,`comment`.floor, " +
                     "user.nickname, circle.name as circle_name from tb_bbs_report report ");
@@ -256,13 +256,13 @@ public class ReportServiceImpl implements ReportService {
         report.setUpdateTime(nowDate);
         reportRepository.save(report);
         //这里要处理掉
-        if (report.getTargetType().intValue() == ReportConstant.ReportType.TOPIC){
+        if (report.getTargetType() == ReportConstant.ReportType.TOPIC){
             Topic topic = topicRepository.findOne(report.getTargetId());
             topic.setStatus(TopicConstant.Status.ADMIN_DELETE);
             topic.setUpdateTime(nowDate);
             topicRepository.save(topic);
             bbsMsgHandler.adminDelTopic(topic.getUid(), topic.getId());
-        }else if (report.getTargetType().intValue() == ReportConstant.ReportType.COMMENT){
+        }else if (report.getTargetType() == ReportConstant.ReportType.COMMENT){
             Comment comment = commentRepository.findOne(report.getTargetId());
             comment.setStatus(CommentConstant.Status.DELETE);
             comment.setUpdateTime(nowDate);

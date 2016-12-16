@@ -49,14 +49,14 @@ public class BbsMsgHandler {
     public void userBan(String uid, String admin_uid, Integer banStatus, Integer banLogId){
         //设为正常,和永久禁言,不需要走定时任务
         //通知lts禁言多久
-        if (banStatus.intValue() != UserConstant.BanStatus.OK && banStatus.intValue() != UserConstant.BanStatus.FOREVER){
+        if (banStatus != UserConstant.BanStatus.OK && banStatus != UserConstant.BanStatus.FOREVER){
             String url = jobClientUrl + "/api/bbs/userBan";
             String[] parms = new String[]{"uid", uid, "banStatus", String.valueOf(banStatus), "banLogId", String.valueOf(banLogId)};
             requestGet(url, parms);
         }
 
         //更新消息
-        String msg_type = banStatus.intValue() == UserConstant.BanStatus.OK ? SysMsgTypeEnum.msgType6.value() : SysMsgTypeEnum.msgType5.value();
+        String msg_type = banStatus == UserConstant.BanStatus.OK ? SysMsgTypeEnum.msgType6.value() : SysMsgTypeEnum.msgType5.value();
         String url = jobClientUrl + "/api/bbs/msg/push/sysnotice/userlocking";
         String[] parms = new String[]{"uid", uid, "mid", admin_uid, "msg_type", msg_type, "ban_id", String.valueOf(banLogId)};
         requestGet(url, parms);

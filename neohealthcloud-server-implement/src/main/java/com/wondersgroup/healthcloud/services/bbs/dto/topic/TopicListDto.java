@@ -78,7 +78,7 @@ public class TopicListDto {
         this.nickName = registerInfo.getNickname();
         this.avatar = registerInfo.getHeadphoto();
         this.isAdmin = registerInfo.getIsBBsAdmin();
-        if (registerInfo.getBanStatus().intValue() == UserConstant.BanStatus.FOREVER){
+        if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = TopicConstant.AppListStatus.USER_BAN;
         }
     }

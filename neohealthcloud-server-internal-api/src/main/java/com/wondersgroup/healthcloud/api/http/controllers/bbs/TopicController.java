@@ -138,7 +138,7 @@ public class TopicController {
     public JsonResponseEntity<Object> delete(@RequestHeader String appUid, @RequestParam Integer id){
         JsonResponseEntity<Object> entity = new JsonResponseEntity();
         Topic topic = topicService.delTopic(appUid, id);
-        entity.setMsg(topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE ? "删除成功" : "恢复话题成功");
+        entity.setMsg(topic.getStatus() == TopicConstant.Status.ADMIN_DELETE ? "删除成功" : "恢复话题成功");
         return entity;
     }
 
