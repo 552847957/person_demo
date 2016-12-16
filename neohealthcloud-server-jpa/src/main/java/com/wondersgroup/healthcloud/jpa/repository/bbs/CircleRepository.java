@@ -23,10 +23,10 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
     // 默认加入的圈子列表
     List<Circle> queryByIsDefaultAttentAndDelFlag(Integer isDefaultAttent, String delFlag);
 
-    @Query("select c.* from Circle c where c.delFlag = '0' ORDER BY c.rank DESC, c.updateTime DESC")
+    @Query("select c from Circle c where c.delFlag = '0' ORDER BY c.rank DESC, c.updateTime DESC")
     List<Circle> findAllVaild();
 
-    @Query("select c.* from Circle c ORDER BY c.rank DESC, c.updateTime DESC")
+    @Query("select c from Circle c ORDER BY c.rank DESC, c.updateTime DESC")
     List<Circle> findAll();
 
     @Transactional
