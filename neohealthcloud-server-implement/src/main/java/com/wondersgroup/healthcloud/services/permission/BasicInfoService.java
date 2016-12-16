@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface BasicInfoService {
 
-    MenuDTO findUserMunuPermission(String userId);
+    MenuDTO findUserMunuPermission(User user);
 
     int findAllUserTotal(Map<String, Object> parameters, String admin);
 

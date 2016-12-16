@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * Created by zhuchunliu on 2015/11/11.
+ * 
  */
 @Data
 @Entity
@@ -17,9 +18,10 @@ public class Menu {
     private String menuId;
     @Column(name = "parent_id")
     private String parentId;
+    private Integer level=1;
     private String name;
     private String icon;
-    private String sort;
+    private Integer sort=100;
     private String href;
     private String permission;
     @Column(name = "is_show")
@@ -34,7 +36,7 @@ public class Menu {
     @Column(name = "update_by")
     private String updateBy;
     @Column(name = "update_date")
-    private Date updateDate;
+    private Date updateDate = new Date();
     @Transient
     private String parentName;
 }

@@ -104,6 +104,20 @@ public class DictCache {
         }
     }
 
+
+    /**
+     * 获取医院的区县代码
+     * @param code
+     * @return
+     */
+    public String queryHospitalAddressCounty(String code) {
+        try {
+            return caches.get("t_dic_hospital_info:hospital_id:address_county").get(code);
+        } catch (ExecutionException ex) {
+            return "";
+        }
+    }
+
     /**
      * 获取检查项目代码含义
      *

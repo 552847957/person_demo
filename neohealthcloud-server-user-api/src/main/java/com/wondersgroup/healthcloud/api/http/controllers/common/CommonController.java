@@ -30,6 +30,7 @@ import java.util.Map;
 
 /**
  * Created by longshasha on 16/8/12.
+ * 广州的全局接口
  */
 
 @RestController
@@ -115,6 +116,8 @@ public class CommonController {
                     log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
                 }
             }
+
+
         }
         data.put("common", common);
 

@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ public interface UserService {
     List<RegisterInfo> findRegisterInfoByIdcard(String idcard);
 
     Boolean updateNickname(String id, String nickname);
+
+    Boolean updateNicknameAndAvatar(String id, String nickname, String avatar);
 
     Boolean updateGender(String id, String gender);
 
@@ -54,4 +57,6 @@ public interface UserService {
     String findFirstTagName();
 
     RegisterInfo findOne(String id);
+
+    Map<String, RegisterInfo> findByUids(Iterable<String> uids);
 }

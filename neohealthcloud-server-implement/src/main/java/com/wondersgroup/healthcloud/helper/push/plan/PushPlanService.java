@@ -1,31 +1,46 @@
 package com.wondersgroup.healthcloud.helper.push.plan;
 
-import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.jpa.entity.permission.User;
-import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
-import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
-import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import com.wondersgroup.healthcloud.jpa.entity.permission.User;
+import com.wondersgroup.healthcloud.jpa.entity.push.PushPlan;
+import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
+import com.wondersgroup.healthcloud.jpa.repository.push.PushPlanRepository;
 
 /**
  * Created by zhuchunliu on 2016/8/27.
  */
 @Service
 public class PushPlanService {
-
+    private Logger logger = LoggerFactory.getLogger(PushPlanService.class);
+    @Autowired
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+    
     @Autowired
     private PushPlanRepository pushPlanRepo;
 
@@ -54,6 +69,9 @@ public class PushPlanService {
                     if (parameter.containsKey("endTime") && StringUtils.isNotEmpty(parameter.get("endTime").toString())) {
                         list.add(criteriaBuilder.lessThanOrEqualTo(root.get("planTime").as(String.class), parameter.get("endTime").toString()));
                     }
+                    if (parameter.containsKey("type") && StringUtils.isNotEmpty(parameter.get("type").toString())) {
+                        list.add(criteriaBuilder.equal(root.get("type").as(Integer.class), parameter.get("type").toString()));
+                    }
                     list.add(criteriaBuilder.equal(root.get("area").as(String.class),user.getMainArea()));//查找同意区域的
                 }
                 criteriaQuery.where(list.toArray(new Predicate[list.size()]));
@@ -66,6 +84,45 @@ public class PushPlanService {
 
         return pushPlanRepo.findAll(specification,pageable);
     }
-
+    
+    @Transactional
+    public String cancel(Integer id,Integer preStatus,String jobClientUrl,Integer status){
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
+        if((1 == status || 4 == status) && 0 != pushPlan.getStatus()){//通过
+            return "问题非待审核状态";
+        }
+        pushPlan.setStatus(status);
+        pushPlan.setUpdateTime(new Date());
+        pushPlanRepo.save(pushPlan);
+        //取消定时任务
+        if(1 == preStatus) {//之前状态为待推送状态，则可以取消定时任务
+            Request build=null;
+            build = new RequestBuilder().delete().url(jobClientUrl + "/api/healthcloud/push").param("planId", id.toString()).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+            logger.error("定时任务(pushId = "+id+")取消成功，返回结果"+result);
+    }
+     return "取消成功";   
+    }
+    
+    @Transactional
+    public JsonNode pass(Integer id, int status,String jobClientUrl) {
+        PushPlan pushPlan = this.updatPlan(id, status);
+        logger.error("开始创建push定时任务，pushId :"+id);
+        //创建定时任务
+        String param = "{\"planId\":\""+id+"\",\"planTime\":\""+new DateTime(pushPlan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss")+"\"}";
+        Request build = new RequestBuilder().post().url(jobClientUrl+"/api/healthcloud/push").body(param).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        return response.convertBody();
+    }
+    
+    public PushPlan updatPlan(Integer id ,Integer status){
+        PushPlan pushPlan = pushPlanRepo.findOne(id);
+        pushPlan.setStatus(status);
+        pushPlan.setUpdateTime(new Date());
+        pushPlanRepo.save(pushPlan);
+        return pushPlan;
+        
+    }
 
 }

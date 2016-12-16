@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.assessment.impl;
 
 
 
+import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Yoda on 2015/12/29.
@@ -374,5 +376,32 @@ public class AssessmentServiceImpl implements AssessmentService {
             }
         }
         return false;
+    }
+
+    /**
+     * 获取用户最近的一次风险评估
+     * @param uid
+     * @return
+     */
+    @Override
+    public Assessment getRecentAssess(String uid) {
+        return assessmentRepository.getRecentAssess(uid);
+    }
+
+    @Override
+    public Map<String,Object> getRecentAssessIsNormal(String uid) {
+        Assessment assessment =  assessmentRepository.getRecentAssess(uid);
+        if(null == assessment){
+            return  null;
+        }
+        String risk = this.getResult(assessment);
+        Map<String,Object> map = Maps.newHashMap();
+        if(!StringUtils.isEmpty(risk) && (risk.contains("-3") || risk.contains("-2"))){
+            map.put("state",false);
+        }else{
+            map.put("state",true);
+        }
+        map.put("date",new DateTime(assessment.getCreateDate()).toString("yyyy-MM-dd"));
+        return map;
     }
 }

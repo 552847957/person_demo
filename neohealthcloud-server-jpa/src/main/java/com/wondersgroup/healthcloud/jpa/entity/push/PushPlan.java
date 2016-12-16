@@ -23,6 +23,9 @@ public class PushPlan {
     private String title; // 推送标题
     private String content;// 推送内容
     private String url; // 连接地址
+    private Integer type;//1:文章2:圈子的话题
+    @Column(name="topic_id")
+    private Integer topicId;
     private Integer target_type;// 推送类型，0：个人，1：标签
     private String target; // 对应的人员或者标签主键
     private Integer status ;// 0:待审核、1:待推送、2:已推送、3:已取消、4:已驳回、5:已过期

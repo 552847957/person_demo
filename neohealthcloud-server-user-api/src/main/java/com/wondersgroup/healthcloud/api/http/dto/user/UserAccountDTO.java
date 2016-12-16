@@ -31,6 +31,7 @@ public class UserAccountDTO {
     private Integer gender;//1:男 2:女
 
     private Boolean verified;//是否实名认证
+    private String identifytype;
 
     private String talkId;
     private String talkPwd;
@@ -45,6 +46,7 @@ public class UserAccountDTO {
     private String height;
     private String weight;
     private String waist;
+    private Boolean isChangedNickName=true;
 
     @JsonUnwrapped(prefix = "address_")
     private AddressDTO addressDTO;
@@ -54,13 +56,14 @@ public class UserAccountDTO {
 
     public UserAccountDTO(Map<String, Object> user) {
         decimalFormat.setRoundingMode(RoundingMode.FLOOR);
-        if(user!=null) {
+        if (user != null) {
             this.uid = user.get("registerid") == null ? "" : user.get("registerid").toString();
             this.name = user.get("name") == null ? "" : user.get("name").toString();
             this.nickName = user.get("nickname") == null ? "" : user.get("nickname").toString();
             this.mobile = user.get("regmobilephone") == null ? "" : user.get("regmobilephone").toString();
             this.avatar = user.get("headphoto") == null ? "" : user.get("headphoto").toString();
             this.idcard = user.get("personcard") == null ? "" : user.get("personcard").toString();
+            this.identifytype = user.get("identifytype").toString();
 
             String gender = user.get("gender") == null ? "" : user.get("gender").toString();
             if (StringUtils.isNotBlank(gender))
@@ -83,45 +86,46 @@ public class UserAccountDTO {
             this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
             this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskIdcard(user.get("medicarecard").toString());
             this.bindPersoncard = user.get("bind_personcard") == null ? "" : IdcardUtils.maskIdcard(user.get("bind_personcard").toString());
-            if(StringUtils.isNotBlank(this.idcard)){
+            if (StringUtils.isNotBlank(this.idcard)) {
                 this.idcard = IdcardUtils.maskIdcard(this.idcard);
             }
         }
     }
 
-    public UserAccountDTO(RegisterInfo registerInfo,UserInfo userInfo) {
+    public UserAccountDTO(RegisterInfo registerInfo, UserInfo userInfo) {
         decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         this.uid = registerInfo.getRegisterid();
-        this.name = registerInfo.getName()==null?"":registerInfo.getName();
-        this.nickName = registerInfo.getNickname()==null?"":registerInfo.getNickname();
-        this.mobile = registerInfo.getRegmobilephone()==null?"":registerInfo.getRegmobilephone();
-        this.avatar = registerInfo.getHeadphoto()==null?"":registerInfo.getHeadphoto();
-        this.idcard = registerInfo.getPersoncard()==null?"":registerInfo.getPersoncard();
-        if(StringUtils.isNotBlank(registerInfo.getGender()))
+        this.name = registerInfo.getName() == null ? "" : registerInfo.getName();
+        this.nickName = registerInfo.getNickname() == null ? "" : registerInfo.getNickname();
+        this.mobile = registerInfo.getRegmobilephone() == null ? "" : registerInfo.getRegmobilephone();
+        this.avatar = registerInfo.getHeadphoto() == null ? "" : registerInfo.getHeadphoto();
+        this.idcard = registerInfo.getPersoncard() == null ? "" : registerInfo.getPersoncard();
+        if (StringUtils.isNotBlank(registerInfo.getGender()))
             this.gender = Integer.valueOf(registerInfo.getGender());
         this.age = "";
 
-        if(userInfo!=null){
-            this.age = userInfo.getAge()==null?"":String.valueOf(userInfo.getAge());
-            this.height = userInfo.getHeight()==null?"":String.valueOf(userInfo.getHeight());
-            this.weight = userInfo.getWeight()==null?"":decimalFormat.format(userInfo.getWeight());
-            this.waist = userInfo.getWaist()== null?"":decimalFormat.format(userInfo.getWaist());
+        if (userInfo != null) {
+            this.age = userInfo.getAge() == null ? "" : String.valueOf(userInfo.getAge());
+            this.height = userInfo.getHeight() == null ? "" : String.valueOf(userInfo.getHeight());
+            this.weight = userInfo.getWeight() == null ? "" : decimalFormat.format(userInfo.getWeight());
+            this.waist = userInfo.getWaist() == null ? "" : decimalFormat.format(userInfo.getWaist());
         }
         this.verified = !"0".equals(registerInfo.getIdentifytype());
-        if(this.verified){
-            this.age = StringUtils.isBlank(this.idcard)?"":String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
+        if (this.verified) {
+            this.age = StringUtils.isBlank(this.idcard) ? "" : String.valueOf(IdcardUtils.getAgeByIdCard(this.idcard));
             this.gender = Integer.valueOf(IdcardUtils.getGenderByIdCard(this.idcard));
         }
 
 
-        this.talkId = registerInfo.getTalkid()==null?"":registerInfo.getTalkid();
-        this.talkPwd = registerInfo.getTalkpwd()==null?"":registerInfo.getTalkpwd();
-        this.tagid = registerInfo.getTagid()==null?"":registerInfo.getTagid();
-        this.medicarecard = registerInfo.getMedicarecard()==null?"": IdcardUtils.maskIdcard(registerInfo.getMedicarecard());
-        this.bindPersoncard = registerInfo.getBindPersoncard()==null?"":IdcardUtils.maskIdcard(registerInfo.getBindPersoncard());
-        if(StringUtils.isNotBlank(this.idcard)){
+        this.talkId = registerInfo.getTalkid() == null ? "" : registerInfo.getTalkid();
+        this.talkPwd = registerInfo.getTalkpwd() == null ? "" : registerInfo.getTalkpwd();
+        this.tagid = registerInfo.getTagid() == null ? "" : registerInfo.getTagid();
+        this.medicarecard = registerInfo.getMedicarecard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getMedicarecard());
+        this.bindPersoncard = registerInfo.getBindPersoncard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getBindPersoncard());
+        if (StringUtils.isNotBlank(this.idcard)) {
             this.idcard = IdcardUtils.maskIdcard(this.idcard);
         }
+        this.identifytype = registerInfo.getIdentifytype();
     }
 
     public String getUid() {
@@ -266,5 +270,21 @@ public class UserAccountDTO {
 
     public void setAddressDTO(AddressDTO addressDTO) {
         this.addressDTO = addressDTO;
+    }
+
+    public String getIdentifytype() {
+        return identifytype;
+    }
+
+    public void setIdentifytype(String identifytype) {
+        this.identifytype = identifytype;
+    }
+
+    public void setChangedNickName(Boolean changedNickName) {
+        isChangedNickName = changedNickName;
+    }
+
+    public Boolean getChangedNickName() {
+        return StringUtils.isNoneEmpty(nickName) && !nickName.startsWith("健康用户");
     }
 }

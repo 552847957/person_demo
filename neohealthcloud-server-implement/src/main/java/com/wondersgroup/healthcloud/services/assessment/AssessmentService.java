@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Yoda on 2015/12/29.
@@ -51,4 +52,18 @@ public interface AssessmentService {
      * @return 只要用户用糖尿病、高血压、脑卒中中一种即为true，否则为false
      */
     Boolean hasDiseases(String uid);
+
+    /**
+     * 获取用户最近一次的风险评估结果
+     * @param uid
+     * @return
+     */
+    Assessment getRecentAssess(String uid);
+
+    /**
+     * 获取用户最近一次的风险评估结果
+     * @param uid
+     * @return  {state:true,date:yyyy-MM-dd HH:mm:ss}  【state:true:正常, state:false:高危】
+     */
+    Map<String,Object> getRecentAssessIsNormal(String uid);
 }

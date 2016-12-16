@@ -85,12 +85,12 @@ public class MenuController{
                 Menu nmenu = new Menu();
                 nmenu.setParentId(menu.getMenuId());
                 nmenu.setParentName(menu.getName());
-                nmenu.setSort(menuService.getNextSort(menu.getMenuId()).toString());
+                nmenu.setSort(menuService.getNextSort(menu.getMenuId()));
                 map.put("info", nmenu);
             }
         } else {
             Menu menu = new Menu();
-            menu.setSort(menuService.getNextSort("1").toString());
+            menu.setSort(menuService.getNextSort("1"));
             menu.setParentId("1");
             menu.setParentName(menuRepo.findOne("1").getName());
             map.put("info", menu);
@@ -166,6 +166,8 @@ public class MenuController{
                 menu.setMenuId(IdGen.uuid());
                 menu.setCreateDate(new Date());
             }
+            menu.setLevel(menuService.getMunuLevelByParentId(menu.getParentId()));
+            menu.setUpdateDate(new Date());
             menuRepo.save(menu);
             response.setMsg("保存成功");
 
@@ -183,7 +185,7 @@ public class MenuController{
         try {
             for(Menu menu:menus){
                 if(StringUtils.isEmpty(menu.getSort())) {
-                    menu.setSort("0");
+                    menu.setSort(100);
                 }
                 menuRepo.updateMenuSort(menu.getMenuId(), menu.getSort());
             }

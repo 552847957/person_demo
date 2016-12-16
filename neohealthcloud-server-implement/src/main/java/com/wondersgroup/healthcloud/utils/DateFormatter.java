@@ -34,6 +34,8 @@ public class DateFormatter {
 
     private static final String questionDatePattern = "yyyy-MM-dd HH:mm";
 
+    private static final String hourPattern = "HH:mm";
+
     public static String format(Date date, String pattern) {
         if (date == null) {
             return null;
@@ -100,6 +102,12 @@ public class DateFormatter {
         }
     }
 
+    public static String hourDateFormat(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return format(date, hourPattern);
+    }
+
     public static String questionListDateFormat(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -116,6 +124,7 @@ public class DateFormatter {
         }
         return questionDateFormat(parseDateTime(date));
     }
+
 
     public static Date parseDateTime(String date) {
         return parse(date, dateTimePattern);

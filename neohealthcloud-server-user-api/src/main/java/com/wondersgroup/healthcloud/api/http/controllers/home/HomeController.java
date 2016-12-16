@@ -18,7 +18,7 @@ import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
 import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
-import com.wondersgroup.healthcloud.utils.security.H5ServiceSecurityUtil;
+import com.wondersgroup.healthcloud.utils.security.ServiceUrlPlaceholderResolver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,7 +53,7 @@ public class HomeController {
     private FaqService faqService;
 
     @Autowired
-    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
+    private ServiceUrlPlaceholderResolver serviceUrlPlaceholderResolver;
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
@@ -61,7 +61,7 @@ public class HomeController {
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                 @RequestHeader(value = "spec-area", required = false) String specArea,
                                                 @RequestHeader(value = "app-version", required = true) String version,
-                                                @AccessToken(required = false) Session session) {
+                                                @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
@@ -90,7 +90,7 @@ public class HomeController {
             for (ImageText imageText : imageTextsB) {
                 map = new HashMap();
                 map.put("imgUrl", imageText.getImgUrl());
-                map.put("hoplink", h5ServiceSecurityUtil.secureUrl(imageText.getHoplink(), session));
+                map.put("hoplink", serviceUrlPlaceholderResolver.parseUrl(imageText.getHoplink(), session));
                 map.put("mainTitle", imageText.getMainTitle());
                 map.put("subTitle", imageText.getSubTitle());
                 functionIcons.add(map);

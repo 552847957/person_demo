@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,11 +92,12 @@ public class HealthActivityController {
         String offlineTime =  reader.readString("offlineTime", true);
         int flag =  reader.readDefaultInteger("flag", 1);
         int pageSize =  reader.readDefaultInteger("pageSize", 10);
-        
+        String mainArea =  reader.readDefaultString("mainArea", "3101").concat("00000000");
         JsonListResponseEntity<HealthActivityInfoDTO> entity = new JsonListResponseEntity<HealthActivityInfoDTO>();
-        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(status, title, onlineTime, offlineTime,
+        DicArea dicArea = dicAreaRepository.getAddress(mainArea);
+        List<HealthActivityInfo> infos = infoService.getHealthActivityInfos(dicArea.getUpper_code() ,status, title, onlineTime, offlineTime,
                 flag, pageSize);
-        int count = infoService.getHealthActivityInfoCount(status, title, onlineTime, offlineTime);
+        int count = infoService.getHealthActivityInfoCount(dicArea.getUpper_code(), status, title, onlineTime, offlineTime);
         List<HealthActivityInfoDTO> infoDTOs = HealthActivityInfoDTO.infoDTO(infos);
         entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((flag + 1)));
         Map<String, Object> extras = new HashMap<String, Object>();

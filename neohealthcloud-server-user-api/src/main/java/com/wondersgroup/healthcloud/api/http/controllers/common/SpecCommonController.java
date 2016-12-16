@@ -31,6 +31,7 @@ import java.util.Map;
 
 /**
  * Created by zhaozhenxing on 2016/8/30.
+ * 上海健康云全局接口
  */
 @RestController
 @RequestMapping("/api/spec/common")
@@ -49,7 +50,7 @@ public class SpecCommonController {
     @GetMapping(value = "/appConfig")
     @VersionRange
     @WithoutToken
-    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = false) String platform,
+    public JsonResponseEntity<Map<String, Object>> appConfig(@RequestHeader(value = "platform", required = true) String platform,
                                                              @RequestHeader(name = "main-area", required = true) String mainArea,
                                                              @RequestHeader(name = "spec-area", required = false) String specArea,
                                                              @RequestHeader(value = "app-version", required = false) String appVersion) {
@@ -88,6 +89,28 @@ public class SpecCommonController {
             } catch (Exception ex) {
                 log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
             }
+        }
+
+        AppConfig registrationConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.registration");
+        if(registrationConfig != null){
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(registrationConfig.getData());
+                String registrationNotice = content.get("registrationRule") == null ? "" : content.get("registrationRule").asText();
+                String addContactDesc = content.get("addContactDesc") == null ? "" : content.get("addContactDesc").asText();
+                String registrationTel = content.get("registrationTel") == null ? "" : content.get("registrationTel").asText();
+                String registrationTelDesc = content.get("registrationTelDesc") == null ? "" : content.get("registrationTelDesc").asText();
+                Map registration = new HashMap();
+                registration.put("registration_notice", registrationNotice);
+                registration.put("add_contact_desc", addContactDesc);
+                registration.put("registration_tel", registrationTel);
+                registration.put("registration_tel_desc", registrationTelDesc);
+                data.put("registration", registration);
+
+            }catch (Exception ex){
+                log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+            }
+
         }
 
         ImageText imgText = new ImageText();
@@ -200,7 +223,7 @@ public class SpecCommonController {
         keyWords.add("app.common.voiceTip");// 语音-提示
         keyWords.add("app.common.callCentUrl");// 在线客服链接
         keyWords.add("app.common.disclaimerUrl");// 健康档案说明文案
-
+        keyWords.add("app.common.vrules");// 查看版规
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
 
         if (cfgMap != null) {
@@ -216,6 +239,11 @@ public class SpecCommonController {
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.recordUrl"))) {
                 common.setRecord_url(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.vrules"))) {
+                common.setVrules(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.vrules")));
+            }else {
+                common.setVrules(appUrlH5Utils.buildBbsVrules());
             }
             if (platform.equalsIgnoreCase("0")) {
                 common.setQrCode(cfgMap.get("common.qr.code.url.ios"));
@@ -270,5 +298,6 @@ public class SpecCommonController {
         private String voiceTip;// 语音-提示
         private String callCentUrl;// 在线客服是否显示
         private String disclaimerUrl;// 健康档案说明文案
+        private String vrules;//圈子的版规
     }
 }

@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  * Created by zhuchunliu on 2015/11/11.
  */
-
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor {
 
     @Query("select u from User u  where loginname = ?1 and delFlag = '0'")
@@ -21,6 +20,9 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
 
     @Query("select u from User u  where userId <> ?1 and loginname = ?2")
     User findByLoginName(String userId, String loginname);
+
+    @Query(nativeQuery = true, value = "select * from tb_neopermission_user u where u.bind_uid = ?1 limit 1")
+    User findByBindUid(String bindUid);
 
     //@Transactional
     @Modifying

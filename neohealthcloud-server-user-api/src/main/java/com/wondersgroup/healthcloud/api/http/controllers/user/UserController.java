@@ -25,10 +25,10 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
+import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,6 +80,9 @@ public class UserController {
         this.decimalFormat = new DecimalFormat("###########");
         this.decimalFormat.setRoundingMode(RoundingMode.FLOOR);
     }
+
+    @Autowired
+    private FriendRelationshipService friendRelationshipService;
 
 
     /**
@@ -253,6 +256,8 @@ public class UserController {
         body.setData(new UserAccountAndSessionDTO(userAccountService.register(mobile, verifyCode, password)));
         body.getData().setInfo(getInfo(body.getData().getUid()));
         body.setMsg("注册成功");
+
+        friendRelationshipService.register(body.getData().getUid());
         return body;
     }
 
@@ -299,7 +304,7 @@ public class UserController {
         idCard = idCard.trim();
         idCard = StringUtils.upperCase(idCard);
         Boolean isIdCard = IdcardUtils.validateCard(idCard);
-        if(!isIdCard){
+        if (!isIdCard) {
             throw new ErrorIdcardException();
         }
         userAccountService.verificationSubmit(id, name, idCard, photo);
@@ -329,22 +334,68 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
-    @VersionRange
+    @VersionRange(to = "3.9")
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo(@RequestParam("uid") String id) {
         JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
         RegisterInfo person = userService.findOne(id);
-        if (person!=null&&person.verified()) {
+        if (person != null && person.verified()) {
             VerificationInfoDTO data = new VerificationInfoDTO();
             data.setUid(id);
             data.setName(IdcardUtils.maskName(person.getName()));
             data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+            data.setIdentifytype(person.getIdentifytype());
             data.setSuccess(true);
             data.setStatus(VerificationInfoDTO.statusArray[0]);
             data.setCanSubmit(false);
             body.setData(data);
-        } else if(person!=null) {
+        } else if (person != null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
-        }else if(person==null){
+        } else if (person == null) {
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
+        }
+        return body;
+    }
+
+    @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
+    @VersionRange(from = "4.0")
+    public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id) {
+        JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
+        RegisterInfo person = userService.findOne(id);
+        if (person != null && person.verified()) {
+            if ("1".equals(person.getIdentifytype())) {
+                VerificationInfoDTO data = new VerificationInfoDTO();
+                data.setUid(id);
+                data.setName(IdcardUtils.maskName(person.getName()));
+                data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                data.setIdentifytype(person.getIdentifytype());
+                data.setSuccess(true);
+                data.setStatus(VerificationInfoDTO.statusArray[0]);
+                data.setCanSubmit(false);
+                body.setData(data);
+            } else if ("2".equals(person.getIdentifytype())) {
+                JsonNode info = userAccountService.verficationSubmitInfo(id, false);
+                if (info != null) {
+                    VerificationInfoDTO data = new VerificationInfoDTO(id, info);
+                    data.setSuccess(false);
+                    data.setIdentifytype("2");
+                    body.setData(data);
+                } else {
+                    VerificationInfoDTO data = new VerificationInfoDTO();
+                    data.setUid(id);
+                    data.setName(IdcardUtils.maskName(person.getName()));
+                    data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                    data.setIdentifytype(person.getIdentifytype());
+                    data.setSuccess(false);
+                    data.setStatus(VerificationInfoDTO.statusArray[0]);
+                    data.setCanSubmit(true);
+                    body.setData(data);
+                }
+            } else {
+                body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
+            }
+        } else if (person != null) {
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
+        } else if (person == null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
         }
         return body;
@@ -374,6 +425,30 @@ public class UserController {
         body.setMsg("昵称修改成功");
         Map<String, String> data = Maps.newHashMap();
         data.put("nick_name", nickname);
+        body.setData(data);
+        return body;
+    }
+
+    /**
+     * 修改昵称
+     *
+     * @param request
+     * @return
+     */
+    @VersionRange
+    @PostMapping(path = "/nicknameAndAvatar/update")
+    public JsonResponseEntity<Map<String, String>> changeNicknameAndAvatar(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String id = reader.readString("uid", false);
+        String nickname = reader.readString("nick_name", false);
+        String avatar = reader.readString("avatar", false);
+
+        userService.updateNicknameAndAvatar(id, nickname, avatar);
+        JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();
+        body.setMsg("修改成功");
+        Map<String, String> data = Maps.newHashMap();
+        data.put("nick_name", nickname);
+        data.put("avatar", avatar);
         body.setData(data);
         return body;
     }

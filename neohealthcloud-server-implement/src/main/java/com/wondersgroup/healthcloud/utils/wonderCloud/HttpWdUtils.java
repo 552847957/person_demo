@@ -582,8 +582,8 @@ public class HttpWdUtils {
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
-        httpWdUtils.basicInfo("2c928bb15791e7470157ada2ed8602ff");
-        httpWdUtils.basicInfo("2c928bb15791e7470157ada87d420317");
+//        httpWdUtils.basicInfo("2c928bb0549fe6850154f1456c82061a");
+//        httpWdUtils.basicInfo("18886869999");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -609,12 +609,12 @@ public class HttpWdUtils {
         //1234567
 //        String newPsd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
 
-//        try {
-//            String password = RSAUtil.encryptByPublicKey("888888", publicKey);
-//            httpWdUtils.resetPassword("13611723375",password);
-//        }catch (Exception e){
-//
-//        }
+        try {
+            String password = RSAUtil.encryptByPublicKey("888888", publicKey);
+            httpWdUtils.resetPassword("18886869999",password);
+        }catch (Exception e){
+
+        }
 
 
         /*String message = "【健康长宁】验证码:code,用于测试。";
@@ -623,8 +623,12 @@ public class HttpWdUtils {
 //        httpWdUtils.verifyCode("15639763552","354735",false);
 
 //        httpWdUtils.thirdPartyBinding("8a81c1fb572797db01573c37b4080060");
+
 //        httpWdUtils.updateMobile("2c928bb15791e7470157ada2ed8602ff","18918725136");
-//        httpWdUtils.updateMobile("2c928bb15791e7470157ada87d420317","18930810027");
+
+//        JsonNode jsonNode = httpWdUtils.updateMobile("2c928bb153f19ea10154f145744d1209", "13918912554");
+
+
 //        httpWdUtils.updateUserName("8a81c1fb5755c5c1015755cc81cb0002","longshaertongceshi");
 
 //        httpWdUtils.guestLogin();

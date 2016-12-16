@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.jpa.repository.user;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 
 /**
+ *
  * Created by longshasha on 16/8/4.
  */
 public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,String> {
@@ -17,11 +19,18 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     @Query("select r from RegisterInfo r where r.talkid =?1 and r.delFlag='0'")
     RegisterInfo findByTalkid(String talkid);
 
-    @Query("select r from RegisterInfo r where r.regmobilephone = ?1 and r.delFlag='0'")
+    @Query(nativeQuery = true,
+            value = "select * from app_tb_register_info r where r.regmobilephone = ?1 and r.del_flag='0' limit 1")
     RegisterInfo findByMobile(String mobile);
 
     @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0'")
     List<RegisterInfo> findByPersoncard(String personcard);
+
+    /**
+     * 检查昵称是否被用 (uid!=""除去当前uid)
+     */
+    @Query("select count(r) > 0 as c from RegisterInfo r where r.nickname =?1 and r.registerid <> ?2")
+    Boolean checkNickNameisUsedIgnoreAppointUid(String nickname, String uid);
 
     @Query("select r from RegisterInfo r where r.registerid =?1 and r.delFlag='0'")
     RegisterInfo findByRegisterid(String registerId);
@@ -30,7 +39,10 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
     List<RegisterInfo> getByCardOrPhone(String info);
     
     @Transactional
-	@Modifying
+    @Modifying
     @Query("update RegisterInfo set bindPersoncard=?1 where registerId =?2")
     int updateByRegister(String bindPersoncard, String registerId);
+
+    @Query("select r from RegisterInfo r where r.isBBsAdmin=1 and r.delFlag='0'")
+    List<RegisterInfo> queryAllBBsAdmins();
 }

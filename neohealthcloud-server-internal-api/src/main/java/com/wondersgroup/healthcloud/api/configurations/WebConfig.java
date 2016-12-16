@@ -1,17 +1,10 @@
 package com.wondersgroup.healthcloud.api.configurations;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.base.Charsets;
-import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
-import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExceptionHandler;
-import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParameterExceptionHandler;
-import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
-import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
-import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalAdminAPIInterceptor;
-import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalGateInterceptor;
+import java.util.List;
+
+import javax.servlet.DispatcherType;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +21,17 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.servlet.DispatcherType;
-import java.util.List;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.base.Charsets;
+import com.wondersgroup.healthcloud.api.utils.MapToBeanUtil;
+import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExceptionHandler;
+import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParameterExceptionHandler;
+import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
+import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
+import com.wondersgroup.healthcloud.common.http.filters.interceptor.InternalGateInterceptor;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -77,6 +79,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 simpleModule.addKeyDeserializer(Object.class, new MapToBeanUtil.JsonMapDeSerializer());
                 objectMapper.registerModule(simpleModule);
                 objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategy.SnakeCaseStrategy());
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
                 converter.setObjectMapper(objectMapper);
                 converters.set(i, converter);

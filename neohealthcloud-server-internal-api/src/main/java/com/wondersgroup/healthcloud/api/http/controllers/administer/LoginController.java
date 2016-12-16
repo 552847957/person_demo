@@ -48,13 +48,14 @@ public class LoginController {
                 map.put("specArea", user.getSpecArea());
             }
             map.put("userId", user.getUserId());
+            map.put("appUid", user.getBindUid());
             map.put("loginName", user.getLoginname());
             map.put("userName", user.getUsername());
             AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
             if (appKCfg != null) {
                 map.put("areaName", appKCfg.getName());
             }
-            MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+            MenuDTO menu = basicInfoService.findUserMunuPermission(user);
             if (menu != null) {
                 map.put("menu", menu);
             }
@@ -87,13 +88,14 @@ public class LoginController {
                     map.put("specArea", user.getSpecArea());
                 }
                 map.put("userId", user.getUserId());
+                map.put("appUid", user.getBindUid());
                 map.put("loginName", user.getLoginname());
                 map.put("userName", user.getUsername());
                 AppKeyConfigurationInfo appKCfg = userHelper.getKeyCfgByArea(user.getMainArea());
                 if (appKCfg != null) {
                     map.put("areaName", appKCfg.getName());
                 }
-                MenuDTO menu = basicInfoService.findUserMunuPermission(user.getUserId());
+                MenuDTO menu = basicInfoService.findUserMunuPermission(user);
                 if (menu != null) {
                     map.put("menu", menu);
                 }

@@ -19,6 +19,7 @@ public class MenuDTO {
     private String parentName;
     private String href;
     private String type;
+    private Integer sort;
     private List<MenuDTO> children;
     private Boolean checked;
     private String permission;
@@ -32,6 +33,7 @@ public class MenuDTO {
         this.parentName = menu.getParentName();
         this.href = menu.getHref();
         this.type = menu.getType();
+        this.sort = menu.getSort();
         this.permission = menu.getPermission();
     }
 }

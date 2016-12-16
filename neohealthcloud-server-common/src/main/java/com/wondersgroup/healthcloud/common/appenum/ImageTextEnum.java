@@ -16,8 +16,9 @@ public enum ImageTextEnum {
 	AD_DOCTOR_DETAIL("医生详情",8),
 	AD_QA_DETAIL("问答详情",9),
 	AD_HOME("个人诊所",10),
-    G_HOME_SPECIAL_SERVICE("3.0首页特色服务", 11);// 组图
-	
+    G_HOME_SPECIAL_SERVICE("3.0首页特色服务", 11),// 组图
+    MONITOR_PLAN("4.0慢病监测方案", 12),
+    AD_HEALTH_CIRCLE("健康圈",13);
 
     private String name;
     private Integer type;

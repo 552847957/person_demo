@@ -19,7 +19,4 @@ public class PasswordHelper {
                 hashIterations).toHex();
     }
 
-    public static void main(String[] args){
-        System.err.println(PasswordHelper.encryptPassword("123456"));
-    }
 }

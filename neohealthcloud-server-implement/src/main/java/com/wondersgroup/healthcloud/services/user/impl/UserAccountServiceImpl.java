@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -19,13 +20,10 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.*;
-
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import java.util.Date;
 
@@ -33,7 +31,7 @@ import java.util.Date;
  * Created by longshasha on 16/8/4.
  */
 @Service
-public class UserAccountServiceImpl implements UserAccountService{
+public class UserAccountServiceImpl implements UserAccountService {
 
     private final String user_type_patient = "1";//用户类型 0:医生,1:患者
 
@@ -58,23 +56,30 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Autowired
     private EasemobDoctorPool easemobDoctorPool;
 
+    @Autowired
+    private HealthRecordUpdateUtil healthRecordUpdateUtil;
+
+    /**
+     * `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码, 4 :修改手机号 ,5:绑定手机号,6:预约挂号确认
+     */
     private static final String[] smsContent = {
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您的验证码为:code，10分钟内有效。",
             "您正在更改绑定的手机号，验证码:code。慎重操作，打死都不能告诉别人",
-            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。"
+            "您正在绑定手机号哦，为了您的账号安全请用验证码:code绑定。",
+            "您正在使用预约挂号功能,验证码:code。希望您身体健康哦"
     };
 
     @Override
     public AccessToken login(String account, String password) {
-        if(checkAccountIsNew(account)){
+        if (checkAccountIsNew(account)) {
             throw new ErrorUserMobileHasNotRegisteredException("该手机号未注册，请先注册");
         }
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
-            WondersUser user = new WondersUser(result.get("user"),CHANNEL_TYPE_JKY);
+            WondersUser user = new WondersUser(result.get("user"), CHANNEL_TYPE_JKY);
             RegisterInfo registerInfo = mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -110,7 +115,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.fastLogin(mobile, verify_code, onceCode);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_JKY);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_JKY);
             mergeRegistration(user);
             AccessToken accessToken = fetchTokenFromWondersCloud(result.get("session_token").asText());
             return accessToken;
@@ -132,7 +137,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.wechatLogin(token, openid);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_WECHAT);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_WECHAT);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -151,7 +156,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.weiboLogin(token);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_WEIBO);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_WEIBO);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -170,7 +175,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.qqLogin(token);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_QQ);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_QQ);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -181,22 +186,23 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 市民云三方登陆
+     *
      * @param token
      * @param username
      * @return
      */
     @Override
     public AccessToken smyLogin(String token, String username) {
-        JsonNode result = httpWdUtils.smyLogin(token,username);
+        JsonNode result = httpWdUtils.smyLogin(token, username);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_SMY);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_SMY);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
-            if(result.get("code").asInt()==513){
+            if (result.get("code").asInt() == 513) {
                 throw new ErrorWondersCloudException("登录失败！市民云非实名用户无法使用该功能");
-            }else{
+            } else {
                 throw new ErrorWondersCloudException(result.get("msg").asText());
             }
 
@@ -237,12 +243,12 @@ public class UserAccountServiceImpl implements UserAccountService{
             throw new ErrorUserMobileHasBeenRegisteredException("该手机已注册，请直接登录");
         }
 
-        if(type == 3 && checkAccountIsNew(mobile)){
+        if (type == 3 && checkAccountIsNew(mobile)) {
             throw new ErrorUserMobileHasNotRegisteredException("该手机号未注册，请先注册");
         }
 
         //修改手机号时校验手机号是否被占用
-        if(type == 5 && checkAccount(mobile)){
+        if (type == 5 && checkAccount(mobile)) {
             throw new ErrorUserMobileHasNotRegisteredException("手机已被使用");
         }
 
@@ -265,7 +271,7 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     public Boolean validateCode(String mobile, String verifyCode, boolean onlyOne) {
         JsonNode result = httpWdUtils.verifyCode(mobile, verifyCode, onlyOne);
-        if(result.get("code").asInt()==511){
+        if (result.get("code").asInt() == 511) {
             throw new ErrorWondersCloudException(result.get("msg").asText());
         }
         return result.get("success").asBoolean();
@@ -327,6 +333,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 提交实名认证信息
+     *
      * @param id       用户Id
      * @param name     姓名
      * @param idCard   身份证号
@@ -336,28 +343,33 @@ public class UserAccountServiceImpl implements UserAccountService{
     @Override
     @Transactional
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
-        //根据图片的url获取图片的byte
-
-        if(!IdcardUtils.containsChinese(name)){
+        if (!IdcardUtils.containsChinese(name)) {
             throw new ErrorChildVerificationException("姓名必须是中文");
         }
-        if(name.length()<2 ||name.length()>6 ){
+        if (name.length() < 2 || name.length() > 6) {
             throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
         //添加身份证的校验
-        if(!IdcardUtils.validateCard(idCard)){
+        if (!IdcardUtils.validateCard(idCard)) {
             throw new ErrorIdcardException();
+        }
+
+        RegisterInfo info = registerInfoRepository.findOne(id);
+        if (info.getIdentifytype().equals("2")) {
+            if (!idCard.equals(info.getPersoncard()) || !name.equals(info.getName())) {
+                throw new CommonException(1000, "提交的身份证与已认证的不一致, 请重新提交");
+            }
         }
 
         String birth = IdcardUtils.getBirthByIdCard(idCard);
         Date birDate = DateFormatter.parseIdCardDate(birth);
         Date now = new Date();
-        if (DateUtils.compareDate(birDate,now)>0) {
+        if (DateUtils.compareDate(birDate, now) > 0) {
             throw new ErrorIdcardException("身份证的出生日期不能大于当前时间");
         }
 
         int age = IdcardUtils.getAgeByIdCard(idCard);
-        if(age<18){
+        if (age < 18) {
             throw new ErrorIdcardException("市民云实名制用户须年满18周岁");
         }
 
@@ -374,6 +386,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 儿童实名认证提交
+     *
      * @param parentUserid
      * @param name
      * @param idcard
@@ -382,38 +395,38 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     @Transactional
-    public Boolean childVerificationSubmit(String parentUserid,String childUserid , String name, String idcard, String idCardFileUrl, String birthCertFileUrl) {
+    public Boolean childVerificationSubmit(String parentUserid, String childUserid, String name, String idcard, String idCardFileUrl, String birthCertFileUrl) {
         RegisterInfo parentUser = registerInfoRepository.findOne(parentUserid);
         if (parentUser == null) {
             throw new ErrorUserAccountException();
         }
-        if(!IdcardUtils.containsChinese(name)){
+        if (!IdcardUtils.containsChinese(name)) {
             throw new ErrorChildVerificationException("姓名必须是中文");
         }
-        if(name.length()<2 ||name.length()>6 ){
+        if (name.length() < 2 || name.length() > 6) {
             throw new ErrorChildVerificationException("姓名的长度范围为2到6个字");
         }
 
         String birth = IdcardUtils.getBirthByIdCard(idcard);
         Date birDate = DateFormatter.parseIdCardDate(birth);
         Date now = new Date();
-        if (DateUtils.compareDate(birDate,now)>0) {
+        if (DateUtils.compareDate(birDate, now) > 0) {
             throw new ErrorIdcardException("身份证的出生日期不能大于当前时间");
         }
 
         int age = IdcardUtils.getAgeByIdCard(idcard);
-        if(age >= 18){
+        if (age >= 18) {
             throw new ErrorChildVerificationException("年龄大于等于18岁的不能使用儿童实名认证");
         }
 
 
-        if(!parentUser.verified()){
+        if (!parentUser.verified()) {
             throw new ErrorChildVerificationException("您还未实名认证,请先去市民云实名认证");
-        }else if(!"1".equals(parentUser.getIdentifytype())){
+        } else if (!"1".equals(parentUser.getIdentifytype())) {
             throw new ErrorChildVerificationException("您未通过市民云实名认证");
         }
 
-        if(StringUtils.isBlank(parentUser.getRegmobilephone())){
+        if (StringUtils.isBlank(parentUser.getRegmobilephone())) {
             throw new ErrorChildVerificationException("您未绑定手机号,请先绑定手机号");
         }
         byte[] idCardFile = new ImageUtils().getImageFromURL(idCardFileUrl);
@@ -429,13 +442,13 @@ public class UserAccountServiceImpl implements UserAccountService{
     }
 
     @Override
-    public JsonNode verficationSubmitInfo(String id,Boolean isAnonymous) {
+    public JsonNode verficationSubmitInfo(String id, Boolean isAnonymous) {
         JsonNode result = httpWdUtils.verficationSubmitInfo(id);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             JsonNode info = result.get("info");
 
-            if(!isAnonymous){
+            if (!isAnonymous) {
                 RegisterInfo user = registerInfoRepository.findOne(id);
                 if (user == null) {
                     throw new ErrorUserAccountException();
@@ -448,7 +461,7 @@ public class UserAccountServiceImpl implements UserAccountService{
                     user.setGender(IdcardUtils.getGenderByIdCard(user.getPersoncard()));
                     registerInfoRepository.saveAndFlush(user);
                 }
-            }else{
+            } else {
                 AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(id);
                 if (anonymousAccount == null) {
                     throw new ErrorAnonymousAccountException("不存在的用户");
@@ -467,6 +480,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 注册匿名账户
+     *
      * @param creator
      * @param username
      * @param password
@@ -476,9 +490,10 @@ public class UserAccountServiceImpl implements UserAccountService{
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
         return anonymousRegistration(creator, username, password, false);
     }
-    
+
     /**
      * 注册儿童实名认证
+     *
      * @param creator
      * @param username
      * @param password
@@ -488,7 +503,7 @@ public class UserAccountServiceImpl implements UserAccountService{
     public AnonymousAccount childVerificationRegistration(String creator, String username, String password) {
         return anonymousRegistration(creator, username, password, true);
     }
-    
+
     public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild) {
         String encodedPassword;
         try {
@@ -496,7 +511,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         } catch (Exception e) {
             throw new ErrorWondersCloudException("加密错误");
         }
-        JsonNode result = httpWdUtils.registeByUsername(username,encodedPassword);
+        JsonNode result = httpWdUtils.registeByUsername(username, encodedPassword);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             Date time = new Date();
@@ -517,6 +532,7 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     /**
      * 修改手机号
+     *
      * @param uid
      * @param oldVerifyCode
      * @param newMobile
@@ -525,7 +541,7 @@ public class UserAccountServiceImpl implements UserAccountService{
      */
     @Override
     public Boolean changeMobile(String uid, String oldVerifyCode, String newMobile, String newVerifyCode) {
-        RegisterInfo register = findOneRegister(uid,false);
+        RegisterInfo register = findOneRegister(uid, false);
         if (StringUtils.isNotBlank(register.getRegmobilephone())) {
             if (StringUtils.isBlank(oldVerifyCode)) {
                 throw new ErrorChangeMobileException("请输入原手机的验证码");
@@ -542,7 +558,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
 
 
-        JsonNode result = httpWdUtils.updateMobile(uid,newMobile);
+        JsonNode result = httpWdUtils.updateMobile(uid, newMobile);
         Boolean success = result.get("success").asBoolean();
         if (success) {
             register.setRegmobilephone(newMobile);
@@ -552,20 +568,20 @@ public class UserAccountServiceImpl implements UserAccountService{
 
             //如果有医生账号的话修改医生账号的手机号
             DoctorAccount doctorAccount = doctorAccountRepository.findOne(register.getRegisterid());
-            if(doctorAccount!=null){
+            if (doctorAccount != null) {
                 doctorAccount.setMobile(newMobile);
                 doctorAccount.setUpdateDate(new Date());
                 doctorAccount.setUpdateBy(register.getRegisterid());
                 doctorAccountRepository.saveAndFlush(doctorAccount);
             }
             //为了使手机的验证码失效
-            if(StringUtils.isNotBlank(oldVerifyCode)){
+            if (StringUtils.isNotBlank(oldVerifyCode)) {
                 validateCode(register.getRegmobilephone(), oldVerifyCode, true);
             }
             validateCode(newMobile, newVerifyCode, true);
             return true;
         } else {
-            throw new ErrorChangeMobileException(1002,result.get("msg").asText());
+            throw new ErrorChangeMobileException(1002, result.get("msg").asText());
         }
     }
 
@@ -580,7 +596,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         RegisterInfo registerInfo = registerInfoRepository.findOne(user.userId);
         //是否有本地账号 如果没有保存本地
         if (registerInfo == null) {
-            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard,user.type, user.tagid, user.channelType);
+            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard, user.type, user.tagid, user.channelType);
         } else {
             Boolean isVerified = user.isVerified;
             registerInfo.setRegisterid(user.userId);
@@ -589,16 +605,21 @@ public class UserAccountServiceImpl implements UserAccountService{
             registerInfo.setIdentifytype(isVerified ? "1" : registerInfo.getIdentifytype());
             if (isVerified) {
                 registerInfo.setName(user.name);
+                String originalPersoncard = registerInfo.getPersoncard();
                 registerInfo.setPersoncard(user.idCard);
                 registerInfo.setGender(IdcardUtils.getGenderByIdCard(user.idCard));
                 registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
-            }else if(registerInfo.verified()){//解决数据库中已实名认证的性别为0的数据
+                if (!user.idCard.equals(originalPersoncard)) {
+                    healthRecordUpdateUtil.unBindMedicareCard(originalPersoncard);
+                    registerInfo.setMedicarecard(null);
+                }
+            } else if (registerInfo.verified()) {//解决数据库中已实名认证的性别为0的数据
                 registerInfo.setGender(IdcardUtils.getGenderByIdCard(registerInfo.getPersoncard()));
                 registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(registerInfo.getPersoncard())));
             }
-            if(StringUtils.isBlank(registerInfo.getTalkid())){
+            if (StringUtils.isBlank(registerInfo.getTalkid())) {
                 EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
-                if (easemobAccount!=null) {//注册环信
+                if (easemobAccount != null) {//注册环信
                     registerInfo.setTalkid(easemobAccount.id);
                     registerInfo.setTalkpwd(easemobAccount.pwd);
                 }
@@ -621,7 +642,7 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @param idCard
      * @return
      */
-    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard,String userSource, String tagid, Integer channelType) {
+    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard, String userSource, String tagid, Integer channelType) {
         ThirdPartyUser thirdPartyUser = thirdPartyBinding(id);
         Boolean fromThirdParty = thirdPartyUser != null;
         RegisterInfo registerInfo = new RegisterInfo();
@@ -647,7 +668,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
 
         EasemobAccount easemobAccount = easemobDoctorPool.fetchOneUser();
-        if (easemobAccount!=null) {//注册环信
+        if (easemobAccount != null) {//注册环信
             registerInfo.setTalkid(easemobAccount.id);
             registerInfo.setTalkpwd(easemobAccount.pwd);
         }
@@ -668,11 +689,11 @@ public class UserAccountServiceImpl implements UserAccountService{
 
     private AccessToken fetchTokenFromWondersCloud(String session) {
         String key = IdGen.uuid();
-        httpWdUtils.addSessionExtra(session, key,this.user_type_patient);
+        httpWdUtils.addSessionExtra(session, key, this.user_type_patient);
         return getAccessToken(session);
     }
 
-//    @Override
+    //    @Override
     public AccessToken getAccessToken(String session) {
         JsonNode result = httpWdUtils.getSession(session);
         Boolean success = result.get("success").asBoolean();
@@ -736,11 +757,11 @@ public class UserAccountServiceImpl implements UserAccountService{
      * @param uuid
      * @return
      */
-    private WondersUser getWondersBaseInfo(String uuid,Integer channelType) {
+    private WondersUser getWondersBaseInfo(String uuid, Integer channelType) {
         JsonNode result = httpWdUtils.basicInfo(uuid);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            return new WondersUser(result.get("user"),channelType);
+            return new WondersUser(result.get("user"), channelType);
         } else {
             throw new ErrorUserWondersBaseInfoException();
         }
@@ -781,7 +802,7 @@ public class UserAccountServiceImpl implements UserAccountService{
         JsonNode result = httpWdUtils.registe(mobile, password);
         Boolean success = result.get("success").asBoolean();
         if (success) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(),CHANNEL_TYPE_JKY);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_JKY);
             mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -807,11 +828,11 @@ public class UserAccountServiceImpl implements UserAccountService{
                 return mergeRegistration(user);
             } else {//TODO(zhangzhixiu):return null is not very good, but there are two type of account.
                 AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(user.userId);
-                if(anonymousAccount==null){
+                if (anonymousAccount == null) {
                     return mergeRegistration(user);
-                }else {
+                } else {
                     Boolean isVerified = user.isVerified;
-                    if(isVerified){
+                    if (isVerified) {
                         anonymousAccount.setName(user.name);
                         anonymousAccount.setIdcard(user.idCard);
                         anonymousAccountRepository.saveAndFlush(anonymousAccount);
@@ -823,7 +844,6 @@ public class UserAccountServiceImpl implements UserAccountService{
         }
         return null;
     }
-
 
 
     private WondersUser getWondersBaseInfo(String uuid, int channelType) {

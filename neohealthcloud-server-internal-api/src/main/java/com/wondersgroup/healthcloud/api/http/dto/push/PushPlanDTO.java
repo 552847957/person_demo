@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ *
  * Created by zhuchunliu on 2016/8/27.
  */
 @Data
@@ -24,6 +25,8 @@ public class PushPlanDTO {
     private String content;// 推送内容
     @JsonProperty("articleId")
     private Integer articleId; // 连接地址
+    @JsonProperty("topicId")
+    private Integer topicId; // 连接地址
     @JsonProperty("createTime")
     private String createTime; // 创建时间
     @JsonProperty("planTime")
@@ -36,6 +39,7 @@ public class PushPlanDTO {
         this.title = plan.getTitle();
         this.content = plan.getContent();
         this.articleId = plan.getArticleId();
+        this.topicId = plan.getTopicId();
         this.createTime = new DateTime(plan.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss");
         this.planTime = new DateTime(plan.getPlanTime()).toString("yyyy-MM-dd HH:mm:ss");
         this.status = plan.getStatus();

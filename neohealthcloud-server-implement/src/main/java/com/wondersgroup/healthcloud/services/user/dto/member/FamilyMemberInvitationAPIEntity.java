@@ -24,6 +24,7 @@ public class FamilyMemberInvitationAPIEntity {
     private String relation;
     @JsonProperty("relation_name")
     private String relationName;
+    private Boolean isStandalone;//是否单机版
 
     public FamilyMemberInvitationAPIEntity() {
     }
@@ -41,5 +42,16 @@ public class FamilyMemberInvitationAPIEntity {
         this.relationName = isSelf ? FamilyMemberRelation.getName(relation, invitation.getRelationName()) : FamilyMemberRelation.getName(relation);
         if(1==isAnonymous) this.status="身份审核成功";
     }
+    
+    public FamilyMemberInvitationAPIEntity(FamilyMemberInvitation invitation, String uid) {
+        this.id = invitation.getId();
+        this.memo = invitation.getMemo();
+        Boolean isSelf = uid.equals(invitation.getUid());
+        this.todo = (!isSelf) && "0".equals(invitation.getStatus());
+        this.status = statusArray[Integer.valueOf(invitation.getStatus())];
+        this.relation =  invitation.getRelation();
+        this.relationName =  FamilyMemberRelation.getName(relation);
+    }
+
 
 }

@@ -2,14 +2,10 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
-import com.wondersgroup.common.http.builder.RequestBuilder;
-import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -24,7 +20,6 @@ import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateGenderExc
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateUserInfoException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
-import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -74,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
 
     private String query = "select i.registerid ,i.`name`,i.nickname ,i.regmobilephone ,i.headphoto , " +
-            " i.personcard ,i.gender ,i.identifytype ,i.talkid ,i.talkpwd ,i.tagid , " +
+            " i.personcard ,i.gender ,i.identifytype ,i.talkid ,i.talkpwd ,i.tagid, i.identifytype , " +
             " i.medicarecard ,i.bind_personcard ,ui.age ,ui.height , ui.weight , ui.waist " +
             " from app_tb_register_info i " +
             " left join app_tb_register_userinfo ui on i.registerid = ui.registerid ";
@@ -106,14 +101,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, RegisterInfo> findByUids(Iterable<String> uids) {
+        List<RegisterInfo> list = registerInfoRepository.findAll(uids);
+        if (null == list || list.isEmpty()){
+            return null;
+        }
+        Map<String, RegisterInfo> map = new HashMap<>();
+        for (RegisterInfo registerInfo : list){
+            map.put(registerInfo.getRegisterid(), registerInfo);
+        }
+        return map;
+    }
+
+    @Override
     public List<RegisterInfo> findRegisterInfoByIdcard(String idcard) {
         return registerInfoRepository.findByPersoncard(idcard);
     }
 
     @Override
     public Boolean updateNickname(String userId, String nickname) {
+        //根据昵称查询用户数量
+        Boolean isUsedNickName = registerInfoRepository.checkNickNameisUsedIgnoreAppointUid(nickname, userId);
+        if(isUsedNickName){
+            throw new ErrorUpdateUserInfoException("昵称已被使用哦,换一个吧。");
+        }
         RegisterInfo register = registerInfoRepository.findOne(userId);
         register.setNickname(nickname);
+        register.setUpdateDate(new Date());
+        registerInfoRepository.saveAndFlush(register);
+        return true;
+    }
+
+    @Override
+    public Boolean updateNicknameAndAvatar(String userId, String nickname, String avatar) {
+        //根据昵称查询用户数量
+        Boolean isUsedNickName = registerInfoRepository.checkNickNameisUsedIgnoreAppointUid(nickname, userId);
+        if(isUsedNickName){
+            throw new ErrorUpdateUserInfoException("昵称已被使用哦,换一个吧。");
+        }
+        RegisterInfo register = registerInfoRepository.findOne(userId);
+        register.setNickname(nickname);
+        register.setHeadphoto(avatar);
         register.setUpdateDate(new Date());
         registerInfoRepository.saveAndFlush(register);
         return true;
@@ -322,8 +350,6 @@ public class UserServiceImpl implements UserService {
 
 
     //----------------------后台使用----------------------
-
-
     @Override
     public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
 

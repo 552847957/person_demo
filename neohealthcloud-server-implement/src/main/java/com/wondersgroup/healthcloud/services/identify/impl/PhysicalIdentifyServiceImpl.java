@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.repository.identify.HealthQuestionRepository;
 import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,14 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 
 	@Autowired
 	private HealthQuestionRepository healthQuestionRepo;
-	
 
+
+	/**
+	 * 提交中医体质标识
+	 * @param registerid
+	 * @param content
+	 * @return
+	 */
 	@Override
 	public String physiqueIdentify(String registerid, String content) {
 		String[] arr = content.split(",");
@@ -29,7 +36,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 		
 		Score[] scores = this.getScoreList(items);
 		if(scores[7].point>=9 || scores[0].point < 8 || scores[5].point >= 11){//评判无效
-			this.saveHealthQuestion(registerid, content, null);
+//			this.saveHealthQuestion(registerid, content, null);
 			return null;
 		}
 		
@@ -48,11 +55,20 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 		this.saveHealthQuestion(registerid, content, info);
 		return info;
 	}
-	
+
+	/**
+	 * 根据用户获取最近一次中医体质辨识结果
+	 * @param registerid
+	 * @return
+	 */
+	@Override
+	public HealthQuestion getRecentPhysicalIdentify(String registerid) {
+		return healthQuestionRepo.findRecent(registerid);
+	}
+
 	private void saveHealthQuestion(String registerid ,String content, String info){
 		//如果为本人测试，保存测试结果数据
 		if(null != registerid && !"".equals(registerid)){
-			List<HealthQuestion> list= healthQuestionRepo.findResultByRegisterId(registerid);
 			HealthQuestion entity = new HealthQuestion();
 			entity.setRegisterid(registerid);
 			entity.setContent(content);
@@ -60,7 +76,7 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 			entity.setResult(info);
 			entity.setTesttime(new Date());
 			entity.setDelFlag("0");
-			entity.setId(list==null||list.size()==0? IdGen.uuid():list.get(0).getId());
+			entity.setId(IdGen.uuid());
 			healthQuestionRepo.save(entity);
 		}
 	}
@@ -68,7 +84,6 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 	/**
 	 * 评估测试结果
 	 * 
-	 * @param content
 	 * @return
 	 */
 	private Score[] getScoreList(Integer[] items) {
