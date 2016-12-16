@@ -787,12 +787,17 @@ public class FamilyController {
                 templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
             }else if(id == 8){
                 Map<String,Object> result = assessmentService.getRecentAssessIsNormal(memberId);
-//                templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", null, result ? "正常人群" : "风险人群")));
+                if(result != null && result.containsKey("state")){
+                    String date = result.get("date").toString();
+                    Boolean state = Boolean.valueOf(result.get("state").toString());
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果",date , state ? "正常人群" : "风险人群")));
+                }
             }else if(id == 9){
                 HealthQuestion result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
-//                if(!StringUtils.isBlank(result)){
-//                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, null, result)));
-//                }
+                if(result != null){
+                    String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null,date , result.getResult())));
+                }
             }else{
                 templet.setValues(getMeasure(measures, id));
             }
