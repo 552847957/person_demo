@@ -393,6 +393,8 @@ public class UserController {
             } else {
                 body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
             }
+        } else if (person != null) {
+            body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, false)));
         } else if (person == null) {
             body.setData(new VerificationInfoDTO(id, userAccountService.verficationSubmitInfo(id, true)));
         }
