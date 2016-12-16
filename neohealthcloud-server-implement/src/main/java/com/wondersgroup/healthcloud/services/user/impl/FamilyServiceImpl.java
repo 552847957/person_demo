@@ -2,16 +2,21 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
-import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
@@ -28,6 +33,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepos
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.FamilyMessage;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -37,6 +43,8 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 @Service
 public class FamilyServiceImpl implements FamilyService {
     private static final int                 maxMemberCount = 10;
+    @Value("${JOB_CONNECTION_URL}")
+    private String                           host;
 
     @Autowired
     private Environment                      environment;
@@ -55,15 +63,17 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Autowired
     private UserService                      userService;
-    
+
     @Autowired
-    private HttpWdUtils httpWdUtils;
-    
+    private HttpWdUtils                      httpWdUtils;
+
     @Autowired
-    private HttpRequestExecutorManager httpRequestExecutorManager;
-    
+    private HttpRequestExecutorManager       httpRequestExecutorManager;
+
     @Autowired
-    private PushClientWrapper pushClientWrapper;
+    private PushClientWrapper                pushClientWrapper;
+
+    private String SEND_MESSAGE_URL = "/api/family/message";
     
     @Transactional(readOnly = false)
     @Override
@@ -135,7 +145,7 @@ public class FamilyServiceImpl implements FamilyService {
                 register.getGender(),
                 relationName,
                 FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
-                        .getOppositeRelation(relation, register.getGender())), recordReadable, true, false);
+                        .getOppositeRelation(relation, register.getGender())), recordReadable, true, false,false);
 
         return true;
     }
@@ -170,9 +180,9 @@ public class FamilyServiceImpl implements FamilyService {
             RegisterInfo register = findOneRegister(invitation.getUid(), false);
             createMemberRelationPair(invitation.getUid(), invitation.getMemberId(), invitation.getRelation(),
                     register.getGender(), invitation.getRelationName(), relationName,
-                    FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false);
+                    FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false,false);
         }
-//        push(invitation.getUid(), "家庭成员邀请", "您的一条家庭成员邀请已被处理, 请查收");
+        //        push(invitation.getUid(), "家庭成员邀请", "您的一条家庭成员邀请已被处理, 请查收");
         return true;
     }
 
@@ -180,7 +190,7 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     public String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
             String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
-            Boolean isAnonymous) {
+            Boolean isAnonymous, boolean access) {
         Date time = new Date();
         String pairId = IdGen.uuid();
         FamilyMember familyMember1 = new FamilyMember();
@@ -192,7 +202,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember1.setRelationName(relationName1);
         familyMember1.setMemo(FamilyMemberRelation.isOther(relation) ? relationName1 : null);
         FamilyMemberAccess.Builder builder = new FamilyMemberAccess.Builder();
-        builder.recordAccess(recordReadable1, false);
+        builder.recordAccess(recordReadable1, access);
         familyMember1.setAccess(builder.build());
         familyMember1.setCreateBy(user1Id);
         familyMember1.setCreateDate(time);
@@ -212,7 +222,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember2.setRelationName(FamilyMemberRelation.getName(familyMember2.getRelation(), relationName2));
         familyMember2.setMemo(FamilyMemberRelation.isOther(relation) ? relationName2 : null);
         FamilyMemberAccess.Builder newBuilder = new FamilyMemberAccess.Builder();
-        newBuilder.recordAccess(recordReadable2, false);
+        newBuilder.recordAccess(recordReadable2, access);
         familyMember2.setAccess(newBuilder.build());
         familyMember2.setCreateBy(user2Id);
         familyMember2.setCreateDate(time);
@@ -249,8 +259,8 @@ public class FamilyServiceImpl implements FamilyService {
             invitationRepository.save(familyMemberInvitation);
         }
         RegisterInfo register = findOneRegister(userId, false);
-//        String message = register.getNickname() + "已与您解除亲情账户绑定";
-//        push(memberId, "亲情账户解除绑定", message);
+        //        String message = register.getNickname() + "已与您解除亲情账户绑定";
+        //        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
 
@@ -302,7 +312,7 @@ public class FamilyServiceImpl implements FamilyService {
     public Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile) {
         return sendRegistrationCode(uid, relation, relationName, mobile, null);
     }
-    
+
     @Override
     public Boolean sendRegistrationCode(String uid, String relation, String relationName, String mobile, String area) {
         RegisterInfo register = findOneRegister(uid, false);
@@ -311,9 +321,9 @@ public class FamilyServiceImpl implements FamilyService {
         String message = "验证码：:code。您的"
                 + (StringUtils.equals("0", relation) ? "家人" : FamilyMemberRelation.getName(FamilyMemberRelation
                         .getOppositeRelation(relation, register.getGender()))) + mobileMessage;
-        if("4401".equals(area)){
+        if ("4401".equals(area)) {
             message += "为您创建了广州健康通账户，以便于更好的管理您的家人健康。";
-        }else{
+        } else {
             message += "为您创建了健康云账户，以便于更好的管理您的家人健康。请点击http://www.wdjky.com/healthcloud2 进行APP下载。";
         }
         JsonNode node = httpWdUtils.sendCode(mobile, message);
@@ -327,26 +337,59 @@ public class FamilyServiceImpl implements FamilyService {
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
         AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
-        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
+        createMemberRelationPair(
+                userId,
+                account.getId(),
+                relation,
+                register.getGender(),
+                relationName,
+                FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
+                        .getOppositeRelation(relation, register.getGender())), true, true, true,false);
         accountService.verificationSubmit(account.getId(), name, idcard, photo);
     }
     
     @Transactional(readOnly = false)
     @Override
-    public Boolean childVerificationRegistration(String userId,String name, String idCard, String idCardFile, String birthCertFile) {
+    public void anonymousRegistration(String userId, String relation, String relationName, String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
+        checkMemberCount(userId);
+        RegisterInfo register = findOneRegister(userId, false);
+        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid(), sex, headphoto, mobile, birthDate, isStandalone);
+        createMemberRelationPair(
+                userId,
+                account.getId(),
+                relation,
+                register.getGender(),
+                relationName,
+                FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
+                        .getOppositeRelation(relation, register.getGender())), true, true, true,true);
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public Boolean childVerificationRegistration(String userId, String name, String idCard, String idCardFile,
+            String birthCertFile) {
         String gender = IdcardUtils.getGenderByIdCard(idCard);
         String relation = "1".equals(gender) ? "4" : "5";//4 儿子 5 女儿
         String relationName = "1".equals(gender) ? "儿子" : "女儿";
-        
+
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
-        if(!"1".equals(register.getIdentifytype()) || StringUtils.isEmpty(register.getRegmobilephone())){
+        if (!"1".equals(register.getIdentifytype()) || StringUtils.isEmpty(register.getRegmobilephone())) {
             throw new ErrorChildVerificationException("非实名认证和未绑定手机号的用户不能添加儿童实名认证");
         }
-        AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid());
-        boolean result = accountService.childVerificationSubmit(userId, account.getId(), name, idCard, idCardFile, birthCertFile);
-        createMemberRelationPair(userId, account.getId(), relation, register.getGender(), relationName, FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation.getOppositeRelation(relation, register.getGender())), true, true, true);
-        return  result;
+        AnonymousAccount account = accountService.childVerificationRegistration(userId, "HCGEN" + IdGen.uuid(),
+                IdGen.uuid());
+        boolean result = accountService.childVerificationSubmit(userId, account.getId(), name, idCard, idCardFile,
+                birthCertFile);
+        createMemberRelationPair(
+                userId,
+                account.getId(),
+                relation,
+                register.getGender(),
+                relationName,
+                FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
+                        .getOppositeRelation(relation, register.getGender())), true, true, true, false);
+        return result;
     }
 
     private List<FamilyMember> findByTwoUser(String userId, String memberId, Boolean nullable) {
@@ -360,7 +403,8 @@ public class FamilyServiceImpl implements FamilyService {
     private Boolean push(String userId, String title, String content) {
         boolean result = false;
         try {
-            AppMessage message = AppMessage.Builder.init().title(title).content(content).type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
+            AppMessage message = AppMessage.Builder.init().title(title).content(content)
+                    .type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
             result = pushClientWrapper.pushToAlias(message, userId);
         } catch (Exception e) {
             return false;
@@ -388,8 +432,88 @@ public class FamilyServiceImpl implements FamilyService {
 
     private void checkMemberCount(String userId) {
         if (memberRepository.familyMemberCount(userId) >= maxMemberCount) {
-            throw new ErrorChangeMobileException(1059, "本人或对方已添加五个亲情账户");
+            throw new ErrorChangeMobileException(1059, "本人或对方已添加十个亲情账户");
         }
     }
 
+    @Override
+    public boolean pushMessage(String uid, String memberId, int type) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity request = new HttpEntity(getMessage(uid, memberId, type), headers);
+        Map map = restTemplate.postForObject(host + SEND_MESSAGE_URL, request, Map.class);
+        if ("0".equals(map.get("code").toString())) {
+            return true;
+        }
+        return false;
+    }
+
+    public FamilyMessage getMessage(String uid, String memberId, int type) {
+        FamilyMessage familyMessage = new FamilyMessage();
+        RegisterInfo info = userService.getOneNotNull(uid);
+        String title = "";
+        String content = "";
+        String name = info.getNickname();
+        if (type == 1) {
+            title = "计步管理";
+            content = "健康云用户" + name + "提示你，一起计步领积分金币，兑换奖品啦。";
+        } else if (type == 2) {
+            title = "BMI管理";
+            content = "健康云用户" + name + "提示你，输入身高体重，BMI数值马上知晓。";
+        } else if (type == 3) {
+            title = "血糖管理";
+            content = "健康云用户" + name + "提示你，需要管理自己的血糖啦。";
+        } else if (type == 4) {
+            title = "血压管理";
+            content = "健康云用户" + name + "提示你，需要管理自己的血压啦。";
+        } else if (type == 5) {
+            title = "中医体质辨识";
+            content = "健康云用户" + name + "提示你，做一做中医体质辨识，看看你是属于哪种体质？";
+        } else if (type == 6) {
+            title = "风险评估";
+            content = "健康云用户" + name + "提示你，做一做风险评估，看看是否有慢病风险哦。";
+        } else if (type == 7) {
+            title = "就医记录";
+            content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
+        } else if (type == 8) {
+
+        } else if (type == 9) {
+            title = "关系解除";
+            content = "健康云用户" + name + "已与你解除绑定";
+        } else if (type == 10) {
+
+        } else if (type == 11) {
+
+        } else if (type == 12) {
+
+        }
+        familyMessage.setMsgContent(content);
+        familyMessage.setMsgType(changeType(type));
+        familyMessage.setMsgTitle(title);
+        familyMessage.setNotifierUID(uid);
+        familyMessage.setReceiverUID(memberId);
+        familyMessage.setJumpUrl(null);
+        familyMessage.setReqRecordID(null);
+        return familyMessage;
+    }
+
+    public String changeType(int type) {
+        String tp = String.valueOf(type);
+        switch (type) {
+        case 1:tp = "10";break;
+        case 2:tp = "5";break;
+        case 3:tp = "7";break;
+        case 4:tp = "6";break;
+        case 5:tp = "9";break;
+        case 6:tp = "8";break;
+        case 7:tp = "4";break;
+//        case 8:tp = "10";break;
+        case 9:tp = "3";break;
+//        case 10:tp = "10";break;
+
+
+        }
+        return tp;
+    }
 }

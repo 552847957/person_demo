@@ -32,6 +32,7 @@ public class FamilyMemberInfoDTO {
         private Boolean isStandalone;  //是否单机版
         private Boolean access;        //是否有权限
         private String  mobile;
+        String          desc;
 
     }
 
@@ -46,10 +47,9 @@ public class FamilyMemberInfoDTO {
 
         }
 
-        public InfoTemplet(int type, String title, String desc, List<MeasureInfoDTO> values) {
+        public InfoTemplet(int type, String title, List<MeasureInfoDTO> values) {
             this.type = type;
             this.title = title;
-            this.desc = desc;
             this.values = values;
         }
     }
@@ -68,7 +68,7 @@ public class FamilyMemberInfoDTO {
         public static Map<Integer, String> map            = new TreeMap<Integer, String>();
 
         static {
-            map.put(VERIFICATION, "实名制");
+//            map.put(VERIFICATION, "实名制");
             map.put(DOCTOR_RECORD, "就医记录");
             map.put(FAMILY_DOCTOR, "家庭医生");
             map.put(JOGGING, "计步管理");

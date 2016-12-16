@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
+import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -117,65 +118,102 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public FamilyHealthDTO findfamilyHealth(String registerId, String apiMeasureUrl, String apiUserhealthRecordUrl) {
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, String apiMeasureUrl, String apiUserhealthRecordUrl) {
         FamilyHealthDTO dto = new FamilyHealthDTO();
         UserHealthDTO userHealth = null; //用户健康对象
         FamilyMemberDTO familyMember = null; //家人健康对象
 
         Map<String, Object> input = new HashMap<String, Object>();
-        input.put("registerId", registerId);
-        input.put("sex", "2");//性别要查询出来
-        input.put("moreThanDays", "100");//个人取一周的数据
+        input.put("registerId", registerInfo.getRegisterid());
+        input.put("sex", registerInfo.getGender());
+        input.put("moreThanDays", "7");//个人取一周的数据
         input.put("limit", "10");
         input.put("personCard", "");
         input.put("cardType", "");
         input.put("cardId", "");
 
-        //个人健康信息
+        //个人健康信息  健康状态0:无数据 1:良好 2:异常
         userHealth = getUserHealthInfo(input, apiMeasureUrl);
 
+        boolean familyLastHealthRecordFlag = true; // 如果多个家人都有就医记录，取一个
 
-        //家人健康信息
-        registerId = "ff80808154177829015417bbe1970020"; //TODO 开发环境下写死
-        List<FamilyMember> fmList = familyService.getFamilyMembers(registerId);
+        //家人健康信息  健康状态 0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
+        List<FamilyMember> fmList = familyService.getFamilyMembers(registerInfo.getRegisterid());
         if (!CollectionUtils.isEmpty(fmList)) {
             for (FamilyMember fm : fmList) {
-//                Map<String, Object> userInfoMap = userService.findUserInfoByUid(fm.getMemberId());
-                Map<String, Object> userInfoMap = userService.findUserInfoByUid("ff80808154177829015417bbe1970020"); // TODO 开发环境 测试数据
+                Map<String, Object> userInfoMap = userService.findUserInfoByUid(fm.getMemberId());
                 if (null != userInfoMap && null != userInfoMap.get("personcard")) {
                     String idc = String.valueOf(userInfoMap.get("personcard"));
 
                     //1 家人最近住院信息
-                    UserHealthRecordDTO userhealthRecord = getFamilyLastHealthRecord(idc, apiUserhealthRecordUrl); // 问题：如果多个家人都有就医记录，如何选择
-                    if (null != userhealthRecord) {
-                        familyMember = buildFamilyLastHealthRecord(fm, userhealthRecord);
+                    if (familyLastHealthRecordFlag) {
+                        UserHealthRecordDTO userhealthRecord = getFamilyLastHealthRecord(idc, apiUserhealthRecordUrl);
+                        if (null != userhealthRecord) {
+                            if (null == familyMember) {
+                                familyMember = new FamilyMemberDTO();
+                                familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+                            }
+
+                            FamilyMemberItemDTO familyMemberItemDTO = buildFamilyLastHealthRecord(fm, userhealthRecord);
+                            familyMember.getExceptionItems().add(familyMemberItemDTO);
+                            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+                            familyLastHealthRecordFlag = false;
+                        }
+
                     }
 
 
                     // 2 家人健康信息
                     Map<String, Object> familyMemberInput = new HashMap<String, Object>();
-//                    familyMemberInput.put("registerId", userInfoMap.get("registerid"));
-                    familyMemberInput.put("registerId", "ff80808154177829015417bbe1970020"); //TODO 开发环境，测试写死
+                    familyMemberInput.put("registerId", userInfoMap.get("registerid"));
                     familyMemberInput.put("sex", userInfoMap.get("gender"));//性别
-                    familyMemberInput.put("moreThanDays", "100");//家人取一个月的数据
+                    familyMemberInput.put("moreThanDays", "30");//家人取一个月的数据
                     familyMemberInput.put("limit", "10");
                     familyMemberInput.put("personCard", "");
                     familyMemberInput.put("cardType", "");
                     familyMemberInput.put("cardId", "");
                     UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput, apiMeasureUrl);
                     if (null != familyMemberHealth) { //家庭成员有健康异常
-                        familyMember = buildFamilyMemberHealth(fm, familyMemberHealth);
+
+                        if (null == familyMember) {
+                            familyMember = new FamilyMemberDTO();
+                            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+                        }
+
+                        FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, familyMemberHealth);
+                        if (null != ftemDTO) {
+                            familyMember.getExceptionItems().add(ftemDTO);
+                            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+                        }
                     }
 
+
                     //3 家人风险评估结果
-//                   familyMember =  buildFamilyDangerousResult(fm, String.valueOf(userInfoMap.get("registerid")));
-                    familyMember = buildFamilyDangerousResult(fm, "43a3d6c655f54f34bdbdd5df1dce3161"); //TODO 开发环境，测试写死
+                    FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm, String.valueOf(userInfoMap.get("registerid")));
+
+                    if (null == familyMember) {
+                        familyMember = new FamilyMemberDTO();
+                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId());
+                        familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+                    }
+
+                    if (null != fItemDTO) {
+                        familyMember.getExceptionItems().add(fItemDTO);
+                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+                    }
+
 
                     //4 育苗信息 养橙：孟华实现接口
-
-
                 }
             }
+        } else { //无家人
+            familyMember = new FamilyMemberDTO();
+            familyMember.setMainTitle("设置您的家庭成员数据");
+            familyMember.setSubTitle("您可以添加家人>>");
+
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
+            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
         }
 
 
@@ -188,7 +226,7 @@ public class HomeServiceImpl implements HomeService {
             userHealth.setSubTitle("添加您的健康数据>>");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
             dto.setUserHealth(userHealth);
-        }else if(userHealth.getHealthStatus().equals(UserHealthStatusEnum.HAVE_GOOD_HEALTH.getId())){
+        } else if (userHealth.getHealthStatus().equals(UserHealthStatusEnum.HAVE_GOOD_HEALTH.getId())) {
             userHealth.setMainTitle("您的健康状况：良好");
             userHealth.setSubTitle("你的健康状况良好，要继续保持哦");
         }
@@ -200,17 +238,13 @@ public class HomeServiceImpl implements HomeService {
         //情况二：有家人，家人正常，近期无通知提示。
         //情况三：有家人，家人无任何数据。
 
-        if (null == familyMember) {
+        if (null == familyMember) { //有家人，家人正常，近期无通知提示。
             familyMember = new FamilyMemberDTO();
-            familyMember.setMainTitle("设置您的家庭成员数据");
-            familyMember.setSubTitle("您可以添加家人>>");
-
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
-            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
-        }else if(familyMember.getHealthStatus().equals(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId())){
             familyMember.setMainTitle("家庭成员 健康状况良好");
-            familyMember.setSubTitle("家人健康状况良好，要继续保持>>");
-        }else if (familyMember.getHealthStatus().equals(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId())){
+            familyMember.setSubTitle("家人健康状况良好，要继续保持。");
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+        } else if (null != familyMember && familyMember.getHealthStatus().equals(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId())) {
             familyMember.setMainTitle("设置您的家庭成员数据");
             familyMember.setSubTitle("添加您家人的健康数据吧>>");
         }
@@ -219,7 +253,6 @@ public class HomeServiceImpl implements HomeService {
 
         return dto;
     }
-
 
 
     @Override
@@ -241,11 +274,11 @@ public class HomeServiceImpl implements HomeService {
 
 
     @Override
-    public SideAdDTO findSideAdDTO(String mainArea) {
+    public SideAdDTO findSideAdDTO(String mainArea, String specArea) {
         SideAdDTO sideAd = new SideAdDTO();
         ImageText imgTextD = new ImageText();
         imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());
-        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextD);
+        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextD);
         if (!CollectionUtils.isEmpty(imageTextsD)) {
             sideAd = new SideAdDTO(imageTextsD.get(0));
         }
@@ -255,7 +288,7 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<SpecialServiceDTO> findSpecialServiceDTO(Session session, String appVersion, String mainArea, String specArea) {
         List<SpecialServiceDTO> list = new ArrayList<SpecialServiceDTO>();
-        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_SERVICE_BTN.getType(), appVersion);
 
         if (!CollectionUtils.isEmpty(imageTextsB)) {
             String idCard = null;
@@ -339,14 +372,16 @@ public class HomeServiceImpl implements HomeService {
     /**
      * 家庭成员最近住院信息
      *
+     * @param idc                    身份证号码
+     * @param apiUserhealthRecordUrl
      * @return
      */
     private UserHealthRecordDTO getFamilyLastHealthRecord(String idc, String apiUserhealthRecordUrl) {
         UserHealthRecordDTO dto = null;
         Map<String, Object> userHealthInput = new HashMap<String, Object>();
-        userHealthInput.put("idc", "310104194004244814");// TODO 开发环境 测试数据
+        userHealthInput.put("idc", idc);
 
-        final int theDayBeforeToday = -150; //最近一个月
+        final int theDayBeforeToday = -30; //最近一个月
         Calendar calendar = Calendar.getInstance(); //得到日历
         calendar.setTime(new Date());//把当前时间赋给日历
         calendar.add(Calendar.DAY_OF_MONTH, theDayBeforeToday);
@@ -377,7 +412,8 @@ public class HomeServiceImpl implements HomeService {
     /**
      * 查询个人健康信息
      *
-     * @param userInfoMap
+     * @param userInfoMap   参数
+     * @param apiMeasureUrl 请求地址
      * @return
      */
     private UserHealthDTO getUserHealthInfo(Map<String, Object> userInfoMap, String apiMeasureUrl) {
@@ -388,7 +424,7 @@ public class HomeServiceImpl implements HomeService {
             DataMsg<HealthResponse<List<UserHealthItemDTO>>> dataResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthResponse<List<UserHealthItemDTO>>>>() {
             });
 
-            if (null != dataResponse && null != dataResponse.getData()) {
+            if (null != dataResponse && null != dataResponse.getData() && !CollectionUtils.isEmpty(dataResponse.getData().getExceptionItems())) {
                 HealthResponse healthResponse = dataResponse.getData();
                 dto = new UserHealthDTO();
                 dto.setHealthStatus(healthResponse.getHealthStatus());
@@ -396,7 +432,6 @@ public class HomeServiceImpl implements HomeService {
                 dto.setSubTitle("[显示最新的2项异常指标数据]");
                 dto.setExceptionItems((List<UserHealthItemDTO>) healthResponse.getExceptionItems());
             }
-
         }
 
         return dto;
@@ -410,22 +445,19 @@ public class HomeServiceImpl implements HomeService {
      * @param registerid
      * @return
      */
-    private FamilyMemberDTO buildFamilyDangerousResult(FamilyMember fm, String registerid) {
+    private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMember fm, String registerid) {
 
-        FamilyMemberDTO familyMember = new FamilyMemberDTO();
-        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
-        familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
 
-        String dangerousResult = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
-        if (StringUtils.isNotBlank(dangerousResult)) {
-            FamilyMemberItemDTO fItemDTO = new FamilyMemberItemDTO();
+        FamilyMemberItemDTO fItemDTO = null;
+        HealthQuestion healthQuestion = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
+        if (null != healthQuestion && StringUtils.isNotBlank(healthQuestion.getResult())) {
+            fItemDTO = new FamilyMemberItemDTO();
             fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 " + dangerousResult);//话术
-            familyMember.getExceptionItems().add(fItemDTO);
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 " + healthQuestion.getResult());//话术
+
         }
 
-        return familyMember;
+        return fItemDTO;
     }
 
 
@@ -436,25 +468,19 @@ public class HomeServiceImpl implements HomeService {
      * @param familyMemberHealth
      * @return
      */
-    private FamilyMemberDTO buildFamilyMemberHealth(FamilyMember fm, UserHealthDTO familyMemberHealth) {
-
-        FamilyMemberDTO familyMember = new FamilyMemberDTO();
-        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
-        familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
-
+    private FamilyMemberItemDTO buildFamilyMemberHealth(FamilyMember fm, UserHealthDTO familyMemberHealth) {
+        FamilyMemberItemDTO ftemDTO = null;
 
         if (!CollectionUtils.isEmpty(familyMemberHealth.getExceptionItems())) {
             for (UserHealthItemDTO dto : familyMemberHealth.getExceptionItems()) {
-                FamilyMemberItemDTO ftemDTO = new FamilyMemberItemDTO();
+                ftemDTO = new FamilyMemberItemDTO();
                 ftemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
                 ftemDTO.setPrompt(dto.getName() + " " + dto.getData() + " " + (dto.getHightAndLow().equals("1") ? "偏高" : "偏低"));
-                familyMember.getExceptionItems().add(ftemDTO);
-                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                 break;//家人有多项异常，只取一项
             }
         }
 
-        return familyMember;
+        return ftemDTO;
 
     }
 
@@ -464,18 +490,13 @@ public class HomeServiceImpl implements HomeService {
      * @param fm
      * @param userhealthRecord
      */
-    private  FamilyMemberDTO  buildFamilyLastHealthRecord(FamilyMember fm, UserHealthRecordDTO userhealthRecord) {
-            FamilyMemberDTO familyMember = new FamilyMemberDTO();
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
-            familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
+    private FamilyMemberItemDTO buildFamilyLastHealthRecord(FamilyMember fm, UserHealthRecordDTO userhealthRecord) {
 
         FamilyMemberItemDTO familyMemberItemDTO = new FamilyMemberItemDTO();
         familyMemberItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
         familyMemberItemDTO.setPrompt(familyMemberItemDTO.getRelationship() + " ，有新的就医记录");//话术
-        familyMember.getExceptionItems().add(familyMemberItemDTO);
-        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
 
-        return  familyMember;
+        return familyMemberItemDTO;
 
     }
 

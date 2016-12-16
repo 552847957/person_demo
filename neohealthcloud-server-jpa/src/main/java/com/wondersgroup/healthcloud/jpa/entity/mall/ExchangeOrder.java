@@ -74,7 +74,7 @@ public class ExchangeOrder {
 	@Column(name = "end_time")
 	private Date endTime; // 结束时间
 
-	@JsonFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "create_time")
 	private Date createTime; // 创建时间
 

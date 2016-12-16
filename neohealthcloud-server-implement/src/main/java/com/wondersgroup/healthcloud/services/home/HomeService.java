@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.home;
 
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.cloudTopLine.CloudTopLineDTO;
@@ -30,10 +31,10 @@ public interface HomeService {
 
     /**
      * 家庭健康栏目
-     * @param registerId 当前用户ID
+     * @param registerInfo 当前登录用户
      * @return
      */
-    public FamilyHealthDTO findfamilyHealth(String registerId,String apiMeasureUrl,String apiUserhealthRecordUrl);
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, String apiMeasureUrl, String apiUserhealthRecordUrl);
 
 
     /**
@@ -46,7 +47,7 @@ public interface HomeService {
      * 侧边浮层广告
      * @return
      */
-    public SideAdDTO findSideAdDTO(String mainArea);
+    public SideAdDTO findSideAdDTO(String mainArea,String specArea);
 
     /**
      * 特色服务

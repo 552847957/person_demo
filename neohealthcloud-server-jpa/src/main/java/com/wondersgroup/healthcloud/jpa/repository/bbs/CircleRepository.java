@@ -20,13 +20,14 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
                     " where u.uid=?1 and u.del_flag = 0 ORDER BY u.update_time DESC")
     List<Circle> findUserJoinedCircles(String uid);
 
-    List<Circle> queryByCateIdAndDelFlagOrderByRankDesc(Integer cateId, String delFlag);
-
     // 默认加入的圈子列表
     List<Circle> queryByIsDefaultAttentAndDelFlag(Integer isDefaultAttent, String delFlag);
 
-    // 查询推荐圈子列表
-    List<Circle> queryByIsRecommendAndDelFlagOrderByRankDesc(Integer isRecommend, String delFlag);
+    @Query("select c from Circle c where c.delFlag = '0' ORDER BY c.rank DESC, c.updateTime DESC")
+    List<Circle> findAllVaild();
+
+    @Query("select c from Circle c ORDER BY c.rank DESC, c.updateTime DESC")
+    List<Circle> findAll();
 
     @Transactional
     @Modifying

@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Yoda on 2015/12/29.
@@ -60,9 +61,9 @@ public interface AssessmentService {
     Assessment getRecentAssess(String uid);
 
     /**
-     * 获取用户最近一次的风险评估结果,正常则返回true, 高危则返回false
+     * 获取用户最近一次的风险评估结果
      * @param uid
-     * @return
+     * @return  {state:true,date:yyyy-MM-dd HH:mm:ss}  【state:true:正常, state:false:高危】
      */
-    Boolean getRecentAssessIsNormal(String uid);
+    Map<String,Object> getRecentAssessIsNormal(String uid);
 }

@@ -95,7 +95,7 @@ public class TopicDetailDto {
         this.nickName = registerInfo.getNickname();
         this.isAdmin = registerInfo.getIsBBsAdmin();
         //发帖用户被禁言 不可以回复
-        if (registerInfo.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (registerInfo.getBanStatus() != UserConstant.BanStatus.OK){
             this.userCommentStatus = UserConstant.UserCommentStatus.USER_BAN;
         }
     }

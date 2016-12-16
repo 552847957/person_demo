@@ -62,12 +62,8 @@ public class PhysicalIdentifyServiceImpl implements PhysicalIdentifyService {
 	 * @return
 	 */
 	@Override
-	public String getRecentPhysicalIdentify(String registerid) {
-		HealthQuestion question = healthQuestionRepo.findRecent(registerid);
-		if(null == question){
-			return null;
-		}
-		return question.getResult();
+	public HealthQuestion getRecentPhysicalIdentify(String registerid) {
+		return healthQuestionRepo.findRecent(registerid);
 	}
 
 	private void saveHealthQuestion(String registerid ,String content, String info){

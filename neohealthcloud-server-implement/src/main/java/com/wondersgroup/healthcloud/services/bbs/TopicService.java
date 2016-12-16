@@ -71,7 +71,7 @@ public interface TopicService {
      * 发布话题
      * @return 成功返回topic_id,失败返回0
      */
-    int publishTopic(TopicPublishDto publishInfo);
+    Topic publishTopic(TopicPublishDto publishInfo);
 
     int getCommentCount(Integer topicId);
 

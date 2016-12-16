@@ -15,6 +15,9 @@ public class AppUrlH5Utils {
 	@Value("${h5-web.connection.url}")
 	private String basePath;
 
+	@Value("${h5-mall.connection.url}")
+	private String mallBasePath;
+
 	/**
 	 * 圈子的话题详情
 	 */
@@ -81,6 +84,13 @@ public class AppUrlH5Utils {
 		return basePath + "/healthRecords/drugList?idc=" + idc;
 	}
 
+	/**
+	 * 圈子版规
+	 */
+	public String buildBbsVrules() {
+		return basePath + "/vrules";
+	}
+
 	public Map<String, String> generateLinks(String idc) {
 		Map<String, String> result = new HashMap<>();
 		result.put("zhuyuan_url", buildHealthRecordZhuyuan(idc));
@@ -94,24 +104,51 @@ public class AppUrlH5Utils {
 		return basePath + "/doctorDetails?from=doctor&for_type=weixin&doctorId=" + doctorId;
 	}
 
+	/**
+	 * 计步规则
+	 * 
+	 * @return
+	 */
 	public String buildStepRuleUrl() {
-		return basePath + "/";
+		return basePath + "/ruler/stepCountRuler";
 	}
 
+	/**
+	 * 计步帮助
+	 * 
+	 * @return
+	 */
 	public String buildStepHelpUrl() {
-		return basePath + "/";
+		return basePath + "/ruler/question";
 	}
 
+	/**
+	 * 计步邀请
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	public String buildStepInviteUrl(String userId) {
 		return basePath + "/hb/?uid=" + userId;
 	}
 
+	/**
+	 * 计步邀请分享LOGO
+	 * 
+	 * @return
+	 */
 	public String buildStepLogoUrl() {
 		return basePath + "/";
 	}
 
+	/**
+	 * 商城
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	public String buildStepMallUrl(String userId) {
-		return basePath + "/?userId=" + userId;
+		return mallBasePath + "/?userId=" + userId;
 	}
 
 }

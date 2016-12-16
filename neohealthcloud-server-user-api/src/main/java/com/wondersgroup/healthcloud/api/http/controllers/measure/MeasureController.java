@@ -38,7 +38,10 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.measure.MeasureManagement;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.measure.MeasureManagementService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 
@@ -53,6 +56,8 @@ public class MeasureController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
 
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -79,8 +84,8 @@ public class MeasureController {
 
         RegisterInfo info = userService.getOneNotNull(registerId);
         List histories = new ArrayList();
-        String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
-                .concat("&personCard=").concat(getPersonCard(info));
+        String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
+                .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
         String url = String.format(requestDayHistoriesListPath, host, parameters);
         ResponseEntity<Map> response = buildGetEntity(url, Map.class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -106,8 +111,8 @@ public class MeasureController {
     public JsonResponseEntity<?> nearestMeasure(@RequestParam String familyMateId) {
         try {
             RegisterInfo info = userService.getOneNotNull(familyMateId);
-            String parameters = "registerId=".concat(familyMateId).concat("&sex=").concat(getGender(info))
-                    .concat("&personCard=").concat(getPersonCard(info));
+            String parameters = "registerId=".concat(familyMateId).concat("&sex=").concat(getGender(info.getGender()))
+                    .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String url = String.format(requestFamilyPath, host, parameters);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -199,7 +204,7 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureChart(@PathVariable int type, String registerId, int flag) {
     	 RegisterInfo info = userService.getOneNotNull(registerId);
         try {
-            String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag)).concat("&personCard=").concat(getPersonCard(info));
+            String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag)).concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String url = String.format(requestChartPath, host, type, params);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -226,9 +231,9 @@ public class MeasureController {
     @GetMapping("yearHistory/{type}")
     public JsonResponseEntity queryMeasureHistory(@PathVariable int type, String registerId) throws JsonProcessingException {
         try {
-            RegisterInfo info = userService.getOneNotNull(registerId);
-            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
-                    .concat("&personCard=").concat(getPersonCard(info)));
+            RegisterInfo info = userService.findOne(registerId);
+            String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
+                    .concat("&personCard=").concat(getPersonCard(info.getPersoncard())));
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -254,8 +259,8 @@ public class MeasureController {
     public JsonResponseEntity queryMeasureHistory(String registerId, String flag) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
-                    .concat("&personCard=").concat(getPersonCard(info));
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
+                    .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
             String url = String.format(requestDayHistoryPath, host, params);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
@@ -290,8 +295,8 @@ public class MeasureController {
                 personCard = info.getPersoncard();
                 result.put("h5Url", h5Utils.generateLinks(personCard)) ;
             }
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
-                    .concat("&personCard=").concat(getPersonCard(info));
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
+                    .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String url = String.format(requestAbnormalHistories, host, param);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -322,9 +327,20 @@ public class MeasureController {
     @GetMapping("recentHistory/{type}")
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
-            RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info))
-                    .concat("&personCard=").concat(getPersonCard(info));
+            RegisterInfo info = userService.findOne(registerId);
+            String gender = "";
+            String personcard = "";
+            if(info == null){
+                AnonymousAccount ac = anonymousAccountRepository.findOne(registerId);
+                gender = ac.getSex();
+                registerId = ac.getId();
+                personcard = ac.getIdcard();
+            }else{
+                gender = info.getGender();
+                personcard = info.getPersoncard();
+            }
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(gender))
+                    .concat("&personCard=").concat(getPersonCard(personcard));
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
             String url = String.format(recentMeasureHistory, host, type, params);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
@@ -339,12 +355,12 @@ public class MeasureController {
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
 
-    public String getGender(RegisterInfo info){
-        return StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender();
+    public String getGender(String gender){
+        return StringUtils.isEmpty(gender) ? "1" : gender;
     }
     
-    public String getPersonCard(RegisterInfo info){
-        return StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard();
+    public String getPersonCard(String personcard){
+        return StringUtils.isEmpty(personcard) ? "" : personcard;
     }
     
     private HttpHeaders buildHeader(){

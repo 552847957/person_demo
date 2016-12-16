@@ -223,7 +223,7 @@ public class SpecCommonController {
         keyWords.add("app.common.voiceTip");// 语音-提示
         keyWords.add("app.common.callCentUrl");// 在线客服链接
         keyWords.add("app.common.disclaimerUrl");// 健康档案说明文案
-
+        keyWords.add("app.common.vrules");// 查看版规
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords);
 
         if (cfgMap != null) {
@@ -239,6 +239,11 @@ public class SpecCommonController {
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.recordUrl"))) {
                 common.setRecord_url(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+            }
+            if (StringUtils.isNotEmpty(cfgMap.get("app.common.vrules"))) {
+                common.setVrules(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.vrules")));
+            }else {
+                common.setVrules(appUrlH5Utils.buildBbsVrules());
             }
             if (platform.equalsIgnoreCase("0")) {
                 common.setQrCode(cfgMap.get("common.qr.code.url.ios"));
@@ -293,5 +298,6 @@ public class SpecCommonController {
         private String voiceTip;// 语音-提示
         private String callCentUrl;// 在线客服是否显示
         private String disclaimerUrl;// 健康档案说明文案
+        private String vrules;//圈子的版规
     }
 }

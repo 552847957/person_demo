@@ -119,10 +119,10 @@ public class TopicController {
             throw new RuntimeException("圈子无效");
         }
         topicPublishDto.setIsAdminPublish(true);
-        int topicId = topicService.publishTopic(topicPublishDto);
+        Topic topic = topicService.publishTopic(topicPublishDto);
         Map<String, Object> info = new HashMap<>();
-        if (topicId > 0){
-            info.put("topicId", topicId);
+        if (topic.getId() > 0){
+            info.put("topicId", topic.getId());
             rt.setData(info);
             rt.setMsg("发布成功");
         }else {
@@ -138,7 +138,7 @@ public class TopicController {
     public JsonResponseEntity<Object> delete(@RequestHeader String appUid, @RequestParam Integer id){
         JsonResponseEntity<Object> entity = new JsonResponseEntity();
         Topic topic = topicService.delTopic(appUid, id);
-        entity.setMsg(topic.getStatus().intValue() == TopicConstant.Status.ADMIN_DELETE ? "删除成功" : "恢复话题成功");
+        entity.setMsg(topic.getStatus() == TopicConstant.Status.ADMIN_DELETE ? "删除成功" : "恢复话题成功");
         return entity;
     }
 
