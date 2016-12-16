@@ -47,7 +47,7 @@ public class DiabetesServiceImpl implements DiabetesService {
 
     @PostConstruct
     private void setUrl(){
-        this.url = environment.getProperty("diabetes.web.url")+"ddddd";
+        this.url = environment.getProperty("diabetes.web.url");
     }
     /**
      * 根据医生获取在管人群数
