@@ -376,7 +376,6 @@ public class UserController {
                 JsonNode info = userAccountService.verficationSubmitInfo(id, false);
                 if (info != null) {
                     VerificationInfoDTO data = new VerificationInfoDTO(id, info);
-                    data.setSuccess(false);
                     data.setIdentifytype("2");
                     body.setData(data);
                 } else {
@@ -385,7 +384,6 @@ public class UserController {
                     data.setName(IdcardUtils.maskName(person.getName()));
                     data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
                     data.setIdentifytype(person.getIdentifytype());
-                    data.setSuccess(false);
                     data.setStatus(VerificationInfoDTO.statusArray[0]);
                     data.setCanSubmit(true);
                     body.setData(data);
