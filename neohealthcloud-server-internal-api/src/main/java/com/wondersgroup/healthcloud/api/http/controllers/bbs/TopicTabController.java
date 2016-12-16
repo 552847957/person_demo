@@ -40,7 +40,12 @@ public class TopicTabController {
     @RequestMapping(value="/groupAll",method = RequestMethod.GET)
     public JsonResponseEntity groupAll(@RequestParam(required = false, defaultValue = "0") Integer getVaild){
         JsonResponseEntity entity = new JsonResponseEntity();
-        List<Circle> circles = circleRepository.findAll();
+        List<Circle> circles;
+        if (getVaild == 1){
+            circles = circleRepository.findAllVaild();
+        }else {
+            circles = circleRepository.findAll();
+        }
         List<Map<String, Object>> rt = new ArrayList<>();
         for (Circle circle : circles){
             Map<String, Object> info = new HashMap<>();
