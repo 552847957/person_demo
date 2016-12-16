@@ -39,7 +39,6 @@ public class Application extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) throws Exception {
-        preCheck();
         SpringApplication app = new SpringApplication(Application.class);
         app.setWebEnvironment(true);
         app.setBannerMode(Banner.Mode.OFF);
@@ -47,9 +46,6 @@ public class Application extends SpringBootServletInitializer {
         app.run(args);
     }
 
-    private static void preCheck() throws Exception {
-        APIVersionChecker.check();
-    }
 
     private static String getProfile() {
         String env = System.getProperty("spring.profiles.active");
