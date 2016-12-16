@@ -30,7 +30,7 @@ import java.util.Properties;
  * <p/>
  * Created by zhangzhixiu on 15/11/16.
  */
-@SpringBootApplication(scanBasePackages = "com.wondersgroup.healthcloud", exclude = {ErrorMvcAutoConfiguration.class})
+@SpringBootApplication(scanBasePackages = "com.wondersgroup.healthcloud")
 public class Application extends SpringBootServletInitializer {
 
     @Override
@@ -40,7 +40,6 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(Application.class);
-        app.setWebEnvironment(true);
         app.setBannerMode(Banner.Mode.OFF);
         app.addListeners(buildListener());
         app.run(args);
