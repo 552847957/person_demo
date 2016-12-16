@@ -1097,11 +1097,21 @@ public class FamilyController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
         String name = reader.readString("name", false);
-        String idcard = reader.readString("idcard", false).toUpperCase();
-        String photo = reader.readString("photo", false);
+        String idcard = reader.readString("idcard", true).toUpperCase();
+        String photo = reader.readString("photo", true);
+        
+        String memberId = reader.readString("memberId", true);
+        String idCardFile = reader.readString("idCardFile", true);//户口本(儿童身份信息页照片)
+        String birthCertFile = reader.readString("birthCertFile", true);//出生证明(照片)
+        
+        if(!StringUtils.isBlank(memberId) ){
+            accountService.childVerificationSubmit(uid, memberId, name, idcard, idCardFile,
+                    birthCertFile);
+        }else{
+            accountService.verificationSubmit(uid, name, idcard, photo);
+        }
         
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
-        accountService.verificationSubmit(uid, name, idcard, photo);
         body.setMsg("正在进行实名认证");
         return body;
     }
