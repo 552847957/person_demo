@@ -166,8 +166,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         String sql = " select o.*,s.schedule_date " +
                 " from app_tb_appointment_order o " +
                 " left join app_tb_appointment_doctor_schedule s on o.schedule_id = s.id " +
-                " where 1=1 " +
-                " s.schedule_date >= '%s' and s.schedule_date<= '%s' " +
+                " where s.schedule_date >= '%s' and s.schedule_date<= '%s' " +
                 " and o.`status` !='3' and o.`status` !='4' and o.`status` !='9' " +
                 " GROUP BY o.user_card_id ";
 
