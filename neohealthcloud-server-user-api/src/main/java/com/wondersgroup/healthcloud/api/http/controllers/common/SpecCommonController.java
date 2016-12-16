@@ -242,6 +242,8 @@ public class SpecCommonController {
             }
             if (StringUtils.isNotEmpty(cfgMap.get("app.common.vrules"))) {
                 common.setVrules(appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.vrules")));
+            }else {
+                common.setVrules(appUrlH5Utils.buildBbsVrules());
             }
             if (platform.equalsIgnoreCase("0")) {
                 common.setQrCode(cfgMap.get("common.qr.code.url.ios"));
