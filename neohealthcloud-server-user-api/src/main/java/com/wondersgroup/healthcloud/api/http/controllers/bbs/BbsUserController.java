@@ -136,7 +136,7 @@ public class BbsUserController {
         Map<String, Object> info = new HashMap<>();
 
         RegisterInfo account = userService.getOneNotNull(uid);
-        if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (account.getBanStatus() != UserConstant.BanStatus.OK){
             info.put("status", 1);
             info.put("info", "用户被禁言");
             entity.setData(info);
@@ -168,7 +168,7 @@ public class BbsUserController {
         JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity();
         Map<String, Object> info = new HashMap<>();
         RegisterInfo account = userService.getOneNotNull(uid);
-        if (account.getBanStatus().intValue() != UserConstant.BanStatus.OK){
+        if (account.getBanStatus() != UserConstant.BanStatus.OK){
             info.put("info", "用户被禁言");
             info.put("status", 1);
             entity.setData(info);
