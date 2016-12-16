@@ -242,11 +242,11 @@ public class HomeServiceImpl implements HomeService {
 
 
     @Override
-    public SideAdDTO findSideAdDTO(String mainArea) {
+    public SideAdDTO findSideAdDTO(String mainArea,String specArea) {
         SideAdDTO sideAd = new SideAdDTO();
         ImageText imgTextD = new ImageText();
         imgTextD.setAdcode(ImageTextEnum.HOME_FLOAT_AD.getType());
-        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextD);
+        List<ImageText> imageTextsD = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgTextD);
         if (!CollectionUtils.isEmpty(imageTextsD)) {
             sideAd = new SideAdDTO(imageTextsD.get(0));
         }

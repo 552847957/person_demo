@@ -46,7 +46,7 @@ public interface HomeService {
      * 侧边浮层广告
      * @return
      */
-    public SideAdDTO findSideAdDTO(String mainArea);
+    public SideAdDTO findSideAdDTO(String mainArea,String specArea);
 
     /**
      * 特色服务

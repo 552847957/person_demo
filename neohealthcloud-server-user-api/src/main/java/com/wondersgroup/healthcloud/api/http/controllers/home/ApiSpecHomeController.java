@@ -69,7 +69,7 @@ public class ApiSpecHomeController {
         data.put("advertisements",advertisements);
 
          //侧边浮层广告
-        SideAdDTO sideAd = homeService.findSideAdDTO(mainArea);
+        SideAdDTO sideAd = homeService.findSideAdDTO(mainArea,null);
         data.put("sideAd",sideAd);
 
         //家庭健康栏目
