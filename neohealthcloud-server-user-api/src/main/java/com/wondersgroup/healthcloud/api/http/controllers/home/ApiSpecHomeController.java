@@ -23,10 +23,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,10 +46,10 @@ public class ApiSpecHomeController {
     @Autowired
     RegisterInfoRepository registerInfoRepo;
 
-    @Value("${api.measure.url}")
+    @Value("${internal.api.service.measure.url}")
     private String API_MEASURE_URL;
 
-    @Value("${api.userhealth.record.url}")
+    @Value("${internal.api.service.healthrecord.url}")
     private String API_USERHEALTH_RECORD_URL;
 
 
@@ -62,9 +59,16 @@ public class ApiSpecHomeController {
     public JsonResponseEntity index(@RequestHeader(value = "main-area", required = true) String mainArea,
                                     @RequestHeader(value = "spec-area", required = false) String specArea,
                                     @RequestHeader(value = "app-version", required = true) String version,
+                                    @RequestParam(value="uid",required = false) String uid,
                                     @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
+
+        RegisterInfo registerInfo = null;
+        if(StringUtils.isNotBlank(uid)){
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
 
         //主要功能区
         List<FunctionIconsDTO> functionIcons = homeService.findFunctionIconsDTO(session, version, mainArea, specArea);
@@ -88,13 +92,9 @@ public class ApiSpecHomeController {
 
 
         FamilyHealthDTO familyHealth = null;
-        RegisterInfo registerInfo = null;
-        if (session != null && StringUtils.isNotEmpty(session.getUserId())) {
-             registerInfo = registerInfoRepo.findOne(session.getUserId());
-            if (null != registerInfo) {
-                familyHealth = homeService.findfamilyHealth(registerInfo, API_MEASURE_URL, API_USERHEALTH_RECORD_URL);
-            }
 
+        if (null != registerInfo) {
+            familyHealth = homeService.findfamilyHealth(registerInfo, API_MEASURE_URL, API_USERHEALTH_RECORD_URL);
         }
 
         if (null == familyHealth) {

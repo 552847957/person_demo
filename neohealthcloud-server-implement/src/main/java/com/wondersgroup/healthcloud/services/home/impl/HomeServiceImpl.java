@@ -424,7 +424,7 @@ public class HomeServiceImpl implements HomeService {
             DataMsg<HealthResponse<List<UserHealthItemDTO>>> dataResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthResponse<List<UserHealthItemDTO>>>>() {
             });
 
-            if (null != dataResponse && null != dataResponse.getData()) {
+            if (null != dataResponse && null != dataResponse.getData() && !CollectionUtils.isEmpty(dataResponse.getData().getExceptionItems())) {
                 HealthResponse healthResponse = dataResponse.getData();
                 dto = new UserHealthDTO();
                 dto.setHealthStatus(healthResponse.getHealthStatus());
