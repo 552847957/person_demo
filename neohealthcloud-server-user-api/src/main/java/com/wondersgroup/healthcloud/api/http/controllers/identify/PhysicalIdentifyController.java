@@ -119,10 +119,10 @@ public class PhysicalIdentifyController {
             @RequestParam String registerid) {
 
         JsonResponseEntity<List<HealthQuestionAPIEnity>> response = new JsonResponseEntity<List<HealthQuestionAPIEnity>>();
-        String result = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
+        HealthQuestion healthQuestion = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
         List<HealthQuestionAPIEnity> list = new ArrayList<HealthQuestionAPIEnity>();
-        if(!StringUtils.isEmpty(result)){
-            for (String physique : result.split(",")) {
+        if(null != healthQuestion && !StringUtils.isEmpty(healthQuestion.getResult())){
+            for (String physique : healthQuestion.getResult().split(",")) {
                 list.add(new HealthQuestionAPIEnity(physique));
             }
         }

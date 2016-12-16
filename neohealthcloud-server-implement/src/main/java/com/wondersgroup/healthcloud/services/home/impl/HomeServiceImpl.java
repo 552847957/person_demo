@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
+import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -416,11 +417,11 @@ public class HomeServiceImpl implements HomeService {
         familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId()); //健康状态0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
         familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
 
-        String dangerousResult = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
-        if (StringUtils.isNotBlank(dangerousResult)) {
+        HealthQuestion healthQuestion = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
+        if (null != healthQuestion && StringUtils.isNotBlank(healthQuestion.getResult())) {
             FamilyMemberItemDTO fItemDTO = new FamilyMemberItemDTO();
             fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 " + dangerousResult);//话术
+            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 " + healthQuestion.getResult());//话术
             familyMember.getExceptionItems().add(fItemDTO);
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
         }
