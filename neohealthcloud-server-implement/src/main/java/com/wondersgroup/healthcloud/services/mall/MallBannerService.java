@@ -66,7 +66,12 @@ public class MallBannerService {
 		if (tbBanner != null) {
 			throw new CommonException(1001, "该商品已添加横幅了");
 		}
-
+		
+		Goods goods = goodsRepository.findOne(banner.getGoodsId());
+		if(goods.getStatus() != 1){
+			throw new CommonException(1001, "该商品已下架");
+		}
+		
 		Date date = new Date();
 		banner.setId(IdGen.uuid());
 		banner.setCreateTime(date);
