@@ -70,6 +70,7 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
+import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
@@ -785,13 +786,13 @@ public class FamilyController {
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                 templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
             }else if(id == 8){
-                Boolean result = assessmentService.getRecentAssessIsNormal(memberId);
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", null, result ? "正常人群" : "风险人群")));
+                Map<String,Object> result = assessmentService.getRecentAssessIsNormal(memberId);
+//                templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", null, result ? "正常人群" : "风险人群")));
             }else if(id == 9){
-                String result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
-                if(!StringUtils.isBlank(result)){
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, null, result)));
-                }
+                HealthQuestion result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
+//                if(!StringUtils.isBlank(result)){
+//                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, null, result)));
+//                }
             }else{
                 templet.setValues(getMeasure(measures, id));
             }
@@ -1018,9 +1019,16 @@ public class FamilyController {
      */
     @RequestMapping(value = "/memberSendMessage", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<String> memberSendMessage(@RequestParam String uid, @RequestParam int type){
+    public JsonResponseEntity<String> memberSendMessage(@RequestParam String uid, @RequestParam String memberId, @RequestParam int type){
         JsonResponseEntity<String> response = new JsonResponseEntity<String>();
-        response.setMsg("发送成功");
+        
+        boolean result = familyService.pushMessage(uid, memberId, type);
+        if(result ){
+            response.setMsg("发送成功");
+        }else{
+            response.setCode(1001);
+            response.setMsg("发送失败");
+        }
         return response;
     }
     

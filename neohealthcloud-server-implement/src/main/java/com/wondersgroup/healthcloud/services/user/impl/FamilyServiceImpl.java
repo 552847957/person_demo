@@ -2,16 +2,22 @@ package com.wondersgroup.healthcloud.services.user.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
-import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
@@ -28,6 +34,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepos
 import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.FamilyMessage;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -37,7 +44,9 @@ import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
 @Service
 public class FamilyServiceImpl implements FamilyService {
     private static final int                 maxMemberCount = 10;
-
+    @Value("http://10.1.65.118:3897/api/family/message")
+    private String host;
+    
     @Autowired
     private Environment                      environment;
 
@@ -391,5 +400,55 @@ public class FamilyServiceImpl implements FamilyService {
             throw new ErrorChangeMobileException(1059, "本人或对方已添加五个亲情账户");
         }
     }
-
+    
+    @Override
+    public boolean pushMessage(String uid, String memberId, int type){
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers =new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity request = new HttpEntity(getMessage(uid, memberId, type), headers);
+        Map map = restTemplate.postForObject(host, request, Map.class);
+        if("0".equals(map.get("code"))){
+            return true;
+        }
+        return false;
+    }
+    
+    public FamilyMessage getMessage(String uid, String memberId, int type){
+        FamilyMessage familyMessage = new FamilyMessage();
+        
+        String content = "";
+        if(type == 1){
+            content = "健康云用户王大锤提示你，一起计步领积分金币，兑换奖品啦。";
+        }else if(type == 2){
+            content = "健康云用户xxx提示你，输入身高体重，BMI数值马上知晓。";
+        }else if(type == 3){
+            content = "健康云用户王大锤提示你，需要管理自己的血糖啦。";
+        }else if(type == 4){
+            content = "健康云用户王大锤提示你，需要管理自己的血压啦。";
+        }else if(type == 5){
+            content = "健康云用户王大锤提示你，做一做中医体质辨识，看看你是属于哪种体质？";
+        }else if(type == 6){
+            content = "健康云用户王大锤提示你，做一做风险评估，看看是否有慢病风险哦。";
+        }else if(type == 7){
+            content = "健康云用户xxx提示你，开启就医记录，即刻查看上海市就医记录。";
+        }else if(type == 8){
+            
+        }else if(type == 9){
+            
+        }else if(type == 10){
+            
+        }else if(type == 11){
+            
+        }else if(type == 12){
+            
+        }
+        familyMessage.setMsgContent(content);
+        familyMessage.setMsgType(String.valueOf(type));
+        familyMessage.setMsgTitle("");
+        familyMessage.setNotifierUID(uid);
+        familyMessage.setReceiverUID(memberId);
+        familyMessage.setReqRecordID(null);
+        return familyMessage;
+    }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitation;
+import com.wondersgroup.healthcloud.services.user.dto.FamilyMessage;
 
 public interface FamilyService {
 
@@ -178,4 +179,7 @@ public interface FamilyService {
     String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
             String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
             Boolean isAnonymous);
+    
+    
+    public boolean pushMessage(String uid, String memberId, int type);
 }
