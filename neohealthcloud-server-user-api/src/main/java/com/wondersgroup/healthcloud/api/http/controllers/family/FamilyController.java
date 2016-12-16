@@ -1104,7 +1104,7 @@ public class FamilyController {
         String idCardFile = reader.readString("idCardFile", true);//户口本(儿童身份信息页照片)
         String birthCertFile = reader.readString("birthCertFile", true);//出生证明(照片)
         
-        if(!StringUtils.isBlank(memberId) ){
+        if(!StringUtils.isBlank(idCardFile)){
             accountService.childVerificationSubmit(uid, memberId, name, idcard, idCardFile,
                     birthCertFile);
         }else{
