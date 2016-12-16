@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.appointment;
 
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
+import com.wondersgroup.healthcloud.registration.entity.response.SegmentNumberInfo;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 
@@ -53,4 +54,10 @@ public interface AppointmentApiService {
     void cancelReservationOrderById(String id);
 
     Boolean getRegistrationIsOn(String mainArea);
+
+    AppointmentDoctorSchedule findScheduleById(String scheduleId);
+
+    void saveOrUpdateAppointmentScheduleByScheduleId(String scheduleId);
+
+    void saveOrUpdateAppointmentScheduleByDoctorId(String id,String type);
 }

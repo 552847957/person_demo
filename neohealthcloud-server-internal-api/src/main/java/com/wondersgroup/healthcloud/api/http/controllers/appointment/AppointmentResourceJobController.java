@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.registration.client.*;
 import com.wondersgroup.healthcloud.registration.entity.request.*;
 import com.wondersgroup.healthcloud.registration.entity.response.*;
+import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -71,9 +73,75 @@ public class AppointmentResourceJobController {
     @Autowired
     private DictCache dictCache;
 
+    @Autowired
+    private AppointmentApiService appointmentApiService;
+
 
 
     private ExecutorService executor = Executors.newFixedThreadPool(15);
+
+    /**
+     * 根据scheduleId更新排班信息
+     * (本来想要JobClient调用的，邱俊说健康云的jobClient不靠谱,所以这个方法现在不用)
+     * @return
+     */
+    @RequestMapping(value = "/updateNumSource", method = RequestMethod.GET)
+    public JsonResponseEntity updateNumSource(@RequestParam(required = true,value = "schedule_id") String scheduleId) {
+        JsonResponseEntity responseEntity = new JsonResponseEntity();
+        appointmentApiService.saveOrUpdateAppointmentScheduleByScheduleId(scheduleId);
+        return  responseEntity;
+    }
+
+    /**
+     * 根据医生Id(或科室Id)更新排班信息
+     * (本来想要JobClient调用的，邱俊说健康云的jobClient不靠谱,所以这个方法现在不用)
+     * @return
+     */
+    @RequestMapping(value = "/updateDoctorNumSource", method = RequestMethod.GET)
+    public JsonResponseEntity updateDoctorNumSource(@RequestParam(required = true,value = "id") String id,
+                                                    @RequestParam(required = true,value = "type") String type) {
+        JsonResponseEntity responseEntity = new JsonResponseEntity();
+        appointmentApiService.saveOrUpdateAppointmentScheduleByDoctorId(id,type);
+        return  responseEntity;
+    }
+
+    @RequestMapping(value = "/updateHospitalNumSource", method = RequestMethod.GET)
+    public JsonResponseEntity updateHospitalNumSource(@RequestParam(required = true,value = "hospital_id") String hospitalId) {
+        JsonResponseEntity responseEntity = new JsonResponseEntity();
+
+        log.info("------------------updateHospitalNumSource  start  -------------------");
+        Date nowDate  = DateUtils.addMinutes(new Date(), -10);
+        log.info("job-start"+ DateFormatter.dateTimeFormat(nowDate));
+
+        AppointmentHospital hospital = appointmentApiService.findHospitalById(hospitalId);
+        List<HosInfo> hosInfoList = getAllHosInfo(hospital.getHosOrgCode());
+        List<FutureTask<Integer[]>> futureTasks = Lists.newArrayList();
+        if(hosInfoList!=null && hosInfoList.size()>0){
+            for(HosInfo hosInfo:hosInfoList){
+                AppointmentTask appointmentTask = new AppointmentTask(hosInfo);
+                FutureTask<Integer[]> task1 = new FutureTask<Integer[]>(appointmentTask);
+                executor.submit(task1);
+                futureTasks.add(task1);
+            }
+
+        }
+        for (int i = 0;i<futureTasks.size();i++){
+            try {
+                getResult(futureTasks.get(i));
+            }catch (Exception e){
+                log.info("futureTasks--"+e.getLocalizedMessage());
+            }
+
+        }
+        //逻辑删除没有二级科室的一级科室
+        appointmentService.deleteDept1HasNoDept2();
+        //给医院设置医生数量
+        appointmentService.setDoctorNumToHospital();
+        log.info("------------------updateHospitalNumSource  end  -------------------");
+        return  responseEntity;
+    }
+
+
 
     @RequestMapping(value = "/resource", method = RequestMethod.GET)
     public JsonResponseEntity updateAppointmentSource() {
@@ -82,7 +150,7 @@ public class AppointmentResourceJobController {
         log.info("------------------HospitalAppointmentJob  start  -------------------");
         Date nowDate  = DateUtils.addMinutes(new Date(), -10);
         log.info("job-start"+ DateFormatter.dateTimeFormat(nowDate));
-        List<HosInfo> hosInfoList = getAllHosInfo();
+        List<HosInfo> hosInfoList = getAllHosInfo(null);
         List<FutureTask<Integer[]>> futureTasks = Lists.newArrayList();
         if(hosInfoList!=null && hosInfoList.size()>0){
             for(HosInfo hosInfo:hosInfoList){
@@ -316,7 +384,7 @@ public class AppointmentResourceJobController {
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
 
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
-                schedule.setReserveOrderNum(Integer.valueOf(numSourceInfo.getReserveOrderNum()));
+                schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 schedule.setHospitalId(l2Department.getHospitalId());
                 schedule.setL1DepartmentId(l2Department.getL1DepartmentId());
@@ -330,7 +398,7 @@ public class AppointmentResourceJobController {
             }else{
                 BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
-                schedule.setReserveOrderNum(Integer.valueOf(numSourceInfo.getReserveOrderNum()));
+                schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
@@ -588,9 +656,14 @@ public class AppointmentResourceJobController {
      * 查询所有的医院信息
      * @return
      */
-    private List<HosInfo> getAllHosInfo() {
+    private List<HosInfo> getAllHosInfo(String hosOrgCode) {
         HosInfoRequest hosInfoRequest = new HosInfoRequest();
         HosInfoR hosInfoR = new HosInfoR();
+
+        if(StringUtils.isNotBlank(hosOrgCode)){
+            hosInfoR.setHosOrgCode(hosOrgCode);
+        }
+
         hosInfoRequest.hosInfoR = hosInfoR;
         hosInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         hosInfoRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(hosInfoRequest));
