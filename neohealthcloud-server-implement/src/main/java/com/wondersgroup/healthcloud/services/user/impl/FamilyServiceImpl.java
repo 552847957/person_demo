@@ -145,7 +145,7 @@ public class FamilyServiceImpl implements FamilyService {
                 register.getGender(),
                 relationName,
                 FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
-                        .getOppositeRelation(relation, register.getGender())), recordReadable, true, false);
+                        .getOppositeRelation(relation, register.getGender())), recordReadable, true, false,false);
 
         return true;
     }
@@ -180,7 +180,7 @@ public class FamilyServiceImpl implements FamilyService {
             RegisterInfo register = findOneRegister(invitation.getUid(), false);
             createMemberRelationPair(invitation.getUid(), invitation.getMemberId(), invitation.getRelation(),
                     register.getGender(), invitation.getRelationName(), relationName,
-                    FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false);
+                    FamilyMemberAccess.recordReadable(invitation.getAccess()), recordReadable, false,false);
         }
         //        push(invitation.getUid(), "家庭成员邀请", "您的一条家庭成员邀请已被处理, 请查收");
         return true;
@@ -190,7 +190,7 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     public String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
             String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
-            Boolean isAnonymous) {
+            Boolean isAnonymous, boolean access) {
         Date time = new Date();
         String pairId = IdGen.uuid();
         FamilyMember familyMember1 = new FamilyMember();
@@ -202,7 +202,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember1.setRelationName(relationName1);
         familyMember1.setMemo(FamilyMemberRelation.isOther(relation) ? relationName1 : null);
         FamilyMemberAccess.Builder builder = new FamilyMemberAccess.Builder();
-        builder.recordAccess(recordReadable1, false);
+        builder.recordAccess(recordReadable1, access);
         familyMember1.setAccess(builder.build());
         familyMember1.setCreateBy(user1Id);
         familyMember1.setCreateDate(time);
@@ -222,7 +222,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember2.setRelationName(FamilyMemberRelation.getName(familyMember2.getRelation(), relationName2));
         familyMember2.setMemo(FamilyMemberRelation.isOther(relation) ? relationName2 : null);
         FamilyMemberAccess.Builder newBuilder = new FamilyMemberAccess.Builder();
-        newBuilder.recordAccess(recordReadable2, false);
+        newBuilder.recordAccess(recordReadable2, access);
         familyMember2.setAccess(newBuilder.build());
         familyMember2.setCreateBy(user2Id);
         familyMember2.setCreateDate(time);
@@ -344,8 +344,24 @@ public class FamilyServiceImpl implements FamilyService {
                 register.getGender(),
                 relationName,
                 FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
-                        .getOppositeRelation(relation, register.getGender())), true, true, true);
+                        .getOppositeRelation(relation, register.getGender())), true, true, true,false);
         accountService.verificationSubmit(account.getId(), name, idcard, photo);
+    }
+    
+    @Transactional(readOnly = false)
+    @Override
+    public void anonymousRegistration(String userId, String relation, String relationName, String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
+        checkMemberCount(userId);
+        RegisterInfo register = findOneRegister(userId, false);
+        AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid(), sex, headphoto, mobile, birthDate, isStandalone);
+        createMemberRelationPair(
+                userId,
+                account.getId(),
+                relation,
+                register.getGender(),
+                relationName,
+                FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
+                        .getOppositeRelation(relation, register.getGender())), true, true, true,true);
     }
 
     @Transactional(readOnly = false)
@@ -372,7 +388,7 @@ public class FamilyServiceImpl implements FamilyService {
                 register.getGender(),
                 relationName,
                 FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
-                        .getOppositeRelation(relation, register.getGender())), true, true, true);
+                        .getOppositeRelation(relation, register.getGender())), true, true, true, false);
         return result;
     }
 
@@ -416,7 +432,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     private void checkMemberCount(String userId) {
         if (memberRepository.familyMemberCount(userId) >= maxMemberCount) {
-            throw new ErrorChangeMobileException(1059, "本人或对方已添加五个亲情账户");
+            throw new ErrorChangeMobileException(1059, "本人或对方已添加十个亲情账户");
         }
     }
 
@@ -463,7 +479,8 @@ public class FamilyServiceImpl implements FamilyService {
         } else if (type == 8) {
 
         } else if (type == 9) {
-
+            title = "关系解除";
+            content = "健康云用户" + name + "已与你解除绑定";
         } else if (type == 10) {
 
         } else if (type == 11) {
@@ -476,6 +493,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMessage.setMsgTitle(title);
         familyMessage.setNotifierUID(uid);
         familyMessage.setReceiverUID(memberId);
+        familyMessage.setJumpUrl(null);
         familyMessage.setReqRecordID(null);
         return familyMessage;
     }
@@ -491,7 +509,7 @@ public class FamilyServiceImpl implements FamilyService {
         case 6:tp = "8";break;
         case 7:tp = "4";break;
 //        case 8:tp = "10";break;
-//        case 9:tp = "10";break;
+        case 9:tp = "3";break;
 //        case 10:tp = "10";break;
 
 

@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.user;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -43,6 +45,8 @@ public interface UserAccountService {
     AnonymousAccount anonymousRegistration(String creator, String username, String password);
 
     AnonymousAccount childVerificationRegistration(String creator, String username, String password);
+    //单机版
+    AnonymousAccount anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile, Date birthDate, boolean isStandalone);
 
     Boolean checkAccount(String mobile);
 

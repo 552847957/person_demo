@@ -433,6 +433,7 @@ public class FamilyController {
         familyService.unbindFamilyRelation(uid, memberId);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("解除成功");
+        
         return body;
     }
 
@@ -667,28 +668,13 @@ public class FamilyController {
             body.setMsg("请输入11位的手机号");
             return body;
         }
-        RegisterInfo info = userService.findOne(id);
-        AnonymousAccount account = new AnonymousAccount();
-        account.setId(IdGen.uuid());
-        try { account.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate)); } catch (ParseException e) { e.printStackTrace(); }
-        account.setCreateDate(new Date());
-        account.setUpdateDate(new Date());
-        account.setCreator(id);
-        account.setUsername("HCGEN" + IdGen.uuid());
-        account.setPassword(IdGen.uuid());
-        account.setMobile(mobile);
-        account.setDelFlag("0");
-        account.setSex(FamilyMemberRelation.getSexByRelationAndSex(relation, info.getGender()));
-        account.setIsChild(false);
-        account.setHeadphoto(headphoto);
-        account.setIsStandalone(true);
-        anonymousAccountRepository.saveAndFlush(account);
-        
-        String gender = "1";
-        String relationName1 = FamilyMemberRelation.getOppositeRelation(relation, gender);
-        String relationName2 = FamilyMemberRelation.getName(relation, relationName);
-        familyService.createMemberRelationPair(id, account.getId(), relation, gender, relationName1, relationName2, recordReadable, recordReadable, false);
-        
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd").parse(birthDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        familyService.anonymousRegistration(id, relation, relationName, null, headphoto, mobile,date , false);
         body.setMsg("添加成功");
         return body;
     }
@@ -730,8 +716,6 @@ public class FamilyController {
         response.setMsg("查询成功");
         return response;
     }
-    
-    
     
     /**
      * 家庭首页个人信息
@@ -779,12 +763,50 @@ public class FamilyController {
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {
-            InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), "", null);
-            if(id == 1 && !info.getIsVerification()){
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("", getDateStr(), null)));
+            InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), null);
+//            if(id == 1 && !info.getIsVerification()){
+//                templet.setValues(Arrays.asList(new MeasureInfoDTO("", getDateStr(), null)));
+//            }else 
+            if(id == 2){
+                templet.setDesc("就医历史 一查便知");
+            }
+            if(info.getAge() != null && info.getAge() < 6){
+                templet.setType(10);
+                templet.setDesc("家有宝贝初养成");
+                templet.setTitle("N天后可接种疫苗");
+                break;
+            }
+            if(id == 3){
+                
             }else if(id == 4){
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), (node.get("stepCount") == null ? "0" : node.get("stepCount").textValue()) + "步")));
+                if(node == null && node.get("stepCount") != null){
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount").textValue() + "步")));
+                }else{
+                    templet.setDesc("健康计步，领取金币");
+                }
+            }else if(id == 5){
+                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                if(!m.isEmpty()){
+                    templet.setValues(m);
+                }else{
+                    templet.setDesc("您的BMI指数是多少?");
+                }
+                
+            }else if(id == 6){
+                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                if(!m.isEmpty()){
+                    templet.setValues(m);
+                }else{
+                    templet.setDesc("开启科学控压之路");
+                }
+            }else if(id == 7){
+                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                if(!m.isEmpty()){
+                    templet.setValues(m);
+                }else{
+                    templet.setDesc("开启科学控糖之路");
+                }
             }else if(id == 8){
                 Map<String,Object> result = assessmentService.getRecentAssessIsNormal(memberId);
                 if(result != null && result.containsKey("state")){
@@ -798,8 +820,6 @@ public class FamilyController {
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
                     templet.setValues(Arrays.asList(new MeasureInfoDTO(null,date , result.getResult())));
                 }
-            }else{
-                templet.setValues(getMeasure(measures, id));
             }
             tems.add(templet);
         }
@@ -903,6 +923,7 @@ public class FamilyController {
                 if(ano != null && ano.getIsStandalone()){
                     entity.setIsStandalone(true);
                 }
+                entity.setAvatar(ano.getHeadphoto());
             }
             list.add(entity);
         }
@@ -1063,6 +1084,26 @@ public class FamilyController {
         response.setData(map);
         response.setMsg("查询成功");
         return response;
+    }
+    
+    /**
+     * 单机版实名认证
+     * @param request
+     * @return JsonResponseEntity<String>
+     */
+    @RequestMapping(value = "/standaloneVerification", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<String> standaloneVerificationSubmit(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String uid = reader.readString("uid", false);
+        String name = reader.readString("name", false);
+        String idcard = reader.readString("idcard", false).toUpperCase();
+        String photo = reader.readString("photo", false);
+        
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        accountService.verificationSubmit(uid, name, idcard, photo);
+        body.setMsg("正在进行实名认证");
+        return body;
     }
     
     /**

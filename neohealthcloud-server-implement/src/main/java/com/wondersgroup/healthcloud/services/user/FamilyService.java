@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.user;
 
+import java.util.Date;
 import java.util.List;
 
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
@@ -157,6 +158,14 @@ public interface FamilyService {
      * @param photo
      */
     void anonymousRegistration(String userId, String relation, String relationName, String name, String idcard, String photo);
+    
+    /**
+     * 单机版注册
+     * @param userId
+     * @param relation
+     * @param relationName
+     */
+    void anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile, Date birthDate,boolean isStandalone);
    
     /**
      * 儿童实名认证
@@ -178,7 +187,7 @@ public interface FamilyService {
      */
     String createMemberRelationPair(String user1Id, String user2Id, String relation, String gender,
             String relationName1, String relationName2, Boolean recordReadable1, Boolean recordReadable2,
-            Boolean isAnonymous);
+            Boolean isAnonymous, boolean access);
     
     
     public boolean pushMessage(String uid, String memberId, int type);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -20,6 +21,7 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
 import com.wondersgroup.healthcloud.utils.wonderCloud.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -480,7 +482,6 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     /**
      * 注册匿名账户
-     *
      * @param creator
      * @param username
      * @param password
@@ -488,12 +489,11 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
-        return anonymousRegistration(creator, username, password, false);
+        return anonymousRegistration(creator, username, password, false, null, null, null,null, false);
     }
 
     /**
      * 注册儿童实名认证
-     *
      * @param creator
      * @param username
      * @param password
@@ -501,10 +501,23 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount childVerificationRegistration(String creator, String username, String password) {
-        return anonymousRegistration(creator, username, password, true);
+        return anonymousRegistration(creator, username, password, true,null,null,null,null,false);
+    }
+    
+    /**
+     * 注册单机版
+     * @param creator
+     * @param username
+     * @param password
+     * @return
+     */
+    @Override
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
+        return anonymousRegistration(creator, username, password, true,sex,headphoto,mobile,birthDate,false);
     }
 
-    public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild) {
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild
+            ,String sex, String headphoto,String mobile, Date birthDate,boolean isStandalone) {
         String encodedPassword;
         try {
             encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());
@@ -524,6 +537,11 @@ public class UserAccountServiceImpl implements UserAccountService {
             anonymousAccount.setUpdateDate(time);
             anonymousAccount.setDelFlag("0");
             anonymousAccount.setIsChild(isChild);
+            anonymousAccount.setSex(sex);
+            anonymousAccount.setMobile(mobile);
+            anonymousAccount.setHeadphoto(headphoto);
+            anonymousAccount.setIsStandalone(isStandalone);
+            anonymousAccount.setBirthDate(birthDate);
             return anonymousAccountRepository.saveAndFlush(anonymousAccount);
         } else {
             throw new ErrorAnonymousAccountException("账户创建失败, 请再试一次");
