@@ -479,17 +479,19 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         if(!"0".equals(orderResultResponse.messageHeader.getCode())){
             throw new ErrorReservationException(orderResultResponse.messageHeader.getDesc());
         }
-
+        
         //刷新排班资源
         schedule.setOrderedNum(schedule.getOrderedNum()+1);
         schedule.setReserveOrderNum(schedule.getReserveOrderNum()-1);
         scheduleRepository.saveAndFlush(schedule);
 
         if("1".equals(orderType) && doctor!=null){
-            doctor.setReservationNum(doctor.getReservationNum()+1);
+            int reservationNum = doctor.getReservationNum()==null?0:doctor.getReservationNum();
+            doctor.setReservationNum(reservationNum+1);
             doctorRepository.saveAndFlush(doctor);
         }else{
-            l2Department.setReservationNum(l2Department.getReservationNum()+1);
+            int reservationNum = l2Department.getReservationNum()==null?0:l2Department.getReservationNum();
+            l2Department.setReservationNum(reservationNum+1);
             departmentL2Repository.saveAndFlush(l2Department);
         }
 
