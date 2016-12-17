@@ -208,7 +208,9 @@ public class ApiSpecHomeController {
         }
 
         if (data.size() > 0) {
+            result.setCode(0);
             result.setData(data);
+            result.setMsg("获取数据成功");
         } else {
             result.setCode(1000);
             result.setMsg("未查询到相关数据！");
