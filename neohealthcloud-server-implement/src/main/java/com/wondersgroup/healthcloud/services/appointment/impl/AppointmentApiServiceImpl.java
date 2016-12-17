@@ -9,8 +9,7 @@ import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.*;
 import com.wondersgroup.healthcloud.registration.client.OrderClient;
 import com.wondersgroup.healthcloud.registration.entity.request.*;
-import com.wondersgroup.healthcloud.registration.entity.response.OrderCancelResponse;
-import com.wondersgroup.healthcloud.registration.entity.response.OrderResultResponse;
+import com.wondersgroup.healthcloud.registration.entity.response.*;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
@@ -37,6 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by longshasha on 16/12/5.
@@ -553,6 +556,194 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         return isOn;
     }
 
+    @Override
+    public AppointmentDoctorSchedule findScheduleById(String scheduleId) {
+        return scheduleRepository.findOne(scheduleId);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveOrUpdateAppointmentScheduleByScheduleId(String scheduleId) {
+        AppointmentDoctorSchedule schedule = findScheduleById(scheduleId);
+        if(schedule!=null){
+            AppointmentHospital hospital = findHospitalById(schedule.getHospitalId());
+            NumSourceInfo numSourceInfo = new NumSourceInfo();
+            numSourceInfo.setHosOrgCode(hospital.getHosOrgCode());
+            numSourceInfo.setScheduleId(schedule.getScheduleId());
+            List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
+            if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0) {
+                for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                    //根据  NumSourceId
+                    AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule(schedule.getScheduleId(), segmentNumberInfo.getNumSourceId(), schedule.getHospitalId());
+                    try {
+                        if(scheduleUpdate!=null){
+                            scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                            scheduleUpdate.setUpdateDate(new Date());
+                            scheduleRepository.saveAndFlush(scheduleUpdate);
+                        }
+                    }catch (Exception e){
+                        logger.error("saveOrUpdateAppointmentSchedule="+e.getLocalizedMessage());
+                    }
+
+                }
+            }
+
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveOrUpdateAppointmentScheduleByDoctorId(String id,String type) {
+        Map<String,Object> result = getNumberSourceParameter(id,type);
+        if(result!=null){
+            String hospitalId = result.get("hospitalId")==null?"":result.get("hospitalId").toString();
+            List<NumSourceInfo> docNumSourceList = getDoctorNumSourceByMap(result, type);
+            //保存医生预约资源信息
+            List<FutureTask<Integer[]>> futureTasks = Lists.newArrayList();
+            if(docNumSourceList!=null && docNumSourceList.size()>0){
+                for (NumSourceInfo schedule :docNumSourceList){
+                    ExecutorService executor = Executors.newFixedThreadPool(1);
+                    UpdateNumberSourceTask task = new UpdateNumberSourceTask(schedule,hospitalId);
+                    FutureTask<Integer[]> task1 = new FutureTask<Integer[]>(task);
+                    executor.submit(task1);
+                    futureTasks.add(task1);
+                }
+            }
+        }
+
+    }
+
+    public class UpdateNumberSourceTask implements Callable {
+        private NumSourceInfo numSourceInfo;
+        private String hospitalId;
+        @Override
+        public Object call() throws Exception{
+            List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
+            if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                    //根据  NumSourceId
+                    AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule
+                            (numSourceInfo.getScheduleId(), segmentNumberInfo.getNumSourceId(), hospitalId);
+                    try {
+                        if(scheduleUpdate!=null){
+                            scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                            scheduleUpdate.setUpdateDate(new Date());
+                            scheduleRepository.saveAndFlush(scheduleUpdate);
+                        }
+                    }catch (Exception e){
+                        logger.error("saveOrUpdateAppointmentSchedule="+e.getLocalizedMessage());
+                    }
+                }
+            }
+            return null;
+        }
+
+        public UpdateNumberSourceTask(NumSourceInfo numSourceInfo,String hospitalId) {
+            super();
+            this.numSourceInfo = numSourceInfo;
+            this.hospitalId = hospitalId;
+        }
+    }
+
+    private <T> T getResult(FutureTask<T> task) throws InterruptedException{
+        while (true) {
+            if (task.isDone() && !task.isCancelled()) {
+                break;
+            }
+        }
+        try {
+            return task.get();
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+        return null;
+    }
+
+    /**
+     * 查询
+     * @param id
+     * @param type
+     * @return
+     */
+    private Map<String, Object> getNumberSourceParameter(String id, String type) {
+        String sql = "";
+        if("1".equals(type)){
+            sql += "select a.doct_code as hosDoctCode,b.dept_code as hosDeptCode,c.dept_code as topHosDeptCode," +
+                    " d.hos_org_code as  hosOrgCode,d.id as hospitalId  " +
+                    " from app_tb_appointment_doctor a " +
+                    " left join app_tb_appointment_department_l2 b on a.department_l2_id = b.id " +
+                    " left join app_tb_appointment_department_l1 c on a.department_l1_id = c.id " +
+                    " left join app_tb_appointment_hospital d on a.hospital_id = d.id " +
+                    " where a.id = '%s' ";
+        }else{
+            sql += "select b.dept_code as hosDeptCode,c.dept_code as topHosDeptCode,d.hos_org_code as hosOrgCode," +
+                    " d.id as hospitalId " +
+                    " from app_tb_appointment_department_l2 b " +
+                    " left join app_tb_appointment_department_l1 c on a.department_l1_id = c.id " +
+                    " left join app_tb_appointment_hospital d on a.hospital_id = d.id " +
+                    " where b.id = '%s' ";
+        }
+        sql = String.format(sql,id);
+
+        return jt.queryForMap(sql);
+    }
+
+    private List<NumSourceInfo> getDoctorNumSourceByMap(Map<String,Object> map,String type) {
+        NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
+        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
+        NumSourceInfoR  numSourceInfoR = new NumSourceInfoR();
+
+        String hosOrgCode = map.get("hosOrgCode")==null?"":map.get("hosOrgCode").toString();
+        String topHosDeptCode = map.get("topHosDeptCode")==null?"":map.get("topHosDeptCode").toString();
+        String hosDeptCode = map.get("hosDeptCode")==null?"":map.get("hosDeptCode").toString();
+        String hosDoctCode = map.get("hosDoctCode")==null?"":map.get("hosDoctCode").toString();
+
+        List<NumSourceInfo> numSourceInfoList = Lists.newArrayList();
+        if(StringUtils.isNotBlank(hosDeptCode)&&StringUtils.isNotBlank(topHosDeptCode)&&StringUtils.isNotBlank(hosDeptCode)){
+            numSourceInfoR.setHosOrgCode(hosOrgCode);
+            numSourceInfoR.setTopHosDeptCode(topHosDeptCode);
+            numSourceInfoR.setHosDeptCode(hosDeptCode);
+            numSourceInfoR.setHosDoctCode(hosDoctCode);
+            numSourceInfoR.setStartTime(DateFormatter.dateFormat(new Date()));
+            numSourceInfoR.setEndTime(DateFormatter.dateFormat(com.wondersgroup.healthcloud.common.utils.DateUtils.addDay(new Date(), 15)));
+            if("2".equals(type)){
+                numSourceInfoR.setRegisterType("3");
+            }
+            numSourceInfoRequest.numSourceInfoR = numSourceInfoR;
+
+            String sign = SignatureGenerator.generateSignature(numSourceInfoRequest);
+            numSourceInfoRequest.requestMessageHeader.setSign(sign);
+
+            String xmlRequest = JaxbUtil.convertToXml(numSourceInfoRequest);
+
+            NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
+
+            if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
+                numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+            }
+        }
+
+        return numSourceInfoList;
+    }
+
+    private List<SegmentNumberInfo> getSegmentNumberInfoBySchedule(NumSourceInfo schedule) {
+
+        SegmentNumberInfoRequest segmentNumberInfoRequest = new SegmentNumberInfoRequest();
+        SegmentNumberInfoR segmentNumberInfoR = new SegmentNumberInfoR();
+        segmentNumberInfoR.setHosOrgCode(schedule.getHosOrgCode());
+        segmentNumberInfoR.setScheduleId(schedule.getScheduleId());
+        segmentNumberInfoRequest.segmentNumberInfoR = segmentNumberInfoR;
+        segmentNumberInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
+        segmentNumberInfoRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(segmentNumberInfoRequest));
+
+        String xmlRequest = JaxbUtil.convertToXml(segmentNumberInfoRequest);
+        List<SegmentNumberInfo> segmentNumberInfoList = Lists.newArrayList();
+        SegmentNumberInfoResponse segmentNumberInfoResponse = orderClient.getOrderSegmentNumberInfoList(xmlRequest);
+        if(segmentNumberInfoResponse!=null&&"0".equals(segmentNumberInfoResponse.messageHeader.getCode())){
+            segmentNumberInfoList = segmentNumberInfoResponse.lists;
+        }
+        return segmentNumberInfoList;
+    }
 
     /**
      * 将订单保存到本地

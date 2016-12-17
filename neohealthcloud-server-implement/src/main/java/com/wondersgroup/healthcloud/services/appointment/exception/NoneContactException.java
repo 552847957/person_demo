@@ -9,6 +9,6 @@ import com.wondersgroup.healthcloud.exceptions.BaseException;
 public class NoneContactException extends BaseException {
 
     public NoneContactException(){
-        super(3010, "该就诊人人不存在", null);
+        super(3010, "该就诊人不存在", null);
     }
 }

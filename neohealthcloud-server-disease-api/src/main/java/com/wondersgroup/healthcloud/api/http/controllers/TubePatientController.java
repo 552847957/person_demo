@@ -73,9 +73,18 @@ public class TubePatientController {
         if(null == doctor || null == doctorInfo){
             return pager;
         }
+        String patientName = null;
+        if(pager.getParameter().containsKey("name") && null != pager.getParameter().get("name") &&
+                !StringUtils.isEmpty(pager.getParameter().get("name").toString())){
+            patientName = pager.getParameter().get("name").toString();
+        }
 
-        List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),pager.getNumber(),pager.getSize());
-        Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName());
+        List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),patientName,pager.getNumber(),pager.getSize());
+        Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName(),patientName);
+
+        if(null != patientName && !StringUtils.isEmpty(patientName)){
+            total = resource.size();
+        }
 
         List<TubePatientEntity> list = Lists.newArrayList();
         List<String> personcareds = Lists.newArrayList();

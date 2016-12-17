@@ -44,7 +44,6 @@ public class AppointmentContactController {
         String mobile = reader.readString("mobile", false);
         String mediCardId = reader.readString("medi_card_id", true);
 
-
         AppointmentContact contact = appointmentContactService.addAppointmentContact(uid,name,idcard,mobile,mediCardId);
         ContactDetailDTO contactDetailDTO = new ContactDetailDTO(contact);
         if (contactDetailDTO!=null) {

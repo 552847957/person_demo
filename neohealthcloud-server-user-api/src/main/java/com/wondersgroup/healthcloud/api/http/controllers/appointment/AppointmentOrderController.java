@@ -1,13 +1,18 @@
 package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.http.dto.appointment.AppointmentOrderDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentContact;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctorSchedule;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentContactService;
@@ -17,7 +22,9 @@ import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointm
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
@@ -30,6 +37,8 @@ import java.util.List;
 @RequestMapping("/api/reservation")
 public class AppointmentOrderController {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AppointmentOrderController.class);
+
     @Autowired
     private AppointmentApiService appointmentApiService;
 
@@ -41,6 +50,11 @@ public class AppointmentOrderController {
 
     @Autowired
     private AppointmentContactService appointmentContactService;
+
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
 
 
     /**
@@ -102,6 +116,15 @@ public class AppointmentOrderController {
         AppointmentOrderDTO orderDTO = new AppointmentOrderDTO(appointmentOrder);
 
         body.setData(orderDTO);
+
+        AppointmentDoctorSchedule schedule = appointmentApiService.findScheduleById(scheduleId);
+        try {
+            //调用jobClient的接口
+            Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/appointment/updateHospitalNumSource").param("hospital_id", schedule.getHospitalId()).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
+        }catch (Exception e){
+            logger.error("预约提交过后更新排班信息,hospitalId="+schedule.getHospitalId()+","+e.getLocalizedMessage());
+        }
         return body;
     }
 
@@ -183,6 +206,11 @@ public class AppointmentOrderController {
         }
 
         return response;
+    }
+
+    @Autowired
+    public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
+        this.httpRequestExecutorManager = httpRequestExecutorManager;
     }
 
 }

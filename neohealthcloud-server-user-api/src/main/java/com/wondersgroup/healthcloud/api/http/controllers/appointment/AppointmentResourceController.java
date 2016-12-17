@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.services.appointment.dto.ScheduleDto;
 import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentException;
 import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reservation")
 public class AppointmentResourceController {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AppointmentResourceController.class);
 
     @Autowired
     private AppointmentApiService appointmentApiService;
@@ -433,6 +435,7 @@ public class AppointmentResourceController {
             doctorDTO.setHospitalName(department.getHospitalName());
             doctorDTO.setDepartmentName(department.getDeptName());
         }
+
 
         body.setData(doctorDTO);
         return body;
