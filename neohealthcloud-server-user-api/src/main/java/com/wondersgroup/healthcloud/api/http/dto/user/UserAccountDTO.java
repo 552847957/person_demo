@@ -32,6 +32,7 @@ public class UserAccountDTO {
 
     private Boolean verified;//是否实名认证
     private String identifytype;
+    public Boolean isBBsAdmin;
 
     private String talkId;
     private String talkPwd;
@@ -41,7 +42,6 @@ public class UserAccountDTO {
 
     @JsonProperty("bind_personcard")
     private String bindPersoncard;//医养结合绑定的身份证
-
 
     private String height;
     private String weight;
@@ -86,6 +86,7 @@ public class UserAccountDTO {
             this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
             this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskIdcard(user.get("medicarecard").toString());
             this.bindPersoncard = user.get("bind_personcard") == null ? "" : IdcardUtils.maskIdcard(user.get("bind_personcard").toString());
+            this.isBBsAdmin = null != user.get("is_bbs_admin")  && user.get("is_bbs_admin").toString().equals("1");
             if (StringUtils.isNotBlank(this.idcard)) {
                 this.idcard = IdcardUtils.maskIdcard(this.idcard);
             }
@@ -122,6 +123,7 @@ public class UserAccountDTO {
         this.tagid = registerInfo.getTagid() == null ? "" : registerInfo.getTagid();
         this.medicarecard = registerInfo.getMedicarecard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getMedicarecard());
         this.bindPersoncard = registerInfo.getBindPersoncard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getBindPersoncard());
+        this.isBBsAdmin = registerInfo.getIsBBsAdmin() == 1;
         if (StringUtils.isNotBlank(this.idcard)) {
             this.idcard = IdcardUtils.maskIdcard(this.idcard);
         }
@@ -280,11 +282,19 @@ public class UserAccountDTO {
         this.identifytype = identifytype;
     }
 
-    public void setChangedNickName(Boolean changedNickName) {
-        isChangedNickName = changedNickName;
+    public Boolean getIsBBsAdmin() {
+        return isBBsAdmin;
     }
 
-    public Boolean getChangedNickName() {
+    public void setIsBBsAdmin(Boolean isBBsAdmin) {
+        isBBsAdmin = isBBsAdmin;
+    }
+
+    public void setIsChangedNickName(Boolean isChangedNickName) {
+        isChangedNickName = isChangedNickName;
+    }
+
+    public Boolean getIsChangedNickName() {
         return StringUtils.isNoneEmpty(nickName) && !nickName.startsWith("健康用户");
     }
 }
