@@ -18,7 +18,7 @@ public interface DiabetesService {
      * @param doctorName
      * @return
      */
-    public Integer getTubePatientNumber(String hospitalCode,String doctorName);
+    public Integer getTubePatientNumber(String hospitalCode,String doctorName,String patientName);
 
     /**
      * 在管人群列表
@@ -28,7 +28,7 @@ public interface DiabetesService {
      * @param pageSize
      * @return
      */
-    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize);
+    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, String patientName,Integer pageNo , Integer pageSize);
 
     /**
      * 根据身份证获取在管人群详情

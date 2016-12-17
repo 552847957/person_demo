@@ -10,6 +10,7 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.*;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,14 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @return
      */
     @Override
-    public Integer getTubePatientNumber(String hospitalCode, String doctorName) {
-        Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_NUMBER).
-                params(new String[]{"hospitalId",hospitalCode,"docName",doctorName}).build();
+    public Integer getTubePatientNumber(String hospitalCode, String doctorName,String patientName) {
+
+        String[] param = new String[]{"hospitalId",hospitalCode,"docName",doctorName};
+        if(null != patientName && !StringUtils.isEmpty(patientName)){
+            param = new String[]{"hospitalId",hospitalCode,"docName",doctorName,"name",patientName};
+        }
+
+        Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_NUMBER).params(param).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
@@ -76,9 +82,13 @@ public class DiabetesServiceImpl implements DiabetesService {
      * @return
      */
     @Override
-    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, Integer pageNo , Integer pageSize) {
-        Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_LIST).
-                params(new String[]{"hospitalId",hospitalCode,"docName",doctorName}).build();
+    public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, String patientName,Integer pageNo , Integer pageSize) {
+        String[] param = new String[]{"hospitalId",hospitalCode,"docName",doctorName};
+        if(null != patientName && !StringUtils.isEmpty(patientName)){
+            param = new String[]{"hospitalId",hospitalCode,"docName",doctorName,"name",patientName};
+        }
+        Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_LIST).params(param).build();
+
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
