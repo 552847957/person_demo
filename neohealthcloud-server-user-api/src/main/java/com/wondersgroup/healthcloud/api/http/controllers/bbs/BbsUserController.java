@@ -88,7 +88,7 @@ public class BbsUserController {
         targetUid = StringUtils.isEmpty(targetUid) ? uid : targetUid;
         JsonListResponseEntity<TopicListDto> responseEntity = new JsonListResponseEntity<>();
         Boolean isWatchMine = uid.equals(targetUid);
-        List<TopicListDto> listInfo = topicService.getTopicsByUid(uid, isWatchMine, flag, pageSize);
+        List<TopicListDto> listInfo = topicService.getTopicsByUid(targetUid, isWatchMine, flag, pageSize);
         Boolean hasMore = false;
         if (listInfo != null && listInfo.size() > pageSize){
             listInfo = listInfo.subList(0, pageSize);
@@ -110,7 +110,7 @@ public class BbsUserController {
         targetUid = StringUtils.isEmpty(targetUid) ? uid : targetUid;
         JsonListResponseEntity<CommentListDto> responseEntity = new JsonListResponseEntity<>();
         Boolean isWatchMine = uid.equals(targetUid);
-        List<CommentListDto> listInfo = commentService.getUserCommentsList(uid, flag, pageSize);
+        List<CommentListDto> listInfo = commentService.getUserCommentsList(targetUid, flag, pageSize);
         Boolean hasMore = false;
         if (listInfo != null && listInfo.size() > pageSize){
             listInfo = listInfo.subList(0, pageSize);
