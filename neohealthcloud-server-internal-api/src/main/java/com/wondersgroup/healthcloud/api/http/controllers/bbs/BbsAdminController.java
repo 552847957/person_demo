@@ -146,21 +146,27 @@ public class BbsAdminController {
     public JsonResponseEntity<List<Map<String, Object>>> associations(@RequestHeader String appUid){
         JsonResponseEntity<List<Map<String, Object>>> entity = new JsonResponseEntity();
         List<Map<String, Object>> list = new ArrayList<>();
-        Map<String, Object> info = new HashMap<>();
-        info.put("uid", appUid);
-        info.put("name", "本人");
-        list.add(info);
+
+        Set<String> appUids = new HashSet<>();
+        appUids.add(appUid);
+
         List<String> vestUids = bbsAdminService.getAdminVestUidsByAdminUid(appUid);
         if (vestUids != null && !vestUids.isEmpty()){
-            Set<String> appUids = new HashSet<>();
-            Map<String, RegisterInfo> vestUserMap = userService.findByUids(appUids);
-            if (null != vestUserMap){
-                for (RegisterInfo registerInfo : vestUserMap.values()) {
-                    Map<String, Object> infoTmp = new HashMap<>();
-                    infoTmp.put("uid", registerInfo.getRegisterid());
-                    infoTmp.put("name", registerInfo.getNickname());
-                    list.add(infoTmp);
-                }
+            appUids.addAll(vestUids);
+        }
+        Map<String, RegisterInfo> vestUserMap = userService.findByUids(appUids);
+        Map<String, Object> info = new HashMap<>();
+        info.put("uid", appUid);
+        info.put("name", vestUserMap.get(appUid).getNickname()+"(管理员)");
+        list.add(info);
+        vestUserMap.remove(appUid);
+
+        if (!vestUserMap.isEmpty()){
+            for (RegisterInfo registerInfo : vestUserMap.values()) {
+                Map<String, Object> infoTmp = new HashMap<>();
+                infoTmp.put("uid", registerInfo.getRegisterid());
+                infoTmp.put("name", registerInfo.getNickname());
+                list.add(infoTmp);
             }
         }
         entity.setData(list);

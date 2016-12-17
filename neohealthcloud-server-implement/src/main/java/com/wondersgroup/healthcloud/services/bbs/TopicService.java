@@ -59,8 +59,9 @@ public interface TopicService {
     /**
      * 获取用户发表的帖子列表
      * 返回数据为pageSize+1个
+     * @param isMine 是否查看的是自己的(只有自己看自己的才能查看带审核的)
      */
-    List<TopicListDto> getTopicsByUid(String uid, Integer page, Integer pageSize);
+    List<TopicListDto> getTopicsByUid(String uid, Boolean isMine, Integer page, Integer pageSize);
 
     TopicDetailDto getTopicDetailInfo(Integer topicId);
 

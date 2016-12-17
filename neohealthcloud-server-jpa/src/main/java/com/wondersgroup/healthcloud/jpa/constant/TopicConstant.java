@@ -22,7 +22,7 @@ public class TopicConstant {
 
         public final static int NEW_PUBLISH = -2;//新鲜
         public final static int BASE_RECOMMEND = -1;//精华推荐
-
+        public final static int All = 0;//全部
     }
 
     public static class Status{

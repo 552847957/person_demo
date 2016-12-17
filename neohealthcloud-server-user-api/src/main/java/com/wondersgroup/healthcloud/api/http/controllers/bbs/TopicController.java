@@ -96,7 +96,7 @@ public class TopicController {
         Topic topic = topicService.publishTopic(topicPublishDto);
         Map<String, Object> info = new HashMap<>();
         if (topic.getId() > 0){
-            info.put("topicId", topic);
+            info.put("topicId", topic.getId());
             rt.setData(info);
             if (topic.getStatus() == TopicConstant.Status.WAIT_VERIFY){
                 rt.setMsg("请等待管理员审核话题，先看看其他话题吧～");
@@ -119,12 +119,7 @@ public class TopicController {
                                                     @RequestParam(defaultValue = "1", required = false) Integer flag){
         int pageSize = 10;
         JsonListResponseEntity<TopicListDto> rt = new JsonListResponseEntity();
-        List<TopicListDto> listInfo;
-        if (tabId == -1){
-            listInfo = topicService.getCircleBestRecommendTopics(circleId, flag, pageSize);
-        }else {
-            listInfo = topicService.getCircleTopicListByTab(circleId, tabId, flag, pageSize);
-        }
+        List<TopicListDto> listInfo = topicService.getCircleTopicListByTab(circleId, tabId, flag, pageSize);
         Boolean hasMore = false;
         if (listInfo != null && listInfo.size() > pageSize){
             listInfo = listInfo.subList(0, pageSize);
