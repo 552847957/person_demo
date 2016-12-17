@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.services.bbs.criteria;
 
-import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import lombok.Data;
@@ -49,6 +48,8 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
     private String publishEndTime;
 
     private Integer status;//根据帖子状态进行查询
+    private Integer[] statusIn;//设置status则此属性无效
+    private Integer[] statusNotIn;//设置status则此属性无效
 
     public TopicSearchCriteria(){}
 
@@ -78,8 +79,22 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             where.append(" AND topic.status=?");
             elementType.add(this.status);
         }else {
-            where.append(" AND topic.status!="+ TopicConstant.Status.USER_DELETE);
-            where.append(" AND topic.status!="+ TopicConstant.Status.WAIT_VERIFY);
+            if (null != statusIn && statusIn.length>0){
+                String statusInStr = "";
+                for (Integer status0 : statusIn){
+                    statusInStr += "," + status0;
+                }
+                statusInStr = statusInStr.substring(1);
+                where.append(" AND topic.status in ("+statusInStr+")");
+            }
+            if (null != statusNotIn && statusNotIn.length>0){
+                String statusNotInStr = "";
+                for (Integer status1 : statusNotIn){
+                    statusNotInStr += "," + status1;
+                }
+                statusNotInStr = statusNotInStr.substring(1);
+                where.append(" AND topic.status not in ("+statusNotInStr+")");
+            }
         }
         if (this.circleId != null && this.circleId > 0){
             where.append(" AND topic.circle_id=?");

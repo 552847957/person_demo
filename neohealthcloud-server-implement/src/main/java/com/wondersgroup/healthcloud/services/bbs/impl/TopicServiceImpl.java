@@ -82,6 +82,7 @@ public class TopicServiceImpl implements TopicService {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
         searchCriteria.setIsTop(true);
         searchCriteria.setCircleId(circleId);
+        searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setPageSize(getNum);
         searchCriteria.setOrderInfo("topic.top_rank desc, topic.update_time desc");
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
@@ -101,6 +102,7 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
         searchCriteria.setCircleId(circleId);
+        searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setGetMoreOne(true);
         if (tabId == TopicConstant.DefaultTab.BASE_RECOMMEND){
             searchCriteria.setOrderInfo("topic.top_rank desc, topic.update_time desc");
@@ -123,6 +125,7 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
         searchCriteria.setIsBest(true);
+        searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setGetMoreOne(true);
         searchCriteria.setCircleId(circleId);
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
@@ -134,6 +137,7 @@ public class TopicServiceImpl implements TopicService {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
         searchCriteria.setPage(page);
         searchCriteria.setPageSize(pageSize);
+        searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setOrderInfo("topic.last_comment_time desc");
         searchCriteria.setIsBest(true);
         searchCriteria.setGetMoreOne(true);
@@ -153,6 +157,7 @@ public class TopicServiceImpl implements TopicService {
     public List<TopicListDto> getHotRecommendTopics(String uid, Integer page, Integer pageSize) {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
         searchCriteria.setPage(page);
+        searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.score desc, topic.last_comment_time desc");
         searchCriteria.setGetMoreOne(true);
@@ -161,9 +166,14 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<TopicListDto> getTopicsByUid(String uid, Integer page, Integer pageSize) {
+    public List<TopicListDto> getTopicsByUid(String uid, Boolean isMine, Integer page, Integer pageSize) {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
         searchCriteria.setUid(uid);
+        if (!isMine){
+            searchCriteria.setStatus(TopicConstant.Status.OK);
+        }else {
+            searchCriteria.setStatusIn(new Integer[]{TopicConstant.Status.WAIT_VERIFY, TopicConstant.Status.OK});
+        }
         searchCriteria.setOrderInfo("topic.create_time desc");
         searchCriteria.setPage(page);
         searchCriteria.setGetMoreOne(true);

@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.UserHomeDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -61,7 +62,8 @@ public class BbsUserController {
     @VersionRange
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public JsonResponseEntity<UserHomeDto> home(@RequestParam String uid,
-                                                @RequestParam String targetUid) {
+                                                @RequestParam(required=false) String targetUid) {
+        targetUid = StringUtils.isEmpty(targetUid) ? uid : targetUid;
         JsonResponseEntity<UserHomeDto> jsonResponseEntity = new JsonResponseEntity();
         RegisterInfo userInfo = userService.getOneNotNull(targetUid);
         UserHomeDto userHomeDto = new UserHomeDto();
@@ -81,9 +83,12 @@ public class BbsUserController {
     @VersionRange
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> topics(@RequestParam String uid,
+                                                       @RequestParam(required=false) String targetUid,
                                                        @RequestParam(defaultValue="1",required = false) Integer flag){
+        targetUid = StringUtils.isEmpty(targetUid) ? uid : targetUid;
         JsonListResponseEntity<TopicListDto> responseEntity = new JsonListResponseEntity<>();
-        List<TopicListDto> listInfo = topicService.getTopicsByUid(uid, flag, pageSize);
+        Boolean isWatchMine = uid.equals(targetUid);
+        List<TopicListDto> listInfo = topicService.getTopicsByUid(uid, isWatchMine, flag, pageSize);
         Boolean hasMore = false;
         if (listInfo != null && listInfo.size() > pageSize){
             listInfo = listInfo.subList(0, pageSize);
@@ -100,8 +105,11 @@ public class BbsUserController {
     @VersionRange
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
     public JsonListResponseEntity<CommentListDto> comments(@RequestParam String uid,
+                                                           @RequestParam(required=false) String targetUid,
                                                            @RequestParam(defaultValue="1",required = false) Integer flag){
+        targetUid = StringUtils.isEmpty(targetUid) ? uid : targetUid;
         JsonListResponseEntity<CommentListDto> responseEntity = new JsonListResponseEntity<>();
+        Boolean isWatchMine = uid.equals(targetUid);
         List<CommentListDto> listInfo = commentService.getUserCommentsList(uid, flag, pageSize);
         Boolean hasMore = false;
         if (listInfo != null && listInfo.size() > pageSize){

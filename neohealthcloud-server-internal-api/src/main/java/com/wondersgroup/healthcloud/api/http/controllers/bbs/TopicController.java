@@ -74,6 +74,7 @@ public class TopicController {
         searchCriteria.setPage(pager.getNumber());
         searchCriteria.setPageSize(pager.getSize());
         searchCriteria.setOrderInfo("topic.create_time desc");
+        searchCriteria.setStatusIn(new Integer[]{TopicConstant.Status.USER_DELETE, TopicConstant.Status.WAIT_VERIFY});
         int totalSize = topicService.countTopicByCriteria(searchCriteria);
 
         List<AdminVestUser> adminAppUsers = adminVestUserRepository.getVestUsersByAdminUid(appUid);
