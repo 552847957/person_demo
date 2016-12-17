@@ -103,14 +103,14 @@ public class TopicServiceImpl implements TopicService {
         searchCriteria.setCircleId(circleId);
         searchCriteria.setGetMoreOne(true);
         if (tabId == TopicConstant.DefaultTab.BASE_RECOMMEND){
+            searchCriteria.setOrderInfo("topic.top_rank desc, topic.update_time desc");
             searchCriteria.setIsBest(true);
         }else if (tabId == TopicConstant.DefaultTab.NEW_PUBLISH){
             searchCriteria.setOrderInfo("topic.create_time desc");
+        }else if (tabId == TopicConstant.DefaultTab.All){
+            searchCriteria.setIsTop(false);//全部标签下 不显示置顶的
         }else {
             searchCriteria.setTabId(tabId);
-        }
-        if (tabId == 0){
-            searchCriteria.setIsTop(true);//全部标签下 不显示置顶的
         }
         List<Topic> topics = this.searchTopicByCriteria(searchCriteria);
         return this.buildListDto(topics);

@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.bbs.criteria;
 
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
+import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import lombok.Data;
 import org.apache.commons.beanutils.BeanUtils;
@@ -37,9 +38,11 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
 
     private int tabId=0; //0:表示查询全部分类下面的帖子
 
-    private Boolean isBest=false;//精华帖
+    private Boolean isBest;//精华帖
 
-    private Boolean isTop=false;//置顶帖
+    private Boolean isTop;//置顶帖
+
+    private Boolean filterUserBanForver=true;//是否过滤掉永久禁言的用户
 
     private String publishStartTime;
 
@@ -82,11 +85,13 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             where.append(" AND topic.circle_id=?");
             elementType.add(this.circleId);
         }
-        if (this.isBest){
-            where.append(" AND topic.is_best=1");
+        if (null != this.isBest){
+            where.append(" AND topic.is_best=?");
+            elementType.add(this.isBest ? 1 : 0);
         }
-        if (this.isTop){
+        if (null != this.isTop){
             where.append(" AND topic.is_top=1");
+            elementType.add(this.isTop ? 1 : 0);
         }
         if (this.tabId > 0){
             where.append(" AND tab.tab_id=?");
@@ -132,6 +137,10 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             }
             circleIdsStr = circleIdsStr.substring(1);
             where.append(" AND topic.circle_id in (" + circleIdsStr + ")");
+        }
+        if (this.filterUserBanForver){
+            where.append(" AND user.ban_status != ? ");
+            elementType.add(UserConstant.BanStatus.FOREVER);
         }
         String whereStr = "";
         if (where.length() > 0){
