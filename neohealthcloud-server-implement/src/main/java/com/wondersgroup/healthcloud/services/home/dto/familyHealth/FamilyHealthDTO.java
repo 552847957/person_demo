@@ -14,5 +14,9 @@ import lombok.Data;
 public class FamilyHealthDTO {
     private UserHealthDTO userHealth;
     private FamilyMemberDTO familyMember;
-
+    public FamilyHealthDTO(){}
+    public FamilyHealthDTO(UserHealthDTO userHealth,FamilyMemberDTO familyMember){
+        this.userHealth = userHealth;
+        this.familyMember = familyMember;
+    }
 }

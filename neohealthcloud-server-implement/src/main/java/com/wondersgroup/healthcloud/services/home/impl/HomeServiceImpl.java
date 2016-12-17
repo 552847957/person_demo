@@ -7,10 +7,12 @@ import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
 import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
@@ -30,8 +32,9 @@ import com.wondersgroup.healthcloud.services.user.FamilyService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -46,7 +49,7 @@ import java.util.*;
  */
 @Service("homeService")
 public class HomeServiceImpl implements HomeService {
-
+    private static final Logger logger = LoggerFactory.getLogger(HomeServiceImpl.class);
     @Autowired
     private ModulePortalService modulePortalService;
 
@@ -73,6 +76,9 @@ public class HomeServiceImpl implements HomeService {
 
     @Autowired
     RegisterInfoRepository registerInfoRepo;
+
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
 
     private static final String requestStationNearby = "%s/api/exam/station/nearby?";
     private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
@@ -118,7 +124,17 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, String apiMeasureUrl, String apiUserhealthRecordUrl) {
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String,Object> urlMap) {
+        String apiMeasureUrl = String.valueOf(urlMap.get("apiMeasureUrl"));
+        String apiUserhealthRecordUrl = String.valueOf(urlMap.get("apiUserhealthRecordUrl"));
+        String apiVaccineUrl = String.valueOf(urlMap.get("apiVaccineUrl"));
+
+        if(StringUtils.isBlank(apiMeasureUrl)|| StringUtils.isBlank(apiUserhealthRecordUrl) || StringUtils.isBlank(apiVaccineUrl)){
+            logger.info("apiMeasureUrl or apiUserhealthRecordUrl or apiVaccineUrl is blank ",apiMeasureUrl,apiUserhealthRecordUrl,apiVaccineUrl);
+            return null;
+        }
+
+
         FamilyHealthDTO dto = new FamilyHealthDTO();
         UserHealthDTO userHealth = null; //用户健康对象
         FamilyMemberDTO familyMember = null; //家人健康对象
@@ -177,7 +193,7 @@ public class HomeServiceImpl implements HomeService {
 
                         if (null == familyMember) {
                             familyMember = new FamilyMemberDTO();
-                            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
                             familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
                         }
 
@@ -194,7 +210,7 @@ public class HomeServiceImpl implements HomeService {
 
                     if (null == familyMember) {
                         familyMember = new FamilyMemberDTO();
-                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId());
+                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
                         familyMember.setExceptionItems(new ArrayList<FamilyMemberItemDTO>());
                     }
 
@@ -203,8 +219,12 @@ public class HomeServiceImpl implements HomeService {
                         familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                     }
 
-
-                    //4 育苗信息 养橙：孟华实现接口
+                    //4 育苗信息
+                    FamilyMemberItemDTO vaccinetemDTO =  buildFamilyVaccineDate(fm,apiVaccineUrl);
+                    if(null != vaccinetemDTO){
+                        familyMember.getExceptionItems().add(vaccinetemDTO);
+                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                    }
                 }
             }
         } else { //无家人
@@ -409,6 +429,7 @@ public class HomeServiceImpl implements HomeService {
     }
 
 
+
     /**
      * 查询个人健康信息
      *
@@ -438,6 +459,8 @@ public class HomeServiceImpl implements HomeService {
     }
 
 
+
+
     /**
      * 家人评估结果异常
      *
@@ -446,8 +469,6 @@ public class HomeServiceImpl implements HomeService {
      * @return
      */
     private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMember fm, String registerid) {
-
-
         FamilyMemberItemDTO fItemDTO = null;
         HealthQuestion healthQuestion = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
         if (null != healthQuestion && StringUtils.isNotBlank(healthQuestion.getResult())) {
@@ -460,6 +481,95 @@ public class HomeServiceImpl implements HomeService {
         return fItemDTO;
     }
 
+    /**
+     * 疫苗接种
+     * @param fm
+     * @return
+     */
+    private FamilyMemberItemDTO buildFamilyVaccineDate(FamilyMember fm,String apiVaccineUrl ) {
+        FamilyMemberItemDTO fItemDTO = null;
+        String birthDate = getBirthDay(fm); // 计算出孩子的生日 16岁以下的,不是大人
+        if(StringUtils.isBlank(birthDate)){
+            return null;
+        }
+
+        Map<String,Object> input =  new HashMap<String,Object>();
+        input.put("birthday",birthDate);
+        String leftDays = healthApiClient.getLeftDaysByBirth(apiVaccineUrl,input);
+        if (StringUtils.isNotBlank(leftDays)) {
+            fItemDTO = new FamilyMemberItemDTO();
+            fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,疫苗接种 "+leftDays+"天后");
+        }
+
+        return fItemDTO;
+    }
+
+    /**
+     * 获得生日
+     * @param fm
+     * @return
+     */
+    private String getBirthDay(FamilyMember fm){
+        String birthDay = null;
+        if(null !=fm.getIsAnonymous() && fm.getIsAnonymous().equals(0)){//非匿名
+          RegisterInfo registerInfo = registerInfoRepo.findOne(fm.getMemberId());
+          if(null != registerInfo && null != registerInfo.getBirthday()){
+              //16岁以下认为需要打疫苗
+
+              Integer age = getAge(registerInfo.getBirthday());
+              if(null != age && age < 16){
+                  birthDay = new SimpleDateFormat("yyyy-MM-dd").format(registerInfo.getBirthday());
+              }
+
+          }
+        }else if(null !=fm.getIsAnonymous() && !fm.getIsAnonymous().equals(0)){//匿名
+            AnonymousAccount account = anonymousAccountRepository.findOne(fm.getMemberId());
+             if(null != account && null != account.getBirthDate()){
+                 Integer age = getAge(account.getBirthDate());
+                 if(null != age && age < 16){
+                   birthDay = new SimpleDateFormat("yyyy-MM-dd").format(account.getBirthDate());
+                 }
+             }
+        }
+
+        return birthDay;
+    }
+
+    public  Integer getAge(Date birthDay) {
+        //获取当前系统时间
+        Calendar cal = Calendar.getInstance();
+        //如果出生日期大于当前时间，则抛出异常
+        if (cal.before(birthDay)) {
+            /*throw new IllegalArgumentException(
+                    "The birthDay is before Now.It's unbelievable!");*/
+            return null;
+        }
+        //取出系统当前时间的年、月、日部分
+        int yearNow = cal.get(Calendar.YEAR);
+        int monthNow = cal.get(Calendar.MONTH);
+        int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);
+
+        //将日期设置为出生日期
+        cal.setTime(birthDay);
+        //取出出生日期的年、月、日部分
+        int yearBirth = cal.get(Calendar.YEAR);
+        int monthBirth = cal.get(Calendar.MONTH);
+        int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
+        //当前年份与出生年份相减，初步计算年龄
+        int age = yearNow - yearBirth;
+        //当前月份与出生日期的月份相比，如果月份小于出生月份，则年龄上减1，表示不满多少周岁
+        if (monthNow <= monthBirth) {
+            //如果月份相等，在比较日期，如果当前日，小于出生日，也减1，表示不满多少周岁
+            if (monthNow == monthBirth) {
+                if (dayOfMonthNow < dayOfMonthBirth) age--;
+            }else{
+                age--;
+            }
+        }
+
+        return age;
+    }
 
     /**
      * 家人健康异常
@@ -499,5 +609,7 @@ public class HomeServiceImpl implements HomeService {
         return familyMemberItemDTO;
 
     }
+
+
 
 }

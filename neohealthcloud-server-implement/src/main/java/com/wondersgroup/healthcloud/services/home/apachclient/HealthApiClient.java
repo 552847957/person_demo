@@ -40,6 +40,16 @@ public class HealthApiClient {
         return doGet(reqUrl,input);
     }
 
+    /**
+     * 计算打疫苗提示时间
+     * @param apiVaccineUrl
+     * @param input
+     * @return
+     */
+    public String getLeftDaysByBirth(String apiVaccineUrl,Map<String,Object> input){
+        String reqUrl=apiVaccineUrl+"/api/vaccine/getLeftDaysByBirth?birthday={birthday}";
+        return doGet(reqUrl,input);
+    }
 
 
     private String doGet(String reqUrl,Map<String,Object> input){

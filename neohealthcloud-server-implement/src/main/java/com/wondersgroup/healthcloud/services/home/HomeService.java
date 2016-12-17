@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServ
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2016/12/13.
@@ -34,7 +35,7 @@ public interface HomeService {
      * @param registerInfo 当前登录用户
      * @return
      */
-    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, String apiMeasureUrl, String apiUserhealthRecordUrl);
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String,Object> urlMap);
 
 
     /**
