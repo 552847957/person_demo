@@ -434,7 +434,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         submitOrder.setDeptName(l2Department.getDeptName());
         submitOrder.setHosDeptCode(l2Department.getHosDeptCode());
 
-        if(doctor!=null){
+        if("1".equals(orderType) && doctor!=null){
             submitOrder.setDoctName(doctor.getDoctName());
             submitOrder.setHosDoctCode(doctor.getHosDoctCode());
         }
@@ -485,7 +485,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         schedule.setReserveOrderNum(schedule.getReserveOrderNum()-1);
         scheduleRepository.saveAndFlush(schedule);
 
-        if(doctor!=null){
+        if("1".equals(orderType) && doctor!=null){
             doctor.setReservationNum(doctor.getReservationNum()+1);
             doctorRepository.saveAndFlush(doctor);
         }else{
