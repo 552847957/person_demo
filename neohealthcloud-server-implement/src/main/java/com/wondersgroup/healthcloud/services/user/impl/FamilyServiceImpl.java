@@ -126,7 +126,10 @@ public class FamilyServiceImpl implements FamilyService {
         invitation.setUpdateBy(userId);
         invitation.setUpdateDate(invitation.getCreateDate());
         invitationRepository.saveAndFlush(invitation);
-        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
+//        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
+        
+        pushMessage(userId, userId, 10);
+        pushMessage(memberId, memberId, 10);
         return true;
     }
 
@@ -259,7 +262,8 @@ public class FamilyServiceImpl implements FamilyService {
             invitationRepository.save(familyMemberInvitation);
         }
         RegisterInfo register = findOneRegister(userId, false);
-        //        String message = register.getNickname() + "已与您解除亲情账户绑定";
+        String message = register.getNickname() + "已与您解除亲情账户绑定";
+        pushMessage(userId, memberId, 9);
         //        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
@@ -274,6 +278,8 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember.setUpdateBy(userId);
         familyMember.setUpdateDate(new Date());
         memberRepository.saveAndFlush(familyMember);
+        
+        pushMessage(userId, memberId, readReadable ? 13 : 14);
         return true;
     }
 
@@ -477,16 +483,23 @@ public class FamilyServiceImpl implements FamilyService {
             title = "就医记录";
             content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
         } else if (type == 8) {
-
+        	
         } else if (type == 9) {
             title = "关系解除";
             content = "健康云用户" + name + "已与你解除绑定";
         } else if (type == 10) {
-
+        	 title = "家庭邀请";
+        	 content = "家庭成员邀请, 您收到一条家庭成员邀请, 请查收";
         } else if (type == 11) {
 
         } else if (type == 12) {
 
+        } else if (type == 13) {
+        	title = "健康档案";
+        	content = "健康云用户" + name + "申请查看健康档案权限";
+        } else if (type == 14) {
+        	title = "健康档案";
+        	content = "健康云用户" + name + "已关闭查看健康档案权限";
         }
         familyMessage.setMsgContent(content);
         familyMessage.setMsgType(changeType(type));
