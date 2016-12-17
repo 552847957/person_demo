@@ -38,7 +38,7 @@ public class BadWordsServiceImpl implements BadWordsService {
         try(Jedis jedis = jedisPool.getResource()){
             badWords = jedis.get(badWordsCacheKey);
         }
-        return badWords;
+        return badWords == null ? "" : badWords;
     }
 
     @Override
@@ -51,12 +51,12 @@ public class BadWordsServiceImpl implements BadWordsService {
 
     @Override
     public String dealBadWords(String text){
-        if (!isDealBadWords()){
+        if (StringUtils.isEmpty(text) || !isDealBadWords()){
             return text;
         }
-        return StringUtils.isEmpty(text) ? "" : text.replaceAll(getBadWords(), "**");
+        String badWords = getBadWords();
+        return StringUtils.isEmpty(badWords) ? text : text.replaceAll(getBadWords(), "**");
     }
-
 
     private String dealWords(String badWords){
         badWords = null == badWords ? "" : badWords;
