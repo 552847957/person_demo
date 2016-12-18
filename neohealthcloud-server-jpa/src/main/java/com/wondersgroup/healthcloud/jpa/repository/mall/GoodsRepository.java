@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.jpa.repository.mall;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -17,7 +16,7 @@ public interface GoodsRepository extends JpaRepository<Goods, Integer> {
 
 	Page<Goods> findByStatus(Integer status, Pageable pageable);
 
-	@Query(nativeQuery = true, value = "select * from goods_tb where status = ?1 end_time <= ?2")
-	List<Goods> findByStatusAndEndTime(Integer status, Date endTime);
+	@Query(nativeQuery = true, value = "select * from goods_tb where status = ?1 and to_days(now()) > to_days(end_time)")
+	List<Goods> findByStatusAndEndTime(Integer status);
 
 }

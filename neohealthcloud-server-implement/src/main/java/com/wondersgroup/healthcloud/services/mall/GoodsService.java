@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
@@ -95,10 +96,11 @@ public class GoodsService {
 		}
 
 		tbGoods.setName(goods.getName());
+		tbGoods.setPicture(goods.getPicture());
 		tbGoods.setIntroduce(goods.getIntroduce());
+		tbGoods.setPrice(goods.getPrice());
 		tbGoods.setSortNo(goods.getSortNo());
 		tbGoods.setUpdateTime(new Date());
-		tbGoods.setPrice(goods.getPrice());
 		goodsRepository.save(tbGoods);
 	}
 
@@ -200,8 +202,7 @@ public class GoodsService {
 	}
 
 	public void autoSoldOut() {
-		Date date = new Date();
-		List<Goods> goodsList = goodsRepository.findByStatusAndEndTime(1, date);
+		List<Goods> goodsList = goodsRepository.findByStatusAndEndTime(1);
 
 		if (goodsList != null && !goodsList.isEmpty()) {
 			for (Goods goods : goodsList) {
