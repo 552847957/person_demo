@@ -193,23 +193,22 @@ public class ApiSpecHomeController {
     @WithoutToken
     public JsonResponseEntity telephoneAd(@RequestHeader(value = "main-area", required = true) String mainArea) {
         JsonResponseEntity result = new JsonResponseEntity();
-        Map data = new HashMap();
+        JsonNode jsonNode = null;
 
         AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.floatTelephone");
         if (appConfig != null) {
             try {
                 String telephoneAd = appConfig.getData();
                 ObjectMapper om = new ObjectMapper();
-                JsonNode jsonNode = om.readTree(telephoneAd);
-                data.put("telephoneAd", jsonNode);
+                 jsonNode = om.readTree(telephoneAd);
             } catch (Exception ex) {
                 logger.error("telephoneAd " + ex.getMessage());
             }
         }
 
-        if (data.size() > 0) {
+        if (null != jsonNode) {
             result.setCode(0);
-            result.setData(data);
+            result.setData(jsonNode);
             result.setMsg("获取数据成功");
         } else {
             result.setCode(1000);
