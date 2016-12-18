@@ -520,17 +520,16 @@ public class FamilyServiceImpl implements FamilyService {
     public String changeType(int type) {
         String tp = String.valueOf(type);
         switch (type) {
-        case 1:tp = "10";break;
-        case 2:tp = "5";break;
-        case 3:tp = "7";break;
-        case 4:tp = "6";break;
-        case 5:tp = "9";break;
-        case 6:tp = "8";break;
-        case 7:tp = "4";break;
+//        case 1:tp = "10";break;
+//        case 2:tp = "5";break;
+//        case 3:tp = "7";break;
+//        case 4:tp = "6";break;
+//        case 5:tp = "9";break;
+//        case 6:tp = "8";break;
+//        case 7:tp = "4";break;
 //        case 8:tp = "10";break;
-        case 9:tp = "3";break;
+//        case 9:tp = "3";break;
 //        case 10:tp = "10";break;
-
 
         }
         return tp;
