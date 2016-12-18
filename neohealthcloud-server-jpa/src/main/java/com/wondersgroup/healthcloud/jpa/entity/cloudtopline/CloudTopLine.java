@@ -31,6 +31,9 @@ public class CloudTopLine {
     @Column(name = "jump_url")
     private String jumpUrl;
 
+    @Column(name = "jump_id")
+    private String jumpId;
+
     @Column(name = "type")
     private Integer type;
 

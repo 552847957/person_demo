@@ -101,6 +101,7 @@ public class CloudTopLineServiceImpl implements CloudTopLineService {
                 entity.setTitle(rs.getString("title"));
                 entity.setJumpUrl(rs.getString("jump_url"));
                 entity.setType(rs.getInt("type"));
+                entity.setJumpId(rs.getString("jump_id"));
                 entity.setIconUrl(rs.getString("icon_url"));
                 entity.setDelFlag(rs.getString("del_flag"));
                 entity.setCreateTime(rs.getDate("create_time"));
@@ -124,6 +125,7 @@ public class CloudTopLineServiceImpl implements CloudTopLineService {
                 entity.setTitle(rs.getString("title"));
                 entity.setJumpUrl(rs.getString("jump_url"));
                 entity.setType(rs.getInt("type"));
+                entity.setJumpId(rs.getString("jump_id"));
                 entity.setIconUrl(rs.getString("icon_url"));
                 entity.setDelFlag(rs.getString("del_flag"));
                 entity.setCreateTime(rs.getDate("create_time"));
@@ -142,8 +144,8 @@ public class CloudTopLineServiceImpl implements CloudTopLineService {
             logger.info("updateCloudTopLineById.updateCloudTopLineById 参数异常 ");
             return false;
         }
-        final  String sql = "update app_tb_cloud_top_line set title = ? ,jump_url = ?,type = ?,update_time = ? where id = ? ";
-        return jdbcTemplate.update(sql,new Object[]{entity.getTitle(),entity.getJumpUrl(),entity.getType(),new Date(),entity.getId()}) > 0 ? true:false;
+        final  String sql = "update app_tb_cloud_top_line set title = ? ,jump_url = ?,type = ?,jump_id = ?,update_time = ? where id = ? ";
+        return jdbcTemplate.update(sql,new Object[]{entity.getTitle(),entity.getJumpUrl(),entity.getType(),entity.getJumpId(),new Date(),entity.getId()}) > 0 ? true:false;
     }
 
 }

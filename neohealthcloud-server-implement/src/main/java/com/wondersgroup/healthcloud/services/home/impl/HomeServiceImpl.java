@@ -113,6 +113,7 @@ public class HomeServiceImpl implements HomeService {
                 msgDto.setJumpUrl(entity.getJumpUrl());
                 msgDto.setTitle(entity.getTitle());
                 msgDto.setType(String.valueOf(entity.getType()));
+                msgDto.setId(entity.getJumpId());
                 message.add(msgDto);
             }
 
