@@ -267,6 +267,7 @@ public class CloudTopLineController {
             map.put("iconUrl",model.getIconUrl());
             map.put("title",model.getTitle());
             map.put("jumpUrl",model.getJumpUrl());
+            map.put("jumpId",model.getJumpId());
             map.put("type",model.getType());
 
             result.setCode(0);
