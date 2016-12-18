@@ -36,6 +36,7 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.FamilyMessage;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.services.user.message.MsgService;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
@@ -63,6 +64,9 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Autowired
     private UserService                      userService;
+    
+    @Autowired
+    private MsgService                       familyMsgService;
 
     @Autowired
     private HttpWdUtils                      httpWdUtils;
@@ -446,10 +450,11 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public boolean pushMessage(String uid, String memberId, int type) {
-//        if(){
-//            
-//        }
-        
+        int count =  familyMsgService.getCountByDate(uid, type);
+        if(count > 0){
+            return true;
+        }
+            
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -464,7 +469,7 @@ public class FamilyServiceImpl implements FamilyService {
     public FamilyMessage getMessage(String uid, String memberId, int type) {
         FamilyMessage familyMessage = new FamilyMessage();
         RegisterInfo info = userService.getOneNotNull(uid);
-        String title = "";
+        String title = "健康云";
         String content = "";
         String name = info.getNickname();
          if (type == 2) {

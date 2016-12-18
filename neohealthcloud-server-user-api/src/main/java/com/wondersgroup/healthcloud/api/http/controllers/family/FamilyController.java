@@ -773,7 +773,8 @@ public class FamilyController {
 //            }else 
                 if(id == 2){
                     templet.setDesc("就医历史 一查便知");
-                }else if(id == 3){
+                }else if(id == 3 && uid.equals(memberId)){
+                    continue;
                 }else if(id == 4){
                     JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                     if(node == null && node.get("stepCount") != null){
@@ -1094,12 +1095,12 @@ public class FamilyController {
     @VersionRange
     public JsonResponseEntity<String> standaloneVerificationSubmit(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
-        String uid = reader.readString("uid", false);
+        String uid = reader.readString("uid", true);
         String name = reader.readString("name", false);
         String idcard = reader.readString("idcard", true).toUpperCase();
         String photo = reader.readString("photo", true);
         
-        String memberId = reader.readString("memberId", true);
+        String memberId = reader.readString("memberId", false);
         String idCardFile = reader.readString("idCardFile", true);//户口本(儿童身份信息页照片)
         String birthCertFile = reader.readString("birthCertFile", true);//出生证明(照片)
         
@@ -1107,7 +1108,7 @@ public class FamilyController {
             accountService.childVerificationSubmit(uid, memberId, name, idcard, idCardFile,
                     birthCertFile);
         }else{
-            accountService.verificationSubmit(uid, name, idcard, photo);
+            accountService.verificationSubmit(memberId, name, idcard, photo);
         }
         
         JsonResponseEntity<String> body = new JsonResponseEntity<>();

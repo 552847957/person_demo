@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -112,5 +113,11 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public void setAllRead(String uid) {
 
+    }
+
+    @Override
+    public int getCountByDate(String uid, int type) {
+
+        return 0;
     }
 }
