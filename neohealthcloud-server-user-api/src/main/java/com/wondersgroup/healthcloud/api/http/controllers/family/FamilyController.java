@@ -763,7 +763,7 @@ public class FamilyController {
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         if(info.getAge() != null && info.getAge() < 6){
-            tems.add(new InfoTemplet(2, "就医记录", null, null));
+            tems.add(new InfoTemplet(2, "就医记录", "就医历史 一查便知", null));
             tems.add(new InfoTemplet(10, "N天后可接种疫苗", "家有宝贝初养成", null));
         }else{
             for (Integer id : MemberInfoTemplet.map.keySet()) {
