@@ -72,8 +72,8 @@ public class CloudTopLineController {
         String name = reader.readString("name",false);
         String iconUrl = reader.readString("iconUrl",false);
         String title = reader.readString("title",false);
-        String jumpUrl = reader.readString("jumpUrl",false);
-        String jumpId = reader.readString("jumpId",false);
+        String jumpUrl = reader.readString("jumpUrl",true);
+        String jumpId = reader.readString("jumpId",true);
         Integer type = reader.readInteger("type",false);
 
         if(StringUtils.isBlank(name)){
@@ -131,8 +131,8 @@ public class CloudTopLineController {
         String name = reader.readString("name",false);
         String iconUrl = reader.readString("iconUrl",false);
         String title = reader.readString("title",false);
-        String jumpUrl = reader.readString("jumpUrl",false);
-        String jumpId = reader.readString("jumpId",false);
+        String jumpUrl = reader.readString("jumpUrl",true);
+        String jumpId = reader.readString("jumpId",true);
         Integer type = reader.readInteger("type",false);
          if(null == id){
              return  new JsonResponseEntity(1, "id 为空",null);
