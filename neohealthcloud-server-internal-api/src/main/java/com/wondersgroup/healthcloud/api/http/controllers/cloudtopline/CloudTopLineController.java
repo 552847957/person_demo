@@ -88,13 +88,21 @@ public class CloudTopLineController {
             return  new JsonResponseEntity(1, "title 为空",null);
         }
 
-        if(StringUtils.isBlank(jumpUrl)){
-            return  new JsonResponseEntity(1, "jumpUrl 为空",null);
-        }
         if(null == type){
             return  new JsonResponseEntity(1, "type 为空",null);
         }else if(null == CloudTopLineEnum.getNameById(type)){
             return  new JsonResponseEntity(1, "type 分类错误!",null);
+        }
+
+        if( CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.TIE_ZI || CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.WEN_ZHANG ){
+            if(null == jumpId){
+                return  new JsonResponseEntity(1, "jumpId 为空",null);
+            }
+        }else{//h5时 jumpUrl不能为空
+            if(StringUtils.isBlank(jumpUrl)){
+                return  new JsonResponseEntity(1, "jumpUrl 为空",null);
+            }
+
         }
 
 
@@ -152,15 +160,23 @@ public class CloudTopLineController {
             return  new JsonResponseEntity(1, "jumpUrl 为空",null);
         }
 
-        if(StringUtils.isBlank(jumpId)){
-            return  new JsonResponseEntity(1, "jumpId 为空",null);
-        }
 
         if(null == type){
             return  new JsonResponseEntity(1, "type 为空",null);
 
         }else if(null == CloudTopLineEnum.getNameById(type)){
             return  new JsonResponseEntity(1, "type 分类错误!",null);
+        }
+
+        if( CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.TIE_ZI || CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.WEN_ZHANG ){
+            if(null == jumpId){
+                return  new JsonResponseEntity(1, "jumpId 为空",null);
+            }
+        }else{//h5时 jumpUrl不能为空
+            if(StringUtils.isBlank(jumpUrl)){
+                return  new JsonResponseEntity(1, "jumpUrl 为空",null);
+            }
+
         }
 
 
