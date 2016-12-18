@@ -674,7 +674,7 @@ public class FamilyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        familyService.anonymousRegistration(id, relation, relationName, null, headphoto, mobile,date , false);
+        familyService.anonymousRegistration(id, relation, relationName, null, headphoto, mobile,date , true);
         body.setMsg("添加成功");
         return body;
     }
@@ -735,6 +735,9 @@ public class FamilyController {
         info.setIsVerification(false);
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
+        if(familyMember == null){
+            throw new CommonException(1000, "不是您的家庭成员");
+        }
         if(regInfo == null){
             AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
             if(ano != null && ano.getIsStandalone()){
