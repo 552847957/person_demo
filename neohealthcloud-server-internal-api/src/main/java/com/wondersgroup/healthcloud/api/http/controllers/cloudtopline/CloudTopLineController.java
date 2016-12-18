@@ -156,11 +156,6 @@ public class CloudTopLineController {
             return  new JsonResponseEntity(1, "title 为空",null);
         }
 
-        if(StringUtils.isBlank(jumpUrl)){
-            return  new JsonResponseEntity(1, "jumpUrl 为空",null);
-        }
-
-
         if(null == type){
             return  new JsonResponseEntity(1, "type 为空",null);
 
