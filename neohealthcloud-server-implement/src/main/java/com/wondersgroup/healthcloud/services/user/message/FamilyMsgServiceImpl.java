@@ -116,8 +116,12 @@ public class FamilyMsgServiceImpl implements MsgService{
     //根据邀请记录ID，获取邀请状态
     private String getReqStatusByReqID(String reqID) {
         String query =String.format("select status from app_tb_family_member_invitation where id='%s' and del_flag=0",reqID);
-        String reqStatus = jdbcTemplate.queryForObject(query, String.class);
-        return reqStatus != null ? reqStatus : "";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return "";
+        }
+        Object status= list.get(0).get("status");
+        return status ==null?"":String.valueOf(status);
     }
     //批量获取请求人头像
     private List<Map<String, Object>> getAvatarByUids(List<String> ids){
