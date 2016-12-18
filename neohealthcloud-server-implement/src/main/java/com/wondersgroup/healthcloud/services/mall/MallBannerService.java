@@ -49,9 +49,9 @@ public class MallBannerService {
 			sql += " and a.goods_id = " + goodsId;
 		}
 
-		int start = page > 0 ? (page - 1) * size : 0;
-		String query = "select a.*, b.name as goodsName " + sql + " order by a.status desc, a.sort_no asc limit " + start
-				+ "," + (start + size);
+		int start = page * size;
+		String query = "select a.*, b.name as goodsName " + sql + " order by a.status desc, a.sort_no asc limit "
+				+ start + "," + (start + size);
 		List<MallBannerDto> content = jdbcTemplate.query(query,
 				new BeanPropertyRowMapper<MallBannerDto>(MallBannerDto.class));
 
@@ -66,12 +66,12 @@ public class MallBannerService {
 		if (tbBanner != null) {
 			throw new CommonException(1001, "该商品已添加横幅了");
 		}
-		
+
 		Goods goods = goodsRepository.findOne(banner.getGoodsId());
-		if(goods.getStatus() != 1){
+		if (goods.getStatus() != 1) {
 			throw new CommonException(1001, "该商品已下架");
 		}
-		
+
 		Date date = new Date();
 		banner.setId(IdGen.uuid());
 		banner.setCreateTime(date);

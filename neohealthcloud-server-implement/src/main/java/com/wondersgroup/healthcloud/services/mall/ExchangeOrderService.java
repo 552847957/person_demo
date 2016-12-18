@@ -88,8 +88,7 @@ public class ExchangeOrderService {
 			sql += " and '" + endTime + "' >= date_format(a.create_time, '%Y-%m-%d') ";
 		}
 
-		System.out.println(sql);
-		int start = page > 0 ? (page - 1) * size : 0;
+		int start = page * size;
 		String querySql = sql + " limit " + start + "," + (start + size);
 		List<ExchangeOrderDto> list = jdbcTemplate.query(querySql,
 				new BeanPropertyRowMapper<ExchangeOrderDto>(ExchangeOrderDto.class));
@@ -111,7 +110,7 @@ public class ExchangeOrderService {
 
 	public Page<ExchangeOrderDto> findByUserId(String userId, int flag) {
 		int size = 20;
-		int start = flag > 0 ? (flag - 1) * size : 0;
+		int start = flag * size;
 		int end = start + size;
 		String sql = "from exchange_order_tb a left join goods_tb b on a.goods_id = b.id where a.user_id = ?";
 		String query = "select a.*, b.picture " + sql + " order by a.create_time desc limit ?, ?";

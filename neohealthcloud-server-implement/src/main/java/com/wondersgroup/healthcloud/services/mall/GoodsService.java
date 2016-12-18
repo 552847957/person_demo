@@ -154,7 +154,7 @@ public class GoodsService {
 			sql = sql + " and a.status = " + status;
 		}
 
-		int start = (page - 1) * size;
+		int start = page * size;
 		start = start > 0 ? start : 0;
 		String limitSQL = sql + " limit " + start + ", " + (start + size);
 		List<GoodsItem> list = jdbcTemplate.query(limitSQL, new BeanPropertyRowMapper<GoodsItem>(GoodsItem.class));
