@@ -132,8 +132,8 @@ public class FamilyServiceImpl implements FamilyService {
         invitationRepository.saveAndFlush(invitation);
 //        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         
-        pushMessage(userId, userId, 13);
-        pushMessage(memberId, memberId, 14);
+        pushMessage(userId, memberId, 13);
+        pushMessage(userId, memberId, 14);
         return true;
     }
 
@@ -468,11 +468,15 @@ public class FamilyServiceImpl implements FamilyService {
 
     public FamilyMessage getMessage(String uid, String memberId, int type) {
         FamilyMessage familyMessage = new FamilyMessage();
+        familyMessage.setNotifierUID(uid);
+        familyMessage.setReceiverUID(memberId);
+        
         RegisterInfo info = userService.getOneNotNull(uid);
         String title = "健康云";
         String content = "";
         String name = info.getNickname();
-         if (type == 2) {
+        
+        if (type == 2) {
             title = "就医记录";
             content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
         }else if (type == 4) {
@@ -503,9 +507,13 @@ public class FamilyServiceImpl implements FamilyService {
             title = "关系解除";
             content = "健康云用户" + name + "已与你解除绑定";
         } else if (type == 13) {
+            familyMessage.setNotifierUID(uid);
+            familyMessage.setReceiverUID(uid);
             title = "家庭邀请";
             content = "家庭成员邀请, 您发送一条家庭成员邀请, 请查收";
         } else if (type == 14) {
+            familyMessage.setNotifierUID(memberId);
+            familyMessage.setReceiverUID(memberId);
             title = "家庭邀请";
             content = "家庭成员邀请, 您收到一条家庭成员邀请, 请查收";
         } else if (type == 15) {
@@ -515,10 +523,13 @@ public class FamilyServiceImpl implements FamilyService {
         familyMessage.setMsgContent(content);
         familyMessage.setMsgType(changeType(type));
         familyMessage.setMsgTitle(title);
-        familyMessage.setNotifierUID(uid);
-        familyMessage.setReceiverUID(memberId);
-        familyMessage.setJumpUrl(null);
-        familyMessage.setReqRecordID(null);
+        familyMessage.setJumpUrl("");
+        if("0".equals(familyMessage.getMsgType())){
+            FamilyMemberInvitation invitation = invitationRepository.invitation(uid, memberId, 1);
+            if(invitation != null){
+                familyMessage.setReqRecordID(invitation.getId());
+            }
+        }
         return familyMessage;
     }
 
@@ -538,7 +549,7 @@ public class FamilyServiceImpl implements FamilyService {
         case 8:tp = "8";break;
         case 9:tp = "9";break;
 //        case 10:tp = "10";break;
-        default: tp = "9";
+//        default: tp = "9";
         }
         return tp;
     }
