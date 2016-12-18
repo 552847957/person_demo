@@ -8,9 +8,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum VisibleEnum {
 
-     //0 可见 1 不可见
-    VISIBLE("0","可见"),
-    NOT_VISIBLE("1","不可见");
+     //1 可见 0 不可见
+    VISIBLE("1","可见"),
+    NOT_VISIBLE("0","不可见");
 
 
     private String id;
