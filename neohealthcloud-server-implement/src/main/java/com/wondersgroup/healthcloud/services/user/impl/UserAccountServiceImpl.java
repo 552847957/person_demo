@@ -1,10 +1,17 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
-import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -15,19 +22,24 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
-import com.wondersgroup.healthcloud.services.user.exception.*;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorSmsRequestException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserGuestLogoutException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasBeenRegisteredException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasNotRegisteredException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
-import com.wondersgroup.healthcloud.utils.wonderCloud.*;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
+import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
+import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.ImageUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.RSAUtil;
+import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -513,7 +525,12 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
-        return anonymousRegistration(creator, username, password, true,sex,headphoto,mobile,birthDate,isStandalone);
+        boolean isChild = false;
+        Integer age = AgeUtils.getAgeByDate(birthDate);
+        if(age != null && age < 18){
+            isChild = true;
+        }
+        return anonymousRegistration(creator, username, password, isChild, sex,headphoto,mobile,birthDate,isStandalone);
     }
 
     public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild

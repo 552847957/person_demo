@@ -24,6 +24,7 @@ public class FamilyInfoDTO {
     private Boolean isStandalone;
     private Boolean isVerification;
     private Boolean isAccess;
+    private Boolean isChild;
     
     
 }

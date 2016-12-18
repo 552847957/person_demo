@@ -65,6 +65,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
@@ -745,7 +746,7 @@ public class FamilyController {
                 info.setIsStandalone(true);
             }
             info.setNikcName(ano.getNickname());
-            info.setAge(getAge(ano.getBirthDate()));
+            info.setAge(AgeUtils.getAgeByDate(ano.getBirthDate()));
             info.setMobile(ano.getMobile());
             registerId = ano.getId();
             sex = ano.getSex();
@@ -754,7 +755,7 @@ public class FamilyController {
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
             info.setNikcName(regInfo.getNickname());
-            info.setAge(getAge(regInfo.getBirthday()));
+            info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
         }
         info.setId(memberId);
@@ -869,6 +870,8 @@ public class FamilyController {
         JsonResponseEntity<FamilyInfoDTO> response = new JsonResponseEntity<FamilyInfoDTO>();
         FamilyInfoDTO info = new FamilyInfoDTO();
         info.setIsStandalone(false);
+        info.setIsChild(false);
+        info.setIsVerification(false);
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if(familyMember == null){
@@ -886,6 +889,7 @@ public class FamilyController {
             info.setMobile(ano.getMobile());
             info.setSex(GenderConverter.toChinese(ano.getSex()));
             info.setAvatar(ano.getHeadphoto());
+            info.setIsChild(ano.getIsChild());
             info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
         }else{
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
@@ -894,7 +898,7 @@ public class FamilyController {
             info.setNickname(regInfo.getNickname());
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
-            info.setAge(getAge(regInfo.getBirthday()));
+            info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
         }
         info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
@@ -1250,38 +1254,6 @@ public class FamilyController {
     public String getRelationName(String relation){
         return "-1".equals(relation) ? "我的" : FamilyMemberRelation.getName(relation, "");
     }
-    
-    public Integer getAge(Date birthDay) {
-        if(birthDay == null){
-            return null;
-        }
-        Calendar cal = Calendar.getInstance();  
-      
-        if (cal.before(birthDay)) {  
-            return 0;  
-        }  
-        int yearNow = cal.get(Calendar.YEAR);  
-        int monthNow = cal.get(Calendar.MONTH);  
-        int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);  
-        cal.setTime(birthDay);  
-      
-        int yearBirth = cal.get(Calendar.YEAR);  
-        int monthBirth = cal.get(Calendar.MONTH);  
-        int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);  
-      
-        int age = yearNow - yearBirth;  
-      
-        if (monthNow <= monthBirth) {
-            if (monthNow == monthBirth) {  
-                if (dayOfMonthNow < dayOfMonthBirth) {  
-                    age--;  
-                }  
-            } else {  
-                age--;  
-            }  
-        }  
-        return age;  
-    }  
     
     public String getDateStr(){
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
