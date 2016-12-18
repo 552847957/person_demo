@@ -736,7 +736,7 @@ public class FamilyController {
         info.setIsVerification(false);
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
-        if(familyMember == null){
+        if(!uid.equals(memberId) && familyMember == null){
             throw new CommonException(1000, "不是您的家庭成员");
         }
         if(regInfo == null){
