@@ -693,7 +693,8 @@ public class FamilyController {
         
         List<FamilyMemberInvitation> invitations = invitationRepository.invitationList(uid,3);
         for (FamilyMemberInvitation invitation : invitations) {
-            dto.getInvitsations().add(new FamilyMemberInvitationAPIEntity(invitation, uid));
+            RegisterInfo register = userService.getOneNotNull(invitation.getMemberId());
+            dto.getInvitsations().add(new FamilyMemberInvitationAPIEntity(register, invitation, uid));
         }
         
         dto.setMemberInfos(new ArrayList<FamilyMemberDTO.MemberInfo>());
