@@ -95,7 +95,7 @@ public class FamilyMsgServiceImpl implements MsgService{
             if(avatarList != null){
                 for(Map<String, Object> avatarData:avatarList){
                     String notifierUID=String.valueOf(avatarData.get("uid"));
-                    String headphoto=String.valueOf(avatarData.get("headphoto"));
+                    String headphoto=avatarData.get("headphoto")==null?"":String.valueOf(avatarData.get("headphoto"));
                     for(Map<String, Object> row:list){
                         String target_notifierUID=String.valueOf(row.get("notifierUID"));
                         if(target_notifierUID.equals(notifierUID)){
