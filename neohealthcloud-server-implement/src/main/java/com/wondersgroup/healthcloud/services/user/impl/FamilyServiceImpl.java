@@ -128,8 +128,8 @@ public class FamilyServiceImpl implements FamilyService {
         invitationRepository.saveAndFlush(invitation);
 //        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         
-        pushMessage(userId, userId, 10);
-        pushMessage(memberId, memberId, 10);
+        pushMessage(userId, userId, 13);
+        pushMessage(memberId, memberId, 14);
         return true;
     }
 
@@ -263,7 +263,7 @@ public class FamilyServiceImpl implements FamilyService {
         }
         RegisterInfo register = findOneRegister(userId, false);
         String message = register.getNickname() + "已与您解除亲情账户绑定";
-        pushMessage(userId, memberId, 9);
+        pushMessage(userId, memberId, 12);
         //        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
@@ -279,7 +279,9 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember.setUpdateDate(new Date());
         memberRepository.saveAndFlush(familyMember);
         
-        pushMessage(userId, memberId, readReadable ? 13 : 14);
+        if(!readReadable){
+            pushMessage(userId, memberId, 15);
+        }
         return true;
     }
 
@@ -444,6 +446,10 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public boolean pushMessage(String uid, String memberId, int type) {
+//        if(){
+//            
+//        }
+        
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -461,43 +467,43 @@ public class FamilyServiceImpl implements FamilyService {
         String title = "";
         String content = "";
         String name = info.getNickname();
-        if (type == 1) {
-            title = "计步管理";
-            content = "健康云用户" + name + "提示你，一起计步领积分金币，兑换奖品啦。";
-        } else if (type == 2) {
-            title = "BMI管理";
-            content = "健康云用户" + name + "提示你，输入身高体重，BMI数值马上知晓。";
-        } else if (type == 3) {
-            title = "血糖管理";
-            content = "健康云用户" + name + "提示你，需要管理自己的血糖啦。";
-        } else if (type == 4) {
-            title = "血压管理";
-            content = "健康云用户" + name + "提示你，需要管理自己的血压啦。";
-        } else if (type == 5) {
-            title = "中医体质辨识";
-            content = "健康云用户" + name + "提示你，做一做中医体质辨识，看看你是属于哪种体质？";
-        } else if (type == 6) {
-            title = "风险评估";
-            content = "健康云用户" + name + "提示你，做一做风险评估，看看是否有慢病风险哦。";
-        } else if (type == 7) {
+         if (type == 2) {
             title = "就医记录";
             content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
+        }else if (type == 4) {
+            title = "计步管理";
+            content = "健康云用户" + name + "提示你，一起计步领积分金币，兑换奖品啦。";
+        } else if (type == 5) {
+            title = "BMI管理";
+            content = "健康云用户" + name + "提示你，输入身高体重，BMI数值马上知晓。";
+        } else if (type == 6) {
+            title = "血糖管理";
+            content = "健康云用户" + name + "提示你，需要管理自己的血糖啦。";
+        } else if (type == 7) {
+            title = "血压管理";
+            content = "健康云用户" + name + "提示你，需要管理自己的血压啦。";
         } else if (type == 8) {
-        	
+            title = "风险评估";
+            content = "健康云用户" + name + "提示你，做一做风险评估，看看是否有慢病风险哦。";
         } else if (type == 9) {
+            title = "中医体质辨识";
+            content = "健康云用户" + name + "提示你，做一做中医体质辨识，看看你是属于哪种体质？";
+        }else if (type == 10) {
+//            title = "儿童";
+//            content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
+        } else if (type == 11) {
+            title = "健康提醒";
+            content = "健康云用户" + name + "向你申请开通健康数据查阅权限";
+        } else if (type == 12) {
             title = "关系解除";
             content = "健康云用户" + name + "已与你解除绑定";
-        } else if (type == 10) {
-        	 title = "家庭邀请";
-        	 content = "家庭成员邀请, 您收到一条家庭成员邀请, 请查收";
-        } else if (type == 11) {
-
-        } else if (type == 12) {
-
         } else if (type == 13) {
-        	title = "健康档案";
-        	content = "健康云用户" + name + "申请查看健康档案权限";
+            title = "家庭邀请";
+            content = "家庭成员邀请, 您发送一条家庭成员邀请, 请查收";
         } else if (type == 14) {
+            title = "家庭邀请";
+            content = "家庭成员邀请, 您收到一条家庭成员邀请, 请查收";
+        } else if (type == 15) {
         	title = "健康档案";
         	content = "健康云用户" + name + "已关闭查看健康档案权限";
         }

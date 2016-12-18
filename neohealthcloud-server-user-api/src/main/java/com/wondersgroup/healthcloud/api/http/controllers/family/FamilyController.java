@@ -762,66 +762,63 @@ public class FamilyController {
             info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
-        for (Integer id : MemberInfoTemplet.map.keySet()) {
-            InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), null);
+        if(info.getAge() != null && info.getAge() < 6){
+            tems.add(new InfoTemplet(2, "就医记录", null, null));
+            tems.add(new InfoTemplet(10, "N天后可接种疫苗", "家有宝贝初养成", null));
+        }else{
+            for (Integer id : MemberInfoTemplet.map.keySet()) {
+                InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), null);
 //            if(id == 1 && !info.getIsVerification()){
 //                templet.setValues(Arrays.asList(new MeasureInfoDTO("", getDateStr(), null)));
 //            }else 
-            if(id == 2){
-                templet.setDesc("就医历史 一查便知");
+                if(id == 2){
+                    templet.setDesc("就医历史 一查便知");
+                }else if(id == 3){
+                }else if(id == 4){
+                    JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
+                    if(node == null && node.get("stepCount") != null){
+                        templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount").textValue() + "步")));
+                    }else{
+                        templet.setDesc("健康计步，领取金币");
+                    }
+                }else if(id == 5){
+                    List<MeasureInfoDTO> m = getMeasure(measures, id);
+                    if(!m.isEmpty()){
+                        templet.setValues(m);
+                    }else{
+                        templet.setDesc("您的BMI指数是多少?");
+                    }
+                    
+                }else if(id == 6){
+                    List<MeasureInfoDTO> m = getMeasure(measures, id);
+                    if(!m.isEmpty()){
+                        templet.setValues(m);
+                    }else{
+                        templet.setDesc("开启科学控压之路");
+                    }
+                }else if(id == 7){
+                    List<MeasureInfoDTO> m = getMeasure(measures, id);
+                    if(!m.isEmpty()){
+                        templet.setValues(m);
+                    }else{
+                        templet.setDesc("开启科学控糖之路");
+                    }
+                }else if(id == 8){
+                    Map<String,Object> result = assessmentService.getRecentAssessIsNormal(memberId);
+                    if(result != null && result.containsKey("state")){
+                        String date = result.get("date").toString();
+                        Boolean state = Boolean.valueOf(result.get("state").toString());
+                        templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果",date , state ? "正常人群" : "风险人群")));
+                    }
+                }else if(id == 9){
+                    HealthQuestion result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
+                    if(result != null){
+                        String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
+                        templet.setValues(Arrays.asList(new MeasureInfoDTO(null,date , result.getResult())));
+                    }
+                }
+                tems.add(templet);
             }
-            if(info.getAge() != null && info.getAge() < 6){
-                templet.setType(10);
-                templet.setDesc("家有宝贝初养成");
-                templet.setTitle("N天后可接种疫苗");
-                break;
-            }
-            if(id == 3){
-                
-            }else if(id == 4){
-                JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                if(node == null && node.get("stepCount") != null){
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount").textValue() + "步")));
-                }else{
-                    templet.setDesc("健康计步，领取金币");
-                }
-            }else if(id == 5){
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
-                if(!m.isEmpty()){
-                    templet.setValues(m);
-                }else{
-                    templet.setDesc("您的BMI指数是多少?");
-                }
-                
-            }else if(id == 6){
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
-                if(!m.isEmpty()){
-                    templet.setValues(m);
-                }else{
-                    templet.setDesc("开启科学控压之路");
-                }
-            }else if(id == 7){
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
-                if(!m.isEmpty()){
-                    templet.setValues(m);
-                }else{
-                    templet.setDesc("开启科学控糖之路");
-                }
-            }else if(id == 8){
-                Map<String,Object> result = assessmentService.getRecentAssessIsNormal(memberId);
-                if(result != null && result.containsKey("state")){
-                    String date = result.get("date").toString();
-                    Boolean state = Boolean.valueOf(result.get("state").toString());
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果",date , state ? "正常人群" : "风险人群")));
-                }
-            }else if(id == 9){
-                HealthQuestion result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
-                if(result != null){
-                    String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null,date , result.getResult())));
-                }
-            }
-            tems.add(templet);
         }
         infoDto.setInfo(info);
         infoDto.setInfoTemplets(tems);

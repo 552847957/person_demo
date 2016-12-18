@@ -52,18 +52,27 @@ public class FamilyMemberInfoDTO {
             this.title = title;
             this.values = values;
         }
+
+        public InfoTemplet(int type, String title, String desc, List<MeasureInfoDTO> values) {
+            this.type = type;
+            this.title = title;
+            this.desc = desc;
+            this.values = values;
+        }
+        
     }
 
     public static class MemberInfoTemplet {
-        private static int                 VERIFICATION   = 1;                             //实名制
-        private static int                 DOCTOR_RECORD  = 2;                             //就医记录
-        private static int                 FAMILY_DOCTOR  = 3;                             //家庭医生
-        private static int                 JOGGING        = 4;                             //计步管理
-        private static int                 BMI            = 5;                             //BMI管理
-        private static int                 BLOODSUGAR     = 6;                             //血糖管理
-        private static int                 BLOODPRESSURE  = 7;                             //血压管理
-        private static int                 RISKEVALUATE   = 8;                             //风险评估
-        private static int                 HEALTHQUESTION = 9;                             //中医体质辨识
+        public static int                 VERIFICATION   = 1;                             //实名制
+        public static int                 DOCTOR_RECORD  = 2;                             //就医记录
+        public static int                 FAMILY_DOCTOR  = 3;                             //家庭医生
+        public static int                 JOGGING        = 4;                             //计步管理
+        public static int                 BMI            = 5;                             //BMI管理
+        public static int                 BLOODSUGAR     = 6;                             //血糖管理
+        public static int                 BLOODPRESSURE  = 7;                             //血压管理
+        public static int                 RISKEVALUATE   = 8;                             //风险评估
+        public static int                 HEALTHQUESTION = 9;                             //中医体质辨识
+        public static int                 CHILD_VACCINE  = 10;                            //儿童疫苗
 
         public static Map<Integer, String> map            = new TreeMap<Integer, String>();
 
