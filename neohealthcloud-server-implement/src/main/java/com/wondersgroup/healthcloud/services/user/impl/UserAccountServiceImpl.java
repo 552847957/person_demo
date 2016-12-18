@@ -513,7 +513,7 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
-        return anonymousRegistration(creator, username, password, true,sex,headphoto,mobile,birthDate,false);
+        return anonymousRegistration(creator, username, password, true,sex,headphoto,mobile,birthDate,isStandalone);
     }
 
     public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild
