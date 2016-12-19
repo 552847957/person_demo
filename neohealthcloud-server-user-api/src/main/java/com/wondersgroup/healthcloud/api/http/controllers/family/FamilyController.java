@@ -1294,37 +1294,37 @@ public class FamilyController {
         boolean result = false;
         boolean isChild = age != null && age <= 6;
         if (type == MemberInfoTemplet.VERIFICATION) {
-            if (isMe && !isVerification) {
+            if (isMe && !isVerification && !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.DOCTOR_RECORD) {
             result = true;
         } else if (type == MemberInfoTemplet.FAMILY_DOCTOR) {
-            if (isMe) {
+            if (isMe  && !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
-            if (!isStandalone) {
+            if (!isStandalone  && !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BMI) {
-            if (!isStandalone && !isChild) {
+            if (!isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BLOODSUGAR) {
-            if (!isStandalone && !isChild) {
+            if (!isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BLOODPRESSURE) {
-            if (!isStandalone && !isChild) {
+            if (!isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.RISKEVALUATE) {
-            if (!isStandalone && !isChild) {
+            if (!isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.HEALTHQUESTION) {
-            if (!isStandalone && !isChild) {
+            if (!isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.CHILD_VACCINE) {
