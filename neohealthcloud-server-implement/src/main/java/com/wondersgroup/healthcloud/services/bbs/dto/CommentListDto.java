@@ -29,7 +29,7 @@ public class CommentListDto {
     private String uid;
     private String nickName;
     private String avatar;
-    private String babyAge;
+    private Boolean isIdentify = false;
     private Integer floor;
 
     private Integer isAdmin;//是否为管理员回复
@@ -73,6 +73,7 @@ public class CommentListDto {
         this.avatar = registerInfo.getHeadphoto();
         this.nickName = registerInfo.getNickname();
         this.isAdmin = registerInfo.getIsBBsAdmin();
+        this.isIdentify = !registerInfo.getIdentifytype().equals("0");
         if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = CommentConstant.AppListStatus.USER_BAN;
         }
@@ -95,6 +96,7 @@ public class CommentListDto {
             referCommentInfo.setReferUid(referUserInfo.getRegisterid());
             referCommentInfo.setReferNickName(referUserInfo.getNickname());
             referCommentInfo.setAvatar(referUserInfo.getHeadphoto());
+            referCommentInfo.setIsIdentify(!referUserInfo.getIdentifytype().equals("0"));
             if (referUserInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
                 referCommentInfo.setStatus(CommentConstant.AppListStatus.USER_BAN);
             }
@@ -104,9 +106,11 @@ public class CommentListDto {
     }
 
     @Data
+    @JsonNaming
     public class ReferCommentInfo{
         String referUid;
         String referNickName;
+        Boolean isIdentify=false;
         String avatar;
         Integer status= CommentConstant.AppListStatus.OK;//1:正常, 2:被删除, 3:用户被禁言
         Integer floor=0;

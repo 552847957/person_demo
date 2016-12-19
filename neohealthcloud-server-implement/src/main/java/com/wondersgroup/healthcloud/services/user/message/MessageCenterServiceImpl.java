@@ -75,13 +75,23 @@ public class MessageCenterServiceImpl {
         MessageCenterDto lastFamilyMsg=this.getFamilyMsg(uid);
         MessageCenterDto lastDiseaseMsg=this.getDiseaseMsg(uid);
         messages.addAll(lastBbsMsg);
-        messages.add(lastFamilyMsg);
-        messages.add(lastDiseaseMsg);
+        if(lastFamilyMsg !=null){
+            messages.add(lastFamilyMsg);
+        }
+        if(lastDiseaseMsg !=null){
+            messages.add(lastDiseaseMsg);
+        }
         messages.addAll(lastSystem);
         return messages;
     }
     //家庭消息
     private MessageCenterDto getFamilyMsg(String uid){
+        //消息表里无数据时，不在根列表中显示
+        int hasData=familyMsgService.countMsgByUid(uid);
+        if(hasData == 0){
+            return null;
+        }
+        //消息表有历史消息，但无未读消息，显示"暂无新消息"
         Map<String, Object> msg=familyMsgService.findOneMessageByUid(uid);
         if(msg ==null){
             MessageCenterDto message = new MessageCenterDto();
@@ -106,6 +116,12 @@ public class MessageCenterServiceImpl {
     }
     //慢病消息
     private MessageCenterDto getDiseaseMsg(String uid){
+        //消息表里无数据时，不在根列表中显示
+        int hasData=diseaseMsgService.countMsgByUid(uid);
+        if(hasData == 0){
+            return null;
+        }
+        //消息表有历史消息，但无未读消息，显示"暂无新消息"
         Map<String, Object> msg=diseaseMsgService.findOneMessageByUid(uid);
         if(msg ==null){
             MessageCenterDto message = new MessageCenterDto();
@@ -144,6 +160,13 @@ public class MessageCenterServiceImpl {
      */
     private List<MessageCenterDto> getBbsMessage(String uid){
         List<MessageCenterDto> messages = Lists.newLinkedList();
+        //消息表里无数据时，不在根列表中显示
+        int hasDynamicData=dynamicMsgService.countMsgByUid(uid);
+        int hasSystemData=sysMsgService.countMsgByUid(uid);
+        if(hasDynamicData==0 && hasSystemData==0){
+            return messages;
+        }
+        //消息表有历史消息，但无未读消息，显示"暂无新消息"
         Map<String, Object> dynamicMsg=dynamicMsgService.findOneDynamicMessageByUid(uid);
         Map<String, Object> systemMsg=sysMsgService.findOneSysMessageByUid(uid);
         //如果无未读动态消息，无未读通知消息，为暂无数据；
@@ -186,20 +209,8 @@ public class MessageCenterServiceImpl {
     private List<MessageCenterDto> getLastSystem(String area, String uid){
         List<MessageCenterDto> messages = Lists.newLinkedList();
         List<UserPrivateMessage> results = messageService.findRoot(area, uid);
-        //若没有新消息显示暂无新消息
+        //消息表里无数据时，不在根列表中显示
         if(results == null){
-            MessageCenterDto sysMsg = new MessageCenterDto();
-            sysMsg.setTitle(AppMessageUrlUtil.Type.SYSTEM.name);
-            sysMsg.setContent("暂无新消息");
-            sysMsg.setType(AppMessageUrlUtil.Type.SYSTEM.id);
-            sysMsg.setSort(5);
-            MessageCenterDto questionMsg = new MessageCenterDto();
-            questionMsg.setTitle(AppMessageUrlUtil.Type.QUESTION.name);
-            questionMsg.setContent("暂无新消息");
-            questionMsg.setType(AppMessageUrlUtil.Type.QUESTION.id);
-            questionMsg.setSort(4);
-            messages.add(questionMsg);
-            messages.add(sysMsg);
             return messages;
         }
         for (UserPrivateMessage result : results) {
@@ -210,17 +221,25 @@ public class MessageCenterServiceImpl {
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
                 message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
                 message.setType(AppMessageUrlUtil.Type.QUESTION.id);
-                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
+                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0?false:true);
                 message.setSort(4);
+                messages.add(message);
             }else if( result.getType().equals(AppMessageUrlUtil.Type.SYSTEM.id)){
                 message.setTitle(type.name);
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
                 message.setType(AppMessageUrlUtil.Type.SYSTEM.id);
                 message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
-                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0);
+                message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0?false:true);
                 message.setSort(5);
+                messages.add(message);
             }
-            messages.add(message);
+        }
+        //如果无未读数据，则显示"暂无消息"
+        for (MessageCenterDto result : messages) {
+            if(result.getIsRead() == false){
+                result.setContent("暂无新消息");
+                result.setTime("");
+            }
         }
         return messages;
     }

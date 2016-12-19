@@ -34,6 +34,7 @@ public class TopicDetailDto {
 
     private Integer isAdmin;//是否管理员发布
     private String uid;
+    private Boolean isIdentify = false;
     private String nickName;
     private String avatar;
     private Integer banStatus;//发帖用户禁言状态
@@ -94,6 +95,7 @@ public class TopicDetailDto {
         this.avatar = registerInfo.getHeadphoto();
         this.nickName = registerInfo.getNickname();
         this.isAdmin = registerInfo.getIsBBsAdmin();
+        this.isIdentify = !registerInfo.getIdentifytype().equals("0");
         //发帖用户被禁言 不可以回复
         if (registerInfo.getBanStatus() != UserConstant.BanStatus.OK){
             this.userCommentStatus = UserConstant.UserCommentStatus.USER_BAN;

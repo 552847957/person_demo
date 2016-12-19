@@ -88,7 +88,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public Map<String, Object> findOneMessageByUid(String uid) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s'" +
+                " from app_tb_disease_message where receiver_uid='%s' and is_read=0 " +
                 " order by create_time desc" +
                 " limit 0, 1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);

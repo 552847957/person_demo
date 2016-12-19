@@ -38,6 +38,7 @@ public class UserFansServiceImpl implements UserFansService {
     @Override
     public List<UserBbsInfo> getAttentUsers(String uid, int page, int pageSize){
         String sql = "select user.registerid as uid,user.headphoto as avatar,user.nickname,user.is_bbs_admin<>0 as isBBsAdmin, " +
+                " user.identifytype<>'0' as isIdentify," +
                 " user.ban_status as banStatus, user.gender,user.birthday,user.del_flag as delFlag " +
                 " from tb_bbs_fans fans " +
                 " left join app_tb_register_info user on fans.uid=user.registerid " +
@@ -54,6 +55,7 @@ public class UserFansServiceImpl implements UserFansService {
     @Override
     public List<UserBbsInfo> getFansUsers(String uid, int page, int pageSize) {
         String sql = "select user.registerid as uid,user.headphoto as avatar,user.nickname,user.is_bbs_admin<>0 as isBBsAdmin, " +
+                " user.identifytype<>'0' as isIdentify," +
                 " user.ban_status as banStatus, user.gender,user.birthday,user.del_flag as delFlag " +
                 " from tb_bbs_fans fans " +
                 " left join app_tb_register_info user on fans.fans_uid=user.registerid " +
