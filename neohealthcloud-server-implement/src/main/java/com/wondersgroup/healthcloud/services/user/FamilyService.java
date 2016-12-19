@@ -165,7 +165,7 @@ public interface FamilyService {
      * @param relation
      * @param relationName
      */
-    void anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile, Date birthDate,boolean isStandalone);
+    String anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile, Date birthDate,boolean isStandalone);
    
     /**
      * 儿童实名认证

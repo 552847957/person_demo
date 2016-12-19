@@ -362,7 +362,7 @@ public class FamilyServiceImpl implements FamilyService {
     
     @Transactional(readOnly = false)
     @Override
-    public void anonymousRegistration(String userId, String relation, String relationName, String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
+    public String anonymousRegistration(String userId, String relation, String relationName, String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
         sex = FamilyMemberRelation.getSexByRelationAndSex(relation, register.getGender());
@@ -375,6 +375,7 @@ public class FamilyServiceImpl implements FamilyService {
                 relationName,
                 FamilyMemberRelation.isOther(relation) ? null : FamilyMemberRelation.getName(FamilyMemberRelation
                         .getOppositeRelation(relation, register.getGender())), true, true, true,true);
+        return account.getId();
     }
 
     @Transactional(readOnly = false)

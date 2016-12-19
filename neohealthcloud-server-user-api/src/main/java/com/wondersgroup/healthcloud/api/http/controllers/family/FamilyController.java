@@ -648,7 +648,7 @@ public class FamilyController {
      */
     @RequestMapping(value = "/addMember", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<String> addMember(@RequestBody String request) {
+    public JsonResponseEntity<Object> addMember(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
         String mobile = reader.readString("mobile", true);
@@ -662,7 +662,7 @@ public class FamilyController {
         String birthDate = reader.readString("birthDate", false);
         String headphoto = reader.readString("headphoto", true);
         
-        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        JsonResponseEntity<Object> body = new JsonResponseEntity<>();
 
         if (mobile != null && mobile.length() != 11) {
             body.setCode(1000);
@@ -675,7 +675,10 @@ public class FamilyController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        familyService.anonymousRegistration(id, relation, relationName, null, headphoto, mobile,date , true);
+        String uid = familyService.anonymousRegistration(id, relation, relationName, null, headphoto, mobile,date , true);
+        Map map = Maps.newIdentityHashMap();
+        map.put("memberId", uid);
+        body.setData(map);
         body.setMsg("添加成功");
         return body;
     }
