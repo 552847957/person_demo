@@ -77,7 +77,7 @@ public class FamilyMemberInfoDTO {
         public static Map<Integer, String> map            = new TreeMap<Integer, String>();
 
         static {
-//            map.put(VERIFICATION, "实名制");
+            map.put(VERIFICATION, "实名制");
             map.put(DOCTOR_RECORD, "就医记录");
             map.put(FAMILY_DOCTOR, "家庭医生");
             map.put(JOGGING, "计步管理");
@@ -86,6 +86,7 @@ public class FamilyMemberInfoDTO {
             map.put(BLOODPRESSURE, "血压管理");
             map.put(RISKEVALUATE, "风险评估");
             map.put(HEALTHQUESTION, "中医体质辨识");
+            map.put(CHILD_VACCINE, "天后可接种疫苗");
         }
 
     }

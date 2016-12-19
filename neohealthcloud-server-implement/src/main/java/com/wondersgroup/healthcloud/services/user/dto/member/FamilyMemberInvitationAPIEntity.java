@@ -51,7 +51,7 @@ public class FamilyMemberInvitationAPIEntity {
         this.status = statusArray[Integer.valueOf(invitation.getStatus())];
         this.relation =  invitation.getRelation();
         this.relationName =  FamilyMemberRelation.getName(relation);
-        this.nickname = register.getNickname();
+        this.nickname = todo ? relationName : register.getNickname();
     }
 
 
