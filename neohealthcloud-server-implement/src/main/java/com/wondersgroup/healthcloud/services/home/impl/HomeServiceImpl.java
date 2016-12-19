@@ -224,7 +224,7 @@ public class HomeServiceImpl implements HomeService {
                     FamilyMemberItemDTO vaccinetemDTO =  buildFamilyVaccineDate(fm,apiVaccineUrl);
                     if(null != vaccinetemDTO){
                         familyMember.getExceptionItems().add(vaccinetemDTO);
-                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                        familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                     }
                 }
             }
