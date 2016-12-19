@@ -17,9 +17,9 @@ import lombok.Data;
 public class UserHomeDto {
     private String uid;
     private Integer isAdmin = 0;
+    private Boolean isIdentify = false;
     private String nickName;
     private String avatar;
-    private String babyAge;
     private Integer attentCount = 0;//关注数量
     private Integer fansCount = 0;//粉丝数量
     private Integer banStatus = 0;//圈子禁言状态(0:正常,-1:永久禁言,1:禁言1个小时,12:禁言12小时，24:禁言24小时(1天))
@@ -31,5 +31,6 @@ public class UserHomeDto {
         this.nickName = registerInfo.getNickname();
         this.isAdmin = registerInfo.getIsBBsAdmin();
         this.banStatus = registerInfo.getBanStatus();
+        this.isIdentify = !registerInfo.getIdentifytype().equals("0");
     }
 }
