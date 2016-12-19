@@ -393,6 +393,8 @@ public class ImageTextServiceImpl implements ImageTextService {
         }
         if (StringUtils.isNotEmpty(gImageText.getSpecArea())) {
             strBuf.append(" AND spec_area = '" + gImageText.getSpecArea() + "'");
+        } else {
+            strBuf.append(" AND spec_area IS NULL");
         }
         if (gImageText.getGadcode() != null) {
             strBuf.append(" AND gadcode = " + gImageText.getGadcode().intValue());
