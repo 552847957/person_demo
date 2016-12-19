@@ -54,6 +54,7 @@ public class ModulePortalServiceImpl implements ModulePortalService {
                 entity.setSubTitle(rs.getString("sub_title"));
                 entity.setJumpUrl(rs.getString("jump_url"));
                 entity.setIsVisible(rs.getString("is_visible"));
+                entity.setSort(rs.getInt("sort"));
                 entity.setDelFlag(rs.getString("del_flag"));
                 entity.setCreateTime(rs.getDate("create_time"));
                 entity.setUpdateTime(rs.getDate("update_time"));
@@ -133,8 +134,8 @@ public class ModulePortalServiceImpl implements ModulePortalService {
             return false;
         }
 
-        final  String sql = "update app_tb_module_portal set item_name = ? ,icon_url = ?,main_title = ?,sub_title = ?,jump_url = ?,is_visible = ?,update_time = ? where id = ? ";
-        return jdbcTemplate.update(sql,new Object[]{entity.getItemName(),entity.getIconUrl(),entity.getMainTitle(),entity.getSubTitle(),entity.getJumpUrl(),entity.getIsVisible(),new Date(),entity.getId()}) > 0 ? true:false;
+        final  String sql = "update app_tb_module_portal set item_name = ? ,icon_url = ?,main_title = ?,sub_title = ?,jump_url = ?,is_visible = ?,sort = ?,update_time = ? where id = ? ";
+        return jdbcTemplate.update(sql,new Object[]{entity.getItemName(),entity.getIconUrl(),entity.getMainTitle(),entity.getSubTitle(),entity.getJumpUrl(),entity.getIsVisible(),entity.getSort(),new Date(),entity.getId()}) > 0 ? true:false;
     }
 
     @Override
