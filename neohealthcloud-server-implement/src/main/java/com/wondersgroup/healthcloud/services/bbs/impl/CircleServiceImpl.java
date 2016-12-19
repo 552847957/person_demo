@@ -420,7 +420,7 @@ public class CircleServiceImpl implements CircleService {
                 dto.setName(circle.getName());
                 dto.setIcon(circle.getIcon());
                 dto.setDescription(circle.getDescription());
-                dto.setForbidden(circle.getDelFlag().equals("0")? false : true);
+                dto.setForbidden(!circle.getDelFlag().equals("0"));
                 // 我的圈子猜你喜欢，都是未已关注
                 dto.setIfAttent(0);
                 dtoList.add(dto);

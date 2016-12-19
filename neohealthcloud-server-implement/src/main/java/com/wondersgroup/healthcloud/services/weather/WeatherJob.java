@@ -122,10 +122,10 @@ public class WeatherJob {
                 }
                 cache.set("forecast", forecasts);
 
-                String hint = weatherHintUtil.get(Integer.valueOf(he.get("aqi").get("city").get("aqi").asText()), Integer.valueOf(channel.get("item").get("condition").get("code").asText()), Integer.valueOf(channel.get("item").get("condition").get("temp").asText()));
+                String[] hint = weatherHintUtil.get(Integer.valueOf(he.get("aqi").get("city").get("aqi").asText()), Integer.valueOf(channel.get("item").get("condition").get("code").asText()), Integer.valueOf(channel.get("item").get("condition").get("temp").asText()));
 
-                brief.put("hint", hint);
-                cache.put("hint", hint);
+                brief.put("hint", hint[0]);
+                cache.put("hint", hint[1]);
 
                 saveToRedis(WeatherCache.Type.ALL, task.getCode(), cache.toString());
                 saveToRedis(WeatherCache.Type.BRIEF, task.getCode(), brief.toString());

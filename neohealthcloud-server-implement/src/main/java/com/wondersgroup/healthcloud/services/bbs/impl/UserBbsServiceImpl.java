@@ -1,8 +1,6 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
 import org.apache.commons.lang3.StringUtils;
@@ -78,12 +76,26 @@ public class UserBbsServiceImpl implements UserBbsService {
 
     @Override
     public List<Circle> getUserJoinedCircles(String uid) {
-        return circleRepository.findUserJoinedCircles(uid);
+        List<Circle> defaultAttents = circleRepository.findAllDefaultAttents();
+        List<Circle> notJoinedDefaultAttents = new ArrayList<>();
+        if (null != defaultAttents && !defaultAttents.isEmpty()){
+            List<Integer> allJoinedCircleId = circleRepository.getAllUserJoinedCircleId(uid);
+            for (Circle circle : defaultAttents){
+                if (!allJoinedCircleId.contains(circle.getId())){
+                    notJoinedDefaultAttents.add(circle);
+                }
+            }
+        }
+        List<Circle> joinedList = circleRepository.findUserJoinedCircles(uid);
+        if (!notJoinedDefaultAttents.isEmpty()){
+            joinedList.addAll(notJoinedDefaultAttents);
+        }
+        return joinedList;
     }
 
     @Override
     public List<CircleListDto> getUserJoinedCirclesDto(String uid) {
-        List<Circle> cList = circleRepository.findUserJoinedCircles(uid);
+        List<Circle> cList = this.getUserJoinedCircles(uid);
         List<CircleListDto> dtoList = new ArrayList<>();
         if (cList != null && cList.size() > 0) {
             for (Circle circle : cList) {
@@ -92,7 +104,7 @@ public class UserBbsServiceImpl implements UserBbsService {
                 dto.setName(circle.getName());
                 dto.setIcon(circle.getIcon());
                 dto.setDescription(circle.getDescription());
-                dto.setForbidden(circle.getDelFlag().equals("0")? false : true);
+                dto.setForbidden(!circle.getDelFlag().equals("0"));
                 // 我的圈子，都是已关注
                 dto.setIfAttent(1);
                 dtoList.add(dto);
