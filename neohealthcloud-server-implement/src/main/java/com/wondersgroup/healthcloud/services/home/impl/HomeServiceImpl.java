@@ -314,10 +314,13 @@ public class HomeServiceImpl implements HomeService {
         List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, null, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
         if (StringUtils.isNotEmpty(specArea)) {// 获取特色服务
             List<ImageText> specImageTests = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
-            if (imageTextsB == null) {
+            if (CollectionUtils.isEmpty(imageTextsB)) {
                 imageTextsB = specImageTests;
             } else {
-                imageTextsB.addAll(specImageTests);
+                if(!CollectionUtils.isEmpty(specImageTests)){
+                    imageTextsB.addAll(specImageTests);
+                }
+
             }
         }
 
