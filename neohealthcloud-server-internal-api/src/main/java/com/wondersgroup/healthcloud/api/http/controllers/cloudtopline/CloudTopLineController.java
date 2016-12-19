@@ -202,7 +202,6 @@ public class CloudTopLineController {
         }else{
             Map<String, Object> paramMap = new HashMap<String, Object>();
             paramMap.put("id",id);
-            paramMap.put("del_flag","0");
             List<CloudTopLine> list = cloudTopLineService.queryCloudTopLineByCondition(paramMap);
             if(CollectionUtils.isEmpty(list)){
                 return  new JsonResponseEntity(1, "id 为 "+id+" 记录不存在",null);

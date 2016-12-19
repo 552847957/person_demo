@@ -193,7 +193,6 @@ public class ModulePortalController {
         }else{
             Map<String, Object> paramMap = new HashMap<String, Object>();
             paramMap.put("id",id);
-            paramMap.put("del_flag","0");
             List<ModulePortal> list = modulePortalService.queryModulePortalByCondition(paramMap);
             if(CollectionUtils.isEmpty(list)){
                 return  new JsonResponseEntity(1, "id 为 "+id+" 记录不存在",null);
