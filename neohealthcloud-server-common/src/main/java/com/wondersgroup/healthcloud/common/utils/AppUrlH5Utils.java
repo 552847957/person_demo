@@ -133,15 +133,6 @@ public class AppUrlH5Utils {
 	}
 
 	/**
-	 * 计步邀请分享LOGO
-	 * 
-	 * @return
-	 */
-	public String buildStepLogoUrl() {
-		return basePath + "/";
-	}
-
-	/**
 	 * 商城
 	 * 
 	 * @param userId

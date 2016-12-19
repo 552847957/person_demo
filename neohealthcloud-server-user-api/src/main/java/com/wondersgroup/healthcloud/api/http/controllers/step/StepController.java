@@ -15,6 +15,7 @@ import com.wondersgroup.healthcloud.api.http.dto.step.StepHomeDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
@@ -57,7 +58,7 @@ public class StepController {
 
 		// 判断是否在活动时间内
 		boolean isAccess = false;
-		boolean isActivityTime = stepCountService.isActivityTime(new Date());
+		boolean isActivityTime = stepCountService.isActivityTime(mainArea, new Date());
 		if (isActivityTime) {
 			isAccess = !goldRecordService.isGet(userId, GoldRecordTypeEnum.REWARDS);
 		}
@@ -71,7 +72,8 @@ public class StepController {
 		home.setInviteUrl(appUrlH5Utils.buildStepInviteUrl(userId));
 		home.setRuleUrl(appUrlH5Utils.buildStepRuleUrl());
 		home.setMallUrl(appUrlH5Utils.buildStepMallUrl(userId));
-		home.setLogoUrl(appUrlH5Utils.buildStepLogoUrl());
+		AppConfig config = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "step.invite.logo-url", "1");
+		home.setLogoUrl(config.getData());
 		responseEntity.setData(home);
 		return responseEntity;
 	}

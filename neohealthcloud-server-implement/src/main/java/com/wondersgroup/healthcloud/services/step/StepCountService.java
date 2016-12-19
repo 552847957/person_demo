@@ -1,8 +1,11 @@
 package com.wondersgroup.healthcloud.services.step;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 
 @Service
 @Transactional(readOnly = true)
@@ -17,6 +21,10 @@ public class StepCountService {
 
 	@Value("${internal.api.service.measure.url}")
 	private String host;
+	
+	@Autowired
+	AppConfigService appConfigService;
+
 
 	/**
 	 * 查询昨日可领取金币
@@ -38,20 +46,27 @@ public class StepCountService {
 		return gold > 100 ? 100 : gold;
 	}
 
-	public boolean isActivityTime(Date date) {
-		String var = DateUtils.format(date, "yyyy-MM-dd ");
+	public boolean isActivityTime(String mainArea, Date date) {
+		List<String> keyWords = new ArrayList<>();
+		keyWords.add("step.activity.start-time");
+		keyWords.add("step.activity.end-time");
+		Map<String, String> config = appConfigService.findAppConfigByKeyWords(mainArea, null, keyWords, "1");
 		
-		Date startTime = DateUtils.parseString(var + "00:00:00", "yyyy-MM-dd HH:mm:ss");
-		Date endTime = DateUtils.parseString(var + "23:59:59", "yyyy-MM-dd HH:mm:ss");
+		String activityStartTime = config.get("step.activity.start-time");
+		String activityEndTime = config.get("step.activity.end-time");
 		
-		if(startTime.compareTo(date) > 0){
+		String patten = "yyyy-MM-dd HH:mm:ss";
+		Date startTime = DateUtils.parseString(activityStartTime, patten);
+		Date endTime = DateUtils.parseString(activityEndTime, patten);
+
+		if (startTime.compareTo(date) > 0) {
 			return false;
-		}else if(date.compareTo(endTime) > 0){
+		} else if (date.compareTo(endTime) > 0) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 查询指定日期的计步数据
 	 * 
