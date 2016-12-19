@@ -20,8 +20,16 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
                     " where u.uid=?1 and u.del_flag = 0 ORDER BY u.update_time DESC")
     List<Circle> findUserJoinedCircles(String uid);
 
+    /**
+     * 包含取消关注的
+     */
+    @Query(nativeQuery = true,
+            value = "select u.circle_id from tb_bbs_user_circle u where u.uid=?1")
+    List<Integer> getAllUserJoinedCircleId(String uid);
+
     // 默认加入的圈子列表
-    List<Circle> queryByIsDefaultAttentAndDelFlag(Integer isDefaultAttent, String delFlag);
+    @Query("select c from Circle c where c.delFlag = '0' and c.isDefaultAttent=1 ORDER BY c.rank DESC, c.updateTime DESC")
+    List<Circle> findAllDefaultAttents();
 
     @Query("select c from Circle c where c.delFlag = '0' ORDER BY c.rank DESC, c.updateTime DESC")
     List<Circle> findAllVaild();
@@ -36,7 +44,11 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
     
     Circle queryByName(String name);
     
-    //查询猜你喜欢的圈子s
-    @Query(value="SELECT t.* FROM tb_bbs_circle t WHERE t.is_recommend=1 AND t.del_flag = 0 AND t.id NOT in(SELECT bc.id FROM tb_bbs_circle bc LEFT JOIN tb_bbs_user_circle buc ON bc.id=buc.circle_id WHERE bc.is_recommend=1 AND buc.del_flag=0 AND buc.uid= ?1 GROUP BY bc.id)",nativeQuery=true)
+    //查询猜你喜欢的圈子s(不能包含默认关注的)
+    @Query(value="SELECT t.* FROM tb_bbs_circle t WHERE t.is_recommend=1 AND t.is_default_attent=0 AND t.del_flag = 0 " +
+            " AND t.id NOT in(" +
+            " SELECT bc.id FROM tb_bbs_circle bc LEFT JOIN tb_bbs_user_circle buc ON bc.id=buc.circle_id " +
+            " WHERE bc.is_recommend=1 AND buc.del_flag=0 AND buc.uid= ?1 GROUP BY bc.id" +
+            ")",nativeQuery=true)
     List<Circle> findGuessLikeCircles(String uid);
 }
