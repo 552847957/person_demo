@@ -33,6 +33,7 @@ public class TopicListDto {
     private String favorCount="0";//点赞数
 
     private String uid;
+    private Boolean isIdentify = false;
     private String nickName;
     private String avatar;
     private Integer isAdmin;
@@ -78,6 +79,7 @@ public class TopicListDto {
         this.nickName = registerInfo.getNickname();
         this.avatar = registerInfo.getHeadphoto();
         this.isAdmin = registerInfo.getIsBBsAdmin();
+        this.isIdentify = !registerInfo.getIdentifytype().equals("0");
         if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = TopicConstant.AppListStatus.USER_BAN;
         }
