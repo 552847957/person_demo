@@ -56,4 +56,7 @@ public interface DoctorRepository extends JpaRepository<AppointmentDoctor, Strin
 
     @Query("select a from AppointmentDoctor a where a.doctName like %?1% AND a.delFlag = '0' AND a.isonsale ='1'  ")
     List<AppointmentDoctor> findDoctorListByKw(String kw,Pageable pageable);
+
+    @Query("select sum(a.reservationNum) from AppointmentDoctor a where a.l2DepartmentId=?1 ")
+    int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
 }

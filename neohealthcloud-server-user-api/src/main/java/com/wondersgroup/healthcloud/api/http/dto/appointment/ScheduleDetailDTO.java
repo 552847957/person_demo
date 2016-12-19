@@ -112,9 +112,12 @@ public class ScheduleDetailDTO {
             this.departmentName = schedule.getDepartmentName();
             this.hospitalName = schedule.getHospitalName();
 
-            this.reservationStatus = "1";
+            this.reservationStatus = "0";
             int reserveOrderNum = schedule.getReserveOrderNum()==null?0:schedule.getReserveOrderNum();
-            if(reserveOrderNum==0){
+            int orderedNum = schedule.getOrderedNum()==null?0:schedule.getOrderedNum();
+            if(reserveOrderNum>0){
+                this.reservationStatus = "1";
+            }else if(reserveOrderNum==0 && orderedNum>0){
                 this.reservationStatus = "2";
             }
             if(StringUtils.isBlank(schedule.getVisitLevelCode())){
@@ -132,7 +135,7 @@ public class ScheduleDetailDTO {
                 String vistCost = schedule.getVisitCost().replace("元","");
                 this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
             }catch (Exception e){
-                
+
             }
 
         }

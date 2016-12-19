@@ -23,7 +23,7 @@ public interface AppointmentApiService {
 
     List<AppointmentHospital> findAllHospitalListByKw(String kw,Integer flag,int pageSize);
 
-    List<AppointmentDoctor> findDoctorListByKw(String kw, int pageSize, int pageNum,Boolean hasDepartRegistration);
+    List<AppointmentDoctor> findDoctorListByKw(String kw, int pageSize, int pageNum,Boolean hasDepartRegistration,String departmentL2Id);
 
     Map<String,Object> countDoctorReserveOrderNumByDoctorId(String doctorId);
 
@@ -60,4 +60,6 @@ public interface AppointmentApiService {
     void saveOrUpdateAppointmentScheduleByScheduleId(String scheduleId);
 
     void saveOrUpdateAppointmentScheduleByDoctorId(String id,String type);
+
+    int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
 }
