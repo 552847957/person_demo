@@ -94,6 +94,7 @@ public class ModulePortalController {
         modulePortal.setSubTitle(subTitle);
         modulePortal.setJumpUrl(jumpUrl);
         modulePortal.setSort(sort);
+        modulePortal.setIsVisible(VisibleEnum.VISIBLE.getId());
 
         ModulePortal addEntity = modulePortalService.saveModulePortal(modulePortal);
         if(null == addEntity){
