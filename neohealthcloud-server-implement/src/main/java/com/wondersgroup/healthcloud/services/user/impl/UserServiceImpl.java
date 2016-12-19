@@ -147,7 +147,9 @@ public class UserServiceImpl implements UserService {
         }
         RegisterInfo register = registerInfoRepository.findOne(userId);
         register.setNickname(nickname);
-        register.setHeadphoto(avatar);
+        if (StringUtils.isNotEmpty(avatar)){
+            register.setHeadphoto(avatar);
+        }
         register.setUpdateDate(new Date());
         registerInfoRepository.saveAndFlush(register);
         return true;

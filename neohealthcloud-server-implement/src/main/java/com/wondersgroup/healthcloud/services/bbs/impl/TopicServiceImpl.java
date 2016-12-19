@@ -454,7 +454,7 @@ public class TopicServiceImpl implements TopicService {
         }
         //普通用户发表验证
         if (!publishInfo.getIsAdminPublish()){
-            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(publishInfo.getUid(), publishInfo.getCircleId(), "0");
+            UserCircle userCircle = circleService.getAndCheckIsDefaultJoin(publishInfo.getCircleId(), publishInfo.getUid());
             if (null == userCircle){
                 throw new TopicException(2013, "需要加入该圈子才能发布话题哦");
             }

@@ -14,18 +14,11 @@ import java.util.List;
  */
 public interface CircleService {
 
-
     /**
      * 获取圈子信息
      */
     Circle getCircleInfoById(Integer circleId);
 
-
-    /**
-     * 获取默认加入的圈子列表
-     * @return
-     */
-    List<Circle> defaultAttentList();
 
     /**
      * 获取圈子分类
@@ -49,13 +42,10 @@ public interface CircleService {
     List<CircleListDto> getCirclesByCId(Integer categoryId, String uId,Integer flag,Integer pageSize);
 
     /**
-     * 根据用户id和圈子id，查询该用户是否已加入这个圈子
-     *
-     * @param uId
-     * @param circleId
-     * @return
+     * 根据用户uid 和 圈子id
+     * 查询关注状态(未关注的时候，会检查这个圈子是否被设置为默认关注，如果是，则会给用户添加关注)
      */
-    UserCircle queryByUIdAndCircleIdAndDelFlag(String uId, Integer circleId, String delFlag);
+    UserCircle getAndCheckIsDefaultJoin(Integer circleId, String uid);
 
     UserCircle queryByUIdAndCircleId(String uId, Integer circleId);
 
@@ -87,27 +77,6 @@ public interface CircleService {
      * @return
      */
     CircleInfoDto getCircleInfo(Integer circleId);
-
-    /**
-     * 获取圈子的关注人数
-     *
-     * @param circleId
-     * @param delFlag
-     * @return
-     */
-    int getAttentCount(Integer circleId, String delFlag);
-
-    /**
-     * 加入默认圈子
-     * @return
-     */
-    int joinInDefaultCircles(String uId);
-
-    /**
-     * 圈子关注人数+N
-     * @param circleId
-     */
-    void increaseAttentionCount(Integer circleId, Integer num);
 
     /**
      * 更新真实的圈子关注人数
