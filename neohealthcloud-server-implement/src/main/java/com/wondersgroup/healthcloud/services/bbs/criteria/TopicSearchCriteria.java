@@ -105,7 +105,7 @@ public class TopicSearchCriteria extends BaseSearchCriteria {
             elementType.add(this.isBest ? 1 : 0);
         }
         if (null != this.isTop){
-            where.append(" AND topic.is_top=1");
+            where.append(" AND topic.is_top=?");
             elementType.add(this.isTop ? 1 : 0);
         }
         if (this.tabId > 0){
