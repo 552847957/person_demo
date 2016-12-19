@@ -177,13 +177,11 @@ public class ExchangeOrderService {
 		order.setStatus(orderType == 1 ? 0 : 1);
 		exchangeOrderRepository.save(order);
 
-		if(orderType != 2){
-			int stockNum = goods.getStockNum();
-			goods.setStockNum(stockNum - 1);
-			goods.setSalesNum(goods.getSalesNum() + 1);
-			goods.setUpdateTime(date);
-			goodsRepository.save(goods);
-		}
+		int stockNum = goods.getStockNum();
+		goods.setStockNum(stockNum - 1);
+		goods.setSalesNum(goods.getSalesNum() + 1);
+		goods.setUpdateTime(date);
+		goodsRepository.save(goods);
 
 		// 虚拟商品分配券码
 		if (orderType == 0) {
