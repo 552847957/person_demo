@@ -325,8 +325,8 @@ public class TopicServiceImpl implements TopicService {
     private Topic initTopicBaseInfo(TopicPublishDto publishInfo, Topic oldTopic){
         TopicPublishDto.TopicContent firstContent = publishInfo.getTopicContents().get(0);
         String intro;
-        if (firstContent.getContent().length() > 50) {
-            intro = firstContent.getContent().substring(0, 50);
+        if (firstContent.getContent().length() > 80) {
+            intro = firstContent.getContent().substring(0, 80);
         } else {
             intro = firstContent.getContent();
         }
