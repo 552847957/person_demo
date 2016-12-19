@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
@@ -108,7 +107,13 @@ public class GoodsService {
 		int page = searchForm.getFlag();
 		String property = searchForm.getProperty();
 		Direction direction = Direction.fromString(searchForm.getDirection());
-		PageRequest pageable = new PageRequest(page, searchForm.getPageSize(), direction, property);
+		List<String> properties = new ArrayList<>();
+		if("stockNum".equals(property)){
+			properties.add("orderType");
+		}
+		properties.add(property);
+		
+		PageRequest pageable = new PageRequest(page, searchForm.getPageSize(), direction, properties.toArray(new String[properties.size()]));
 
 		Specification<Goods> specification = buildSpecification(searchForm);
 		return goodsRepository.findAll(specification, pageable);
