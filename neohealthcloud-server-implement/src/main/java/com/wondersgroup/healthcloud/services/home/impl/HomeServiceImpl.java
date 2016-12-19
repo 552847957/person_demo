@@ -280,7 +280,7 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<CenterAdDTO> findCenterAdDTO(String mainArea) {
         ImageText imgTextC = new ImageText();
-        imgTextC.setAdcode(ImageTextEnum.HOME_BANNER.getType());
+        imgTextC.setAdcode(ImageTextEnum.HOME_ADVERTISEMENT.getType());
         List<ImageText> imageTextsC = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgTextC);
         List<CenterAdDTO> list = new ArrayList<CenterAdDTO>();
 
