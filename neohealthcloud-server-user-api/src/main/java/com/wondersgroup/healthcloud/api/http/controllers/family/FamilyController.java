@@ -1328,7 +1328,7 @@ public class FamilyController {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.CHILD_VACCINE) {
-            if (!isStandalone && age != null && age <= 6) {
+            if (isStandalone && age != null && age <= 6) {
                 result = true;
             }
         }
