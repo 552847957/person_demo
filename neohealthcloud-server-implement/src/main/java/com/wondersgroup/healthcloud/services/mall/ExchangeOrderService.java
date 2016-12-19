@@ -178,7 +178,9 @@ public class ExchangeOrderService {
 		exchangeOrderRepository.save(order);
 
 		int stockNum = goods.getStockNum();
-		goods.setStockNum(stockNum - 1);
+		if(orderType != 2){
+			goods.setStockNum(stockNum - 1);
+		}
 		goods.setSalesNum(goods.getSalesNum() + 1);
 		goods.setUpdateTime(date);
 		goodsRepository.save(goods);
