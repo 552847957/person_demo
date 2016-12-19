@@ -6,14 +6,12 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.enums.VisibleEnum;
+import com.wondersgroup.healthcloud.jpa.repository.moduleportal.ModulePortalRepository;
 import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +27,10 @@ import java.util.Map;
 public class ModulePortalController {
     @Autowired
     ModulePortalService modulePortalService;
+
+    @Autowired
+    private ModulePortalRepository modulePortalRepository;
+
 
     @VersionRange
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -211,4 +213,36 @@ public class ModulePortalController {
 
         return  new JsonResponseEntity(0, "数据删除成功",null);
     }
+
+
+
+
+    @VersionRange
+    @RequestMapping(value = "/manage/getById", method = RequestMethod.GET)
+    public Object getModulePortalById(@RequestParam(value = "id", required = true) Integer id){
+        JsonResponseEntity result = new JsonResponseEntity();
+
+        ModulePortal model  = modulePortalRepository.findOne(id);
+
+        if(null != model){
+            Map<String,Object> map = new HashMap<String,Object>();
+            map.put("id",model.getId());
+            map.put("itemName",model.getItemName());
+            map.put("iconUrl",model.getIconUrl());
+            map.put("isVisible",model.getIsVisible());
+            map.put("mainTitle",model.getMainTitle());
+            map.put("subTitle",model.getSubTitle());
+            map.put("jumpUrl",model.getJumpUrl());
+            map.put("sort",model.getSort());
+            result.setCode(0);
+            result.setData(map);
+            result.setMsg("获取数据成功");
+        }else{
+            result.setCode(1000);
+            result.setMsg("未查询到相关数据！");
+        }
+
+        return result;
+    }
+
 }
