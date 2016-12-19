@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
-import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -14,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
 import com.wondersgroup.healthcloud.services.home.apachclient.*;
@@ -65,8 +65,9 @@ public class HomeServiceImpl implements HomeService {
     @Autowired
     private UserService userService;
 
+
     @Autowired
-    private PhysicalIdentifyService physicalIdentifyService;
+    AssessmentService assessmentServiceImpl;
 
     @Autowired
     private ImageTextService imageTextService;
@@ -480,11 +481,11 @@ public class HomeServiceImpl implements HomeService {
      */
     private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMember fm, String registerid) {
         FamilyMemberItemDTO fItemDTO = null;
-        HealthQuestion healthQuestion = physicalIdentifyService.getRecentPhysicalIdentify(registerid);
-        if (null != healthQuestion && StringUtils.isNotBlank(healthQuestion.getResult())) {
+        Map<String,Object> resultMap = assessmentServiceImpl.getRecentAssessIsNormal(registerid);
+        if (null != resultMap && resultMap.size() > 0 && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
             fItemDTO = new FamilyMemberItemDTO();
             fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 " + healthQuestion.getResult());//话术
+            fItemDTO.setPrompt(fItemDTO.getRelationship() + " ,风险评估结果 高危人群" );
 
         }
 
