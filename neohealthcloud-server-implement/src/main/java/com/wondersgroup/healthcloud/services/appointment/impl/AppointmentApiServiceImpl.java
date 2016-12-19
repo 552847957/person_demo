@@ -152,16 +152,28 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
      * @return
      */
     @Override
-    public List<AppointmentDoctor> findDoctorListByKw(String kw, int pageSize, int pageNum,Boolean hasDepartRegistration) {
+    public List<AppointmentDoctor> findDoctorListByKw(String kw, int pageSize, int pageNum,Boolean hasDepartRegistration,
+                                                      String departmentL2Id) {
         String sql = "select a.* , h.hos_name as 'hospitalName',h.hospital_rule as 'reservationRule', d.dept_name as 'departmentName'  " +
                 " from app_tb_appointment_doctor a  " +
                 " left join app_tb_appointment_hospital h on a.hospital_id = h.id " +
                 " left join app_tb_appointment_department_l1 b on a.department_l1_id = b.id " +
                 " left join app_tb_appointment_department_l2 d on a.department_l2_id = d.id " ;
-        if(StringUtils.isNotBlank(kw)){
-            sql += " where a.del_flag = '0' and h.del_flag = '0' and h.isonsale='1' and  b.del_flag = '0' and d.del_flag ='0' " +
-                    " and a.doct_name like '%"+kw+"%' ";
+
+        String commonWhereSql = " where a.del_flag = '0' and h.del_flag = '0' and h.isonsale='1' and  b.del_flag = '0' and d.del_flag ='0' ";
+        if(StringUtils.isNotBlank(departmentL2Id)){
+            sql += " INNER JOIN (" +
+                    "select doctor_id,sum(reserve_order_num) cc from app_tb_appointment_doctor_schedule" +
+                    " where (reserve_order_num>0 or ordered_num>0)  and doctor_id is not null" +
+                    " and start_time > '%s' group by doctor_id " +
+                    ") s on a.id=s.doctor_id " + commonWhereSql +
+                    " and a.department_l2_id = '"+departmentL2Id+"'";
+            sql = String.format(sql,DateFormatter.dateTimeFormat(new Date()));
         }
+        if(StringUtils.isNotBlank(kw)){
+            sql += commonWhereSql + " and a.doct_name like '%"+kw+"%' ";
+        }
+
         if(!hasDepartRegistration){
             sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
         }else if(pageNum == 1){
@@ -236,7 +248,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String sql = "select count(a.id) as scheduleNum,SUM(a.reserve_order_num) as reserveOrderNum,MAX(a.visit_level_code) as visitLevelCode "+
                 " from app_tb_appointment_doctor_schedule a  " +
                 " where a.del_flag = '0' AND a.status = '1' AND a.doctor_id is null " +
-                " AND a.department_l2_id = '%s' and a.start_time > '%s' " ;//todo 这个时间要确定一下
+                " AND a.department_l2_id = '%s' and a.start_time > '%s' " ;
 
         sql = String.format(sql, department_l2_id,DateFormatter.dateTimeFormat(new Date()));
         return jt.queryForMap(sql);
@@ -290,7 +302,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
                 " left join app_tb_appointment_department_l2 d on s.department_l2_id = d.id " +
                 " left join app_tb_appointment_hospital h on s.hospital_id = h.id " +
                 " where s.`status`= '1' and s.del_flag = '0' and s.department_l2_id='%s'  " +
-                " and s.schedule_date = '%s' and s.start_time > '%s' order by s.start_time asc ";
+                " and s.schedule_date = '%s' and s.start_time > '%s' " +
+                " and (reserve_order_num>0 or ordered_num>0)  order by s.start_time asc ";
 
         sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
 
@@ -615,6 +628,16 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             }
         }
 
+    }
+
+    /**
+     * 查询科室下所有医生的历史预约数
+     * @param department_l2_id
+     * @return
+     */
+    @Override
+    public int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id) {
+        return doctorRepository.countAllDoctorReservationNumByDepartmentL2Id(department_l2_id);
     }
 
     public class UpdateNumberSourceTask implements Callable {

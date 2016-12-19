@@ -134,7 +134,7 @@ public class AppointmentResourceController {
         int pageSize = 10;
         int pageNum = 1;
 
-        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,pageNum,false);
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,pageNum,false,null);
         if(appointmentDoctors.size()>2){
             moreDoctor = true;
         }
@@ -202,7 +202,7 @@ public class AppointmentResourceController {
         Boolean moreDoctor = false;
         int pageSize = 10;
 
-        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,flag,false);
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,flag,false,null);
         if(appointmentDoctors.size()>pageSize){
             moreDoctor = true;
         }
@@ -309,11 +309,13 @@ public class AppointmentResourceController {
         int doctorNum = pageSize;
         if(flag ==1 && doctorDTO!=null && doctorDTO.getReservationStatus()!=0){
             hasDepartRegistration = true;
+            int doctorReservationNum = appointmentApiService.countAllDoctorReservationNumByDepartmentL2Id(department_l2_id);
+            doctorDTO.setReservationNum(doctorDTO.getReservationNum()+doctorReservationNum);
             list.add(doctorDTO);
             doctorNum = doctorNum - 1;
         }
 
-        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(null,pageSize,flag,hasDepartRegistration);
+        List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(null,pageSize,flag,hasDepartRegistration,department_l2_id);
 
 
         int count = 1;
@@ -332,6 +334,7 @@ public class AppointmentResourceController {
         return body;
 
     }
+
 
     /**
      * 科室下面-按照日期预约列表-日期列表(14天)

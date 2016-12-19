@@ -56,7 +56,15 @@ public class ScheduleDto {
      */
     private String visitCost;
 
+    /**
+     * 剩余号源数
+     */
     private Integer reserveOrderNum;
+
+    /**
+     * 已预约号源数
+     */
+    private Integer orderedNum;
 
     /**
      * 门诊类型
