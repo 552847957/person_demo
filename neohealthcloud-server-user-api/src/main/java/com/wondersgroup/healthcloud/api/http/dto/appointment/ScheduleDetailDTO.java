@@ -8,6 +8,8 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+
 
 /**
  * Created by longshasha on 16/5/21.
@@ -107,7 +109,6 @@ public class ScheduleDetailDTO {
             this.scheduleDate = DateFormatter.dateFormat(schedule.getScheduleDate());
             this.week = DateUtils.getWeekOfDate(schedule.getScheduleDate());
             this.time = DateFormatter.hourDateFormat(schedule.getStartTime())+"-"+DateFormatter.hourDateFormat(schedule.getEndTime());
-            this.fee = schedule.getVisitCost();
             this.departmentName = schedule.getDepartmentName();
             this.hospitalName = schedule.getHospitalName();
 
@@ -124,6 +125,14 @@ public class ScheduleDetailDTO {
                 this.visitLevelCode = "专病门诊";
             }else if("3".equals(schedule.getVisitLevelCode())){
                 this.visitLevelCode = "普通门诊";
+            }
+
+            this.fee = schedule.getVisitCost();
+            try {
+                String vistCost = schedule.getVisitCost().replace("元","");
+                this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
+            }catch (Exception e){
+                
             }
 
         }

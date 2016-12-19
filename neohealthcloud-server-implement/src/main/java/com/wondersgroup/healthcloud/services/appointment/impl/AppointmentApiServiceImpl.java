@@ -156,9 +156,11 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String sql = "select a.* , h.hos_name as 'hospitalName',h.hospital_rule as 'reservationRule', d.dept_name as 'departmentName'  " +
                 " from app_tb_appointment_doctor a  " +
                 " left join app_tb_appointment_hospital h on a.hospital_id = h.id " +
+                " left join app_tb_appointment_department_l1 b on a.department_l1_id = b.id " +
                 " left join app_tb_appointment_department_l2 d on a.department_l2_id = d.id " ;
         if(StringUtils.isNotBlank(kw)){
-            sql += " where a.doct_name like '%"+kw+"%' ";
+            sql += " where a.del_flag = '0' and h.del_flag = '0' and h.isonsale='1' and  b.del_flag = '0' and d.del_flag ='0' " +
+                    " and a.doct_name like '%"+kw+"%' ";
         }
         if(!hasDepartRegistration){
             sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
@@ -479,7 +481,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         if(!"0".equals(orderResultResponse.messageHeader.getCode())){
             throw new ErrorReservationException(orderResultResponse.messageHeader.getDesc());
         }
-        
+
         //刷新排班资源
         schedule.setOrderedNum(schedule.getOrderedNum()+1);
         schedule.setReserveOrderNum(schedule.getReserveOrderNum()-1);

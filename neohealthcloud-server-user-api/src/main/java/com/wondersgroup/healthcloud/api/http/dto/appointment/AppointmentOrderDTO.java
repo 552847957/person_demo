@@ -10,6 +10,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -116,7 +117,6 @@ public class AppointmentOrderDTO {
             this.scheduleDate = DateFormatter.scheduleDateFormat(order.getScheduleDate());
             this.week = DateUtils.getWeekOfDate(order.getScheduleDate());
             this.time = DateFormatter.hourDateFormat(order.getStartTime())+"-"+DateFormatter.hourDateFormat(order.getEndTime());
-            this.fee = order.getVisitCost();
             if(StringUtils.isBlank(order.getVisitLevelCode())){
                 this.visitLevelCode = "其他";
             }else if("1".equals(order.getVisitLevelCode())){
@@ -186,6 +186,14 @@ public class AppointmentOrderDTO {
                 }catch (Exception e){
                     log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getLocalizedMessage());
                 }
+            }
+
+            this.fee = order.getVisitCost();
+            try {
+                String vistCost = order.getVisitCost().replace("元","");
+                this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
+            }catch (Exception e){
+
             }
 
 
