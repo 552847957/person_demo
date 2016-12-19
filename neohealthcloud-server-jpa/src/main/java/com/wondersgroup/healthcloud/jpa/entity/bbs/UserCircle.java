@@ -28,7 +28,7 @@ public class UserCircle {
     private Integer circleId;
 
     @Column(name = "del_flag")
-    private String delFlag;
+    private String delFlag = "0";
 
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)

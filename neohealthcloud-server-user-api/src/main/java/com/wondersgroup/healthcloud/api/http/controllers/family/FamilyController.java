@@ -752,6 +752,7 @@ public class FamilyController {
             registerId = ano.getId();
             sex = ano.getSex();
             birthday = ano.getBirthDate();
+            info.setIsVerification(ano.getIdcard() != null);
         }else{
             registerId = regInfo.getRegisterid();
             sex = regInfo.getGender();
@@ -791,6 +792,7 @@ public class FamilyController {
                     }
                     JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                     if(node == null && node.get("stepCount") != null){
+                        templet.setDesc(getDateStr());
                         templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount").textValue() + "步")));
                     }else{
                         templet.setDesc("健康计步，领取金币");

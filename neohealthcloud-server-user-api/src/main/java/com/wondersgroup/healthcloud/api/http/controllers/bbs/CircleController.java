@@ -79,7 +79,7 @@ public class CircleController {
         circleHomeDto.mergeCircleTopicTab(topicTabs);
         circleHomeDto.setTopTopics(topicService.getCircleTopRecommendTopics(circleId, 5));
         //是否关注
-        UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
+        UserCircle userCircle = circleService.getAndCheckIsDefaultJoin(circleId, uid);
         circleHomeDto.setIfAttent(null == userCircle ? 0 : 1);
         //当日活跃数=当日发帖数+当日回复数量
         int publishTopicCount = circleService.getTodayPublishTopicCount(circleId);
@@ -260,7 +260,7 @@ public class CircleController {
     public JsonResponseEntity leaveCircle(@RequestParam Integer circleId, @RequestParam String uid) {
         JsonResponseEntity entity = new JsonResponseEntity();
         try {
-            UserCircle exist = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
+            UserCircle exist = circleService.getAndCheckIsDefaultJoin(circleId, uid);
             if (exist != null) {
                 exist.setDelFlag("1");
                 circleService.updateUserCircle(exist);
@@ -298,7 +298,7 @@ public class CircleController {
             CircleInfoDto dto = circleService.getCircleInfo(circleId);
             BeanUtils.copyProperties(dto, fullInfoDto);
             // 是否关注
-            UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
+            UserCircle userCircle = circleService.getAndCheckIsDefaultJoin(circleId, uid);
             if (userCircle != null) {
                 fullInfoDto.setIfAttent(1);
             }

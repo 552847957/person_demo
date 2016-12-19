@@ -439,7 +439,7 @@ public class UserController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
         String nickname = reader.readString("nick_name", false);
-        String avatar = reader.readString("avatar", false);
+        String avatar = reader.readString("avatar", true);
 
         userService.updateNicknameAndAvatar(id, nickname, avatar);
         JsonResponseEntity<Map<String, String>> body = new JsonResponseEntity<>();

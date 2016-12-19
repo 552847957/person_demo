@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.AppUrlSchemaUtils;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleBannerDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleCategoryDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleInfoDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.circle.CircleListDto;
-import com.wondersgroup.healthcloud.services.bbs.dto.circle.MyCircleDto;
 
 /**
  * Created by ys on 2016/08/11.
@@ -60,12 +60,6 @@ public class CircleServiceImpl implements CircleService {
     @Override
     public Circle getCircleInfoById(Integer circleId) {
         return circleRepository.findOne(circleId);
-    }
-
-    @Override
-    public List<Circle> defaultAttentList() {
-        List<Circle> list = circleRepository.queryByIsDefaultAttentAndDelFlag(1, "0");
-        return list;
     }
 
     @Override
@@ -152,10 +146,31 @@ public class CircleServiceImpl implements CircleService {
         return cDtoList;
     }
 
-
     @Override
-    public UserCircle queryByUIdAndCircleIdAndDelFlag(String uId, Integer circleId, String delFlag) {
-        UserCircle userCircle = userCircleRepository.queryByUIdAndCircleIdAndDelFlag(uId, circleId, delFlag);
+    public UserCircle getAndCheckIsDefaultJoin(Integer circleId, String uid) {
+        UserCircle userCircle = userCircleRepository.queryByUIdAndCircleId(uid, circleId);
+        if (null != userCircle){
+            if (userCircle.getDelFlag().equals("0")){
+                return userCircle;
+            }else {
+                return null;
+            }
+        }else {
+            Circle circle = circleRepository.findOne(circleId);
+            if (null == circle){
+                throw new CommonException(1031, "圈子不存在");
+            }
+            //如果这个圈子为默认关注 给用户关注上
+            if (circle.getIsDefaultAttent() == 1){
+                userCircle = new UserCircle();
+                userCircle.setCircleId(circleId);
+                userCircle.setUId(uid);
+                Date now = new Date();
+                userCircle.setCreateTime(now);
+                userCircle.setUpdateTime(now);
+                userCircleRepository.saveAndFlush(userCircle);
+            }
+        }
         return userCircle;
     }
 
@@ -229,62 +244,6 @@ public class CircleServiceImpl implements CircleService {
             logger.error("查询圈子信息时出错", e);
         }
         return dto;
-    }
-
-    @Override
-    public int getAttentCount(Integer circleId, String delFlag) {
-        int count = userCircleRepository.getAttentCount(circleId, delFlag);
-        return count;
-    }
-
-    /**
-     *
-     * @param uId
-     * @return 加入默认圈子成功，返回1；反则返回0
-     */
-    @Override
-    public int joinInDefaultCircles(String uId) {
-        int result = 0;
-        List<Circle> defaultCircleList = this.defaultAttentList();
-        if (defaultCircleList != null && defaultCircleList.size() > 0) {
-            // 读取默认关注圈子列表
-            for (Circle circle : defaultCircleList) {
-                int circleId = circle.getId();
-                // 检查是否已经加入过这个圈子
-                UserCircle exist = this.queryByUIdAndCircleId(uId, circleId);
-                if (exist == null) {// 不存在该记录
-                    UserCircle userCircle = new UserCircle();
-                    userCircle.setCircleId(circleId);
-                    userCircle.setUId(uId);
-                    // 加入圈子
-                    UserCircle savedResult = this.saveUserCircle(userCircle);
-                    if (savedResult != null) {
-                        logger.info(String.format("user [%s] default join in circle [%s]", uId, circleId));
-                    }// end if
-                } else {
-                    logger.info(String.format("user [%s] already join in circle [%s]", uId, circleId));
-                }
-
-            }// end for
-            result = 1;
-        } else {
-            logger.info("没有默认要加入的圈子");
-        }// end else
-        return result;
-    }
-
-    @Override
-    public void increaseAttentionCount(Integer circleId, Integer num) {
-        Circle circle = circleRepository.findOne(circleId);
-        if (circle != null) {
-            int attenttionCount = circle.getAttentionCount();
-            attenttionCount += num;
-            if (attenttionCount >= 0) {
-                circle.setAttentionCount(attenttionCount);
-                circle.setUpdateTime(new Date());
-                circleRepository.save(circle);
-            }
-        }
     }
 
     @Override

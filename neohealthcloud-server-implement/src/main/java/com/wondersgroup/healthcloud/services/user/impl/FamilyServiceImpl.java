@@ -365,6 +365,7 @@ public class FamilyServiceImpl implements FamilyService {
     public void anonymousRegistration(String userId, String relation, String relationName, String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
         checkMemberCount(userId);
         RegisterInfo register = findOneRegister(userId, false);
+        sex = FamilyMemberRelation.getSexByRelationAndSex(relation, register.getGender());
         AnonymousAccount account = accountService.anonymousRegistration(userId, "HCGEN" + IdGen.uuid(), IdGen.uuid(), sex, headphoto, mobile, birthDate, isStandalone);
         createMemberRelationPair(
                 userId,

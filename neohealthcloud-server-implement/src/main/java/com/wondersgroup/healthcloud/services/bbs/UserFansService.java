@@ -57,8 +57,6 @@ public interface UserFansService {
 
     Boolean isAttent(String uid, String targetUid);
 
-    Boolean isFans(String uid, String targetUid);
-
     UserFans saveFans(UserFans fans);
 
     //是否相互关注

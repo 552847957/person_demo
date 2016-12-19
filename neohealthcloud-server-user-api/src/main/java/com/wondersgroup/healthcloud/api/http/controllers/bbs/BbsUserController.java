@@ -157,7 +157,7 @@ public class BbsUserController {
             entity.setData(info);
             return entity;
         }
-        UserCircle userCircle = circleService.queryByUIdAndCircleIdAndDelFlag(uid, circleId, "0");
+        UserCircle userCircle = circleService.getAndCheckIsDefaultJoin(circleId, uid);
         if (userCircle == null){
             info.put("status", 3);
             info.put("info", "请先加入该圈子");
