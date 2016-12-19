@@ -309,7 +309,16 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<SpecialServiceDTO> findSpecialServiceDTO(Session session, String appVersion, String mainArea, String specArea) {
         List<SpecialServiceDTO> list = new ArrayList<SpecialServiceDTO>();
-        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+        // 获取公共服务
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, null, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+        if (StringUtils.isNotEmpty(specArea)) {// 获取特色服务
+            List<ImageText> specImageTests = imageTextService.findGImageTextForApp(mainArea, specArea, ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType(), appVersion);
+            if (imageTextsB == null) {
+                imageTextsB = specImageTests;
+            } else {
+                imageTextsB.addAll(specImageTests);
+            }
+        }
 
         if (!CollectionUtils.isEmpty(imageTextsB)) {
             String idCard = null;

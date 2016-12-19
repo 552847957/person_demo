@@ -236,10 +236,6 @@ public class ImageTextServiceImpl implements ImageTextService {
     public List<ImageText> findGImageTextForApp(String mainArea, String specArea, Integer gadcode, String version) {
         if (gadcode != ImageTextEnum.G_HOME_SPECIAL_SERVICE.getType()) {// 仅在查询区级特色服务是需要使用spec_area
             specArea = null;
-        } else {
-            if (specArea == null) {// 查询特色服务是specArea不能为空
-                return null;
-            }
         }
         GImageText param = new GImageText();
         param.setDelFlag("0");
@@ -327,7 +323,7 @@ public class ImageTextServiceImpl implements ImageTextService {
             }
             tmpObj = parameter.get("spec_area");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
-                bf.append(" and (spec_area is null or spec_area = '" + tmpObj + "')");
+                bf.append(" and spec_area = '" + tmpObj + "'");
             }
             tmpObj = parameter.get("gadcode");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
