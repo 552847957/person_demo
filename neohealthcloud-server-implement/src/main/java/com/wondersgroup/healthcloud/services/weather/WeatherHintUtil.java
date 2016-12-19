@@ -27,7 +27,7 @@ public class WeatherHintUtil {
     @Autowired
     private JedisPool pool;
 
-    public String get(Integer aqi, Integer code, Integer temperture) {
+    public String[] get(Integer aqi, Integer code, Integer temperture) {
         if (aqi > 100 || isBadWeather(code)) {
             return getOneHint(prefix + "bad");
         } else {
@@ -41,16 +41,16 @@ public class WeatherHintUtil {
                 return getOneHint(prefix + "good:30");
             }
         }
-        return "";
+        return new String[]{"",""};
     }
 
     private Boolean isBadWeather(Integer code) {
         return !((25 < code && code < 35) || code == 44);
     }
 
-    private String getOneHint(String key) {
+    private String[] getOneHint(String key) {
         try (Jedis jedis = pool.getResource()) {
-            return jedis.srandmember(key);
+            return jedis.srandmember(key).split(":");
         }
     }
 }
