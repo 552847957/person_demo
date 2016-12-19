@@ -324,6 +324,8 @@ public class ImageTextServiceImpl implements ImageTextService {
             tmpObj = parameter.get("spec_area");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
                 bf.append(" and spec_area = '" + tmpObj + "'");
+            } else {
+                bf.append(" and spec_area is not null");
             }
             tmpObj = parameter.get("gadcode");
             if (tmpObj != null && StringUtils.isNotBlank(tmpObj.toString())) {
