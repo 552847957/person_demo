@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * 粉丝
- * Created by jialing.yao on 2016-8-12.
+ * Created by ys on 2016-12-16
  */
 @Service("fansService")
 public class UserFansServiceImpl implements UserFansService {
@@ -96,7 +96,7 @@ public class UserFansServiceImpl implements UserFansService {
     public Integer getMyAttentStatus(String myUid, String targetUid) {
         int attentStatus = 0;
         if (isAttent(myUid, targetUid)){
-            attentStatus = isFans(myUid, targetUid) ? 2 : 1;
+            attentStatus = isAttent(targetUid, myUid) ? 2 : 1;
         }
         return attentStatus;
     }
@@ -116,18 +116,11 @@ public class UserFansServiceImpl implements UserFansService {
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null && num > 0;
     }
-    @Override
-    public Boolean isFans(String uid, String targetUid) {
-        String query = String.format("select count(1) from tb_bbs_fans where uid='%s' and fans_uid='%s' and del_flag='0'", targetUid, uid);
-        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
-        return num != null && num > 0;
-    }
 
     @Override
     public boolean isAttentEachOther(String uid, String targetUid) {
         return isAttent(uid, targetUid) && isAttent(targetUid, uid);
     }
-
 
     @Override
     public UserFans saveFans(UserFans fans) {

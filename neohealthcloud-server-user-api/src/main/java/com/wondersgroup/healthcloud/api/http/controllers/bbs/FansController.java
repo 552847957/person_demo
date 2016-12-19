@@ -111,8 +111,8 @@ public class FansController {
      */
     @VersionRange
     @RequestMapping(value = "/attent", method = RequestMethod.POST)
-    public JsonResponseEntity attent(@RequestBody String request) {
-        JsonResponseEntity entity = new JsonResponseEntity();
+    public JsonResponseEntity<Map<String, Object>> attent(@RequestBody String request) {
+        JsonResponseEntity<Map<String, Object>> entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
         String targetUid = reader.readString("targetUid", false);
@@ -120,22 +120,15 @@ public class FansController {
         Date nowDate = new Date();
         // 注意：关注别人，fans_uid 为自己
         UserFans exist = fansService.queryByUidAndFansUid(targetUid, uid);
+        Map<String, Object> info = new HashMap<>();
+        entity.setMsg("关注成功");
         if (exist != null) {// 已经关注过
-            if ("0".equals(exist.getDelFlag())) {// 没有删除
-                Map<String, Object> info = new HashMap<>();
-                info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
+            if ("0".equals(exist.getDelFlag())) {
                 entity.setMsg("您已关注了该用户");
-                return entity;
-            }
-            if ("1".equals(exist.getDelFlag())) {
+            }else {
                 exist.setDelFlag("0");
                 exist.setUpdateTime(nowDate);
                 fansService.saveFans(exist);// 更新del_flag状态
-                Map<String, Object> info = new HashMap<>();
-                info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
-                entity.setMsg("关注成功");
-                entity.setData(info);
-                return entity;
             }
         } else {
             UserFans fans = new UserFans();
@@ -144,12 +137,9 @@ public class FansController {
             fans.setCreateTime(nowDate);
             fans.setUpdateTime(nowDate);
             fansService.saveFans(fans);
-            Map<String, Object> info = new HashMap<>();
-            info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
-            entity.setMsg("关注成功");
-            entity.setData(info);
-            return entity;
-        }// end else
+        }
+        info.put("attentStatus", fansService.getMyAttentStatus(uid, targetUid));
+        entity.setData(info);
         return entity;
     }
 
