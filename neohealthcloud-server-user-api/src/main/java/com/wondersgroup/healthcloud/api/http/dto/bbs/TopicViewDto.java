@@ -26,6 +26,7 @@ public class TopicViewDto {
 
     private Integer id;
     private Integer isAdmin;
+    private Boolean isIdentify = false;
     private String uid;
     private String nickName;
     private String avatar;
