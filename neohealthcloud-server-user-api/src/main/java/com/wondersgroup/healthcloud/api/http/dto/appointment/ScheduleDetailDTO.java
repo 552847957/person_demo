@@ -137,6 +137,7 @@ public class ScheduleDetailDTO {
             }catch (Exception e){
 
             }
+            this.fee = this.fee + "元";
 
         }
 

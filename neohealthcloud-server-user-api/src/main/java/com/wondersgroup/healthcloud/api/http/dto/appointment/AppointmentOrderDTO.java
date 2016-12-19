@@ -196,6 +196,8 @@ public class AppointmentOrderDTO {
 
             }
 
+            this.fee = this.fee + "元";
+
 
         }
 
