@@ -79,7 +79,7 @@ public class CircleCategoryServiceImpl implements CircleCategoryService {
                 " 1 = 1 ";
         searchSql = appendWhereSql(searchSql, name, delFlag);
         // 排序
-        String orderSql = " order by ct.rank desc,ct.create_time desc ";
+        String orderSql = " order by ct.rank desc ";
         searchSql += orderSql;
         // 分页
         int offset = (pageNo - 1) * pageSize;
