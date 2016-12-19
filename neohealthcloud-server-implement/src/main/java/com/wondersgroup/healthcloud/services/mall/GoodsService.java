@@ -131,8 +131,17 @@ public class GoodsService {
 	}
 
 	public void save(Goods goods) {
+		int status = goods.getStatus();
+		//上架時判斷商品過期時間
+		if (status == 1) {
+			Date endTime = goods.getEndTime();
+			if (endTime != null && endTime.before(new Date())) {
+				throw new CommonException(1001, "截止日期无效");
+			}
+		}
+
 		// 下线的时候需要把首页Banner下线
-		if (goods.getStatus() == 0) {
+		if (status == 0) {
 			mallBannerService.soldOut(goods.getId());
 		}
 		goodsRepository.save(goods);

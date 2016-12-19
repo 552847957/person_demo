@@ -454,7 +454,6 @@ public class FamilyServiceImpl implements FamilyService {
         if(count > 0){
             return true;
         }
-            
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -525,9 +524,9 @@ public class FamilyServiceImpl implements FamilyService {
         familyMessage.setMsgTitle(title);
         familyMessage.setJumpUrl("");
         if("0".equals(familyMessage.getMsgType())){
-            FamilyMemberInvitation invitation = invitationRepository.invitation(uid, memberId, 1);
-            if(invitation != null){
-                familyMessage.setReqRecordID(invitation.getId());
+            List<FamilyMemberInvitation> invitation = invitationRepository.invitation(uid, memberId, 1);
+            if(invitation != null && !invitation.isEmpty()){
+                familyMessage.setReqRecordID(invitation.get(0).getId());
             }
         }
         return familyMessage;
@@ -541,15 +540,13 @@ public class FamilyServiceImpl implements FamilyService {
         case 14:tp = "0";break;
         case 12:tp = "3";break;
         case 2:tp = "4";break;  
-//        case 3:tp = "7";break;
         case 4:tp = "10";break;
         case 5:tp = "5";break;
         case 6:tp = "7";break;
         case 7:tp = "6";break;
         case 8:tp = "8";break;
         case 9:tp = "9";break;
-//        case 10:tp = "10";break;
-//        default: tp = "9";
+        case 11:tp = "2";break;
         }
         return tp;
     }
