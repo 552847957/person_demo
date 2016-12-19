@@ -31,4 +31,7 @@ public interface MsgService {
     void setRead(List<Integer> ids);
     //设置全部未读消息为已读
     void setAllRead(String uid);
+    
+    //根据uid查 当天有发送过这个type消息
+    int getCountByDate(String uid, int type);
 }

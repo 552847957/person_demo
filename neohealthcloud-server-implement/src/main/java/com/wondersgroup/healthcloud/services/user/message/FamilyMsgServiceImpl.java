@@ -95,7 +95,7 @@ public class FamilyMsgServiceImpl implements MsgService{
             if(avatarList != null){
                 for(Map<String, Object> avatarData:avatarList){
                     String notifierUID=String.valueOf(avatarData.get("uid"));
-                    String headphoto=String.valueOf(avatarData.get("headphoto"));
+                    String headphoto=avatarData.get("headphoto")==null?"":String.valueOf(avatarData.get("headphoto"));
                     for(Map<String, Object> row:list){
                         String target_notifierUID=String.valueOf(row.get("notifierUID"));
                         if(target_notifierUID.equals(notifierUID)){
@@ -116,8 +116,12 @@ public class FamilyMsgServiceImpl implements MsgService{
     //根据邀请记录ID，获取邀请状态
     private String getReqStatusByReqID(String reqID) {
         String query =String.format("select status from app_tb_family_member_invitation where id='%s' and del_flag=0",reqID);
-        String reqStatus = jdbcTemplate.queryForObject(query, String.class);
-        return reqStatus != null ? reqStatus : "";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return "";
+        }
+        Object status= list.get(0).get("status");
+        return status ==null?"":String.valueOf(status);
     }
     //批量获取请求人头像
     private List<Map<String, Object>> getAvatarByUids(List<String> ids){
@@ -157,5 +161,12 @@ public class FamilyMsgServiceImpl implements MsgService{
     @Override
     public void setAllRead(String uid) {
 
+    }
+
+    @Override
+    public int getCountByDate(String uid, int type) {
+        String query = "select count(*) from app_tb_family_message where notifier_uid = '" + uid + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = now()";
+        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
+        return num != null ? num : 0;
     }
 }

@@ -7,9 +7,11 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -21,6 +23,7 @@ import com.wondersgroup.healthcloud.services.user.exception.ErrorUpdateUserInfoE
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.familyDoctor.FamilyDoctorUtil;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +50,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RegisterInfoRepository registerInfoRepository;
-
+    
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
+    
     @Autowired
     private UserInfoRepository userInfoRepository;
 
@@ -416,7 +422,23 @@ public class UserServiceImpl implements UserService {
         return tagname;
     }
 
-
+    public RegisterInfo findRegOrAnonymous(String registerId){
+        RegisterInfo info = findOne(registerId);
+        if(info == null){
+            info = new RegisterInfo();
+            AnonymousAccount ac = anonymousAccountRepository.findOne(registerId);
+            info.setRegisterid(registerId);
+            info.setHeadphoto(ac.getHeadphoto());
+            info.setBirthday(ac.getBirthDate());
+            info.setGender(ac.getSex());
+            info.setPersoncard(ac.getIdcard());
+            info.setRegmobilephone(ac.getMobile());
+            info.setNickname(ac.getNickname());
+            info.setName(ac.getName());
+        }
+        return info;
+        
+    }
 
 
     private String getTagListLike(Map parameter){

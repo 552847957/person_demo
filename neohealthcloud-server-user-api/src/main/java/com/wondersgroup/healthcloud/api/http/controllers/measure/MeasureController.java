@@ -82,7 +82,7 @@ public class MeasureController {
     @VersionRange
     public String measureHome(String registerId) {
 
-        RegisterInfo info = userService.getOneNotNull(registerId);
+        RegisterInfo info = userService.findRegOrAnonymous(registerId);
         List histories = new ArrayList();
         String parameters = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
                 .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
@@ -110,7 +110,7 @@ public class MeasureController {
     @GetMapping("family/nearest")
     public JsonResponseEntity<?> nearestMeasure(@RequestParam String familyMateId) {
         try {
-            RegisterInfo info = userService.getOneNotNull(familyMateId);
+            RegisterInfo info = userService.findRegOrAnonymous(familyMateId);
             String parameters = "registerId=".concat(familyMateId).concat("&sex=").concat(getGender(info.getGender()))
                     .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String url = String.format(requestFamilyPath, host, parameters);
@@ -131,7 +131,7 @@ public class MeasureController {
     public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
         try {
         	String registerId = (String) paras.get("registerId");
-        	RegisterInfo info = userService.getOneNotNull(registerId);
+        	RegisterInfo info = userService.findRegOrAnonymous(registerId);
         	
         	String personCard = info.getPersoncard();
         	if(personCard != null){
@@ -168,7 +168,7 @@ public class MeasureController {
     public JsonResponseEntity<?> updateMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
         try {
         	String registerId = (String) paras.get("registerId");
-        	RegisterInfo info = userService.getOneNotNull(registerId);
+        	RegisterInfo info = userService.findRegOrAnonymous(registerId);
         	
         	String personCard = info.getPersoncard();
         	if(personCard != null){
@@ -202,7 +202,7 @@ public class MeasureController {
     @VersionRange
     @GetMapping("chart/{type}")
     public JsonResponseEntity queryMeasureChart(@PathVariable int type, String registerId, int flag) {
-    	 RegisterInfo info = userService.getOneNotNull(registerId);
+    	 RegisterInfo info = userService.findRegOrAnonymous(registerId);
         try {
             String params = "registerId=".concat(registerId).concat("&flag=").concat(String.valueOf(flag)).concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String url = String.format(requestChartPath, host, type, params);
@@ -231,7 +231,7 @@ public class MeasureController {
     @GetMapping("yearHistory/{type}")
     public JsonResponseEntity queryMeasureHistory(@PathVariable int type, String registerId) throws JsonProcessingException {
         try {
-            RegisterInfo info = userService.findOne(registerId);
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
             String url = String.format(requestYearHistoryPath, host, type, "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
                     .concat("&personCard=").concat(getPersonCard(info.getPersoncard())));
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
@@ -258,7 +258,7 @@ public class MeasureController {
     @GetMapping("dayHistory")
     public JsonResponseEntity queryMeasureHistory(String registerId, String flag) throws JsonProcessingException {
         try {
-            RegisterInfo info = userService.getOneNotNull(registerId);
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
             String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(info.getGender()))
                     .concat("&personCard=").concat(getPersonCard(info.getPersoncard()));
             String params = (flag == null) ? param : param.concat("&flag=").concat(flag);
@@ -288,7 +288,7 @@ public class MeasureController {
         Map<String, Object> result = new HashMap<>();
 
         try {
-            RegisterInfo info = userService.getOneNotNull(registerId);
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
             if(StringUtils.isEmpty(info.getPersoncard()) ){
                 result.put("h5Url", Collections.EMPTY_MAP );
             }else{
@@ -327,18 +327,10 @@ public class MeasureController {
     @GetMapping("recentHistory/{type}")
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
-            RegisterInfo info = userService.findOne(registerId);
-            String gender = "";
-            String personcard = "";
-            if(info == null){
-                AnonymousAccount ac = anonymousAccountRepository.findOne(registerId);
-                gender = ac.getSex();
-                registerId = ac.getId();
-                personcard = ac.getIdcard();
-            }else{
-                gender = info.getGender();
-                personcard = info.getPersoncard();
-            }
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
+            String gender = info.getGender();
+            String personcard = info.getPersoncard();
+           
             String param = "registerId=".concat(registerId).concat("&sex=").concat(getGender(gender))
                     .concat("&personCard=").concat(getPersonCard(personcard));
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));

@@ -58,5 +58,12 @@ public interface UserService {
 
     RegisterInfo findOne(String id);
 
+    /**
+     * 现在有单机版用户，查的时候如果registerInfo表查不到就差匿名表
+     * @param registerId
+     * @return RegisterInfo
+     */
+    RegisterInfo findRegOrAnonymous(String registerId);
+
     Map<String, RegisterInfo> findByUids(Iterable<String> uids);
 }

@@ -43,7 +43,7 @@ public class FamilyMemberInvitationAPIEntity {
         if(1==isAnonymous) this.status="身份审核成功";
     }
     
-    public FamilyMemberInvitationAPIEntity(FamilyMemberInvitation invitation, String uid) {
+    public FamilyMemberInvitationAPIEntity(RegisterInfo register, FamilyMemberInvitation invitation, String uid) {
         this.id = invitation.getId();
         this.memo = invitation.getMemo();
         Boolean isSelf = uid.equals(invitation.getUid());
@@ -51,6 +51,7 @@ public class FamilyMemberInvitationAPIEntity {
         this.status = statusArray[Integer.valueOf(invitation.getStatus())];
         this.relation =  invitation.getRelation();
         this.relationName =  FamilyMemberRelation.getName(relation);
+        this.nickname = register.getNickname();
     }
 
 

@@ -66,7 +66,7 @@ public class FamilyMemberRelation {
         for (int i = 1; i < list.size(); i++) {
             if(i <= 9){
                 list1.add(list.get(i));
-            }else if(i <= 23){
+            }else if(i <= 24){
                 list2.add(list.get(i));
             }else{
                 list3.add(list.get(i));

@@ -13,6 +13,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CloudTopLineMsgDTO {
     private String type;
+    private String id;
     private String title;
     private String jumpUrl;
 
