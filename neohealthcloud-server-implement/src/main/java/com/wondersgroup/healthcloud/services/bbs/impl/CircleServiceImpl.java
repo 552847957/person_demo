@@ -121,8 +121,7 @@ public class CircleServiceImpl implements CircleService {
         List<CircleListDto> cDtoList = new ArrayList<>();
         List<Circle> cList = null;
         // 查询是否为“推荐圈子”分类
-        CircleCategory circleCategory = circleCategoryRepository.findOne(categoryId);
-        if (circleCategory != null && categoryId == CircleConstant.CIRCLE_CATEGORY_ID) {
+        if (categoryId == CircleConstant.CIRCLE_CATEGORY_ID) {
             cList = getRecommendCircles(flag,pageSize);
             // circleRepository.queryByIsRecommendAndDelFlagOrderByRankDesc(1, "0");
         } else {
