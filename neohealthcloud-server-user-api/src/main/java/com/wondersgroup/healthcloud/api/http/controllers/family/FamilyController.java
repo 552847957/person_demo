@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,9 +51,9 @@ import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberDTO.MemberInfo;
+import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.Info;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.InfoTemplet;
-import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.family.FamilyMemberInfoDTO.MemberInfoTemplet;
 import com.wondersgroup.healthcloud.api.http.dto.measure.MeasureInfoDTO;
 import com.wondersgroup.healthcloud.api.http.dto.measure.SimpleMeasure;
@@ -67,7 +66,6 @@ import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
-import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
@@ -133,6 +131,8 @@ public class FamilyController {
     RestTemplate restTemplate = new RestTemplate();
     @Value("${internal.api.service.measure.url}")
     private String host;
+    @Value("${api.vaccine.url}")
+    private String host_vaccine;
     private static final String requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
     private static final String requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
     
@@ -740,6 +740,7 @@ public class FamilyController {
         if(!uid.equals(memberId) && familyMember == null){
             throw new CommonException(1000, "不是您的家庭成员");
         }
+        Date birthday = null;
         if(regInfo == null){
             AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
             if(ano != null && ano.getIsStandalone()){
@@ -750,6 +751,7 @@ public class FamilyController {
             info.setMobile(ano.getMobile());
             registerId = ano.getId();
             sex = ano.getSex();
+            birthday = ano.getBirthDate();
         }else{
             registerId = regInfo.getRegisterid();
             sex = regInfo.getGender();
@@ -757,6 +759,7 @@ public class FamilyController {
             info.setNikcName(regInfo.getNickname());
             info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             info.setMobile(regInfo.getRegmobilephone());
+            birthday = regInfo.getBirthday();
         }
         info.setId(memberId);
         if(uid.equals(memberId)){
@@ -768,8 +771,10 @@ public class FamilyController {
         }       
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
         if(info.getAge() != null && info.getAge() < 6){
+            String date = new SimpleDateFormat("yyyy-MM-dd").format(birthday);
+            String url = host_vaccine + "/api/vaccine/getLeftDaysByBirth?birthday=" + date;
             tems.add(new InfoTemplet(2, "就医记录", "就医历史 一查便知", null));
-            tems.add(new InfoTemplet(10, "N天后可接种疫苗", "家有宝贝初养成", null));
+            tems.add(new InfoTemplet(10, getLeftDaysByBirth(url) + "天后可接种疫苗", "家有宝贝初养成", null));
         }else{
             for (Integer id : MemberInfoTemplet.map.keySet()) {
                 InfoTemplet templet = new InfoTemplet(id, MemberInfoTemplet.map.get(id), null);
@@ -781,6 +786,9 @@ public class FamilyController {
                 }else if(id == 3 && uid.equals(memberId)){
                     continue;
                 }else if(id == 4){
+                    if(info.getIsStandalone()){
+                       continue; 
+                    }
                     JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                     if(node == null && node.get("stepCount") != null){
                         templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount").textValue() + "步")));
@@ -890,7 +898,9 @@ public class FamilyController {
             info.setSex(GenderConverter.toChinese(ano.getSex()));
             info.setAvatar(ano.getHeadphoto());
             info.setIsChild(ano.getIsChild());
-            info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
+            if(ano.getBirthDate() != null){
+                info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
+            }
         }else{
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
@@ -899,7 +909,9 @@ public class FamilyController {
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
             info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
-            info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
+            if(regInfo.getBirthday() != null){
+                info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
+            }
         }
         info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         info.setIsAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
@@ -1257,5 +1269,9 @@ public class FamilyController {
     
     public String getDateStr(){
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    }
+    
+    public String getLeftDaysByBirth(String url){
+       return restTemplate.getForObject(url, String.class);
     }
 }
