@@ -1,15 +1,9 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
-import java.util.Date;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.common.utils.Debug;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
@@ -22,24 +16,18 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorSmsRequestException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserGuestLogoutException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasBeenRegisteredException;
-import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasNotRegisteredException;
+import com.wondersgroup.healthcloud.services.user.exception.*;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
-import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
-import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
-import com.wondersgroup.healthcloud.utils.wonderCloud.ImageUtils;
-import com.wondersgroup.healthcloud.utils.wonderCloud.RSAUtil;
-import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
+import com.wondersgroup.healthcloud.utils.wonderCloud.*;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -72,6 +60,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Autowired
     private HealthRecordUpdateUtil healthRecordUpdateUtil;
+
+    @Autowired
+    private Debug debug;
 
     /**
      * `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码, 4 :修改手机号 ,5:绑定手机号,6:预约挂号确认
@@ -284,6 +275,9 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public Boolean validateCode(String mobile, String verifyCode, boolean onlyOne) {
+        if (debug.sandbox() && "888888".equals(verifyCode)) {
+            return true;
+        }
         JsonNode result = httpWdUtils.verifyCode(mobile, verifyCode, onlyOne);
         if (result.get("code").asInt() == 511) {
             throw new ErrorWondersCloudException(result.get("msg").asText());
@@ -494,6 +488,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     /**
      * 注册匿名账户
+     *
      * @param creator
      * @param username
      * @param password
@@ -501,11 +496,12 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount anonymousRegistration(String creator, String username, String password) {
-        return anonymousRegistration(creator, username, password, false, null, null, null,null, false);
+        return anonymousRegistration(creator, username, password, false, null, null, null, null, false);
     }
 
     /**
      * 注册儿童实名认证
+     *
      * @param creator
      * @param username
      * @param password
@@ -513,28 +509,29 @@ public class UserAccountServiceImpl implements UserAccountService {
      */
     @Override
     public AnonymousAccount childVerificationRegistration(String creator, String username, String password) {
-        return anonymousRegistration(creator, username, password, true,null,null,null,null,false);
+        return anonymousRegistration(creator, username, password, true, null, null, null, null, false);
     }
-    
+
     /**
      * 注册单机版
+     *
      * @param creator
      * @param username
      * @param password
      * @return
      */
     @Override
-    public AnonymousAccount anonymousRegistration(String creator, String username, String password,String sex, String headphoto,String mobile,Date birthDate, boolean isStandalone) {
+    public AnonymousAccount anonymousRegistration(String creator, String username, String password, String sex, String headphoto, String mobile, Date birthDate, boolean isStandalone) {
         boolean isChild = false;
         Integer age = AgeUtils.getAgeByDate(birthDate);
-        if(age != null && age < 18){
+        if (age != null && age < 18) {
             isChild = true;
         }
-        return anonymousRegistration(creator, username, password, isChild, sex,headphoto,mobile,birthDate,isStandalone);
+        return anonymousRegistration(creator, username, password, isChild, sex, headphoto, mobile, birthDate, isStandalone);
     }
 
     public AnonymousAccount anonymousRegistration(String creator, String username, String password, Boolean isChild
-            ,String sex, String headphoto,String mobile, Date birthDate,boolean isStandalone) {
+            , String sex, String headphoto, String mobile, Date birthDate, boolean isStandalone) {
         String encodedPassword;
         try {
             encodedPassword = RSAUtil.encryptByPublicKey(password, httpWdUtils.getPublicKey());

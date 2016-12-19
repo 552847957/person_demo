@@ -1,24 +1,23 @@
 package com.wondersgroup.healthcloud.common.utils;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by zhangzhixiu on 15/9/6.
  */
+@Component
 public class Debug {
-    private static final Boolean sandbox;
+    private Boolean sandbox;
 
-    static {
-        String env = System.getProperty("spring.profiles.active");
-        if (env == null) {
-            env = System.getenv("spring.profiles.active");
-        }
-        sandbox = StringUtils.equals("de", env) || StringUtils.equals("te", env);
+    public Debug(@Autowired Environment env) {
+        String[] profiles = env.getActiveProfiles();
+        sandbox = profiles.length != 0 && ("de".equals(env.getActiveProfiles()[0]) || "te".equals(env.getActiveProfiles()[0]));
     }
 
-
-    public static Boolean sandbox() {
+    public Boolean sandbox() {
         return sandbox;
     }
 }
