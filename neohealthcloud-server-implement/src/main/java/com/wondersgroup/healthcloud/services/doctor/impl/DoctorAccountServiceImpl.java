@@ -82,7 +82,7 @@ public class DoctorAccountServiceImpl implements DoctorAccountService {
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
             //merge
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText());
+            WondersUser user = new WondersUser(result.get("user"), CHANNEL_TYPE_JKY);
             mergeDoctorRegistration(user,mainArea);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         }else {
