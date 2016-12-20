@@ -8,6 +8,8 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,8 @@ public class RiskScreeningController {
     @Autowired
     private DiabetesAssessmentService assessmentService;
 
+    private static final Logger logger = LoggerFactory.getLogger("info");
+
     /**
      * 高危筛查列表
      * @return
@@ -32,6 +36,9 @@ public class RiskScreeningController {
     public JsonListResponseEntity list(
             @RequestParam(required = false) String  name,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
+
+        logger.info(" /api/screening/list name :"+name);
+
         int pageSize = 10;
         List<DiabetesAssessmentDTO> list = assessmentService.findAssessment(flag,pageSize,name);
         List<RiskScreeningEntity> entityList = Lists.newArrayList();

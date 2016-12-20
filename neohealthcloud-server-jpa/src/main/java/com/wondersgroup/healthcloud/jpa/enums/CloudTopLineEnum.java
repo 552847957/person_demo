@@ -6,7 +6,7 @@ package com.wondersgroup.healthcloud.jpa.enums;
  */
 public enum CloudTopLineEnum {
 
-     //帖子、资讯、自定义H5
+     //帖子、文章、自定义H5
     TIE_ZI(1,"帖子"),
     WEN_ZHANG(2,"文章"),
     H5(3,"自定义H5");

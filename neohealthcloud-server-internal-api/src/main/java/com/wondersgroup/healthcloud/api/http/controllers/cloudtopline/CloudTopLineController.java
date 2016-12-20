@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.api.http.dto.cloudtopline.CloudTopLineViewDT
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
@@ -51,48 +52,43 @@ public class CloudTopLineController {
     @Autowired
     private AppConfigService appConfigService;
 
+    @Autowired
+    private AppUrlH5Utils h5Utils;
+
     public  final String  keyWord="app.home.cloudtoplineimage";//离散数据 key
 
+    public final String defaultMainArea = "3101"; //默认为上海
+
     @VersionRange
-    @RequestMapping(value = "/manage/addCloudTopLineIcon", method = RequestMethod.POST)
+    @RequestMapping(value = "/manage/saveOrUpdateIcon", method = RequestMethod.POST)
     public Object addCloudTopLineIcon(@RequestBody(required = false) String body){
         JsonKeyReader reader = new JsonKeyReader(body);
         String source="1"; //1-用户端;2-医生端
-        String mainArea = "3101";
-        String iconUrl = reader.readString("iconUrl",false);
+        String mainArea = defaultMainArea;
+        String iconUrl = reader.readString("iconUrl",true);
+
+        if(StringUtils.isBlank(iconUrl)){
+            return  new JsonResponseEntity(1000, "iconUrl不能为空",null);
+        }
 
         AppConfig appConfig = new AppConfig();
         appConfig.setData("{\"name\":\"云头条\",\"iconUrl\":\""+iconUrl+"\"}");
         appConfig.setMainArea(mainArea);
         appConfig.setKeyWord(keyWord);
         appConfig.setSource(source);
-        AppConfig exists = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+
+        AppConfig exists = appConfigService.findSingleAppConfigByKeyWord(defaultMainArea,null,keyWord);
         if(null != exists){
-            return  new JsonResponseEntity(0, "图标已存在！",null);
+            exists.setData("{\"name\":\"云头条\",\"iconUrl\":\""+iconUrl+"\"}");
+            appConfigService.saveAndUpdateAppConfig(exists);
         }else{
-            AppConfig rtnAppConfig = appConfigService.saveAndUpdateAppConfig(appConfig);
+            appConfigService.saveAndUpdateAppConfig(appConfig);
         }
 
 
-        return  new JsonResponseEntity(0, "数据保存成功",null);
+        return  new JsonResponseEntity(0, "操作成功!",null);
     }
 
-    @VersionRange
-    @RequestMapping(value = "/manage/modifyCloudTopLineIcon", method = RequestMethod.POST)
-    public Object modifyCloudTopLineIcon(@RequestBody(required = false) String body){
-        JsonKeyReader reader = new JsonKeyReader(body);
-         String iconUrl = reader.readString("iconUrl",false);
-
-        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
-         if(null != rtnAppConfig){
-             rtnAppConfig.setData("{\"name\":\"云头条\",\"iconUrl\":\""+iconUrl+"\"}");
-             appConfigService.saveAndUpdateAppConfig(rtnAppConfig);
-         }else{
-             return new JsonResponseEntity(0, "数据修改失败，关键字 "+keyWord+" 不存在! ",null);
-         }
-
-        return new JsonResponseEntity(0, "数据修改成功",null);
-    }
 
 
     @VersionRange
@@ -101,7 +97,7 @@ public class CloudTopLineController {
         JsonResponseEntity result = new JsonResponseEntity();
         Map<String,String> map = new HashMap<String,String>();
 
-        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord(defaultMainArea,null,keyWord);
 
         if(null != rtnAppConfig && StringUtils.isNotBlank(rtnAppConfig.getData())){
             Pattern p = Pattern.compile("\"iconUrl\":\"(.*?)\"") ;
@@ -169,6 +165,10 @@ public class CloudTopLineController {
             if(null == jumpId){
                 return  new JsonResponseEntity(1, "jumpId 为空",null);
             }
+            if(CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.WEN_ZHANG){
+                jumpUrl = h5Utils.buildNewsArticleView(Integer.parseInt(jumpId),defaultMainArea);
+            }
+
         }else{//h5时 jumpUrl不能为空
             if(StringUtils.isBlank(jumpUrl)){
                 return  new JsonResponseEntity(1, "jumpUrl 为空",null);
@@ -238,6 +238,10 @@ public class CloudTopLineController {
             if(null == jumpId){
                 return  new JsonResponseEntity(1, "jumpId 为空",null);
             }
+            if(CloudTopLineEnum.getNameById(type) == CloudTopLineEnum.WEN_ZHANG){
+                jumpUrl = h5Utils.buildNewsArticleView(Integer.parseInt(jumpId),defaultMainArea);
+            }
+
         }else{//h5时 jumpUrl不能为空
             if(StringUtils.isBlank(jumpUrl)){
                 return  new JsonResponseEntity(1, "jumpUrl 为空",null);

@@ -23,6 +23,6 @@ public class ActionLogController {
         //body 暂不做处理,以后可扩展为HTTP方式转发日志
         //TODO call logserer-httpmodel
 
-        return new JsonResponseEntity<>(0, null, true);
+        return new JsonResponseEntity<>(0, "上传成功", true);
     }
 }
