@@ -1,17 +1,13 @@
 package com.wondersgroup.healthcloud.jpa.repository.user;
 
-import java.lang.annotation.Native;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-
-import javax.persistence.NamedNativeQueries;
 
 /**
  *
