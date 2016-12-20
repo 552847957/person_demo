@@ -34,7 +34,7 @@ public class BbsMsgHandler {
 
     private void requestGet(String url,String[] parm){
         try {
-            Request request = new RequestBuilder().post().url(url).params(parm).build();
+            Request request = new RequestBuilder().get().url(url).params(parm).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
 
             JsonNode body = response.convertBody();
