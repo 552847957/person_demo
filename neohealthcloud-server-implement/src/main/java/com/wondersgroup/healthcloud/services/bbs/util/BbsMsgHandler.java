@@ -28,7 +28,7 @@ public class BbsMsgHandler {
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
 
-    private static final Logger logger = LoggerFactory.getLogger("exlog");
+    private static final Logger logger = LoggerFactory.getLogger("com.wondersgroup");
 
     private final HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
@@ -36,7 +36,12 @@ public class BbsMsgHandler {
         try {
             Request request = new RequestBuilder().post().url(url).params(parm).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+
             JsonNode body = response.convertBody();
+            if (body.get("code").asInt() != 0){
+                logger.info("bbs msq notify error : " + url);
+                logger.info("bbs msq notify error : " + body.get("msg").toString());
+            }
         }catch (Exception e){
             logger.info("bbs msq notify error : " + url);
             logger.info(Exceptions.getStackTraceAsString(e));

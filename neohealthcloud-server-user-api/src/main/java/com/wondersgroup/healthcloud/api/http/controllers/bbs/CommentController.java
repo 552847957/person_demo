@@ -40,10 +40,6 @@ public class CommentController {
     private TopicService topicService;
 
     @Autowired
-    private UserService userService;
-    @Autowired
-    private BbsMsgHandler bbsMsgHandler;
-    @Autowired
     private BadWordsService badWordsService;
 
     /**
