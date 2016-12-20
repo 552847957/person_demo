@@ -799,7 +799,7 @@ public class FamilyController {
             } else if (id == MemberInfoTemplet.JOGGING) {
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                 if (node != null && node.get("data").get("stepCount") != null) {
-                    templet.setDesc(getDateStr());
+//                    templet.setDesc(getDateStr());
                     templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("data").get("stepCount") + "步")));
                 } else {
                     templet.setDesc("健康计步，领取金币");
@@ -831,6 +831,7 @@ public class FamilyController {
                 if (result != null && result.containsKey("state")) {
                     String date = result.get("date").toString();
                     Boolean state = Boolean.valueOf(result.get("state").toString());
+                    templet.setDesc(date);
                     templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", date, state ? "正常人群" : "风险人群")));
                 } else {
                     templet.setDesc("慢病风险权威测量工具");
@@ -840,6 +841,7 @@ public class FamilyController {
                 if (result != null) {
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
                     templet.setValues(Arrays.asList(new MeasureInfoDTO(null, date, result.getResult())));
+                    templet.setDesc(date);
                 } else {
                     templet.setDesc("专业中医体质评估");
                 }
@@ -1310,7 +1312,7 @@ public class FamilyController {
         boolean result = false;
         boolean isChild = age != null && age <= 6;
         if (type == MemberInfoTemplet.VERIFICATION) {
-            if (isMe && !isVerification && !isChild) {
+            if (isMe && !isVerification) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.DOCTOR_RECORD) {
@@ -1320,7 +1322,7 @@ public class FamilyController {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
-            if (!isStandalone && !isChild) {
+            if (!isStandalone) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BMI) {
