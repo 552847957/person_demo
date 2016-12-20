@@ -502,8 +502,13 @@ public class FamilyController {
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
         String memberId = reader.readString("member_id", false);
-        Boolean recordReadable = reader.readDefaultBoolean("record_readable", false);
-
+        String recordReadableStr = reader.readString("record_readable", false);
+        boolean recordReadable = false;
+        if(recordReadableStr.equals("0") || recordReadableStr.equals("1")){
+            recordReadable = recordReadableStr.equals("1");
+        }else if(recordReadableStr.equalsIgnoreCase("false") || recordReadableStr.equalsIgnoreCase("true")){
+            recordReadable = recordReadableStr.equalsIgnoreCase("true");
+        }
         familyService.switchRecordReadAccess(uid, memberId, recordReadable);
         JsonResponseEntity<Map<String, Boolean>> body = new JsonResponseEntity<>();
         Map<String, Boolean> data = ImmutableMap.of("record_readable", recordReadable);

@@ -515,13 +515,13 @@ public class FamilyServiceImpl implements FamilyService {
             familyMessage.setNotifierUID(uid);
             familyMessage.setReceiverUID(uid);
             
-            title = "健康云用户" + relationName;
+            title = relationName;
             content = "等待对方通过家庭成员申请";
         } else if (type == 14) {
-            familyMessage.setNotifierUID(memberId);
+            familyMessage.setNotifierUID(uid);
             familyMessage.setReceiverUID(memberId);
             RegisterInfo reg = userService.getOneNotNull(memberId);
-            title = "健康云用户" + (reg == null ? "" : reg.getNickname());
+            title = reg.getNickname();
             content = "请求添加你为家人";
         } else if (type == 15) {
         	title = "健康档案";
