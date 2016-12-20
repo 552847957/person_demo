@@ -599,7 +599,7 @@ public class HomeServiceImpl implements HomeService {
             for (UserHealthItemDTO dto : familyMemberHealth.getExceptionItems()) {
                 ftemDTO = new FamilyMemberItemDTO();
                 ftemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-                ftemDTO.setPrompt(dto.getName() + " " + dto.getData() + " " + (dto.getHightAndLow().equals("1") ? "偏高" : "偏低"));
+                ftemDTO.setPrompt(dto.getData() + " " + (dto.getHightAndLow().equals("1") ? "偏高" : "偏低"));
                 break;//家人有多项异常，只取一项
             }
         }
