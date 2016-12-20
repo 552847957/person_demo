@@ -704,7 +704,8 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (fromThirdParty) {
             registerInfo.setNickname(thirdPartyUser.nickname);
         } else if (mobile != null) {
-            registerInfo.setNickname("健康用户" + StringUtils.substring(mobile, 7));
+            String nickName=nickName(StringUtils.substring(mobile, 7));
+            registerInfo.setNickname(nickName);
         } else {
             registerInfo.setNickname(username);
         }
@@ -908,5 +909,15 @@ public class UserAccountServiceImpl implements UserAccountService {
         }
     }
 
+    private String nickName(String number){
+        int count = registerInfoRepository.countNickname(number);
+        String nickName="";
+        if(count>0) {
+            nickName = "健康用户" + number + count;
+        }else {
+            nickName = "健康用户" + number;
+        }
+        return nickName;
+    }
 
 }
