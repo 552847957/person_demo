@@ -707,7 +707,12 @@ public class FamilyController {
             RegisterInfo reg = registerInfoRepository.findOne(regId);
             MemberInfo info = new MemberInfo(getRelationName(memberMap.get(regId)), null, historyMeasureAbnormal(regId));
             info.setId(regId);
-            info.setAvatar(reg == null ? null : reg.getHeadphoto());
+            if(reg == null){
+                AnonymousAccount ano = anonymousAccountRepository.findOne(regId);
+                info.setAvatar(ano.getHeadphoto());
+            }else{
+                info.setAvatar(reg.getHeadphoto());
+            }
             if (info.getMeasures() == null || info.getMeasures().isEmpty()) {
                 continue;
             }
@@ -793,10 +798,9 @@ public class FamilyController {
 
             } else if (id == MemberInfoTemplet.JOGGING) {
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
-                if (node == null && node.get("stepCount") != null) {
+                if (node != null && node.get("data").get("stepCount") != null) {
                     templet.setDesc(getDateStr());
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("stepCount")
-                            .textValue() + "步")));
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("data").get("stepCount") + "步")));
                 } else {
                     templet.setDesc("健康计步，领取金币");
                 }
@@ -1034,6 +1038,9 @@ public class FamilyController {
         String avatar = reader.readString("avatar", true);
 
         AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
+        if(ano == null){
+            throw new CommonException(1000, "用户不存在");
+        }
         if (!StringUtils.isBlank(mobile)) {
             ano.setMobile(mobile);
         }
@@ -1313,7 +1320,7 @@ public class FamilyController {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
-            if (!isStandalone || !isChild) {
+            if (!isStandalone && !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BMI) {

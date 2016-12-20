@@ -59,8 +59,11 @@ public class TopicForH5Controller {
                                                         @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicH5ViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
-
         TopicH5ViewDto viewDto = new TopicH5ViewDto(detailInfo);
+        //默认头像
+        if (StringUtils.isEmpty(viewDto.getAvatar())){
+            viewDto.setAvatar("http://img.wdjky.com/1482215959386?imageView2/1/w/300/h/300");
+        }
         viewDto.dealBadWords(badWordsService);
         //pv+1
         topicService.incTopicPv(topicId);
