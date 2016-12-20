@@ -1,5 +1,12 @@
 package com.wondersgroup.healthcloud.services.user.impl;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
@@ -15,19 +22,26 @@ import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountReposito
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorUserWondersBaseInfoException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorWondersCloudException;
+import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
-import com.wondersgroup.healthcloud.services.user.exception.*;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorAnonymousAccountException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChangeMobileException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorSmsRequestException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserGuestLogoutException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasBeenRegisteredException;
+import com.wondersgroup.healthcloud.services.user.exception.ErrorUserMobileHasNotRegisteredException;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobAccount;
 import com.wondersgroup.healthcloud.utils.easemob.EasemobDoctorPool;
-import com.wondersgroup.healthcloud.utils.wonderCloud.*;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
+import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
+import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.ImageUtils;
+import com.wondersgroup.healthcloud.utils.wonderCloud.RSAUtil;
+import com.wondersgroup.healthcloud.utils.wonderCloud.WondersUser;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -60,6 +74,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Autowired
     private HealthRecordUpdateUtil healthRecordUpdateUtil;
+    
+    @Autowired
+    FriendRelationshipService friendRelationshipService;
 
     @Autowired
     private Debug debug;
@@ -629,6 +646,9 @@ public class UserAccountServiceImpl implements UserAccountService {
         //是否有本地账号 如果没有保存本地
         if (registerInfo == null) {
             registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard, user.type, user.tagid, user.channelType);
+            
+            //用戶注册送100金币
+            friendRelationshipService.register(registerInfo.getRegisterid());
         } else {
             Boolean isVerified = user.isVerified;
             registerInfo.setRegisterid(user.userId);
