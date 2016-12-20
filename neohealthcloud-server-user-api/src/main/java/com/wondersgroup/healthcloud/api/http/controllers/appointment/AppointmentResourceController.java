@@ -83,6 +83,7 @@ public class AppointmentResourceController {
         if(!isOn){
             body.setCode(1);//与前端约定code为1时 是服务未开通
             body.setMsg("该服务暂未开通,敬请期待");
+            return body;
         }
 
         int pageSize = 10;

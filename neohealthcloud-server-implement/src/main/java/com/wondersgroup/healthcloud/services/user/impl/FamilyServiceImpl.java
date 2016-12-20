@@ -452,6 +452,10 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public boolean pushMessage(String uid, String memberId, int type) {
+        return pushMessage(uid, memberId, type, null);
+    }
+    
+    public boolean pushMessage(String uid, String memberId, int type, String relationName) {
         int count =  familyMsgService.getCountByDate(uid, type);
         if(count > 0){
             return true;
@@ -459,7 +463,7 @@ public class FamilyServiceImpl implements FamilyService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity request = new HttpEntity(getMessage(uid, memberId, type), headers);
+        HttpEntity request = new HttpEntity(getMessage(uid, memberId, type, relationName), headers);
         Map map = restTemplate.postForObject(host + SEND_MESSAGE_URL, request, Map.class);
         if ("0".equals(map.get("code").toString())) {
             return true;
@@ -467,7 +471,7 @@ public class FamilyServiceImpl implements FamilyService {
         return false;
     }
 
-    public FamilyMessage getMessage(String uid, String memberId, int type) {
+    public FamilyMessage getMessage(String uid, String memberId, int type, String relationName) {
         FamilyMessage familyMessage = new FamilyMessage();
         familyMessage.setNotifierUID(uid);
         familyMessage.setReceiverUID(memberId);
@@ -510,13 +514,15 @@ public class FamilyServiceImpl implements FamilyService {
         } else if (type == 13) {
             familyMessage.setNotifierUID(uid);
             familyMessage.setReceiverUID(uid);
-            title = "家庭邀请";
-            content = "家庭成员邀请, 您发送一条家庭成员邀请, 请查收";
+            
+            title = "健康云用户" + relationName;
+            content = "等待对方通过家庭成员申请";
         } else if (type == 14) {
             familyMessage.setNotifierUID(memberId);
             familyMessage.setReceiverUID(memberId);
-            title = "家庭邀请";
-            content = "家庭成员邀请, 您收到一条家庭成员邀请, 请查收";
+            RegisterInfo reg = userService.getOneNotNull(memberId);
+            title = "健康云用户" + (reg == null ? "" : reg.getNickname());
+            content = "请求添加你为家人";
         } else if (type == 15) {
         	title = "健康档案";
         	content = "健康云用户" + name + "已关闭查看健康档案权限";

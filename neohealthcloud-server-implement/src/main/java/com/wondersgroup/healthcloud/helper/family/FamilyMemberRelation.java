@@ -85,12 +85,16 @@ public class FamilyMemberRelation {
      */
     public static List<Map<String,Object>> getMemberFootings(){
         List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
-        for (int i = 0; i < relationNames.length; i++) {
+        for (int i = 1; i < relationNames.length; i++) {
             Map<String,Object> map = new TreeMap<String,Object>();
             map.put("relation", i);
             map.put("relation_name", relationNames[i]);
             result.add(map);
         }
+        Map<String,Object> map = new TreeMap<String,Object>();
+        map.put("relation", 0);
+        map.put("relation_name", relationNames[0]);
+        result.add(map);
         return result;
     }
     

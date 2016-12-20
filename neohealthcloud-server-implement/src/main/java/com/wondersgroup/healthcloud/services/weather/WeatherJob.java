@@ -98,7 +98,7 @@ public class WeatherJob {
 
                 ObjectNode aqi = JsonNodeFactory.instance.objectNode();
                 aqi.put("aqi", he.get("aqi").get("city").get("aqi").asText());
-                brief.put("aqi", he.get("aqi").get("city").get("aqi").asText());
+                brief.put("aqi", he.get("aqi").get("city").get("qlty").asText());
                 aqi.put("quality", he.get("aqi").get("city").get("qlty").asText());
                 cache.set("aqi", aqi);
 
