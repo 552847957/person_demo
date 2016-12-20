@@ -797,7 +797,7 @@ public class FamilyController {
                     templet.setDesc("健康计步，领取金币");
                 }
             } else if (id == MemberInfoTemplet.BMI) {
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                List<MeasureInfoDTO> m = getMeasure(measures, id, templet);
                 if (!m.isEmpty()) {
                     templet.setValues(m);
                 } else {
@@ -805,14 +805,14 @@ public class FamilyController {
                 }
 
             } else if (id == MemberInfoTemplet.BLOODPRESSURE) {
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                List<MeasureInfoDTO> m = getMeasure(measures, id, templet);
                 if (!m.isEmpty()) {
                     templet.setValues(m);
                 } else {
                     templet.setDesc("开启科学控压之旅");
                 }
             } else if (id == MemberInfoTemplet.BLOODSUGAR) {
-                List<MeasureInfoDTO> m = getMeasure(measures, id);
+                List<MeasureInfoDTO> m = getMeasure(measures, id, templet);
                 if (!m.isEmpty()) {
                     templet.setValues(m);
                 } else {
@@ -849,7 +849,7 @@ public class FamilyController {
         return response;
     }
 
-    public List<MeasureInfoDTO> getMeasure(List<SimpleMeasure> measures, int type) {
+    public List<MeasureInfoDTO> getMeasure(List<SimpleMeasure> measures, int type, InfoTemplet templet) {
         List<MeasureInfoDTO> list = new ArrayList<MeasureInfoDTO>();
         for (SimpleMeasure measure : measures) {
             MeasureInfoDTO info = new MeasureInfoDTO();
@@ -857,16 +857,19 @@ public class FamilyController {
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
+                templet.setDesc(measure.getTestTime());
             } else if (type == 6 && measure.getType() == 3) {
                 info.setName(measure.getName());
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
+                templet.setDesc(measure.getTestTime());
             } else if (type == 7 && measure.getType() == 2) {
                 info.setName(measure.getName());
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
+                templet.setDesc(measure.getTestTime());
             }
             if (info.getValue() != null) {
                 list.add(info);
@@ -1304,27 +1307,27 @@ public class FamilyController {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
-            if (!isStandalone  && !isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BMI) {
-            if (!isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BLOODSUGAR) {
-            if (!isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.BLOODPRESSURE) {
-            if (!isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.RISKEVALUATE) {
-            if (!isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.HEALTHQUESTION) {
-            if (!isChild) {
+            if (!isStandalone || !isChild) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.CHILD_VACCINE) {
