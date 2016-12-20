@@ -164,7 +164,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         if(StringUtils.isNotBlank(departmentL2Id)){
             sql += " INNER JOIN (" +
                     "select doctor_id,sum(reserve_order_num) cc from app_tb_appointment_doctor_schedule" +
-                    " where (reserve_order_num>0 or ordered_num>0)  and doctor_id is not null" +
+                    " where (reserve_order_num>0 or ordered_num>0)  and doctor_id is not null and `status`= '1' and del_flag = '0' " +
                     " and start_time > '%s' group by doctor_id " +
                     ") s on a.id=s.doctor_id " + commonWhereSql +
                     " and a.department_l2_id = '"+departmentL2Id+"'";
