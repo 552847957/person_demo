@@ -23,7 +23,7 @@ public class FamilyMemberRelation {
     public static Boolean isOther(String code) {
         return "0".equals(code);
     }
-    
+   
     public static String getName(String code) {
         Integer _code = Integer.valueOf(code);
         Preconditions.checkArgument(-1 < _code && _code < 39, "错误的关系代码, 只能为0~5之间的整数");
@@ -33,7 +33,7 @@ public class FamilyMemberRelation {
     public static String getName(String code, String defaultName) {
         Integer _code = Integer.valueOf(code);
         Preconditions.checkArgument(-1 < _code && _code < 39, "错误的关系代码, 只能为0~5之间的整数");
-        return _code == 0 ? defaultName : relationNames[_code];
+        return relationNames[_code];
     }
 
     public static String getOppositeRelation(String code, String gender) {

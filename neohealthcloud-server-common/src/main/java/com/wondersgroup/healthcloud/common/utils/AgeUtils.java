@@ -34,6 +34,9 @@ public class AgeUtils {
                 age--;
             }
         }
+        if(age == 0){
+            age = 1;
+        }
         return age;
     }
 }
