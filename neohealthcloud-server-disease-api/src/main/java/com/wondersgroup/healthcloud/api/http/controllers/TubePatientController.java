@@ -27,6 +27,8 @@ import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDTO;
 import com.wondersgroup.healthcloud.services.diabetes.dto.TubePatientDetailDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/tube/patient")
 public class TubePatientController {
+
+    private static final Logger logger = LoggerFactory.getLogger("info");
 
     @Autowired
     private DiabetesService diabetesService;
@@ -66,6 +70,8 @@ public class TubePatientController {
             @RequestParam String  doctorId,
             @RequestParam(required = false,name = "name") String  patientName,
             @RequestParam(required = false, defaultValue = "1") Integer flag){
+
+        logger.info(" /api/tube/patient/list patientName :"+patientName);
 
         JsonListResponseEntity response = new JsonListResponseEntity();
         DoctorAccount doctor = doctorAccountRepo.findOne(doctorId);
