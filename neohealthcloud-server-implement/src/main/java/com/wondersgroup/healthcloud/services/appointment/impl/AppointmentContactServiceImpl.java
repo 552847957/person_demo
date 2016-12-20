@@ -150,6 +150,7 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
 
             userInfoR.setUserBD(IdcardUtils.getBirthStrByIdCard(contact.getIdcard()));
             userInfoR.setUserPhone(mobile);
+            userInfoR.setUserLoginName(mobile);
             userInfoR.setUserSex(IdcardUtils.getGenderByIdCard(contact.getIdcard()));
             userInfoRequest.userInfoR = userInfoR;
 
