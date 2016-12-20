@@ -131,6 +131,10 @@ public class UserController {
         userAccountService.getVerifyCode(mobile, type);
         String msg = "短信验证码发送成功";
 
+        if (!(StringUtils.isNumeric(mobile) && mobile.length() == 11 && StringUtils.startsWith(mobile, "1"))) {
+            throw new CommonException(1000, "手机号码格式不正确");
+        }
+
         if (type == 1) {
             msg = "验证码已发送，请注意查看短信";
         } else if (type == 3) {

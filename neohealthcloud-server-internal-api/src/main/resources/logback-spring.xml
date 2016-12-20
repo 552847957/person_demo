@@ -3,4 +3,5 @@
     <property name="LOG_HOME" value="/usr/local/dir_samba/HC_logs"/>
     <property name="APP_NAME" value="neohealthcloud-internal-api"/>
     <include resource="logback-wonders-base.xml"/>
+    <include resource="logback-spring-logserver-filemode.xml"/>
 </configuration>

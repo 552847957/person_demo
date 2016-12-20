@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -13,8 +14,10 @@ import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
+import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
 import com.wondersgroup.healthcloud.services.home.apachclient.*;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO;
@@ -25,7 +28,6 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.*;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
-import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -42,6 +44,8 @@ import org.springframework.web.client.RestTemplate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 首页接口服务
@@ -79,6 +83,15 @@ public class HomeServiceImpl implements HomeService {
     RegisterInfoRepository registerInfoRepo;
 
     @Autowired
+    ManageNewsArticleService manageNewsArticleServiceImpl;
+
+
+    @Autowired
+    private AppConfigService appConfigService;
+
+    public  final String  keyWord="app.home.cloudtoplineimage";//离散数据 key
+
+    @Autowired
     private AnonymousAccountRepository anonymousAccountRepository;
 
     private static final String requestStationNearby = "%s/api/exam/station/nearby?";
@@ -105,8 +118,19 @@ public class HomeServiceImpl implements HomeService {
     public CloudTopLineDTO findCloudTopLine() {
         List<CloudTopLine> list = cloudTopLineService.queryAllCloudTopLine();
         CloudTopLineDTO dto = new CloudTopLineDTO();
-        if (!CollectionUtils.isEmpty(list)) {
-            dto.setIconUrl(list.get(0).getIconUrl());
+
+        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+        String iconUrl = null;
+        if(null != rtnAppConfig && StringUtils.isNotBlank(rtnAppConfig.getData())){
+            Pattern p = Pattern.compile("\"iconUrl\":\"(.*?)\"") ;
+            Matcher m = p.matcher(rtnAppConfig.getData());
+            if(m.find()){
+                iconUrl =  m.group(1);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(list) && StringUtils.isNotBlank(iconUrl)) {
+            dto.setIconUrl(iconUrl);
             List<CloudTopLineMsgDTO> message = new ArrayList<CloudTopLineMsgDTO>();
 
             for (CloudTopLine entity : list) {

@@ -1,7 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.cloudtopline;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.api.http.dto.cloudtopline.CloudTopLineViewDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -15,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
 import com.wondersgroup.healthcloud.jpa.repository.cloudtopline.CloudTopLineRepository;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 云头条
@@ -45,6 +46,76 @@ public class CloudTopLineController {
 
     @Autowired
     ManageNewsArticleService manageNewsArticleServiceImpl;
+
+
+    @Autowired
+    private AppConfigService appConfigService;
+
+    public  final String  keyWord="app.home.cloudtoplineimage";//离散数据 key
+
+    @VersionRange
+    @RequestMapping(value = "/manage/addCloudTopLineIcon", method = RequestMethod.POST)
+    public Object addCloudTopLineIcon(@RequestBody(required = false) String body){
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String source="1"; //1-用户端;2-医生端
+        String mainArea = "3101";
+        String iconUrl = reader.readString("iconUrl",false);
+
+        AppConfig appConfig = new AppConfig();
+        appConfig.setData("{\"name\":\"云头条\",\"iconUrl\":\""+iconUrl+"\"}");
+        appConfig.setMainArea(mainArea);
+        appConfig.setKeyWord(keyWord);
+        appConfig.setSource(source);
+        AppConfig exists = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+        if(null != exists){
+            return  new JsonResponseEntity(0, "图标已存在！",null);
+        }else{
+            AppConfig rtnAppConfig = appConfigService.saveAndUpdateAppConfig(appConfig);
+        }
+
+
+        return  new JsonResponseEntity(0, "数据保存成功",null);
+    }
+
+    @VersionRange
+    @RequestMapping(value = "/manage/modifyCloudTopLineIcon", method = RequestMethod.POST)
+    public Object modifyCloudTopLineIcon(@RequestBody(required = false) String body){
+        JsonKeyReader reader = new JsonKeyReader(body);
+         String iconUrl = reader.readString("iconUrl",false);
+
+        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+         if(null != rtnAppConfig){
+             rtnAppConfig.setData("{\"name\":\"云头条\",\"iconUrl\":\""+iconUrl+"\"}");
+             appConfigService.saveAndUpdateAppConfig(rtnAppConfig);
+         }else{
+             return new JsonResponseEntity(0, "数据修改失败，关键字 "+keyWord+" 不存在! ",null);
+         }
+
+        return new JsonResponseEntity(0, "数据修改成功",null);
+    }
+
+
+    @VersionRange
+    @RequestMapping(value = "/manage/getCloudTopLineIcon", method = RequestMethod.GET)
+    public Object getCloudTopLineIcon(){
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map<String,String> map = new HashMap<String,String>();
+
+        AppConfig rtnAppConfig = appConfigService.findSingleAppConfigByKeyWord("3101",null,keyWord);
+
+        if(null != rtnAppConfig && StringUtils.isNotBlank(rtnAppConfig.getData())){
+            Pattern p = Pattern.compile("\"iconUrl\":\"(.*?)\"") ;
+            Matcher m = p.matcher(rtnAppConfig.getData());
+            if(m.find()){
+                map.put("iconUrl",m.group(1));
+            }
+        }
+
+        result.setCode(0);
+        result.setData(map);
+        result.setMsg("数据获取成功");
+        return result;
+    }
 
 
     @VersionRange
@@ -69,8 +140,8 @@ public class CloudTopLineController {
     public Object addCloudTopLine(@RequestBody(required = false) String body){
         JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(body);
-        String name = reader.readString("name",false);
-        String iconUrl = reader.readString("iconUrl",false);
+        String name = reader.readString("name",true);
+        String iconUrl = reader.readString("iconUrl",true);
         String title = reader.readString("title",false);
         String jumpUrl = reader.readString("jumpUrl",true);
         String jumpId = reader.readString("jumpId",true);
@@ -80,9 +151,9 @@ public class CloudTopLineController {
             name = "云头条";
         }
 
-        if(StringUtils.isBlank(iconUrl)){
+        /*if(StringUtils.isBlank(iconUrl)){
             return  new JsonResponseEntity(1, "iconUrl 为空",null);
-        }
+        }*/
 
         if(StringUtils.isBlank(title)){
             return  new JsonResponseEntity(1, "title 为空",null);
@@ -128,8 +199,8 @@ public class CloudTopLineController {
     public Object modifyCloudTopLine(@RequestBody(required = false) String body){
         JsonKeyReader reader = new JsonKeyReader(body);
         Integer id = reader.readInteger("id",false);
-        String name = reader.readString("name",false);
-        String iconUrl = reader.readString("iconUrl",false);
+        String name = reader.readString("name",true);
+        String iconUrl = reader.readString("iconUrl",true);
         String title = reader.readString("title",false);
         String jumpUrl = reader.readString("jumpUrl",true);
         String jumpId = reader.readString("jumpId",true);

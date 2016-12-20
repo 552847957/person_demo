@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+	<property name="LOCAL_APP_NAME" value="neohealthcloud-internal-api" />
+	<property name="SPOOL_DIR" value="/usr/local/dir_samba/HC_logs/bi/logserver/logserver-agent/apilog-src" />
+	<!--
+	<springProperty scope="context" name="LOCAL_APP_NAME" source="spring.application.name" defaultValue=""/>
+	<springProperty scope="context" name="SPOOL_DIR" source="logagent.apilog.src" defaultValue=""/>
+	-->
+
+	<property name="ALL_FILE_NAME_PATTERN" value="${SPOOL_DIR}/%d{yyyyMMdd}/%d{HH}/${LOCAL_APP_NAME}_%d{yyyyMMdd}_%d{HH}_%i.log" />
+	<property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} --- ${LOG_LEVEL_PATTERN:-%5p} --- %-55.55logger{55} --- %m%n"/>
+
+	<!--
+	<property name="CONSOLE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"/>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	-->
+
+	<appender name="filemode" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>
+				${ALL_FILE_NAME_PATTERN}
+			</FileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>1MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<!--
+			<MaxHistory>1</MaxHistory>
+			<cleanHistoryOnStart>true</cleanHistoryOnStart>
+			-->
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="org.springframework" level="INFO"/>
+
+	<!-- 根据环境打日志 -->
+	<springProfile name="default,local,de,te,re,pe1">
+		<logger name="gatelog" level="INFO" additivity="false">
+			<appender-ref ref="filemode"/>
+			<appender-ref ref="CONSOLE"/>
+		</logger>
+	</springProfile>
+
+</included>
