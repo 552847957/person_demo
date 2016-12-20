@@ -80,8 +80,8 @@ public class BbsMsgHandler {
      * 批量审核通过
      */
     public void publishMultTopics(Iterable<Integer> topicIds){
-        String url = jobClientUrl + "/api/bbs/msg/push/dynamic";
-        String[] parms = new String[]{"topic_ids", ArraysUtil.splitInts2Sting(topicIds, ","), "msg_type", "0"};
+        String url = jobClientUrl + "/api/bbs/msg/push/mulitPublishTopic";
+        String[] parms = new String[]{"topic_ids", ArraysUtil.splitInts2Sting(topicIds, ",")};
         requestGet(url, parms);
     }
 

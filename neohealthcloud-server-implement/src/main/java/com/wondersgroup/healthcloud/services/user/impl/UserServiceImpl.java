@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
     private String query = "select i.registerid ,i.`name`,i.nickname ,i.regmobilephone ,i.headphoto , " +
             " i.personcard ,i.gender ,i.identifytype ,i.talkid ,i.talkpwd ,i.tagid, i.identifytype , " +
-            " i.medicarecard ,i.bind_personcard ,ui.age ,ui.height , ui.weight , ui.waist " +
+            " i.medicarecard ,i.bind_personcard ,i.is_bbs_admin, i.ban_status,ui.age ,ui.height , ui.weight , ui.waist " +
             " from app_tb_register_info i " +
             " left join app_tb_register_userinfo ui on i.registerid = ui.registerid ";
 

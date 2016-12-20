@@ -71,6 +71,7 @@ public class ExchangeOrder {
 	@Column(name = "operator_id")
 	private String operatorId; // 操作员ID
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "end_time")
 	private Date endTime; // 结束时间
 

@@ -157,7 +157,7 @@ public class ApiSpecHomeController {
             }
         }
 
-        hotTopic = CollectionUtils.isEmpty(hotTopic) ? new ArrayList<TopicListDto>(0) : hotTopic;
+        hotTopic = CollectionUtils.isEmpty(hotTopic) ? new ArrayList<TopicListDto>(0) : hotTopic.size() > 5 ? hotTopic.subList(0,5):hotTopic;
         //热门话题
         data.put("hotTopic", hotTopic);
 
