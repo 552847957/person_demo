@@ -10,8 +10,6 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +22,6 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/user")
 public class UserController {
-
-    private static final Logger logger = LoggerFactory.getLogger("info");
 
     @Autowired
     private UserService userService;
@@ -65,9 +61,6 @@ public class UserController {
      */
     @GetMapping(path = "/userInfo")
     public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestParam String uid) {
-
-        logger.info("userInfo  uid :"+uid);
-
         JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         Map<String, String> map = Maps.newHashMap();
         try {
