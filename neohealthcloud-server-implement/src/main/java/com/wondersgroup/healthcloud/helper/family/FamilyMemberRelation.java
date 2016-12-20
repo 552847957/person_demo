@@ -94,6 +94,10 @@ public class FamilyMemberRelation {
         return result;
     }
     
+    public static String getSexIndex(String sexName){
+        return SEX_MAN.equals(sexName) ? "1" : "2";
+    }
+    
     public static String getSexByRelationAndSex(String relation, String gender){
         Integer sex = gender == null ? null : Integer.parseInt(gender);
         relation = getIndexByRelationAndSex(relation, sex);
