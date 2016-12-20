@@ -31,7 +31,7 @@ public class WeatherHintUtil {
         if (aqi > 100 || isBadWeather(code)) {
             return getOneHint(prefix + "bad");
         } else {
-            if (0 <= temperture && temperture <= 10) {
+            if (temperture <= 10) {
                 return getOneHint(prefix + "good:0");
             } else if (11 <= temperture && temperture <= 20) {
                 return getOneHint(prefix + "good:10");
@@ -41,7 +41,7 @@ public class WeatherHintUtil {
                 return getOneHint(prefix + "good:30");
             }
         }
-        return new String[]{"",""};
+        return new String[]{"", ""};
     }
 
     private Boolean isBadWeather(Integer code) {
