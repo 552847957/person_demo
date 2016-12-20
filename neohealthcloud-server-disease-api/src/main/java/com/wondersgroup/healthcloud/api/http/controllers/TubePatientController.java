@@ -12,6 +12,7 @@ import com.wondersgroup.healthcloud.api.http.dto.TubePatientDetailEntity;
 import com.wondersgroup.healthcloud.api.http.dto.TubePatientEntity;
 import com.wondersgroup.healthcloud.api.utls.MapHelper;
 import com.wondersgroup.healthcloud.api.utls.Pager;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
@@ -60,29 +61,23 @@ public class TubePatientController {
      * 在管人群列表
      * @return
      */
-    @PostMapping("/list")
-    public Pager list(@RequestBody Pager pager){
-        Map<String,Object> param = pager.getParameter();
-        if(!param.containsKey("doctorId") || null == param.get("doctorId")
-                || StringUtils.isEmpty(param.get("doctorId").toString())){
-            throw new RequestPostMissingKeyException("doctorId");
-        }
-        String doctorId = param.get("doctorId").toString();
+    @GetMapping("/list")
+    public JsonListResponseEntity list(
+            @RequestParam String  doctorId,
+            @RequestParam(required = false,name = "name") String  patientName,
+            @RequestParam(required = false, defaultValue = "1") Integer flag){
+
+        JsonListResponseEntity response = new JsonListResponseEntity();
         DoctorAccount doctor = doctorAccountRepo.findOne(doctorId);
         DoctorInfo doctorInfo = doctorInfoRepo.findOne(doctorId);
         if(null == doctor || null == doctorInfo){
-            return pager;
+            return response;
         }
-        String patientName = null;
-        if(pager.getParameter().containsKey("name") && null != pager.getParameter().get("name") &&
-                !StringUtils.isEmpty(pager.getParameter().get("name").toString())){
-            patientName = pager.getParameter().get("name").toString();
-        }
-
-        List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),patientName,pager.getNumber(),pager.getSize());
+        int pageSize = 10;
+        List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),patientName,flag,pageSize);
         Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName(),patientName);
 
-        if(null != patientName && !StringUtils.isEmpty(patientName)){
+        if(!StringUtils.isEmpty(patientName)){
             total = resource.size();
         }
 
@@ -114,9 +109,13 @@ public class TubePatientController {
             tube.setInterval(mapHelper.get(dto.getInterval().toString()).toString());
         }
 
-        pager.setTotalElements(total);
-        pager.setData(list);
-        return pager;
+        boolean hasMore = false;
+        if(total > pageSize * flag){
+            hasMore = true;
+            flag++;
+        }
+        response.setContent(list,hasMore,null,flag.toString());
+        return response;
     }
 
     @GetMapping("/detail")
