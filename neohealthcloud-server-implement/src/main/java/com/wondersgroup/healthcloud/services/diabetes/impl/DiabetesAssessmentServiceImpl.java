@@ -157,7 +157,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
     @Override
-    public List<DiabetesAssessmentDTO> findAssessment(Integer pageNo, Integer pageSize, Map param) {
+    public List<DiabetesAssessmentDTO> findAssessment(Integer pageNo, Integer pageSize, String name) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("select t1.id, t1.age, t1.gender, t1.height, " +
                 " t1.weight, t1.waist, t1.isIGR, t1.isSit, t1.isFamily, t1.isLargeBaby, t1.isHighPressure, t1.isBloodFat, " +
@@ -166,8 +166,8 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                 " from (select * from app_tb_diabetes_assessment order by create_date desc) t1 ");
         buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
         buffer.append(" where  t1.type = 1 and t1.result = 1 " );
-        if(param.containsKey("name") &&  null != param.get("name") && !StringUtils.isEmpty(param.get("name").toString())){
-            buffer.append(" and t2.name like '%"+ param.get("name")+"%'");
+        if(!StringUtils.isEmpty(name)){
+            buffer.append(" and t2.name like '%"+ name+"%'");
         }
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +
@@ -204,16 +204,16 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
     @Override
-    public Integer findAssessmentTotal(Map param) {
+    public Integer findAssessmentTotal(String name) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("select t1.registerid from " +
                 "   (select * from app_tb_diabetes_assessment order by create_date desc) t1 ");
-        if(param.containsKey("name") &&  null != param.get("name")){
+        if(!StringUtils.isEmpty(name)){
             buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
         }
         buffer.append(" where  t1.type = 1 and t1.result = 1 " );
-        if(param.containsKey("name") &&  null != param.get("name") && !StringUtils.isEmpty(param.get("name").toString())){
-            buffer.append(" and t2.name like '%"+ param.get("name")+"%'");
+        if(!StringUtils.isEmpty(name)){
+            buffer.append(" and t2.name like '%"+ name+"%'");
         }
         buffer.append(" and not exists (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +

@@ -44,8 +44,7 @@ import java.util.Map;
 @RequestMapping("/api/bbs/topic")
 public class TopicController {
 
-    //@Value("${bbs.topic.shareThumb}")
-    private String bbsDefaultShareThumb="http://img.wdjky.com/6022087dfdd751471409614922.png?imageView2";
+    private final String bbsDefaultShareThumb="http://img.wdjky.com/1482201571733?imageView2/1/w/180/h/180";
 
     @Autowired
     private AppUrlH5Utils appUrlH5Utils;

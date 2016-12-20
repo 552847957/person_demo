@@ -1,17 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.RiskScreeningEntity;
-import com.wondersgroup.healthcloud.api.utls.Pager;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,17 +28,35 @@ public class RiskScreeningController {
      * 高危筛查列表
      * @return
      */
-    @PostMapping("/list")
-    public Pager list(@RequestBody Pager pager) {
-        List<DiabetesAssessmentDTO> list = assessmentService.findAssessment(pager.getNumber(),pager.getSize(),pager.getParameter());
+    @GetMapping("/list")
+    public JsonListResponseEntity list(
+            @RequestParam(required = false) String  name,
+            @RequestParam(required = false, defaultValue = "1") Integer flag) {
+        int pageSize = 10;
+        List<DiabetesAssessmentDTO> list = assessmentService.findAssessment(flag,pageSize,name);
         List<RiskScreeningEntity> entityList = Lists.newArrayList();
         for(DiabetesAssessmentDTO assessment : list){
             entityList.add(new RiskScreeningEntity(assessment));
         }
-        Integer total = assessmentService.findAssessmentTotal(pager.getParameter());
-        pager.setData(entityList);
-        pager.setTotalElements(total);
-        return pager;
+        Integer total = assessmentService.findAssessmentTotal(name);
+        boolean hasMore = false;
+        if(total > pageSize * flag){
+            hasMore = true;
+            flag++;
+        }
+        JsonListResponseEntity response = new JsonListResponseEntity();
+        response.setContent(entityList,hasMore,null,flag.toString());
+        return response;
+    }
+
+    /**
+     * 高危筛查待提醒总数
+     * @return
+     */
+    @GetMapping("/total")
+    public JsonResponseEntity list(@RequestParam(required = false) String  name) {
+        Integer total = assessmentService.findAssessmentTotal(name);
+        return new JsonResponseEntity(0,null, ImmutableMap.of("total",total));
     }
 
     /**

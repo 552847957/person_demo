@@ -45,14 +45,13 @@ public interface DiabetesAssessmentService {
      * @param param
      * @return
      */
-    List<DiabetesAssessmentDTO> findAssessment(Integer pageNo, Integer pageSize, Map param);
+    List<DiabetesAssessmentDTO> findAssessment(Integer pageNo, Integer pageSize, String name);
 
     /**
      * 高危筛查列表数
-     * @param param
      * @return
      */
-    Integer findAssessmentTotal(Map param);
+    Integer findAssessmentTotal(String name);
 
     /**
      * 高危筛查列表推送

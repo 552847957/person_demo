@@ -72,6 +72,7 @@ import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitation;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
@@ -762,7 +763,10 @@ public class FamilyController {
             if (regInfo.getBirthday() != null) {
                 info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             } else {
-                info.setAge(userService.getUserInfo(registerId).getAge());
+                UserInfo u = userService.getUserInfo(registerId);
+                if(u != null){
+                    info.setAge(u.getAge());
+                }
             }
             info.setMobile(regInfo.getRegmobilephone());
             birthday = regInfo.getBirthday();
@@ -836,8 +840,8 @@ public class FamilyController {
                     templet.setDesc("专业中医体质评估");
                 }
             } else if (id == MemberInfoTemplet.CHILD_VACCINE) {
-                String date = new SimpleDateFormat("yyyy-MM-dd").format(birthday);
-                templet.setTitle(getLeftDaysByBirth(date) + templet.getTitle());
+//                String date = new SimpleDateFormat("yyyy-MM-dd").format(birthday);
+//                templet.setTitle(getLeftDaysByBirth(date) + templet.getTitle());
                 templet.setDesc("家有宝贝初养成");
             }
             tems.add(templet);
@@ -909,8 +913,10 @@ public class FamilyController {
             info.setSex(GenderConverter.toChinese(ano.getSex()));
             info.setAvatar(ano.getHeadphoto());
             info.setAge(AgeUtils.getAgeByDate(ano.getBirthDate()));
-            if (info.getAge() != null && info.getAge() < 18) {
-                info.setIsChild(true);
+            if (info.getAge() != null) {
+                if(info.getAge() < 18){
+                    info.setIsChild(true);
+                }
             } else {
                 info.setIsChild(ano.getIsChild());
             }
