@@ -505,7 +505,18 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
-        circleRepository.incTopicCountByTopicIds(topicIds);
+        Map<Integer, Integer> circleTopicCount = new HashMap<>();
+        List<Topic> topics = topicRepository.findAll(topicIds);
+        for (Topic topic : topics){
+            if (!circleTopicCount.containsKey(topic.getCircleId())){
+                circleTopicCount.put(topic.getCircleId(), 1);
+            }else {
+                circleTopicCount.put(topic.getCircleId(), circleTopicCount.get(topic.getCircleId()) + 1);
+            }
+        }
+        for (Map.Entry<Integer, Integer> entry : circleTopicCount.entrySet()) {
+            circleRepository.incTopicCount(entry.getKey(), entry.getValue());
+        }
         //lts
         bbsMsgHandler.publishMultTopics(topicIds);
         return 0;

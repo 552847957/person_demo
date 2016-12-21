@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -309,7 +310,9 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         return "您的糖尿病足部风险评估结果为：高度。请到医院进行诊断。";
                 }
             }
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
+            // ignore
+        }catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
         return "您尚未进行糖尿病风险评估，请点击右上角进行评估。";

@@ -60,8 +60,7 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
 
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "update tb_bbs_circle c set c.topic_count=c.topic_count+1 " +
-            " where c.id in ( select t.circle_id from tb_bbs_topic t where t.id in ?1)")
-    void incTopicCountByTopicIds(Iterable<Integer> topicIds);
+    @Query(nativeQuery = true, value = "update tb_bbs_circle t set t.topic_count=t.topic_count+?2 where t.id=?1")
+    void incTopicCount(Integer circleId, int addCount);
 
 }
