@@ -46,7 +46,7 @@ public class DiabetesHomeController {
 
     @RequestMapping(value = "/measureHistory", method = RequestMethod.GET)
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
-                                             @RequestParam String personCard) {
+                                             @RequestParam(required = false) String personCard) {
         JsonResponseEntity result = new JsonResponseEntity();
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
