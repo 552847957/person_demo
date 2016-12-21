@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.controllers.message.list;
 
+import com.wondersgroup.healthcloud.api.utils.MapHelper;
 import com.wondersgroup.healthcloud.api.utils.RequestDataReader;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.bbs.BbsSysMsgService;
 import com.wondersgroup.healthcloud.utils.Page;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,22 @@ public class BbsMsgController {
     BbsSysMsgService dynamicMsgService;
     @Autowired
     BbsSysMsgService sysMsgService;
+
+    /**
+     * 动态消息、通知消息红点提示
+     */
+    @VersionRange
+    @RequestMapping(value = "/message/prompt", method = RequestMethod.GET)
+    public Object getPrompt(@RequestParam Map<String,Object> input){
+        RequestDataReader reader = new RequestDataReader(input);
+        String uid=reader.readString("uid",false);
+        boolean unReadDynamicMsg=dynamicMsgService.countOfUnReadMessages(uid) >0?true:false;
+        boolean unReadSysMsg=sysMsgService.countOfUnReadMessages(uid) >0?true:false;
+        Map<String,Map<String,Object>> data=new HashMap<>();
+        data.put("dynamic", MapHelper.builder().putObj("has_unread",unReadDynamicMsg));
+        data.put("sysnotice", MapHelper.builder().putObj("has_unread",unReadSysMsg));
+        return new JsonResponseEntity<>(0, null, data);
+    }
 
     /**
      * 动态消息列表查询
