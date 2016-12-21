@@ -520,7 +520,7 @@ public class FamilyServiceImpl implements FamilyService {
         } else if (type == 14) {
             familyMessage.setNotifierUID(uid);
             familyMessage.setReceiverUID(memberId);
-            RegisterInfo reg = userService.getOneNotNull(memberId);
+            RegisterInfo reg = userService.getOneNotNull(uid);
             title = reg.getNickname();
             content = "请求添加你为家人";
         } else if (type == 15) {
