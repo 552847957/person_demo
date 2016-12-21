@@ -2,7 +2,6 @@ package com.wondersgroup.healthcloud.jpa.repository.app;
 
 import com.wondersgroup.healthcloud.jpa.entity.app.UserPushInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -26,7 +25,6 @@ public interface UserPushInfoRepository extends JpaRepository<UserPushInfo, Stri
     @Query("select upi from UserPushInfo upi where upi.uid=?1")
     List<UserPushInfo> findByUid(String uid);
 
-    @Modifying
-    @Query(value = "delete from app_tb_user_push_info where cid=?1", nativeQuery = true)
-    void deleteByCid(String cid);
+    @Query("select upi from UserPushInfo upi where upi.cid=?1")
+    List<UserPushInfo> findByCid(String cid);
 }

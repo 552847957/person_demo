@@ -44,7 +44,8 @@ public class PushAreaBindService {
     public void bindInfoAfterSignin(String uid, String cid, String area) {
         unbindInfoAfterSignout(uid);//signout first and then sign in
 
-        userPushInfoRepository.deleteByCid(cid);
+        List<UserPushInfo> byCid = userPushInfoRepository.findByCid(cid);
+        userPushInfoRepository.delete(byCid);
 
         bindTagToClient(uid, cid, area);
         bindUidAndCid(uid, cid, area);
