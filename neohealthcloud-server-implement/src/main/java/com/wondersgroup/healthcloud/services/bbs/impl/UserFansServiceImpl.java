@@ -44,7 +44,7 @@ public class UserFansServiceImpl implements UserFansService {
                 " left join app_tb_register_info user on fans.uid=user.registerid " +
                 " where fans.del_flag='0' and user.del_flag='0' and fans.fans_uid=? " +
                 " ORDER BY fans.update_time desc limit ?,?";
-        Object[] parms = new Object[]{uid, (page-1)*pageSize, pageSize};
+        Object[] parms = new Object[]{uid, (page-1)*pageSize, pageSize+1};
         List<UserBbsInfo> list = jdbcTemplate.query(sql, parms, new BeanPropertyRowMapper<>(UserBbsInfo.class));
         if (null == list || list.isEmpty()) {
             return null;
@@ -61,7 +61,7 @@ public class UserFansServiceImpl implements UserFansService {
                 " left join app_tb_register_info user on fans.fans_uid=user.registerid " +
                 " where fans.del_flag='0' and user.del_flag='0' and fans.uid=? " +
                 " ORDER BY fans.update_time desc limit ?,?";
-        Object[] parms = new Object[]{uid, (page-1)*pageSize, pageSize};
+        Object[] parms = new Object[]{uid, (page-1)*pageSize, pageSize+1};
         List<UserBbsInfo> list = jdbcTemplate.query(sql, parms, new BeanPropertyRowMapper<>(UserBbsInfo.class));
         if (null == list || list.isEmpty()) {
             return null;
