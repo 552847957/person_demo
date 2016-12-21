@@ -309,6 +309,8 @@ public class AppointmentResourceJobController {
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
                 schedule.setDoctorId(doctor.getId());
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                schedule.setStartTime(numSourceInfo.getStartTime());
+                schedule.setEndTime(numSourceInfo.getEndTime());
                 schedule.setHospitalId(doctor.getHospitalId());
                 schedule.setL1DepartmentId(doctor.getL1DepartmentId());
                 schedule.setL2DepartmentId(doctor.getL2DepartmentId());
@@ -323,6 +325,8 @@ public class AppointmentResourceJobController {
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                schedule.setStartTime(numSourceInfo.getStartTime());
+                schedule.setEndTime(numSourceInfo.getEndTime());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
@@ -379,13 +383,14 @@ public class AppointmentResourceJobController {
         try {
             if(localSchedule == null){
                 BeanUtils.copyProperties(numSourceInfo,schedule,"scheduleDate");
-
                 schedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
 
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                schedule.setStartTime(numSourceInfo.getStartTime());
+                schedule.setEndTime(numSourceInfo.getEndTime());
                 schedule.setHospitalId(l2Department.getHospitalId());
                 schedule.setL1DepartmentId(l2Department.getL1DepartmentId());
                 schedule.setL2DepartmentId(l2Department.getId());
@@ -394,12 +399,13 @@ public class AppointmentResourceJobController {
                 schedule.setUpdateDate(new Date());
                 schedule.setId(IdGen.uuid());
                 appointmentService.saveAndFlush(schedule);
-
             }else{
                 BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                schedule.setStartTime(numSourceInfo.getStartTime());
+                schedule.setEndTime(numSourceInfo.getEndTime());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
