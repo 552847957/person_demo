@@ -33,4 +33,8 @@ public class UserBbsInfo {
     private Date birthday;
 
     private String delFlag="0";
+
+    public String getAvatar(){
+        return banStatus == UserConstant.BanStatus.FOREVER ? null : avatar;
+    }
 }

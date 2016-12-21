@@ -83,6 +83,9 @@ public class TopicListDto {
         if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = TopicConstant.AppListStatus.USER_BAN;
         }
+        if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
+            this.avatar = null;
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import lombok.Data;
 
@@ -32,5 +33,8 @@ public class UserHomeDto {
         this.isAdmin = registerInfo.getIsBBsAdmin();
         this.banStatus = registerInfo.getBanStatus();
         this.isIdentify = !registerInfo.getIdentifytype().equals("0");
+        if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
+            this.avatar = null;
+        }
     }
 }
