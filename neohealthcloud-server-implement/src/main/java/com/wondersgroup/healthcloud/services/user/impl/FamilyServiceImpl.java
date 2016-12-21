@@ -132,8 +132,8 @@ public class FamilyServiceImpl implements FamilyService {
         invitationRepository.saveAndFlush(invitation);
 //        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         
-        pushMessage(userId, memberId, 13);
-        pushMessage(userId, memberId, 14);
+        pushMessage(userId, memberId, 13, invitation.getRelationName());
+        pushMessage(userId, memberId, 14, invitation.getRelationName());
         return true;
     }
 
