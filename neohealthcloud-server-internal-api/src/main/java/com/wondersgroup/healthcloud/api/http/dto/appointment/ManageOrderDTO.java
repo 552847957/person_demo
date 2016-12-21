@@ -10,6 +10,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -128,7 +129,6 @@ public class ManageOrderDTO {
             this.scheduleDate = DateFormatter.dateFormat(order.getScheduleDate());
             this.week = DateUtils.getWeekOfDate(order.getScheduleDate());
             this.time = DateFormatter.hourDateFormat(order.getStartTime())+"-"+DateFormatter.hourDateFormat(order.getEndTime());
-            this.fee = order.getVisitCost();
             if(StringUtils.isBlank(order.getVisitLevelCode())){
                 this.visitLevelCode = "其他";
             }else if("1".equals(order.getVisitLevelCode())){
@@ -190,6 +190,15 @@ public class ManageOrderDTO {
                 }
             }
 
+            this.fee = order.getVisitCost();
+            try {
+                String vistCost = order.getVisitCost().replace("元","");
+                this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
+            }catch (Exception e){
+
+            }
+
+            this.fee = this.fee + "元";
 
         }
 
