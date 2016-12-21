@@ -64,7 +64,7 @@ public class TimeAgoUtils {
                 }
             }
         }
-        return new DateTime(time).toString("yy/MM/dd");
+        return new DateTime(time).toString("yyyy-MM-dd");
     }
 
 

@@ -104,7 +104,7 @@ public class FamilyMemberRelation {
     
     public static String getSexByRelationAndSex(String relation, String gender){
         Integer sex = gender == null ? null : Integer.parseInt(gender);
-        relation = getIndexByRelationAndSex(relation, sex);
+//        relation = getIndexByRelationAndSex(relation, sex);
         switch (relation) {
         case "1": return SEX_MAN;
         case "2": return SEX_GIRL;

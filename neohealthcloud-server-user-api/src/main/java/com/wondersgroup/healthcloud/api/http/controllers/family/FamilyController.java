@@ -509,7 +509,8 @@ public class FamilyController {
         }else if(recordReadableStr.equalsIgnoreCase("false") || recordReadableStr.equalsIgnoreCase("true")){
             recordReadable = recordReadableStr.equalsIgnoreCase("true");
         }
-        familyService.switchRecordReadAccess(uid, memberId, recordReadable);
+        //允许对方是否查看，所有这里uid 和memberid 反着放
+        familyService.switchRecordReadAccess(memberId, uid, recordReadable);
         JsonResponseEntity<Map<String, Boolean>> body = new JsonResponseEntity<>();
         Map<String, Boolean> data = ImmutableMap.of("record_readable", recordReadable);
         body.setData(data);
@@ -722,9 +723,9 @@ public class FamilyController {
                 continue;
             }
             dto.getMemberInfos().add(info);
-            if (dto.getMemberInfos().size() >= 3) {
-                break;
-            }
+//            if (dto.getMemberInfos().size() >= 3) {
+//                break;
+//            }
         }
         response.setData(dto);
         response.setMsg("查询成功");
@@ -818,7 +819,7 @@ public class FamilyController {
                 if (!m.isEmpty()) {
                     templet.setValues(m);
                 } else {
-                    templet.setDesc("您的BMI指数是多少?");
+                    templet.setDesc("BMI数值到底多少才健康");
                 }
 
             } else if (id == MemberInfoTemplet.BLOODPRESSURE) {
@@ -831,6 +832,9 @@ public class FamilyController {
             } else if (id == MemberInfoTemplet.BLOODSUGAR) {
                 List<MeasureInfoDTO> m = getMeasure(measures, id, templet);
                 if (!m.isEmpty()) {
+                    for (MeasureInfoDTO dto : m) {
+                        dto.setValue(dto.getValue().replace("血糖", ""));
+                    }
                     templet.setValues(m);
                 } else {
                     templet.setDesc("开启科学控糖之旅");
@@ -1077,6 +1081,9 @@ public class FamilyController {
                 }
             }
             if (!StringUtils.isBlank(sex)) {
+                if("男".equals(sex) || "女".equals(sex)){
+                    sex = "男".equals(sex) ? "1" : "2";
+                }
                 ano.setSex(sex);
             }
             if (!StringUtils.isBlank(nickname)) {
@@ -1085,11 +1092,13 @@ public class FamilyController {
             anonymousAccountRepository.saveAndFlush(ano);
         }
 
-        if (!StringUtils.isBlank(relation)) {
+        if (!StringUtils.isBlank(relation) || !StringUtils.isBlank(nickname)) {
             FamilyMember memb = familyService.getFamilyMemberWithOrder(id, memberId);
             if (memb != null) {
-                memb.setRelation(relation);
-                memb.setRelationName(FamilyMemberRelation.getName(relation));
+                if(relation != null){
+                    memb.setRelation(relation);
+                    memb.setRelationName(FamilyMemberRelation.getName(relation));
+                }
                 if(ano == null && nickname != null){
                     memb.setMemo(nickname);
                 }
@@ -1216,6 +1225,9 @@ public class FamilyController {
                         SimpleMeasure sims = new SimpleMeasure();
                         BeanUtils.populate(sims, map);
                         list.add(sims);
+                        if(list.size() >= 2){
+                            break;
+                        }
                     }
                     return list;
                 }
@@ -1330,7 +1342,7 @@ public class FamilyController {
         } else if (type == MemberInfoTemplet.DOCTOR_RECORD) {
             result = true;
         } else if (type == MemberInfoTemplet.FAMILY_DOCTOR) {
-            if (isMe  && !isChild) {
+            if (isMe  && !isVerification) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
