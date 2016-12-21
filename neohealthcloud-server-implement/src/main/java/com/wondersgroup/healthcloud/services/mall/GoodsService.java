@@ -98,6 +98,7 @@ public class GoodsService {
 		tbGoods.setPicture(goods.getPicture());
 		tbGoods.setIntroduce(goods.getIntroduce());
 		tbGoods.setPrice(goods.getPrice());
+		tbGoods.setEndTime(goods.getEndTime());
 		tbGoods.setSortNo(goods.getSortNo());
 		tbGoods.setUpdateTime(new Date());
 		goodsRepository.save(tbGoods);
