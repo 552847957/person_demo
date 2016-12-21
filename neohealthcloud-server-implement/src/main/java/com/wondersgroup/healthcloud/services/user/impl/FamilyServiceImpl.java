@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.common.utils.ThreadLocalHolder;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
@@ -130,10 +131,13 @@ public class FamilyServiceImpl implements FamilyService {
         invitation.setUpdateBy(userId);
         invitation.setUpdateDate(invitation.getCreateDate());
         invitationRepository.saveAndFlush(invitation);
-//        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         
-        pushMessage(userId, memberId, 13, invitation.getRelationName());
-        pushMessage(userId, memberId, 14, invitation.getRelationName());
+        if(ThreadLocalHolder.getVersionType()){//4.0版本
+            pushMessage(userId, memberId, 13, invitation.getRelationName());
+            pushMessage(userId, memberId, 14, invitation.getRelationName());
+        }else{
+            push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
+        }
         return true;
     }
 
@@ -267,7 +271,10 @@ public class FamilyServiceImpl implements FamilyService {
         }
         RegisterInfo register = findOneRegister(userId, false);
         String message = register.getNickname() + "已与您解除亲情账户绑定";
-        pushMessage(userId, memberId, 12);
+        
+        if(ThreadLocalHolder.getVersionType()){//4.0版本
+            pushMessage(userId, memberId, 12);
+        }
         //        push(memberId, "亲情账户解除绑定", message);
         return true;
     }
@@ -283,8 +290,10 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember.setUpdateDate(new Date());
         memberRepository.saveAndFlush(familyMember);
         
-        if(!readReadable){
-            pushMessage(userId, memberId, 15);
+        if(ThreadLocalHolder.getVersionType()){//4.0版本
+            if(!readReadable){
+                pushMessage(userId, memberId, 15);
+            }
         }
         return true;
     }

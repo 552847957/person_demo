@@ -37,6 +37,7 @@ public class FamilyMemberRelation {
     }
 
     public static String getOppositeRelation(String code, String gender) {
+        gender = gender == null ? "1" : gender;
         Integer _code = Integer.valueOf(code);
         Integer _gender = Integer.valueOf(gender);
         Preconditions.checkArgument(-1 < _code && _code < 39, "错误的关系代码, 只能为0~5之间的整数");
@@ -103,7 +104,7 @@ public class FamilyMemberRelation {
     }
     
     public static String getSexByRelationAndSex(String relation, String gender){
-        Integer sex = gender == null ? null : Integer.parseInt(gender);
+        Integer sex = gender == null ? 1 : Integer.parseInt(gender);
 //        relation = getIndexByRelationAndSex(relation, sex);
         switch (relation) {
         case "1": return SEX_MAN;

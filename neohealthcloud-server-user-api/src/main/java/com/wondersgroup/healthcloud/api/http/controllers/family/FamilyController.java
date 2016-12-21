@@ -66,6 +66,7 @@ import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AgeUtils;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
+import com.wondersgroup.healthcloud.common.utils.ThreadLocalHolder;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
@@ -144,7 +145,7 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<String> inviteMember(@RequestBody String request) {
+    public JsonResponseEntity<String> inviteMember(@RequestHeader("version") String version, @RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
         String mobile = reader.readString("mobile", true);
@@ -179,6 +180,7 @@ public class FamilyController {
                 return body;
             }
         }
+        ThreadLocalHolder.setVersionType(!CommonUtils.compareVersion(version, "4.0"));
         familyService.inviteMember(id, memberId, mobile, memo, relation, relationName, recordReadable);
         body.setMsg("申请提交成功");
         return body;
@@ -427,8 +429,10 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @VersionRange
-    public JsonResponseEntity<String> unbindRelation(@RequestParam String uid,
+    public JsonResponseEntity<String> unbindRelation(@RequestHeader("version") String version, @RequestParam String uid,
             @RequestParam("member_id") String memberId) {
+        ThreadLocalHolder.setVersionType(!CommonUtils.compareVersion(version, "4.0"));
+        
         familyService.unbindFamilyRelation(uid, memberId);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setMsg("解除成功");
@@ -498,7 +502,7 @@ public class FamilyController {
      */
     @RequestMapping(value = "/member/access/record", method = RequestMethod.POST)
     @VersionRange
-    public JsonResponseEntity<Map<String, Boolean>> updateRecordReadAccess(@RequestBody String request) {
+    public JsonResponseEntity<Map<String, Boolean>> updateRecordReadAccess(@RequestHeader("version") String version, @RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String uid = reader.readString("uid", false);
         String memberId = reader.readString("member_id", false);
@@ -510,6 +514,7 @@ public class FamilyController {
             recordReadable = recordReadableStr.equalsIgnoreCase("true");
         }
         //允许对方是否查看，所有这里uid 和memberid 反着放
+        ThreadLocalHolder.setVersionType(!CommonUtils.compareVersion(version, "4.0"));
         familyService.switchRecordReadAccess(memberId, uid, recordReadable);
         JsonResponseEntity<Map<String, Boolean>> body = new JsonResponseEntity<>();
         Map<String, Boolean> data = ImmutableMap.of("record_readable", recordReadable);
@@ -751,7 +756,7 @@ public class FamilyController {
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         if (!uid.equals(memberId) && familyMember == null) {
-            throw new CommonException(1000, "不是您的家庭成员");
+            throw new CommonException(1001, "不是您的家庭成员");
         }
         Date birthday = null;
         if (regInfo == null) {
@@ -1386,10 +1391,6 @@ public class FamilyController {
         }
         return result;
     }
-    
-//    public List<familyMembers> familyMembers(){
-//        
-//    }
     
     public String getNameByFlag(String flag){
         String result = "";
