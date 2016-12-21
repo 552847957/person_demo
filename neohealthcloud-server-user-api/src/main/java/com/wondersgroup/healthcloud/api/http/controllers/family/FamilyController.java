@@ -134,7 +134,7 @@ public class FamilyController {
     private String                           host;
     @Value("${api.vaccine.url}")
     private String                           host_vaccine;
-    private static final String              requestAbnormalHistories = "%s/api/measure/3.0/historyMeasureAbnormal?%s";
+    private static final String              requestAbnormalHistories = "%s/api/measure/3.0/queryHistoryMeasurAbnormal?%s";
     private static final String              requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
 
     /**
@@ -769,7 +769,7 @@ public class FamilyController {
             registerId = regInfo.getRegisterid();
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
-            info.setNikcName(regInfo.getNickname());
+            info.setNikcName(familyMember.getMemo());
             if (regInfo.getBirthday() != null) {
                 info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             } else {
@@ -804,8 +804,12 @@ public class FamilyController {
             } else if (id == MemberInfoTemplet.JOGGING) {
                 JsonNode node = stepCountService.findStepByUserIdAndDate(memberId, new Date());
                 if (node != null && node.get("data").get("stepCount") != null) {
-//                    templet.setDesc(getDateStr());
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("今日", getDateStr(), node.get("data").get("stepCount") + "步")));
+                    int stepCount = Integer.parseInt(node.get("data").get("stepCount").asText());
+                    String resu = stepCount / 20 + "卡路里";
+                    List<MeasureInfoDTO> values = new ArrayList<MeasureInfoDTO>();
+                    values.add(new MeasureInfoDTO("今日", getDateStr(), node.get("data").get("stepCount") + "步"));
+                    values.add(new MeasureInfoDTO("消耗", getDateStr(), resu));
+                    templet.setValues(values);
                 } else {
                     templet.setDesc("健康计步，领取金币");
                 }
@@ -869,6 +873,7 @@ public class FamilyController {
         for (SimpleMeasure measure : measures) {
             MeasureInfoDTO info = new MeasureInfoDTO();
             if (type == 5 && measure.getType() == 0) {
+                info.setName(getNameByFlag(measure.getFlag()));
                 info.setValue(measure.getValue());
                 info.setFlag(measure.getFlag());
                 info.setDate(measure.getTestTime());
@@ -938,7 +943,7 @@ public class FamilyController {
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
             info.setIsVerification(regInfo.verified());
-            info.setNickname(regInfo.getNickname());
+            info.setNickname(familyMember.getMemo());
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
             info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
@@ -1045,47 +1050,49 @@ public class FamilyController {
         String avatar = reader.readString("avatar", true);
 
         AnonymousAccount ano = anonymousAccountRepository.findOne(memberId);
-        if(ano == null){
-            throw new CommonException(1000, "用户不存在");
-        }
-        if (!StringUtils.isBlank(mobile)) {
-            ano.setMobile(mobile);
-        }
-        if (!StringUtils.isBlank(appellation)) {
-            ano.setAppellation(appellation);
-        }
-        if (!StringUtils.isBlank(height)) {
-            ano.setHeight(height);
-        }
-        if (!StringUtils.isBlank(mobile)) {
-            ano.setMobile(mobile);
-        }
-        if (!StringUtils.isBlank(weight)) {
-            ano.setWeight(weight);
-        }
-        if (!StringUtils.isBlank(avatar)) {
-            ano.setHeadphoto(avatar);
-        }
-        if (!StringUtils.isBlank(birthDate)) {
-            try {
-                ano.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate));
-            } catch (ParseException e) {
-                e.printStackTrace();
+        if(ano != null){
+            if (!StringUtils.isBlank(mobile)) {
+                ano.setMobile(mobile);
             }
+            if (!StringUtils.isBlank(appellation)) {
+                ano.setAppellation(appellation);
+            }
+            if (!StringUtils.isBlank(height)) {
+                ano.setHeight(height);
+            }
+            if (!StringUtils.isBlank(mobile)) {
+                ano.setMobile(mobile);
+            }
+            if (!StringUtils.isBlank(weight)) {
+                ano.setWeight(weight);
+            }
+            if (!StringUtils.isBlank(avatar)) {
+                ano.setHeadphoto(avatar);
+            }
+            if (!StringUtils.isBlank(birthDate)) {
+                try {
+                    ano.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (!StringUtils.isBlank(sex)) {
+                ano.setSex(sex);
+            }
+            if (!StringUtils.isBlank(nickname)) {
+                ano.setNickname(nickname);
+            }
+            anonymousAccountRepository.saveAndFlush(ano);
         }
-        if (!StringUtils.isBlank(sex)) {
-            ano.setSex(sex);
-        }
-        if (!StringUtils.isBlank(nickname)) {
-            ano.setNickname(nickname);
-        }
-        anonymousAccountRepository.saveAndFlush(ano);
 
         if (!StringUtils.isBlank(relation)) {
             FamilyMember memb = familyService.getFamilyMemberWithOrder(id, memberId);
             if (memb != null) {
                 memb.setRelation(relation);
                 memb.setRelationName(FamilyMemberRelation.getName(relation));
+                if(ano == null && nickname != null){
+                    memb.setMemo(nickname);
+                }
                 familyMemberRepository.saveAndFlush(memb);
             }
         }
@@ -1357,4 +1364,25 @@ public class FamilyController {
         }
         return result;
     }
+    
+//    public List<familyMembers> familyMembers(){
+//        
+//    }
+    
+    public String getNameByFlag(String flag){
+        String result = "";
+        if(flag != null){
+            if("1".equals(flag)){
+                result = "偏胖";
+            }else if("2".equals(flag)){
+                result = "偏瘦";
+            }else if("3".equals(flag)){
+                result = "肥胖";
+            }else if("4".equals(flag)){
+                result = "过瘦";
+            }
+        }
+        return result;
+    }
+    
 }

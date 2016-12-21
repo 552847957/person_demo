@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.mall;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -197,11 +198,22 @@ public class ExchangeOrderService {
 
 	private String generateOrderId(int orderType) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("0");
-		sb.append(orderType + 1);
-
+		
+		if(orderType == 0){
+			sb.append("02");
+		}else if(orderType == 1) {
+			sb.append("01");
+		}else if(orderType == 2) {
+			sb.append("03");
+		}
+		
 		Date date = new Date();
 		sb.append(DateUtils.format(date, "MMddHHmmssSSS"));
+		
+		Random random = new Random();
+		int randomCode = random.nextInt(90) + 10;
+		sb.append(randomCode);
+		
 		return sb.toString();
 	}
 

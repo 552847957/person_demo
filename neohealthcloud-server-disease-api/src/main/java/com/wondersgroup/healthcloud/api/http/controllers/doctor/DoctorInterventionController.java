@@ -1,12 +1,16 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by zhaozhenxing on 2016/12/07.
@@ -15,6 +19,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/doctorIntervention")
 public class DoctorInterventionController {
+
+    @Value("${internal.api.service.measure.url}")
+    private String host;
+
+    private static final String requestInterventionSimpleListPath = "%s/api/measure/intervention/simpleList";
+    private static final String requestInterventionDetailListPath = "%s/api/measure/intervention/detailList";
+
+    private RestTemplate template = new RestTemplate();
+
+
     @Autowired
     private DoctorInterventionService doctorInterventionService;
 
@@ -47,4 +61,34 @@ public class DoctorInterventionController {
         return result;
     }
 
+    @RequestMapping(value = "/intervention/simpleList", method = RequestMethod.GET)
+    public JsonResponseEntity simpleList() {
+        String url = String.format(requestInterventionSimpleListPath, host);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("access-token", "version3.0");
+        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            if (0 == (int) response.getBody().get("code")) {
+                return new JsonResponseEntity<>(0, null, response.getBody().get("data"));
+            }
+        }
+        return new JsonResponseEntity<>(1000, "数据获取失败");
+    }
+
+    @RequestMapping(value = "/intervention/detailList", method = RequestMethod.GET)
+    public JsonResponseEntity detailList(@RequestParam String registerId) {
+        String url = String.format(requestInterventionDetailListPath, host);
+        url += "?id=" + registerId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("access-token", "version3.0");
+        ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            if (0 == (int) response.getBody().get("code")) {
+                return new JsonResponseEntity<>(0, null, response.getBody().get("data"));
+            }
+        }
+        return new JsonResponseEntity<>(1000, "数据获取失败");
+    }
 }
