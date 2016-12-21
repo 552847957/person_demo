@@ -65,6 +65,7 @@ public class GoodsService {
 		goods.setCreateTime(date);
 		goods.setUpdateTime(date);
 		goods.setStatus(0);
+		goods.setOrderType(goods.getType() == 1 ? 0 : 1);
 		goods = goodsRepository.save(goods);
 
 		if (goods.getType() == 0) {
