@@ -16,11 +16,13 @@ public interface UserFansService {
 
     /**
      * 获取uid关注的用户列表
+     * 返回pageSize+1条数据(用于判断是否有下一页)
      */
     List<UserBbsInfo> getAttentUsers(String uid, int page, int pageSize);
 
     /**
      * 获取uid的粉丝列表
+     * 返回pageSize+1条数据(用于判断是否有下一页)
      */
     List<UserBbsInfo> getFansUsers(String uid, int page, int pageSize);
 
