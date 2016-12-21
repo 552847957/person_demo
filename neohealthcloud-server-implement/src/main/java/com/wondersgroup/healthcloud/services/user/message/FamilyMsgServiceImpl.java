@@ -165,7 +165,7 @@ public class FamilyMsgServiceImpl implements MsgService{
 
     @Override
     public int getCountByDate(String uid, int type) {
-        String query = "select count(*) from app_tb_family_message where notifier_uid = '" + uid + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = now()";
+        String query = "select count(*) from app_tb_family_message where receiver_uid = '" + uid + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = DATE_FORMAT(now(),'%Y-%c-%d')";
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
