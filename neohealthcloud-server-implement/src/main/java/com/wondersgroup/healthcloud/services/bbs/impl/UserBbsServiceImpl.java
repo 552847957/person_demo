@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs.impl;
 
 import java.util.*;
 
+import com.wondersgroup.healthcloud.common.utils.StringsUtils;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,9 +170,7 @@ public class UserBbsServiceImpl implements UserBbsService {
                 AdminAccountDto dto = new AdminAccountDto();
                 dto.setAvatar(account.getHeadphoto());
                 dto.setId(account.getRegisterid());
-                dto.setNickname(account.getNickname());
-                // 昵称若超出指定长度，拼接省略号，此处有BUG
-                //dto.setNickname(StringUtils.length(account.getNickname()) > 5 ? account.getNickname().substring(5)+"…" : account.getNickname());
+                dto.setNickname(StringsUtils.subString(account.getNickname(), 5, "…"));
                 dtoList.add(dto);
             }
         }
