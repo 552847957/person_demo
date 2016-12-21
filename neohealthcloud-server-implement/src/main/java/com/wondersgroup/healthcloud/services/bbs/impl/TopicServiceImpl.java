@@ -424,6 +424,7 @@ public class TopicServiceImpl implements TopicService {
         for (Topic topic : topics) {
             TopicListDto listDto = new TopicListDto(topic);
             listDto.setTitle(badWordsService.dealBadWords(listDto.getTitle()));
+            listDto.setContent(badWordsService.dealBadWords(listDto.getContent()));
             if (userInfos.containsKey(topic.getUid())){
                 RegisterInfo userInfo = userInfos.get(topic.getUid());
                 listDto.mergeUserInfo(userInfo);

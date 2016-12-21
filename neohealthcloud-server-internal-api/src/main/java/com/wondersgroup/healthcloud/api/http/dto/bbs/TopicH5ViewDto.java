@@ -67,9 +67,14 @@ public class TopicH5ViewDto {
 
     public void dealBadWords(BadWordsService badWordsService){
         this.title = badWordsService.dealBadWords(this.title);
-        if (topicContents != null){
+        if (null != topicContents){
             for (TopicDetailDto.TopicContentInfo topicContentInfo : topicContents){
                 topicContentInfo.setContent(badWordsService.dealBadWords(topicContentInfo.getContent()));
+            }
+        }
+        if (null != voteInfo && !voteInfo.getVoteItems().isEmpty()){
+            for (VoteInfoDto.VoteItemInfo voteItemInfo : voteInfo.getVoteItems()){
+                voteItemInfo.setItemContent(badWordsService.dealBadWords(voteItemInfo.getItemContent()));
             }
         }
     }
