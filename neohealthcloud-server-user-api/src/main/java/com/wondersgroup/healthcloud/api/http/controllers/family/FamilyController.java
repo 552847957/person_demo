@@ -769,7 +769,7 @@ public class FamilyController {
             registerId = regInfo.getRegisterid();
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
-            info.setNikcName(familyMember.getMemo());
+            info.setNikcName(uid.equals(memberId) ? regInfo.getNickname() : familyMember.getMemo());
             if (regInfo.getBirthday() != null) {
                 info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
             } else {
