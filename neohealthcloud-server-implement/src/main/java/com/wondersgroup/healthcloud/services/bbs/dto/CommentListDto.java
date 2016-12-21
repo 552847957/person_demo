@@ -76,6 +76,7 @@ public class CommentListDto {
         this.isIdentify = !registerInfo.getIdentifytype().equals("0");
         if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.status = CommentConstant.AppListStatus.USER_BAN;
+            this.avatar = null;
         }
     }
 
@@ -99,6 +100,7 @@ public class CommentListDto {
             referCommentInfo.setIsIdentify(!referUserInfo.getIdentifytype().equals("0"));
             if (referUserInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
                 referCommentInfo.setStatus(CommentConstant.AppListStatus.USER_BAN);
+                referCommentInfo.setAvatar(null);
             }
             referCommentInfo.setIsAdmin(referUserInfo.getIsBBsAdmin()==1 ? 1 : 0);
         }

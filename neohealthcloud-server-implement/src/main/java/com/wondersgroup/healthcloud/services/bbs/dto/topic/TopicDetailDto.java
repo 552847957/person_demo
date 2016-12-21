@@ -100,6 +100,9 @@ public class TopicDetailDto {
         if (registerInfo.getBanStatus() != UserConstant.BanStatus.OK){
             this.userCommentStatus = UserConstant.UserCommentStatus.USER_BAN;
         }
+        if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
+            this.avatar = null;
+        }
     }
 
     public void mergeTopicContents(List<TopicContent> topicContentList){
