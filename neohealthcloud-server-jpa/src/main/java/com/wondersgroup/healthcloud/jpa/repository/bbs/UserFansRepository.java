@@ -32,7 +32,7 @@ public interface UserFansRepository extends JpaRepository<UserFans, Integer> {
     /**
      * 从filterUids筛选出我的粉丝
      */
-    @Query("select t.uid from UserFans t where t.uid = ?1 and t.fansUid in ?2 and t.delFlag='0'")
+    @Query("select t.fansUid from UserFans t where t.uid = ?1 and t.fansUid in ?2 and t.delFlag='0'")
     List<String> filterMyFans(String myUid, List<String> filterUids);
 
 }
