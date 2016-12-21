@@ -1357,7 +1357,7 @@ public class FamilyController {
         } else if (type == MemberInfoTemplet.DOCTOR_RECORD) {
             result = true;
         } else if (type == MemberInfoTemplet.FAMILY_DOCTOR) {
-            if (isMe  && !isVerification) {
+            if (isMe) {
                 result = true;
             }
         } else if (type == MemberInfoTemplet.JOGGING) {
