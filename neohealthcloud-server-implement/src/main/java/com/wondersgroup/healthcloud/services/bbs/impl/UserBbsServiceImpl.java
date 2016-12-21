@@ -170,8 +170,8 @@ public class UserBbsServiceImpl implements UserBbsService {
                 dto.setAvatar(account.getHeadphoto());
                 dto.setId(account.getRegisterid());
                 dto.setNickname(account.getNickname());
-                // 昵称若超出指定长度，拼接省略号
-                dto.setNickname(StringUtils.length(account.getNickname()) > 5 ? account.getNickname().substring(5)+"…" : account.getNickname());
+                // 昵称若超出指定长度，拼接省略号，此处有BUG
+                //dto.setNickname(StringUtils.length(account.getNickname()) > 5 ? account.getNickname().substring(5)+"…" : account.getNickname());
                 dtoList.add(dto);
             }
         }
