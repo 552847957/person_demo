@@ -27,6 +27,6 @@ public interface UserPushInfoRepository extends JpaRepository<UserPushInfo, Stri
     List<UserPushInfo> findByUid(String uid);
 
     @Modifying
-    @Query("delete UserPushInfo upi where upi.cid=?1")
+    @Query(value = "delete from app_tb_user_push_info where cid=?1", nativeQuery = true)
     void deleteByCid(String cid);
 }
