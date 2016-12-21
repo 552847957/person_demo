@@ -1,10 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,7 @@ public class DoctorInterventionController {
 
     private static final String requestInterventionSimpleListPath = "%s/api/measure/intervention/simpleList";
     private static final String requestInterventionDetailListPath = "%s/api/measure/intervention/detailList";
+    private static final String requestInterventionUpdatePath = "%s/api/measure/intervention/update";
 
     private RestTemplate template = new RestTemplate();
 
@@ -51,14 +54,26 @@ public class DoctorInterventionController {
     @RequestMapping(value = "/saveAndUpdate", method = RequestMethod.POST)
     public JsonResponseEntity saveAndUpdate(@RequestBody DoctorIntervention doctorIntervention) {
         JsonResponseEntity result = new JsonResponseEntity();
-        DoctorIntervention rtnDoctorIntervention = doctorInterventionService.saveAndUpdate(doctorIntervention);
-        if(rtnDoctorIntervention != null) {
-            result.setMsg("数据保存成功！");
-        } else {
-            result.setCode(1000);
-            result.setMsg("数据保存失败！");
+
+        if (doctorIntervention == null || StringUtils.isEmpty(doctorIntervention.getPatientId())) {
+            return new JsonResponseEntity<>(1000, "患者ID不能为空！");
         }
-        return result;
+        Map<String, Object> paras = new HashMap<>();
+        paras.put("registerId", doctorIntervention.getPatientId());
+        String url = String.format(requestInterventionUpdatePath, host);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("access-token", "version3.0");
+        ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            if (0 == (int) response.getBody().get("code")) {
+                DoctorIntervention rtnDoctorIntervention = doctorInterventionService.saveAndUpdate(doctorIntervention);
+                if(rtnDoctorIntervention != null) {
+                    return new JsonResponseEntity<>(0, "干预成功！");
+                }
+            }
+        }
+        return new JsonResponseEntity<>(1000, "干预失败");
     }
 
     @RequestMapping(value = "/intervention/simpleList", method = RequestMethod.GET)
@@ -79,7 +94,7 @@ public class DoctorInterventionController {
     @RequestMapping(value = "/intervention/detailList", method = RequestMethod.GET)
     public JsonResponseEntity detailList(@RequestParam String registerId) {
         String url = String.format(requestInterventionDetailListPath, host);
-        url += "?id=" + registerId;
+        url += "?registerId=" + registerId;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         headers.add("access-token", "version3.0");

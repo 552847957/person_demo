@@ -132,8 +132,8 @@ public class FamilyServiceImpl implements FamilyService {
         invitationRepository.saveAndFlush(invitation);
 //        push(other.getRegisterid(), "家庭成员邀请", "您收到一条家庭成员邀请, 请查收");
         
-        pushMessage(userId, memberId, 13);
-        pushMessage(userId, memberId, 14);
+        pushMessage(userId, memberId, 13, invitation.getRelationName());
+        pushMessage(userId, memberId, 14, invitation.getRelationName());
         return true;
     }
 
@@ -520,7 +520,7 @@ public class FamilyServiceImpl implements FamilyService {
         } else if (type == 14) {
             familyMessage.setNotifierUID(uid);
             familyMessage.setReceiverUID(memberId);
-            RegisterInfo reg = userService.getOneNotNull(memberId);
+            RegisterInfo reg = userService.getOneNotNull(uid);
             title = reg.getNickname();
             content = "请求添加你为家人";
         } else if (type == 15) {

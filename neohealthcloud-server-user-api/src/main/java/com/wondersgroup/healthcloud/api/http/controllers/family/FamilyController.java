@@ -702,7 +702,7 @@ public class FamilyController {
 
         List<FamilyMemberInvitation> invitations = invitationRepository.invitationList(uid, 3);
         for (FamilyMemberInvitation invitation : invitations) {
-            RegisterInfo register = userService.getOneNotNull(invitation.getMemberId());
+            RegisterInfo register = userService.getOneNotNull(invitation.getUid());
             dto.getInvitsations().add(new FamilyMemberInvitationAPIEntity(register, invitation, uid));
         }
 
@@ -917,6 +917,7 @@ public class FamilyController {
         info.setIsVerification(false);
         RegisterInfo regInfo = userService.findOne(memberId);
         FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
+        FamilyMember familyMember2 = familyService.getFamilyMemberWithOrder(memberId, uid);
         if (familyMember == null) {
             throw new CommonException(1000, "不是您的家庭成员");
         }
@@ -944,6 +945,11 @@ public class FamilyController {
                 info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
             }
         } else {
+            UserInfo userInfo = userService.getUserInfo(memberId);
+            if(userInfo != null){
+                info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight()) : "");
+                info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight()) : "");
+            }
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
             info.setIsVerification(regInfo.verified());
@@ -956,7 +962,11 @@ public class FamilyController {
             }
         }
         info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
-        info.setIsAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
+        if(familyMember2 != null){
+            info.setIsAccess(FamilyMemberAccess.recordReadable(familyMember2.getAccess()));
+        }else{
+            info.setIsAccess(false);
+        }
         response.setData(info);
         response.setMsg("查询成功");
         return response;

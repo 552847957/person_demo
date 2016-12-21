@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs.impl;
 
 import com.wondersgroup.healthcloud.common.utils.ArraysUtil;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.common.utils.StringsUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
@@ -324,12 +325,7 @@ public class TopicServiceImpl implements TopicService {
 
     private Topic initTopicBaseInfo(TopicPublishDto publishInfo, Topic oldTopic){
         TopicPublishDto.TopicContent firstContent = publishInfo.getTopicContents().get(0);
-        String intro;
-        if (firstContent.getContent().length() > 80) {
-            intro = firstContent.getContent().substring(0, 80);
-        } else {
-            intro = firstContent.getContent();
-        }
+        String intro = StringsUtils.subString(firstContent.getContent(), 80);
         List<String> allImgs = getAllImgsFromPublish(publishInfo);
         String topicImgs = "";//列表只显示3张图片
         int imgCount = allImgs.size();
@@ -509,6 +505,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
+        circleRepository.incTopicCountByTopicIds(topicIds);
         //lts
         bbsMsgHandler.publishMultTopics(topicIds);
         return 0;

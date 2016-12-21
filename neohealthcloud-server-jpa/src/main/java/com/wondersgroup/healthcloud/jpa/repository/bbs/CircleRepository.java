@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -51,4 +52,16 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
             " WHERE bc.is_recommend=1 AND buc.del_flag=0 AND buc.uid= ?1 GROUP BY bc.id" +
             ")",nativeQuery=true)
     List<Circle> findGuessLikeCircles(String uid);
+
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "update tb_bbs_circle t set t.topic_count=t.topic_count+1 where t.id=?1")
+    void incTopicCount(Integer circleId);
+
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "update tb_bbs_circle c set c.topic_count=c.topic_count+1 " +
+            " where c.id in ( select t.circle_id from tb_bbs_topic t where t.id in ?1)")
+    void incTopicCountByTopicIds(Iterable<Integer> topicIds);
+
 }
