@@ -505,6 +505,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public int verifyPass(Iterable<Integer> topicIds) {
         topicRepository.multSettingStatus(TopicConstant.Status.OK, topicIds);
+        circleRepository.incTopicCountByTopicIds(topicIds);
         //lts
         bbsMsgHandler.publishMultTopics(topicIds);
         return 0;
