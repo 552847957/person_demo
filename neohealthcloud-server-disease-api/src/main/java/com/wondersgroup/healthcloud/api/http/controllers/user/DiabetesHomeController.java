@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.api.utls.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +41,8 @@ public class DiabetesHomeController {
     private UserService userService;
     @Autowired
     private AppUrlH5Utils h5Utils;
+    @Autowired
+    private DiabetesAssessmentService diabetesAssessmentService;
 
     @RequestMapping(value = "/measureHistory", method = RequestMethod.GET)
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
@@ -61,7 +64,7 @@ public class DiabetesHomeController {
                         Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
                         Map<String, Object> dataMap = new HashMap<>();
                         DateTime today = new DateTime(new Date());
-                        List<JsonNode> lastWeekData = new ArrayList<>();
+                        //List<JsonNode> lastWeekData = new ArrayList<>();
                         while (contentJson.hasNext()) {
                             JsonNode jsonNode = contentJson.next();
                             String date = jsonNode.get("date").asText();
@@ -69,7 +72,7 @@ public class DiabetesHomeController {
                                     && (new DateTime(date).isAfter(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     || new DateTime(date).isEqual(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis()))
                                     && new DateTime(date).isBefore(new DateTime(today).plusDays(1).withTimeAtStartOfDay())) {
-                                lastWeekData.add(jsonNode);
+                                //lastWeekData.add(jsonNode);
                             }
 
                             Iterator<JsonNode> dataJson = jsonNode.get("data").iterator();
@@ -97,7 +100,11 @@ public class DiabetesHomeController {
                                 }
                             }
                         }
-                        dataMap.put("lastWeekData", lastWeekData);
+                        String assessmentResult = diabetesAssessmentService.getLastAssessmentResult(url);
+                        if (StringUtils.isNotEmpty(assessmentResult)) {
+                            dataMap.put("assessmentResult", assessmentResult);
+                        }
+                        //dataMap.put("lastWeekData", lastWeekData);
                         result.setData(dataMap);
                     }
                 }
