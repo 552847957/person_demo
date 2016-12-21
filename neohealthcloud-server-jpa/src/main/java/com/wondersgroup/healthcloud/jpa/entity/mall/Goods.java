@@ -38,7 +38,7 @@ public class Goods {
 	private Integer type; // 商品类型 0：虚拟物品；1：单品； 2：服务包
 	
 	@Column(name = "order_type")
-	private Integer orderType; //单纯是为了后台排序业务，单品商品排在最前面，0：；单品1：其他
+	private Integer orderType; //单纯是为了后台排序业务，单品商品排在最前面，0：；单品1：虚拟；2：服务包
 
 	private String area; // 区域
 

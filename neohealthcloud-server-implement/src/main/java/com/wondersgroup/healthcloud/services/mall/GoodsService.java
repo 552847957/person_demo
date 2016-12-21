@@ -17,7 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -65,7 +67,7 @@ public class GoodsService {
 		goods.setCreateTime(date);
 		goods.setUpdateTime(date);
 		goods.setStatus(0);
-		goods.setOrderType(goods.getType() == 1 ? 0 : 1);
+		goods.setOrderType(getOrderType(goods.getType()));
 		goods = goodsRepository.save(goods);
 
 		if (goods.getType() == 0) {
@@ -109,13 +111,12 @@ public class GoodsService {
 		int page = searchForm.getFlag();
 		String property = searchForm.getProperty();
 		Direction direction = Direction.fromString(searchForm.getDirection());
-		List<String> properties = new ArrayList<>();
-		if("stockNum".equals(property)){
-			properties.add("orderType");
-		}
-		properties.add(property);
-		
-		PageRequest pageable = new PageRequest(page, searchForm.getPageSize(), direction, properties.toArray(new String[properties.size()]));
+
+		List<Order> orders = new ArrayList<>();
+		orders.add(new Sort.Order(Direction.ASC, "orderType"));
+		orders.add(new Sort.Order(direction, property));
+
+		PageRequest pageable = new PageRequest(page, searchForm.getPageSize(), new Sort(orders));
 
 		Specification<Goods> specification = buildSpecification(searchForm);
 		return goodsRepository.findAll(specification, pageable);
@@ -139,7 +140,7 @@ public class GoodsService {
 
 	public void save(Goods goods) {
 		int status = goods.getStatus();
-		//上架時判斷商品過期時間
+		// 上架時判斷商品過期時間
 		if (status == 1) {
 			Date endTime = goods.getEndTime();
 			if (endTime != null && endTime.before(new Date())) {
@@ -227,6 +228,24 @@ public class GoodsService {
 			}
 		}
 
+	}
+
+	private Integer getOrderType(Integer goodsType) {
+		Integer orderType = null;
+		switch (goodsType) {
+		case 0:
+			orderType = 1;
+			break;
+		case 1:
+			orderType = 0;
+			break;
+		case 2:
+			orderType = 2;
+			break;
+		default:
+			break;
+		}
+		return orderType;
 	}
 
 }
