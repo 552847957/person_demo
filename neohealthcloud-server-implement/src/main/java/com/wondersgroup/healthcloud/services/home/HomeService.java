@@ -33,9 +33,10 @@ public interface HomeService {
     /**
      * 家庭健康栏目
      * @param registerInfo 当前登录用户
+     * @param paramMap 参数
      * @return
      */
-    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String,Object> urlMap);
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String,Object> paramMap);
 
 
     /**

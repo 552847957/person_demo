@@ -150,10 +150,10 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String, Object> urlMap) {
-        String apiMeasureUrl = String.valueOf(urlMap.get("apiMeasureUrl"));
-        String apiUserhealthRecordUrl = String.valueOf(urlMap.get("apiUserhealthRecordUrl"));
-        String apiVaccineUrl = String.valueOf(urlMap.get("apiVaccineUrl"));
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String, Object> paramMap) {
+        String apiMeasureUrl = String.valueOf(paramMap.get("apiMeasureUrl"));
+        String apiUserhealthRecordUrl = String.valueOf(paramMap.get("apiUserhealthRecordUrl"));
+        String apiVaccineUrl = String.valueOf(paramMap.get("apiVaccineUrl"));
 
         if (StringUtils.isBlank(apiMeasureUrl) || StringUtils.isBlank(apiUserhealthRecordUrl) || StringUtils.isBlank(apiVaccineUrl)) {
             logger.info("apiMeasureUrl or apiUserhealthRecordUrl or apiVaccineUrl is blank ", apiMeasureUrl, apiUserhealthRecordUrl, apiVaccineUrl);
@@ -170,7 +170,7 @@ public class HomeServiceImpl implements HomeService {
         Map<String, Object> input = new HashMap<String, Object>();
         input.put("registerId", registerInfo.getRegisterid());
         input.put("sex", registerInfo.getGender());
-        input.put("moreThanDays", "7");//个人取一周的数据
+        input.put("moreThanDays",  (null == paramMap.get("userLessThanDays")) ? "7":paramMap.get("userLessThanDays"));//个人取一周的数据
         input.put("limit", "10");
         input.put("personCard", "");
         input.put("cardType", "");
@@ -212,7 +212,7 @@ public class HomeServiceImpl implements HomeService {
                     Map<String, Object> familyMemberInput = new HashMap<String, Object>();
                     familyMemberInput.put("registerId", userInfoMap.get("registerid"));
                     familyMemberInput.put("sex", userInfoMap.get("gender"));//性别
-                    familyMemberInput.put("moreThanDays", "30");//家人取一个月的数据
+                    familyMemberInput.put("moreThanDays", (null == paramMap.get("familyLessThanDays")) ? "30":paramMap.get("familyLessThanDays"));//家人取一个月的数据
                     familyMemberInput.put("limit", "10");
                     familyMemberInput.put("personCard", "");
                     familyMemberInput.put("cardType", "");
@@ -229,8 +229,9 @@ public class HomeServiceImpl implements HomeService {
                         familyMemberDangerousItemList.add(fItemDTO);
                     }
 
-                    //4 育苗信息
-                    FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl);
+                    //4 育苗信息(默认30天内)
+                    Integer vaccineLessThanDays = Integer.parseInt(String.valueOf((null == paramMap.get("vaccineLessThanDays")) ? "30":paramMap.get("vaccineLessThanDays")));
+                    FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl,vaccineLessThanDays);
                     if (null != vaccinetemDTO) {
                         familyMemberVaccinetemList.add(vaccinetemDTO);
                     }
@@ -627,7 +628,7 @@ public class HomeServiceImpl implements HomeService {
      * @param fm
      * @return
      */
-    private FamilyMemberItemDTO buildFamilyVaccineDate(FamilyMember fm, String apiVaccineUrl) {
+    private FamilyMemberItemDTO buildFamilyVaccineDate(FamilyMember fm, String apiVaccineUrl,Integer vaccineLessThanDays) {
         FamilyMemberItemDTO fItemDTO = null;
         String birthDate = getBirthDay(fm); // 计算出孩子的生日 16岁以下的,不是大人
         if (StringUtils.isBlank(birthDate)) {
@@ -638,9 +639,14 @@ public class HomeServiceImpl implements HomeService {
         input.put("birthday", birthDate);
         String leftDays = healthApiClient.getLeftDaysByBirth(apiVaccineUrl, input);
         if (StringUtils.isNotBlank(leftDays)) {
-            fItemDTO = new FamilyMemberItemDTO();
-            fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt("疫苗接种 " + leftDays + "天后");
+            Integer leftDays_  = Integer.parseInt(leftDays);
+
+            if(leftDays_ < vaccineLessThanDays){
+                fItemDTO = new FamilyMemberItemDTO();
+                fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+                fItemDTO.setPrompt("疫苗接种 " + leftDays_ + "天后");
+            }
+
         }
 
         return fItemDTO;
