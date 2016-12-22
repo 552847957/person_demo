@@ -94,12 +94,9 @@ public class TopicDetailDto {
         this.uid = registerInfo.getRegisterid();
         this.avatar = registerInfo.getHeadphoto();
         this.nickName = registerInfo.getNickname();
+        this.banStatus = registerInfo.getBanStatus();
         this.isAdmin = registerInfo.getIsBBsAdmin();
         this.isIdentify = !registerInfo.getIdentifytype().equals("0");
-        //发帖用户被禁言 不可以回复
-        if (registerInfo.getBanStatus() != UserConstant.BanStatus.OK){
-            this.userCommentStatus = UserConstant.UserCommentStatus.USER_BAN;
-        }
         if (registerInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
             this.avatar = null;
         }

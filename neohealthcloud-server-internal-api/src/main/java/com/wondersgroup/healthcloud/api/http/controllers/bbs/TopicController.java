@@ -62,6 +62,12 @@ public class TopicController {
     public Pager list(@RequestBody Pager pager, @RequestHeader String appUid){
         Map<String, Object> parms = pager.getParameter();
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria(parms);
+        if (null != searchCriteria.getIsBest() && !searchCriteria.getIsBest()){
+            searchCriteria.setIsBest(null);
+        }
+        if (null != searchCriteria.getIsTop() && !searchCriteria.getIsTop()){
+            searchCriteria.setIsTop(null);
+        }
         if (searchCriteria.getIsMine()){
             List<String> adminIds = new ArrayList<>();
             adminIds.add(appUid);
