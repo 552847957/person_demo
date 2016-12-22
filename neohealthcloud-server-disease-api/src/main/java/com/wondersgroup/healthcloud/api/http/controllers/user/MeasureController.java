@@ -79,6 +79,7 @@ public class MeasureController {
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
                                              @RequestParam(required = false) String personCard) {
         JsonResponseEntity result = new JsonResponseEntity();
+        Map<String, Object> rtnMap = new HashMap<>();
         try {
             List<JsonNode> lastWeekData = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
@@ -111,7 +112,13 @@ public class MeasureController {
                     }
                 }
             }
-            result.setData(lastWeekData);
+            Map<String, Object> tmpMap = new HashMap<>();
+            tmpMap.put("high", 3);
+            tmpMap.put("normal", 7);
+            tmpMap.put("low", 6);
+            rtnMap.put("status", tmpMap);
+            rtnMap.put("list", lastWeekData);
+            result.setData(rtnMap);
         } catch (Exception e) {
             log.info("近期历史数据获取失败", e);
         }
