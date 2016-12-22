@@ -561,6 +561,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         //修改order的状态为 取消
         order.setOrderStatus("3");
         order.setUpdateDate(new Date());
+        order.setCancelTime(new Date());
         orderRepository.saveAndFlush(order);
 
         OrderDto orderDto = findOrderByUidOrId(id,null,null,false).get(0);
