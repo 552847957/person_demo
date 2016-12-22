@@ -380,7 +380,7 @@ public class UserController {
                 JsonNode info = userAccountService.verficationSubmitInfo(id, false);
                 if (info != null) {
                     VerificationInfoDTO data = new VerificationInfoDTO(id, info);
-                    data.setIdentifytype("2");
+                    data.setIdentifytype(data.getSuccess() ? "1" : "2");
                     body.setData(data);
                 } else {
                     VerificationInfoDTO data = new VerificationInfoDTO();
