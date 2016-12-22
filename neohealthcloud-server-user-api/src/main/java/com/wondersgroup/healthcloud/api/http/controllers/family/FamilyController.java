@@ -951,8 +951,8 @@ public class FamilyController {
         } else {
             UserInfo userInfo = userService.getUserInfo(memberId);
             if(userInfo != null){
-                info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight()) : "");
-                info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight()) : "");
+                info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight().intValue()) : "");
+                info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight().intValue()) : "");
             }
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
