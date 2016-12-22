@@ -7,7 +7,6 @@ import com.wondersgroup.healthcloud.api.utls.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.commons.lang3.StringUtils;
@@ -41,9 +40,6 @@ public class MeasureController {
     private String host;
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
-
-    @Autowired
-    private DiabetesAssessmentService diabetesAssessmentService;
 
     private RestTemplate template = new RestTemplate();
 
@@ -84,7 +80,7 @@ public class MeasureController {
             List<JsonNode> lastWeekData = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
             for (int i = 0; i < 7; i++) {
-                lastWeekData.add(((ObjectNode)mapper.readTree("{}")).put("date", DateFormatter.dateFormat(new DateTime(new Date()).plusDays(-i).toDate())));
+                lastWeekData.add(((ObjectNode)mapper.readTree("{}")).put("date", DateFormatter.dateFormat(DateTime.now().plusDays(-i).toDate())));
             }
             RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registerId=".concat(registerId)
@@ -97,10 +93,10 @@ public class MeasureController {
                     String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
                     if (StringUtils.isNotEmpty(jsonStr)) {
                         JsonNode resultJson = mapper.readTree(jsonStr);
-                        Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
-                        DateTime today = new DateTime(new Date());
+                        Iterator<JsonNode> contentJson = resultJson.get("content").iterator();// 最近10天测量记录
+                        DateTime today = DateTime.now();
                         while (contentJson.hasNext()) {
-                            JsonNode jsonNode = contentJson.next();
+                            JsonNode jsonNode = contentJson.next();// 单日测量记录
                             String date = jsonNode.get("date").asText();
                             if (date != null
                                     && (new DateTime(date).isAfter(today.plusDays(-6).withTimeAtStartOfDay().getMillis())

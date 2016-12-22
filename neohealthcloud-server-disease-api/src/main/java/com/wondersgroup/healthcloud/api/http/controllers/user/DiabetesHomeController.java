@@ -39,8 +39,7 @@ public class DiabetesHomeController {
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     @Autowired
     private UserService userService;
-    @Autowired
-    private AppUrlH5Utils h5Utils;
+
     @Autowired
     private DiabetesAssessmentService diabetesAssessmentService;
 
@@ -63,15 +62,8 @@ public class DiabetesHomeController {
                         JsonNode resultJson = mapper.readTree(jsonStr);
                         Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
                         Map<String, Object> dataMap = new HashMap<>();
-                        DateTime today = new DateTime(new Date());
                         while (contentJson.hasNext()) {
                             JsonNode jsonNode = contentJson.next();
-                            String date = jsonNode.get("date").asText();
-                            if (date != null
-                                    && (new DateTime(date).isAfter(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis())
-                                    || new DateTime(date).isEqual(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis()))
-                                    && new DateTime(date).isBefore(new DateTime(today).plusDays(1).withTimeAtStartOfDay())) {
-                            }
 
                             Iterator<JsonNode> dataJson = jsonNode.get("data").iterator();
                             if (dataMap.get("lastData") == null) {
@@ -103,6 +95,41 @@ public class DiabetesHomeController {
                             dataMap.put("assessmentResult", assessmentResult);
                         }
                         result.setData(dataMap);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.info("近期历史数据获取失败", e);
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/lastMeasure", method = RequestMethod.GET)
+    public JsonResponseEntity lastMeasure(@RequestParam(name = "uid") String registerId,
+                                             @RequestParam(required = false) String personCard) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        try {
+            RegisterInfo info = userService.getOneNotNull(registerId);
+            String param = "registerId=".concat(registerId)
+                    .concat("&sex=").concat(StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender())
+                    .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard());
+            String url = String.format(recentMeasureHistory, host, "3", param);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
+                    if (StringUtils.isNotEmpty(jsonStr)) {
+                        JsonNode resultJson = mapper.readTree(jsonStr);
+                        Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
+                        while (contentJson.hasNext()) {
+                            JsonNode jsonNode = contentJson.next();
+                            Iterator<JsonNode> dataJson = jsonNode.get("data").iterator();
+                            while (dataJson.hasNext()) {
+                                result.setData(dataJson.next());
+                                return result;
+                            }
+                        }
                     }
                 }
             }
