@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import javax.transaction.Transactional;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -27,8 +28,8 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
                     " where a.circle_id=?1 and a.status=1 and b.tab_id=?2 ORDER BY a.last_comment_time desc limit ?3,?4")
     List<Topic> findListByCicleTab(Integer cirleId, Integer tabId, int offset, int limit);
 
-    @Query("select count(id) from Topic a where a.uid=?1")
-    int countAllByPublishUid(String uid);
+    @Query("select count(id) from Topic a where a.uid=?1 and a.status in ?2")
+    int countByPublishUidAndStatus(String uid, Iterable<Integer>  status);
 
     @Transactional
     @Modifying

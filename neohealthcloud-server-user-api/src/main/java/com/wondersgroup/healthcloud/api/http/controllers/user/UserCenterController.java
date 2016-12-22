@@ -38,8 +38,8 @@ public class UserCenterController {
         JsonResponseEntity response=new JsonResponseEntity();
         int concernCount=fansService.countAttentNum(uid);//我的关注数
         int fansCount=fansService.countFansNum(uid);//我的粉丝数
-        int topicCount=userBbsService.countTopicByUid(uid);//我发表的话题数
-        int replyCount=userBbsService.countCommentByUid(uid);//我的回复数
+        int topicCount=userBbsService.countTopicByUid(uid, true);//我发表的话题数
+        int replyCount=userBbsService.countCommentByUid(uid, true);//我的回复数
         Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
         Map data=new HashMap<>();
         data.put("concernCount",concernCount);

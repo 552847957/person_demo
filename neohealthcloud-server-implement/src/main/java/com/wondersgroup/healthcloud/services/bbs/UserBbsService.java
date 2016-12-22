@@ -55,11 +55,11 @@ public interface UserBbsService {
     /**
      * 用户发表的话题数量
      */
-    int countTopicByUid(String uid);
+    int countTopicByUid(String uid, Boolean isMine);
 
     /**
      * 用户回复的评论数量
      */
-    int countCommentByUid(String uid);
+    int countCommentByUid(String uid, Boolean isMine);
 
 }
