@@ -263,7 +263,7 @@ public class HomeServiceImpl implements HomeService {
                     goodsHealthCount++;
                 } else if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
                     haveNoDataCount++;
-                } else {//异常数据，显示给前端
+                } else if(UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())){//异常数据，显示给前端
                     FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     familyMember.getExceptionItems().add(ftemDTO);
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
@@ -272,6 +272,8 @@ public class HomeServiceImpl implements HomeService {
                         break;
                     }
 
+                }else{//未知状态(默认为 有家人家人正常)
+                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
                 }
 
             }
