@@ -83,9 +83,6 @@ public class TubePatientController {
         List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),patientName,flag,pageSize);
         Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName(),patientName);
 
-        if(!StringUtils.isEmpty(patientName)){
-            total = resource.size();
-        }
 
         List<TubePatientEntity> list = Lists.newArrayList();
         List<String> personcareds = Lists.newArrayList();
@@ -121,6 +118,28 @@ public class TubePatientController {
             flag++;
         }
         response.setContent(list,hasMore,null,flag.toString());
+        return response;
+    }
+
+    /**
+     * 高危筛查待提醒总数
+     * @return
+     */
+    @GetMapping("/total")
+    public JsonResponseEntity list(
+            @RequestParam String  doctorId,
+            @RequestParam(required = false,name = "name") String  patientName) {
+
+        JsonResponseEntity response = new JsonResponseEntity();
+
+        DoctorAccount doctor = doctorAccountRepo.findOne(doctorId);
+        DoctorInfo doctorInfo = doctorInfoRepo.findOne(doctorId);
+        if(null == doctor || null == doctorInfo){
+            return response;
+        }
+
+        Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName(),patientName);
+        response.setData(ImmutableMap.of("total",total));
         return response;
     }
 
