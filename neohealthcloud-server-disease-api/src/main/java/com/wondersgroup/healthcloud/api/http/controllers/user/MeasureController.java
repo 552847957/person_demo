@@ -102,6 +102,25 @@ public class MeasureController {
                                     && (new DateTime(date).isAfter(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     || new DateTime(date).isEqual(today.plusDays(-6).withTimeAtStartOfDay().getMillis()))
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
+                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
+                                JsonNode jsonNodeData = jsonNode.get("data");
+                                Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
+                                while (itJsonNodeData.hasNext()) {
+                                    JsonNode tmpJson = itJsonNodeData.next();
+                                    int testPeriod = tmpJson.get("testPeriod").asInt();
+                                    if (-1 <= testPeriod && testPeriod <= 6) {
+                                        dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                    }
+                                }
+                                StringBuffer strBuf = new StringBuffer();
+                                for (int j = 0; j < dayDatas.length; j++) {
+                                    if (j == 0) {
+                                        strBuf.append(dayDatas[j]);
+                                    } else {
+                                        strBuf.append(",").append(dayDatas[j]);
+                                    }
+                                }
+                                ((ObjectNode) jsonNode).put("data", strBuf.toString());
                                 lastWeekData.set(today.getDayOfYear() - new DateTime(date).getDayOfYear(), jsonNode);
                             }
                         }
