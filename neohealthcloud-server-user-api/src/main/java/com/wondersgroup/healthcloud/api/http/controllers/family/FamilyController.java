@@ -834,8 +834,8 @@ public class FamilyController {
             } else if (id == MemberInfoTemplet.BLOODSUGAR) {
                 List<MeasureInfoDTO> m = getMeasure(measures, id, templet);
                 if (!m.isEmpty()) {
-                    for (MeasureInfoDTO dto : m) {
-                        dto.setValue(dto.getValue().replace("血糖", ""));
+                    for (MeasureInfoDTO dto : m) {//1 高  2 地
+                        dto.setName(dto.getName().replace("血糖", "") +  (dto.getFlag().equals("1") ? " 偏高" : " 偏低"));
                     }
                     templet.setValues(m);
                 } else {
@@ -861,8 +861,6 @@ public class FamilyController {
                     templet.setDesc("专业中医体质评估");
                 }
             } else if (id == MemberInfoTemplet.CHILD_VACCINE) {
-//                String date = new SimpleDateFormat("yyyy-MM-dd").format(birthday);
-//                templet.setTitle(getLeftDaysByBirth(date) + templet.getTitle());
                 templet.setDesc("家有宝贝初养成");
             }
             tems.add(templet);
