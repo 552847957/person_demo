@@ -221,6 +221,29 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
     }
 
     /**
+     * 修改默认联系人
+     * @param uid
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional(readOnly = false)
+    public Integer updateIsDefaultContact(String uid, String id) {
+        try {
+            //先 去掉所有默认联系人
+            Integer count = contactRepository.updateIsDefaultContactByuid(uid,id);
+            if(count>0){
+                //再修改新的默认联系人
+                count = contactRepository.updateIsDefaultContactByid(id);
+                return count;
+            }
+            return 0;
+        }catch (Exception e){
+            return 0;
+        }
+    }
+
+    /**
      * 去注册预约挂号接口或者添加成员
      * @param uid
      * @param name

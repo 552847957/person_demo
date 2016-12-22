@@ -253,6 +253,10 @@ public class AppointmentResourceJobController {
                                         //保存科室的预约资源
                                         List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(schedule);
                                         if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                                            if("2".equals(schedule.getStatus())){//停诊
+                                                //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
+                                                triggerJobClient(schedule.getScheduleId());
+                                            }
                                             for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
                                                 AppointmentDoctorSchedule doctorSchedule = saveOrUpdateAppointmentDeptSchedule(l2Department, schedule, segmentNumberInfo);
                                             }
@@ -274,10 +278,12 @@ public class AppointmentResourceJobController {
                                         if(docNumSourceList!=null && docNumSourceList.size()>0){
                                             for (NumSourceInfo schedule :docNumSourceList){
                                                 //保存医生的排班
-
                                                 List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(schedule);
-
                                                 if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                                                    if("2".equals(schedule.getStatus())){//停诊
+                                                        //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
+                                                        triggerJobClient(schedule.getScheduleId());
+                                                    }
                                                     for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
                                                         AppointmentDoctorSchedule doctorSchedule = saveOrUpdateAppointmentDoctorSchedule(doctor, schedule,segmentNumberInfo);
                                                     }
@@ -333,23 +339,18 @@ public class AppointmentResourceJobController {
                 appointmentService.saveAndFlush(schedule);
             }else{
                 BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
-                schedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
-                schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
-                schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
-                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
-                schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
-                schedule.setStartTime(numSourceInfo.getStartTime());
-                schedule.setEndTime(numSourceInfo.getEndTime());
-                schedule.setStatus(numSourceInfo.getStatus());
+                localSchedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
+                localSchedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                localSchedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                localSchedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                localSchedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                localSchedule.setStartTime(segmentNumberInfo.getStartTime());
+                localSchedule.setEndTime(segmentNumberInfo.getEndTime());
+                localSchedule.setStatus(numSourceInfo.getStatus());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
                 schedule = localSchedule;
-
-                if("2".equals(numSourceInfo.getStatus())){//停诊
-                    //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
-                    triggerJobClient(schedule.getId());
-                }
             }
         }catch (Exception e){
 
@@ -422,24 +423,17 @@ public class AppointmentResourceJobController {
                 appointmentService.saveAndFlush(schedule);
             }else{
                 BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
-                schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
-                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
-                schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
-                schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
-                schedule.setStartTime(numSourceInfo.getStartTime());
-                schedule.setEndTime(numSourceInfo.getEndTime());
-                schedule.setStatus(numSourceInfo.getStatus());
+                localSchedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                localSchedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                localSchedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                localSchedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                localSchedule.setStartTime(segmentNumberInfo.getStartTime());
+                localSchedule.setEndTime(segmentNumberInfo.getEndTime());
+                localSchedule.setStatus(numSourceInfo.getStatus());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
                 schedule = localSchedule;
-
-                if("2".equals(numSourceInfo.getStatus())){//停诊
-                    //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
-                    triggerJobClient(schedule.getId());
-                }
-
-
             }
         }catch (Exception e){
 
@@ -448,7 +442,7 @@ public class AppointmentResourceJobController {
     }
 
     /**
-     * 根据排班信息查询订单为1的设置为停诊
+     * 根据排班信息查询订单为1的设置为停诊(医院的排班ID)
      * @param scheduleId
      */
     private void triggerJobClient(String scheduleId) {

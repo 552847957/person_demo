@@ -113,6 +113,10 @@ public class AppointmentOrderController {
         }
 
         OrderDto appointmentOrder = appointmentApiService.submitUserReservation(contactId, scheduleId, orderType);
+
+        //设置默认就诊人
+        appointmentContactService.updateIsDefaultContact(contact.getUid(),contact.getId());
+
         AppointmentOrderDTO orderDTO = new AppointmentOrderDTO(appointmentOrder);
 
         body.setData(orderDTO);

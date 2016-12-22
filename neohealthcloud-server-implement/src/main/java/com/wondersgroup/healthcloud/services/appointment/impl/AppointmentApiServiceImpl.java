@@ -700,7 +700,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
                 " left join app_tb_appointment_doctor c on b.doctor_id = c.id" +
                 " left join app_tb_appointment_department_l2 d on b.department_l2_id = d.id" +
                 " left join app_tb_appointment_hospital e on a.hospital_id = e.id " +
-                " where b.id = '%s' and a.order_status = '1' ";
+                " where b.schedule_id = '%s' and a.order_status = '1' ";
         sql = String.format(sql,scheduleId);
         return jt.query(sql.toString(), new BeanPropertyRowMapper(OrderDto.class));
     }
