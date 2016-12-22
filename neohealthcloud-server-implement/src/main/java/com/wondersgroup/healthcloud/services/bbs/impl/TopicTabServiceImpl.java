@@ -1,7 +1,9 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTabMap;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicTabMapRepository;
+import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicTabRepository;
 import com.wondersgroup.healthcloud.services.bbs.TopicTabService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicTabSearchCriteria;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
@@ -27,6 +29,14 @@ public class TopicTabServiceImpl implements TopicTabService {
 
     @Autowired
     private TopicTabMapRepository topicTabMapRepository;
+
+    @Autowired
+    private TopicTabRepository topicTabRepository;
+
+    @Override
+    public List<TopicTab> getTopicTabs(Integer topicId) {
+        return topicTabRepository.findTopicTabsByTopicId(topicId);
+    }
 
     /**
      * 更新话题标签

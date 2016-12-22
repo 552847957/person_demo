@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.repository.bbs.AdminVestUserRepository;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.TopicService;
+import com.wondersgroup.healthcloud.services.bbs.TopicTabService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.TopicSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.*;
@@ -47,7 +48,8 @@ public class TopicController {
 
     @Autowired
     private TopicService topicService;
-
+    @Autowired
+    private TopicTabService topicTabService;
     @Autowired
     private CommentService commentService;
 
@@ -245,6 +247,14 @@ public class TopicController {
 
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(id);
         TopicViewDto viewDto = new TopicViewDto(detailInfo);
+        List<TopicTab> topicTabs = topicTabService.getTopicTabs(id);
+        if (null != topicTabs){
+            List<Integer> topicTabIds = new ArrayList<>();
+            for (TopicTab topicTab : topicTabs){
+                topicTabIds.add(topicTab.getId());
+            }
+            viewDto.setTopicTabs(topicTabIds);
+        }
         List<String> adminAppUids = new ArrayList<>();
         adminAppUids.add(appUid);
         List<AdminVestUser> adminAppUsers = adminVestUserRepository.getVestUsersByAdminUid(appUid);

@@ -19,4 +19,10 @@ public interface TopicTabRepository extends JpaRepository<TopicTab, Integer> {
     @Query(nativeQuery = true,
             value = "select * from tb_bbs_topic_tab a where circle_id=?1 and tab_name = ?2 limit 1 ")
     TopicTab getTopicTabsByCircleIdAndName(Integer circleId, String tabName);
+
+    @Query(nativeQuery = true,
+            value = "select tab.* from tb_bbs_topic_tab_map map " +
+                    " left join tb_bbs_topic_tab tab on map.tab_id=tab.id where map.topic_id=?1 and tab.del_flag='0'")
+    List<TopicTab> findTopicTabsByTopicId(Integer topicId);
+
 }
