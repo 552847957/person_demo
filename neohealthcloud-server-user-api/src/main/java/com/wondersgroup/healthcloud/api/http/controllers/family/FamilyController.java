@@ -728,9 +728,6 @@ public class FamilyController {
                 continue;
             }
             dto.getMemberInfos().add(info);
-//            if (dto.getMemberInfos().size() >= 3) {
-//                break;
-//            }
         }
         response.setData(dto);
         response.setMsg("查询成功");
@@ -949,6 +946,8 @@ public class FamilyController {
             if (ano.getBirthDate() != null) {
                 info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
             }
+            
+            info.setIsVerification(ano.getIdcard() != null);
         } else {
             UserInfo userInfo = userService.getUserInfo(memberId);
             if(userInfo != null){
