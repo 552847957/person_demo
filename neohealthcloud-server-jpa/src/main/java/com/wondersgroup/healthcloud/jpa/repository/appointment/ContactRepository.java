@@ -26,8 +26,8 @@ public interface ContactRepository extends JpaRepository<AppointmentContact, Str
     @Query("update AppointmentContact a set a.isDefault='0' where a.uid=?1 and  a.id<>?2 and a.delFlag='0' ")
     Integer updateIsDefaultContactByuid(String uid, String id);
 
-    @Query("select a from AppointmentContact a where a.idcard = ?1 and a.delFlag ='0' ")
-    AppointmentContact getAppointmentContactByIdCard(String idcard);
+    @Query("select a from AppointmentContact a where a.uid =?1 and a.idcard = ?2 and a.delFlag ='0' ")
+    AppointmentContact getAppointmentContactByUidAndIdCard(String uid,String idcard);
 
     @Modifying
     @Query("update AppointmentContact a set a.isDefault='1' where a.id=?1 and a.delFlag='0' ")

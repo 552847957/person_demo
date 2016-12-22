@@ -147,7 +147,7 @@ public class AppointmentOrderDTO {
              * 本项目订单状态  1:预约成功,2:就诊成功,3:用户取消,4:爽约,5:系统取消
              */
             this.canCancel = false;
-            String orderStatus = order.getStatus();
+            String orderStatus = order.getOrderStatus();
             if("4".equals(orderStatus)){
                 this.status = "2";
              //状态8 退号中说是防黄牛做的 号源不会立即释放

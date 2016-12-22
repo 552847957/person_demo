@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.registration.entity.request.OrderListRequest
 import com.wondersgroup.healthcloud.registration.entity.request.RequestMessageHeader;
 import com.wondersgroup.healthcloud.registration.entity.response.OrderInfo;
 import com.wondersgroup.healthcloud.registration.entity.response.OrderInfoListResponse;
+import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentService;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -54,6 +56,19 @@ public class AppointmentOrderJobController {
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private AppointmentApiService appointmentApiService;
+
+
+
+
+    @RequestMapping(value = "/closeNumberSource", method = RequestMethod.GET)
+    public JsonResponseEntity closeNumberSource(@RequestParam(required = true,value = "order_id") String orderId) {
+        JsonResponseEntity responseEntity = new JsonResponseEntity();
+        appointmentApiService.closeNumberSourceByOrderId(orderId);
+        return  responseEntity;
+    }
 
     @RequestMapping(value = "/order", method = RequestMethod.GET)
     public JsonResponseEntity updateOrderStatus() {

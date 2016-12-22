@@ -142,8 +142,7 @@ public class AppointmentOrderController {
             throw new ErrorAppointmentIsOffException();
         }
         JsonResponseEntity<AppointmentOrderDTO> body = new JsonResponseEntity<>();
-        appointmentApiService.cancelReservationOrderById(id);
-        OrderDto orderDto = appointmentApiService.findOrderByUidOrId(id,null,null,false).get(0);
+        OrderDto orderDto = appointmentApiService.cancelReservationOrderById(id);
         AppointmentOrderDTO entity = new AppointmentOrderDTO(orderDto);
         body.setData(entity);
         body.setMsg("取消成功");

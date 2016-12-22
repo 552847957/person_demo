@@ -160,6 +160,9 @@ public class AppointmentOrder {
     @Column(name = "cancel_reason")
     private String cancelReason;//退号原因
 
+    @Column(name = "close_sms")
+    private String closeSms = "0";
+
     /**
      * 备注 只有退号原因为其他时才有用
      */
