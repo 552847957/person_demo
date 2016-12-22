@@ -465,7 +465,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
     
     public boolean pushMessage(String uid, String memberId, int type, String relationName) {
-        int count =  familyMsgService.getCountByDate(uid, type);
+        int count =  familyMsgService.getCountByDate(memberId, type);
         if(count > 0){
             return true;
         }
@@ -533,8 +533,10 @@ public class FamilyServiceImpl implements FamilyService {
             title = reg.getNickname();
             content = "请求添加你为家人";
         } else if (type == 15) {
+            familyMessage.setNotifierUID(memberId);
+            familyMessage.setReceiverUID(uid);
         	title = "健康档案";
-        	content = "健康云用户" + name + "已关闭查看健康档案权限";
+        	content = name + "已关闭查看健康档案权限";
         }
         familyMessage.setMsgContent(content);
         familyMessage.setMsgType(changeType(type));

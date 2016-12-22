@@ -380,7 +380,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         }
 
         RegisterInfo info = registerInfoRepository.findOne(id);
-        if (info.getIdentifytype().equals("2")) {
+        if (info != null && info.getIdentifytype().equals("2")) {
             if (!idCard.equals(info.getPersoncard()) || !name.equals(info.getName())) {
                 throw new CommonException(1000, "提交的姓名或身份证与已认证的不一致, 请重新提交");
             }

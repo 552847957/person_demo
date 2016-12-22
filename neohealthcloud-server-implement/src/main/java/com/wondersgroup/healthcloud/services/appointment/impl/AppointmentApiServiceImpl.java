@@ -22,6 +22,7 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
 import com.wondersgroup.healthcloud.utils.registration.SignatureGenerator;
+import com.wondersgroup.healthcloud.utils.sms.SMS;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
     @Autowired
     private AppConfigService appConfigService;
+
+    @Autowired
+    private SMS sms;
 
 
 
@@ -511,6 +515,17 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         }
 
         OrderDto orderDto = saveOrderToLocal(submitOrder,orderResultResponse,contact,doctor,schedule,l2Department);
+
+        String content = "%s以免费预约%s%s,请携带预约证件原件及成功预约短信(短信转发无效！),超过预约时段不保留号源。" +
+                "取消需提前%s个工作日%s前,同一患者请勿在多个平台预约同一天专家、专科或者普通门诊,如导致当日无法就诊后果自付";
+
+        String hos = orderDto.getHospitalName()+orderDto.getDepartmentName();
+        if(StringUtils.isNotBlank(orderDto.getDoctorName())){
+            hos += orderDto.getDoctorName();
+        }
+        sms.send(contact.getMobile(), String.format(content, contact.getName(),hos,
+                orderDto.getScheduleDate(),
+                orderDto.getCloseDays(),orderDto.getCloseTimeHour()));
         return orderDto;
     }
 
@@ -520,7 +535,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
      */
     @Override
     @Transactional(readOnly = false)
-    public void cancelReservationOrderById(String id) {
+    public OrderDto cancelReservationOrderById(String id) {
         AppointmentOrder order = orderRepository.findOne(id);
         AppointmentHospital hospital = hospitalRepository.findOne(order.getHospitalId());
 
@@ -544,9 +559,21 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             throw new ErrorReservationException(orderCancelResponse.messageHeader.getDesc());
         }
         //修改order的状态为 取消
-        order.setStatus("3");
+        order.setOrderStatus("3");
         order.setUpdateDate(new Date());
+        order.setCancelTime(new Date());
         orderRepository.saveAndFlush(order);
+
+        OrderDto orderDto = findOrderByUidOrId(id,null,null,false).get(0);
+
+        String hos = orderDto.getHospitalName()+"医院"+orderDto.getDepartmentName();
+        if(StringUtils.isNotBlank(orderDto.getDoctorName())){
+            hos += orderDto.getDoctorName();
+        }
+        String content = "%s,您预约的%s%s预约单已成功取消";
+        sms.send(orderDto.getUserPhone(), String.format(content, orderDto.getUserName(),hos,
+                DateFormatter.dateFormat(orderDto.getScheduleDate())));
+        return orderDto;
     }
 
     /**
@@ -638,6 +665,50 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     @Override
     public int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id) {
         return doctorRepository.countAllDoctorReservationNumByDepartmentL2Id(department_l2_id);
+    }
+
+    /**
+     * 如果有停诊的排班则发送停诊短信和修改订单状态
+     * @param orderId
+     */
+    @Override
+    @Transactional(readOnly = false)
+    public void closeNumberSourceByOrderId(String orderId) {
+        OrderDto orderDto = findOrderByUidOrId(orderId,null,null,false).get(0);
+        if(orderDto!=null && "1".equals(orderDto.getOrderStatus())){
+            orderRepository.updateOrderWhencloseNumberSource("1",orderId);
+            String hos = orderDto.getHospitalName()+"医院"+orderDto.getDepartmentName();
+            if(StringUtils.isNotBlank(orderDto.getDoctorName())){
+                hos+=orderDto.getDoctorName();
+            }
+            String content = "%s,您预约的%s%s预约单已停诊,系统已为您取消订单";
+            sms.send(orderDto.getUserPhone(), String.format(content, orderDto.getUserName(),hos,
+                    DateFormatter.dateFormat(orderDto.getScheduleDate())));
+        }
+
+    }
+
+    @Override
+    public List<OrderDto> findOrderListByScheduleId(String scheduleId) {
+        String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
+                " d.dept_name as departmentName,e.hos_name as hospitalName," +
+                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus," +
+                " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
+                " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
+                " from app_tb_appointment_order a " +
+                " left join app_tb_appointment_doctor_schedule b on a.appointment_schedule_id = b.id " +
+                " left join app_tb_appointment_doctor c on b.doctor_id = c.id" +
+                " left join app_tb_appointment_department_l2 d on b.department_l2_id = d.id" +
+                " left join app_tb_appointment_hospital e on a.hospital_id = e.id " +
+                " where b.id = '%s' and a.order_status = '1' ";
+        sql = String.format(sql,scheduleId);
+        return jt.query(sql.toString(), new BeanPropertyRowMapper(OrderDto.class));
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void updateOrderWhencloseNumberSource(String closeSms,String orderId) {
+        orderRepository.updateOrderWhencloseNumberSource(closeSms,orderId);
     }
 
     public class UpdateNumberSourceTask implements Callable {

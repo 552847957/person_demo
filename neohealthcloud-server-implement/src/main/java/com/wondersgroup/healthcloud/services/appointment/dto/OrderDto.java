@@ -32,6 +32,8 @@ public class OrderDto {
 
     private Date cancelTime;//订单取消时间
 
+    private String orderStatus;
+
     /**
      * 预约状态
      * 1:预约成功,2:就诊成功,3:用户取消,4:爽约,5:系统取消
@@ -51,6 +53,7 @@ public class OrderDto {
     private String doctorName;//医生名称
 
     private String dutyName;//医生职称
+
 
     private Date scheduleDate;//就诊时间
     /**

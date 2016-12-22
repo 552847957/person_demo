@@ -51,7 +51,7 @@ public interface AppointmentApiService {
 
     OrderDto submitUserReservation(String contactId, String scheduleId, String orderType);
 
-    void cancelReservationOrderById(String id);
+    OrderDto cancelReservationOrderById(String id);
 
     Boolean getRegistrationIsOn(String mainArea);
 
@@ -62,4 +62,10 @@ public interface AppointmentApiService {
     void saveOrUpdateAppointmentScheduleByDoctorId(String id,String type);
 
     int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
+
+    void closeNumberSourceByOrderId(String orderId);
+
+    List<OrderDto> findOrderListByScheduleId(String scheduleId);
+
+    void updateOrderWhencloseNumberSource(String closeSms,String id);
 }

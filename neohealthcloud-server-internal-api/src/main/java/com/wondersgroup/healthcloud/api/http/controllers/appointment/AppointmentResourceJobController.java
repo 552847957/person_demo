@@ -1,6 +1,10 @@
 package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 
 import com.google.common.collect.Lists;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.dict.DictCache;
@@ -10,6 +14,7 @@ import com.wondersgroup.healthcloud.registration.entity.request.*;
 import com.wondersgroup.healthcloud.registration.entity.response.*;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentService;
+import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
@@ -19,6 +24,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -75,6 +81,11 @@ public class AppointmentResourceJobController {
 
     @Autowired
     private AppointmentApiService appointmentApiService;
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
+
+    private HttpRequestExecutorManager httpRequestExecutorManager;
 
 
 
@@ -305,12 +316,13 @@ public class AppointmentResourceJobController {
 
                 schedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
-
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
                 schedule.setDoctorId(doctor.getId());
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 schedule.setStartTime(numSourceInfo.getStartTime());
                 schedule.setEndTime(numSourceInfo.getEndTime());
+                schedule.setStatus(numSourceInfo.getStatus());
                 schedule.setHospitalId(doctor.getHospitalId());
                 schedule.setL1DepartmentId(doctor.getL1DepartmentId());
                 schedule.setL2DepartmentId(doctor.getL2DepartmentId());
@@ -324,13 +336,20 @@ public class AppointmentResourceJobController {
                 schedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 schedule.setStartTime(numSourceInfo.getStartTime());
                 schedule.setEndTime(numSourceInfo.getEndTime());
+                schedule.setStatus(numSourceInfo.getStatus());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
                 schedule = localSchedule;
+
+                if("2".equals(numSourceInfo.getStatus())){//停诊
+                    //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
+                    triggerJobClient(schedule.getId());
+                }
             }
         }catch (Exception e){
 
@@ -387,10 +406,12 @@ public class AppointmentResourceJobController {
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
 
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 schedule.setStartTime(numSourceInfo.getStartTime());
                 schedule.setEndTime(numSourceInfo.getEndTime());
+                schedule.setStatus(numSourceInfo.getStatus());
                 schedule.setHospitalId(l2Department.getHospitalId());
                 schedule.setL1DepartmentId(l2Department.getL1DepartmentId());
                 schedule.setL2DepartmentId(l2Department.getId());
@@ -402,19 +423,53 @@ public class AppointmentResourceJobController {
             }else{
                 BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
                 schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
                 schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
                 schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
                 schedule.setStartTime(numSourceInfo.getStartTime());
                 schedule.setEndTime(numSourceInfo.getEndTime());
+                schedule.setStatus(numSourceInfo.getStatus());
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
                 schedule = localSchedule;
+
+                if("2".equals(numSourceInfo.getStatus())){//停诊
+                    //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
+                    triggerJobClient(schedule.getId());
+                }
+
+
             }
         }catch (Exception e){
 
         }
         return schedule;
+    }
+
+    /**
+     * 根据排班信息查询订单为1的设置为停诊
+     * @param scheduleId
+     */
+    private void triggerJobClient(String scheduleId) {
+        try {
+            List<OrderDto> orderList = appointmentApiService.findOrderListByScheduleId(scheduleId);
+            if(orderList.size()>0){
+                for(OrderDto orderDto : orderList){
+                    appointmentApiService.updateOrderWhencloseNumberSource("0",orderDto.getId());
+                    try {
+                        //调用jobClient的接口
+                        Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/appointment/closeNumberSource").param("order_id", orderDto.getId()).build();
+                        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
+                    }catch (Exception e){
+                        log.error("根据排班信息查询订单为1的设置为停诊,orderId=" + orderDto.getId() + "," + e.getLocalizedMessage());
+                    }
+                }
+            }
+        }catch (Exception e){
+            log.error("triggerJobClient_"+scheduleId);
+        }
+
     }
 
     /**
@@ -701,4 +756,8 @@ public class AppointmentResourceJobController {
         return null;
     }
 
+    @Autowired
+    public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
+        this.httpRequestExecutorManager = httpRequestExecutorManager;
+    }
 }

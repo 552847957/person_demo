@@ -1,13 +1,10 @@
 package com.wondersgroup.healthcloud.registration.client;
 
 import com.wondersgroup.healthcloud.registration.entity.response.MemberInfoResultResponse;
-import com.wondersgroup.healthcloud.registration.entity.response.TwoDeptInfoResponse;
+import com.wondersgroup.healthcloud.registration.entity.response.QueryUserInfoResultResponse;
 import com.wondersgroup.healthcloud.registration.entity.response.UserInfoResultResponse;
 import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
-import com.wondersgroup.healthcloud.wsdl.RegisterOrUpdateMemberInfoService;
-import com.wondersgroup.healthcloud.wsdl.RegisterOrUpdateMemberInfoServiceResponse;
-import com.wondersgroup.healthcloud.wsdl.RegisterOrUpdateUserInfoService;
-import com.wondersgroup.healthcloud.wsdl.RegisterOrUpdateUserInfoServiceResponse;
+import com.wondersgroup.healthcloud.wsdl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
@@ -44,6 +41,25 @@ public class UserInfoClient extends WebServiceGatewaySupport {
 
 
     /**
+     * 查询用户信息
+     * @param xml
+     * @return
+     */
+    public QueryUserInfoResultResponse queryUserInfo(String xml){
+        QueryUserInfo request = new QueryUserInfo();
+        JAXBElement<String> xmlElements = new JAXBElement(
+                new QName("http://impl.webservice.booking.icarefx.net","xmlStr"), String.class, xml);
+        request.setXmlStr(xmlElements);
+        QueryUserInfoResponse response= (QueryUserInfoResponse) getWebServiceTemplate()
+                .marshalSendAndReceive(request);
+        String xmlString = response.getReturn().getValue();
+        QueryUserInfoResultResponse customer = JaxbUtil.converyToJavaBean(xmlString, QueryUserInfoResultResponse.class);
+        return customer;
+
+    }
+
+
+    /**
      * 第三方只提供注册没有更新功能
      * @param xml
      * @return
@@ -61,4 +77,6 @@ public class UserInfoClient extends WebServiceGatewaySupport {
         MemberInfoResultResponse customer = JaxbUtil.converyToJavaBean(xmlString, MemberInfoResultResponse.class);
         return customer;
     }
+
+
 }

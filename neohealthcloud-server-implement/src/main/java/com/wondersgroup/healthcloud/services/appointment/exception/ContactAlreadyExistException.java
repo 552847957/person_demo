@@ -9,6 +9,6 @@ import com.wondersgroup.healthcloud.exceptions.BaseException;
 public class ContactAlreadyExistException extends BaseException {
 
     public ContactAlreadyExistException() {
-        super(3103, "添加失败，就诊人已被您或别人添加，建议：就诊人可以直接注册并进行预约", null);
+        super(3103, "该证件已存在于您的就诊人列表，请勿重复添加", null);
     }
 }

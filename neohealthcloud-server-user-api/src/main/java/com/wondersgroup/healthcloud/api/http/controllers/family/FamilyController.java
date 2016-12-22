@@ -856,9 +856,9 @@ public class FamilyController {
                 }
             } else if (id == MemberInfoTemplet.HEALTHQUESTION) {
                 HealthQuestion result = physicalIdentifyService.getRecentPhysicalIdentify(memberId);
-                if (result != null) {
+                if (result != null && result.getResult() != null) {
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(result.getTesttime());
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, date, result.getResult())));
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO(null, date, result.getResult().split(",")[0])));
                     templet.setDesc(date);
                 } else {
                     templet.setDesc("专业中医体质评估");

@@ -37,6 +37,10 @@ public class WeatherController {
                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
         String result = cache.get(WeatherCache.Type.BRIEF, StringUtils.isEmpty(specArea) ? mainArea : specArea);
 
+        if (StringUtils.isBlank(result)) {
+            result = cache.get(WeatherCache.Type.BRIEF, mainArea);
+        }
+
         JsonResponseEntity<JsonNode> response = new JsonResponseEntity<>();
         response.setData(JsonConverter.toJsonNode(result));
         return response;
@@ -46,6 +50,10 @@ public class WeatherController {
     public JsonResponseEntity<JsonNode> all(@RequestHeader("main-area") String mainArea,
                                             @RequestHeader(value = "spec-area", required = false) String specArea) {
         String result = cache.get(WeatherCache.Type.ALL, StringUtils.isEmpty(specArea) ? mainArea : specArea);
+
+        if (StringUtils.isBlank(result)) {
+            result = cache.get(WeatherCache.Type.ALL, mainArea);
+        }
 
         JsonResponseEntity<JsonNode> response = new JsonResponseEntity<>();
         response.setData(JsonConverter.toJsonNode(result));

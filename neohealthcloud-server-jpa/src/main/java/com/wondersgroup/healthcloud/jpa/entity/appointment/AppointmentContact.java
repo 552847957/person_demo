@@ -45,10 +45,16 @@ public class AppointmentContact {
     private String mobile;
 
     /**
-     * 社保卡
+     * 卡号
      */
     @Column(name = "medi_card_id")
     private String mediCardId;
+
+    /**
+     * 卡类型 1：社保卡（医保卡）2：上海医联卡
+     */
+    @Column(name = "medi_card_type")
+    private String mediCardType;
 
     @Column(name = "is_default")
     private String isDefault;//是否默认
@@ -57,7 +63,7 @@ public class AppointmentContact {
      * 是否是主注册账号
      */
     @Column(name = "is_main")
-    private String isMain = "0";
+    private String isMain = "1";
 
     @Column(name = "del_flag")
     private String delFlag = "0";
