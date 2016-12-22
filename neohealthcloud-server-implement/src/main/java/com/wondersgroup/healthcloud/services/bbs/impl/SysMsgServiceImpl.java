@@ -64,7 +64,8 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
             for(Map<String, Object> row:list){
                 String msgCreateTime=String.valueOf(row.get("create_time"));
                 Date date= DateUtils.parseString(msgCreateTime);
-                String msgtime=DateUtils.formatDate2Custom(date);
+                //String msgtime=DateUtils.formatDate2Custom(date);
+                String msgtime=DateUtils.convertMsgDate(date);
                 row.put("msgtime",msgtime);
                 //MAP null值处理为""
                 //MapChecker.checkMap(row);

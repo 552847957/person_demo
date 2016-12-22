@@ -129,13 +129,16 @@ public class ApiSpecHomeController {
         FamilyHealthDTO familyHealth = null;
 
         if (null != registerInfo) {
-            Map<String, Object> urlMap = new HashMap<String, Object>();
-            urlMap.put("apiMeasureUrl", API_MEASURE_URL);
-            urlMap.put("apiUserhealthRecordUrl", API_USERHEALTH_RECORD_URL);
-            urlMap.put("apiVaccineUrl", API_VACCINE_URL);
+            Map<String, Object> paramMap = new HashMap<String, Object>();
+            paramMap.put("apiMeasureUrl", API_MEASURE_URL);
+            paramMap.put("apiUserhealthRecordUrl", API_USERHEALTH_RECORD_URL);
+            paramMap.put("apiVaccineUrl", API_VACCINE_URL);
+            paramMap.put("vaccineLessThanDays","30");
+            paramMap.put("familyLessThanDays","30");
+            paramMap.put("userLessThanDays","7");
 
             try {
-                familyHealth = homeService.findfamilyHealth(registerInfo, urlMap);
+                familyHealth = homeService.findfamilyHealth(registerInfo, paramMap);
             } catch (Exception e) {
                 logger.error(" msg " + e.getMessage());
             }

@@ -3,8 +3,8 @@ package com.wondersgroup.healthcloud.services.bbs.impl;
 import java.util.*;
 
 import com.wondersgroup.healthcloud.common.utils.StringsUtils;
+import com.wondersgroup.healthcloud.jpa.constant.CommentConstant;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -178,12 +178,23 @@ public class UserBbsServiceImpl implements UserBbsService {
     }
 
     @Override
-    public int countTopicByUid(String uid) {
-        return topicRepository.countAllByPublishUid(uid);
+    public int countTopicByUid(String uid, Boolean isMine) {
+        List<Integer> status = new ArrayList<>();
+        status.add(TopicConstant.Status.OK);
+        status.add(TopicConstant.Status.FORBID_REPLY);
+        if (isMine){
+            status.add(TopicConstant.Status.WAIT_VERIFY);
+        }
+        return topicRepository.countByPublishUidAndStatus(uid, status);
     }
 
     @Override
-    public int countCommentByUid(String uid) {
-        return commentRepository.countAllByReplyUid(uid);
+    public int countCommentByUid(String uid, Boolean isMine) {
+        List<Integer> status = new ArrayList<>();
+        status.add(CommentConstant.Status.OK);
+        if (isMine){
+            status.add(CommentConstant.Status.WAIT_VERIFY);
+        }
+        return commentRepository.countByReplyUidAndStatus(uid, status);
     }
 }

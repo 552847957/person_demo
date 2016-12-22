@@ -74,7 +74,7 @@ public class PhysicalIdentifyController {
 
         List<Map> result = Lists.newArrayList();
         for(HealthQuestion question : list){
-            result.add(ImmutableMap.of("id",question.getId(),"time", new DateTime(question.getTesttime()).toString("yy/MM/dd"),
+            result.add(ImmutableMap.of("id",question.getId(),"time", new DateTime(question.getTesttime()).toString("yyyy-MM-dd"),
                     "type",question.getResult().split(",")[0]));
         }
 

@@ -14,6 +14,6 @@ import lombok.Data;
 public class FamilyMemberItemDTO {
     private String relationship;
     private String prompt;
-
+    private Long testTime;
 
 }

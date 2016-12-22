@@ -150,10 +150,10 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String, Object> urlMap) {
-        String apiMeasureUrl = String.valueOf(urlMap.get("apiMeasureUrl"));
-        String apiUserhealthRecordUrl = String.valueOf(urlMap.get("apiUserhealthRecordUrl"));
-        String apiVaccineUrl = String.valueOf(urlMap.get("apiVaccineUrl"));
+    public FamilyHealthDTO findfamilyHealth(RegisterInfo registerInfo, Map<String, Object> paramMap) {
+        String apiMeasureUrl = String.valueOf(paramMap.get("apiMeasureUrl"));
+        String apiUserhealthRecordUrl = String.valueOf(paramMap.get("apiUserhealthRecordUrl"));
+        String apiVaccineUrl = String.valueOf(paramMap.get("apiVaccineUrl"));
 
         if (StringUtils.isBlank(apiMeasureUrl) || StringUtils.isBlank(apiUserhealthRecordUrl) || StringUtils.isBlank(apiVaccineUrl)) {
             logger.info("apiMeasureUrl or apiUserhealthRecordUrl or apiVaccineUrl is blank ", apiMeasureUrl, apiUserhealthRecordUrl, apiVaccineUrl);
@@ -170,7 +170,7 @@ public class HomeServiceImpl implements HomeService {
         Map<String, Object> input = new HashMap<String, Object>();
         input.put("registerId", registerInfo.getRegisterid());
         input.put("sex", registerInfo.getGender());
-        input.put("moreThanDays", "7");//个人取一周的数据
+        input.put("moreThanDays",  (null == paramMap.get("userLessThanDays")) ? "7":paramMap.get("userLessThanDays"));//个人取一周的数据
         input.put("limit", "10");
         input.put("personCard", "");
         input.put("cardType", "");
@@ -212,7 +212,7 @@ public class HomeServiceImpl implements HomeService {
                     Map<String, Object> familyMemberInput = new HashMap<String, Object>();
                     familyMemberInput.put("registerId", userInfoMap.get("registerid"));
                     familyMemberInput.put("sex", userInfoMap.get("gender"));//性别
-                    familyMemberInput.put("moreThanDays", "30");//家人取一个月的数据
+                    familyMemberInput.put("moreThanDays", (null == paramMap.get("familyLessThanDays")) ? "30":paramMap.get("familyLessThanDays"));//家人取一个月的数据
                     familyMemberInput.put("limit", "10");
                     familyMemberInput.put("personCard", "");
                     familyMemberInput.put("cardType", "");
@@ -229,8 +229,9 @@ public class HomeServiceImpl implements HomeService {
                         familyMemberDangerousItemList.add(fItemDTO);
                     }
 
-                    //4 育苗信息
-                    FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl);
+                    //4 育苗信息(默认30天内)
+                    Integer vaccineLessThanDays = Integer.parseInt(String.valueOf((null == paramMap.get("vaccineLessThanDays")) ? "30":paramMap.get("vaccineLessThanDays")));
+                    FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl,vaccineLessThanDays);
                     if (null != vaccinetemDTO) {
                         familyMemberVaccinetemList.add(vaccinetemDTO);
                     }
@@ -253,7 +254,6 @@ public class HomeServiceImpl implements HomeService {
             int goodsHealthCount = 0;
             int haveNoDataCount = 0;
 
-            int showErrorCount = 0;
             Iterator<FamilyMember> it = familyMemberHealthMap.keySet().iterator();
 
             while (it.hasNext()) {  //统计 无数据/健康 两种状态的数据
@@ -267,10 +267,6 @@ public class HomeServiceImpl implements HomeService {
                     FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     familyMember.getExceptionItems().add(ftemDTO);
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
-                    showErrorCount++;
-                    if (showErrorCount == 2) { //显示最新的2项异常指标数据,TODO 需要排序的
-                        break;
-                    }
 
                 }else{//未知状态(默认为 有家人家人正常)
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
@@ -282,7 +278,15 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            }else if(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems()) && familyMember.getExceptionItems().size() > 2){
+                List<FamilyMemberItemDTO> maxTwoList = getMaxTwoList(familyMember.getExceptionItems());//从家庭成员异常数据集合里 取时间最新的两条
+                familyMember.setExceptionItems(maxTwoList);
             }
+
+
+
+
+
         }
 
 
@@ -334,6 +338,50 @@ public class HomeServiceImpl implements HomeService {
         dto.setFamilyMember(familyMember);
 
         return dto;
+    }
+
+    /**
+     * 根据 testTime字段 找出最大的两条记录
+     * @param allList
+     * @return
+     */
+    private List<FamilyMemberItemDTO> getMaxTwoList(List<FamilyMemberItemDTO> allList){
+
+        if(CollectionUtils.isEmpty(allList) || allList.size() < 2){
+            return allList;
+        }
+
+        int maxTwo = 2;
+        List<FamilyMemberItemDTO> maxTwoList = new ArrayList<FamilyMemberItemDTO>();
+
+        while(maxTwo != 0){
+            FamilyMemberItemDTO maxItem = null;
+            Iterator<FamilyMemberItemDTO> its = allList.iterator();
+            while(its.hasNext()){
+                FamilyMemberItemDTO itemDTO = its.next();
+                if(null == maxItem){
+                    maxItem = itemDTO;
+                }else{
+                    if(null != itemDTO.getTestTime() && null != maxItem.getTestTime() && itemDTO.getTestTime()  > maxItem.getTestTime()){
+                        maxItem = itemDTO;
+                    }
+                }
+
+            }
+            maxTwo--;
+
+            if(null != maxItem){
+               maxTwoList.add(maxItem);
+               allList.remove(maxItem);//讲当前最大的移除
+           }
+        }
+
+        if(maxTwoList.size() != 2){ //出现异常,还原
+            allList.addAll(maxTwoList);
+            maxTwoList = allList;
+        }
+
+        return maxTwoList;
     }
 
     /**
@@ -627,7 +675,7 @@ public class HomeServiceImpl implements HomeService {
      * @param fm
      * @return
      */
-    private FamilyMemberItemDTO buildFamilyVaccineDate(FamilyMember fm, String apiVaccineUrl) {
+    private FamilyMemberItemDTO buildFamilyVaccineDate(FamilyMember fm, String apiVaccineUrl,Integer vaccineLessThanDays) {
         FamilyMemberItemDTO fItemDTO = null;
         String birthDate = getBirthDay(fm); // 计算出孩子的生日 16岁以下的,不是大人
         if (StringUtils.isBlank(birthDate)) {
@@ -638,9 +686,14 @@ public class HomeServiceImpl implements HomeService {
         input.put("birthday", birthDate);
         String leftDays = healthApiClient.getLeftDaysByBirth(apiVaccineUrl, input);
         if (StringUtils.isNotBlank(leftDays)) {
-            fItemDTO = new FamilyMemberItemDTO();
-            fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt("疫苗接种 " + leftDays + "天后");
+            Integer leftDays_  = Integer.parseInt(leftDays);
+
+            if(leftDays_ < vaccineLessThanDays){
+                fItemDTO = new FamilyMemberItemDTO();
+                fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+                fItemDTO.setPrompt("疫苗接种 " + leftDays_ + "天后");
+            }
+
         }
 
         return fItemDTO;
@@ -728,6 +781,7 @@ public class HomeServiceImpl implements HomeService {
                 ftemDTO = new FamilyMemberItemDTO();
                 ftemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
                 ftemDTO.setPrompt(dto.getName() +  (dto.getHightAndLow().equals("1") ? "偏高" : "偏低"));
+                ftemDTO.setTestTime(dto.getTestTime());
                 break;//家人有多项异常，只取一项
             }
         }

@@ -16,4 +16,6 @@ public interface AppointmentContactService {
     AppointmentContact getAppointmentContactById(String id);
 
     AppointmentContact getDefaultAppointmentContactByUid(String uid);
+
+    Integer updateIsDefaultContact(String uid, String id);
 }

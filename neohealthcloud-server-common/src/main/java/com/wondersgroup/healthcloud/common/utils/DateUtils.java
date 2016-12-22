@@ -206,6 +206,20 @@ public class DateUtils {
         }
         return sdf_day_hour.format(date);
     }
+    public static String convertMsgDate(Date date) {
+        Long millisecondOfDay = 24 * 60 * 60 * 1000L;
+        long day = date.getTime() / millisecondOfDay;
+        long now = System.currentTimeMillis() / millisecondOfDay;
+        if (now - day == 0L) {
+            return format(date, "HH:mm");
+        } else if (now - day == 1L) {
+            return format(date, "昨天 HH:mm");
+        } else if (now - day == 2L) {
+            return format(date, "前天 HH:mm");
+        } else {
+            return format(date, "yyyy-MM-dd");
+        }
+    }
 
     public static String getTodayBegin(){
         return sdf_day.format(new Date()) + " 00:00:00";

@@ -144,14 +144,13 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         int total = assessment.getIsSmoking() + assessment.getIsEyeProblem() + assessment.getIsKidney()
                 + assessment.getIsCardiovascular() + assessment.getIsLimbsEdema() + assessment.getIsLimbsTemp()
                 + assessment.getIsDeformity() + assessment.getIsFootBeat() + assessment.getIsShinBeat();
-        if(assessment.getHbac() <= 7 && 0 ==total){
-            assessment.setResult(0);
-        }
-        if(assessment.getHbac() > 7 && 0 ==total){
-            assessment.setResult(1);
-        }
+
         if(assessment.getHbac() > 7 && 0 !=total){
             assessment.setResult(2);
+        }else if(assessment.getHbac() <= 7 && 0 ==total){
+            assessment.setResult(0);
+        }else{
+            assessment.setResult(1);
         }
         assessmentRepo.save(assessment);
         return assessment.getResult();
@@ -315,7 +314,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         }catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
-        return "您尚未进行糖尿病风险评估，请点击右上角进行评估。";
+        return null;
     }
 
     @Data

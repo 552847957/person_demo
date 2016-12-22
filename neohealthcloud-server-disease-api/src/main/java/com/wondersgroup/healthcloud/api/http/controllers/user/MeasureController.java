@@ -2,12 +2,14 @@ package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wondersgroup.healthcloud.api.utls.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,7 @@ public class MeasureController {
             RegisterInfo info = userService.findRegOrAnonymous(registerId);
 
             String personCard = info.getPersoncard();
-            if(personCard != null){
+            if (personCard != null) {
                 paras.put("personCard", personCard);
             }
 
@@ -77,7 +79,13 @@ public class MeasureController {
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
                                              @RequestParam(required = false) String personCard) {
         JsonResponseEntity result = new JsonResponseEntity();
+        Map<String, Object> rtnMap = new HashMap<>();
         try {
+            List<JsonNode> lastWeekData = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            for (int i = 0; i < 7; i++) {
+                lastWeekData.add(((ObjectNode)mapper.readTree("{}")).put("date", DateFormatter.dateFormat(new DateTime(new Date()).plusDays(-i).toDate())));
+            }
             RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registerId=".concat(registerId)
                     .concat("&sex=").concat(StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender())
@@ -86,27 +94,31 @@ public class MeasureController {
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
-                    ObjectMapper mapper = new ObjectMapper();
                     String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
                     if (StringUtils.isNotEmpty(jsonStr)) {
                         JsonNode resultJson = mapper.readTree(jsonStr);
                         Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
                         DateTime today = new DateTime(new Date());
-                        List<JsonNode> lastWeekData = new ArrayList<>();
                         while (contentJson.hasNext()) {
                             JsonNode jsonNode = contentJson.next();
                             String date = jsonNode.get("date").asText();
                             if (date != null
-                                    && (new DateTime(date).isAfter(new DateTime("2016-12-30").plusDays(-6).withTimeAtStartOfDay().getMillis())
-                                    || new DateTime(date).isEqual(new DateTime("2016-12-30").plusDays(-6).withTimeAtStartOfDay().getMillis()))
-                                    && new DateTime(date).isBefore(new DateTime("2016-12-30").plusDays(1).withTimeAtStartOfDay())) {
-                                lastWeekData.add(jsonNode);
+                                    && (new DateTime(date).isAfter(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
+                                    || new DateTime(date).isEqual(today.plusDays(-6).withTimeAtStartOfDay().getMillis()))
+                                    && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
+                                lastWeekData.set(today.getDayOfYear() - new DateTime(date).getDayOfYear(), jsonNode);
                             }
                         }
-                        result.setData(lastWeekData);
                     }
                 }
             }
+            Map<String, Object> tmpMap = new HashMap<>();
+            tmpMap.put("high", 3);
+            tmpMap.put("normal", 7);
+            tmpMap.put("low", 6);
+            rtnMap.put("status", tmpMap);
+            rtnMap.put("list", lastWeekData);
+            result.setData(rtnMap);
         } catch (Exception e) {
             log.info("近期历史数据获取失败", e);
         }

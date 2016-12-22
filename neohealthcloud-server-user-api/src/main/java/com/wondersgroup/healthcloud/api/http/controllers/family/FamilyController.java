@@ -728,9 +728,6 @@ public class FamilyController {
                 continue;
             }
             dto.getMemberInfos().add(info);
-//            if (dto.getMemberInfos().size() >= 3) {
-//                break;
-//            }
         }
         response.setData(dto);
         response.setMsg("查询成功");
@@ -949,11 +946,13 @@ public class FamilyController {
             if (ano.getBirthDate() != null) {
                 info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(ano.getBirthDate()));
             }
+            
+            info.setIsVerification(ano.getIdcard() != null);
         } else {
             UserInfo userInfo = userService.getUserInfo(memberId);
             if(userInfo != null){
-                info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight()) : "");
-                info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight()) : "");
+                info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight().intValue()) : "");
+                info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight().intValue()) : "");
             }
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
@@ -961,7 +960,14 @@ public class FamilyController {
             info.setNickname(familyMember.getMemo());
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
-            info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
+            if (regInfo.getBirthday() != null) {
+                info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
+            } else {
+                UserInfo u = userService.getUserInfo(memberId);
+                if(u != null){
+                    info.setAge(u.getAge());
+                }
+            }
             if (regInfo.getBirthday() != null) {
                 info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
             }

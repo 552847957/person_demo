@@ -249,7 +249,7 @@ public class TopicServiceImpl implements TopicService {
         if (null != publishInfo.getId() && publishInfo.getId() > 0){
             oldTopic = topicRepository.findOne(publishInfo.getId());
             if (oldTopic == null){
-                throw new RuntimeException("编辑的话题无效");
+                throw new CommonException("编辑的话题无效");
             }
             int oldStatus = oldTopic.getStatus();
             isPublished = oldStatus != TopicConstant.Status.WAIT_PUBLISH && oldStatus != TopicConstant.Status.WAIT_VERIFY;
@@ -479,14 +479,14 @@ public class TopicServiceImpl implements TopicService {
     public Topic delTopic(String uid, Integer topicId) {
         RegisterInfo account = userService.getOneNotNull(uid);
         if (account.getIsBBsAdmin() != 1){
-            throw new RuntimeException("您不是管理员,不能操作该话题");
+            throw new CommonException("您不是管理员,不能操作该话题");
         }
         Topic topic = topicRepository.findOne(topicId);
         if (topic == null){
-            throw new RuntimeException("话题不存在");
+            throw new CommonException("话题不存在");
         }
         if (topic.getStatus() == TopicConstant.Status.USER_DELETE){
-            throw new RuntimeException("该话题用户已经删除");
+            throw new CommonException("该话题用户已经删除");
         }
         if (topic.getStatus() == TopicConstant.Status.ADMIN_DELETE){
             topic.setStatus(TopicConstant.Status.OK);
@@ -536,14 +536,14 @@ public class TopicServiceImpl implements TopicService {
     public int settingTopic(TopicSettingDto settingDto) {
         Circle circle = circleRepository.findOne(settingDto.getCircleId());
         if (null == circle || circle.getDelFlag().equals("1")) {
-            throw new RuntimeException("圈子无效");
+            throw new CommonException("圈子无效");
         }
         Topic topic = topicRepository.findOne(settingDto.getId());
         if (null == topic){
-            throw new RuntimeException("话题不存在");
+            throw new CommonException("话题不存在");
         }
         if (topic.getStatus() == TopicConstant.Status.USER_DELETE){
-            throw new RuntimeException("该话题用户已经删除");
+            throw new CommonException("该话题用户已经删除");
         }
         Boolean isToBest = false;
         if (1 == settingDto.getIsBest() && 1 != topic.getIsBest()){
@@ -611,7 +611,7 @@ public class TopicServiceImpl implements TopicService {
         List<Integer> topTopicIds = jdbcTemplate.queryForList(querySql, params, Integer.class);
         topicId = topicId == null ? 0 : topicId;
         if (null != topTopicIds && !topTopicIds.contains(topicId) && topTopicIds.size() >= 5){
-            throw new RuntimeException("已经有5个置顶的话题,无法置顶了,请先去取消其他置顶");
+            throw new CommonException(1010, "已经有5个置顶的话题,无法置顶了,请先去取消其他置顶");
         }
         return topTopicIds;
     }

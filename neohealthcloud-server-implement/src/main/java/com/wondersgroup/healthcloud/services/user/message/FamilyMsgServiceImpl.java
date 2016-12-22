@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,7 +57,8 @@ public class FamilyMsgServiceImpl implements MsgService{
                 //处理消息时间
                 String msgCreateTime=String.valueOf(row.get("create_time"));
                 Date date= DateUtils.parseString(msgCreateTime);
-                String msgtime=DateUtils.formatDate2Custom(date);
+                //String msgtime = DateUtils.formatDate2Custom(date);
+                String msgtime=DateUtils.convertMsgDate(date);
                 row.put("time",msgtime);
 
                 //如果msg_type=0, 获取邀请状态
@@ -109,6 +111,9 @@ public class FamilyMsgServiceImpl implements MsgService{
     }
     @Override
     public void setRead(List<Integer> ids){
+        if (CollectionUtils.isEmpty(ids)){
+            return;
+        }
         Joiner joiner = Joiner.on(",").skipNulls();
         String sql=String.format("update app_tb_family_message set is_read=1 where id in(%s)",joiner.join(ids));
         jdbcTemplate.update(sql);
@@ -126,8 +131,7 @@ public class FamilyMsgServiceImpl implements MsgService{
     //批量获取请求人头像
     private List<Map<String, Object>> getAvatarByUids(List<String> ids){
         Joiner joiner = Joiner.on("','").skipNulls();
-        String query =String.format("SELECT registerid as uid,ifnull(headphoto,(select headphoto from app_tb_anonymous_account where id=registerid  and del_flag=0)) as headphoto" +
-                " FROM app_tb_register_info WHERE registerid in ('%s') AND del_flag=0",joiner.join(ids));
+        String query =String.format("SELECT registerid as uid,headphoto FROM app_tb_register_info WHERE registerid in ('%s') AND del_flag=0",joiner.join(ids));
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
         if (null == list || list.isEmpty()){
             return null;

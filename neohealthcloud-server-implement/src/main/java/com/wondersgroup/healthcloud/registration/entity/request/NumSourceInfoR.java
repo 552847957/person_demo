@@ -34,7 +34,7 @@ public class NumSourceInfoR {
         this.hosDoctCode = doctInfo.getHosDoctCode();
         this.hosDeptCode = twoDeptInfo.getHosDeptCode();
         this.startTime = DateFormatter.dateFormat(new Date());
-        this.endTime = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 15));
+        this.endTime = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 14));
     }
 
     public NumSourceInfoR(TwoDeptInfo twoDeptInfo){
@@ -49,7 +49,7 @@ public class NumSourceInfoR {
 //        }
 
         this.startTime = DateFormatter.dateFormat(new Date());
-        this.endTime = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 15));
+        this.endTime = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 14));
     }
 
 

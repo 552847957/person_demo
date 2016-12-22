@@ -16,6 +16,10 @@ package com.wondersgroup.healthcloud.exceptions;
  */
 public class CommonException extends BaseException {
 
+    public CommonException(String msg) {
+        super(1010, msg);
+    }
+
     public CommonException(int code, String msg) {
         super(code, msg);
     }

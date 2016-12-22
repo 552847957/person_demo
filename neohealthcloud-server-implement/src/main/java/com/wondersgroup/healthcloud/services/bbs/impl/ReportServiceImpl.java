@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.CommentConstant;
 import com.wondersgroup.healthcloud.jpa.constant.ReportConstant;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
@@ -196,7 +197,7 @@ public class ReportServiceImpl implements ReportService {
     public Map<String, Object> getReportInfo(Integer reportId) {
         Report report = reportRepository.findOne(reportId);
         if (report == null){
-            throw new RuntimeException("举报内容无效");
+            throw new CommonException("举报内容无效");
         }
         Map<String, Object> info=null;
         if (report.getTargetType() == ReportConstant.ReportType.TOPIC){
@@ -227,7 +228,7 @@ public class ReportServiceImpl implements ReportService {
             info = jdbcTemplate.queryForMap(querySql.toString());
         }
         if (info == null){
-            throw new RuntimeException("举报内容无效");
+            throw new CommonException("举报内容无效");
         }
         String reportDetailSql = "select detail.*, user.nickname from tb_bbs_report_detail detail " +
                 " left join app_tb_register_info user on user.registerid=detail.uid " +
@@ -249,7 +250,7 @@ public class ReportServiceImpl implements ReportService {
     public Boolean delReportInfo(Integer reportId, String admin_uid) {
         Report report = reportRepository.findOne(reportId);
         if (null == report){
-            throw new RuntimeException("举报无效");
+            throw new CommonException("举报无效");
         }
         report.setStatus(ReportConstant.ReportStatus.DEL_TARGET);
         Date nowDate = new Date();
@@ -279,7 +280,7 @@ public class ReportServiceImpl implements ReportService {
     public Boolean passReportInfo(Integer reportId, String admin_uid) {
         Report report = reportRepository.findOne(reportId);
         if (null == report){
-            throw new RuntimeException("举报无效");
+            throw new CommonException("举报无效");
         }
         report.setStatus(ReportConstant.ReportStatus.SET_OK);
         report.setUpdateTime(new Date());
