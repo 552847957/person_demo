@@ -315,7 +315,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         }catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
-        return "您尚未进行糖尿病风险评估，请点击右上角进行评估。";
+        return null;
     }
 
     @Data

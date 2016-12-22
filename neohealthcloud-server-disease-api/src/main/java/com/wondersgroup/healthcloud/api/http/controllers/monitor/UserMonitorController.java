@@ -88,6 +88,7 @@ public class UserMonitorController {
             ImageText imageText = imageTextService.findImageTextById(userMonitor.getMonitorId());
             if (imageText != null) {
                 MonitorImageTextDTO mitDTO = new MonitorImageTextDTO(imageText);
+                mitDTO.setChecked(true);
                 result.setData(mitDTO);
                 return result;
             }

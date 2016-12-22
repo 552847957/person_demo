@@ -47,4 +47,12 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
 
     @Query(nativeQuery = true,value="SELECT COUNT(1) FROM app_tb_register_info WHERE length(nickname)>=16 AND substring(nickname, 5, 4)=?1")
     int countNickname(String nick);
+
+    /**
+     * 仅查询已认证用户
+     * @param registerIds
+     * @return
+     */
+    @Query("select a from RegisterInfo a where a.identifytype <> '0' and a.registerid in ?1")
+    List<RegisterInfo> findByRegisterIds(List<String> registerIds);
 }
