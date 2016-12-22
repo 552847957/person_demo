@@ -263,7 +263,7 @@ public class HomeServiceImpl implements HomeService {
                     goodsHealthCount++;
                 } else if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
                     haveNoDataCount++;
-                } else {//异常数据，显示给前端
+                } else if(UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())){//异常数据，显示给前端
                     FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     familyMember.getExceptionItems().add(ftemDTO);
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
@@ -272,6 +272,8 @@ public class HomeServiceImpl implements HomeService {
                         break;
                     }
 
+                }else{//未知状态(默认为 有家人家人正常)
+                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
                 }
 
             }
@@ -325,12 +327,27 @@ public class HomeServiceImpl implements HomeService {
 
         //个人数据最多显示两条
         List<UserHealthItemDTO> userItemList = CollectionUtils.isEmpty(userHealth.getExceptionItems()) ? new ArrayList<UserHealthItemDTO>():userHealth.getExceptionItems().size() > 2 ? userHealth.getExceptionItems().subList(0,2) : userHealth.getExceptionItems();
+        replaceUnitStr(userItemList);
         userHealth.setExceptionItems(userItemList);
 
         dto.setUserHealth(userHealth);
         dto.setFamilyMember(familyMember);
 
         return dto;
+    }
+
+    /**
+     * 去掉单位
+     * @param userItemList
+     */
+    private void replaceUnitStr( List<UserHealthItemDTO> userItemList){
+        if(!CollectionUtils.isEmpty(userItemList)){
+            for(UserHealthItemDTO dto:userItemList){
+                dto.setData(dto.getData().replace("次/分钟","").replace("mmHg",""));
+            }
+
+        }
+
     }
 
 
@@ -551,6 +568,36 @@ public class HomeServiceImpl implements HomeService {
         }
 
         return dto;
+    }
+
+    public static void main(String[]args){
+        UserHealthItemDTO BMI = new UserHealthItemDTO();
+        BMI.setTestTime(1482389215000L);
+        BMI.setName("BMI");
+
+        UserHealthItemDTO dto1 = new UserHealthItemDTO();
+        dto1.setTestTime(1482389155000L);
+        dto1.setName("血糖");
+
+        UserHealthItemDTO dto2 = new UserHealthItemDTO();
+        dto2.setTestTime(1482326097000L);
+        dto2.setName("心率");
+
+        UserHealthItemDTO dto3 = new UserHealthItemDTO();
+        dto3.setTestTime(1482326097000L);
+        dto3.setName("血压");
+
+        List<UserHealthItemDTO> list = new ArrayList<UserHealthItemDTO>();
+        list.add(BMI);
+        list.add(dto1);
+        list.add(dto2);
+        list.add(dto3);
+
+
+        UserHealthDTO dto = new UserHealthDTO();
+        dto.setExceptionItems(list);
+        Collections.sort(dto.getExceptionItems());
+
     }
 
 

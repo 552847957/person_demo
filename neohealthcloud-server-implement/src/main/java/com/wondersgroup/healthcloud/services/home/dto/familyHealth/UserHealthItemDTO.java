@@ -21,6 +21,6 @@ public class UserHealthItemDTO implements Comparable {
     @Override
     public int compareTo(Object o) {
         UserHealthItemDTO dto = (UserHealthItemDTO)o;
-        return this.testTime.compareTo(dto.getTestTime());
+        return dto.getTestTime().compareTo(this.testTime);
     }
 }

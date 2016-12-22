@@ -20,7 +20,7 @@ public class FriendInviteController {
 	@RequestMapping(value = "/invite", method = RequestMethod.GET)
 	public Object invite(String userId, String mobileNum, String code) {
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
-		boolean varify = friendInviteService.verifySmsCode(mobileNum, code);
+		boolean varify = code == null || friendInviteService.verifySmsCode(mobileNum, code);
 		if (varify) {
 			Map<String, Object> map = friendInviteService.invite(userId, mobileNum);
 			return map;
@@ -30,6 +30,7 @@ public class FriendInviteController {
 			return responseEntity;
 		}
 	}
+	
 
 	@RequestMapping(value = "/sms", method = RequestMethod.GET)
 	public Object sms(String mobileNum) {
