@@ -155,7 +155,7 @@ public class UserBbsServiceImpl implements UserBbsService {
     public UserBanInfo getUserBanInfoByBanLogId(Integer banLogId) {
         UserBanLog userBanLog = userBanLogRepository.findOne(banLogId);
         UserBanInfo userBanInfo = new UserBanInfo(userBanLog);
-        RegisterInfo registerInfo = registerInfoRepository.findOne(userBanLog.getUId());
+        RegisterInfo registerInfo = registerInfoRepository.findOne(userBanLog.getAdminUid());
         userBanInfo.setAvatar(registerInfo.getHeadphoto());
         userBanInfo.setNickname(registerInfo.getNickname());
         return userBanInfo;

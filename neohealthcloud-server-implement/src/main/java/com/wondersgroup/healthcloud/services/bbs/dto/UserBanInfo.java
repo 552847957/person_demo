@@ -23,9 +23,11 @@ public class UserBanInfo {
 
     private String uid; //用户uid
 
-    private String avatar;//头像
+    private String adminUid;
 
-    private String nickname; //昵称
+    private String avatar;//管理员头像
+
+    private String nickname; //管理员昵称
 
     private Integer banStatus = UserConstant.BanStatus.OK;//圈子禁言状态(0:正常,-1:永久禁言,1:禁言1个小时,12:禁言12小时，24:禁言24小时(1天))
 
@@ -40,6 +42,7 @@ public class UserBanInfo {
     public UserBanInfo(UserBanLog banLog){
         this.id = banLog.getId();
         this.uid = banLog.getUId();
+        this.adminUid = banLog.getAdminUid();
         this.banStatus = banLog.getBanStatus();
         this.reason = banLog.getReason();
         this.msgTime = DateUtils.formatDate2Custom(banLog.getCreateTime());
