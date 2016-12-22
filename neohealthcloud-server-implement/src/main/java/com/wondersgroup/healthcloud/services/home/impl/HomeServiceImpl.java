@@ -254,7 +254,6 @@ public class HomeServiceImpl implements HomeService {
             int goodsHealthCount = 0;
             int haveNoDataCount = 0;
 
-            int showErrorCount = 0;
             Iterator<FamilyMember> it = familyMemberHealthMap.keySet().iterator();
 
             while (it.hasNext()) {  //统计 无数据/健康 两种状态的数据
@@ -268,10 +267,6 @@ public class HomeServiceImpl implements HomeService {
                     FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     familyMember.getExceptionItems().add(ftemDTO);
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
-                    showErrorCount++;
-                    if (showErrorCount == 2) { //显示最新的2项异常指标数据,TODO 需要排序的
-                        break;
-                    }
 
                 }else{//未知状态(默认为 有家人家人正常)
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
@@ -283,7 +278,15 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            }else if(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems()) && familyMember.getExceptionItems().size() > 2){
+                List<FamilyMemberItemDTO> maxTwoList = getMaxTwoList(familyMember.getExceptionItems());//从家庭成员异常数据集合里 取时间最新的两条
+                familyMember.setExceptionItems(maxTwoList);
             }
+
+
+
+
+
         }
 
 
@@ -335,6 +338,50 @@ public class HomeServiceImpl implements HomeService {
         dto.setFamilyMember(familyMember);
 
         return dto;
+    }
+
+    /**
+     * 根据 testTime字段 找出最大的两条记录
+     * @param allList
+     * @return
+     */
+    private List<FamilyMemberItemDTO> getMaxTwoList(List<FamilyMemberItemDTO> allList){
+
+        if(CollectionUtils.isEmpty(allList) || allList.size() < 2){
+            return allList;
+        }
+
+        int maxTwo = 2;
+        List<FamilyMemberItemDTO> maxTwoList = new ArrayList<FamilyMemberItemDTO>();
+
+        while(maxTwo != 0){
+            FamilyMemberItemDTO maxItem = null;
+            Iterator<FamilyMemberItemDTO> its = allList.iterator();
+            while(its.hasNext()){
+                FamilyMemberItemDTO itemDTO = its.next();
+                if(null == maxItem){
+                    maxItem = itemDTO;
+                }else{
+                    if(null != itemDTO.getTestTime() && null != maxItem.getTestTime() && itemDTO.getTestTime()  > maxItem.getTestTime()){
+                        maxItem = itemDTO;
+                    }
+                }
+
+            }
+            maxTwo--;
+
+            if(null != maxItem){
+               maxTwoList.add(maxItem);
+               allList.remove(maxItem);//讲当前最大的移除
+           }
+        }
+
+        if(maxTwoList.size() != 2){ //出现异常,还原
+            allList.addAll(maxTwoList);
+            maxTwoList = allList;
+        }
+
+        return maxTwoList;
     }
 
     /**
@@ -734,6 +781,7 @@ public class HomeServiceImpl implements HomeService {
                 ftemDTO = new FamilyMemberItemDTO();
                 ftemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
                 ftemDTO.setPrompt(dto.getName() +  (dto.getHightAndLow().equals("1") ? "偏高" : "偏低"));
+                ftemDTO.setTestTime(dto.getTestTime());
                 break;//家人有多项异常，只取一项
             }
         }
