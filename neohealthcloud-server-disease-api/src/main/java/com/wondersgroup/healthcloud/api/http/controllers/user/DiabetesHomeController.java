@@ -64,7 +64,6 @@ public class DiabetesHomeController {
                         Iterator<JsonNode> contentJson = resultJson.get("content").iterator();
                         Map<String, Object> dataMap = new HashMap<>();
                         DateTime today = new DateTime(new Date());
-                        //List<JsonNode> lastWeekData = new ArrayList<>();
                         while (contentJson.hasNext()) {
                             JsonNode jsonNode = contentJson.next();
                             String date = jsonNode.get("date").asText();
@@ -72,7 +71,6 @@ public class DiabetesHomeController {
                                     && (new DateTime(date).isAfter(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     || new DateTime(date).isEqual(new DateTime(today).plusDays(-6).withTimeAtStartOfDay().getMillis()))
                                     && new DateTime(date).isBefore(new DateTime(today).plusDays(1).withTimeAtStartOfDay())) {
-                                //lastWeekData.add(jsonNode);
                             }
 
                             Iterator<JsonNode> dataJson = jsonNode.get("data").iterator();
@@ -104,7 +102,6 @@ public class DiabetesHomeController {
                         if (StringUtils.isNotEmpty(assessmentResult)) {
                             dataMap.put("assessmentResult", assessmentResult);
                         }
-                        //dataMap.put("lastWeekData", lastWeekData);
                         result.setData(dataMap);
                     }
                 }

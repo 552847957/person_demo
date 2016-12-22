@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 
+import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
@@ -20,6 +21,7 @@ public class UserBanController {
     @Autowired
     private UserBbsService userBbsService;
 
+    @Admin
     @RequestMapping(value = "/disable", method = RequestMethod.POST)
     public JsonResponseEntity disable(@RequestHeader String appUid, @RequestBody String request){
         JsonResponseEntity<Map<String,String>> entity = new JsonResponseEntity();
@@ -37,6 +39,7 @@ public class UserBanController {
         return entity;
     }
 
+    @Admin
     @RequestMapping(value = "/free", method = RequestMethod.POST)
     public JsonResponseEntity free(@RequestHeader String appUid, @RequestBody String request){
         JsonKeyReader reader = new JsonKeyReader(request);

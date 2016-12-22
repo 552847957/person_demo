@@ -30,7 +30,7 @@ import java.util.Map;
 @RequestMapping("/api/bbs/collect")
 public class TopicCollectController {
 
-    private static final Integer PAGE_SIZE = 20;//每页个数20
+    private static final Integer PAGE_SIZE = 10;//每页个数10
 
     @Autowired
     private TopicService topicService;
