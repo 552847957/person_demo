@@ -960,7 +960,14 @@ public class FamilyController {
             info.setNickname(familyMember.getMemo());
             info.setMobile(regInfo.getRegmobilephone());
             info.setAvatar(regInfo.getHeadphoto());
-            info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
+            if (regInfo.getBirthday() != null) {
+                info.setAge(AgeUtils.getAgeByDate(regInfo.getBirthday()));
+            } else {
+                UserInfo u = userService.getUserInfo(memberId);
+                if(u != null){
+                    info.setAge(u.getAge());
+                }
+            }
             if (regInfo.getBirthday() != null) {
                 info.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(regInfo.getBirthday()));
             }
