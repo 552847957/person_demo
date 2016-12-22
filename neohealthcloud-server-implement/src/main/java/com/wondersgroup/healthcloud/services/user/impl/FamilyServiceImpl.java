@@ -465,7 +465,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
     
     public boolean pushMessage(String uid, String memberId, int type, String relationName) {
-        int count =  familyMsgService.getCountByDate(uid, type);
+        int count =  familyMsgService.getCountByDate(memberId, type);
         if(count > 0){
             return true;
         }
