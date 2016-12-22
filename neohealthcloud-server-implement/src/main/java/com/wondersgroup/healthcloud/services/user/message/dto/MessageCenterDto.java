@@ -2,9 +2,6 @@ package com.wondersgroup.healthcloud.services.user.message.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
-
-import java.util.Date;
 
 /**
  * 消息中心-根列表实体
@@ -12,7 +9,7 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageCenterDto {
-    private static final Long millisecondOfDay = 24 * 60 * 60 * 1000L;
+    //private static final Long millisecondOfDay = 24 * 60 * 60 * 1000L;
     private String title;
     private String content;
     private String icon="";
@@ -21,7 +18,7 @@ public class MessageCenterDto {
     private Boolean isRead=false;
     private int sort;
 
-    public static String parseDate(Date date) {
+    /*public static String parseDate(Date date) {
         long day = date.getTime() / millisecondOfDay;
         long now = System.currentTimeMillis() / millisecondOfDay;
         if (now - day == 0L) {
@@ -33,7 +30,7 @@ public class MessageCenterDto {
         } else {
             return DateFormatter.format(date, "yyyy-MM-dd");
         }
-    }
+    }*/
 
     @JsonProperty("is_read")
     public Boolean getIsRead() {

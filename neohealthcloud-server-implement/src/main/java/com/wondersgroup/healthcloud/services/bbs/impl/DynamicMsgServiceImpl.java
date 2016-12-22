@@ -55,16 +55,8 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
      */
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
-        /*String query =String.format("select c.id as msgid,a.id as uid,a.nickName,a.avatar,b.birthday as baby_birthday," +
-                "d.id,d.title,d.is_best as isBest,d.is_vote as isVote,c.create_time" +
-                " from tb_account_user a,tb_baby_info b,tb_bbs_dynamic_message c,tb_bbs_topic d" +
-                " where a.id=b.parent_id and a.id=d.uid and c.type_id=d.id" +
-                " and c.type=0" +
-                " and c.uid='%s'" +
-                " order by c.create_time desc" +
-                " limit %s, %s",uid,pageNo, pageSize);*/
         String query =String.format("select c.id as msgid,a.registerid as uid,a.nickname as nickName,a.headphoto as avatar," +
-                "d.id,d.title,d.is_best as isBest,d.is_vote as isVote,c.create_time" +
+                "d.id,d.title,d.is_best as isBest,d.is_vote as isVote,a.is_bbs_admin as isAdmin,c.create_time" +
                 " from app_tb_register_info a,tb_bbs_dynamic_message c,tb_bbs_topic d" +
                 " where a.registerid=d.uid and c.type_id=d.id" +
                 " and c.type=0" +
@@ -80,7 +72,8 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
                 //处理msgtime
                 String msgCreateTime=String.valueOf(row.get("create_time"));
                 Date date= DateUtils.parseString(msgCreateTime);
-                String msgtime = DateUtils.formatDate2Custom(date);
+                //String msgtime = DateUtils.formatDate2Custom(date);
+                String msgtime=DateUtils.convertMsgDate(date);
                 row.put("lastCommentTime",msgtime);
                 //MAP null值处理为""
                 //MapChecker.checkMap(row);

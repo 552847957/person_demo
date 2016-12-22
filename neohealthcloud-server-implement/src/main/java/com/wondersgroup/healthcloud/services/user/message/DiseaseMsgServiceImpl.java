@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,8 @@ public class DiseaseMsgServiceImpl implements MsgService{
                 //处理消息时间
                 String msgCreateTime=String.valueOf(row.get("create_time"));
                 Date date= DateUtils.parseString(msgCreateTime);
-                String msgtime=DateUtils.formatDate2Custom(date);
+                //String msgtime=DateUtils.formatDate2Custom(date);
+                String msgtime=DateUtils.convertMsgDate(date);
                 row.put("time",msgtime);
 
                 //处理是否已读状态
@@ -81,6 +83,9 @@ public class DiseaseMsgServiceImpl implements MsgService{
     }
     @Override
     public void setRead(List<Integer> ids){
+        if (CollectionUtils.isEmpty(ids)){
+            return;
+        }
         Joiner joiner = Joiner.on(",").skipNulls();
         String sql=String.format("update app_tb_disease_message set is_read=1 where id in(%s)",joiner.join(ids));
         jdbcTemplate.update(sql);

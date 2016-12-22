@@ -104,7 +104,7 @@ public class MessageCenterServiceImpl {
         String content="您有一条新消息";
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
-        String time=MessageCenterDto.parseDate(date);
+        String time=DateUtils.convertMsgDate(date);
         MessageCenterDto message = new MessageCenterDto();
         message.setTitle(MsgTypeEnum.msgType2.getTypeName());
         message.setContent(content);
@@ -141,7 +141,7 @@ public class MessageCenterServiceImpl {
         }
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
-        String time=MessageCenterDto.parseDate(date);
+        String time=DateUtils.convertMsgDate(date);
         MessageCenterDto message = new MessageCenterDto();
         message.setTitle(MsgTypeEnum.msgType5.getTypeName());
         message.setContent(content);
@@ -194,7 +194,7 @@ public class MessageCenterServiceImpl {
             msgCreateTime=String.valueOf(systemMsg.get("create_time"));
         }
         Date date= DateUtils.parseString(msgCreateTime);
-        String time=MessageCenterDto.parseDate(date);
+        String time=DateUtils.convertMsgDate(date);
         MessageCenterDto message = new MessageCenterDto();
         message.setTitle(MsgTypeEnum.msgType4.getTypeName());
         message.setContent(content);
@@ -219,7 +219,7 @@ public class MessageCenterServiceImpl {
             if(result.getType().equals(AppMessageUrlUtil.Type.QUESTION.id)){
                 message.setTitle(type.name);
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
-                message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
+                message.setTime(DateUtils.convertMsgDate(result.getCreateTime()));
                 message.setType(AppMessageUrlUtil.Type.QUESTION.id);
                 message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0?false:true);
                 message.setSort(4);
@@ -228,7 +228,7 @@ public class MessageCenterServiceImpl {
                 message.setTitle(type.name);
                 message.setContent(type.showTitleInRoot ? result.getTitle() : result.getContent());
                 message.setType(AppMessageUrlUtil.Type.SYSTEM.id);
-                message.setTime(MessageCenterDto.parseDate(result.getCreateTime()));
+                message.setTime(DateUtils.convertMsgDate(result.getCreateTime()));
                 message.setIsRead(messageReadService.unreadCountByType(uid, result.getType()) == 0?false:true);
                 message.setSort(5);
                 messages.add(message);
