@@ -113,16 +113,16 @@ public class StepController {
 	@RequestMapping(value = "/share", method = RequestMethod.GET)
 	@VersionRange
 	public Object getGoldRecord(String userId, int shareType) {
-		JsonResponseEntity<GoldRecord> responseEntity = new JsonResponseEntity<>();
+		JsonResponseEntity<Integer> responseEntity = new JsonResponseEntity<>();
 
 		GoldRecordTypeEnum type = GoldRecordTypeEnum.values()[shareType];
 		boolean isGet = goldRecordService.isGet(userId, type);
-		if (isGet) {
-			return responseEntity;
+		if (!isGet) {
+			int goldNum = 10;
+			GoldRecord record = goldRecordService.save(userId, goldNum, type);
+			responseEntity.setData(record.getGoldNum());
+			responseEntity.setMsg("分享成功+10金币");
 		}
-
-		int goldNum = 10;
-		goldRecordService.save(userId, goldNum, type);
 		return responseEntity;
 	}
 
