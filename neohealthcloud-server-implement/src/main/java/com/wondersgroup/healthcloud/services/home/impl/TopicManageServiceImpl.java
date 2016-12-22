@@ -33,12 +33,12 @@ public class TopicManageServiceImpl {
      * 后台系统-话题管理
      */
     public Map<String, Object> findTopicInfoByTopicID(String topicID) {
-        String query =String.format("select id as topicID,title as topicTitle from tb_bbs_topic where id=%s",topicID);
+        String query = String.format("select id as topicID,title as topicTitle from tb_bbs_topic where id=%s", topicID);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
         Map<String, Object> data;
-        if (null == list || list.isEmpty()){
+        if (null == list || list.isEmpty()) {
             return null;
-        }else {
+        } else {
             data = list.get(0);
         }
         return data;
@@ -47,31 +47,57 @@ public class TopicManageServiceImpl {
     /**
      * 用户端-首页-热门话题
      */
-    public List<TopicListDto> getHotTopicList(String uid,String mainArea){
+    public List<TopicListDto> getHotTopicList(String uid, String mainArea) {
         //获取管理后台配置的热门话题
-        String keyWord="app.home.topicmanage";
-        String source="1";//1-用户端;2-医生端
+        String keyWord = "app.home.topicmanage";
+        String source = "1";//1-用户端;2-医生端
         AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, keyWord, source);
-        if(appConfig == null){
+        if (appConfig == null) {
             return new ArrayList<>();
         }
-        TopicConfigDto topicConfigDto=JsonConverter.toObject(appConfig.getData(), TopicConfigDto.class);
-        Integer []hotTopocBox=topicConfigDto.getHotTopicBox();
+        TopicConfigDto topicConfigDto = JsonConverter.toObject(appConfig.getData(), TopicConfigDto.class);
+        Integer[] hotTopocBox = topicConfigDto.getHotTopicBox();
 
 
-        List<Integer> topicIds= null;
-        if(null == hotTopocBox || hotTopocBox.length == 0 ){
+        List<Integer> topicIds = null;
+        if (null == hotTopocBox || hotTopocBox.length == 0) {
             topicIds = new ArrayList<Integer>();
-        }else{
+        } else {
             topicIds = Arrays.asList(hotTopocBox);
         }
 
 
         //根据话题ID，获取话题信息
         List<TopicListDto> listDtos = topicService.getTopicsByIds(topicIds);
-        if(listDtos == null){
+        if (CollectionUtils.isEmpty(listDtos)) {
             return new ArrayList<>();
+        }else{
+            listDtos = sortTopicByTopicIds(topicIds,listDtos);
         }
+
         return listDtos;
+    }
+
+    /**
+     * 根据配置数据里的顺序重新组装顺序
+     * @param topicIds
+     * @param listDtos
+     * @return
+     */
+    private List<TopicListDto> sortTopicByTopicIds(List<Integer> topicIds, List<TopicListDto> listDtos) {
+        if(CollectionUtils.isEmpty(topicIds)){
+            return listDtos;
+        }
+
+        List<TopicListDto> list = new ArrayList<TopicListDto>();
+        for (Integer id : topicIds) {
+            for (TopicListDto dto : listDtos) {
+                if (dto.getId().equals(id)) {
+                    list.add(dto);
+                }
+            }
+        }
+
+        return list;
     }
 }
