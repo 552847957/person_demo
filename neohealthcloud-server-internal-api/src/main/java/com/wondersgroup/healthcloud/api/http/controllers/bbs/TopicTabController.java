@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.bbs;
 import com.wondersgroup.healthcloud.api.utils.Pager;
 import com.wondersgroup.healthcloud.common.http.annotations.Admin;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Circle;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.TopicTab;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
@@ -102,15 +103,15 @@ public class TopicTabController {
     public JsonResponseEntity<Boolean> addTab(@RequestBody TopicTab topicTab){
         JsonResponseEntity responseEntity = new JsonResponseEntity();
         if (topicTab.getCircleId() == null || topicTab.getCircleId() == 0){
-            throw new RuntimeException("圈子无效");
+            throw new CommonException("圈子无效");
         }
         if (StringUtils.isEmpty(topicTab.getTabName())){
-            throw new RuntimeException("tab name无效");
+            throw new CommonException("tab name无效");
         }
         TopicTab topicTabExit = topicTabRepository.getTopicTabsByCircleIdAndName(topicTab.getCircleId(), topicTab.getTabName());
         if (topicTabExit != null){
             if ((null != topicTab.getId() && topicTabExit.getId().intValue() != topicTab.getId()) || null == topicTab.getId()){
-                throw new RuntimeException("标签名不能重复");
+                throw new CommonException("标签名不能重复");
             }
         }
         topicTab.setDelFlag(topicTab.getDelFlag().equals("1") ? "1" : "0");

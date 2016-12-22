@@ -123,7 +123,7 @@ public class TopicController {
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
         Integer circleId = topicPublishDto.getCircleId();
         if (null == circleId || circleId == 0){
-            throw new RuntimeException("圈子无效");
+            throw new CommonException("圈子无效");
         }
         topicPublishDto.setIsAdminPublish(true);
         Topic topic = topicService.publishTopic(topicPublishDto);
@@ -171,7 +171,7 @@ public class TopicController {
         JsonResponseEntity<Map<String, Object>> rt = new JsonResponseEntity();
         Integer circleId = settingDto.getCircleId();
         if (null == circleId || circleId == 0){
-            throw new RuntimeException("圈子无效");
+            throw new CommonException("圈子无效");
         }
         int topicId = topicService.settingTopic(settingDto);
         Map<String, Object> info = new HashMap<>();
