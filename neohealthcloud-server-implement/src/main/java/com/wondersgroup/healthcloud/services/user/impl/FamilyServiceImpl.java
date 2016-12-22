@@ -85,9 +85,9 @@ public class FamilyServiceImpl implements FamilyService {
     public Boolean inviteMember(String userId, String memberId, String mobile, String memo, String relation,
             String relationName, Boolean recordReadable) {
         RegisterInfo register = findOneRegister(userId, false);//找到申请者
-        if (register.getGender() == null) {
-            throw new ErrorChangeMobileException(1058, "请先输入本人性别");
-        }
+//        if (register.getGender() == null) {
+//            throw new ErrorChangeMobileException(1058, "请先输入本人性别");
+//        }
         checkMemberCount(userId);
 
         RegisterInfo other = memberId == null ? findOneRegisterByMobile(mobile, false) : findOneRegister(memberId,
@@ -492,25 +492,25 @@ public class FamilyServiceImpl implements FamilyService {
         
         if (type == 2) {
             title = "就医记录";
-            content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
+            content = name + "提示你，开启就医记录，即刻查看上海市就医记录。";
         }else if (type == 4) {
             title = "计步管理";
-            content = "健康云用户" + name + "提示你，一起计步领积分金币，兑换奖品啦。";
+            content = name + "提示你，一起计步领积分金币，兑换奖品啦。";
         } else if (type == 5) {
             title = "BMI管理";
-            content = "健康云用户" + name + "提示你，输入身高体重，BMI数值马上知晓。";
+            content = name + "提示你，输入身高体重，BMI数值马上知晓。";
         } else if (type == 6) {
             title = "血糖管理";
-            content = "健康云用户" + name + "提示你，需要管理自己的血糖啦。";
+            content = name + "提示你，需要管理自己的血糖啦。";
         } else if (type == 7) {
             title = "血压管理";
-            content = "健康云用户" + name + "提示你，需要管理自己的血压啦。";
+            content = name + "提示你，需要管理自己的血压啦。";
         } else if (type == 8) {
             title = "风险评估";
-            content = "健康云用户" + name + "提示你，做一做风险评估，看看是否有慢病风险哦。";
+            content = name + "提示你，做一做风险评估，看看是否有慢病风险哦。";
         } else if (type == 9) {
             title = "中医体质辨识";
-            content = "健康云用户" + name + "提示你，做一做中医体质辨识，看看你是属于哪种体质？";
+            content = name + "提示你，做一做中医体质辨识，看看你是属于哪种体质？";
         }else if (type == 10) {
 //            title = "儿童";
 //            content = "健康云用户" + name + "提示你，开启就医记录，即刻查看上海市就医记录。";
