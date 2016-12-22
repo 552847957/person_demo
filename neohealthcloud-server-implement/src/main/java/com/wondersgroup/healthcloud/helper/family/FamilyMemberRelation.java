@@ -113,7 +113,7 @@ public static void main(String[] args) {
         case "2": return SEX_GIRL;
         case "3": 
             if(sex != null){
-                return sex == 2 ? SEX_GIRL : SEX_MAN; 
+                return sex == 1 ? SEX_GIRL : SEX_MAN; 
             }
         case "4": return SEX_MAN;
         case "5": return SEX_GIRL;
@@ -143,11 +143,12 @@ public static void main(String[] args) {
         case "29": return SEX_GIRL;
         case "30": return SEX_MAN;
         case "31": return SEX_GIRL;
-        case "32": return SEX_GIRL;
-        case "33": return SEX_MAN;
-        case "34": return SEX_MAN;
+        case "32": return SEX_MAN;
+        case "33": return SEX_GIRL;
+        case "34": return SEX_GIRL;
         case "35": return SEX_GIRL;
         case "36": return SEX_MAN;
+        case "37": return SEX_GIRL;
 
         default: return SEX_MAN;
         }

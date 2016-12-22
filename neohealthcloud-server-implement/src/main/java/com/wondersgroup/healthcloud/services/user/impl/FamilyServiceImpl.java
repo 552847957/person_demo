@@ -465,9 +465,12 @@ public class FamilyServiceImpl implements FamilyService {
     }
     
     public boolean pushMessage(String uid, String memberId, int type, String relationName) {
-        int count =  familyMsgService.getCountByDate(memberId, type);
-        if(count > 0){
-            return true;
+        if(type==2 || type==4 || type==5 || type==6 || type==7 || type==8 || type==9 
+                || type==11){
+            int count =  familyMsgService.getCountByDate(memberId, Integer.parseInt(changeType(type)));
+            if(count > 0){
+                return true;
+            }
         }
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
