@@ -533,6 +533,8 @@ public class FamilyServiceImpl implements FamilyService {
             title = reg.getNickname();
             content = "请求添加你为家人";
         } else if (type == 15) {
+            familyMessage.setNotifierUID(memberId);
+            familyMessage.setReceiverUID(uid);
         	title = "健康档案";
         	content = name + "已关闭查看健康档案权限";
         }
