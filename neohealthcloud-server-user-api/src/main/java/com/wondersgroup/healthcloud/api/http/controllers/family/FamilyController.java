@@ -135,6 +135,8 @@ public class FamilyController {
     private String                           host;
     @Value("${api.vaccine.url}")
     private String                           host_vaccine;
+//    @Value("${api.vaccine.url}")
+    private String                           vaccine_h5;
     private static final String              requestAbnormalHistories = "%s/api/measure/3.0/queryHistoryMeasurAbnormal?%s";
     private static final String              requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
 
@@ -513,10 +515,13 @@ public class FamilyController {
         }else if(recordReadableStr.equalsIgnoreCase("false") || recordReadableStr.equalsIgnoreCase("true")){
             recordReadable = recordReadableStr.equalsIgnoreCase("true");
         }
-        //允许对方是否查看，所有这里uid 和memberid 反着放
-        ThreadLocalHolder.setVersionType(!CommonUtils.compareVersion(version, "4.0"));
-        familyService.switchRecordReadAccess(memberId, uid, recordReadable);
+        FamilyMember familyMember = familyService.getFamilyMemberWithOrder(uid, memberId);
         JsonResponseEntity<Map<String, Boolean>> body = new JsonResponseEntity<>();
+        if(familyMember != null){
+            //允许对方是否查看，所有这里uid 和memberid 反着放
+            ThreadLocalHolder.setVersionType(!CommonUtils.compareVersion(version, "4.0"));
+            familyService.switchRecordReadAccess(memberId, uid, recordReadable);
+        }
         Map<String, Boolean> data = ImmutableMap.of("record_readable", recordReadable);
         body.setData(data);
         body.setMsg("修改成功");
@@ -790,6 +795,7 @@ public class FamilyController {
             info.setNikcName("我");
         } else {
             info.setAccess(FamilyMemberAccess.recordReadable(familyMember.getAccess()));
+            info.setRelation(familyMember.getRelation());
             info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         }
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
@@ -861,6 +867,7 @@ public class FamilyController {
                     templet.setDesc("专业中医体质评估");
                 }
             } else if (id == MemberInfoTemplet.CHILD_VACCINE) {
+                templet.setUrl(vaccine_h5);
                 templet.setDesc("家有宝贝初养成");
             }
             tems.add(templet);
@@ -997,6 +1004,7 @@ public class FamilyController {
             FamilyMemberInvitationAPIEntity entity = new FamilyMemberInvitationAPIEntity();
             entity.setId(familyMember.getMemberId());
             entity.setAvatar((info != null && info.getRegisterid() != null) ? info.getHeadphoto() : null);
+            entity.setRelation(familyMember.getRelation());
             entity.setRelationName(FamilyMemberRelation.getName(familyMember.getRelation()));
             entity.setIsStandalone(false);
             if (info == null) {

@@ -468,7 +468,6 @@ public class FamilyServiceImpl implements FamilyService {
         if(type==2 || type==4 || type==5 || type==6 || type==7 || type==8 || type==9 
                 || type==11){
             int count =  familyMsgService.getCountByDate(uid, memberId, Integer.parseInt(changeType(type)));
-            System.out.println("count:"+count);
             if(count > 0){
                 return true;
             }

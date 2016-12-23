@@ -26,6 +26,7 @@ public class FamilyMemberInfoDTO {
     public static class Info {
         private String  id;             //id
         private String  nikcName;      //昵称
+        private String  relation;  //关系
         private String  relation_name;  //关系名称
         private Integer age;           //年龄
         private Boolean isVerification; //是否实名
@@ -41,6 +42,7 @@ public class FamilyMemberInfoDTO {
         int          type;
         String       title;
         String       desc;
+        String       url;
         List<MeasureInfoDTO> values;
 
         public InfoTemplet() {
