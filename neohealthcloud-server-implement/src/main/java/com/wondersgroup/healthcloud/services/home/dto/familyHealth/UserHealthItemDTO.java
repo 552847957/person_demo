@@ -11,16 +11,9 @@ import lombok.Data;
 @Data
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserHealthItemDTO implements Comparable {
+public class UserHealthItemDTO {
     private String name;
     private String data;
     private String hightAndLow;
     private Long testTime;
-
-
-    @Override
-    public int compareTo(Object o) {
-        UserHealthItemDTO dto = (UserHealthItemDTO)o;
-        return dto.getTestTime().compareTo(this.testTime);
-    }
 }

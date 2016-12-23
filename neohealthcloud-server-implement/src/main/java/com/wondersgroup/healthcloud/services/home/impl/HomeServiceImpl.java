@@ -703,7 +703,10 @@ public class HomeServiceImpl implements HomeService {
                     dto = new UserHealthDTO();
                     dto.setHealthStatus(dataResponse.getData().getHealthStatus());
                     dto.setExceptionItems(dataResponse.getData().getExceptionItems());
-                    Collections.reverse(dto.getExceptionItems());//按照 testTime 降序排序
+                    UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
+                    UserHealthItemComparable.sortASC = false;
+                    Collections.sort(dto.getExceptionItems(),sort);
+
                     dto.setMainTitle("您的健康状况：" + dto.getExceptionItems().size() + "项异常");
                     dto.setSubTitle("[显示最新的2项异常指标数据]");
 
