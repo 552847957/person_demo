@@ -148,20 +148,15 @@ public class MeasureController {
                                                    @RequestParam(name = "beginDate", required = false) String begin_date) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map<String, Object> rtnMap = new HashMap<>();
-        if (StringUtils.isEmpty(begin_date)) {
-            begin_date = DateTime.now().plusMonths(-1).toString("yyyy-MM-dd");
-        } else {
-            begin_date = new DateTime(begin_date).plusMonths(-1).toString("yyyy-MM-dd");
-        }
-        String end_date = new DateTime(begin_date).plusMonths(1).toString("yyyy-MM-dd");
-        DateTime beginDateTime = new DateTime(begin_date);
-        DateTime endDateTime = new DateTime(end_date);
-        rtnMap.put("nextMonth", endDateTime.plusMonths(1).toString("yyyy-MM-dd"));
-        rtnMap.put("frontMonth", beginDateTime.toString("yyyy-MM-dd"));
+        String flagDate = StringUtils.isEmpty(begin_date) ? DateTime.now().toString("yyyy-MM-dd") : begin_date;
+        DateTime beginDateTime = new DateTime(flagDate).plusMonths(-1).plusDays(1);
+        DateTime endDateTime = new DateTime(flagDate);
+        rtnMap.put("nextMonth", new DateTime(flagDate).plusMonths(1).toString("yyyy-MM-dd"));
+        rtnMap.put("frontMonth", new DateTime(flagDate).plusMonths(-1).toString("yyyy-MM-dd"));
         try {
             List<JsonNode> monthDate = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
-            int days = -Days.daysBetween(endDateTime, beginDateTime).getDays();
+            int days = -Days.daysBetween(endDateTime, beginDateTime).getDays() + 1;
             for (int i = 0; i < days; i++) {
                 monthDate.add(((ObjectNode) mapper.readTree("{}")).put("date", DateFormatter.dateFormat(endDateTime.plusDays(-i).toDate())));
             }
@@ -169,8 +164,8 @@ public class MeasureController {
             String param = "registerId=".concat(registerId)
                     .concat("&sex=").concat(StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender())
                     .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard())
-                    .concat("&begin_date=").concat(begin_date)
-                    .concat("&end_date=").concat(end_date);
+                    .concat("&begin_date=").concat(beginDateTime.toString("yyyy-MM-dd"))
+                    .concat("&end_date=").concat(endDateTime.toString("yyyy-MM-dd"));
             String url = String.format(recentMeasureHistoryByDate, host, "3", param);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {

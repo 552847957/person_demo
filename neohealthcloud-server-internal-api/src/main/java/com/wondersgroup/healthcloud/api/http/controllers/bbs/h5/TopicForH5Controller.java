@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.utils.BeanUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
+import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.AdminVestUser;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
@@ -23,6 +24,8 @@ import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicSettingDto;
+import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
+import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.utils.searchCriteria.JdbcQueryParams;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -55,10 +58,20 @@ public class TopicForH5Controller {
     private BadWordsService badWordsService;
 
     @RequestMapping(value = "/viewForH5", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicH5ViewDto> viewForH5(@RequestParam Integer topicId,
-                                                        @RequestParam(defaultValue = "", required = false) String uid){
+    public JsonResponseEntity<TopicH5ViewDto> viewForH5(@RequestParam Integer topicId){
         JsonResponseEntity<TopicH5ViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
+        if (TopicConstant.Status.isDelStatus(detailInfo.getStatus())){
+            throw TopicException.notExist();
+        }
+        if (detailInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
+            throw TopicException.notExist();
+        }
+        //待审和的话题(只能本人查看)
+        if (detailInfo.getStatus() == TopicConstant.Status.WAIT_VERIFY){
+            throw TopicException.notExist();
+        }
+
         TopicH5ViewDto viewDto = new TopicH5ViewDto(detailInfo);
         //默认头像
         if (StringUtils.isEmpty(viewDto.getAvatar())){

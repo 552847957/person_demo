@@ -152,6 +152,7 @@ public class HomeServiceImpl implements HomeService {
 
     /**
      * 根据注册id查询家人信息
+     *
      * @param uid
      * @return
      */
@@ -159,6 +160,10 @@ public class HomeServiceImpl implements HomeService {
 
         List<FamilyMemberInfo> list = new ArrayList<FamilyMemberInfo>();
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
+        if (CollectionUtils.isEmpty(familyMembers)) {
+            return list;
+        }
+
         for (FamilyMember familyMember : familyMembers) {
             FamilyMemberInfo entity = new FamilyMemberInfo();
             entity.setUid(familyMember.getMemberId());
@@ -277,11 +282,16 @@ public class HomeServiceImpl implements HomeService {
         }
 
 
+/////////////////////////////////////begin 获取最新数据///////////////////////////////////////////
+
         if (!CollectionUtils.isEmpty(familyMemberHealthRecordList)) {//有就医记录
-            FamilyMemberItemDTO familyMemberItemDTO = familyMemberHealthRecordList.get(0);
-            familyMember.getExceptionItems().add(familyMemberItemDTO);
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            FamilyMemberItemDTO familyMemberItemDTO = getMaxRecord(familyMemberHealthRecordList);
+            if (null != familyMemberItemDTO) {
+                familyMember.getExceptionItems().add(familyMemberItemDTO);
+                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            }
         }
+
 
         if (!CollectionUtils.isEmpty(familyMemberHealthMap)) {//家人健康信息集合
             int goodsHealthCount = 0;
@@ -315,23 +325,31 @@ public class HomeServiceImpl implements HomeService {
                 List<FamilyMemberItemDTO> maxTwoList = getMaxTwoList(familyMember.getExceptionItems());//从家庭成员异常数据集合里 取时间最新的两条
                 familyMember.setExceptionItems(maxTwoList);
             }
-
-
         }
 
 
         if (!CollectionUtils.isEmpty(familyMemberDangerousItemList)) {// 风险评估记录
-            FamilyMemberItemDTO item = familyMemberDangerousItemList.get(0);
-            familyMember.getExceptionItems().add(item);
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            FamilyMemberItemDTO item = getMaxRecord(familyMemberDangerousItemList);
+            if (null != item) {
+                familyMember.getExceptionItems().add(item);
+                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            }
+
         }
 
         if (!CollectionUtils.isEmpty(familyMemberVaccinetemList)) {  //疫苗通知集合
-            FamilyMemberItemDTO item = familyMemberVaccinetemList.get(0);
-            familyMember.getExceptionItems().add(item);
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            FamilyMemberItemDTO item = getLastFurtherRecord(familyMemberVaccinetemList);//获取最近要打疫苗的记录
+            if (null != item) {
+                familyMember.getExceptionItems().add(item);
+                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+            }
+
         }
 
+/////////////////////////////////////end 获取最新数据///////////////////////////////////////////
+
+
+        ////////////////////////////////////begin 根据状态 设置主标题，副标题//////////////////////
 
                 /*HAVE_NO_FAMILY("0","无家人"),
                 HAVE_FAMILY_WITHOUT_DATA("1","有家人家人无数据"),
@@ -352,6 +370,8 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setSubTitle("");
         }
 
+        ////////////////////////////////////end 根据状态 设置主标题，副标题//////////////////////
+
         if (null == userHealth) {
             userHealth = new UserHealthDTO();
             userHealth.setMainTitle("请录入您的健康数据");
@@ -359,7 +379,7 @@ public class HomeServiceImpl implements HomeService {
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
         }
 
-        //个人数据最多显示两条
+        //个人健康异常数据最多显示两条
         List<UserHealthItemDTO> userItemList = CollectionUtils.isEmpty(userHealth.getExceptionItems()) ? new ArrayList<UserHealthItemDTO>() : userHealth.getExceptionItems().size() > 2 ? userHealth.getExceptionItems().subList(0, 2) : userHealth.getExceptionItems();
         replaceUnitStr(userItemList);
         userHealth.setExceptionItems(userItemList);
@@ -369,6 +389,55 @@ public class HomeServiceImpl implements HomeService {
 
         return dto;
     }
+
+
+    /**
+     * 未来最近的记录
+     *
+     * @param list
+     * @return
+     */
+    private FamilyMemberItemDTO getLastFurtherRecord(List<FamilyMemberItemDTO> list) {
+        FamilyMemberItemDTO lastTimeDto = null;
+        Iterator<FamilyMemberItemDTO> it = list.iterator();
+        while (it.hasNext()) {
+            FamilyMemberItemDTO dto = it.next();
+            if (null == lastTimeDto) {
+                lastTimeDto = dto;
+            } else {
+                if (null != dto.getTestTime() && null != lastTimeDto.getTestTime() && dto.getTestTime() < lastTimeDto.getTestTime()) {
+                    lastTimeDto = dto;
+                }
+            }
+        }
+
+        return (lastTimeDto == null ? list.get(0) : lastTimeDto);
+    }
+
+
+    /**
+     * 最新的就医记录
+     *
+     * @param list
+     * @return
+     */
+    private FamilyMemberItemDTO getMaxRecord(List<FamilyMemberItemDTO> list) {
+        FamilyMemberItemDTO maxTimeDto = null;
+        Iterator<FamilyMemberItemDTO> it = list.iterator();
+        while (it.hasNext()) {
+            FamilyMemberItemDTO dto = it.next();
+            if (null == maxTimeDto) {
+                maxTimeDto = dto;
+            } else {
+                if (null != dto.getTestTime() && null != maxTimeDto.getTestTime() && dto.getTestTime() > maxTimeDto.getTestTime()) {
+                    maxTimeDto = dto;
+                }
+            }
+        }
+
+        return (maxTimeDto == null ? list.get(0) : maxTimeDto);
+    }
+
 
     /**
      * 根据 testTime字段 找出最大的两条记录
@@ -650,36 +719,6 @@ public class HomeServiceImpl implements HomeService {
         return dto;
     }
 
-    public static void main(String[] args) {
-        UserHealthItemDTO BMI = new UserHealthItemDTO();
-        BMI.setTestTime(1482389215000L);
-        BMI.setName("BMI");
-
-        UserHealthItemDTO dto1 = new UserHealthItemDTO();
-        dto1.setTestTime(1482389155000L);
-        dto1.setName("血糖");
-
-        UserHealthItemDTO dto2 = new UserHealthItemDTO();
-        dto2.setTestTime(1482326097000L);
-        dto2.setName("心率");
-
-        UserHealthItemDTO dto3 = new UserHealthItemDTO();
-        dto3.setTestTime(1482326097000L);
-        dto3.setName("血压");
-
-        List<UserHealthItemDTO> list = new ArrayList<UserHealthItemDTO>();
-        list.add(BMI);
-        list.add(dto1);
-        list.add(dto2);
-        list.add(dto3);
-
-
-        UserHealthDTO dto = new UserHealthDTO();
-        dto.setExceptionItems(list);
-        Collections.sort(dto.getExceptionItems());
-
-    }
-
 
     /**
      * 家人评估结果异常
@@ -690,11 +729,18 @@ public class HomeServiceImpl implements HomeService {
     private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMemberInfo fm) {
         FamilyMemberItemDTO fItemDTO = null;
         Map<String, Object> resultMap = assessmentServiceImpl.getRecentAssessIsNormal(fm.getUid());
-        if (null != resultMap && resultMap.size() > 0 && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
+        if (!CollectionUtils.isEmpty(resultMap) && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
             fItemDTO = new FamilyMemberItemDTO();
             fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
             fItemDTO.setPrompt("风险评估结果 高危人群");
+            String dateStr = String.valueOf(resultMap.get("date"));
+            if (StringUtils.isNotBlank(dateStr)) {
+                Date testDate = parseDate(dateStr, "YYYY-MM-DD");
+                if (null != testDate) {
+                    fItemDTO.setTestTime(testDate.getTime());
+                }
 
+            }
         }
 
         return fItemDTO;
@@ -723,12 +769,16 @@ public class HomeServiceImpl implements HomeService {
                 fItemDTO = new FamilyMemberItemDTO();
                 fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
                 fItemDTO.setPrompt("疫苗接种 " + leftDays_ + "天后");
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DATE, leftDays_);//当前时间相加天数
+                fItemDTO.setTestTime(cal.getTime().getTime());
             }
 
         }
 
         return fItemDTO;
     }
+
 
     /**
      * 获得生日
@@ -815,6 +865,12 @@ public class HomeServiceImpl implements HomeService {
         FamilyMemberItemDTO familyMemberItemDTO = new FamilyMemberItemDTO();
         familyMemberItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
         familyMemberItemDTO.setPrompt("有新的就医记录");
+        if (StringUtils.isNotBlank(userhealthRecord.getDate())) {
+            Date compareDate = parseDate(userhealthRecord.getDate(), "YYYY-MM-DD");
+            if (null != compareDate) {
+                familyMemberItemDTO.setTestTime(compareDate.getTime());
+            }
+        }
 
         return familyMemberItemDTO;
 

@@ -39,7 +39,7 @@ public class ReportController {
      */
     @GetMapping("/screening")
     public JsonResponseEntity screening(
-            @RequestParam(name="cardType") String cardType,
+            @RequestParam(name="cardType",defaultValue = "01",required = false) String cardType,
             @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportScreeningDTO> source = diabetesService.getReportScreening(cardType,cardNumber);
@@ -62,7 +62,7 @@ public class ReportController {
      */
     @GetMapping("/inspect")
     public JsonResponseEntity inspect(
-            @RequestParam(name="cardType") String cardType,
+            @RequestParam(name="cardType",defaultValue = "01",required = false) String cardType,
             @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportInspectDTO> source = diabetesService.getReportInspectList(cardType,cardNumber);
@@ -100,7 +100,7 @@ public class ReportController {
      */
     @GetMapping("/follow")
     public JsonResponseEntity follow(
-            @RequestParam(name="cardType") String cardType,
+            @RequestParam(name="cardType",defaultValue = "01",required = false) String cardType,
             @RequestParam(name="cardNumber") String cardNumber){
 
         List<ReportFollowDTO> source = diabetesService.getReportFollowList(cardType,cardNumber);
