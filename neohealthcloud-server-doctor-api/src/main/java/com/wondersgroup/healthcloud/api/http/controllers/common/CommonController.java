@@ -79,8 +79,8 @@ public class CommonController {
         keyWords.add("app.common.disclaimerUrl");//健康档案说明文案
         
         keyWords.add("app.common.recordUrl");
-        
-        
+
+        keyWords.add("app.diabetesZone.open");//糖尿病专区开关
       
         keyWords.add("app.common.appUpdate");// APP更新
         Map<String, String> cfgMap = appConfigService.findAppConfigByKeyWords(mainArea, specArea, keyWords, "2");
@@ -97,16 +97,21 @@ public class CommonController {
                 common.put("register_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.userAgreement")));
             }
             if(cfgMap.get("app.common.versionDesc") != null){
-            	common.put("version_desc", cfgMap.get("app.common.versionDesc"));
+                common.put("version_desc", cfgMap.get("app.common.versionDesc"));
             }
             if(cfgMap.get("app.common.versionDepartment") != null){
-            	common.put("version_department", cfgMap.get("app.common.versionDepartment"));
+                common.put("version_department", cfgMap.get("app.common.versionDepartment"));
             }
             if(cfgMap.get("app.common.disclaimerUrl") != null){
-            	common.put("disclaimerUrl", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.disclaimerUrl")));
+                common.put("disclaimerUrl", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.disclaimerUrl")));
             }
             if(cfgMap.get("app.common.recordUrl") != null){
-            	common.put("record_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+                common.put("record_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
+            }
+            if(cfgMap.get("app.diabetesZone.open") != null){
+                common.put("is_opne_diabetesZone", cfgMap.get("app.diabetesZone.open").equals("1") ? 1: 0);
+            }else {
+                common.put("is_opne_diabetesZone", 1);
             }
 
             if (cfgMap.get("app.common.appUpdate") != null) {
@@ -119,16 +124,16 @@ public class CommonController {
                         Boolean forceUpdate = false;
                         // 判断iOS是否强制升级
                         if("0".equals(platform)){
-                        	String iosForceUpdate = content.get("iosForceUpdate") == null ? "" : content.get("iosForceUpdate").asText();
-                        	if(StringUtils.isNotBlank(iosForceUpdate) && iosForceUpdate.equals("1")){
-                        		forceUpdate = true;
-                        	}
+                            String iosForceUpdate = content.get("iosForceUpdate") == null ? "" : content.get("iosForceUpdate").asText();
+                            if(StringUtils.isNotBlank(iosForceUpdate) && iosForceUpdate.equals("1")){
+                                forceUpdate = true;
+                            }
                         }else {
-                        	String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
+                            String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
                             if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
                                 forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
                             }
-						}
+                        }
                         
                         String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
                         String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
@@ -167,7 +172,7 @@ public class CommonController {
         
         imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if(imageTexts != null){
-        	interImage.addAll(imageTexts);
+            interImage.addAll(imageTexts);
         }
         
         
@@ -176,7 +181,7 @@ public class CommonController {
         imgText.setSource("2");
         imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if(imageTexts != null){
-        	interImage.addAll(imageTexts);
+            interImage.addAll(imageTexts);
         }
         
         imgText = new ImageText();
@@ -184,7 +189,7 @@ public class CommonController {
         imgText.setSource("2");
         imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if(imageTexts != null){
-        	interImage.addAll(imageTexts);
+            interImage.addAll(imageTexts);
         }
         
         imgText = new ImageText();
@@ -192,14 +197,14 @@ public class CommonController {
         imgText.setSource("2");
         imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imgText);
         if(imageTexts != null){
-        	interImage.addAll(imageTexts);
+            interImage.addAll(imageTexts);
         }
         
         List<InterImageDTO> interADs = Lists.newArrayList();
         if(interImage != null){
-        	for (ImageText imageText : interImage) {
-        		interADs.add(new InterImageDTO(imageText));
-    		}
+            for (ImageText imageText : interImage) {
+                interADs.add(new InterImageDTO(imageText));
+            }
         }
 
         common.put("interADs", interADs);
