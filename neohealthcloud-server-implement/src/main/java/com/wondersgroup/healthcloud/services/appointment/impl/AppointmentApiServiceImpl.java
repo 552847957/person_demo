@@ -536,7 +536,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     private void sendAppointmentMessage(AppointmentContact contact, OrderDto orderDto, String type) {
         AppointmentSmsTemplet smsTemplet = smsTempletRepository.findOne(orderDto.getHosOrgCode());
         String RealName = contact.getName();
-        String ReservationId = orderDto.getOrderId();
+        String ReservationId = orderDto.getHosNumSourceId();
         String MedicineCardNo ="";
         String Date = DateFormatter.scheduleDateFormat(orderDto.getScheduleDate());
         String Time = DateFormatter.hourDateFormat(orderDto.getStartTime())+"-"+DateFormatter.hourDateFormat(orderDto.getEndTime());
