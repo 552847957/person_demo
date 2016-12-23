@@ -18,6 +18,8 @@ public class AppUrlH5Utils {
     @Value("${h5-mall.connection.url}")
     private String mallBasePath;
 
+    @Value("${h5-diabetes.connection.url}")
+    private String diabetesBasePath;//糖尿病专区
     /**
      * 圈子的话题详情
      */
@@ -136,6 +138,6 @@ public class AppUrlH5Utils {
      * 医生端 - 糖尿病专区
      */
     public String buildDiabetesZoneUrl(){
-        return "";
+        return diabetesBasePath;
     }
 }
