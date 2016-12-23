@@ -40,4 +40,9 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
     @Modifying(clearAutomatically = true)
     @Query("update Topic t set t.status=?1 where t.id in ?2")
     void multSettingStatus(Integer status, Iterable<Integer> topicIds);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("update Topic t set t.isTop=0 where t.uid=?1 and t.isTop=1")
+    void cancelUserAllTopTopic(String uid);
 }
