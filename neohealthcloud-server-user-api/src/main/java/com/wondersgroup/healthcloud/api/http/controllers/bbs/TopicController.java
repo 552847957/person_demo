@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
+import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,8 +196,19 @@ public class TopicController {
                                                       @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
+        if (TopicConstant.Status.isDelStatus(detailInfo.getStatus())){
+            throw TopicException.notExist();
+        }
+        if (detailInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
+            throw BbsUserException.banForever();
+        }
+        //待审和的话题(只能本人查看)
+        if (detailInfo.getStatus() == TopicConstant.Status.WAIT_VERIFY){
+            if (StringUtils.isEmpty(uid) || !uid.equals(detailInfo.getUid())){
+                throw TopicException.waitVerify();
+            }
+        }
         TopicViewDto viewDto = new TopicViewDto(detailInfo);
-        viewDto.dealBadWords(badWordsService);
         if (StringUtils.isNotEmpty(uid)){
             viewDto.setIsCollected(topicCollectService.isCollectedForUser(uid, topicId) ? 1 : 0);
             if (viewDto.getVoteInfo() != null){
@@ -210,10 +222,7 @@ public class TopicController {
             Boolean isFavor = favorService.isFavorTopic(uid, topicId);
             viewDto.setIsFavor(isFavor ? 1 : 0);
         }
-
-        if (TopicConstant.Status.isDelStatus(detailInfo.getStatus())){
-            throw TopicException.notExist();
-        }
+        viewDto.dealBadWords(badWordsService);
         viewDto.setShareInfo(this.getShareInfo(detailInfo));
 
         responseEntity.setData(viewDto);

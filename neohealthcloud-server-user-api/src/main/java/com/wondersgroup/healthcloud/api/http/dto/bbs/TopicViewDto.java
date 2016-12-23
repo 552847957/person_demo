@@ -25,6 +25,7 @@ import java.util.List;
 public class TopicViewDto {
 
     private Integer id;
+    private Integer status;//0:待审核, 1:审核通过,2:禁止回复3:用户删除,4:管理员删除
     private Integer isAdmin;
     private Boolean isIdentify = false;
     private String uid;

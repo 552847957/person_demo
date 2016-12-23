@@ -166,7 +166,7 @@ public class CommentServiceImpl implements CommentService {
         }
         RegisterInfo withBabyInfo = userService.getOneNotNull(publishDto.getUid());
         if (withBabyInfo.getBanStatus() != UserConstant.BanStatus.OK){
-            throw BbsUserException.UserBanForReply();
+            throw BbsUserException.userBanForReply();
         }
         int commentCount = topic.getCommentCount();
         publishDto.setFloor(commentCount + 1);
