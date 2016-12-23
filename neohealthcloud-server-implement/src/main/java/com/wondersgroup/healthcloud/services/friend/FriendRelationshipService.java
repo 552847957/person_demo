@@ -51,7 +51,7 @@ public class FriendRelationshipService {
 
 		// 用户一天只能收取五次邀请金币
 		List<GoldRecord> records = goldRecordService.findByUserIdAndTypeAndCreateTime(userId,
-				GoldRecordTypeEnum.INVITATION, new Date());
+				GoldRecordTypeEnum.INVITATION);
 		if (records.size() >= 5) {
 			return;
 		}
