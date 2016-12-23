@@ -74,7 +74,7 @@ public class ArticleFavoriteController {
         ArticleFavorite articleFavorite = manageArticleFavoriteService.queryByUidAndArticleId(uid, article_id);
         if(null != articleFavorite){
             manageArticleFavoriteService.deleteArticleFavorite(articleFavorite);
-            body.setMsg("删除收藏成功");
+            body.setMsg("取消收藏成功");
         }else{
             ArticleFavorite af=new ArticleFavorite();
             af.setUser_id(uid);
