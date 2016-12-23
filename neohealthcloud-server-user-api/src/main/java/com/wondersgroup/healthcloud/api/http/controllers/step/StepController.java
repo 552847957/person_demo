@@ -122,6 +122,8 @@ public class StepController {
 			GoldRecord record = goldRecordService.save(userId, goldNum, type);
 			responseEntity.setData(record.getGoldNum());
 			responseEntity.setMsg("分享成功+10金币");
+		} else {
+			responseEntity.setMsg("分享成功");
 		}
 		return responseEntity;
 	}
