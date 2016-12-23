@@ -83,9 +83,10 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public List<TubePatientDTO> getTubePatientList(String hospitalCode, String doctorName, String patientName,Integer pageNo , Integer pageSize) {
-        String[] param = new String[]{"hospitalId",hospitalCode,"docName",doctorName};
+        String[] param = new String[]{"hospitalId",hospitalCode,"docName",doctorName,"pageNo",String.valueOf(pageNo-1),"pageSize",pageSize.toString()};
         if(null != patientName && !StringUtils.isEmpty(patientName)){
-            param = new String[]{"hospitalId",hospitalCode,"docName",doctorName,"name",patientName};
+            param = new String[]{"hospitalId",hospitalCode,"docName",doctorName,"name",patientName,
+                    "pageNo",String.valueOf(pageNo-1),"pageSize",pageSize.toString()};
         }
         Request request = new RequestBuilder().get().url(url+this.TUBE_PATIENT_LIST).params(param).build();
 
