@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.services.user.message.enums.FamilyMsgTypeEnum;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
 import org.apache.commons.collections.CollectionUtils;
@@ -68,6 +69,8 @@ public class FamilyMsgServiceImpl implements MsgService{
                     String reqStatus=this.getReqStatusByReqID(reqRecordID);
                     row.put("reqStatus",reqStatus);
                 }
+                //设置title和content文案(这里以后可做优化，减少读库次数)
+                this.setTitleAndContent(row,type);
 
                 //处理是否已读状态
                 String isReaded= String.valueOf(row.get("isReaded"));
@@ -109,6 +112,56 @@ public class FamilyMsgServiceImpl implements MsgService{
         }
         return list;
     }
+    //设置title和content文案
+    private void setTitleAndContent(Map<String, Object> row,String msgType){
+        String notifierUID=String.valueOf(row.get("notifierUID"));
+        String receiverUID=String.valueOf(row.get("receiverUID"));
+        String _title=String.valueOf(row.get("title"));
+        String _content=String.valueOf(row.get("content"));
+        FamilyMsgTypeEnum msgEnum=FamilyMsgTypeEnum.fromTypeCode(msgType);
+        switch (msgEnum) {
+            case msgType0:
+                String title;
+                String content;
+                String reqRecordID= String.valueOf(row.get("reqRecordID"));
+                //如果邀请人和被邀请人UID一样，则为申请消息,title显示为关系，否则显示为通知人昵称;
+                //content显示为"等待对方通过家庭成员申请"，否则显示为"请求添加你为家人";
+                if(notifierUID.equals(receiverUID)){
+                    title=String.format(_title,this.getRelationNameByReqID(reqRecordID));
+                    content=_content.split("\\|")[0];
+                }else {
+                    title=String.format(_title,this.getNickNameByUID(notifierUID));
+                    content=_content.split("\\|")[1];
+                }
+                row.put("title", title);
+                row.put("content", content);
+                break;
+            default:
+                row.put("title", String.format(_title,getNickNameByUID(notifierUID)));
+        }
+    }
+    //根据邀请记录ID，获取邀请人关系
+    private String getRelationNameByReqID(String reqID) {
+        String query =String.format("select relation_name from app_tb_family_member_invitation where id='%s' and del_flag=0",reqID);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return "";
+        }
+        Object relationName= list.get(0).get("relation_name");
+        return relationName ==null?"":String.valueOf(relationName);
+    }
+
+    //根据uid，获取昵称
+    private String getNickNameByUID(String uid) {
+        String query =String.format("select nickname from app_tb_register_info where registerid='%s' and del_flag=0",uid);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return "";
+        }
+        Object nickname= list.get(0).get("nickname");
+        return nickname ==null?"":String.valueOf(nickname);
+    }
+
     @Override
     public void setRead(List<Integer> ids){
         if (CollectionUtils.isEmpty(ids)){
