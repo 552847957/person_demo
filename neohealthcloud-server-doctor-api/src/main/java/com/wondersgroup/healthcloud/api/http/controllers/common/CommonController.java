@@ -109,10 +109,11 @@ public class CommonController {
                 common.put("record_url", appUrlH5Utils.buildBasicUrl(cfgMap.get("app.common.recordUrl")));
             }
             if(cfgMap.get("app.diabetesZone.open") != null){
-                common.put("is_opne_diabetesZone", cfgMap.get("app.diabetesZone.open").equals("1") ? 1: 0);
+                common.put("is_opne_diabetesZone", cfgMap.get("app.diabetesZone.open").equals("0") ? 0: 1);
             }else {
                 common.put("is_opne_diabetesZone", 1);
             }
+            common.put("diabetesZone_url", appUrlH5Utils.buildDiabetesZoneUrl());
 
             if (cfgMap.get("app.common.appUpdate") != null) {
                 try {
