@@ -72,7 +72,11 @@ public class DoctorInterventionController {
         JsonResponseEntity result = new JsonResponseEntity();
 
         if (doctorIntervention == null || StringUtils.isEmpty(doctorIntervention.getPatientId())) {
-            return new JsonResponseEntity<>(1000, "患者ID不能为空！");
+            return new JsonResponseEntity<>(1000, "[patient_id]不能为空！");
+        }
+
+        if (doctorIntervention == null || StringUtils.isEmpty(doctorIntervention.getDoctorId())) {
+            return new JsonResponseEntity<>(1000, "[doctor_id]不能为空！");
         }
         Map<String, Object> paras = new HashMap<>();
         paras.put("registerId", doctorIntervention.getPatientId());
