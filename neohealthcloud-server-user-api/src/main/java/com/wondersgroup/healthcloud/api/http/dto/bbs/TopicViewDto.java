@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.wondersgroup.healthcloud.api.http.dto.article.ShareH5APIDTO;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.common.utils.ImagesUtils;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.VoteInfoDto;
@@ -61,6 +62,19 @@ public class TopicViewDto {
             e.printStackTrace();
         }
         this.createTime = DateUtils.formatDate2Custom(detailInfo.getCreateTime());
+    }
+
+    public void dealContentImgs(Integer screenWidth){
+        if (screenWidth == null || screenWidth < 100 || null == topicContents || topicContents.isEmpty()){
+            return;
+        }
+        for (TopicDetailDto.TopicContentInfo topicContentInfo : topicContents){
+            if (null != topicContentInfo.getImgs() && topicContentInfo.getImgs().length > 0){
+                for (String img : topicContentInfo.getImgs()){
+                    img = ImagesUtils.coverSize(img, screenWidth);
+                }
+            }
+        }
     }
 
     public void dealBadWords(BadWordsService badWordsService){

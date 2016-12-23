@@ -192,8 +192,10 @@ public class TopicController {
 
     @VersionRange
     @RequestMapping(value = "/view", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicViewDto> topicView(@RequestParam Integer topicId,
-                                                      @RequestParam(defaultValue = "", required = false) String uid){
+    public JsonResponseEntity<TopicViewDto> topicView(
+            @RequestHeader(value = "screen-width", required = false, defaultValue = "1024") String screenWidth,
+            @RequestParam Integer topicId,
+            @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
         if (TopicConstant.Status.isDelStatus(detailInfo.getStatus())){
@@ -223,6 +225,10 @@ public class TopicController {
             viewDto.setIsFavor(isFavor ? 1 : 0);
         }
         viewDto.dealBadWords(badWordsService);
+        if(StringUtils.isNotEmpty(screenWidth)){
+            int screenWidthInt = Integer.valueOf(screenWidth);
+            viewDto.dealContentImgs(screenWidthInt);
+        }
         viewDto.setShareInfo(this.getShareInfo(detailInfo));
 
         responseEntity.setData(viewDto);

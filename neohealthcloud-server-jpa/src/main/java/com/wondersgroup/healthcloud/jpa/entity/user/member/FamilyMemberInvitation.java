@@ -26,6 +26,6 @@ public class FamilyMemberInvitation extends BaseEntity {
     @Column(name = "relation_name")
     private String relationName; //关系名||当关系是"其他"时, 将关系名保存在这个字段
     private String access;      //权限
-    private String status;      //`0`未处理, `1`已同意, `2`已拒绝
+    private String status;      //`0`未处理, `1`已同意, `2`已拒绝 //3 已解绑
     private String memo;        //备注信息
 }

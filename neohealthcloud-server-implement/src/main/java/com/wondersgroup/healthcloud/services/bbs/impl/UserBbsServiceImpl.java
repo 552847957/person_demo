@@ -137,6 +137,10 @@ public class UserBbsServiceImpl implements UserBbsService {
             account.setBanStatus(banStatus);
             registerInfoRepository.save(account);
         }
+        //永久禁言用户 把该用户所有置顶过的话题取消置顶
+        if (banStatus == UserConstant.BanStatus.FOREVER){
+            topicRepository.cancelUserAllTopTopic(uid);
+        }
         //通知LTS
         bbsMsgHandler.userBan(uid, adminUid, banStatus, banLog.getId());
         return true;

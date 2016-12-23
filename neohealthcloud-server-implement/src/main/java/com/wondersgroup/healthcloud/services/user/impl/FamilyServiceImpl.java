@@ -266,7 +266,7 @@ public class FamilyServiceImpl implements FamilyService {
         List<FamilyMemberInvitation> familyMemberInvitations = invitationRepository
                 .findByUserAccepted(userId, memberId);//将邀请表里的状态改为拒绝, 已保证可以再次邀请
         for (FamilyMemberInvitation familyMemberInvitation : familyMemberInvitations) {
-            familyMemberInvitation.setStatus("2");
+            familyMemberInvitation.setStatus("3");
             invitationRepository.save(familyMemberInvitation);
         }
         RegisterInfo register = findOneRegister(userId, false);
