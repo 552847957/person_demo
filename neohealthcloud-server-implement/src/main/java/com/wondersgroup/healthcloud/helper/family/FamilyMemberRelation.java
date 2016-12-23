@@ -146,7 +146,7 @@ public static void main(String[] args) {
         case "32": return SEX_MAN;
         case "33": return SEX_GIRL;
         case "34": return SEX_GIRL;
-        case "35": return SEX_GIRL;
+        case "35": return SEX_MAN;
         case "36": return SEX_MAN;
         case "37": return SEX_GIRL;
 
