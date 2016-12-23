@@ -245,11 +245,30 @@ public class AppointmentResourceJobController {
                                 //保存二级科室
                                 AppointmentL2Department l2Department = saveOrUpdateAppointmentDepartmentL2(l1Department,twoDeptInfo);
 
-                                //查询科室的预约资源
-                                List<NumSourceInfo> deptNumSourceList = getDeptNumSourceByTwoDeptInfo(twoDeptInfo);
+                                //查询科室的普通预约资源
+                                List<NumSourceInfo> deptNumSourceCommonList = getDeptNumSourceByTwoDeptInfo(twoDeptInfo,"3");
                                 //保存预约资源信息
-                                if(deptNumSourceList!=null && deptNumSourceList.size()>0){
-                                    for (NumSourceInfo schedule :deptNumSourceList){
+                                if(deptNumSourceCommonList!=null && deptNumSourceCommonList.size()>0){
+                                    for (NumSourceInfo schedule :deptNumSourceCommonList){
+                                        //保存科室的预约资源
+                                        List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(schedule);
+                                        if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                                            if("2".equals(schedule.getStatus())){//停诊
+                                                //如果是停诊的看是否有状态为1的订单,修改为停诊 并触发发短信的job
+                                                triggerJobClient(schedule.getScheduleId());
+                                            }
+                                            for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                                                AppointmentDoctorSchedule doctorSchedule = saveOrUpdateAppointmentDeptSchedule(l2Department, schedule, segmentNumberInfo);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //查询科室的专病预约资源
+                                List<NumSourceInfo> deptNumSourceDiseaseList = getDeptNumSourceByTwoDeptInfo(twoDeptInfo,"2");
+                                //保存预约资源信息
+                                if(deptNumSourceDiseaseList!=null && deptNumSourceDiseaseList.size()>0){
+                                    for (NumSourceInfo schedule :deptNumSourceDiseaseList){
                                         //保存科室的预约资源
                                         List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(schedule);
                                         if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
@@ -400,6 +419,11 @@ public class AppointmentResourceJobController {
         AppointmentDoctorSchedule schedule = new AppointmentDoctorSchedule();
         AppointmentDoctorSchedule localSchedule = appointmentService.getAppointmentDoctorSchedule
                 (numSourceInfo.getScheduleId(),segmentNumberInfo.getNumSourceId(),l2Department.getHospitalId());
+
+        String registerName  = numSourceInfo.getDoctName();
+        if(StringUtils.isBlank(registerName)){
+            registerName = numSourceInfo.getDeptName();
+        }
         try {
             if(localSchedule == null){
                 BeanUtils.copyProperties(numSourceInfo,schedule,"scheduleDate");
@@ -416,6 +440,7 @@ public class AppointmentResourceJobController {
                 schedule.setHospitalId(l2Department.getHospitalId());
                 schedule.setL1DepartmentId(l2Department.getL1DepartmentId());
                 schedule.setL2DepartmentId(l2Department.getId());
+                schedule.setRegisterName(registerName);//专病或普通的名称用doctorName传
                 schedule.setDelFlag(DEL_FLAG_NORMAL);
                 schedule.setCreateDate(new Date());
                 schedule.setUpdateDate(new Date());
@@ -430,6 +455,7 @@ public class AppointmentResourceJobController {
                 localSchedule.setStartTime(segmentNumberInfo.getStartTime());
                 localSchedule.setEndTime(segmentNumberInfo.getEndTime());
                 localSchedule.setStatus(numSourceInfo.getStatus());
+                localSchedule.setRegisterName(registerName);//专病或普通的名称用doctorName传
                 localSchedule.setDelFlag(DEL_FLAG_NORMAL);
                 localSchedule.setUpdateDate(new Date());
                 appointmentService.saveAndFlush(localSchedule);
@@ -562,10 +588,11 @@ public class AppointmentResourceJobController {
      * @param twoDeptInfo
      * @return
      */
-    private List<NumSourceInfo> getDeptNumSourceByTwoDeptInfo(TwoDeptInfo twoDeptInfo) {
+    private List<NumSourceInfo> getDeptNumSourceByTwoDeptInfo(TwoDeptInfo twoDeptInfo,String registerType) {
         NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
         numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
         NumSourceInfoR numSourceInfoR = new NumSourceInfoR(twoDeptInfo);
+        numSourceInfoR.setRegisterType(registerType);
         numSourceInfoRequest.numSourceInfoR = numSourceInfoR;
 
         String sign = SignatureGenerator.generateSignature(numSourceInfoRequest);

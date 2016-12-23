@@ -34,6 +34,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private SmsTempletRepository smsTempletRepository;
 
     @Autowired
     private Environment environment;
@@ -385,8 +389,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     @Override
     public List<OrderDto> findOrderByUidOrId(String id, Integer pageNum, Integer pageSize,Boolean isList) {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
-                " d.dept_name as departmentName,e.hos_name as hospitalName," +
-                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus," +
+                " d.dept_name as departmentName,e.hos_name as hospitalName,e.hos_org_code," +
+                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
                 " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
                 " from app_tb_appointment_order a " +
@@ -516,17 +520,101 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         OrderDto orderDto = saveOrderToLocal(submitOrder,orderResultResponse,contact,doctor,schedule,l2Department);
 
-        String content = "%s以免费预约%s%s,请携带预约证件原件及成功预约短信(短信转发无效！),超过预约时段不保留号源。" +
-                "取消需提前%s个工作日%s前,同一患者请勿在多个平台预约同一天专家、专科或者普通门诊,如导致当日无法就诊后果自付";
 
-        String hos = orderDto.getHospitalName()+orderDto.getDepartmentName();
-        if(StringUtils.isNotBlank(orderDto.getDoctorName())){
-            hos += orderDto.getDoctorName();
-        }
-        sms.send(contact.getMobile(), String.format(content, contact.getName(),hos,
-                orderDto.getScheduleDate(),
-                orderDto.getCloseDays(),orderDto.getCloseTimeHour()));
+        sendAppointmentMessage(contact,orderDto,"1");
+
+
         return orderDto;
+    }
+
+    /**
+     * 给用户发送短信
+     * @param contact
+     * @param orderDto
+     * @param type 类型 1-预约，2-取消，3-停诊
+     */
+    private void sendAppointmentMessage(AppointmentContact contact, OrderDto orderDto, String type) {
+        AppointmentSmsTemplet smsTemplet = smsTempletRepository.findOne(orderDto.getHosOrgCode());
+        String RealName = contact.getName();
+        String ReservationId = orderDto.getOrderId();
+        String MedicineCardNo ="";
+        String Date = DateFormatter.scheduleDateFormat(orderDto.getScheduleDate());
+        String Time = DateFormatter.hourDateFormat(orderDto.getStartTime())+"-"+DateFormatter.hourDateFormat(orderDto.getEndTime());
+        String HospitalName = smsTemplet.getHospitalName();
+        String OfficeName = orderDto.getDepartmentName();
+        String DoctorName = "";
+        String RegisterFee = orderDto.getVisitCost();
+
+        try {
+            String vistCost = orderDto.getVisitCost().replace("元","");
+            RegisterFee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros()) + "元";
+        }catch (Exception e){
+
+        }
+        String RegisterLocation = "";
+
+        String DiseaseName = "";
+        String CommonName = "";
+
+        if(smsTemplet!=null){
+            String content = "";
+            //预约
+            if("1".equals(type)){
+                //1专家.2专病3.普通
+                if("1".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getOrderDoctor();
+                    DoctorName = orderDto.getDoctorName();
+                }else if("2".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getOrderDisease();
+                    DiseaseName = orderDto.getRegisterName();
+                }else if("3".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getOrderCommon();
+                    CommonName = orderDto.getRegisterName();
+                }
+                content += smsTemplet.getCancelDesc();
+            //取消预约
+            }else if("2".equals(type)){
+                if("1".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getCancelDoctor();
+                    DoctorName = orderDto.getDoctorName();
+                }else if("2".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getCancelDisease();
+                    DiseaseName = orderDto.getRegisterName();
+                }else if("3".equals(orderDto.getRegisterType())){
+                    content = smsTemplet.getCancelCommon();
+                    CommonName = orderDto.getRegisterName();
+                }
+            //停诊
+            }else if("3".equals(type)){
+                if("1".equals(orderDto.getRegisterType())){
+                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。";
+                    DoctorName = orderDto.getDoctorName();
+                }else if("2".equals(orderDto.getRegisterType())){
+                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。";
+                    DiseaseName = orderDto.getRegisterName();
+                }else if("3".equals(orderDto.getRegisterType())){
+                    content = "{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。";
+                    CommonName = orderDto.getRegisterName();
+                }
+
+            }
+
+            content = content.replaceAll("\\{RealName\\}",RealName==null?"":RealName);
+            content = content.replaceAll("\\{ReservationId\\}",ReservationId==null?"":ReservationId);
+            content = content.replaceAll("\\{MedicineCardNo\\}",MedicineCardNo==null?"":MedicineCardNo);
+            content = content.replaceAll("\\{Date\\}",Date==null?"":Date);
+            content = content.replaceAll("\\{Time\\}",Time==null?"":Time);
+            content = content.replaceAll("\\{HospitalName\\}",HospitalName==null?"":HospitalName);
+            content = content.replaceAll("\\{OfficeName\\}",OfficeName==null?"":OfficeName);
+            content = content.replaceAll("\\{DoctorName\\}",DoctorName==null?"":DoctorName);
+            content = content.replaceAll("\\{RegisterFee\\}",RegisterFee==null?"":RegisterFee);
+            content = content.replaceAll("\\{RegisterLocation\\}",RegisterLocation==null?"":RegisterLocation);
+
+            content = content.replaceAll("\\{DiseaseName\\}",DiseaseName==null?"":DiseaseName);
+            content = content.replaceAll("\\{CommonName\\}",CommonName==null?"":CommonName);
+            sms.send(contact.getMobile(), content);
+        }
+
     }
 
     /**
@@ -565,14 +653,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         orderRepository.saveAndFlush(order);
 
         OrderDto orderDto = findOrderByUidOrId(id,null,null,false).get(0);
-
-        String hos = orderDto.getHospitalName()+"医院"+orderDto.getDepartmentName();
-        if(StringUtils.isNotBlank(orderDto.getDoctorName())){
-            hos += orderDto.getDoctorName();
-        }
-        String content = "%s,您预约的%s%s预约单已成功取消";
-        sms.send(orderDto.getUserPhone(), String.format(content, orderDto.getUserName(),hos,
-                DateFormatter.dateFormat(orderDto.getScheduleDate())));
+        AppointmentContact contact = contactRepository.findOne(orderDto.getContactId());
+        sendAppointmentMessage(contact,orderDto,"2");
         return orderDto;
     }
 
@@ -677,13 +759,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         OrderDto orderDto = findOrderByUidOrId(orderId,null,null,false).get(0);
         if(orderDto!=null && "1".equals(orderDto.getOrderStatus())){
             orderRepository.updateOrderWhencloseNumberSource("1",orderId);
-            String hos = orderDto.getHospitalName()+"医院"+orderDto.getDepartmentName();
-            if(StringUtils.isNotBlank(orderDto.getDoctorName())){
-                hos+=orderDto.getDoctorName();
-            }
-            String content = "%s,您预约的%s%s预约单已停诊,系统已为您取消订单";
-            sms.send(orderDto.getUserPhone(), String.format(content, orderDto.getUserName(),hos,
-                    DateFormatter.dateFormat(orderDto.getScheduleDate())));
+            AppointmentContact contact = contactRepository.findOne(orderDto.getContactId());
+            sendAppointmentMessage(contact,orderDto,"3");
         }
 
     }
@@ -691,8 +768,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     @Override
     public List<OrderDto> findOrderListByScheduleId(String scheduleId) {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
-                " d.dept_name as departmentName,e.hos_name as hospitalName," +
-                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus," +
+                " d.dept_name as departmentName,e.hos_name as hospitalName,e.hos_org_code," +
+                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
                 " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
                 " from app_tb_appointment_order a " +
@@ -857,12 +934,14 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String orderId = orderResultResponse.orderResult.getOrderId();
         String visitNo = orderResultResponse.orderResult.getVisitNo();
         String takePassword = orderResultResponse.orderResult.getTakePassword();
+        String hosNumSourceId = orderResultResponse.orderResult.getHosNumSourceId();
 
         AppointmentOrder order = new AppointmentOrder();
         order.setId(IdGen.uuid());
         order.setUid(contact.getUid());
         order.setPlatformUserId(submitOrder.getPlatformUserId());
         order.setOrderId(orderId);
+        order.setHosNumSourceId(hosNumSourceId);
         order.setVisitNo(visitNo);
         order.setTakePassword(takePassword);
         order.setAppointmentScheduleId(schedule.getId());

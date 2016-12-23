@@ -56,6 +56,12 @@ public class AppointmentOrder {
     private String orderId;
 
     /**
+     * 预约平台预约号
+     */
+    @Column(name = "hos_num_source_id")
+    private String hosNumSourceId;
+
+    /**
      * 预约序号
      */
     @Column(name = "visit_no")

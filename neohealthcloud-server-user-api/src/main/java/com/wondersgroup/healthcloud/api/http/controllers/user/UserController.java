@@ -30,6 +30,7 @@ import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
+import com.wondersgroup.healthcloud.utils.EmojiUtils;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -554,8 +555,16 @@ public class UserController {
         String committee = reader.readString("committee", true);
         String other = reader.readString("other", true);
 
-        Address address = userService.updateAddress(id, province, city, county, town, committee, other);
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
+        //如果包含表情则返回错误
+        String cleanName = EmojiUtils.cleanEmoji(other);
+        if(other.length() > cleanName.length()){
+            body.setCode(1090);
+            body.setMsg("请不要输入表情哦");
+            return body;
+        }
+        Address address = userService.updateAddress(id, province, city, county, town, committee, other);
+
         AddressDTO data = new AddressDTO(address, dictCache);
         if (data.getDisplay() != null) {
             body.setData(data);
