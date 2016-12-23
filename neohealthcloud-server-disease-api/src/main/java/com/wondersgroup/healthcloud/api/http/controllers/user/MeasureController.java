@@ -148,7 +148,7 @@ public class MeasureController {
                                                    @RequestParam(name = "beginDate", required = false) String begin_date) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map<String, Object> rtnMap = new HashMap<>();
-        if (begin_date == null) {
+        if (StringUtils.isEmpty(begin_date)) {
             begin_date = DateTime.now().plusMonths(-1).toString("yyyy-MM-dd");
         } else {
             begin_date = new DateTime(begin_date).plusMonths(-1).toString("yyyy-MM-dd");
