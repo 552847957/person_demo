@@ -30,8 +30,8 @@ public class GoldRecordService {
 		return restGold;
 	}
 
-	public List<GoldRecord> findByUserIdAndTypeAndCreateTime(String userId, GoldRecordTypeEnum type, Date date) {
-		return goldRecordRepository.findByUserIdAndTypeAndCreateTime(userId, type.ordinal(), date);
+	public List<GoldRecord> findByUserIdAndTypeAndCreateTime(String userId, GoldRecordTypeEnum type) {
+		return goldRecordRepository.findByUserIdAndTypeAndCreateTime(userId, type.ordinal());
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class GoldRecordService {
 	 * @return
 	 */
 	public boolean isGet(String userId, GoldRecordTypeEnum type) {
-		List<GoldRecord> goldRecord = findByUserIdAndTypeAndCreateTime(userId, type, new Date());
+		List<GoldRecord> goldRecord = findByUserIdAndTypeAndCreateTime(userId, type);
 		if (goldRecord != null && goldRecord.size() > 0) {
 			return true;
 		}

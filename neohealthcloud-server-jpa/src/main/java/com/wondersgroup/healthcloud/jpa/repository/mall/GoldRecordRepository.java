@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.jpa.repository.mall;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -29,8 +28,8 @@ public interface GoldRecordRepository extends JpaRepository<GoldRecord, String> 
 	 * @param today
 	 * @return
 	 */
-	@Query(value = "from GoldRecord where userId = ?1 and type = ?2 and date_format(createTime,'%Y-%m-%d') = date_format(?3, '%Y-%m-%d')")
-	List<GoldRecord> findByUserIdAndTypeAndCreateTime(String userId, int type, Date today);
+	@Query(value = "from GoldRecord where userId = ?1 and type = ?2 and to_days(createTime) = to_days(now())")
+	List<GoldRecord> findByUserIdAndTypeAndCreateTime(String userId, int type);
 
 	Page<GoldRecord> findByUserId(String userId, Pageable pageable);
 
