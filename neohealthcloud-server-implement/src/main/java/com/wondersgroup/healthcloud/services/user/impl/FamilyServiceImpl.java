@@ -229,7 +229,7 @@ public class FamilyServiceImpl implements FamilyService {
         familyMember2.setPairId(pairId);
         familyMember2.setUid(familyMember1.getMemberId());
         familyMember2.setMemberId(familyMember1.getUid());
-        familyMember2.setRelation(FamilyMemberRelation.getOppositeRelation(relation, gender));
+        familyMember2.setRelation("0");//FamilyMemberRelation.getOppositeRelation(relation, gender)
         familyMember2.setRelationName(FamilyMemberRelation.getName(familyMember2.getRelation(), relationName2));
         familyMember2.setMemo(FamilyMemberRelation.isOther(relation) ? relationName2 : null);
         FamilyMemberAccess.Builder newBuilder = new FamilyMemberAccess.Builder();
@@ -467,7 +467,8 @@ public class FamilyServiceImpl implements FamilyService {
     public boolean pushMessage(String uid, String memberId, int type, String relationName) {
         if(type==2 || type==4 || type==5 || type==6 || type==7 || type==8 || type==9 
                 || type==11){
-            int count =  familyMsgService.getCountByDate(memberId, Integer.parseInt(changeType(type)));
+            int count =  familyMsgService.getCountByDate(uid, memberId, Integer.parseInt(changeType(type)));
+            System.out.println("count:"+count);
             if(count > 0){
                 return true;
             }

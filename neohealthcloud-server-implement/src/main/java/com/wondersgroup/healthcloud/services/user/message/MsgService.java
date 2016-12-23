@@ -33,5 +33,5 @@ public interface MsgService {
     void setAllRead(String uid);
     
     //根据uid查 当天有发送过这个type消息
-    int getCountByDate(String uid, int type);
+    int getCountByDate(String uid, String memberId, int type);
 }
