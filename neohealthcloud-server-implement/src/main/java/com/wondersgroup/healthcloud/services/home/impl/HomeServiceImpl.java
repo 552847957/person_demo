@@ -235,10 +235,29 @@ public class HomeServiceImpl implements HomeService {
                     if (null != vaccinetemDTO) {
                         familyMemberVaccinetemList.add(vaccinetemDTO);
                     }
+                }else{//查询匿名表
+                    AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(fm.getMemberId());
+                    if(null != anonymousAccount){
+                        Map<String, Object> familyMemberInput = new HashMap<String, Object>();
+                        familyMemberInput.put("registerId", anonymousAccount.getId());
+                        familyMemberInput.put("sex", "1");//性别
+                        familyMemberInput.put("moreThanDays", (null == paramMap.get("familyLessThanDays")) ? "30":paramMap.get("familyLessThanDays"));//家人取一个月的数据
+                        familyMemberInput.put("limit", "10");
+                        familyMemberInput.put("personCard", "");
+                        familyMemberInput.put("cardType", "");
+                        familyMemberInput.put("cardId", "");
+                        UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput, apiMeasureUrl);
+                        if (null != familyMemberHealth) {
+                            familyMemberHealthMap.put(fm, familyMemberHealth);
+                        }
+
+                    }
+
                 }
             }
         } else { //无家人
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId());
+
         }
 
 
@@ -372,7 +391,7 @@ public class HomeServiceImpl implements HomeService {
 
             if(null != maxItem){
                maxTwoList.add(maxItem);
-               allList.remove(maxItem);//讲当前最大的移除
+               allList.remove(maxItem);//将当前最大的移除
            }
         }
 
