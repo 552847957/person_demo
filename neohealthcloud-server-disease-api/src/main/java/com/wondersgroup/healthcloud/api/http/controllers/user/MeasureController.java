@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,7 @@ public class MeasureController {
     private String host;
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
+    private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
 
     private RestTemplate template = new RestTemplate();
 
@@ -80,7 +82,7 @@ public class MeasureController {
             List<JsonNode> lastWeekData = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
             for (int i = 0; i < 7; i++) {
-                lastWeekData.add(((ObjectNode)mapper.readTree("{}")).put("date", DateFormatter.dateFormat(DateTime.now().plusDays(-i).toDate())));
+                lastWeekData.add(((ObjectNode) mapper.readTree("{}")).put("date", DateFormatter.dateFormat(DateTime.now().plusDays(-i).toDate())));
             }
             RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registerId=".concat(registerId)
@@ -133,6 +135,83 @@ public class MeasureController {
             tmpMap.put("low", 6);
             rtnMap.put("status", tmpMap);
             rtnMap.put("list", lastWeekData);
+            result.setData(rtnMap);
+        } catch (Exception e) {
+            log.info("近期历史数据获取失败", e);
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/getMeasureHistoryByDate", method = RequestMethod.GET)
+    public JsonResponseEntity measureHistoryByDate(@RequestParam(name = "uid") String registerId,
+                                                   @RequestParam(required = false) String personCard,
+                                                   @RequestParam(required = false) String begin_date) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map<String, Object> rtnMap = new HashMap<>();
+        if (begin_date == null) {
+            begin_date = DateTime.now().plusMonths(-1).toString("yyyy-MM-dd");
+        } else {
+            begin_date = new DateTime(begin_date).plusMonths(-1).toString("yyyy-MM-dd");
+        }
+        String end_date = new DateTime(begin_date).plusMonths(1).toString("yyyy-MM-dd");
+        DateTime beginDateTime = new DateTime(begin_date);
+        DateTime endDateTime = new DateTime(end_date);
+        rtnMap.put("nextMonth", endDateTime.plusMonths(1).toString("yyyy-MM-dd"));
+        rtnMap.put("frontMonth", beginDateTime.toString("yyyy-MM-dd"));
+        try {
+            List<JsonNode> monthDate = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            int days = -Days.daysBetween(endDateTime, beginDateTime).getDays();
+            for (int i = 0; i < days; i++) {
+                monthDate.add(((ObjectNode) mapper.readTree("{}")).put("date", DateFormatter.dateFormat(endDateTime.plusDays(-i).toDate())));
+            }
+            RegisterInfo info = userService.getOneNotNull(registerId);
+            String param = "registerId=".concat(registerId)
+                    .concat("&sex=").concat(StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender())
+                    .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard())
+                    .concat("&begin_date=").concat(begin_date)
+                    .concat("&end_date=").concat(end_date);
+            String url = String.format(recentMeasureHistoryByDate, host, "3", param);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
+                    if (StringUtils.isNotEmpty(jsonStr)) {
+                        JsonNode resultJson = mapper.readTree(jsonStr);
+                        Iterator<JsonNode> contentJson = resultJson.get("content").iterator();// 最近10天测量记录
+                        while (contentJson.hasNext()) {
+                            JsonNode jsonNode = contentJson.next();// 单日测量记录
+                            String date = jsonNode.get("date").asText();
+                            if (date != null
+                                    && (new DateTime(date).isAfter(beginDateTime.withTimeAtStartOfDay().getMillis())
+                                    || new DateTime(date).isEqual(beginDateTime.withTimeAtStartOfDay().getMillis()))
+                                    && new DateTime(date).isBefore(endDateTime.plusDays(1).withTimeAtStartOfDay())) {
+                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
+                                JsonNode jsonNodeData = jsonNode.get("data");
+                                Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
+                                while (itJsonNodeData.hasNext()) {
+                                    JsonNode tmpJson = itJsonNodeData.next();
+                                    int testPeriod = tmpJson.get("testPeriod").asInt();
+                                    if (-1 <= testPeriod && testPeriod <= 6) {
+                                        dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                    }
+                                }
+                                StringBuffer strBuf = new StringBuffer();
+                                for (int j = 0; j < dayDatas.length; j++) {
+                                    if (j == 0) {
+                                        strBuf.append(dayDatas[j]);
+                                    } else {
+                                        strBuf.append(",").append(dayDatas[j]);
+                                    }
+                                }
+                                ((ObjectNode) jsonNode).put("data", strBuf.toString());
+                                monthDate.set(-Days.daysBetween(endDateTime, new DateTime(date)).getDays(), jsonNode);
+                            }
+                        }
+                    }
+                }
+            }
+            rtnMap.put("thisMonth", monthDate);
             result.setData(rtnMap);
         } catch (Exception e) {
             log.info("近期历史数据获取失败", e);
