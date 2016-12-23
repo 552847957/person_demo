@@ -84,7 +84,7 @@ public class CircleController {
         //当日活跃数=当日发帖数+当日回复数量
         int publishTopicCount = circleService.getTodayPublishTopicCount(circleId);
         int publishTopicCommentCount = circleService.getTodayPublishTopicCommentCount(circleId);
-        circleHomeDto.setTodayActiveCount(publishTopicCount + publishTopicCommentCount);
+        circleHomeDto.setTodayActiveCount(NumberUtils.formatCustom1(publishTopicCount + publishTopicCommentCount));
         entity.setData(circleHomeDto);
         return entity;
     }

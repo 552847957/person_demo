@@ -206,14 +206,15 @@ public class CircleServiceImpl implements CircleService {
      */
     @Override
     public int getTodayPublishTopicCount(Integer circleId) {
-        String querySql = "select count(*) from tb_bbs_topic t where t.circle_id = ? and t.status != -1 and t.create_time >= ?";
+        String querySql = "select count(*) from tb_bbs_topic t where t.circle_id = ? and t.status > 0 and t.create_time >= ?";
         Integer count = jdbcTemplate.queryForObject(querySql, new Object[]{circleId, DateUtils.getTodayBegin()}, Integer.class);
         return count == null ? 0 : count;
     }
 
     @Override
     public int getTodayPublishTopicCommentCount(Integer circleId) {
-        String querySql = "select count(*) from tb_bbs_comment c left join tb_bbs_topic t on c.topic_id=t.id where t.circle_id = ? and c.create_time >= ?";
+        String querySql = "select count(*) from tb_bbs_comment c left join tb_bbs_topic t on c.topic_id=t.id " +
+                " where t.circle_id = ? and c.create_time >= ? AND c.status>0 ";
         Integer count = jdbcTemplate.queryForObject(querySql,  new Object[]{circleId, DateUtils.getTodayBegin()}, Integer.class);
         return count == null ? 0 : count;
     }

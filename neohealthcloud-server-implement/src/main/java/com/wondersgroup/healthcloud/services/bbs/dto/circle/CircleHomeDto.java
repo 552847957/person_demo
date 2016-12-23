@@ -26,7 +26,7 @@ public class CircleHomeDto {
     private String name;
     private String description;
     private Integer userPublishStatus= UserConstant.UserCommentStatus.OK;//1:正常, 2:当前用户被禁言 3:圈子被禁用
-    private Integer todayActiveCount=0;//今日活跃人数
+    private String todayActiveCount="0";//今日活跃人数
     private Integer ifAttent=0;// 是否关注，0：未关注；1：已关注
 
     private List<CircleTabs> tabs = new ArrayList<>();

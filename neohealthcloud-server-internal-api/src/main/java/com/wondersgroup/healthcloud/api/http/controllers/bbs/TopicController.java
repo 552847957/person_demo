@@ -234,6 +234,15 @@ public class TopicController {
             }
         }
         info.put("contents", contents);
+        List<TopicTab> topicTabs = topicTabService.getTopicTabs(id);
+        List<Integer> topicTabIds = new ArrayList<>();
+        if (null != topicTabs){
+            for (TopicTab topicTab : topicTabs){
+                topicTabIds.add(topicTab.getId());
+            }
+        }
+        info.put("topicTabs", topicTabIds);
+
         List<Map<String, Object>> comments = commentService.getCommentListByAdminAppUid(id, appUid);
         info.put("comments", comments);
         entity.setData(info);
