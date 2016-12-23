@@ -63,23 +63,31 @@ public class PhysicalIdentifyController {
     @VersionRange
     public JsonListResponseEntity getPhysiqueIdentify(
             @RequestParam(required = true) String registerid,
-            @RequestParam(defaultValue = "1") String flag) {
+            @RequestParam(defaultValue = "1") Integer flag) {
         int pageSize = 10;
-        Pageable pageable = new PageRequest(Integer.parseInt(flag)-1,pageSize, Sort.Direction.DESC,"testtime");
+        Pageable pageable = new PageRequest(flag-1,pageSize, Sort.Direction.DESC,"testtime");
         List<HealthQuestion> list = healthQuestionRepo.findQuestionList(registerid,pageable);
         Boolean hasMore = false;
-        if(list.size() == pageSize && healthQuestionRepo.getTotalQuestion(registerid) > pageSize * Integer.parseInt(flag)){
+        if(list.size() == pageSize && healthQuestionRepo.getTotalQuestion(registerid) > pageSize * flag){
             hasMore = true;
+            flag++;
         }
 
         List<Map> result = Lists.newArrayList();
         for(HealthQuestion question : list){
-            result.add(ImmutableMap.of("id",question.getId(),"time", new DateTime(question.getTesttime()).toString("yyyy-MM-dd"),
-                    "type",question.getResult().split(",")[0]));
+            ImmutableMap map = null;
+            if(DateTime.now().toString("yyyy-MM-dd").equals(new DateTime(question.getTesttime()).toString("yyyy-MM-dd"))){
+                map = ImmutableMap.of("id",question.getId(),"time","今天",
+                        "type",StringUtils.isEmpty(question.getResult())?"":question.getResult().split(",")[0]);
+            }else{
+                map = ImmutableMap.of("id",question.getId(),"time",new DateTime(question.getTesttime()).toString("yyyy-MM-dd"),
+                        "type",StringUtils.isEmpty(question.getResult())?"":question.getResult().split(",")[0]);
+            }
+            result.add(map);
         }
 
         JsonListResponseEntity response = new JsonListResponseEntity();
-        response.setContent(result,hasMore,null,hasMore?String.valueOf(Integer.parseInt(flag) + 1):flag);
+        response.setContent(result,hasMore,null,flag.toString());
         return response;
     }
 
