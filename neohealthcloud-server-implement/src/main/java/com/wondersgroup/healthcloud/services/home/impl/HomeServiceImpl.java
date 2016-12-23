@@ -266,14 +266,14 @@ public class HomeServiceImpl implements HomeService {
                     familyMemberDangerousItemList.add(fItemDTO);
                 }
 
-                //4 育苗信息(默认30天内)
-                if (null != fm.getBirthday()) {
+                //4 育苗信息(默认30天内) (暂时不显示，以后显示打开代码注释)
+               /* if (null != fm.getBirthday()) {
                     Integer vaccineLessThanDays = Integer.parseInt(String.valueOf((null == paramMap.get("vaccineLessThanDays")) ? "30" : paramMap.get("vaccineLessThanDays")));
                     FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl, vaccineLessThanDays);
                     if (null != vaccinetemDTO) {
                         familyMemberVaccinetemList.add(vaccinetemDTO);
                     }
-                }
+                }*/
 
             }
         } else { //无家人
@@ -732,7 +732,7 @@ public class HomeServiceImpl implements HomeService {
         if (!CollectionUtils.isEmpty(resultMap) && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
             fItemDTO = new FamilyMemberItemDTO();
             fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt("风险评估结果 高危人群");
+            fItemDTO.setPrompt("风险评估结果 风险人群");
             String dateStr = String.valueOf(resultMap.get("date"));
             if (StringUtils.isNotBlank(dateStr)) {
                 Date testDate = parseDate(dateStr, "YYYY-MM-DD");
