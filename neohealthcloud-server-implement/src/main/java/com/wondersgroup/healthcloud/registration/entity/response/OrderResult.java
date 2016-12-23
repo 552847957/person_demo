@@ -37,6 +37,11 @@ public class OrderResult {
      */
     private String platformPwd;
 
+    /**
+     * 预约号
+     */
+    private String hosNumSourceId;
+
 
     public String getScheduleId() {
         return scheduleId;
@@ -100,5 +105,13 @@ public class OrderResult {
 
     public void setPlatformPwd(String platformPwd) {
         this.platformPwd = platformPwd;
+    }
+
+    public String getHosNumSourceId() {
+        return hosNumSourceId;
+    }
+
+    public void setHosNumSourceId(String hosNumSourceId) {
+        this.hosNumSourceId = hosNumSourceId;
     }
 }

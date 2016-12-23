@@ -87,6 +87,13 @@ public class AppointmentDoctorSchedule {
     @Column(name = "register_type")
     private String registerType;
 
+
+    /**
+     * 2专病3.普通  对应的专病名称或普通门诊名称
+     */
+    @Column(name = "register_name")
+    private String registerName;
+
     @Column(name = "del_flag")
     private String delFlag;
 

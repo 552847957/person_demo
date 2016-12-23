@@ -391,6 +391,9 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (success) {
             return true;
         } else {
+            if(result.get("code").asInt()==434){
+                throw new ErrorWondersCloudException("该身份证已被提交审核");
+            }
             throw new ErrorWondersCloudException(result.get("msg").asText());
         }
     }

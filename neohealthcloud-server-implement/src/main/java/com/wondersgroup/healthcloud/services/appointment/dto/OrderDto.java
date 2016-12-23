@@ -20,6 +20,10 @@ public class OrderDto {
      */
     private String orderId;
 
+    private String hosNumSourceId;
+
+    private String contactId;
+
     private String userName;//患者姓名
 
     private String userCardId;//患者身份证
@@ -32,15 +36,15 @@ public class OrderDto {
 
     private Date cancelTime;//订单取消时间
 
+    /**
+     * 预约状态 1：已预约； 2：已支付；3：已退号； 4：已取号； 7：停诊未通知 8：退号中 ; 9：停诊已通知
+     */
     private String orderStatus;
 
     /**
-     * 预约状态
-     * 1:预约成功,2:就诊成功,3:用户取消,4:爽约,5:系统取消
+     * 状态 1 正常 2停诊
      */
     private String status;
-
-
 
     private Date startTime;
 
@@ -87,6 +91,18 @@ public class OrderDto {
     private String regmobilephone;
 
     private String timeRange;
+
+    private String hosOrgCode;
+
+    /**
+     * 就诊类型 1|2|3  1专家.2专病3.普通
+     */
+    private String registerType;
+
+    /**
+     * 2专病3.普通 对应的门诊名称
+     */
+    private String registerName;
 
 
 }

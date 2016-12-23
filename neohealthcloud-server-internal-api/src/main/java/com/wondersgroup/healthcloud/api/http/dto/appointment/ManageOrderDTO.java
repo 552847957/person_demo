@@ -140,7 +140,7 @@ public class ManageOrderDTO {
             }
             this.orderType = order.getOrderType();
 
-            this.orderId = order.getOrderId();
+            this.orderId = order.getHosNumSourceId();//之前数据库取错名字了 应该取 hosNumSourceId
             this.patientName = order.getUserName();//患者姓名
 
             this.patientIdcard = order.getUserCardId();//患者身份证

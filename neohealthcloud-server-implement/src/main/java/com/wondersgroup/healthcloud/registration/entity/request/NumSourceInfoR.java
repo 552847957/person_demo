@@ -42,12 +42,6 @@ public class NumSourceInfoR {
         this.topHosDeptCode = twoDeptInfo.getTopHosDeptCode();
         this.hosDeptCode = twoDeptInfo.getHosDeptCode();
 
-//        if(StringUtils.isNotBlank(twoDeptInfo.getHosDeptCode()) && "2".equals(twoDeptInfo.getHosDeptCode())){
-//            this.registerType = "2";
-//        }else{
-            this.registerType = "3";
-//        }
-
         this.startTime = DateFormatter.dateFormat(new Date());
         this.endTime = DateFormatter.dateFormat(DateUtils.addDay(new Date(), 14));
     }

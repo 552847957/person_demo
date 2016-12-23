@@ -97,6 +97,8 @@ public class NumSourceInfo {
      */
     private String registerType;
 
+    private String registerName;
+
     public String getScheduleId() {
         return scheduleId;
     }
@@ -264,5 +266,13 @@ public class NumSourceInfo {
 
     public void setRegisterType(String registerType) {
         this.registerType = registerType;
+    }
+
+    public String getRegisterName() {
+        return registerName;
+    }
+
+    public void setRegisterName(String registerName) {
+        this.registerName = registerName;
     }
 }
