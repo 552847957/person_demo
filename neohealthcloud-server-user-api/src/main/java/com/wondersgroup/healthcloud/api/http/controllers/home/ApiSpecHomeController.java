@@ -8,6 +8,8 @@ import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
+import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
@@ -145,7 +147,18 @@ public class ApiSpecHomeController {
         }
 
         if (null == familyHealth) {
-            familyHealth = new FamilyHealthDTO(new UserHealthDTO(), new FamilyMemberDTO());
+
+            UserHealthDTO userHealth = new UserHealthDTO();
+            userHealth.setMainTitle("请录入您的健康数据");
+            userHealth.setSubTitle("添加您的健康数据>>");
+            userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
+
+            FamilyMemberDTO familyMember = new FamilyMemberDTO();
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            familyMember.setMainTitle("设置您的家庭成员数据");
+            familyMember.setSubTitle("添加您家人的健康数据吧>>");
+
+            familyHealth = new FamilyHealthDTO(userHealth, familyMember);
         }
 
         //家庭健康栏目
