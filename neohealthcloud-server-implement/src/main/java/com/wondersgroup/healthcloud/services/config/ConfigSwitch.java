@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 
 /**
- * 违禁词
+ * 获取配置开关
  * Created by ys on 2016-12-14.
  */
 @Service("configSwitch")
@@ -15,28 +15,48 @@ public class ConfigSwitch {
     @Autowired
     private AppConfigService appConfigService;
 
+    /**
+     * 是否审核话题
+     */
     public Boolean isVerifyTopic() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.publishTopic.verify");
-        if (null == appConfig){
-            return true;
-        }
-        String value = appConfig.getData();
-        return "1".equals(value);
+        return getConfigSwitchOpen("bbs.publishTopic.verify", true);
     }
 
+    /**
+     * 是否审核回帖
+     */
     public Boolean isVerifyComment() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.publishComment.verify");
-        if (null == appConfig){
-            return false;
-        }
-        String value = appConfig.getData();
-        return "1".equals(value);
+        return getConfigSwitchOpen("bbs.publishComment.verify", false);
     }
 
+    /**
+     * 是否屏蔽违禁词
+     */
     public Boolean isDealBbsBadWords() {
-        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "bbs.badwords.deal");
+        return getConfigSwitchOpen("bbs.badwords.deal", true);
+    }
+
+
+
+
+    /**
+     * 上海配置项开关获取
+     * @param key 配置key
+     * @param defaultSwitch 默认开关
+     */
+    private Boolean getConfigSwitchOpen(String key, Boolean defaultSwitch){
+        return getConfigSwitchOpen(key, defaultSwitch, "3101");
+    }
+
+    /**
+     * @param key 配置key
+     * @param defaultSwitch 默认开关
+     * @param mainArea 地区
+     */
+    private Boolean getConfigSwitchOpen(String key, Boolean defaultSwitch, String mainArea){
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, key);
         if (null == appConfig){
-            return true;
+            return defaultSwitch;
         }
         String value = appConfig.getData();
         return "1".equals(value);
