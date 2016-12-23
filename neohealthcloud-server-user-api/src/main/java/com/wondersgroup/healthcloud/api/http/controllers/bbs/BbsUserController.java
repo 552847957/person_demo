@@ -77,7 +77,7 @@ public class BbsUserController {
 
 
     /**
-     * 个人主页
+     * 个人主页/个人中心
      * 话题列表 / 我发布的话题
      */
     @VersionRange
@@ -99,7 +99,7 @@ public class BbsUserController {
     }
 
     /**
-     * 个人主页
+     * 个人主页/个人中心
      * 回复列表 / 我回复的
      */
     @VersionRange

@@ -8,8 +8,6 @@ import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
-import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
