@@ -145,7 +145,7 @@ public class MeasureController {
     @RequestMapping(value = "/getMeasureHistoryByDate", method = RequestMethod.GET)
     public JsonResponseEntity measureHistoryByDate(@RequestParam(name = "uid") String registerId,
                                                    @RequestParam(required = false) String personCard,
-                                                   @RequestParam(required = false) String begin_date) {
+                                                   @RequestParam(name = "beginDate", required = false) String begin_date) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map<String, Object> rtnMap = new HashMap<>();
         if (begin_date == null) {
