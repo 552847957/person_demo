@@ -7,7 +7,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMemberInvitatio
 
 public interface FamilyMemberInvitationRepository extends JpaRepository<FamilyMemberInvitation, String> {
 
-    @Query("select fmi from FamilyMemberInvitation fmi where ((fmi.uid=?1 and fmi.memberId=?2) or (fmi.uid=?2 and fmi.memberId=?1)) and fmi.status!='2'")
+    @Query("select fmi from FamilyMemberInvitation fmi where ((fmi.uid=?1 and fmi.memberId=?2) or (fmi.uid=?2 and fmi.memberId=?1)) and fmi.status in('0','1')")
     List<FamilyMemberInvitation> findByUserNotDenied(String userId, String memberId);
 
     @Query("select fmi from FamilyMemberInvitation fmi where ((fmi.uid=?1 and fmi.memberId=?2) or (fmi.uid=?2 and fmi.memberId=?1)) and fmi.status='1'")
