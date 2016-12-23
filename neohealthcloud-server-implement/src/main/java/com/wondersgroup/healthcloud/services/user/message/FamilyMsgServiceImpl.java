@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.services.user.message.enums.FamilyMsgTypeEnum;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,8 +222,8 @@ public class FamilyMsgServiceImpl implements MsgService{
     }
 
     @Override
-    public int getCountByDate(String uid, int type) {
-        String query = "select count(*) from app_tb_family_message where receiver_uid = '" + uid + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = DATE_FORMAT(now(),'%Y-%c-%d')";
+    public int getCountByDate(String uid, String memberId, int type) {
+        String query = "select count(*) from app_tb_family_message where notifier_uid = '" + uid + "' and receiver_uid = '" + memberId + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = DATE_FORMAT(now(),'%Y-%c-%d')";
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }

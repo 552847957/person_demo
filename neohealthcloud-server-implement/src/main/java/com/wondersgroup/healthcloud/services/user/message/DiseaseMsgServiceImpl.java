@@ -121,7 +121,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     }
 
     @Override
-    public int getCountByDate(String uid, int type) {
+    public int getCountByDate(String uid,String memberId, int type) {
 
         return 0;
     }
