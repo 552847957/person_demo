@@ -24,6 +24,12 @@ public class DoctorIntervention {
     private String type;// 建议类型 1:异常血糖干预
     @Column(name = "content")
     private String content;// 医生建议内容
+    @Column(name = "fpg_value")
+    private String fpgValue;// 血糖值
+    @Column(name = "test_time")
+    private String testTime;// 测量时间
+    @Column(name = "test_period")
+    private String testPeriod;// 测量时间点
     @Column(name = "create_time")
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
     private Date createTime;// 创建时间
