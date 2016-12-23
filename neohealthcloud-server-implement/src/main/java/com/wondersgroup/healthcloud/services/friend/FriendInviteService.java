@@ -113,8 +113,7 @@ public class FriendInviteService {
 	}
 
 	private String generateCode() {
-		int code = (int) (Math.random() * 1000000);
-		return code + "";
+		return ((int) ((Math.random() * 9 + 1) * 100000)) + "";
 	}
 
 }
