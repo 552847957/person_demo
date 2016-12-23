@@ -257,4 +257,12 @@ public class NumSourceInfo {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getRegisterType() {
+        return registerType;
+    }
+
+    public void setRegisterType(String registerType) {
+        this.registerType = registerType;
+    }
 }
