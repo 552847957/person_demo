@@ -172,7 +172,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +
                 " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
-        buffer.append(" and t1.del_flag = '0'");
+        buffer.append(" and t1.del_flag = '0' and t2.identifytype != '0' ");
         buffer.append(" group by t1.registerid ");
         buffer.append(" limit "+(pageNo-1)*pageSize+","+pageSize);
 //        return jdbcTemplate.queryForList(buffer.toString(),DiabetesAssessmentDTO.class);
@@ -208,9 +208,8 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         StringBuffer buffer = new StringBuffer();
         buffer.append("select t1.registerid from " +
                 "   (select * from app_tb_diabetes_assessment order by create_date desc) t1 ");
-        if(!StringUtils.isEmpty(name)){
-            buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
-        }
+        buffer.append(" join app_tb_register_info t2 on t1.registerid = t2.registerid");
+
         buffer.append(" where  t1.type = 1 and t1.result = 1 " );
         if(!StringUtils.isEmpty(name)){
             buffer.append(" and t2.name like '%"+ name+"%'");
@@ -218,7 +217,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         buffer.append(" and not exists (select * from app_tb_diabetes_tube_relation where registerid = t1.registerid and del_flag = '0')");
         buffer.append(" and NOT EXISTS (select * from app_tb_diabetes_assessment_remind where \n" +
                 " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
-        buffer.append(" and t1.del_flag = '0'");
+        buffer.append(" and t1.del_flag = '0' and t2.identifytype != '0' ");
         buffer.append(" GROUP BY t1.registerid");
 
         return jdbcTemplate.queryForList(buffer.toString()).size();

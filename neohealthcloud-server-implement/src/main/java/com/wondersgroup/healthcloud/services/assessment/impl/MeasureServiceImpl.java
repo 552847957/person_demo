@@ -4,6 +4,7 @@ package com.wondersgroup.healthcloud.services.assessment.impl;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
