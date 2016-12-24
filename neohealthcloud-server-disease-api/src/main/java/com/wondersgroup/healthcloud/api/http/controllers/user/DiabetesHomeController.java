@@ -90,7 +90,7 @@ public class DiabetesHomeController {
                                 }
                             }
                         }
-                        String assessmentResult = diabetesAssessmentService.getLastAssessmentResult(url);
+                        String assessmentResult = diabetesAssessmentService.getLastAssessmentResult(registerId);
                         if (StringUtils.isNotEmpty(assessmentResult)) {
                             dataMap.put("assessmentResult", assessmentResult);
                         }
