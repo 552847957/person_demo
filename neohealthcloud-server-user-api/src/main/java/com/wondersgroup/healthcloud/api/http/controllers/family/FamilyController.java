@@ -853,7 +853,7 @@ public class FamilyController {
                     String date = result.get("date").toString();
                     Boolean state = Boolean.valueOf(result.get("state").toString());
                     templet.setDesc(date);
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", date, state ? "正常人群" : "风险人群")));
+                    templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", date, state ? "健康人群" : "风险人群")));
                 } else {
                     templet.setDesc("慢病风险权威测量工具");
                 }
