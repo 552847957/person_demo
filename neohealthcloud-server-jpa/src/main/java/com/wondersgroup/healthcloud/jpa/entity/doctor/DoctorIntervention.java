@@ -31,10 +31,10 @@ public class DoctorIntervention {
     @Column(name = "test_period")
     private String testPeriod;// 测量时间点
     @Column(name = "create_time")
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;// 创建时间
     @Column(name = "update_time")
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;// 更新时间
     @Column(name = "del_flag")
     private String delFlag;// 删除标示,0-未删除,1-已删除
