@@ -196,6 +196,7 @@ public class UserBbsServiceImpl implements UserBbsService {
     public int countCommentByUid(String uid, Boolean isMine) {
         List<Integer> status = new ArrayList<>();
         status.add(CommentConstant.Status.OK);
+        status.add(CommentConstant.Status.DELETE);
         if (isMine){
             status.add(CommentConstant.Status.WAIT_VERIFY);
         }
