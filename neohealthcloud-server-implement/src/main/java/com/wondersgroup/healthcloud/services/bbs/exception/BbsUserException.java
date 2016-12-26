@@ -14,18 +14,14 @@ public class BbsUserException extends BaseException {
     }
 
     public BbsUserException(String msg) {
-        super(1031, msg, null);
+        super(1130, msg, null);
     }
 
     public static BbsUserException userBanForReply(){
-        return new BbsUserException(1021, "回复失败,您已被禁言");
-    }
-
-    public static BbsUserException userBanForPublishTopic(){
-        return new BbsUserException(1021, "发布失败,您已被禁言");
+        return new BbsUserException(1131, "回复失败,您已被禁言");
     }
 
     public static BbsUserException banForever(){
-        return new BbsUserException(1011, "用户已被禁言");
+        return new BbsUserException(1133, "用户已被禁言");
     }
 }

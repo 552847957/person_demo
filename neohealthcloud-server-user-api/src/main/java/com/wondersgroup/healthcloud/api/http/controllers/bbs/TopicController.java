@@ -202,7 +202,7 @@ public class TopicController {
             throw TopicException.notExist();
         }
         if (detailInfo.getBanStatus() == UserConstant.BanStatus.FOREVER){
-            throw BbsUserException.banForever();
+            throw TopicException.publishUserBanForever();
         }
         //待审和的话题(只能本人查看)
         if (detailInfo.getStatus() == TopicConstant.Status.WAIT_VERIFY){
