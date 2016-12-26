@@ -363,7 +363,8 @@ public class UserController {
 
     @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
     @VersionRange(from = "4.0")
-    public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id) {
+    public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id,
+                                                                            @RequestParam(value = "type", defaultValue = "1") String type) {
         JsonResponseEntity<VerificationInfoDTO> body = new JsonResponseEntity<>();
         RegisterInfo person = userService.findOne(id);
         if (person != null && person.verified()) {
@@ -381,6 +382,10 @@ public class UserController {
                 JsonNode info = userAccountService.verficationSubmitInfo(id, false);
                 if (info != null) {
                     VerificationInfoDTO data = new VerificationInfoDTO(id, info);
+                    if ("2".equals(type)) {
+                        data.setName(IdcardUtils.maskName(person.getName()));
+                        data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                    }
                     data.setIdentifytype(data.getSuccess() ? "1" : "2");
                     body.setData(data);
                 } else {
@@ -557,9 +562,9 @@ public class UserController {
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
         //如果包含表情则返回错误
-        if(StringUtils.isNotBlank(other)){
+        if (StringUtils.isNotBlank(other)) {
             String cleanName = EmojiUtils.cleanEmoji(other);
-            if(other.length() > cleanName.length()){
+            if (other.length() > cleanName.length()) {
                 body.setCode(1090);
                 body.setMsg("请不要输入表情哦");
                 return body;
