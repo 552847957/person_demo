@@ -8,6 +8,7 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,10 +32,14 @@ public class HeWeatherClient {
 
     private static final String url = "https://free-api.heweather.com/v5";
 
+    @Value("${heweather.api.key}")
+    private String key;
+
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
     public JsonNode weather(String hecode) {
-        Request request = new RequestBuilder().get().url(url + "/weather").param("city", hecode == null ? "shanghai" : hecode).param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+        Request request = new RequestBuilder().get().url(url + "/weather").param("city", hecode == null ? "shanghai" : hecode).param("key", key).build();
+
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
         logger.info(result.toString());
@@ -42,7 +47,7 @@ public class HeWeatherClient {
     }
 
     public void now() {
-        Request request = new RequestBuilder().get().url(url + "/now").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+        Request request = new RequestBuilder().get().url(url + "/now").param("city", "shanghai").param("key", key).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
     }
@@ -55,14 +60,14 @@ public class HeWeatherClient {
     }
 
     public void hourly() {
-        Request request = new RequestBuilder().get().url(url + "/hourly").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+        Request request = new RequestBuilder().get().url(url + "/hourly").param("city", "shanghai").param("key", key).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
         System.out.println(result.toString());
     }
 
     public String suggestion() {
-        Request request = new RequestBuilder().get().url(url + "/suggestion").param("city", "shanghai").param("key", "5b9092f4d8594ff4ad55bdaac1127e75").build();
+        Request request = new RequestBuilder().get().url(url + "/suggestion").param("city", "shanghai").param("key", key).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
         return result.get("HeWeather5").get(0).get("suggestion").toString();

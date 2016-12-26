@@ -1,9 +1,6 @@
 package com.wondersgroup.healthcloud.services.appointment;
 
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctor;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL1Department;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 
 import java.util.List;
@@ -32,4 +29,5 @@ public interface AppointmentManangeService {
 
     int countDoctorByMap(Map parameter);
 
+    AppointmentSmsTemplet findSmsTempletByHosCode(String hosOrgCode);
 }

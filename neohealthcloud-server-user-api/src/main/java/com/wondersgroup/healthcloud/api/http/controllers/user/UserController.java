@@ -557,12 +557,15 @@ public class UserController {
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
         //如果包含表情则返回错误
-        String cleanName = EmojiUtils.cleanEmoji(other);
-        if(other.length() > cleanName.length()){
-            body.setCode(1090);
-            body.setMsg("请不要输入表情哦");
-            return body;
+        if(StringUtils.isNotBlank(other)){
+            String cleanName = EmojiUtils.cleanEmoji(other);
+            if(other.length() > cleanName.length()){
+                body.setCode(1090);
+                body.setMsg("请不要输入表情哦");
+                return body;
+            }
         }
+
         Address address = userService.updateAddress(id, province, city, county, town, committee, other);
 
         AddressDTO data = new AddressDTO(address, dictCache);

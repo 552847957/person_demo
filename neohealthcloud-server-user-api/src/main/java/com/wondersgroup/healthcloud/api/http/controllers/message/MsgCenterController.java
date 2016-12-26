@@ -52,11 +52,12 @@ public class MsgCenterController {
         String msgType = reader.readString("msgType", false);
         String msgID = reader.readString("msgID", false);
 
-        //此接口只跟系统消息、我的咨询、家庭消息有关
+        //此接口只跟系统消息、我的咨询、家庭消息、慢病消息有关
         MsgTypeEnum.fromTypeCode(msgType);
         if(!msgType.equals(MsgTypeEnum.msgType0.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType1.getTypeCode())
-                && !msgType.equals(MsgTypeEnum.msgType2.getTypeCode())){
+                && !msgType.equals(MsgTypeEnum.msgType2.getTypeCode())
+                && !msgType.equals(MsgTypeEnum.msgType5.getTypeCode())){
             throw new EnumMatchException("消息类型["+msgType+"]不匹配.");
         }
         messageCenterService.setAsRead(msgType,msgID);

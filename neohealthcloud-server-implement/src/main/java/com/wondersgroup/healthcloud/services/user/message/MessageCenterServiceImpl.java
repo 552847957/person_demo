@@ -246,7 +246,9 @@ public class MessageCenterServiceImpl {
 
     /**
      * 消息状态设置 <br/>
-     * 系统消息、我的咨询、家庭消息列表中的消息，读一条红点即消失;其他的进入列表所有红点消失;
+     * 系统消息、我的咨询、家庭消息列表中的消息，读一条红点即消失;
+     * 慢病消息列表中，干预提醒，读一条红点即消失，筛查提醒，进入列表即红点消失；
+     * 其他的进入列表所有红点消失;
      */
     @Transactional
     public void setAsRead(String msgType,String msgID){
@@ -260,6 +262,9 @@ public class MessageCenterServiceImpl {
                 break;
             case msgType2:
                 familyMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType5:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
                 break;
             default:
         }

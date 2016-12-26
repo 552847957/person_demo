@@ -7,8 +7,6 @@ import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.UserBanLog;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * </p>
  * 用户禁言信息
@@ -45,7 +43,8 @@ public class UserBanInfo {
         this.adminUid = banLog.getAdminUid();
         this.banStatus = banLog.getBanStatus();
         this.reason = banLog.getReason();
-        this.msgTime = DateUtils.formatDate2Custom(banLog.getCreateTime());
+        //this.msgTime = DateUtils.formatDate2Custom(banLog.getCreateTime());
+        this.msgTime = DateUtils.convertMsgDate(banLog.getCreateTime());
 
         //-1永久 1一小时 12十二小时  24一天 0正常
         if(banStatus == -1){

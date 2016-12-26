@@ -153,6 +153,12 @@ public class AppointmentManageController {
             AppointmentHospital hospital = appointmentApiService.findHospitalById(manageHospitalDTO.getId());
             if(hospital!=null){
                 hospital = manageHospitalDTO.mergeHospital(hospital, manageHospitalDTO);
+                if(hospital.getIsonsale()=="1"){
+                    AppointmentSmsTemplet smsTemplet = appointmentManangeService.findSmsTempletByHosCode(hospital.getHosOrgCode());
+                    if(smsTemplet==null){
+                        return new JsonResponseEntity(3012, "保存失败,该医院没有短信模板,请联系开发人员添加");
+                    }
+                }
                 appointmentService.saveAndFlush(hospital);
             }else{
                 return new JsonResponseEntity(3011, "保存失败,该医院不存在");
