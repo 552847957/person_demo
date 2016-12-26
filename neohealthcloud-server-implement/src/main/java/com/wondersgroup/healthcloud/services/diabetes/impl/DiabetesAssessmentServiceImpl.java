@@ -236,7 +236,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
             remind.setDelFlag("0");
             remindRepo.save(remind);
 
-            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\"0\",\"msgTitle\":\"糖尿病高危筛查\",\"msgContent\":\"您的风险评估结果存在异常，建议您到所属社区卫生服务中心进行糖尿病高危筛查。\"}";
+            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\"1\",\"msgTitle\":\"筛查提醒\",\"msgContent\":\"您的风险评估结果存在异常，建议您到所属社区卫生服务中心进行糖尿病高危筛查。\"}";
             Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
