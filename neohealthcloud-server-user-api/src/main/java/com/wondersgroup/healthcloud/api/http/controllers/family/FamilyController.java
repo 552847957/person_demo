@@ -880,6 +880,9 @@ public class FamilyController {
             }
             tems.add(templet);
         }
+        if(info.getAge() != null && info.getAge() <= 6){
+            Collections.reverse(tems);
+        }
         infoDto.setInfo(info);
         infoDto.setInfoTemplets(tems);
         response.setData(infoDto);
