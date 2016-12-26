@@ -144,43 +144,35 @@ public class DiabetesHomeController {
         DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime now = DateTime.now();
         String date = DateFormatter.dateFormat(now.toDate());
-        if ((DateTime.parse(date + " 00:00:01", format).equals(now)
-                || DateTime.parse(date + " 00:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 00:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 05:00:00", format).isAfter(now)) {
             return isRtnNumber ? "-1" : "凌晨";
         }
-        if ((DateTime.parse(date + " 05:00:01", format).equals(now)
-                || DateTime.parse(date + " 05:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 05:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 08:00:00", format).isAfter(now)) {
             return isRtnNumber ? "0" : "早餐前";
         }
-        if ((DateTime.parse(date + " 08:00:01", format).equals(now)
-                || DateTime.parse(date + " 08:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 08:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 10:00:00", format).isAfter(now)) {
             return isRtnNumber ? "1" : "早餐后";
         }
-        if ((DateTime.parse(date + " 10:00:01", format).equals(now)
-                || DateTime.parse(date + " 10:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 10:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 12:00:00", format).isAfter(now)) {
             return isRtnNumber ? "2" : "午餐前";
         }
-        if ((DateTime.parse(date + " 12:00:01", format).equals(now)
-                || DateTime.parse(date + " 12:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 12:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 15:00:00", format).isAfter(now)) {
             return isRtnNumber ? "3" : "午餐后";
         }
-        if ((DateTime.parse(date + " 15:00:01", format).equals(now)
-                || DateTime.parse(date + " 15:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 15:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 18:00:00", format).isAfter(now)) {
             return isRtnNumber ? "4" : "晚餐前";
         }
-        if ((DateTime.parse(date + " 18:00:01", format).equals(now)
-                || DateTime.parse(date + " 18:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 18:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 20:00:00", format).isAfter(now)) {
             return isRtnNumber ? "5" : "晚餐后";
         }
-        if ((DateTime.parse(date + " 20:00:01", format).equals(now)
-                || DateTime.parse(date + " 20:00:01", format).isBefore(now))
+        if (!DateTime.parse(date + " 20:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 23:59:59", format).isAfter(now)) {
             return isRtnNumber ? "6" : "睡前";
         }
