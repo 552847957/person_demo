@@ -62,16 +62,16 @@ public class GoldRecord {
 			typeName = "兑换商品";
 			break;
 		case 4:
-			typeName = "分享奖励";
+			typeName = "分享计步";
 			break;
 		case 5:
-			typeName = "分享奖励";
+			typeName = "分享计步";
 			break;
 		case 6:
-			typeName = "分享奖励";
+			typeName = "分享计步";
 			break;
 		case 7:
-			typeName = "分享奖励";
+			typeName = "分享计步";
 			break;
 		case 8:
 			typeName = "计步红包";
