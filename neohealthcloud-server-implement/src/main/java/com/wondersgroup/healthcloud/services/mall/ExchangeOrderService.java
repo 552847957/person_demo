@@ -181,6 +181,9 @@ public class ExchangeOrderService {
 		if(orderType != 2){
 			int stockNum = goods.getStockNum();
 			goods.setStockNum(stockNum - 1);
+			if(stockNum - 1 <= 0){
+				goods.setSortNo(99999);
+			}
 		}
 		goods.setSalesNum(goods.getSalesNum() + 1);
 		goods.setUpdateTime(date);

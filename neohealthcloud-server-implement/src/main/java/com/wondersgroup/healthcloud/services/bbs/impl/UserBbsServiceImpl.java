@@ -116,13 +116,13 @@ public class UserBbsServiceImpl implements UserBbsService {
 
     @Transactional
     @Override
-    public boolean setUserBan(String adminUid, String uid, Integer banStatus, String reason) {
-        RegisterInfo account = userService.getOneNotNull(uid);
-        if(account.getIsBBsAdmin() == 1){
+    public boolean setUserBan(String adminUid, String targetUid, Integer banStatus, String reason) {
+        RegisterInfo targetUser = userService.getOneNotNull(targetUid);
+        if(targetUser.getIsBBsAdmin() == 1){
             throw new BbsUserException("不能操作管理员");
         }
-        RegisterInfo loginInfo = userService.getOneNotNull(adminUid);
-        if (null == loginInfo || loginInfo.getIsBBsAdmin() != 1){
+        RegisterInfo adminUser = userService.getOneNotNull(adminUid);
+        if (1 != adminUser.getIsBBsAdmin()){
             throw new BbsUserException("非管理员,没有相关权限");
         }
 
@@ -130,19 +130,19 @@ public class UserBbsServiceImpl implements UserBbsService {
         banLog.setBanStatus(banStatus);
         banLog.setAdminUid(adminUid);
         banLog.setReason(reason);
-        banLog.setUId(uid);
+        banLog.setUId(targetUid);
         banLog.setCreateTime(new Date());
         banLog = userBanLogRepository.save(banLog);
-        if (account.getBanStatus().intValue() != banStatus){
-            account.setBanStatus(banStatus);
-            registerInfoRepository.save(account);
+        if (targetUser.getBanStatus().intValue() != banStatus){
+            targetUser.setBanStatus(banStatus);
+            registerInfoRepository.save(targetUser);
         }
         //永久禁言用户 把该用户所有置顶过的话题取消置顶
         if (banStatus == UserConstant.BanStatus.FOREVER){
-            topicRepository.cancelUserAllTopTopic(uid);
+            topicRepository.cancelUserAllTopTopic(targetUid);
         }
         //通知LTS
-        bbsMsgHandler.userBan(uid, adminUid, banStatus, banLog.getId());
+        bbsMsgHandler.userBan(targetUid, adminUid, banStatus, banLog.getId());
         return true;
     }
 

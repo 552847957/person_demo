@@ -17,8 +17,12 @@ public class TopicException extends BaseException {
         return new TopicException(1034, "抱歉,内容不存在,可能被河蟹了");
     }
 
+    public static TopicException publishUserBanForever(){
+        return new TopicException(1035, "抱歉,内容不存在,可能被河蟹了");
+    }
+
     public static TopicException waitVerify(){
-        return new TopicException(1034, "话题正在审核中...");
+        return new TopicException(1036, "话题正在审核中...");
     }
 
     public static TopicException deleteForReport(){

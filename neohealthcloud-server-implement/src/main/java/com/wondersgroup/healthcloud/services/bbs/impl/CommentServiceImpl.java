@@ -164,8 +164,8 @@ public class CommentServiceImpl implements CommentService {
         if (null == circle || circle.getDelFlag().equals("1")) {
             throw CircleException.NotExistForReply();
         }
-        RegisterInfo withBabyInfo = userService.getOneNotNull(publishDto.getUid());
-        if (withBabyInfo.getBanStatus() != UserConstant.BanStatus.OK){
+        RegisterInfo userInfo = userService.getOneNotNull(publishDto.getUid());
+        if (userInfo.getBanStatus() != UserConstant.BanStatus.OK){
             throw BbsUserException.userBanForReply();
         }
         int commentCount = topic.getCommentCount();

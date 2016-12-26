@@ -101,8 +101,7 @@ public class MeasureController {
                             JsonNode jsonNode = contentJson.next();// 单日测量记录
                             String date = jsonNode.get("date").asText();
                             if (date != null
-                                    && (new DateTime(date).isAfter(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
-                                    || new DateTime(date).isEqual(today.plusDays(-6).withTimeAtStartOfDay().getMillis()))
+                                    && new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
                                 JsonNode jsonNodeData = jsonNode.get("data");
@@ -151,7 +150,11 @@ public class MeasureController {
         String flagDate = StringUtils.isEmpty(begin_date) ? DateTime.now().toString("yyyy-MM-dd") : begin_date;
         DateTime beginDateTime = new DateTime(flagDate).plusMonths(-1).plusDays(1);
         DateTime endDateTime = new DateTime(flagDate);
-        rtnMap.put("nextMonth", new DateTime(flagDate).plusMonths(1).toString("yyyy-MM-dd"));
+
+        DateTime nextMonth = new DateTime(flagDate).plusMonths(1);
+        if (!nextMonth.isAfter(DateTime.now())) {
+            rtnMap.put("nextMonth", nextMonth.toString("yyyy-MM-dd"));
+        }
         rtnMap.put("frontMonth", new DateTime(flagDate).plusMonths(-1).toString("yyyy-MM-dd"));
         try {
             List<JsonNode> monthDate = new ArrayList<>();
@@ -178,8 +181,7 @@ public class MeasureController {
                             JsonNode jsonNode = contentJson.next();// 单日测量记录
                             String date = jsonNode.get("date").asText();
                             if (date != null
-                                    && (new DateTime(date).isAfter(beginDateTime.withTimeAtStartOfDay().getMillis())
-                                    || new DateTime(date).isEqual(beginDateTime.withTimeAtStartOfDay().getMillis()))
+                                    && !new DateTime(date).isBefore(beginDateTime.withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(endDateTime.plusDays(1).withTimeAtStartOfDay())) {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
                                 JsonNode jsonNodeData = jsonNode.get("data");

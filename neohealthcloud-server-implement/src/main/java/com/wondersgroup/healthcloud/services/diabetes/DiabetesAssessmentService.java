@@ -55,15 +55,17 @@ public interface DiabetesAssessmentService {
 
     /**
      * 高危筛查列表推送
-     * @param ids
+     * @param registerIds
      * @return
      */
-    Boolean remind(String ids ,String doctorId);
+    Boolean remind(List<String> registerIds ,String doctorId);
 
     /**
      * 获取最后一次评估结果
      * @param uid
      * @return
      */
-    String getLastAssessmentResult(String uid);
+
+    Map<String, Object> getLastAssessmentResult(String uid);
+
 }

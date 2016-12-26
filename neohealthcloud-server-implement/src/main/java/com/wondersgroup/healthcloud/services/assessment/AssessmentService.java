@@ -63,7 +63,7 @@ public interface AssessmentService {
     /**
      * 获取用户最近一次的风险评估结果
      * @param uid
-     * @return  {state:true,date:yyyy-MM-dd HH:mm:ss}  【state:true:正常, state:false:高危】
+     * @return  {state:true,date:yyyy-MM-dd HH:mm:ss}  【state:1:健康人群, state:2:风险人群，state:3:疾病人群】
      */
     Map<String,Object> getRecentAssessIsNormal(String uid);
 }

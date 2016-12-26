@@ -193,7 +193,7 @@ public class ManageOrderDTO {
             this.fee = order.getVisitCost();
             try {
                 String vistCost = order.getVisitCost().replace("元","");
-                this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
+                this.fee = new BigDecimal(vistCost).stripTrailingZeros().toEngineeringString();
             }catch (Exception e){
 
             }

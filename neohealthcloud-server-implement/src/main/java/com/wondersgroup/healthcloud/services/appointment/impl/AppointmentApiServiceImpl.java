@@ -544,6 +544,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String OfficeName = orderDto.getDepartmentName();
         String DoctorName = "";
         String RegisterFee = orderDto.getVisitCost();
+        String queueNo = orderDto.getVisitNo();
 
         try {
             String vistCost = orderDto.getVisitCost().replace("元","");
@@ -551,7 +552,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         }catch (Exception e){
 
         }
-        String RegisterLocation = "";
+        String RegisterLocation = "";//他们说这个字段其实没用
 
         String DiseaseName = "";
         String CommonName = "";
@@ -571,7 +572,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
                     content = smsTemplet.getOrderCommon();
                     CommonName = orderDto.getRegisterName();
                 }
-                content += smsTemplet.getCancelDesc();
+                content += "如需取消:"+smsTemplet.getCancelDesc();
             //取消预约
             }else if("2".equals(type)){
                 if("1".equals(orderDto.getRegisterType())){
@@ -587,13 +588,13 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             //停诊
             }else if("3".equals(type)){
                 if("1".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。";
+                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。【医联预约平台】";
                     DoctorName = orderDto.getDoctorName();
                 }else if("2".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。";
+                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。【医联预约平台】";
                     DiseaseName = orderDto.getRegisterName();
                 }else if("3".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。";
+                    content = "{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。【医联预约平台】";
                     CommonName = orderDto.getRegisterName();
                 }
 
@@ -612,6 +613,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
             content = content.replaceAll("\\{DiseaseName\\}",DiseaseName==null?"":DiseaseName);
             content = content.replaceAll("\\{CommonName\\}",CommonName==null?"":CommonName);
+
+            content = content.replaceAll("\\{queueNo\\}",queueNo==null?"":queueNo);
             sms.send(contact.getMobile(), content);
         }
 

@@ -39,7 +39,7 @@ public class DoctorTemplateController {
     public JsonResponseEntity<DoctorTemplateDTO> update(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
         String id = reader.readString("id", true);
-        String doctorId = reader.readString("doctor_id", true);
+        String doctorId = reader.readString("doctor_id", false);
         String type = reader.readString("type", false);
         String title = reader.readString("title", false);
         String content = reader.readString("content", false);

@@ -133,7 +133,7 @@ public class ScheduleDetailDTO {
             this.fee = schedule.getVisitCost();
             try {
                 String vistCost = schedule.getVisitCost().replace("元","");
-                this.fee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros());
+                this.fee = new BigDecimal(vistCost).stripTrailingZeros().toEngineeringString();
             }catch (Exception e){
 
             }

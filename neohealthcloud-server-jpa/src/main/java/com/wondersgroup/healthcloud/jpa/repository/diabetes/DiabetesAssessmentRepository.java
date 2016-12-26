@@ -15,8 +15,9 @@ import java.util.List;
  */
 public interface DiabetesAssessmentRepository extends JpaRepository<DiabetesAssessment, String>, JpaSpecificationExecutor<DiabetesAssessment> {
 
-    @Query(value = "select  registerid from DiabetesAssessment where id in ?1")
-    List<String> findRegisterById(String[] ids);
+    @Query(nativeQuery = true,value = "select registerid from app_tb_diabetes_assessment where id in ?1 " +
+            " and registerid not in (select registerid from app_tb_diabetes_assessment_remind where create_date >= curdate())")
+    List<String> findRemidRegisterById(String[] ids);
 
     @Modifying
     @Transactional

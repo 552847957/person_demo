@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -174,6 +175,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                 " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
         buffer.append(" and t1.del_flag = '0' and t2.identifytype != '0' ");
         buffer.append(" group by t1.registerid ");
+        buffer.append(" order by t1.create_date desc ");
         buffer.append(" limit "+(pageNo-1)*pageSize+","+pageSize);
 //        return jdbcTemplate.queryForList(buffer.toString(),DiabetesAssessmentDTO.class);
         return jdbcTemplate.query(buffer.toString(), new RowMapper<DiabetesAssessmentDTO>() {
@@ -224,8 +226,8 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
     @Override
-    public Boolean  remind(String ids , String doctorId) {
-        List<String> registerIds = assessmentRepo.findRegisterById(ids.split(","));;
+    public Boolean  remind(List<String> registerIds , String doctorId) {
+
         for(String registerid : registerIds){
             DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
             remind.setId(IdGen.uuid());
@@ -271,54 +273,70 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
     @Override
-    public String getLastAssessmentResult(String uid) {
+    public Map<String, Object> getLastAssessmentResult(String uid) {
+        Map<String, Object> rtnMap = new HashMap<>();
         String sql = "SELECT type, result FROM app_tb_diabetes_assessment WHERE del_flag = '0' AND registerid = '" + uid + "' ORDER BY update_date DESC LIMIT 0, 1";
         try {
             AssessmentResult ar = jdbcTemplate.queryForObject(sql.toString(), new BeanPropertyRowMapper<>(AssessmentResult.class));
+            rtnMap.put("code", ar.getResult());
             if (ar.getType() == 1) {// 患病风险评估
                 switch (ar.getResult()) {
                     case 0:// 正常
-                        return "您的糖尿病患病风险评估结果为：正常。祝您身体健康！";
+                        rtnMap.put("message", "您的评估结果无糖尿病风险，请继续保持");
+                        break;
                     case 1:// 高危
-                        return "您的糖尿病患病风险评估结果为：高危。请到医院进行诊断。";
+                        rtnMap.put("message", "您属于糖尿病高危人群，请到医院进一步确诊");
+                        break;
                 }
             } else if (ar.getType() == 2) {// 肾病症状评估
                 switch (ar.getResult()) {
                     case 0:// 正常
-                        return "您的糖尿病肾病症状评估结果为：正常。祝您身体健康！";
+                        rtnMap.put("message", "您目前尚未出现肾脏病变症状，继续保持");
+                        break;
                     case 1:// 满足1-2项
-                        return "您的糖尿病肾病症状评估结果为：满足1-2项。请到医院进行诊断。";
+                        rtnMap.put("message", "您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意");
+                        break;
                     case 2:// 满足3项及以上
-                        return "您的糖尿病肾病症状评估结果为：满足3项及以上。请到医院进行诊断。";
+                        rtnMap.put("message", "您很有可能已经患有糖尿病肾病了，建议您及时咨询您的家庭医生获得专业建议");
+                        break;
                 }
             } else if (ar.getType() == 3) {// 眼病症状评估
                 switch (ar.getResult()) {
                     case 0:// 正常
-                        return "您的糖尿病眼病症状评估结果为：正常。祝您身体健康！";
+                        rtnMap.put("message", "恭喜您，暂未出现糖尿病眼病的症状，请您继续保持");
+                        break;
                     case 1:// 出现症状
-                        return "您的糖尿病眼病症状评估结果为：出现症状。请到医院进行诊断。";
+                        rtnMap.put("message", "您目前出现一部分糖尿病眼部症状，请在线咨询您的家庭医生获得专业意见");
+                        break;
                 }
             } else if (ar.getType() == 4) {// 足部风险评估
                 switch (ar.getResult()) {
                     case 0:// 正常
-                        return "您的糖尿病足部风险评估结果为：正常。祝您身体健康！";
+                        rtnMap.put("message", "您不属于糖尿病足的高危人群，恭喜您，请继续保持");
+                        break;
                     case 1:// 轻度
-                        return "您的糖尿病足部风险评估结果为：轻度。请到医院进行诊断。";
+                        rtnMap.put("message", "您属于轻度糖尿病足的高危人群，糖尿病足并非微不“足”道，请咨询您的家庭医生获得专业意见");
+                        break;
                     case 2:// 属于高度
-                        return "您的糖尿病足部风险评估结果为：高度。请到医院进行诊断。";
+                        rtnMap.put("message", "您属于高度糖尿病足的高危人群，糖尿病足并非微不“足”道，请咨询您的家庭医生获得专业意见");
+                        break;
                 }
             }
+            return rtnMap;
         } catch (EmptyResultDataAccessException ex) {
             // ignore
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
         return null;
     }
+
 
     @Data
     public static class AssessmentResult {
         Integer type;
         Integer result;
     }
+
+
 }
