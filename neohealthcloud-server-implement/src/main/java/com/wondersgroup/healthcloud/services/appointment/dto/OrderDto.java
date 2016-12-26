@@ -20,6 +20,11 @@ public class OrderDto {
      */
     private String orderId;
 
+    /**
+     * 预约序号
+     */
+    private String visitNo;
+
     private String hosNumSourceId;
 
     private String contactId;

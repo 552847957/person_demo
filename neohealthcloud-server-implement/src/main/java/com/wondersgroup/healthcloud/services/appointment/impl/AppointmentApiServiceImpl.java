@@ -544,6 +544,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String OfficeName = orderDto.getDepartmentName();
         String DoctorName = "";
         String RegisterFee = orderDto.getVisitCost();
+        String queueNo = orderDto.getVisitNo();
 
         try {
             String vistCost = orderDto.getVisitCost().replace("元","");
@@ -551,7 +552,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         }catch (Exception e){
 
         }
-        String RegisterLocation = "";
+        String RegisterLocation = "";//他们说这个字段其实没用
 
         String DiseaseName = "";
         String CommonName = "";
@@ -612,6 +613,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
             content = content.replaceAll("\\{DiseaseName\\}",DiseaseName==null?"":DiseaseName);
             content = content.replaceAll("\\{CommonName\\}",CommonName==null?"":CommonName);
+
+            content = content.replaceAll("\\{queueNo\\}",queueNo==null?"":queueNo);
             sms.send(contact.getMobile(), content);
         }
 
