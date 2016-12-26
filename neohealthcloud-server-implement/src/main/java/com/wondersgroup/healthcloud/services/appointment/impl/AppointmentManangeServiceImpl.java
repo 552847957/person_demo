@@ -1,12 +1,11 @@
 package com.wondersgroup.healthcloud.services.appointment.impl;
 
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctor;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL1Department;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentL2Department;
+import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.DepartmentL1Repository;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.DepartmentL2Repository;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.HospitalRepository;
+import com.wondersgroup.healthcloud.jpa.repository.appointment.SmsTempletRepository;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentManangeService;
 import com.wondersgroup.healthcloud.services.appointment.dto.OrderDto;
 import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentManageException;
@@ -39,6 +38,9 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
 
     @Autowired
     private DepartmentL2Repository departmentL2Repository;
+
+    @Autowired
+    private SmsTempletRepository smsTempletRepository;
 
 
     /**
@@ -162,6 +164,18 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
             List<AppointmentHospital> hospitals = hospitalRepository.findPicIsBlankHosiptalsByIds(hospitalIds);
             if (hospitals.size()>0)
                 throw new ErrorAppointmentManageException("选中的医院图片必须设置完整");
+
+            //如果有医院没有短信模板的就不能设置为启用
+            List<String> hospitalCodes = Lists.newArrayList();
+            for (AppointmentHospital hospital : hospitals){
+                hospitalCodes.add(hospital.getHosOrgCode());
+            }
+
+            List<AppointmentSmsTemplet> smsTemplets = smsTempletRepository.findSmsTempletsByHospitalCodes(hospitalCodes);
+            if(hospitals.size()>smsTemplets.size()){
+                throw new ErrorAppointmentManageException("选中的医院中有医院没有短信模板,请联系开发人员添加");
+            }
+
         }
         hospitalRepository.batchSetIsonsaleByHospitalIds(isonsale,hospitalIds);
 
@@ -245,6 +259,11 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
         sql += getManageDoctorListWhereSql(parameter);
         Integer count = jt.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
+    }
+
+    @Override
+    public AppointmentSmsTemplet findSmsTempletByHosCode(String hosOrgCode) {
+        return smsTempletRepository.findOne(hosOrgCode);
     }
 
 }
