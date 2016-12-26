@@ -135,7 +135,7 @@ public class FamilyController {
     private String                           host;
     @Value("${api.vaccine.url}")
     private String                           host_vaccine;
-//    @Value("${api.vaccine.url}")
+    @Value("${api.vaccine.h5.url}")
     private String                           vaccine_h5;
     private static final String              requestAbnormalHistories = "%s/api/measure/3.0/queryHistoryMeasurAbnormal?%s";
     private static final String              requestHistoryMeasureNew = "%s/api/measure/3.0/historyMeasureNew?%s";
@@ -851,9 +851,17 @@ public class FamilyController {
                 Map<String, Object> result = assessmentService.getRecentAssessIsNormal(memberId);
                 if (result != null && result.containsKey("state")) {
                     String date = result.get("date").toString();
-                    Boolean state = Boolean.valueOf(result.get("state").toString());
+                    Integer state = Integer.parseInt(result.get("state").toString());
                     templet.setDesc(date);
-                    templet.setValues(Arrays.asList(new MeasureInfoDTO("评估结果", date, state ? "健康人群" : "风险人群")));
+                    MeasureInfoDTO minfo = new MeasureInfoDTO("评估结果", date, "");
+                    if(state == 1){
+                        minfo.setValue("健康人群");
+                    }else if(state == 2){
+                        minfo.setValue("风险人群");
+                    }else if(state == 3){
+                        minfo.setValue("疾病人群");
+                    }
+                    templet.setValues(Arrays.asList(minfo));
                 } else {
                     templet.setDesc("慢病风险权威测量工具");
                 }
