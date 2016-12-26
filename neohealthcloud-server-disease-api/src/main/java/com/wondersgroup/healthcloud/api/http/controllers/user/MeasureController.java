@@ -101,7 +101,7 @@ public class MeasureController {
                             JsonNode jsonNode = contentJson.next();// 单日测量记录
                             String date = jsonNode.get("date").asText();
                             if (date != null
-                                    && new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
+                                    && !new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
                                 JsonNode jsonNodeData = jsonNode.get("data");
