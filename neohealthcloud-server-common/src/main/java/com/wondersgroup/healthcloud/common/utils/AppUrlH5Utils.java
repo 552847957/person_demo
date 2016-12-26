@@ -131,7 +131,7 @@ public class AppUrlH5Utils {
      * 商城
      */
     public String buildStepMallUrl(String userId) {
-        return mallBasePath + "/?userId=" + userId;
+        return mallBasePath + "/?forbidden=true&userId=" + userId;
     }
 
     /**
