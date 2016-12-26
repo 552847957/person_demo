@@ -65,5 +65,5 @@ public interface DiabetesAssessmentService {
      * @param uid
      * @return
      */
-    String getLastAssessmentResult(String uid);
+    Map<String, Object> getLastAssessmentResult(String uid);
 }
