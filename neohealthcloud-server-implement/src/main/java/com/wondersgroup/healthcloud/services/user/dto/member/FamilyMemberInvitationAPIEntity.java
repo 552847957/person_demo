@@ -37,6 +37,9 @@ public class FamilyMemberInvitationAPIEntity {
         this.memo = invitation.getMemo();
         Boolean isSelf = uid.equals(invitation.getUid());
         this.todo = (!isSelf) && "0".equals(invitation.getStatus());
+        if("3".equals(invitation.getStatus())){
+            invitation.setStatus("1");//解绑的显示已同意
+        }
         this.status = statusArray[Integer.valueOf(invitation.getStatus())];
         this.relation = isSelf ? invitation.getRelation() : FamilyMemberRelation.getOppositeRelation(invitation.getRelation(), register.getGender());
         this.relationName = isSelf ? FamilyMemberRelation.getName(relation, invitation.getRelationName()) : FamilyMemberRelation.getName(relation);
