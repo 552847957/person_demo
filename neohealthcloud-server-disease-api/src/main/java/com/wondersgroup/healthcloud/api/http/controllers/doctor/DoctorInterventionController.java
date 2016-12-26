@@ -140,7 +140,7 @@ public class DoctorInterventionController {
                             registerId = registerInfo.getRegisterid();
                             diMap.get(registerId).setName(registerInfo.getName() == null ? registerInfo.getNickname() : registerInfo.getName());
                             diMap.get(registerId).setSex(registerInfo.getGender());
-                            diMap.get(registerId).setAge(IdcardUtils.getAgeByBirthday(DateFormatter.parseDate(registerInfo.getBirthday().toString())) + "岁");
+                            diMap.get(registerId).setAge(registerInfo.getBirthday() == null ? "未知" : IdcardUtils.getAgeByBirthday(DateFormatter.parseDate(registerInfo.getBirthday().toString())) + "岁");
                             rtnList.add(diMap.get(registerId));
                         }
                         return new JsonResponseEntity<>(0, null, rtnList);
