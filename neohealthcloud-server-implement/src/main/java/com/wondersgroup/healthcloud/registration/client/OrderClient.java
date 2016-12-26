@@ -58,8 +58,8 @@ public class OrderClient extends WebServiceGatewaySupport {
                             request);
             String xmlString = response.getReturn().getValue();
             customer = JaxbUtil.converyToJavaBean(xmlString, NumSourceInfoResponse.class);
-        }catch (SoapFaultClientException e){
-            log.error("OrderClient-----getOrderNumInfoList:"+e);
+        }catch (Exception e){
+            log.error("OrderClient-----getOrderNumInfoList:"+e.getLocalizedMessage());
         }
 
         return customer;
@@ -85,7 +85,7 @@ public class OrderClient extends WebServiceGatewaySupport {
             String xmlString = response.getReturn().getValue();
             customer = JaxbUtil.converyToJavaBean(xmlString, SegmentNumberInfoResponse.class);
         }catch (Exception e){
-            log.error("OrderClient-----getOrderSegmentNumberInfoList:"+e);
+            log.error("OrderClient-----getOrderSegmentNumberInfoList:"+e.getLocalizedMessage());
         }
 
         return customer;

@@ -126,24 +126,24 @@ public class AppointmentResourceJobController {
 
         AppointmentHospital hospital = appointmentApiService.findHospitalById(hospitalId);
         List<HosInfo> hosInfoList = getAllHosInfo(hospital.getHosOrgCode());
-        List<FutureTask<Integer[]>> futureTasks = Lists.newArrayList();
+//        List<FutureTask<Integer[]>> futureTasks = Lists.newArrayList();
         if(hosInfoList!=null && hosInfoList.size()>0){
             for(HosInfo hosInfo:hosInfoList){
                 AppointmentTask appointmentTask = new AppointmentTask(hosInfo);
-                FutureTask<Integer[]> task1 = new FutureTask<Integer[]>(appointmentTask);
-                executor.submit(task1);
-                futureTasks.add(task1);
+//                FutureTask<Integer[]> task1 = new FutureTask<Integer[]>(appointmentTask);
+//                executor.submit(task1);
+//                futureTasks.add(task1);
             }
 
         }
-        for (int i = 0;i<futureTasks.size();i++){
-            try {
-                getResult(futureTasks.get(i));
-            }catch (Exception e){
-                log.info("futureTasks--"+e.getLocalizedMessage());
-            }
-
-        }
+//        for (int i = 0;i<futureTasks.size();i++){
+//            try {
+//                getResult(futureTasks.get(i));
+//            }catch (Exception e){
+//                log.info("futureTasks--"+e.getLocalizedMessage());
+//            }
+//
+//        }
         //逻辑删除没有二级科室的一级科室
         appointmentService.deleteDept1HasNoDept2();
         //给医院设置医生数量
@@ -469,7 +469,7 @@ public class AppointmentResourceJobController {
                 schedule = localSchedule;
             }
         }catch (Exception e){
-
+            log.error("saveOrUpdateAppointmentDeptSchedule="+e.getLocalizedMessage());
         }
         return schedule;
     }
@@ -607,10 +607,15 @@ public class AppointmentResourceJobController {
 
         String xmlRequest = JaxbUtil.convertToXml(numSourceInfoRequest);
         List<NumSourceInfo> numSourceInfoList = Lists.newArrayList();
-        NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
-        if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
-            numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+        try{
+            NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
+            if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
+                numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+            }
+        }catch (Exception e){
+            log.error("getDeptNumSourceByTwoDeptInfo:"+e.getLocalizedMessage());
         }
+
         return numSourceInfoList;
     }
 
@@ -631,10 +636,17 @@ public class AppointmentResourceJobController {
 
         String xmlRequest = JaxbUtil.convertToXml(segmentNumberInfoRequest);
         List<SegmentNumberInfo> segmentNumberInfoList = Lists.newArrayList();
-        SegmentNumberInfoResponse segmentNumberInfoResponse = orderClient.getOrderSegmentNumberInfoList(xmlRequest);
-        if(segmentNumberInfoResponse!=null&&"0".equals(segmentNumberInfoResponse.messageHeader.getCode())){
-            segmentNumberInfoList = segmentNumberInfoResponse.lists;
+        try{
+            SegmentNumberInfoResponse segmentNumberInfoResponse = orderClient.getOrderSegmentNumberInfoList(xmlRequest);
+            if(segmentNumberInfoResponse!=null&&"0".equals(segmentNumberInfoResponse.messageHeader.getCode())){
+                segmentNumberInfoList = segmentNumberInfoResponse.lists;
+            }
+        }catch (Exception e){
+            log.error("getSegmentNumberInfoBySchedule:"+e.getLocalizedMessage());
+            log.error("xmlRequest="+xmlRequest);
         }
+
+
         return segmentNumberInfoList;
     }
 
@@ -653,11 +665,16 @@ public class AppointmentResourceJobController {
 
         String xmlRequest = JaxbUtil.convertToXml(numSourceInfoRequest);
         List<NumSourceInfo> numSourceInfoList = Lists.newArrayList();
-        NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
-
-        if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
-            numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+        try{
+            NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
+            if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
+                numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+            }
+        }catch (Exception e){
+            log.error("getDoctorNumSourceByDoctInfo:"+e.getLocalizedMessage());
+            log.error("xmlRequest="+xmlRequest);
         }
+
         return numSourceInfoList;
     }
 
@@ -677,12 +694,20 @@ public class AppointmentResourceJobController {
 
         String xmlRequest = JaxbUtil.convertToXml(doctInfoRequest);
         List<DoctInfo> doctInfoList = Lists.newArrayList();
-        DoctInfoResponse doctInfoResponse = doctInfoClient.getDoctInfoList(xmlRequest);
-        if(doctInfoResponse!=null&&"0".equals(doctInfoResponse.messageHeader.getCode())){
-            doctInfoList = doctInfoResponse.doctInfos;
-        }else{
-            log.error("getDoctorListByTwoDept:"+doctInfoResponse.messageHeader.getDesc());
+
+        try{
+            DoctInfoResponse doctInfoResponse = doctInfoClient.getDoctInfoList(xmlRequest);
+            if(doctInfoResponse!=null&&"0".equals(doctInfoResponse.messageHeader.getCode())){
+                doctInfoList = doctInfoResponse.doctInfos;
+            }else{
+                log.error("getDoctorListByTwoDept:"+doctInfoResponse.messageHeader.getDesc());
+            }
+        }catch (Exception e){
+            log.error("getDoctorListByTwoDept:"+e.getLocalizedMessage());
+            log.error("xmlRequest="+xmlRequest);
         }
+
+
 
         return doctInfoList;
     }
@@ -703,13 +728,19 @@ public class AppointmentResourceJobController {
         List<TwoDeptInfo> twoDeptInfoList = Lists.newArrayList();
 
         String xmlRequest = JaxbUtil.convertToXml(deptInfoTwoRequest);
-        TwoDeptInfoResponse twoDeptInfoResponse = deptInfoTwoClient.getDeptInfoTwoList(xmlRequest);
 
-        if(twoDeptInfoResponse!=null&&"0".equals(twoDeptInfoResponse.messageHeader.getCode())){
-            twoDeptInfoList = twoDeptInfoResponse.twoDeptInfos;
-        }else{
-            log.error("getTwoDeptInfoListByTopDept:"+twoDeptInfoResponse.messageHeader.getDesc());
+        try {
+            TwoDeptInfoResponse twoDeptInfoResponse = deptInfoTwoClient.getDeptInfoTwoList(xmlRequest);
+            if(twoDeptInfoResponse!=null&&"0".equals(twoDeptInfoResponse.messageHeader.getCode())){
+                twoDeptInfoList = twoDeptInfoResponse.twoDeptInfos;
+            }else{
+                log.error("getTwoDeptInfoListByTopDept:"+twoDeptInfoResponse.messageHeader.getDesc());
+            }
+        }catch (Exception e){
+            log.error("getTwoDeptInfoListByTopDept+"+e.getLocalizedMessage());
+            log.error("xmlRequest="+xmlRequest);
         }
+
 
         return twoDeptInfoList;
     }
@@ -728,15 +759,20 @@ public class AppointmentResourceJobController {
         deptInfoTopRequest.requestMessageHeader.setSign(sign);
 
         String xmlRequest = JaxbUtil.convertToXml(deptInfoTopRequest);
-        TopDeptInfoResponse topDeptInfoResponse = topDeptInfoTopClient.GetTopDeptInfo(xmlRequest);
-
         List<TopDeptInfo> topDeptInfoList = Lists.newArrayList();
 
-        if(topDeptInfoResponse!=null&&"0".equals(topDeptInfoResponse.messageHeader.getCode())){
-            topDeptInfoList = topDeptInfoResponse.lists;
-        }else{
-            log.error("getTopDeptListByHosInfo:code"+topDeptInfoResponse.messageHeader.getCode()+",desc:"+topDeptInfoResponse.messageHeader.getDesc());
+        try {
+            TopDeptInfoResponse topDeptInfoResponse = topDeptInfoTopClient.GetTopDeptInfo(xmlRequest);
+            if(topDeptInfoResponse!=null&&"0".equals(topDeptInfoResponse.messageHeader.getCode())){
+                topDeptInfoList = topDeptInfoResponse.lists;
+            }else{
+                log.error("getTopDeptListByHosInfo:code"+topDeptInfoResponse.messageHeader.getCode()+",desc:"+topDeptInfoResponse.messageHeader.getDesc());
+            }
+        }catch (Exception e){
+            log.error("getTopDeptListByHosInfo:"+e.getLocalizedMessage());
+            log.error("xmlRequest="+xmlRequest);
         }
+
         return topDeptInfoList;
     }
 
@@ -783,6 +819,8 @@ public class AppointmentResourceJobController {
         }
         return null;
     }
+
+
 
     @Autowired
     public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
