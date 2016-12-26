@@ -166,19 +166,33 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
                 throw new ErrorAppointmentManageException("选中的医院图片必须设置完整");
 
             //如果有医院没有短信模板的就不能设置为启用
-            List<String> hospitalCodes = Lists.newArrayList();
-            for (AppointmentHospital hospital : hospitals){
-                hospitalCodes.add(hospital.getHosOrgCode());
-            }
 
-            List<AppointmentSmsTemplet> smsTemplets = smsTempletRepository.findSmsTempletsByHospitalCodes(hospitalCodes);
-            if(hospitals.size()>smsTemplets.size()){
+            List<AppointmentSmsTemplet> smsTemplets = findSmsTempletsByHospitalId(hospitalIds);
+            if(hospitalIds.size()>smsTemplets.size()){
                 throw new ErrorAppointmentManageException("选中的医院中有医院没有短信模板,请联系开发人员添加");
             }
 
         }
         hospitalRepository.batchSetIsonsaleByHospitalIds(isonsale,hospitalIds);
 
+    }
+
+    /**
+     * 查询医院的短信模板
+     * @param hospitalIds
+     * @return
+     */
+    private List<AppointmentSmsTemplet> findSmsTempletsByHospitalId(List<String> hospitalIds) {
+
+        String sql = "select b.* from app_tb_appointment_hospital a " +
+                " INNER JOIN app_tb_appointment_sms_templet b on a.hos_org_code = b.hospital_code " +
+                " where a.id in ( ";
+        for(String hospitalId : hospitalIds){
+            sql += "'"+hospitalId+"',";
+        }
+        sql = sql.substring(0,sql.length()-1)+")";
+
+        return jt.query(sql.toString(), new BeanPropertyRowMapper(AppointmentSmsTemplet.class));
     }
 
     @Override
