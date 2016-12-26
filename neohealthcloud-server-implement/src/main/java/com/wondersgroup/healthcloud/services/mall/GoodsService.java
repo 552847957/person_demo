@@ -145,9 +145,10 @@ public class GoodsService {
 			// 上架时判断时间
 			if (goods.getType() != 1) {
 				String patten = "yyyyMMdd";
+				
 				String endTime = DateUtils.format(goods.getEndTime(), patten);
 				String nowTime = DateUtils.format(new Date(), patten);
-				if (endTime != null && nowTime.compareTo(endTime) >= 0) {
+				if (endTime != null && nowTime.compareTo(endTime) > 0) {
 					throw new CommonException(1001, "截止日期无效");
 				}
 			}
