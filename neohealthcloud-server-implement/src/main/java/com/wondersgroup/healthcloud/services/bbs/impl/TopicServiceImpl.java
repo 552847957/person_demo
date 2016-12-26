@@ -238,9 +238,7 @@ public class TopicServiceImpl implements TopicService {
         if (null == circle || circle.getDelFlag().equals("1")) {
             throw new TopicException(2003, "圈子无效");
         }
-        if (publishInfo.getIsTop() == 1){
-            this.checkIsCanTopTopic(publishInfo.getCircleId(), publishInfo.getId());
-        }
+
         this.isCanPublishForUser(publishInfo);
 
         //该话题是否发布过(话题只能发布一次，发布会推送相关消息)
@@ -257,6 +255,10 @@ public class TopicServiceImpl implements TopicService {
             if (isPublished){
                 publishInfo.setIsPublish(1);
             }
+        }
+        //判断是否可以置顶(新添加的置顶/编辑的时候置顶)
+        if (publishInfo.getIsTop() == 1 && (null == oldTopic || 0 == oldTopic.getIsTop())){
+            this.checkIsCanTopTopic(publishInfo.getCircleId(), publishInfo.getId());
         }
         //保存话题基本信息
         Topic topic = initTopicBaseInfo(publishInfo, oldTopic);
@@ -363,7 +365,10 @@ public class TopicServiceImpl implements TopicService {
         topic.setIsBest(publishInfo.getIsBest());
         topic.setIsTop(publishInfo.getIsTop());
         topic.setTopRank(publishInfo.getTopRank());
-        topic.setIsVote(null != publishInfo.getVoteItems() && !publishInfo.getVoteItems().isEmpty() ? 1 : 0);
+        //不能编辑投票信息
+        if (topic.getId() == null){
+            topic.setIsVote(null != publishInfo.getVoteItems() && !publishInfo.getVoteItems().isEmpty() ? 1 : 0);
+        }
         topic.setUpdateTime(nowTime);
         return topic;
     }
