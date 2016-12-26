@@ -799,7 +799,7 @@ public class FamilyController {
             info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         }
         List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
-        for (Integer id : MemberInfoTemplet.map.keySet()) {
+        for (Integer id : MemberInfoTemplet.map.keySet()) {//排序和控制是否显示
             if (!entryIsShow(info.getIsStandalone(), info.getIsVerification(), id, uid.equals(memberId), info.getAge())) {
                 continue;
             }
@@ -1273,18 +1273,8 @@ public class FamilyController {
     public List<SimpleMeasure> historyMeasureNew(String registerId, String gender) {
         Map<String, Object> result = new HashMap<>();
         String personCard = "";
-        //        String gender = null;
         List<SimpleMeasure> list = new ArrayList<SimpleMeasure>();
         try {
-            //            RegisterInfo info = userService.findOne(registerId);
-            //            if(info == null){
-            //                AnonymousAccount account = anonymousAccountService.getAnonymousAccount(registerId, false);
-            //                personCard = account.getIdcard();
-            //                gender = account.getSex();
-            //            }else{
-            //                personCard = info.getPersoncard();
-            //                gender = info.getGender();
-            //            }
             if (StringUtils.isEmpty(personCard)) {
                 result.put("h5Url", Collections.EMPTY_MAP);
             } else {
@@ -1353,12 +1343,21 @@ public class FamilyController {
     public String getDateStr() {
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
-
+    
     public String getLeftDaysByBirth(String date) {
         String url = host_vaccine + "/api/vaccine/getLeftDaysByBirth?birthday=" + date;
         return restTemplate.getForObject(url, String.class);
     }
-
+    
+    /**
+     * 家庭4.0 控制是否显示
+     * @param isStandalone 是否单机版
+     * @param isVerification 是否已认证
+     * @param type 类型
+     * @param isMe 是否是自己
+     * @param age  年龄
+     * @return boolean
+     */
     public boolean entryIsShow(boolean isStandalone, boolean isVerification, int type, boolean isMe, Integer age) {
         boolean result = false;
         boolean isChild = age != null && age <= 6;

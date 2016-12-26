@@ -110,7 +110,7 @@ public class ExchangeOrderService {
 	}
 
 	public Page<ExchangeOrderDto> findByUserId(String userId, int flag) {
-		int size = 20;
+		int size = 10;
 		int start = flag * size;
 		int end = start + size;
 		String sql = "from exchange_order_tb a left join goods_tb b on a.goods_id = b.id where a.user_id = ?";

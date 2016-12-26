@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.mall.ExchangeOrder;
@@ -140,11 +141,23 @@ public class GoodsService {
 
 	public void save(Goods goods) {
 		int status = goods.getStatus();
-		// 上架時判斷商品過期時間
 		if (status == 1) {
-			Date endTime = goods.getEndTime();
-			if (endTime != null && endTime.before(new Date())) {
-				throw new CommonException(1001, "截止日期无效");
+			// 上架时判断时间
+			if (goods.getType() != 1) {
+				String patten = "yyyyMMdd";
+				
+				String endTime = DateUtils.format(goods.getEndTime(), patten);
+				String nowTime = DateUtils.format(new Date(), patten);
+				if (endTime != null && nowTime.compareTo(endTime) > 0) {
+					throw new CommonException(1001, "截止日期无效");
+				}
+			}
+			// 上架判断库存
+			if (goods.getType() != 2) {
+				int stockNum = goods.getStockNum();
+				if (stockNum <= 0) {
+					throw new CommonException(1002, "商品库存不足");
+				}
 			}
 		}
 
