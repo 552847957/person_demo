@@ -396,12 +396,15 @@ public class AssessmentServiceImpl implements AssessmentService {
         }
         String risk = this.getResult(assessment);
         Map<String,Object> map = Maps.newHashMap();
-        if(!StringUtils.isEmpty(risk) && (risk.contains("-3") || risk.contains("-2"))){
-            map.put("state",false);
+        if(!StringUtils.isEmpty(risk) && (risk.contains("-3"))){
+            map.put("state",3);
+        }else if(!StringUtils.isEmpty(risk) && (risk.contains("-2"))){
+            map.put("state",2);
         }else{
-            map.put("state",true);
+            map.put("state",1);
         }
         map.put("date",new DateTime(assessment.getCreateDate()).toString("yyyy-MM-dd"));
         return map;
     }
+
 }

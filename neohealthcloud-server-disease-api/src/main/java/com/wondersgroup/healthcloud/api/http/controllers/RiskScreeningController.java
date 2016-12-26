@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.api.http.dto.RiskScreeningEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
 import org.slf4j.Logger;
@@ -26,7 +27,9 @@ public class RiskScreeningController {
     @Autowired
     private DiabetesAssessmentService assessmentService;
 
-    private static final Logger logger = LoggerFactory.getLogger("info");
+
+    @Autowired
+    private DiabetesAssessmentRepository assessmentRepo;
 
     /**
      * 高危筛查列表
@@ -37,7 +40,6 @@ public class RiskScreeningController {
             @RequestParam(required = false) String  name,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
-        logger.info(" /api/screening/list name :"+name);
 
         int pageSize = 10;
         List<DiabetesAssessmentDTO> list = assessmentService.findAssessment(flag,pageSize,name);
@@ -72,11 +74,21 @@ public class RiskScreeningController {
      */
     @PostMapping("/remind")
     public JsonResponseEntity remind(@RequestBody String request) {
+
+        JsonResponseEntity entity = new JsonResponseEntity();
         JsonKeyReader reader = new JsonKeyReader(request);
         String ids = reader.readString("ids",false);
         String doctorId = reader.readString("doctorId",false);
-        Boolean flag = assessmentService.remind(ids,doctorId);
-        JsonResponseEntity entity = new JsonResponseEntity();
+
+        List<String> registerIds = assessmentRepo.findRemidRegisterById(ids.split(","));
+        if(0 == registerIds.size() && 1 == ids.split(",").length){
+            entity.setCode(1002);
+            entity.setMsg("该用户当日已经被提醒");
+            return entity;
+        }
+
+        Boolean flag = assessmentService.remind(registerIds,doctorId);
+
         if(flag){
             entity.setMsg("您的糖尿病高危筛查提醒已经发送成功");
         }else{

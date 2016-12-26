@@ -175,6 +175,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                 " registerid = t1.registerid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')");
         buffer.append(" and t1.del_flag = '0' and t2.identifytype != '0' ");
         buffer.append(" group by t1.registerid ");
+        buffer.append(" order by t1.create_date desc ");
         buffer.append(" limit "+(pageNo-1)*pageSize+","+pageSize);
 //        return jdbcTemplate.queryForList(buffer.toString(),DiabetesAssessmentDTO.class);
         return jdbcTemplate.query(buffer.toString(), new RowMapper<DiabetesAssessmentDTO>() {
@@ -225,8 +226,8 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
     @Override
-    public Boolean  remind(String ids , String doctorId) {
-        List<String> registerIds = assessmentRepo.findRegisterById(ids.split(","));;
+    public Boolean  remind(List<String> registerIds , String doctorId) {
+
         for(String registerid : registerIds){
             DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
             remind.setId(IdGen.uuid());
@@ -330,9 +331,12 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         return null;
     }
 
+
     @Data
     public static class AssessmentResult {
         Integer type;
         Integer result;
     }
+
+
 }
