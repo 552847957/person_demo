@@ -68,4 +68,6 @@ public interface AppointmentApiService {
     List<OrderDto> findOrderListByScheduleId(String scheduleId);
 
     void updateOrderWhencloseNumberSource(String closeSms,String id);
+
+    void saveOrUpdateAppointmentScheduleByDepartmentId(String id);
 }

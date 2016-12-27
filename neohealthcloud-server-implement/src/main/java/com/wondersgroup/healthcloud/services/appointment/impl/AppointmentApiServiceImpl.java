@@ -3,10 +3,15 @@ package com.wondersgroup.healthcloud.services.appointment.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.*;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.repository.appointment.*;
+import com.wondersgroup.healthcloud.registration.client.DoctInfoClient;
 import com.wondersgroup.healthcloud.registration.client.OrderClient;
 import com.wondersgroup.healthcloud.registration.entity.request.*;
 import com.wondersgroup.healthcloud.registration.entity.response.*;
@@ -24,8 +29,11 @@ import com.wondersgroup.healthcloud.utils.registration.JaxbUtil;
 import com.wondersgroup.healthcloud.utils.registration.SignatureGenerator;
 import com.wondersgroup.healthcloud.utils.sms.SMS;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -87,10 +95,18 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     private OrderClient orderClient;//调用第三方webservice接口
 
     @Autowired
+    private DoctInfoClient doctInfoClient;
+
+    @Autowired
     private AppConfigService appConfigService;
 
     @Autowired
     private SMS sms;
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
+
+    private HttpRequestExecutorManager httpRequestExecutorManager;
 
 
 
@@ -500,6 +516,13 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         OrderResultResponse orderResultResponse = orderClient.submitOrderByUserInfo(xmlRequest);
 
         if(!"0".equals(orderResultResponse.messageHeader.getCode())){
+            try {
+                //调用jobClient的接口
+                Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/appointment/updateDepartmentNumSource").param("department_id", l2Department.getId()).build();
+                JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
+            }catch (Exception e){
+                logger.error("预约失败后更新排班信息,department_id="+l2Department.getId()+","+e.getLocalizedMessage());
+            }
             throw new ErrorReservationException(orderResultResponse.messageHeader.getDesc());
         }
 
@@ -552,7 +575,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         }catch (Exception e){
 
         }
-        String RegisterLocation = "";//他们说这个字段其实没用
+        String RegisterLocation = orderDto.getLocation();//他们说这个字段只有华山医院的用
 
         String DiseaseName = "";
         String CommonName = "";
@@ -791,6 +814,272 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         orderRepository.updateOrderWhencloseNumberSource(closeSms,orderId);
     }
 
+    /**
+     * 根据科室更新排班信息
+     * @param departmentId
+     */
+    @Override
+    @Transactional(readOnly = false)
+    public void saveOrUpdateAppointmentScheduleByDepartmentId(String departmentId) {
+        //保存二级科室
+        AppointmentL2Department l2Department = departmentL2Repository.findOne(departmentId);
+        Map<String,Object> result = getNumberSourceParameter(departmentId,"2");
+        if(l2Department!=null && result !=null){
+            String hospitalId = l2Department.getHospitalId();
+            TwoDeptInfo twoDeptInfo = new TwoDeptInfo();
+            twoDeptInfo.setHosOrgCode(result.get("hosOrgCode").toString());
+            twoDeptInfo.setTopHosDeptCode(result.get("topHosDeptCode").toString());
+            twoDeptInfo.setHosDeptCode(l2Department.getHosDeptCode());
+
+            //查询科室的普通预约资源
+            List<NumSourceInfo> deptNumSourceCommonList = getDeptNumSourceByTwoDeptInfo(twoDeptInfo,"3");
+            //保存预约资源信息
+            if(deptNumSourceCommonList!=null && deptNumSourceCommonList.size()>0){
+                for (NumSourceInfo numSourceInfo :deptNumSourceCommonList){
+                    //保存科室的预约资源
+                    List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
+                    if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                        for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                            //根据  NumSourceId
+                            AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule
+                                    (numSourceInfo.getScheduleId(), segmentNumberInfo.getNumSourceId(), hospitalId);
+                            try {
+                                if(scheduleUpdate!=null){
+                                    scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setUpdateDate(new Date());
+                                    scheduleRepository.saveAndFlush(scheduleUpdate);
+                                }
+                            }catch (Exception e){
+                                logger.error("saveOrUpdateAppointmentSchedule="+e.getLocalizedMessage());
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            //查询科室的专病预约资源
+            List<NumSourceInfo> deptNumSourceDiseaseList = getDeptNumSourceByTwoDeptInfo(twoDeptInfo,"2");
+            //保存预约资源信息
+            if(deptNumSourceDiseaseList!=null && deptNumSourceDiseaseList.size()>0){
+                for (NumSourceInfo numSourceInfo :deptNumSourceDiseaseList){
+                    //保存科室的预约资源
+                    List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
+                    if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                        for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                            //根据  NumSourceId
+                            AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule
+                                    (numSourceInfo.getScheduleId(), segmentNumberInfo.getNumSourceId(), hospitalId);
+                            try {
+                                if(scheduleUpdate!=null){
+                                    scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setUpdateDate(new Date());
+                                    scheduleRepository.saveAndFlush(scheduleUpdate);
+                                }
+                            }catch (Exception e){
+                                logger.error("saveOrUpdateAppointmentSchedule="+e.getLocalizedMessage());
+                            }
+                        }
+                    }
+                }
+            }
+
+            //查询二级科室下所有的医生
+            List<DoctInfo> doctInfoList = getDoctorListByTwoDept(twoDeptInfo);
+            if(doctInfoList!=null && doctInfoList.size()>0){
+                //根据医生查询医生的预约资源
+                for(DoctInfo doctInfo : doctInfoList){
+
+                    //保存医生信息
+                    AppointmentDoctor doctor = saveOrUpdateAppointmentDoctor(l2Department,doctInfo);
+                    if(doctor!=null){
+                        List<NumSourceInfo> docNumSourceList = getDoctorNumSourceByDoctInfo(twoDeptInfo,doctInfo);
+                        //保存医生预约资源信息
+                        if(docNumSourceList!=null && docNumSourceList.size()>0){
+                            for (NumSourceInfo numSourceInfo :docNumSourceList){
+                                //保存医生的排班
+                                List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
+                                if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
+                                    for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+                                        AppointmentDoctorSchedule doctorSchedule = saveOrUpdateAppointmentDoctorSchedule(doctor, numSourceInfo, segmentNumberInfo);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        //逻辑删除没有二级科室的一级科室
+        departmentL1Repository.deleteDept1HasNoDept2();
+
+        //给医院设置医生数量
+        hospitalRepository.setDoctorNumToHospital();
+
+    }
+
+    private AppointmentDoctorSchedule saveOrUpdateAppointmentDoctorSchedule(AppointmentDoctor doctor, NumSourceInfo numSourceInfo,SegmentNumberInfo segmentNumberInfo) {
+        AppointmentDoctorSchedule schedule = new AppointmentDoctorSchedule();
+        AppointmentDoctorSchedule localSchedule = scheduleRepository.getAppointmentDoctorSchedule
+                (numSourceInfo.getScheduleId(),segmentNumberInfo.getNumSourceId(),doctor.getHospitalId());
+        try {
+            if(localSchedule == null){
+                BeanUtils.copyProperties(numSourceInfo, schedule, "scheduleDate");
+
+                schedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
+                schedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                schedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                schedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                schedule.setDoctorId(doctor.getId());
+                schedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                schedule.setStartTime(numSourceInfo.getStartTime());
+                schedule.setEndTime(numSourceInfo.getEndTime());
+                schedule.setStatus(numSourceInfo.getStatus());
+                schedule.setHospitalId(doctor.getHospitalId());
+                schedule.setL1DepartmentId(doctor.getL1DepartmentId());
+                schedule.setL2DepartmentId(doctor.getL2DepartmentId());
+                schedule.setDelFlag("0");
+                schedule.setCreateDate(new Date());
+                schedule.setUpdateDate(new Date());
+                schedule.setId(IdGen.uuid());
+                scheduleRepository.saveAndFlush(schedule);
+            }else{
+                BeanUtils.copyProperties(numSourceInfo,localSchedule,"scheduleDate");
+                localSchedule.setNumSourceId(segmentNumberInfo.getNumSourceId());
+                localSchedule.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                localSchedule.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                localSchedule.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                localSchedule.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                localSchedule.setStartTime(segmentNumberInfo.getStartTime());
+                localSchedule.setEndTime(segmentNumberInfo.getEndTime());
+                localSchedule.setStatus(numSourceInfo.getStatus());
+                localSchedule.setDelFlag("0");
+                localSchedule.setUpdateDate(new Date());
+                scheduleRepository.saveAndFlush(localSchedule);
+                schedule = localSchedule;
+            }
+        }catch (Exception e){
+
+        }
+        return schedule;
+    }
+
+
+    /**
+     * 保存医生信息
+     * @param l2Department
+     * @param doctInfo
+     * @return
+     */
+    private AppointmentDoctor saveOrUpdateAppointmentDoctor(AppointmentL2Department l2Department, DoctInfo doctInfo) {
+        AppointmentDoctor doctor = new AppointmentDoctor();
+        AppointmentDoctor localDoctor = doctorRepository.getAppointmentDoctor
+                (doctInfo.getHosDoctCode(),l2Department.getId(),l2Department.getL1DepartmentId(),l2Department.getHospitalId());
+        if(localDoctor == null){
+            BeanUtils.copyProperties(doctInfo, doctor);
+            doctor.setHospitalId(l2Department.getHospitalId());
+            doctor.setL1DepartmentId(l2Department.getL1DepartmentId());
+            doctor.setL2DepartmentId(l2Department.getId());
+            doctor.setDelFlag("0");
+            doctor.setCreateDate(new Date());
+            doctor.setUpdateDate(new Date());
+            doctor.setId(IdGen.uuid());
+            doctor.setIsonsale("1");
+            doctorRepository.saveAndFlush(doctor);
+        }else{
+            BeanUtils.copyProperties(doctInfo,localDoctor);
+            localDoctor.setDelFlag("0");
+            localDoctor.setUpdateDate(new Date());
+            doctorRepository.saveAndFlush(localDoctor);
+            doctor = localDoctor;
+        }
+        return doctor;
+    }
+
+    /**
+     * 根据二级科室查询科室的预约资源
+     * @param twoDeptInfo
+     * @return
+     */
+    private List<NumSourceInfo> getDeptNumSourceByTwoDeptInfo(TwoDeptInfo twoDeptInfo,String registerType) {
+        NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
+        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
+        NumSourceInfoR numSourceInfoR = new NumSourceInfoR(twoDeptInfo);
+        numSourceInfoR.setRegisterType(registerType);
+        numSourceInfoRequest.numSourceInfoR = numSourceInfoR;
+
+        String sign = SignatureGenerator.generateSignature(numSourceInfoRequest);
+        numSourceInfoRequest.requestMessageHeader.setSign(sign);
+
+        String xmlRequest = JaxbUtil.convertToXml(numSourceInfoRequest);
+        List<NumSourceInfo> numSourceInfoList = Lists.newArrayList();
+        try{
+            NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
+            if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
+                numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+            }
+        }catch (Exception e){
+            logger.error("getDeptNumSourceByTwoDeptInfo:" + e.getLocalizedMessage());
+        }
+
+        return numSourceInfoList;
+    }
+
+    private List<DoctInfo> getDoctorListByTwoDept(TwoDeptInfo twoDeptInfo) {
+
+        DoctInfoRequest doctInfoRequest = new DoctInfoRequest();
+        doctInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
+        doctInfoRequest.deptInfoR = new DeptInfoR(twoDeptInfo.getHosOrgCode(),twoDeptInfo.getTopHosDeptCode(),twoDeptInfo.getHosDeptCode());
+
+        String sign = SignatureGenerator.generateSignature(doctInfoRequest);
+        doctInfoRequest.requestMessageHeader.setSign(sign);
+
+        String xmlRequest = JaxbUtil.convertToXml(doctInfoRequest);
+        List<DoctInfo> doctInfoList = Lists.newArrayList();
+
+        try{
+            DoctInfoResponse doctInfoResponse = doctInfoClient.getDoctInfoList(xmlRequest);
+            if(doctInfoResponse!=null&&"0".equals(doctInfoResponse.messageHeader.getCode())){
+                doctInfoList = doctInfoResponse.doctInfos;
+            }else{
+                logger.error("getDoctorListByTwoDept:"+doctInfoResponse.messageHeader.getDesc());
+            }
+        }catch (Exception e){
+            logger.error("getDoctorListByTwoDept:"+e.getLocalizedMessage());
+            logger.error("xmlRequest="+xmlRequest);
+        }
+        return doctInfoList;
+    }
+
+    /**
+     * 根据医生信息查询医生的预约资源
+     * @param doctInfo
+     * @return
+     */
+    private List<NumSourceInfo> getDoctorNumSourceByDoctInfo(TwoDeptInfo twoDeptInfo,DoctInfo doctInfo) {
+        NumSourceInfoRequest numSourceInfoRequest = new NumSourceInfoRequest();
+        numSourceInfoRequest.requestMessageHeader = new RequestMessageHeader(environment);
+        numSourceInfoRequest.numSourceInfoR = new NumSourceInfoR(twoDeptInfo,doctInfo);
+
+        String sign = SignatureGenerator.generateSignature(numSourceInfoRequest);
+        numSourceInfoRequest.requestMessageHeader.setSign(sign);
+
+        String xmlRequest = JaxbUtil.convertToXml(numSourceInfoRequest);
+        List<NumSourceInfo> numSourceInfoList = Lists.newArrayList();
+        try{
+            NumSourceInfoResponse numSourceInfoResponse = orderClient.getOrderNumInfoList(xmlRequest);
+            if(numSourceInfoResponse!=null&&"0".equals(numSourceInfoResponse.messageHeader.getCode())){
+                numSourceInfoList = numSourceInfoResponse.numSourceInfos;
+            }
+        }catch (Exception e){
+            logger.error("getDoctorNumSourceByDoctInfo:"+e.getLocalizedMessage());
+            logger.error("xmlRequest="+xmlRequest);
+        }
+
+        return numSourceInfoList;
+    }
+
     public class UpdateNumberSourceTask implements Callable {
         private NumSourceInfo numSourceInfo;
         private String hospitalId;
@@ -857,8 +1146,8 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             sql += "select b.dept_code as hosDeptCode,c.dept_code as topHosDeptCode,d.hos_org_code as hosOrgCode," +
                     " d.id as hospitalId " +
                     " from app_tb_appointment_department_l2 b " +
-                    " left join app_tb_appointment_department_l1 c on a.department_l1_id = c.id " +
-                    " left join app_tb_appointment_hospital d on a.hospital_id = d.id " +
+                    " left join app_tb_appointment_department_l1 c on b.department_l1_id = c.id " +
+                    " left join app_tb_appointment_hospital d on b.hospital_id = d.id " +
                     " where b.id = '%s' ";
         }
         sql = String.format(sql,id);
@@ -938,6 +1227,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String visitNo = orderResultResponse.orderResult.getVisitNo();
         String takePassword = orderResultResponse.orderResult.getTakePassword();
         String hosNumSourceId = orderResultResponse.orderResult.getHosNumSourceId();
+        String location = orderResultResponse.orderResult.getDoctorDesc();//楼层位置
 
         AppointmentOrder order = new AppointmentOrder();
         order.setId(IdGen.uuid());
@@ -946,6 +1236,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setOrderId(orderId);
         order.setHosNumSourceId(hosNumSourceId);
         order.setVisitNo(visitNo);
+        order.setLocation(location);
         order.setTakePassword(takePassword);
         order.setAppointmentScheduleId(schedule.getId());
         order.setScheduleId(schedule.getScheduleId());
@@ -984,5 +1275,11 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         return findOrderByUidOrId(order.getId(),null,null,false).get(0);
 
     }
+
+    @Autowired
+    public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
+        this.httpRequestExecutorManager = httpRequestExecutorManager;
+    }
+
 
 }

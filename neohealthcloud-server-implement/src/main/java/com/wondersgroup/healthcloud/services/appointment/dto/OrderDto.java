@@ -25,6 +25,11 @@ public class OrderDto {
      */
     private String visitNo;
 
+    /**
+     * 楼层位置
+     */
+    private String location;
+
     private String hosNumSourceId;
 
     private String contactId;
