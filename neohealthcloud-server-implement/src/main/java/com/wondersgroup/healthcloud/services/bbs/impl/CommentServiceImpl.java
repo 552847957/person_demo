@@ -85,7 +85,9 @@ public class CommentServiceImpl implements CommentService {
         //集成topic信息
         List<CommentListDto> listDtos = this.buildCommentListDaos(comments);
         for (CommentListDto commentListDto : listDtos){
-            commentListDto.mergeTopicInfo(topicMap.get(commentListDto.getTopicId()));
+            Topic topic = topicMap.get(commentListDto.getTopicId());
+            topic.setTitle(badWordsService.dealBadWords(topic.getTitle()));
+            commentListDto.mergeTopicInfo(topic);
         }
         return listDtos;
     }
@@ -109,6 +111,7 @@ public class CommentServiceImpl implements CommentService {
         }
         List<CommentListDto> listDtos = this.buildCommentListDaos(comments);
         for (CommentListDto commentListDto : listDtos){
+            topic.setTitle(badWordsService.dealBadWords(topic.getTitle()));
             commentListDto.mergeTopicInfo(topic);
         }
         return listDtos;
