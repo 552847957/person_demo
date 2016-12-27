@@ -541,8 +541,12 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         OrderDto orderDto = saveOrderToLocal(submitOrder,orderResultResponse,contact,doctor,schedule,l2Department);
 
+        try {
+            sendAppointmentMessage(contact,orderDto,"1");
+        }catch (Exception e){
+            logger.error("预约发送短信失败,orderId="+orderDto.getId()+e.getLocalizedMessage());
+        }
 
-        sendAppointmentMessage(contact,orderDto,"1");
 
 
         return orderDto;
@@ -609,13 +613,13 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             //停诊
             }else if("3".equals(type)){
                 if("1".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。";
                     DoctorName = orderDto.getDoctorName();
                 }else if("2".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。";
                     DiseaseName = orderDto.getRegisterName();
                 }else if("3".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。";
                     CommonName = orderDto.getRegisterName();
                 }
 
@@ -685,7 +689,12 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         OrderDto orderDto = findOrderByUidOrId(id,null,null,false).get(0);
         AppointmentContact contact = contactRepository.findOne(orderDto.getContactId());
-        sendAppointmentMessage(contact,orderDto,"2");
+
+        try {
+            sendAppointmentMessage(contact,orderDto,"2");
+        }catch (Exception e){
+            logger.error("取消发送短信失败,orderId="+orderDto.getId()+e.getLocalizedMessage());
+        }
         return orderDto;
     }
 
