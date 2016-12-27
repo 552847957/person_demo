@@ -51,7 +51,7 @@ public class MallBannerService {
 
 		int start = page * size;
 		String query = "select a.*, b.name as goodsName " + sql + " order by a.status desc, a.sort_no asc limit "
-				+ start + "," + (start + size);
+				+ start + "," + size;
 		List<MallBannerDto> content = jdbcTemplate.query(query,
 				new BeanPropertyRowMapper<MallBannerDto>(MallBannerDto.class));
 

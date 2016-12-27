@@ -116,6 +116,15 @@ public class AppointmentResourceJobController {
         return  responseEntity;
     }
 
+    @RequestMapping(value = "/updateDepartmentNumSource", method = RequestMethod.GET)
+    public JsonResponseEntity updateDepartmentNumSource(@RequestParam(required = true,value = "department_id") String id) {
+        JsonResponseEntity responseEntity = new JsonResponseEntity();
+        appointmentApiService.saveOrUpdateAppointmentScheduleByDepartmentId(id);
+        responseEntity.setMsg("success");
+        return  responseEntity;
+    }
+
+
     @RequestMapping(value = "/updateHospitalNumSource", method = RequestMethod.GET)
     public JsonResponseEntity updateHospitalNumSource(@RequestParam(required = true,value = "hospital_id") String hospitalId) {
         JsonResponseEntity responseEntity = new JsonResponseEntity();
@@ -130,20 +139,9 @@ public class AppointmentResourceJobController {
         if(hosInfoList!=null && hosInfoList.size()>0){
             for(HosInfo hosInfo:hosInfoList){
                 AppointmentTask appointmentTask = new AppointmentTask(hosInfo);
-//                FutureTask<Integer[]> task1 = new FutureTask<Integer[]>(appointmentTask);
-//                executor.submit(task1);
-//                futureTasks.add(task1);
             }
 
         }
-//        for (int i = 0;i<futureTasks.size();i++){
-//            try {
-//                getResult(futureTasks.get(i));
-//            }catch (Exception e){
-//                log.info("futureTasks--"+e.getLocalizedMessage());
-//            }
-//
-//        }
         //逻辑删除没有二级科室的一级科室
         appointmentService.deleteDept1HasNoDept2();
         //给医院设置医生数量
@@ -579,8 +577,7 @@ public class AppointmentResourceJobController {
             }
             appointmentService.saveAndFlush(hospital);
         }else{
-            BeanUtils.copyProperties(hosInfo,localHospital,"hospitalAdd","hospitalRule","hospitalWeb","trafficGuide",
-                    "hospitalDesc","hospitalTel");
+            BeanUtils.copyProperties(hosInfo,localHospital,"hospitalDesc");
             localHospital.setDelFlag(DEL_FLAG_NORMAL);
             localHospital.setUpdateDate(new Date());
             appointmentService.saveAndFlush(localHospital);
@@ -706,9 +703,6 @@ public class AppointmentResourceJobController {
             log.error("getDoctorListByTwoDept:"+e.getLocalizedMessage());
             log.error("xmlRequest="+xmlRequest);
         }
-
-
-
         return doctInfoList;
     }
 

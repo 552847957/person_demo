@@ -90,7 +90,7 @@ public class ExchangeOrderService {
 		}
 
 		int start = page * size;
-		String querySql = sql + " limit " + start + "," + (start + size);
+		String querySql = sql + " limit " + start + "," + size;
 		List<ExchangeOrderDto> list = jdbcTemplate.query(querySql,
 				new BeanPropertyRowMapper<ExchangeOrderDto>(ExchangeOrderDto.class));
 
@@ -112,11 +112,10 @@ public class ExchangeOrderService {
 	public Page<ExchangeOrderDto> findByUserId(String userId, int flag) {
 		int size = 10;
 		int start = flag * size;
-		int end = start + size;
 		String sql = "from exchange_order_tb a left join goods_tb b on a.goods_id = b.id where a.user_id = ?";
 		String query = "select a.*, b.picture " + sql + " order by a.create_time desc limit ?, ?";
 
-		List<ExchangeOrderDto> list = jdbcTemplate.query(query, new Object[] { userId, start, end },
+		List<ExchangeOrderDto> list = jdbcTemplate.query(query, new Object[] { userId, start, size },
 				new BeanPropertyRowMapper<ExchangeOrderDto>(ExchangeOrderDto.class));
 
 		int total = jdbcTemplate.queryForObject("select count(1)" + sql, new Object[] { userId }, Integer.class);
