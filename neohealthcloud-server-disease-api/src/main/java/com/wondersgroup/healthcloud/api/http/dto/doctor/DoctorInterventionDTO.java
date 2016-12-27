@@ -12,6 +12,7 @@ public class DoctorInterventionDTO {
     private String sex;
     private String age;
     private int existFirst;
+    private int existSeven;
     private String fpgValue;
     private String testTime;
     private String testPeriod;
