@@ -38,11 +38,8 @@ public class MeasureServiceImpl implements MeasureService {
 	@Autowired
 	private Environment environment;
 
+	@Value("${internal.api.service.measure.url}")
 	private String measure;
-	@PostConstruct
-	private void setUrl(){
-		this.measure = environment.getProperty("internal.api.service.measure.url");
-	}
 
 	private final static String MEASURE_URL="/api/measure/3.0/recentAbnormalBloodGlucose";
 

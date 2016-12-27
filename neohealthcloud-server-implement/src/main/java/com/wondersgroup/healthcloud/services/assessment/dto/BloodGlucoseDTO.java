@@ -17,7 +17,7 @@ public class BloodGlucoseDTO {
     @JsonProperty("flag")
     private String flag; // 0 正常 1 偏高 2 偏低
     @JsonProperty("testTime")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date date;//测量 日期
     @JsonProperty("fpgValue")
     private Double fpq;//血糖值
