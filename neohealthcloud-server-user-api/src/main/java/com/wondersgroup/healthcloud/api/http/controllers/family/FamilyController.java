@@ -1330,7 +1330,9 @@ public class FamilyController {
         map.put(uid, "-1");
         if (familyMembers != null) {
             for (FamilyMember familyMember : familyMembers) {
-                map.put(familyMember.getMemberId(), familyMember.getRelation());
+                if(FamilyMemberAccess.recordReadable(familyMember.getAccess())){
+                    map.put(familyMember.getMemberId(), familyMember.getRelation());
+                }
             }
         }
         return map;
