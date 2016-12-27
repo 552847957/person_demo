@@ -505,7 +505,13 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         submitOrderRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(submitOrderRequest));
 
         String xmlRequest = JaxbUtil.convertToXml(submitOrderRequest);
-        OrderResultResponse orderResultResponse = orderClient.submitOrderByUserInfo(xmlRequest);
+        OrderResultResponse orderResultResponse = new OrderResultResponse();
+        try {
+            orderResultResponse = orderClient.submitOrderByUserInfo(xmlRequest);
+        }catch (Exception e){
+            logger.error("预约提交失败=="+e.getLocalizedMessage());
+            throw new ErrorReservationException("医联预约平台接口调用失败");
+        }
 
         if(!"0".equals(orderResultResponse.messageHeader.getCode())){
             try {
@@ -659,7 +665,14 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         orderCancelRequest.requestMessageHeader = new RequestMessageHeader(environment);
         String sign = SignatureGenerator.generateSignature(orderCancelRequest);
         orderCancelRequest.requestMessageHeader.setSign(sign);
-        OrderCancelResponse orderCancelResponse = orderClient.orderCancel(JaxbUtil.convertToXml(orderCancelRequest));
+
+        OrderCancelResponse orderCancelResponse = new OrderCancelResponse();
+        try {
+            orderCancelResponse = orderClient.orderCancel(JaxbUtil.convertToXml(orderCancelRequest));
+        }catch (Exception e){
+            logger.error("医疗预约平台取消订单,orderId="+id+","+e.getLocalizedMessage());
+            throw new ErrorReservationException("医联预约平台接口调用失败");
+        }
 
         if(!"0".equals(orderCancelResponse.messageHeader.getCode())){
             throw new ErrorReservationException(orderCancelResponse.messageHeader.getDesc());
