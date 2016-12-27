@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CircleRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.CommentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
+import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
 import com.wondersgroup.healthcloud.services.bbs.BbsAdminService;
 import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
@@ -39,13 +40,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private TopicRepository topicRepository;
-
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private CircleRepository circleRepository;
     @Autowired
@@ -54,6 +52,8 @@ public class CommentServiceImpl implements CommentService {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private BbsMsgHandler bbsMsgHandler;
+    @Autowired
+    private BadWordsService badWordsService;
     @Autowired
     private ConfigSwitch configSwitch;
 
@@ -146,6 +146,7 @@ public class CommentServiceImpl implements CommentService {
                 RegisterInfo referUserInfo = userMap.get(comment.getReferUId());
                 commentListDto.mergeReferCommentInfo(commentsMap.get(comment.getReferCommentId()), referUserInfo);
             }
+            commentListDto.dealBadWords(badWordsService);
             rtList.add(commentListDto);
         }
         return rtList;

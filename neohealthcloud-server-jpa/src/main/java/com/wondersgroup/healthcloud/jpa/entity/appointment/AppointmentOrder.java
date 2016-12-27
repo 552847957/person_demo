@@ -68,6 +68,11 @@ public class AppointmentOrder {
     private String visitNo;
 
     /**
+     * 楼层位置-华山医院有
+     */
+    private String location;
+
+    /**
      * 取号密码
      */
     @Column(name = "take_password")

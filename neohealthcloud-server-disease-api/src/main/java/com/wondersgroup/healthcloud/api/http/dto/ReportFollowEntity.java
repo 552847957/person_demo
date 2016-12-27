@@ -101,19 +101,19 @@ public class ReportFollowEntity {
             for(String object : dto.getAdvice().split(",")){
                 switch (Integer.parseInt(object)){
                     case 1:
-                        this.symptom.add("控制饮食"); break;
+                        this.advice.add("控制饮食"); break;
                     case 2:
-                        this.symptom.add("戒烟戒酒"); break;
+                        this.advice.add("戒烟戒酒"); break;
                     case 3:
-                        this.symptom.add("减轻体重"); break;
+                        this.advice.add("减轻体重"); break;
                     case 4:
-                        this.symptom.add("规律活动"); break;
+                        this.advice.add("规律活动"); break;
                     case 5:
-                        this.symptom.add("放松情绪"); break;
+                        this.advice.add("放松情绪"); break;
                     case 6:
-                        this.symptom.add("定期检查"); break;
+                        this.advice.add("定期检查"); break;
                     case 7:
-                        this.symptom.add("遵医嘱服药"); break;
+                        this.advice.add("遵医嘱服药"); break;
                 }
             }
         }

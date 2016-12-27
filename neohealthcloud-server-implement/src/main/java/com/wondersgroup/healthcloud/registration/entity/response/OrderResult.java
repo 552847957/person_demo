@@ -22,6 +22,11 @@ public class OrderResult {
      * 就诊序号
      */
     private String visitNo;
+
+    /**
+     * 楼层位置(华山医院有)
+     */
+    private String doctorDesc;
     /**
      * 平台用户编码
      */
@@ -113,5 +118,13 @@ public class OrderResult {
 
     public void setHosNumSourceId(String hosNumSourceId) {
         this.hosNumSourceId = hosNumSourceId;
+    }
+
+    public String getDoctorDesc() {
+        return doctorDesc;
+    }
+
+    public void setDoctorDesc(String doctorDesc) {
+        this.doctorDesc = doctorDesc;
     }
 }

@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,6 @@ import java.util.List;
 public class DiabetesServiceImpl implements DiabetesService {
 
     private Logger logger = LoggerFactory.getLogger("ex");
-    @Autowired
-    private Environment environment;
-
-    private String url; //   "http://10.1.93.111:8380/hds";
 
     private final static HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
@@ -46,10 +43,11 @@ public class DiabetesServiceImpl implements DiabetesService {
     private final static String REPORT_INSPECT_DETAIL = "/api/inspection/report";//检查报告详情
     private final static String REPORT_FOLLOW_LIST = "/api/diabetes/follow";//随访报告列表
 
-    @PostConstruct
-    private void setUrl(){
-        this.url = environment.getProperty("diabetes.web.url");
-    }
+    @Value("${diabetes.web.url}")
+    private String url;
+
+//    private String url = "http://10.1.93.110:8480/hds";
+
     /**
      * 根据医生获取在管人群数
      * @param hospitalCode

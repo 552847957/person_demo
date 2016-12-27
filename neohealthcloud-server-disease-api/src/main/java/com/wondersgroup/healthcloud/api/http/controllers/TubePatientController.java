@@ -1,20 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.squareup.okhttp.Request;
-import com.wondersgroup.common.http.builder.RequestBuilder;
-import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.api.http.dto.TubePatientDetailEntity;
 import com.wondersgroup.healthcloud.api.http.dto.TubePatientEntity;
 import com.wondersgroup.healthcloud.api.utls.MapHelper;
-import com.wondersgroup.healthcloud.api.utls.Pager;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.BaseInfoRepository;
@@ -30,10 +23,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

@@ -51,10 +51,8 @@ public class AppointmentOrderController {
     @Autowired
     private AppointmentContactService appointmentContactService;
 
-    private HttpRequestExecutorManager httpRequestExecutorManager;
 
-    @Value("${JOB_CONNECTION_URL}")
-    private String jobClientUrl;
+
 
 
     /**
@@ -121,14 +119,7 @@ public class AppointmentOrderController {
 
         body.setData(orderDTO);
 
-        AppointmentDoctorSchedule schedule = appointmentApiService.findScheduleById(scheduleId);
-        try {
-            //调用jobClient的接口
-            Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/appointment/updateHospitalNumSource").param("hospital_id", schedule.getHospitalId()).build();
-            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
-        }catch (Exception e){
-            logger.error("预约提交过后更新排班信息,hospitalId="+schedule.getHospitalId()+","+e.getLocalizedMessage());
-        }
+
         return body;
     }
 
@@ -211,9 +202,5 @@ public class AppointmentOrderController {
         return response;
     }
 
-    @Autowired
-    public void setHttpRequestExecutorManager(HttpRequestExecutorManager httpRequestExecutorManager) {
-        this.httpRequestExecutorManager = httpRequestExecutorManager;
-    }
 
 }
