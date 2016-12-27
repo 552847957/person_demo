@@ -882,10 +882,11 @@ public class FamilyController {
                     templet.setDesc("专业中医体质评估");
                 }
             } else if (id == MemberInfoTemplet.CHILD_VACCINE) {
+                templet.setUrl(vaccine_h5);
+                templet.setDesc("家有宝贝初养成");
                 AppConfig app = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.vaccine");
-                if(app != null && "1".equals(app.getData())){
-                    templet.setUrl(vaccine_h5);
-                    templet.setDesc("家有宝贝初养成");
+                if(app != null && "0".equals(app.getData())){
+                    continue;
                 }
             }
             tems.add(templet);
