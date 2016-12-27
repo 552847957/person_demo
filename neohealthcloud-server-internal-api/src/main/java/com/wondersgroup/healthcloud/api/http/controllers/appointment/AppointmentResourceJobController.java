@@ -577,8 +577,7 @@ public class AppointmentResourceJobController {
             }
             appointmentService.saveAndFlush(hospital);
         }else{
-            BeanUtils.copyProperties(hosInfo,localHospital,"hospitalAdd","hospitalRule","hospitalWeb","trafficGuide",
-                    "hospitalDesc","hospitalTel");
+            BeanUtils.copyProperties(hosInfo,localHospital,"hospitalDesc");
             localHospital.setDelFlag(DEL_FLAG_NORMAL);
             localHospital.setUpdateDate(new Date());
             appointmentService.saveAndFlush(localHospital);
