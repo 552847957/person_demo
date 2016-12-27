@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.services.bbs.impl;
 
-import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.CommentConstant;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
@@ -17,8 +16,7 @@ import com.wondersgroup.healthcloud.services.bbs.CommentService;
 import com.wondersgroup.healthcloud.services.bbs.criteria.CommentSearchCriteria;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.CommentPublishDto;
-import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
-import com.wondersgroup.healthcloud.services.bbs.exception.CircleException;
+import com.wondersgroup.healthcloud.services.bbs.exception.PublishCommentException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.bbs.util.BbsMsgHandler;
 import com.wondersgroup.healthcloud.services.config.ConfigSwitch;
@@ -157,16 +155,14 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Comment publishComment(CommentPublishDto publishDto) {
         Topic topic = topicRepository.findOne(publishDto.getTopicId());
-        if (topic == null || topic.getStatus() != TopicConstant.Status.OK){
-            throw new TopicException(2001, "帖子无效,不能回复");
-        }
+        this.checkTopicIsCanReply(topic);
         Circle circle = circleRepository.findOne(topic.getCircleId());
         if (null == circle || circle.getDelFlag().equals("1")) {
-            throw CircleException.NotExistForReply();
+            throw PublishCommentException.circleDel();
         }
         RegisterInfo userInfo = userService.getOneNotNull(publishDto.getUid());
         if (userInfo.getBanStatus() != UserConstant.BanStatus.OK){
-            throw BbsUserException.userBanForReply();
+            throw PublishCommentException.userBan();
         }
         int commentCount = topic.getCommentCount();
         publishDto.setFloor(commentCount + 1);
@@ -345,5 +341,17 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment saveComment(Comment comment) {
         return commentRepository.saveAndFlush(comment);
+    }
+
+    private void checkTopicIsCanReply(Topic topic){
+        if(topic == null){
+            throw new TopicException(2001, "帖子无效,不能回复");
+        }
+        if (topic.getStatus() == TopicConstant.Status.WAIT_VERIFY){
+            throw PublishCommentException.topicWaitVerify();
+        }
+        if (topic.getStatus() != TopicConstant.Status.OK){
+            throw new TopicException(2001, "帖子无效,不能回复");
+        }
     }
 }
