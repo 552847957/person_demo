@@ -123,7 +123,7 @@ public class ReportServiceImpl implements ReportService {
     public List<Map<String, Object>> getReportTopicListByCriteria(ReportSearchCriteria searchCriteria) {
         JdbcQueryParams queryParams = searchCriteria.toQueryParams();
         StringBuffer querySql = new StringBuffer("select report.id,report.status, report.report_count, report.create_time, " +
-                " topic.title,topic.status as topic_status," +
+                " topic.title,topic.status as topic_status,topic.is_vote," +
                 " user.nickname, circle.name as circle_name from tb_bbs_report report ");
         querySql.append(" left join tb_bbs_topic topic on topic.id=report.target_id ");
         querySql.append(" left join app_tb_register_info user on user.registerid=report.target_uid ");
