@@ -285,7 +285,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         rtnMap.put("message", "您的评估结果无糖尿病风险，请继续保持");
                         break;
                     case 1:// 高危
-                        rtnMap.put("message", "您属于糖尿病高危人群，请到医院进一步确诊");
+                        rtnMap.put("message", "您属于糖尿病高危风险人群，请到医院进一步确诊");
                         break;
                 }
             } else if (ar.getType() == 2) {// 肾病症状评估
@@ -294,10 +294,10 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         rtnMap.put("message", "您目前尚未出现肾脏病变症状，继续保持");
                         break;
                     case 1:// 满足1-2项
-                        rtnMap.put("message", "您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意");
+                        rtnMap.put("message", "您您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意");
                         break;
                     case 2:// 满足3项及以上
-                        rtnMap.put("message", "您很有可能已经患有糖尿病肾病了，建议您及时咨询您的家庭医生获得专业建议");
+                        rtnMap.put("message", "您很有可能已经患有糖尿病肾病了，请及时咨询医生获得专业建议");
                         break;
                 }
             } else if (ar.getType() == 3) {// 眼病症状评估
@@ -306,7 +306,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         rtnMap.put("message", "恭喜您，暂未出现糖尿病眼病的症状，请您继续保持");
                         break;
                     case 1:// 出现症状
-                        rtnMap.put("message", "您目前出现一部分糖尿病眼部症状，请在线咨询您的家庭医生获得专业意见");
+                        rtnMap.put("message", "您目前出现一部分糖尿病眼部症状，请及时咨询医生获得专业建议");
                         break;
                 }
             } else if (ar.getType() == 4) {// 足部风险评估
@@ -315,10 +315,10 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         rtnMap.put("message", "您不属于糖尿病足的高危人群，恭喜您，请继续保持");
                         break;
                     case 1:// 轻度
-                        rtnMap.put("message", "您属于轻度糖尿病足的高危人群，糖尿病足并非微不“足”道，请咨询您的家庭医生获得专业意见");
+                        rtnMap.put("message", "您属于轻度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业建议");
                         break;
                     case 2:// 属于高度
-                        rtnMap.put("message", "您属于高度糖尿病足的高危人群，糖尿病足并非微不“足”道，请咨询您的家庭医生获得专业意见");
+                        rtnMap.put("message", "您属于高度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业意见");
                         break;
                 }
             }
