@@ -541,8 +541,12 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         OrderDto orderDto = saveOrderToLocal(submitOrder,orderResultResponse,contact,doctor,schedule,l2Department);
 
+        try {
+            sendAppointmentMessage(contact,orderDto,"1");
+        }catch (Exception e){
+            logger.error("预约发送短信失败,orderId="+orderDto.getId()+e.getLocalizedMessage());
+        }
 
-        sendAppointmentMessage(contact,orderDto,"1");
 
 
         return orderDto;
@@ -685,7 +689,12 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         OrderDto orderDto = findOrderByUidOrId(id,null,null,false).get(0);
         AppointmentContact contact = contactRepository.findOne(orderDto.getContactId());
-        sendAppointmentMessage(contact,orderDto,"2");
+
+        try {
+            sendAppointmentMessage(contact,orderDto,"2");
+        }catch (Exception e){
+            logger.error("取消发送短信失败,orderId="+orderDto.getId()+e.getLocalizedMessage());
+        }
         return orderDto;
     }
 
