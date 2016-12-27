@@ -70,6 +70,7 @@ import com.wondersgroup.healthcloud.common.utils.ThreadLocalHolder;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberAccess;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.identify.HealthQuestion;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -81,6 +82,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberInvitationRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.member.FamilyMemberRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.identify.PhysicalIdentifyService;
 import com.wondersgroup.healthcloud.services.step.StepCountService;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
@@ -128,6 +130,8 @@ public class FamilyController {
     StepCountService                         stepCountService;
     @Autowired
     private Environment                      environment;
+    @Autowired
+    private AppConfigService                 appConfigService;
     @Autowired
     private AppUrlH5Utils                    h5Utils;
     RestTemplate                             restTemplate             = new RestTemplate();
@@ -746,7 +750,10 @@ public class FamilyController {
      */
     @RequestMapping(value = "/memberInfo", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<FamilyMemberInfoDTO> memberInfo(@RequestParam String uid, @RequestParam String memberId) {
+    public JsonResponseEntity<FamilyMemberInfoDTO> memberInfo(
+            @RequestHeader(name = "main-area", required = true) String mainArea,
+            @RequestParam String uid,
+            @RequestParam String memberId) {
         JsonResponseEntity<FamilyMemberInfoDTO> response = new JsonResponseEntity<FamilyMemberInfoDTO>();
         List<InfoTemplet> tems = new ArrayList<FamilyMemberInfoDTO.InfoTemplet>();
         FamilyMemberInfoDTO infoDto = new FamilyMemberInfoDTO();
@@ -875,8 +882,11 @@ public class FamilyController {
                     templet.setDesc("专业中医体质评估");
                 }
             } else if (id == MemberInfoTemplet.CHILD_VACCINE) {
-                templet.setUrl(vaccine_h5);
-                templet.setDesc("家有宝贝初养成");
+                AppConfig app = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.vaccine");
+                if(app != null && "1".equals(app.getData())){
+                    templet.setUrl(vaccine_h5);
+                    templet.setDesc("家有宝贝初养成");
+                }
             }
             tems.add(templet);
         }

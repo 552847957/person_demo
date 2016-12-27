@@ -43,7 +43,7 @@ public class ModulePortalServiceImpl implements ModulePortalService {
 
     @Override
     public List<ModulePortal> queryAllModulePortal() {
-        final String sql = "select * from app_tb_module_portal where del_flag = '0' order by sort asc ";
+        final String sql = "select * from app_tb_module_portal where del_flag = '0' and is_visible = '"+VisibleEnum.VISIBLE.getId()+"' order by sort asc ";
         List<ModulePortal> list = jdbcTemplate.query(sql, new RowMapper(){
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
                 ModulePortal entity = new ModulePortal();
