@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import java.text.Collator;
 import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -143,6 +144,7 @@ public class DoctorInterventionController {
                             diMap.get(registerId).setAge(registerInfo.getBirthday() == null ? "未知" : IdcardUtils.getAgeByBirthday(DateFormatter.parseDate(registerInfo.getBirthday().toString())) + "岁");
                             rtnList.add(diMap.get(registerId));
                         }
+                        Collections.sort(rtnList, new SortChineseName());
                         return new JsonResponseEntity<>(0, null, rtnList);
                     }
                 } catch (Exception ex) {
@@ -169,20 +171,34 @@ public class DoctorInterventionController {
         return new JsonResponseEntity<>(1000, "数据获取失败");
     }
 
-    public Boolean  remind(String registerId , String doctorId) {
-            DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
-            remind.setId(IdGen.uuid());
-            remind.setRegisterid(registerId);
-            remind.setDoctorId(doctorId);
-            remind.setCreateDate(new Date());
-            remind.setUpdateDate(new Date());
-            remind.setDelFlag("0");
-            remindRepo.save(remind);
+    public Boolean remind(String registerId, String doctorId) {
+        DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
+        remind.setId(IdGen.uuid());
+        remind.setRegisterid(registerId);
+        remind.setDoctorId(doctorId);
+        remind.setCreateDate(new Date());
+        remind.setUpdateDate(new Date());
+        remind.setDelFlag("0");
+        remindRepo.save(remind);
 
-            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerId+"\",\"msgType\":\"0\",\"msgTitle\":\"慢病干预\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\"}";
-            Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
-            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
-            JsonNode result = response.convertBody();
+        String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + registerId + "\",\"msgType\":\"0\",\"msgTitle\":\"慢病干预\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\"}";
+        Request build = new RequestBuilder().post().url(jobClientUrl + "/api/disease/message").body(param).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
         return true;
+    }
+
+    public static class SortChineseName implements Comparator<DoctorInterventionDTO> {
+        Collator cmp = Collator.getInstance(java.util.Locale.CHINA);
+
+        @Override
+        public int compare(DoctorInterventionDTO o1, DoctorInterventionDTO o2) {
+            if (cmp.compare(o1.getName(), o2.getName()) > 0) {
+                return 1;
+            } else if (cmp.compare(o1.getName(), o2.getName()) < 0) {
+                return -1;
+            }
+            return 0;
+        }
     }
 }
