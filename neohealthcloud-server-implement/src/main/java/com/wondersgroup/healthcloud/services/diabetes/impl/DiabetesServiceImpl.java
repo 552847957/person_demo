@@ -43,10 +43,10 @@ public class DiabetesServiceImpl implements DiabetesService {
     private final static String REPORT_INSPECT_DETAIL = "/api/inspection/report";//检查报告详情
     private final static String REPORT_FOLLOW_LIST = "/api/diabetes/follow";//随访报告列表
 
-//    @Value("${diabetes.web.url}")
-//    private String url;
+    @Value("${diabetes.web.url}")
+    private String url;
 
-    private String url = "http://10.1.93.110:8480/hds";
+//    private String url = "http://10.1.93.110:8480/hds";
 
     /**
      * 根据医生获取在管人群数
