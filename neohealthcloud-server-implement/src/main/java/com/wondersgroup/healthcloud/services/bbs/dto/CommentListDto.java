@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Comment;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.services.bbs.BadWordsService;
 import lombok.Data;
 
 
@@ -126,6 +127,14 @@ public class CommentListDto {
                 this.content = "";
             }
             return this.content;
+        }
+    }
+
+    public void dealBadWords(BadWordsService badWordsService){
+        this.content = badWordsService.dealBadWords(this.content);
+        this.topicTitle = badWordsService.dealBadWords(this.topicTitle);
+        if (null != this.referCommentInfo){
+            referCommentInfo.setContent(badWordsService.dealBadWords(referCommentInfo.getContent()));
         }
     }
 }
