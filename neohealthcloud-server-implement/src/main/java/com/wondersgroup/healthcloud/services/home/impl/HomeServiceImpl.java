@@ -201,7 +201,6 @@ public class HomeServiceImpl implements HomeService {
             return null;
         }
 
-
         FamilyHealthDTO dto = new FamilyHealthDTO();
         UserHealthDTO userHealth = null;   //用户健康对象
         FamilyMemberDTO familyMember = new FamilyMemberDTO();
@@ -321,9 +320,6 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems()) && familyMember.getExceptionItems().size() > 2) {
-                List<FamilyMemberItemDTO> maxTwoList = getMaxTwoList(familyMember.getExceptionItems());//从家庭成员异常数据集合里 取时间最新的两条
-                familyMember.setExceptionItems(maxTwoList);
             }
         }
 
@@ -344,6 +340,12 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
             }
 
+        }
+
+
+        //取每个家庭成员最新的一条数据,汇总成最新的两条
+        if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems())) {
+            familyMember.setExceptionItems(getMaxTwoList(familyMember.getExceptionItems()));
         }
 
 /////////////////////////////////////end 获取最新数据///////////////////////////////////////////
@@ -451,37 +453,41 @@ public class HomeServiceImpl implements HomeService {
             return allList;
         }
 
-        int maxTwo = 2;
-        List<FamilyMemberItemDTO> maxTwoList = new ArrayList<FamilyMemberItemDTO>();
+        //先按照关系分组
+        Map<String,List<FamilyMemberItemDTO>> relationMap = new HashMap<String,List<FamilyMemberItemDTO>>();
 
-        while (maxTwo != 0) {
-            FamilyMemberItemDTO maxItem = null;
-            Iterator<FamilyMemberItemDTO> its = allList.iterator();
-            while (its.hasNext()) {
-                FamilyMemberItemDTO itemDTO = its.next();
-                if (null == maxItem) {
-                    maxItem = itemDTO;
-                } else {
-                    if (null != itemDTO.getTestTime() && null != maxItem.getTestTime() && itemDTO.getTestTime() > maxItem.getTestTime()) {
-                        maxItem = itemDTO;
-                    }
-                }
-
-            }
-            maxTwo--;
-
-            if (null != maxItem) {
-                maxTwoList.add(maxItem);
-                allList.remove(maxItem);//将当前最大的移除
-            }
+        for(FamilyMemberItemDTO dto:allList){
+            if(!relationMap.keySet().contains(dto.getRelationship())){
+                List<FamilyMemberItemDTO> valueList = new ArrayList<FamilyMemberItemDTO>();
+                valueList.add(dto);
+                relationMap.put(dto.getRelationship(),valueList);
+            }else{
+            }  relationMap.get(dto.getRelationship()).add(dto);
         }
 
-        if (maxTwoList.size() != 2) { //出现异常,还原
-            allList.addAll(maxTwoList);
-            maxTwoList = allList;
+
+        //取每组里最新的一个
+        List<FamilyMemberItemDTO> newList = new ArrayList<FamilyMemberItemDTO>();
+
+        for(String key:relationMap.keySet()){
+            List<FamilyMemberItemDTO> tmpList  = relationMap.get(key);
+            if(tmpList.size() > 1){
+                FamilyHealthItemComparable sort = new FamilyHealthItemComparable();// false 按照 testTime 降序排序
+                UserHealthItemComparable.sortASC = false;
+                Collections.sort(tmpList,sort);
+            }
+
+            newList.add(tmpList.get(0));
         }
 
-        return maxTwoList;
+
+
+        //排序，找出最大的两条
+        FamilyHealthItemComparable sort = new FamilyHealthItemComparable();
+        UserHealthItemComparable.sortASC = false;
+        Collections.sort(newList,sort);
+
+        return CollectionUtils.isEmpty(newList) ? allList : newList.size() > 2 ? newList.subList(0, 2) : newList;
     }
 
     /**

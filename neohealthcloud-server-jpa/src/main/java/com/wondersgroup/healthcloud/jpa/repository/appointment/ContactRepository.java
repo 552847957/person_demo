@@ -16,10 +16,10 @@ public interface ContactRepository extends JpaRepository<AppointmentContact, Str
     @Query("select a from AppointmentContact a where a.uid = ?1 and a.delFlag = '0' order by a.createDate desc")
     List<AppointmentContact> getAppointmentContactListByUid(String uid);
 
-    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isMain ='1' ")
+    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isMain ='1' and a.delFlag ='0' ")
     AppointmentContact findMainContactByUid(String uid);
 
-    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isDefault ='1' ")
+    @Query("select a from AppointmentContact a where a.uid = ?1 and a.isDefault ='1' and a.delFlag ='0' ")
     AppointmentContact getDefaultAppointmentContactByUid(String uid);
 
     @Modifying

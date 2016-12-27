@@ -114,7 +114,6 @@ public class GoodsService {
 		Direction direction = Direction.fromString(searchForm.getDirection());
 
 		List<Order> orders = new ArrayList<>();
-		orders.add(new Sort.Order(Direction.ASC, "orderType"));
 		orders.add(new Sort.Order(direction, property));
 
 		PageRequest pageable = new PageRequest(page, searchForm.getPageSize(), new Sort(orders));
