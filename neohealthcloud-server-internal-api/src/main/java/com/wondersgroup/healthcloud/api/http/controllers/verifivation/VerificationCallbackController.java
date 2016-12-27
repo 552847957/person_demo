@@ -67,7 +67,7 @@ public class VerificationCallbackController {
                     title = "儿童实名认证";
                     type = 3;
                 } else {
-                    title = "亲情账户实名认证";
+                    title = "家庭账户实名认证";
                     type = 2;
                 }
                 content = "您的家庭实名认证结果已经被处理,请查看";
