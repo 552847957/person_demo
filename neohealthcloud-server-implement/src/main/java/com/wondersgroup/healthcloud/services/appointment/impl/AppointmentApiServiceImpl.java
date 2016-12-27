@@ -1248,9 +1248,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setContactId(contact.getId());
 
         if(StringUtils.isNotBlank(schedule.getDoctorId())){
-            order.setOrderType("2");
+            order.setOrderType("1");//1-医生
         }else{
-            order.setOrderType("1");
+            order.setOrderType("2");//2-科室
         }
 
         order.setPayMode(submitOrder.getPayMode());
