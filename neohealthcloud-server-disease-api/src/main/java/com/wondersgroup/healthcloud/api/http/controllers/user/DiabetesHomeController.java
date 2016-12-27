@@ -68,8 +68,10 @@ public class DiabetesHomeController {
                             if (jsonNode.get("testPeriod") != null && jsonNode.get("testPeriod").asText().equals(compareTime(true))) {
                                 dataMap.put("lastData", jsonNode);
                                 dataMap.put("secondLastData", contentJson.next());
+                                break;
                             } else {
                                 dataMap.put("secondLastData", jsonNode);
+                                break;
                             }
                         }
                         Map<String, Object> assessmentResult = diabetesAssessmentService.getLastAssessmentResult(registerId);
