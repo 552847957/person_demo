@@ -94,7 +94,7 @@ public class UserMonitorController {
             }
         }
 
-        result.setCode(1000);
+        result.setCode(0);
         result.setMsg("未查询到相关记录");
         return result;
     }
