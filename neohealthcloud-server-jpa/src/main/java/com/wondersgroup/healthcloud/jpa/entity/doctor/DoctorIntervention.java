@@ -38,4 +38,11 @@ public class DoctorIntervention {
     private Date updateTime;// 更新时间
     @Column(name = "del_flag")
     private String delFlag;// 删除标示,0-未删除,1-已删除
+    @Transient
+    private String name;// 医生姓名
+    @Transient
+    private String dutyName;// 医生职称
+    @Transient
+    private String avatar;// 医生头像
+
 }

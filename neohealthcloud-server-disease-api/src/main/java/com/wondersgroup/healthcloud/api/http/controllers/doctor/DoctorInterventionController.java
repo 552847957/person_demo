@@ -19,6 +19,8 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +68,9 @@ public class DoctorInterventionController {
     @Autowired
     private DiabetesAssessmentRemindRepository remindRepo;
 
+    @Autowired
+    private DoctorService doctorService;
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonResponseEntity list(@RequestParam(name = "uid", required = true) String patientId,
                                    @RequestParam(name = "type", required = true) String type) {
@@ -74,6 +79,38 @@ public class DoctorInterventionController {
         doctorIntervention.setPatientId(patientId);
         doctorIntervention.setType(type);
         List<DoctorIntervention> rtnList = doctorInterventionService.list(doctorIntervention);
+        if (rtnList != null && rtnList.size() > 0) {
+            StringBuffer doctorIds = new StringBuffer();
+            for (DoctorIntervention tmpObj : rtnList) {
+                if (StringUtils.isNotEmpty(tmpObj.getDoctorId())) {
+                    if (doctorIds.length() == 0) {
+                        doctorIds.append(tmpObj.getDoctorId());
+                    } else {
+                        doctorIds.append(",").append(tmpObj.getDoctorId());
+                    }
+                }
+            }
+            List<Doctor> doctors = doctorService.findDoctorByIds(doctorIds.toString());
+            Map<String, Doctor> doctorMap = new HashMap<>();
+            if (doctors != null && doctors.size() > 0) {
+                for (Doctor doctor : doctors) {
+                    doctorMap.put(doctor.getUid(), doctor);
+                }
+            }
+            for (int i = 0; i < rtnList.size(); i++) {
+                Doctor doctor = doctorMap.get(rtnList.get(i).getDoctorId());
+                if (doctor == null) {
+                    rtnList.get(i).setName("未知");
+                    rtnList.get(i).setDutyName("未知");
+                    rtnList.get(i).setAvatar(null);
+                } else {
+                    rtnList.get(i).setName(StringUtils.isEmpty(doctor.getName()) ? (StringUtils.isEmpty(doctor.getNickname()) ? "未知" : doctor.getNickname()) : doctor.getName());
+                    rtnList.get(i).setDutyName(StringUtils.isEmpty(doctor.getDutyName()) ? "未知" : doctor.getDutyName());
+                    rtnList.get(i).setAvatar(doctor.getAvatar());
+                }
+            }
+        }
+
         if (rtnList != null && rtnList.size() > 0) {
             result.setData(rtnList);
         } else {
