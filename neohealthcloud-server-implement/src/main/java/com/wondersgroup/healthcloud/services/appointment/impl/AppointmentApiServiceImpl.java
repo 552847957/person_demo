@@ -613,13 +613,13 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             //停诊
             }else if("3".equals(type)){
                 if("1".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DoctorName}的门诊已停诊,系统已为您取消。";
                     DoctorName = orderDto.getDoctorName();
                 }else if("2".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{OfficeName}{DiseaseName}的门诊已停诊,系统已为您取消。";
                     DiseaseName = orderDto.getRegisterName();
                 }else if("3".equals(orderDto.getRegisterType())){
-                    content = "{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。【医联预约平台】";
+                    content = "【医联预约平台】{RealName}，您预约的{Date}{HospitalName}{CommonName}的普通门诊已停诊,系统已为您取消。";
                     CommonName = orderDto.getRegisterName();
                 }
 
