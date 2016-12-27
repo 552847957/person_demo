@@ -1,8 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.qiniu.util.Json;
 import com.wondersgroup.healthcloud.api.http.dto.ReportFollowEntity;
 import com.wondersgroup.healthcloud.api.http.dto.ReportInspectDetailEntity;
 import com.wondersgroup.healthcloud.api.http.dto.ReportInspectEntity;
@@ -10,7 +8,9 @@ import com.wondersgroup.healthcloud.api.http.dto.ReportScreeningEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.dict.DictCache;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.BaseInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.BaseInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.ReportFollowDTO;
@@ -20,7 +20,10 @@ import com.wondersgroup.healthcloud.services.diabetes.dto.ReportScreeningDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
@@ -41,6 +44,9 @@ public class ReportController {
     @Autowired
     private RegisterInfoRepository registerInfoRepo;
 
+    @Autowired
+    private BaseInfoRepository baseInfoRepo;
+
     /**
      * 筛查报告列表
      * @return
@@ -60,12 +66,20 @@ public class ReportController {
 
         List<ReportScreeningDTO> source = diabetesService.getReportScreening(cardType,cardNumber);
         List<ReportScreeningEntity> list = Lists.newArrayList();
+        if(null == source || 0 == source.size()){
+            return new JsonResponseEntity<>(0,null ,list);
+        }
+
         for(ReportScreeningDTO dto : source){
             ReportScreeningEntity entity = new ReportScreeningEntity(dto);
             if(null != dto.getFilterResult() && !StringUtils.isEmpty(dto.getFilterResult().getHospitalCode())){
                 entity.setHospitalName(dictCache.queryHospitalName(dto.getFilterResult().getHospitalCode()));
             }else if(null != dto.getRiskAssess() && !StringUtils.isEmpty(dto.getRiskAssess().getHospitalCode())){
                 entity.setHospitalName(dictCache.queryHospitalName(dto.getRiskAssess().getHospitalCode()));
+            }
+
+            if(null != dto.getFilterResult() && !StringUtils.isEmpty(dto.getFilterResult().getReportResult())){
+                entity.setReportResult(baseInfoRepo.getExplainMemo("filter_result",dto.getFilterResult().getReportResult()));
             }
             list.add(entity);
         }
@@ -114,6 +128,9 @@ public class ReportController {
 
         List<ReportInspectDTO> source = diabetesService.getReportInspectList(cardType,cardNumber);
         List<ReportInspectEntity> list = Lists.newArrayList();
+        if(null == source || 0 == source.size()){
+            return new JsonResponseEntity<>(0,null ,list);
+        }
         for(ReportInspectDTO dto : source){
             ReportInspectEntity entity = new ReportInspectEntity(dto);
             if(!StringUtils.isEmpty(dto.getHospitalCode())){
@@ -133,9 +150,12 @@ public class ReportController {
             @RequestParam(name="reportNum") String reportNum,
             @RequestParam(name="reportDate")@DateTimeFormat(pattern = "yyyy-MM-dd") Date reportDate){
 
-        List<ReportInspectDetailDTO> resoure = diabetesService.getReportInspectDetail(reportNum,reportDate);
+        List<ReportInspectDetailDTO> source = diabetesService.getReportInspectDetail(reportNum,reportDate);
         List<ReportInspectDetailEntity> list = Lists.newArrayList();
-        for(ReportInspectDetailDTO dto : resoure){
+        if(null == source || 0 == source.size()){
+            return new JsonResponseEntity<>(0,null ,list);
+        }
+        for(ReportInspectDetailDTO dto : source){
             list.add(new ReportInspectDetailEntity(dto));
         }
         return new JsonResponseEntity<>(0,null ,list);
@@ -160,6 +180,9 @@ public class ReportController {
 
         List<ReportFollowDTO> source = diabetesService.getReportFollowList(cardType,cardNumber);
         List<ReportFollowEntity> list = Lists.newArrayList();
+        if(null == source || 0 == source.size()){
+            return new JsonResponseEntity<>(0,null ,list);
+        }
         for(ReportFollowDTO dto : source){
             ReportFollowEntity entity = new ReportFollowEntity(dto);
             if(!StringUtils.isEmpty(dto.getHospitalCode())){
