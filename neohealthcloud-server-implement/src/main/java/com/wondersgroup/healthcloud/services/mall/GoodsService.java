@@ -186,7 +186,7 @@ public class GoodsService {
 
 		int start = page * size;
 		start = start > 0 ? start : 0;
-		String limitSQL = sql + " limit " + start + ", " + (start + size);
+		String limitSQL = sql + " limit " + start + ", " + size;
 		List<GoodsItem> list = jdbcTemplate.query(limitSQL, new BeanPropertyRowMapper<GoodsItem>(GoodsItem.class));
 
 		sql = "select count(1) " + sql.substring(sql.indexOf("from"));
