@@ -487,15 +487,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         submitOrder.setVisitLevel(schedule.getVisitLevel());
         submitOrder.setVisitLevelCode(schedule.getVisitLevelCode());
 
-        //如果是主注册人
-        if("1".equals(contact.getIsMain())){
-            submitOrder.setPlatformUserId(contact.getPlatformUserId());
-        //如果是成员
-        }else{
-            AppointmentContact mainContract = contactRepository.findMainContactByUid(contact.getUid());
-            submitOrder.setPlatformUserId(mainContract.getPlatformUserId());
-            submitOrder.setMemberId(contact.getMemberId());
-        }
+        submitOrder.setPlatformUserId(contact.getPlatformUserId());//数据库的全部是主注册人
         submitOrder.setUserBD(IdcardUtils.getBirthStrByIdCard(contact.getIdcard()));
         submitOrder.setUserCardId(contact.getIdcard());
         submitOrder.setUserCardType("1");
