@@ -449,7 +449,7 @@ public class TopicServiceImpl implements TopicService {
         }
         RegisterInfo account = userService.getOneNotNull(publishInfo.getUid());
         if (account.getBanStatus() != UserConstant.BanStatus.OK){
-            throw new CommonException(2014, "禁言状态无法发表话题哦");
+            throw new CommonException(2014, "您已被禁言，不能发布话题");
         }
         if (null == publishInfo.getTopicContents() ||  publishInfo.getTopicContents().isEmpty()) {
             throw new TopicException(2002, "帖子无效");
