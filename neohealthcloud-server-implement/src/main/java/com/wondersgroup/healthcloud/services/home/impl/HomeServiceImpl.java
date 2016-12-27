@@ -462,7 +462,8 @@ public class HomeServiceImpl implements HomeService {
                 valueList.add(dto);
                 relationMap.put(dto.getRelationship(),valueList);
             }else{
-            }  relationMap.get(dto.getRelationship()).add(dto);
+                relationMap.get(dto.getRelationship()).add(dto);
+            }
         }
 
 
@@ -473,7 +474,7 @@ public class HomeServiceImpl implements HomeService {
             List<FamilyMemberItemDTO> tmpList  = relationMap.get(key);
             if(tmpList.size() > 1){
                 FamilyHealthItemComparable sort = new FamilyHealthItemComparable();// false 按照 testTime 降序排序
-                UserHealthItemComparable.sortASC = false;
+                FamilyHealthItemComparable.sortASC = false;
                 Collections.sort(tmpList,sort);
             }
 
@@ -484,7 +485,7 @@ public class HomeServiceImpl implements HomeService {
 
         //排序，找出最大的两条
         FamilyHealthItemComparable sort = new FamilyHealthItemComparable();
-        UserHealthItemComparable.sortASC = false;
+        FamilyHealthItemComparable.sortASC = false;
         Collections.sort(newList,sort);
 
         return CollectionUtils.isEmpty(newList) ? allList : newList.size() > 2 ? newList.subList(0, 2) : newList;
