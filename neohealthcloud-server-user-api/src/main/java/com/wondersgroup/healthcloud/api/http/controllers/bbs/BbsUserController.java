@@ -146,7 +146,7 @@ public class BbsUserController {
         RegisterInfo account = userService.getOneNotNull(uid);
         if (account.getBanStatus() != UserConstant.BanStatus.OK){
             info.put("status", 1);
-            info.put("info", "用户被禁言");
+            info.put("info", "您已被禁言，不能发布话题");
             entity.setData(info);
             return entity;
         }
@@ -177,7 +177,7 @@ public class BbsUserController {
         Map<String, Object> info = new HashMap<>();
         RegisterInfo account = userService.getOneNotNull(uid);
         if (account.getBanStatus() != UserConstant.BanStatus.OK){
-            info.put("info", "用户被禁言");
+            info.put("info", "您已被禁言，不能发布私信");
             info.put("status", 1);
             entity.setData(info);
             return entity;
