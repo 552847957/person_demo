@@ -407,7 +407,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     public List<OrderDto> findOrderByUidOrId(String id, Integer pageNum, Integer pageSize,Boolean isList) {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
                 " d.dept_name as departmentName,e.hos_name as hospitalName,e.hos_org_code," +
-                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
+                " b.start_time as scheduleStartTime,b.end_time as scheduleEndTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
                 " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
                 " from app_tb_appointment_order a " +
@@ -566,7 +566,14 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         String ReservationId = orderDto.getHosNumSourceId();
         String MedicineCardNo ="";
         String Date = DateFormatter.scheduleDateFormat(orderDto.getScheduleDate());
-        String Time = DateFormatter.hourDateFormat(orderDto.getStartTime())+"-"+DateFormatter.hourDateFormat(orderDto.getEndTime());
+
+        String Time = "";
+        if(orderDto.getStartTime()!=null&&orderDto.getEndTime()!=null){
+            Time = DateFormatter.hourDateFormat(orderDto.getStartTime())+"-"+DateFormatter.hourDateFormat(orderDto.getEndTime());
+        }else{
+            Time = DateFormatter.hourDateFormat(orderDto.getScheduleStartTime())+"-"+DateFormatter.hourDateFormat(orderDto.getScheduleEndTime());
+        }
+
         String HospitalName = smsTemplet.getHospitalName();
         String OfficeName = orderDto.getDepartmentName();
         String DoctorName = "";
@@ -788,7 +795,11 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
      */
     @Override
     public int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id) {
-        return doctorRepository.countAllDoctorReservationNumByDepartmentL2Id(department_l2_id);
+        Integer result = doctorRepository.countAllDoctorReservationNumByDepartmentL2Id(department_l2_id);
+        if(result==null){
+            result = 0;
+        }
+        return result;
     }
 
     /**
@@ -811,7 +822,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     public List<OrderDto> findOrderListByScheduleId(String scheduleId) {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
                 " d.dept_name as departmentName,e.hos_name as hospitalName,e.hos_org_code," +
-                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
+                " b.start_time as scheduleStartTime,b.end_time as scheduleEndTime,b.`status` as scheduleStatus,b.register_type,b.register_name," +
                 " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour " +
                 " from app_tb_appointment_order a " +
@@ -1286,6 +1297,29 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         order.setCreateDate(new Date());
         order.setUpdateDate(new Date());
         order.setDelFlag("0");
+
+
+        //查询订单信息
+        OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
+        try {
+            OrderDetailRequest orderDetailRequest = new OrderDetailRequest();
+            OrderDetailR orderDetailR = new OrderDetailR();
+            orderDetailR.setOrderId(orderId);
+            orderDetailRequest.orderDetailR = orderDetailR;
+            orderDetailRequest.requestMessageHeader = new RequestMessageHeader(environment);
+            orderDetailRequest.requestMessageHeader.setSign(SignatureGenerator.generateSignature(orderDetailRequest));
+            String xmlRequest = JaxbUtil.convertToXml(orderDetailRequest);
+            orderDetailResponse = orderClient.getOrderDetail(xmlRequest);
+
+            if(!"0".equals(orderDetailResponse.messageHeader.getCode())){
+                order.setStartTime(orderDetailResponse.orderDetail.getStartTime());
+                order.setEndTime(orderDetailResponse.orderDetail.getEndTime());
+            }
+        }catch (Exception e ){
+            logger.error("获取订单详情失败-orderId="+orderId+e.getLocalizedMessage());
+        }
+
+
         orderRepository.saveAndFlush(order);
 
         return findOrderByUidOrId(order.getId(),null,null,false).get(0);
