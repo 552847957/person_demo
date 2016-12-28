@@ -439,7 +439,6 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     public OrderDto submitUserReservation(String contactId, String scheduleId, String orderType) {
         AppointmentContact contact = contactRepository.findOne(contactId);
 
-
         if(contact == null){
             throw new NoneContactException();
         }
@@ -493,7 +492,14 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         submitOrder.setUserCardId(contact.getIdcard());
         submitOrder.setUserCardType("1");
         submitOrder.setUserName(contact.getName());
-        submitOrder.setUserPhone(contact.getMobile());
+
+//        if(StringUtils.isNotBlank(contact.getPlatformMobile())){
+//            submitOrder.setUserPhone(contact.getPlatformMobile());
+//        }else{
+//            submitOrder.setUserPhone(contact.getMobile());
+//        }
+
+
         submitOrder.setUserSex(IdcardUtils.getGenderByIdCard(contact.getIdcard()));
 
         if(StringUtils.isNotBlank(contact.getMediCardId())){
