@@ -56,9 +56,23 @@ public class OrderDto {
      */
     private String status;
 
+    /**
+     * 订单表因为华山医院的不一样所以添加两个冗余字段
+     */
     private Date startTime;
 
+    /**
+     * 订单表
+     */
     private Date endTime;
+
+
+    /**
+     * 排班表的(如果订单表没有startTime和endTime 则取排班表)
+     */
+    private Date scheduleStartTime;
+
+    private Date scheduleEndTime;
 
     private String hospitalName;//医院名称
 

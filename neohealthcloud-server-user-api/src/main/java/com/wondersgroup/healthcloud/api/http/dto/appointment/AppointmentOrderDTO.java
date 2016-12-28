@@ -116,7 +116,13 @@ public class AppointmentOrderDTO {
             this.dutyName = order.getDutyName();
             this.scheduleDate = DateFormatter.scheduleDateFormat(order.getScheduleDate());
             this.week = DateUtils.getWeekOfDate(order.getScheduleDate());
-            this.time = DateFormatter.hourDateFormat(order.getStartTime())+"-"+DateFormatter.hourDateFormat(order.getEndTime());
+
+            if(order.getStartTime()!=null && order.getEndTime()!=null){
+                this.time = DateFormatter.hourDateFormat(order.getStartTime())+"-"+DateFormatter.hourDateFormat(order.getEndTime());
+            }else{
+                this.time = DateFormatter.hourDateFormat(order.getScheduleStartTime())+"-"+DateFormatter.hourDateFormat(order.getScheduleEndTime());
+            }
+
             if(StringUtils.isBlank(order.getVisitLevelCode())){
                 this.visitLevelCode = "其他";
             }else if("1".equals(order.getVisitLevelCode())){

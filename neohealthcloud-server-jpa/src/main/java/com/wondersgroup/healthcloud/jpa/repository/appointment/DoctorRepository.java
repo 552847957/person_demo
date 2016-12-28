@@ -58,5 +58,5 @@ public interface DoctorRepository extends JpaRepository<AppointmentDoctor, Strin
     List<AppointmentDoctor> findDoctorListByKw(String kw,Pageable pageable);
 
     @Query("select sum(a.reservationNum) from AppointmentDoctor a where a.l2DepartmentId=?1 ")
-    int countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
+    Integer countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
 }

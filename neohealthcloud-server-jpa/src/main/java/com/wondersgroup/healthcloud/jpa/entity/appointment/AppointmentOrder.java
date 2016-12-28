@@ -156,6 +156,12 @@ public class AppointmentOrder {
     @Column(name = "order_time")
     private Date orderTime;//医生坐诊时间 预约资源的 start_time
 
+    @Column(name = "start_time")
+    private String startTime;//就诊时段_开始时间 2016-11-24 13:30:00
+
+    @Column(name = "end_time")
+    private String endTime;//就诊时段_结束时间 2016-11-24 14:30:00
+
     @Column(name = "cancel_time")
     private Date cancelTime;//取消时间
 
