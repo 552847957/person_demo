@@ -295,12 +295,6 @@ public class AppointmentResourceJobController {
                                         if(docNumSourceList!=null && docNumSourceList.size()>0){
                                             for (NumSourceInfo schedule :docNumSourceList){
 
-                                                //todo 把固定的一个排班设置成停诊 测试停诊短信 上线前要删除
-                                                if(schedule.getScheduleId() == "42502656400_13_613_00000000062458_上午_2016-12-29_1"){
-                                                    schedule.setStatus("2");
-                                                }
-
-
                                                 //保存医生的排班
                                                 List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(schedule);
                                                 if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
