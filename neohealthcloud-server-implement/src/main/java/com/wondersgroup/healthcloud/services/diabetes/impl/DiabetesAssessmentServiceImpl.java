@@ -294,7 +294,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
                         rtnMap.put("message", "您目前尚未出现肾脏病变症状，继续保持");
                         break;
                     case 1:// 满足1-2项
-                        rtnMap.put("message", "您您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意");
+                        rtnMap.put("message", "您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意");
                         break;
                     case 2:// 满足3项及以上
                         rtnMap.put("message", "您很有可能已经患有糖尿病肾病了，请及时咨询医生获得专业建议");

@@ -52,7 +52,8 @@ public class DiabetesHomeController {
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
             String param = "registarId=".concat(registerId)
-                    .concat("&persionCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard());
+                    .concat("&persionCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard())
+                    .concat("&testPeriod=").concat(compareTime(true));
             String url = String.format(queryNearestHistoryByTestPeriod, host, param);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -150,7 +151,7 @@ public class DiabetesHomeController {
         String date = DateFormatter.dateFormat(now.toDate());
         if (!DateTime.parse(date + " 00:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 05:00:00", format).isAfter(now)) {
-            return isRtnNumber ? "-1" : "凌晨";
+            return isRtnNumber ? "7" : "凌晨";
         }
         if (!DateTime.parse(date + " 05:00:01", format).isAfter(now)
                 && DateTime.parse(date + " 08:00:00", format).isAfter(now)) {
