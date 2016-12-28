@@ -238,6 +238,7 @@ public class HomeServiceImpl implements HomeService {
                     if (null != userhealthRecord) {
                         FamilyMemberItemDTO familyMemberItemDTO = buildFamilyLastHealthRecord(fm, userhealthRecord);
                         if (null != familyMemberItemDTO) {
+                            familyMemberItemDTO.setUid(fm.getUid());
                             familyMemberHealthRecordList.add(familyMemberItemDTO);
                         }
                     }
@@ -262,6 +263,7 @@ public class HomeServiceImpl implements HomeService {
                 //3 家人风险评估结果
                 FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm);
                 if (null != fItemDTO) {
+                    fItemDTO.setUid(fm.getUid());
                     familyMemberDangerousItemList.add(fItemDTO);
                 }
 
@@ -270,6 +272,7 @@ public class HomeServiceImpl implements HomeService {
                     Integer vaccineLessThanDays = Integer.parseInt(String.valueOf((null == paramMap.get("vaccineLessThanDays")) ? "30" : paramMap.get("vaccineLessThanDays")));
                     FamilyMemberItemDTO vaccinetemDTO = buildFamilyVaccineDate(fm, apiVaccineUrl, vaccineLessThanDays);
                     if (null != vaccinetemDTO) {
+                        vaccinetemDTO.setUid(fm.getUid());
                         familyMemberVaccinetemList.add(vaccinetemDTO);
                     }
                 }*/
@@ -307,6 +310,7 @@ public class HomeServiceImpl implements HomeService {
                     haveNoDataCount++;
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {//异常数据，显示给前端
                     FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
+                    ftemDTO.setUid(fm.getUid()); //用于分组
                     familyMember.getExceptionItems().add(ftemDTO);
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
 
@@ -453,16 +457,16 @@ public class HomeServiceImpl implements HomeService {
             return allList;
         }
 
-        //先按照关系分组
+        //先按照uid分组
         Map<String,List<FamilyMemberItemDTO>> relationMap = new HashMap<String,List<FamilyMemberItemDTO>>();
 
         for(FamilyMemberItemDTO dto:allList){
-            if(!relationMap.keySet().contains(dto.getRelationship())){
+            if(!relationMap.keySet().contains(dto.getUid())){
                 List<FamilyMemberItemDTO> valueList = new ArrayList<FamilyMemberItemDTO>();
                 valueList.add(dto);
-                relationMap.put(dto.getRelationship(),valueList);
+                relationMap.put(dto.getUid(),valueList);
             }else{
-                relationMap.get(dto.getRelationship()).add(dto);
+                relationMap.get(dto.getUid()).add(dto);
             }
         }
 

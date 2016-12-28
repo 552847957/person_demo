@@ -15,5 +15,7 @@ public class FamilyMemberItemDTO {
     private String relationship;
     private String prompt;
     private Long testTime;
+    private String uid;      //id,用于分组
+
 
 }
