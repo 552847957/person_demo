@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Created by zhuchunliu on 2016/12/14.
@@ -14,6 +15,9 @@ import javax.transaction.Transactional;
 public interface TubeRelationRepository extends JpaRepository<TubeRelation, String>, JpaSpecificationExecutor<TubeRelation> {
     @Query("select a from TubeRelation a where registerid = ?1 and delFlag = '0'")
     TubeRelation getRelationByRegisterId(String registerid);
+
+    @Query("select a.registerid from TubeRelation a where a.hospitalCode = ?1 and a.doctorName = ?2 and a.delFlag = '0'")
+    List<String> getRelationByDoctorInfo(String hospitalCode, String doctorName);
 
     @Transactional
     @Modifying

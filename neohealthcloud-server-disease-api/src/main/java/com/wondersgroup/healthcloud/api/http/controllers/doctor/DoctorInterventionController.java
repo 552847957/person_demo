@@ -17,6 +17,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.TubeRelationRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -58,7 +59,6 @@ public class DoctorInterventionController {
 
     private RestTemplate template = new RestTemplate();
 
-
     @Autowired
     private DoctorInterventionService doctorInterventionService;
 
@@ -70,6 +70,9 @@ public class DoctorInterventionController {
 
     @Autowired
     private DoctorService doctorService;
+
+    @Autowired
+    private TubeRelationRepository tubeRelationRepository;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonResponseEntity list(@RequestParam(name = "uid", required = true) String patientId,
@@ -150,7 +153,17 @@ public class DoctorInterventionController {
     }
 
     @RequestMapping(value = "/intervention/simpleList", method = RequestMethod.GET)
-    public JsonResponseEntity simpleList() {
+    public JsonResponseEntity simpleList(@RequestParam String doctor_id) {
+        Doctor doctor = doctorService.findDoctorByUid(doctor_id);
+        if (doctor == null) {
+            return new JsonResponseEntity<>(0, "当前医生信息不存在");
+        }
+        // 获取当前医生在管用户
+        List<String> userIds = tubeRelationRepository.getRelationByDoctorInfo(doctor.getHospitalId(), doctor.getName());
+        if (userIds == null || userIds.size() < 1) {
+            return new JsonResponseEntity<>(0, "当前医生无在管用户");
+        }
+
         String url = String.format(requestInterventionSimpleListPath, host);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
@@ -175,6 +188,9 @@ public class DoctorInterventionController {
                         List<RegisterInfo> registerInfos = registerInfoRepository.findByRegisterIds(regesterIds);
 
                         for (RegisterInfo registerInfo : registerInfos) {
+                            if (!userIds.contains(registerInfo.getRegisterid())) {
+                                continue;
+                            }
                             registerId = registerInfo.getRegisterid();
                             diMap.get(registerId).setName(registerInfo.getName() == null ? registerInfo.getNickname() : registerInfo.getName());
                             diMap.get(registerId).setSex(registerInfo.getGender());
@@ -218,7 +234,7 @@ public class DoctorInterventionController {
         remind.setDelFlag("0");
         remindRepo.save(remind);
 
-        String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + registerId + "\",\"msgType\":\"0\",\"msgTitle\":\"慢病干预\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\"}";
+        String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + registerId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"http://www.wondersgroup.com\"}";
         Request build = new RequestBuilder().post().url(jobClientUrl + "/api/disease/message").body(param).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
