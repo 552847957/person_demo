@@ -163,7 +163,7 @@ public class ExchangeOrderService {
 		if (orderType != 1) {
 			boolean hasExchange = goodsService.hasExchange(order.getGoodsId(), order.getUserId());
 			if (hasExchange) {
-				throw new CommonException(1004, "您已经兑换过此商品了:(");
+				throw new CommonException(1004, "您已经兑换过此商品");
 			}
 		}
 
