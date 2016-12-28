@@ -14,11 +14,11 @@ public class TopicException extends BaseException {
     }
 
     public static TopicException notExist(){
-        return new TopicException(1034, "抱歉,内容不存在,可能被河蟹了");
+        return new TopicException(1034, "抱歉，该话题已被删除");
     }
 
     public static TopicException publishUserBanForever(){
-        return new TopicException(1035, "抱歉,内容不存在,可能被河蟹了");
+        return new TopicException(1035, "抱歉，该话题已被删除");
     }
 
     public static TopicException waitVerify(){
@@ -30,10 +30,10 @@ public class TopicException extends BaseException {
     }
 
     public static TopicException deleteByUser(){
-        return new TopicException(1031, "该话题已被用户删除");
+        return new TopicException(1031, "抱歉，该话题已被删除");
     }
 
     public static TopicException deleteByAdmin(){
-        return new TopicException(1032, "抱歉,内容不存在,可能被河蟹了");
+        return new TopicException(1032, "抱歉，该话题已被删除");
     }
 }
