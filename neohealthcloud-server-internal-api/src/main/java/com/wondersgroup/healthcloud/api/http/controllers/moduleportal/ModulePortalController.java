@@ -36,7 +36,7 @@ public class ModulePortalController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Object getcloudTopLineList(){
         Map<String, Object> paramMap = new HashMap<String,Object>();
-        List<ModulePortal> list = modulePortalService.queryAllModulePortal();
+        List<ModulePortal> list = modulePortalService.queryModulePortalByCondition(paramMap);
         List<ModulePortalViewDTO> dtoList = new ArrayList<ModulePortalViewDTO>();
         if(!CollectionUtils.isEmpty(list)){
             for(ModulePortal entity:list){

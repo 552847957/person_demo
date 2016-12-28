@@ -30,6 +30,10 @@ public class RequestWrapperFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         MultiReadHttpServletRequest wrapped = new MultiReadHttpServletRequest(servletRequest);
         filterChain.doFilter(wrapped, servletResponse);
+//        MultiReadHttpServletResponse wrappedResponse = new MultiReadHttpServletResponse(servletResponse);
+//        filterChain.doFilter(wrapped, wrappedResponse);
+//        wrappedResponse.flushBuffer();
+//        System.out.println(new String(wrappedResponse.getCopy()));
     }
 
     @Override

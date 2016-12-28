@@ -9,6 +9,6 @@ import com.wondersgroup.healthcloud.exceptions.BaseException;
 public class ContactLimitException extends BaseException {
 
     public ContactLimitException() {
-        super(3104, "就诊人最多只能添加3个！", null);
+        super(3104, "就诊人最多只能添加6个哦！", null);
     }
 }

@@ -135,7 +135,16 @@ public class MeasureController {
                                     JsonNode tmpJson = itJsonNodeData.next();
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
                                     if (0 <= testPeriod && testPeriod <= 7) {
-                                        dayDatas[testPeriod] = tmpJson.get("fpgValue").asText();
+                                        //  7 0 1 2 3 4 5 6 这样排序,醉了
+                                        if (testPeriod == 7) {
+                                            if (StringUtils.isEmpty(dayDatas[0])) {// 同一时间段仅获取最新数据
+                                                dayDatas[0] = tmpJson.get("fpgValue").asText();
+                                            }
+                                        } else {
+                                            if (StringUtils.isEmpty(dayDatas[testPeriod + 1])) {// 同一时间段仅获取最新数据
+                                                dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                            }
+                                        }
                                     }
                                 }
                                 StringBuffer strBuf = new StringBuffer();
@@ -212,8 +221,17 @@ public class MeasureController {
                                 while (itJsonNodeData.hasNext()) {
                                     JsonNode tmpJson = itJsonNodeData.next();
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
-                                    if (-1 <= testPeriod && testPeriod <= 6) {
-                                        dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                    if (0 <= testPeriod && testPeriod <= 7) {
+                                        //  7 0 1 2 3 4 5 6 这样排序,醉了
+                                        if (testPeriod == 7) {
+                                            if (StringUtils.isEmpty(dayDatas[0])) {// 同一时间段仅获取最新数据
+                                                dayDatas[0] = tmpJson.get("fpgValue").asText();
+                                            }
+                                        } else {
+                                            if (StringUtils.isEmpty(dayDatas[testPeriod + 1])) {// 同一时间段仅获取最新数据
+                                                dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                            }
+                                        }
                                     }
                                 }
                                 StringBuffer strBuf = new StringBuffer();

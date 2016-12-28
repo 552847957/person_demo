@@ -364,7 +364,7 @@ public class FamilyController {
                         familyMember.getMemberId(), false);
                 entity = new FamilyMemberAPIEntity(familyMember, anonymousAccount);
                 entity.setRecordReadable(true);
-                entity.setRedirectFlag(4);
+                entity.setRedirectFlag(0);
                 //                if(anonymousAccount.getBirthDate()){
                 //                    
                 //                }

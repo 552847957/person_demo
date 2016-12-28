@@ -60,7 +60,7 @@ public class AppointmentContactServiceImpl implements AppointmentContactService 
             throw new ContactAlreadyExistException();
         }
         List<AppointmentContact> list = contactRepository.getAppointmentContactListByUid(uid);
-        if (list.size() >= 3) {
+        if (list.size() >= 6) {
             throw new ContactLimitException();
         }
         if(list == null || list.size()<1){

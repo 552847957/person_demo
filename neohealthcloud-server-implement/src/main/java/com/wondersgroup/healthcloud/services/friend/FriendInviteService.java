@@ -1,14 +1,5 @@
 package com.wondersgroup.healthcloud.services.friend;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.RandomUtil;
 import com.wondersgroup.healthcloud.jpa.entity.friend.FriendInvite;
@@ -19,9 +10,18 @@ import com.wondersgroup.healthcloud.jpa.repository.friend.FriendInviteRepository
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.mall.GoldRecordService;
 import com.wondersgroup.healthcloud.utils.sms.SMS;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @Service
 @Transactional
@@ -38,7 +38,7 @@ public class FriendInviteService {
 	@Autowired
 	GoldRecordService goldRecordService;
 
-	@Autowired
+	@Resource(name="default")
 	SMS sms;
 
 	@Autowired

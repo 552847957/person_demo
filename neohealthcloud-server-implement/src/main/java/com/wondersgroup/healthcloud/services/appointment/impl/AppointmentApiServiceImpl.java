@@ -42,6 +42,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -100,7 +101,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     @Autowired
     private AppConfigService appConfigService;
 
-    @Autowired
+    @Resource(name="default")
     private SMS sms;
 
     @Value("${JOB_CONNECTION_URL}")
@@ -510,6 +511,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             orderResultResponse = orderClient.submitOrderByUserInfo(xmlRequest);
         }catch (Exception e){
             logger.error("预约提交失败=="+e.getLocalizedMessage());
+            logger.error("参数=="+xmlRequest);
             throw new ErrorReservationException("医联预约平台接口调用失败");
         }
 

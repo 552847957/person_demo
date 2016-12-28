@@ -31,17 +31,33 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class BeanFactory {
 
-    @Bean
+    @Bean(name="default")
     @Profile({"de", "te"})
-    public SMS sms(HttpRequestExecutorManager httpRequestExecutorManager) {
+    public SMS defaultSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://10.1.67.253:8080", "jkja");
         impl.setHttpManager(httpRequestExecutorManager);
         return impl;
     }
 
-    @Bean
+    @Bean(name="default")
     @Profile({"re", "pe1"})
-    public SMS prodsms(HttpRequestExecutorManager httpRequestExecutorManager) {
+    public SMS prodDefaultSms(HttpRequestExecutorManager httpRequestExecutorManager) {
+        SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://172.18.11.164:8080", "jkja");
+        impl.setHttpManager(httpRequestExecutorManager);
+        return impl;
+    }
+
+    @Bean(name="verification")
+    @Profile({"de", "te"})
+    public SMS verificationSms(HttpRequestExecutorManager httpRequestExecutorManager) {
+        SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://10.1.67.253:8080", "jkja");
+        impl.setHttpManager(httpRequestExecutorManager);
+        return impl;
+    }
+
+    @Bean(name="verification")
+    @Profile({"re", "pe1"})
+    public SMS prodVerificationSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("MUFpJNT8WsbUZizlhVHF2Wvh84qz9J", "http://172.18.11.164:8080", "jky");
         impl.setHttpManager(httpRequestExecutorManager);
         return impl;
