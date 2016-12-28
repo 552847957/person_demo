@@ -510,6 +510,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             orderResultResponse = orderClient.submitOrderByUserInfo(xmlRequest);
         }catch (Exception e){
             logger.error("预约提交失败=="+e.getLocalizedMessage());
+            logger.error("参数=="+xmlRequest);
             throw new ErrorReservationException("医联预约平台接口调用失败");
         }
 
