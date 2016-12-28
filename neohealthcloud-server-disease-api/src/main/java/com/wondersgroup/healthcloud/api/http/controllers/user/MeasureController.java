@@ -42,6 +42,7 @@ public class MeasureController {
     private static final String requestUploadPath = "%s/api/measure/upload/%s";
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
+    private static final String recentMeasureStatisticalData = "%s/api/measure/3.0/recentStatisticalData?%s";
 
     private RestTemplate template = new RestTemplate();
 
@@ -81,10 +82,34 @@ public class MeasureController {
         try {
             List<JsonNode> lastWeekData = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
+            int count = 0;
             for (int i = 0; i < 7; i++) {
                 lastWeekData.add(((ObjectNode) mapper.readTree("{}")).put("date", DateFormatter.dateFormat(DateTime.now().plusDays(-i).toDate())));
             }
             RegisterInfo info = userService.getOneNotNull(registerId);
+
+            try {
+                String statisticalparam = "registerId=".concat(registerId)
+                        .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard());
+                String url = String.format(recentMeasureStatisticalData, host, statisticalparam);
+                ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+                if (response.getStatusCode().equals(HttpStatus.OK)) {
+                    if (0 == (int) response.getBody().get("code")) {
+                        String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
+                        if (StringUtils.isNotEmpty(jsonStr)) {
+                            JsonNode resultJson = mapper.readTree(jsonStr);
+                            Map<String, Object> tmpMap = new HashMap<>();
+                            tmpMap.put("high", resultJson.get("high").asInt());
+                            tmpMap.put("normal", resultJson.get("normal").asInt());
+                            tmpMap.put("low", resultJson.get("low").asInt());
+                            rtnMap.put("status", tmpMap);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("MeasureController.measureHistory error --> " + ex.getLocalizedMessage());
+            }
+
             String param = "registerId=".concat(registerId)
                     .concat("&sex=").concat(StringUtils.isEmpty(info.getGender()) ? "1" : info.getGender())
                     .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard());
@@ -109,8 +134,8 @@ public class MeasureController {
                                 while (itJsonNodeData.hasNext()) {
                                     JsonNode tmpJson = itJsonNodeData.next();
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
-                                    if (-1 <= testPeriod && testPeriod <= 6) {
-                                        dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                    if (0 <= testPeriod && testPeriod <= 7) {
+                                        dayDatas[testPeriod] = tmpJson.get("fpgValue").asText();
                                     }
                                 }
                                 StringBuffer strBuf = new StringBuffer();
@@ -124,16 +149,14 @@ public class MeasureController {
                                 ((ObjectNode) jsonNode).put("data", strBuf.toString());
                                 lastWeekData.set(today.getDayOfYear() - new DateTime(date).getDayOfYear(), jsonNode);
                             }
+                            count++;
                         }
                     }
                 }
             }
-            Map<String, Object> tmpMap = new HashMap<>();
-            tmpMap.put("high", 3);
-            tmpMap.put("normal", 7);
-            tmpMap.put("low", 6);
-            rtnMap.put("status", tmpMap);
+
             rtnMap.put("list", lastWeekData);
+            rtnMap.put("count", count);
             result.setData(rtnMap);
         } catch (Exception e) {
             log.info("近期历史数据获取失败", e);

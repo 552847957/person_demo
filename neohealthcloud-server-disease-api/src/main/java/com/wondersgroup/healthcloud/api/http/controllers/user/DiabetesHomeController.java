@@ -67,7 +67,9 @@ public class DiabetesHomeController {
                             JsonNode jsonNode = contentJson.next();
                             if (jsonNode.get("testPeriod") != null && jsonNode.get("testPeriod").asText().equals(compareTime(true))) {
                                 dataMap.put("lastData", jsonNode);
-                                dataMap.put("secondLastData", contentJson.next());
+                                if (contentJson.hasNext()) {
+                                    dataMap.put("secondLastData", contentJson.next());
+                                }
                                 break;
                             } else {
                                 dataMap.put("secondLastData", jsonNode);
