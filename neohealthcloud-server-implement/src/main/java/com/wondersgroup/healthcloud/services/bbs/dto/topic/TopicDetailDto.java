@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.bbs.dto.topic;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.wondersgroup.healthcloud.common.utils.ImagesUtils;
 import com.wondersgroup.healthcloud.common.utils.NumberUtils;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
@@ -122,6 +123,10 @@ public class TopicDetailDto {
             if (StringUtils.isNotEmpty(topicContent.getImgs())){
                 this.imgs = topicContent.getImgs().split(",");
             }
+        }
+
+        public String[] getImgs(){
+            return ImagesUtils.coverSize(imgs, 1080);
         }
     }
 }

@@ -2,6 +2,8 @@ package com.wondersgroup.healthcloud.common.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,6 +12,36 @@ import java.util.regex.Pattern;
  *
  */
 public class ImagesUtils {
+
+    /**
+     * 批量图片大小转换 根据手机屏幕
+     */
+    public static List<String> coverSize(List<String> imgs, Integer screenWidth) {
+        if (null == imgs || imgs.size() == 0){
+            return null;
+        }
+        List<String> coverImgs = new ArrayList<>();
+        for (String img : imgs){
+            coverImgs.add(coverSize(img, screenWidth));
+        }
+        return coverImgs;
+    }
+
+    /**
+     * 批量图片大小转换 根据手机屏幕
+     */
+    public static String[] coverSize(String[] imgs, Integer screenWidth) {
+        if (null == imgs || imgs.length == 0){
+            return null;
+        }
+        String[] coverImg = new String[imgs.length];
+        int i=0;
+        for (String img : imgs){
+            coverImg[i] = coverSize(img, screenWidth);
+            i++;
+        }
+        return coverImg;
+    }
 
     /**
      * 图片大小转换 根据手机屏幕

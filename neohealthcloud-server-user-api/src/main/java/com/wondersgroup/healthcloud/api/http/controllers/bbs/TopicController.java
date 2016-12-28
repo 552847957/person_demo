@@ -16,7 +16,6 @@ import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
-import com.wondersgroup.healthcloud.services.bbs.exception.BbsUserException;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +116,6 @@ public class TopicController {
     public JsonListResponseEntity<TopicListDto> list(@RequestParam Integer circleId,
                                                     @RequestParam(defaultValue="0") Integer tabId,
                                                     @RequestParam(defaultValue = "1", required = false) Integer flag){
-        int pageSize = 10;
         JsonListResponseEntity<TopicListDto> rt = new JsonListResponseEntity();
         List<TopicListDto> listInfo = topicService.getCircleTopicListByTab(circleId, tabId, flag, pageSize);
         Boolean hasMore = false;
@@ -136,7 +134,6 @@ public class TopicController {
     @RequestMapping(value = "/circle/bestList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> bestList(@RequestParam Integer circleId,
                                                      @RequestParam(defaultValue = "1", required = false) Integer flag){
-        int pageSize = 10;
         JsonListResponseEntity<TopicListDto> rt = new JsonListResponseEntity();
         List<TopicListDto> listInfo = topicService.getCircleBestRecommendTopics(circleId, flag, pageSize);
         Boolean hasMore = false;
@@ -155,7 +152,6 @@ public class TopicController {
     @RequestMapping(value = "/user/recommendList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> bestList(@RequestParam String uid,
                                                          @RequestParam(defaultValue = "1", required = false) Integer flag){
-        int pageSize = 10;
         JsonListResponseEntity<TopicListDto> rt = new JsonListResponseEntity();
         List<TopicListDto> listInfo = topicService.getBestRecommendTopicsForUser(uid, flag, pageSize);
         Boolean hasMore = false;
@@ -174,13 +170,13 @@ public class TopicController {
     @RequestMapping(value = "/hotList", method = RequestMethod.GET)
     public JsonListResponseEntity<TopicListDto> hotList(@RequestParam String uid,
                                                          @RequestParam(defaultValue = "1", required = false) Integer flag){
-        int pageSize = 20;
+        int hotListPageSize = 20;
         int limit_page_num = 3;//限制热门话题只返回60条数据
         JsonListResponseEntity<TopicListDto> rt = new JsonListResponseEntity();
-        List<TopicListDto> listInfo = topicService.getHotRecommendTopics(uid, flag, pageSize);
+        List<TopicListDto> listInfo = topicService.getHotRecommendTopics(uid, flag, hotListPageSize);
         Boolean hasMore = false;
-        if (listInfo != null && listInfo.size() > pageSize){
-            listInfo = listInfo.subList(0, pageSize);
+        if (listInfo != null && listInfo.size() > hotListPageSize){
+            listInfo = listInfo.subList(0, hotListPageSize);
             hasMore = true;
         }
         if (flag == limit_page_num){
@@ -193,7 +189,7 @@ public class TopicController {
     @VersionRange
     @RequestMapping(value = "/view", method = RequestMethod.GET)
     public JsonResponseEntity<TopicViewDto> topicView(
-            @RequestHeader(value = "screen-width", required = false, defaultValue = "1024") String screenWidth,
+            @RequestHeader(value = "screen-width", required = false, defaultValue = "1080") String screenWidth,
             @RequestParam Integer topicId,
             @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();

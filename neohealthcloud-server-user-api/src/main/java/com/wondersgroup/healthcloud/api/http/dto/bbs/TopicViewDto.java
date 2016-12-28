@@ -69,11 +69,7 @@ public class TopicViewDto {
             return;
         }
         for (TopicDetailDto.TopicContentInfo topicContentInfo : topicContents){
-            if (null != topicContentInfo.getImgs() && topicContentInfo.getImgs().length > 0){
-                for (String img : topicContentInfo.getImgs()){
-                    img = ImagesUtils.coverSize(img, screenWidth);
-                }
-            }
+            topicContentInfo.setImgs(ImagesUtils.coverSize(topicContentInfo.getImgs(), screenWidth));
         }
     }
 
