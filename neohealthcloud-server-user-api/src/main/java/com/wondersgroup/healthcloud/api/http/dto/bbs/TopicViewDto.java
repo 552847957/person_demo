@@ -89,6 +89,10 @@ public class TopicViewDto {
                 voteItemInfo.setItemContent(badWordsService.dealBadWords(voteItemInfo.getItemContent()));
             }
         }
+        if (null != shareInfo){
+            shareInfo.setTitle(this.title);
+            shareInfo.setDesc(badWordsService.dealBadWords(shareInfo.getDesc()));
+        }
     }
 
 }

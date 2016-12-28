@@ -224,13 +224,12 @@ public class TopicController {
             Boolean isFavor = favorService.isFavorTopic(uid, topicId);
             viewDto.setIsFavor(isFavor ? 1 : 0);
         }
+        viewDto.setShareInfo(this.getShareInfo(detailInfo));
         viewDto.dealBadWords(badWordsService);
         if(StringUtils.isNotEmpty(screenWidth)){
             int screenWidthInt = Integer.valueOf(screenWidth);
             viewDto.dealContentImgs(screenWidthInt);
         }
-        viewDto.setShareInfo(this.getShareInfo(detailInfo));
-
         responseEntity.setData(viewDto);
         return responseEntity;
     }
