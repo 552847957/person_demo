@@ -12,8 +12,8 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.transaction.Transactional;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,7 +31,7 @@ public class DoctorInterventionServiceImpl implements DoctorInterventionService 
     public List<DoctorIntervention> list(DoctorIntervention doctorIntervention) {
         List<DoctorIntervention> rtnList = null;
         try {
-            rtnList = doctorInterventionRepository.findAll(Example.of(doctorIntervention));
+            rtnList = doctorInterventionRepository.findAll(Example.of(doctorIntervention), new Sort(Sort.Direction.DESC, "createTime"));
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }

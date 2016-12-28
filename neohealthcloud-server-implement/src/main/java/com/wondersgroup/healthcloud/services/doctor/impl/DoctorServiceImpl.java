@@ -122,7 +122,7 @@ public class DoctorServiceImpl implements DoctorService {
             doctor.setTalkpwd(rs.getString("talkpwd"));
             doctor.setTalkgroupid(rs.getString("talkgroupid"));
 
-            doctor.setAvatar(rs.getString("actcode"));
+            doctor.setActcode(rs.getString("actcode"));
 
             doctor.setIsAvailable(rs.getString("isAvailable"));
             return doctor;
