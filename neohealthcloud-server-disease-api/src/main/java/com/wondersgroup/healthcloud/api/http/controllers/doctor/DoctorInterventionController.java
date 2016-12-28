@@ -18,6 +18,7 @@ import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.TubeRelationRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInterventionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
@@ -47,6 +48,9 @@ public class DoctorInterventionController {
     @Value("${internal.api.service.measure.url}")
     private String host;
 
+    @Value("${disease.h5.url}")
+    private String diseaseH5Url;
+
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
@@ -73,6 +77,9 @@ public class DoctorInterventionController {
 
     @Autowired
     private TubeRelationRepository tubeRelationRepository;
+
+    @Autowired
+    private DoctorInterventionRepository doctorInterventionRepository;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonResponseEntity list(@RequestParam(name = "uid", required = true) String patientId,
@@ -144,7 +151,7 @@ public class DoctorInterventionController {
             if (0 == (int) response.getBody().get("code")) {
                 DoctorIntervention rtnDoctorIntervention = doctorInterventionService.saveAndUpdate(doctorIntervention);
                 if (rtnDoctorIntervention != null) {
-                    remind(doctorIntervention.getPatientId(), doctorIntervention.getDoctorId());
+                    remind(doctorIntervention.getPatientId(), doctorIntervention.getDoctorId(), rtnDoctorIntervention.getId());
                     return new JsonResponseEntity<>(0, "干预成功！");
                 }
             }
@@ -224,7 +231,30 @@ public class DoctorInterventionController {
         return new JsonResponseEntity<>(1000, "数据获取失败");
     }
 
-    public Boolean remind(String registerId, String doctorId) {
+    @RequestMapping(value = "/intervention/detail", method = RequestMethod.GET)
+    public JsonResponseEntity detail(@RequestParam String id) {
+        JsonResponseEntity result = new JsonResponseEntity();
+
+        DoctorIntervention doctorIntervention = doctorInterventionRepository.findOne(id);
+        if (doctorIntervention != null) {
+            Doctor doctor = doctorService.findDoctorByUid(doctorIntervention.getDoctorId());
+            if (doctor == null) {
+                doctorIntervention.setName("未知");
+                doctorIntervention.setDutyName("未知");
+                doctorIntervention.setAvatar(null);
+            } else {
+                doctorIntervention.setName(StringUtils.isEmpty(doctor.getName()) ? (StringUtils.isEmpty(doctor.getNickname()) ? "未知" : doctor.getNickname()) : doctor.getName());
+                doctorIntervention.setDutyName(StringUtils.isEmpty(doctor.getDutyName()) ? "未知" : doctor.getDutyName());
+                doctorIntervention.setAvatar(doctor.getAvatar());
+            }
+            result.setData(doctorIntervention);
+            return result;
+        } else {
+            return new JsonResponseEntity(0, "未查询到相关数据");
+        }
+    }
+
+    public Boolean remind(String registerId, String doctorId, String interventionId) {
         DiabetesAssessmentRemind remind = new DiabetesAssessmentRemind();
         remind.setId(IdGen.uuid());
         remind.setRegisterid(registerId);
@@ -234,7 +264,9 @@ public class DoctorInterventionController {
         remind.setDelFlag("0");
         remindRepo.save(remind);
 
-        String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + registerId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"http://www.wondersgroup.com\"}";
+        String jumpUrl = diseaseH5Url + "/DoctorAdviceDetail/" +interventionId;
+
+        String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + registerId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您血糖数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"" + jumpUrl + "\"}";
         Request build = new RequestBuilder().post().url(jobClientUrl + "/api/disease/message").body(param).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
