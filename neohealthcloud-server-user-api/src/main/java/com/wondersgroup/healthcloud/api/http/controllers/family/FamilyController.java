@@ -891,7 +891,7 @@ public class FamilyController {
             }
             tems.add(templet);
         }
-        if(info.getAge() != null && info.getAge() <= 6){
+        if(info.getAge() != null && info.getAge() <= 6 && !info.getIsVerification()){
             Collections.reverse(tems);
         }
         infoDto.setInfo(info);

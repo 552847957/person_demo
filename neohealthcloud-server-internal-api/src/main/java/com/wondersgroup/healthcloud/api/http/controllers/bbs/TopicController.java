@@ -291,7 +291,7 @@ public class TopicController {
             throw new CommonException(2021, "未查询到话题标题");
         }
         if(null != topic&&TopicConstant.Status.isDelStatus(topic.getStatus())){
-            throw new CommonException(2022, "该话题已删除");
+            throw new CommonException(2022, "该话题已删除，请选择正确的话题");
         }
         entity.setData(topic.getTitle());
         return entity;
