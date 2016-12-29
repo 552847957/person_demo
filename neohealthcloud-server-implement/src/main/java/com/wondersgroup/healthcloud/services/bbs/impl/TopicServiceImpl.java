@@ -469,7 +469,11 @@ public class TopicServiceImpl implements TopicService {
         for (TopicPublishDto.TopicContent contentTmp : publishInfo.getTopicContents()) {
             List<String> imgs = contentTmp.getImgs();
             if (imgs != null && !imgs.isEmpty()) {
-                allImgs.addAll(imgs);
+                for (String img : imgs){
+                    if (StringUtils.isNotEmpty(img)){
+                        allImgs.add(img);
+                    }
+                }
             }
         }
         return allImgs;
