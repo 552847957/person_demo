@@ -31,7 +31,7 @@ import java.util.List;
 @Service("diabetesService")
 public class DiabetesServiceImpl implements DiabetesService {
 
-    private Logger logger = LoggerFactory.getLogger("ex");
+    private Logger logger = LoggerFactory.getLogger("exlog");
 
     private final static HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
