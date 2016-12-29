@@ -176,11 +176,11 @@ public class ExchangeOrderService {
 		order.setUpdateTime(date);
 		order.setStatus(orderType == 1 ? 0 : 1);
 		exchangeOrderRepository.save(order);
-		
-		if(orderType != 2){
+
+		if (orderType != 2) {
 			int stockNum = goods.getStockNum();
 			goods.setStockNum(stockNum - 1);
-			if(stockNum - 1 <= 0){
+			if (stockNum - 1 <= 0) {
 				goods.setSortNo(99999);
 			}
 		}
@@ -200,22 +200,22 @@ public class ExchangeOrderService {
 
 	private String generateOrderId(int orderType) {
 		StringBuilder sb = new StringBuilder();
-		
-		if(orderType == 0){
+
+		if (orderType == 0) {
 			sb.append("02");
-		}else if(orderType == 1) {
+		} else if (orderType == 1) {
 			sb.append("01");
-		}else if(orderType == 2) {
+		} else if (orderType == 2) {
 			sb.append("03");
 		}
-		
+
 		Date date = new Date();
 		sb.append(DateUtils.format(date, "MMddHHmmssSSS"));
-		
+
 		Random random = new Random();
 		int randomCode = random.nextInt(90) + 10;
 		sb.append(randomCode);
-		
+
 		return sb.toString();
 	}
 
@@ -246,7 +246,12 @@ public class ExchangeOrderService {
 
 		Date endTime = goods.getEndTime();
 		if (endTime != null) {
-			return endTime.compareTo(new Date()) <= 0;
+			String patten = "yyyyMMdd";
+			String endTimestr = DateUtils.format(endTime, patten);
+			String nowTimestr = DateUtils.format(new Date(), patten);
+			if (endTime != null && nowTimestr.compareTo(endTimestr) > 0) {
+				return false;
+			}
 		}
 		return false;
 	}
