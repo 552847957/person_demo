@@ -1313,6 +1313,9 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             if(!"0".equals(orderDetailResponse.messageHeader.getCode())){
                 order.setStartTime(orderDetailResponse.orderDetail.getStartTime());
                 order.setEndTime(orderDetailResponse.orderDetail.getEndTime());
+            }else{
+                logger.error(xmlRequest);
+                logger.error("获取订单详情失败-orderId="+orderId+orderDetailResponse.messageHeader.getDesc());
             }
         }catch (Exception e ){
             logger.error("获取订单详情失败-orderId="+orderId+e.getLocalizedMessage());
