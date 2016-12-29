@@ -42,7 +42,7 @@ public class BeanFactory {
     @Bean(name="default")
     @Profile({"re", "pe1"})
     public SMS prodDefaultSms(HttpRequestExecutorManager httpRequestExecutorManager) {
-        SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://172.18.11.164:8080", "jkja");
+        SMSWondersImpl impl = new SMSWondersImpl("ahincKKBq3H9YGiyMUPRW6POHyAUmp", "http://172.18.11.164:8080", "jkja");
         impl.setHttpManager(httpRequestExecutorManager);
         return impl;
     }
