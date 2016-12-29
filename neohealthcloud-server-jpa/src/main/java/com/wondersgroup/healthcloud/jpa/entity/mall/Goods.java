@@ -30,7 +30,7 @@ import lombok.Data;
 public class Goods {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id; // 商品ID
 
 	private String name; // 商品名称
