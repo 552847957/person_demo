@@ -212,7 +212,7 @@ public class DoctorInterventionController {
                 }
             }
         }
-        return new JsonResponseEntity<>(1000, "数据获取失败");
+        return new JsonResponseEntity<>(0, "数据获取失败");
     }
 
     @RequestMapping(value = "/intervention/detailList", method = RequestMethod.GET)
@@ -228,7 +228,7 @@ public class DoctorInterventionController {
                 return new JsonResponseEntity<>(0, null, response.getBody().get("data"));
             }
         }
-        return new JsonResponseEntity<>(1000, "数据获取失败");
+        return new JsonResponseEntity<>(0, "数据获取失败");
     }
 
     @RequestMapping(value = "/intervention/detail", method = RequestMethod.GET)

@@ -118,9 +118,11 @@ public class AppointmentResourceJobController {
 
     @RequestMapping(value = "/updateDepartmentNumSource", method = RequestMethod.GET)
     public JsonResponseEntity updateDepartmentNumSource(@RequestParam(required = true,value = "department_id") String id) {
+        log.info("------------------updateDepartmentNumSource  start  -------------------");
         JsonResponseEntity responseEntity = new JsonResponseEntity();
         appointmentApiService.saveOrUpdateAppointmentScheduleByDepartmentId(id);
         responseEntity.setMsg("success");
+        log.info("------------------updateDepartmentNumSource  end  -------------------");
         return  responseEntity;
     }
 
