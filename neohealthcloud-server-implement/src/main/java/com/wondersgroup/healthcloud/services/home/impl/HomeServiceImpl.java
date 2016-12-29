@@ -586,7 +586,7 @@ public class HomeServiceImpl implements HomeService {
                         dto.setHoplink(imageText.getHoplink().replace("{sfzh}", idCard));
                     } else {
                         dto.setLoginOrRealName(loginOrRealName);
-                        dto.setHoplink(imageText.getHoplink());
+                        dto.setHoplink(imageText.getHoplink().replace("{sfzh}", ""));
                     }
 
                 } else {// 不需要身份证信息

@@ -257,7 +257,7 @@ public class SpecHomeController {
                         map.put("hoplink", imageText.getHoplink().replace("{sfzh}", idCard));
                     } else {
                         map.put("loginOrRealName", loginOrRealName);
-                        map.put("hoplink", imageText.getHoplink());
+                        map.put("hoplink", imageText.getHoplink().replace("{sfzh}", ""));
                     }
                 } else {// 不需要身份证信息
                     map.put("loginOrRealName", 2);
