@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.common.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Created by ys on 16/08/11.
  *
@@ -23,6 +25,7 @@ public class ArraysUtil {
 
     /**
      * 分割数组 list to string
+     * list value为null or "" 则抛弃这个value
      */
     public static String split2Sting(Iterable<String> list, String separator){
         if (list == null) {
@@ -30,7 +33,9 @@ public class ArraysUtil {
         }
         String rt = "";
         for (String str : list) {
-            rt += separator + str;
+            if (StringUtils.isNotEmpty(str)){
+                rt += separator + str;
+            }
         }
         return rt.length() > 0 ? rt.substring(separator.length()) : "";
     }
