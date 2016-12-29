@@ -178,6 +178,7 @@ public class BasicInfoController {
             } else {
                 User original = userRepo.findOne(user.getUserId());
                 user.setPassword(original.getPassword());
+                user.setBindUid(original.getBindUid());
                 user.setLocked(null == original ? "0" : original.getLocked());
                 user.setCreateDate(original.getCreateDate());
                 user.setUpdateDate(new Date());
