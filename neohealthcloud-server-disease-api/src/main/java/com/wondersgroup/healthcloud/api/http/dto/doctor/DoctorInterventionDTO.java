@@ -16,4 +16,5 @@ public class DoctorInterventionDTO {
     private String fpgValue;
     private String testTime;
     private String testPeriod;
+    private String type;
 }
