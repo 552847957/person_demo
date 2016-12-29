@@ -340,10 +340,10 @@ public class AppointmentManageController {
     public JsonResponseEntity saveDoctor(@RequestBody ManageDoctorDTO manageDoctorDTO){
 
         if(manageDoctorDTO!=null && StringUtils.isNotBlank(manageDoctorDTO.getId())){
-            AppointmentDoctor doctor = appointmentApiService.findDoctorById(manageDoctorDTO.getId());
+            AppointmentDoctor doctor = appointmentService.findDoctorById(manageDoctorDTO.getId());
             if(doctor!=null){
                 doctor = manageDoctorDTO.mergeDoctor(doctor, manageDoctorDTO);
-                appointmentService.saveAndFlush(doctor);
+                appointmentService.updateDoctor(doctor.getAvatar(),doctor.getDoctInfo(),doctor.getId());
             }else{
                 return new JsonResponseEntity(3011, "保存失败,该医生不存在");
             }

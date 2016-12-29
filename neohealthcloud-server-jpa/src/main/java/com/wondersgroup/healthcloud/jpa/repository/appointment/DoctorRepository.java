@@ -59,4 +59,8 @@ public interface DoctorRepository extends JpaRepository<AppointmentDoctor, Strin
 
     @Query("select sum(a.reservationNum) from AppointmentDoctor a where a.l2DepartmentId=?1 ")
     Integer countAllDoctorReservationNumByDepartmentL2Id(String department_l2_id);
+
+    @Modifying
+    @Query("update AppointmentDoctor a set a.avatar = ?1 ,a.doctInfo = ?2  where a.id = ?3")
+    void updateDoctor(String avatar, String doctInfo, String id);
 }
