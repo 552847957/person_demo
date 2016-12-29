@@ -324,6 +324,8 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            }else if((goodsHealthCount+haveNoDataCount) == familyMemberHealthMap.size()){//家庭成员数据是 HAVE_FAMILY_AND_HEALTHY,HAVE_FAMILY_WITHOUT_DATA 两种状态的集合
+                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             }
         }
 
