@@ -1310,7 +1310,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             String xmlRequest = JaxbUtil.convertToXml(orderDetailRequest);
             orderDetailResponse = orderClient.getOrderDetail(xmlRequest);
 
-            if(!"0".equals(orderDetailResponse.messageHeader.getCode())){
+            if("0".equals(orderDetailResponse.messageHeader.getCode())){
                 order.setStartTime(orderDetailResponse.orderDetail.getStartTime());
                 order.setEndTime(orderDetailResponse.orderDetail.getEndTime());
             }else{
