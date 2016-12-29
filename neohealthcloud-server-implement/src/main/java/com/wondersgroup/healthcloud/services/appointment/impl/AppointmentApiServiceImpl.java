@@ -545,7 +545,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         try {
             sendAppointmentMessage(contact,orderDto,"1");
         }catch (Exception e){
-            logger.error("预约发送短信失败,orderId="+orderDto.getId()+e.getLocalizedMessage());
+            logger.error("预约发送短信失败,orderId="+orderDto.getId()+e.getMessage());
         }
 
 
