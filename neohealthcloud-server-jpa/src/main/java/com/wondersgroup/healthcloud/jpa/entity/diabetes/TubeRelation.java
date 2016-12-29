@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.diabetes;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -25,7 +26,9 @@ public class TubeRelation {
     @Column(name = "del_flag")
     private String delFlag;
     @Column(name = "create_date")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     @Column(name = "update_date")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
 }

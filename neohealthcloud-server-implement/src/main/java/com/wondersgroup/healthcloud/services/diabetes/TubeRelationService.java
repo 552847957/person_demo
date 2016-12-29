@@ -13,4 +13,11 @@ public interface TubeRelationService {
      * @return
      */
     public TubeRelation getTubeRelation(String registerid,Boolean fresh);
+
+    /**
+     * 根据身份证号获取用户的在管信息
+     * @param personCard
+     * @return
+     */
+    public TubeRelation getTubeRelationByPersonCard(String personCard);
 }
