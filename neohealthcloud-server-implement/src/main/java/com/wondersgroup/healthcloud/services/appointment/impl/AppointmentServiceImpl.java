@@ -186,5 +186,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         hospitalRepository.setDoctorNumToHospital();
     }
 
+    @Override
+    public AppointmentDoctor findDoctorById(String id) {
+        return doctorRepository.findOne(id);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void updateDoctor(String avatar, String doctInfo, String id) {
+        doctorRepository.updateDoctor(avatar,doctInfo,id);
+    }
+
 
 }

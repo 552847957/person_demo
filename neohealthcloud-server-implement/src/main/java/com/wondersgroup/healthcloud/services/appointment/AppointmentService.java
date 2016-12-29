@@ -56,4 +56,7 @@ public interface AppointmentService {
 
     void setDoctorNumToHospital();
 
+    AppointmentDoctor findDoctorById(String id);
+
+    void updateDoctor(String avatar, String doctInfo, String id);
 }
