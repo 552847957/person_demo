@@ -371,7 +371,7 @@ public class HomeServiceImpl implements HomeService {
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
             familyMember.setMainTitle("设置您的家庭成员数据");
             familyMember.setSubTitle("添加您家人的健康数据吧>>");
-        } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
+        } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
             familyMember.setMainTitle("");
             familyMember.setSubTitle("");
         }else{//有家庭成员，家人正常，无通知
