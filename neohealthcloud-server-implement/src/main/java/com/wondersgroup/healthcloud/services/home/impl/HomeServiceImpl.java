@@ -260,8 +260,8 @@ public class HomeServiceImpl implements HomeService {
                 }
 
 
-                //3 家人风险评估结果
-                FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm);
+                //3 家人风险评估结果 (取一个月以内的数据)
+                FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm,(null == paramMap.get("familyLessThanDays")) ? 30 : Integer.parseInt(String.valueOf(paramMap.get("familyLessThanDays"))));
                 if (null != fItemDTO) {
                     fItemDTO.setUid(fm.getUid());
                     familyMemberDangerousItemList.add(fItemDTO);
@@ -740,21 +740,35 @@ public class HomeServiceImpl implements HomeService {
      * @param fm
      * @return
      */
-    private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMemberInfo fm) {
+    private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMemberInfo fm,Integer limitDays) {
         FamilyMemberItemDTO fItemDTO = null;
+        limitDays = (null == limitDays) ? 30:limitDays;
         Map<String, Object> resultMap = assessmentServiceImpl.getRecentAssessIsNormal(fm.getUid());
         if (!CollectionUtils.isEmpty(resultMap) && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
-            fItemDTO = new FamilyMemberItemDTO();
-            fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
-            fItemDTO.setPrompt("风险评估结果 风险人群");
+
+
+            Long testTime = 0L;
             String dateStr = String.valueOf(resultMap.get("date"));
             if (StringUtils.isNotBlank(dateStr)) {
                 Date testDate = parseDate(dateStr, "YYYY-MM-DD");
                 if (null != testDate) {
-                    fItemDTO.setTestTime(testDate.getTime());
+                    testTime = testDate.getTime();
                 }
 
             }
+
+            if(null != testTime && testTime > 0){
+                Calendar limitDay = Calendar.getInstance();
+                limitDay.add(Calendar.DATE, -limitDays);//当前时间后退天数
+                if(testTime >= limitDay.getTime().getTime()){ //没有被过滤
+                    fItemDTO = new FamilyMemberItemDTO();
+                    fItemDTO.setTestTime(testTime);
+                    fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
+                    fItemDTO.setPrompt("风险评估结果 风险人群");
+                }
+
+            }
+
         }
 
         return fItemDTO;
