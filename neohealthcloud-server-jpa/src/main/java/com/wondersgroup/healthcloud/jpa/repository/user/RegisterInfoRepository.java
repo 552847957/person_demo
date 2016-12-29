@@ -22,7 +22,12 @@ public interface RegisterInfoRepository extends JpaRepository<RegisterInfo,Strin
             value = "select * from app_tb_register_info r where r.regmobilephone = ?1 and r.del_flag='0' limit 1")
     RegisterInfo findByMobile(String mobile);
 
-    @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0'")
+    /**
+     * 根据身份证号获取已实名认证用户列表，按登录时间(updateDate)倒序排列
+     * @param personcard
+     * @return
+     */
+    @Query("select r from RegisterInfo r where r.personcard =?1 and r.identifytype!='0' and r.delFlag='0' order by r.updateDate desc")
     List<RegisterInfo> findByPersoncard(String personcard);
 
     /**
