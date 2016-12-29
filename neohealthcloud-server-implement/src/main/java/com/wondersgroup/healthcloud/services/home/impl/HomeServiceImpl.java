@@ -374,6 +374,10 @@ public class HomeServiceImpl implements HomeService {
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
             familyMember.setMainTitle("");
             familyMember.setSubTitle("");
+        }else{//有家庭成员，家人正常，无通知
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+            familyMember.setMainTitle("家庭成员 健康状况良好");
+            familyMember.setSubTitle("家人健康状况良好，要继续保持。");
         }
 
         ////////////////////////////////////end 根据状态 设置主标题，副标题//////////////////////
@@ -744,9 +748,7 @@ public class HomeServiceImpl implements HomeService {
         FamilyMemberItemDTO fItemDTO = null;
         limitDays = (null == limitDays) ? 30:limitDays;
         Map<String, Object> resultMap = assessmentServiceImpl.getRecentAssessIsNormal(fm.getUid());
-        if (!CollectionUtils.isEmpty(resultMap) && !Boolean.parseBoolean(String.valueOf(resultMap.get("state")))) {
-
-
+        if (!CollectionUtils.isEmpty(resultMap) && "2".equals(resultMap.get("state"))) { //state:2:风险人群
             Long testTime = 0L;
             String dateStr = String.valueOf(resultMap.get("date"));
             if (StringUtils.isNotBlank(dateStr)) {
@@ -754,7 +756,6 @@ public class HomeServiceImpl implements HomeService {
                 if (null != testDate) {
                     testTime = testDate.getTime();
                 }
-
             }
 
             if(null != testTime && testTime > 0){
