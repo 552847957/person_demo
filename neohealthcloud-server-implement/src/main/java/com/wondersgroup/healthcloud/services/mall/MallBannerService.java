@@ -118,7 +118,7 @@ public class MallBannerService {
 	}
 
 	public List<Goods> findHomeBanner() {
-		String sql = "select b.*  from `mall_banner_tb` a inner join  goods_tb b on a.goods_id = b.id and a.status = 1 order by sort_no asc limit 3";
+		String sql = "select b.*  from `mall_banner_tb` a inner join  goods_tb b on a.goods_id = b.id and a.status = 1 order by a.sort_no asc limit 3";
 		List<Goods> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Goods>(Goods.class));
 		return list;
 	}
