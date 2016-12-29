@@ -263,11 +263,8 @@ public class MeasureController {
     }
 
     private HttpHeaders buildHeader() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String version = request.getHeader("version");
-        boolean isStandard = CommonUtils.compareVersion(version, "4.1");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("isStandard", String.valueOf(isStandard));
+        headers.add("isStandard", "false");// 非标准版
         return headers;
     }
 }
