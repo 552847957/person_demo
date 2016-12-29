@@ -66,7 +66,10 @@ public class DiabetesHomeController {
                         Map<String, Object> dataMap = new HashMap<>();
                         while (contentJson.hasNext()) {
                             JsonNode jsonNode = contentJson.next();
-                            if (jsonNode.get("testPeriod") != null && jsonNode.get("testPeriod").asText().equals(compareTime(true))) {
+                            if (jsonNode.get("testPeriod") != null
+                                    && jsonNode.get("testPeriod").asText().equals(compareTime(true))
+                                    && jsonNode.get("testTime") != null
+                                    && jsonNode.get("testTime").asText().startsWith(DateTime.now().toString("yyyy-MM-dd"))) {
                                 dataMap.put("lastData", jsonNode);
                                 if (contentJson.hasNext()) {
                                     dataMap.put("secondLastData", contentJson.next());
