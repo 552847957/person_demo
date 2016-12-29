@@ -758,6 +758,7 @@ public class FamilyController {
         List<InfoTemplet> tems = new ArrayList<FamilyMemberInfoDTO.InfoTemplet>();
         FamilyMemberInfoDTO infoDto = new FamilyMemberInfoDTO();
         String registerId = null;
+        String personCard = "";
         String sex = null;
         Info info = new Info();
         info.setIsStandalone(false);
@@ -777,11 +778,13 @@ public class FamilyController {
             info.setAge(AgeUtils.getAgeByDate(ano.getBirthDate()));
             info.setMobile(ano.getMobile());
             registerId = ano.getId();
+            personCard = ano.getIdcard();
             sex = ano.getSex();
             birthday = ano.getBirthDate();
             info.setIsVerification(ano.getIdcard() != null);
         } else {
             registerId = regInfo.getRegisterid();
+            personCard = regInfo.getPersoncard();
             sex = regInfo.getGender();
             info.setIsVerification(regInfo.verified());
             info.setNikcName(uid.equals(memberId) ? regInfo.getNickname() : familyMember.getMemo());
@@ -805,7 +808,7 @@ public class FamilyController {
             info.setRelation(familyMember.getRelation());
             info.setRelation_name(FamilyMemberRelation.getName(familyMember.getRelation()));
         }
-        List<SimpleMeasure> measures = historyMeasureNew(registerId, sex);
+        List<SimpleMeasure> measures = historyMeasureNew(registerId, personCard, sex);
         for (Integer id : MemberInfoTemplet.map.keySet()) {//排序和控制是否显示
             if (!entryIsShow(info.getIsStandalone(), info.getIsVerification(), id, uid.equals(memberId), info.getAge())) {
                 continue;
@@ -1292,9 +1295,8 @@ public class FamilyController {
      * @param registerId
      * @return List<SimpleMeasure>
      */
-    public List<SimpleMeasure> historyMeasureNew(String registerId, String gender) {
+    public List<SimpleMeasure> historyMeasureNew(String registerId, String personCard, String gender) {
         Map<String, Object> result = new HashMap<>();
-        String personCard = "";
         List<SimpleMeasure> list = new ArrayList<SimpleMeasure>();
         try {
             if (StringUtils.isEmpty(personCard)) {
