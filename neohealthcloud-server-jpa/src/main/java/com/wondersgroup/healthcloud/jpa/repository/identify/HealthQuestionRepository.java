@@ -22,10 +22,10 @@ public interface HealthQuestionRepository extends JpaRepository<HealthQuestion, 
 	@Query(value="select count(hq) from HealthQuestion hq where registerid=?1 and type = 1 and delFlag = '0'")
     Integer getTotalIdentify(String registerid);
 
-	@Query(value="select count(hq) from HealthQuestion hq where registerid=?1 and type = 1 and delFlag = '0'")
+	@Query(value="select count(hq) from HealthQuestion hq where registerid=?1 and type = 1 and result is not null and delFlag = '0'")
 	Integer getTotalQuestion(String registerid);
 
-	@Query(value="select hq from HealthQuestion hq where registerid=?1 and type = 1 and delFlag = '0'")
+	@Query(value="select hq from HealthQuestion hq where registerid=?1 and type = 1 and result is not null and delFlag = '0'")
 	List<HealthQuestion> findQuestionList(String registerid, Pageable pageable);
 
 	@Query(nativeQuery = true,value="select * from app_tb_healthquestion  " +
