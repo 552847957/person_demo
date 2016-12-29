@@ -491,13 +491,6 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
         submitOrder.setUserBD(IdcardUtils.getBirthStrByIdCard(contact.getIdcard()));
         submitOrder.setUserCardId(contact.getIdcard());
         submitOrder.setUserCardType("1");
-        submitOrder.setUserName(contact.getName());
-
-//        if(StringUtils.isNotBlank(contact.getPlatformMobile())){
-//            submitOrder.setUserPhone(contact.getPlatformMobile());
-//        }else{
-//            submitOrder.setUserPhone(contact.getMobile());
-//        }
 
 
         submitOrder.setUserSex(IdcardUtils.getGenderByIdCard(contact.getIdcard()));
