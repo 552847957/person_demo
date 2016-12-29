@@ -188,9 +188,7 @@ public class TopicController {
 
     @VersionRange
     @RequestMapping(value = "/view", method = RequestMethod.GET)
-    public JsonResponseEntity<TopicViewDto> topicView(
-            @RequestHeader(value = "screen-width", required = false, defaultValue = "1080") String screenWidth,
-            @RequestParam Integer topicId,
+    public JsonResponseEntity<TopicViewDto> topicView(@RequestParam Integer topicId,
             @RequestParam(defaultValue = "", required = false) String uid){
         JsonResponseEntity<TopicViewDto> responseEntity = new JsonResponseEntity<>();
         TopicDetailDto detailInfo = topicService.getTopicDetailInfo(topicId);
@@ -222,10 +220,6 @@ public class TopicController {
         }
         viewDto.setShareInfo(this.getShareInfo(detailInfo));
         viewDto.dealBadWords(badWordsService);
-        if(StringUtils.isNotEmpty(screenWidth)){
-            int screenWidthInt = Integer.valueOf(screenWidth);
-            viewDto.dealContentImgs(screenWidthInt);
-        }
         responseEntity.setData(viewDto);
         return responseEntity;
     }
