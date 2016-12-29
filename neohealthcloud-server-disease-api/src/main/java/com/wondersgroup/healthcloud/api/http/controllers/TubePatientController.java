@@ -77,8 +77,14 @@ public class TubePatientController {
         List<TubePatientDTO> resource = diabetesService.getTubePatientList(doctorInfo.getHospitalId(),doctor.getName(),patientName,flag,pageSize);
         Integer total = diabetesService.getTubePatientNumber(doctorInfo.getHospitalId(),doctor.getName(),patientName);
 
-
         List<TubePatientEntity> list = Lists.newArrayList();
+
+        if(null == resource || 0 == resource.size()){
+            response.setContent(list,false,null,flag.toString());
+            return response;
+        }
+
+
         List<String> personcareds = Lists.newArrayList();
         Map<String,Integer> map = Maps.newHashMap();
         for(int index = 0 ;index < resource.size() ; index++){
