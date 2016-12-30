@@ -242,6 +242,12 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
             Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
+
+            if(0 != result.get("code").asInt()){
+                logger.error("高位筛查提醒失败 "+registerid+" "+doctorId);
+                logger.error(result.toString());
+            }
+
         }
         return true;
     }
