@@ -124,7 +124,15 @@ public class ManageOrderDTO {
             this.id = order.getId();
             this.hospitalName = order.getHospitalName();
             this.departmentName = order.getDepartmentName();
+
             this.doctorName = order.getDoctorName();
+            if("2".equals(order.getRegisterType())){
+                this.doctorName = order.getRegisterName()+"专病门诊";
+            }else if("3".equals(order.getRegisterType())){
+                this.doctorName = order.getRegisterName()+"普通门诊";
+            }
+
+
             this.dutyName = order.getDutyName();
             this.scheduleDate = DateFormatter.dateFormat(order.getScheduleDate());
             this.week = DateUtils.getWeekOfDate(order.getScheduleDate());
