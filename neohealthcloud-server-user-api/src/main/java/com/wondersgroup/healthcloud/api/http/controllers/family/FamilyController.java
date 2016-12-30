@@ -105,9 +105,9 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 @RequestMapping("/api/family")
 public class FamilyController {
 
-    private static final Logger              logger                   = LoggerFactory.getLogger(FamilyController.class);
     @Autowired
     private UserAccountService               accountService;
+    private static final Logger              logger                   = LoggerFactory.getLogger(FamilyController.class);
     @Autowired
     private UserService                      userService;
     @Autowired

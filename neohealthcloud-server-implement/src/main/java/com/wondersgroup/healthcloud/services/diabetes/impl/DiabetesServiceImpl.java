@@ -66,6 +66,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode jsonNode = response.convertBody();
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
+            if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                logger.error("在管人群列数为空 "+hospitalCode+"  "+doctorName+" "+patientName);
+                logger.error(jsonNode.toString());
+                return 0;
+            }
             return jsonNode.get("data").asInt();
         }
         return 0;
@@ -94,6 +99,11 @@ public class DiabetesServiceImpl implements DiabetesService {
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, TubePatientDTO.class);
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("在管人群列表为空 "+hospitalCode+"  "+doctorName+" "+patientName+" "+pageNo+"  "+pageSize);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -114,6 +124,11 @@ public class DiabetesServiceImpl implements DiabetesService {
         if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
             ObjectMapper mapper = new ObjectMapper();
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("在管人群列表详情为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), TubePatientDetailDTO.class);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -137,6 +152,11 @@ public class DiabetesServiceImpl implements DiabetesService {
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportScreeningDTO.class);
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("筛查报告为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -160,6 +180,11 @@ public class DiabetesServiceImpl implements DiabetesService {
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportInspectDTO.class);
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("检查报告为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -183,6 +208,11 @@ public class DiabetesServiceImpl implements DiabetesService {
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportInspectDetailDTO.class);
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("检查报告详情为空 "+reportNum+"  "+reportDate);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -207,6 +237,11 @@ public class DiabetesServiceImpl implements DiabetesService {
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, ReportFollowDTO.class);
 
             try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("随访报告为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
                 return new ObjectMapper().readValue(jsonNode.get("data").toString(), javaType);
             }catch (Exception ex){
                 logger.error(ex.getMessage(),ex);
@@ -221,14 +256,14 @@ public class DiabetesServiceImpl implements DiabetesService {
 //        int total = diabetesService.getTubePatientNumber("42509835700","王庆杰");
 //        System.err.println(total);
 //
-//        List<TubePatientDTO> list = diabetesService.getTubePatientList("42509835700","王庆杰",1,10);
-//        System.err.println(list.size());
+        List<TubePatientDTO> list = diabetesService.getTubePatientList("42509835700X","王庆杰",null,1,10);
+        System.err.println(list.size());
 //
 //        TubePatientDetailDTO detailDTO = diabetesService.getTubePatientDetail("01","310110193606134623");
 //        System.err.println(detailDTO.getName()+"  "+detailDTO.getHospitalCode()+"   "+detailDTO.getDoctorName());
 
-        List<ReportScreeningDTO> screening = diabetesService.getReportScreening("01","420621198811200612");
-        System.err.println(screening.size());
+//        List<ReportScreeningDTO> screening = diabetesService.getReportScreening("01","420621198811200612");
+//        System.err.println(screening.size());
 //
 //        List<ReportInspectDTO> inspect = diabetesService.getReportInspectList("123456789");
 //        System.err.println(inspect.size());
