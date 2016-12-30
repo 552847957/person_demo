@@ -105,9 +105,9 @@ import com.wondersgroup.healthcloud.utils.IdcardUtils;
 @RequestMapping("/api/family")
 public class FamilyController {
 
-    private static final Logger              logger                   = LoggerFactory.getLogger(FamilyController.class);
     @Autowired
     private UserAccountService               accountService;
+    private static final Logger              logger                   = LoggerFactory.getLogger(FamilyController.class);
     @Autowired
     private UserService                      userService;
     @Autowired
@@ -682,9 +682,9 @@ public class FamilyController {
 
         JsonResponseEntity<Object> body = new JsonResponseEntity<>();
 
-        if (mobile != null && mobile.length() != 11) {
+        if (mobile != null && mobile.length() > 15) {
             body.setCode(1000);
-            body.setMsg("请输入11位的手机号");
+            body.setMsg("请输入15位内的号码");
             return body;
         }
         Date date = null;
