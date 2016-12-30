@@ -682,9 +682,9 @@ public class FamilyController {
 
         JsonResponseEntity<Object> body = new JsonResponseEntity<>();
 
-        if (mobile != null && mobile.length() > 15) {
+        if (mobile != null && mobile.length() != 11) {
             body.setCode(1000);
-            body.setMsg("请输入15位内的号码");
+            body.setMsg("请输入11位的手机号");
             return body;
         }
         Date date = null;
