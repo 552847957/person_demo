@@ -107,8 +107,8 @@ public class AppointmentManangeServiceImpl implements AppointmentManangeService 
     public List<OrderDto> findAllManageOrderListByNameAndMobile(String patientName, String patientMobile, String id,int pageNum, int pageSize,Boolean isList) {
         String sql = "select a.*,c.doct_name as doctorName,c.doct_tile as dutyName, " +
                 " d.dept_name as departmentName,e.hos_name as hospitalName," +
-                " b.start_time as startTime,b.end_time as endTime,b.`status` as scheduleStatus," +
-                " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate," +
+                " b.start_time as scheduleStartTime,b.end_time as scheduleEndTime,b.`status` as scheduleStatus," +
+                " b.visit_level_code as visitLevelCode,b.visit_cost as visitCost,b.schedule_date as scheduleDate,b.register_type,b.register_name," +
                 " e.close_days as closeDays,e.close_time_hour as closeTimeHour,r.regmobilephone,b.time_range as timeRange " +
                 " from app_tb_appointment_order a " +
                 " left join app_tb_register_info r on a.uid = r.registerid  "+
