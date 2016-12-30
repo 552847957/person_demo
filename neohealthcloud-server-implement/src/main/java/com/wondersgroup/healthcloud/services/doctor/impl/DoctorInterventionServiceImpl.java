@@ -44,6 +44,7 @@ public class DoctorInterventionServiceImpl implements DoctorInterventionService 
             if(doctorIntervention.getId() == null) {
                 doctorIntervention.setId(IdGen.uuid());
                 doctorIntervention.setCreateTime(new Date());
+                doctorIntervention.setDelFlag("0");
             }
             doctorIntervention.setUpdateTime(new Date());
             return doctorInterventionRepository.save(doctorIntervention);
