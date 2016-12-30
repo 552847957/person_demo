@@ -110,12 +110,12 @@ public class DoctorInterventionController {
             for (int i = 0; i < rtnList.size(); i++) {
                 Doctor doctor = doctorMap.get(rtnList.get(i).getDoctorId());
                 if (doctor == null) {
-                    rtnList.get(i).setName("未知");
-                    rtnList.get(i).setDutyName("未知");
+                    rtnList.get(i).setName(null);
+                    rtnList.get(i).setDutyName(null);
                     rtnList.get(i).setAvatar(null);
                 } else {
-                    rtnList.get(i).setName(StringUtils.isEmpty(doctor.getName()) ? (StringUtils.isEmpty(doctor.getNickname()) ? "未知" : doctor.getNickname()) : doctor.getName());
-                    rtnList.get(i).setDutyName(StringUtils.isEmpty(doctor.getDutyName()) ? "未知" : doctor.getDutyName());
+                    rtnList.get(i).setName(StringUtils.isEmpty(doctor.getName()) ? doctor.getNickname() : doctor.getName());
+                    rtnList.get(i).setDutyName(doctor.getDutyName());
                     rtnList.get(i).setAvatar(doctor.getAvatar());
                 }
             }
@@ -151,7 +151,11 @@ public class DoctorInterventionController {
             if (0 == (int) response.getBody().get("code")) {
                 DoctorIntervention rtnDoctorIntervention = doctorInterventionService.saveAndUpdate(doctorIntervention);
                 if (rtnDoctorIntervention != null) {
-                    remind(doctorIntervention.getPatientId(), doctorIntervention.getDoctorId(), rtnDoctorIntervention.getId());
+                    try {
+                        remind(doctorIntervention.getPatientId(), doctorIntervention.getDoctorId(), rtnDoctorIntervention.getId());
+                    } catch (Exception ex) {
+                        log.error(Exceptions.getStackTraceAsString(ex));
+                    }
                     return new JsonResponseEntity<>(0, "干预成功！");
                 }
             }
@@ -239,12 +243,12 @@ public class DoctorInterventionController {
         if (doctorIntervention != null) {
             Doctor doctor = doctorService.findDoctorByUid(doctorIntervention.getDoctorId());
             if (doctor == null) {
-                doctorIntervention.setName("未知");
-                doctorIntervention.setDutyName("未知");
+                doctorIntervention.setName(null);
+                doctorIntervention.setDutyName(null);
                 doctorIntervention.setAvatar(null);
             } else {
-                doctorIntervention.setName(StringUtils.isEmpty(doctor.getName()) ? (StringUtils.isEmpty(doctor.getNickname()) ? "未知" : doctor.getNickname()) : doctor.getName());
-                doctorIntervention.setDutyName(StringUtils.isEmpty(doctor.getDutyName()) ? "未知" : doctor.getDutyName());
+                doctorIntervention.setName(StringUtils.isEmpty(doctor.getName()) ? doctor.getNickname() : doctor.getName());
+                doctorIntervention.setDutyName(doctor.getDutyName());
                 doctorIntervention.setAvatar(doctor.getAvatar());
             }
             result.setData(doctorIntervention);
