@@ -581,7 +581,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         try {
             String vistCost = orderDto.getVisitCost().replace("元","");
-            RegisterFee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros()) + "元";
+            RegisterFee = String.valueOf(new BigDecimal(vistCost).stripTrailingZeros().toEngineeringString()) + "元";
         }catch (Exception e){
 
         }
