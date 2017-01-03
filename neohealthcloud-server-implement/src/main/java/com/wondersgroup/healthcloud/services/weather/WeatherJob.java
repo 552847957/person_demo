@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.squareup.okhttp.OkHttpClient;
-import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.jpa.entity.weather.WeatherArea;
 import com.wondersgroup.healthcloud.jpa.repository.weather.WeatherAreaRepository;
 import org.joda.time.DateTime;
@@ -17,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * ░░░░░▄█▌▀▄▓▓▄▄▄▄▀▀▀▄▓▓▓▓▓▌█
@@ -59,7 +58,7 @@ public class WeatherJob {
     public void hourlyJob() {
         String updateTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(new DateTime());
         JsonNode heShanghai = heWeatherClient.weather(null).get("HeWeather5").get(0);
-        DateTimeFormatter sdf = DateTimeFormat.forPattern("dd MMM yyyy");
+        DateTimeFormatter sdf = DateTimeFormat.forPattern("dd MMM yyyy").withLocale(Locale.ENGLISH);
         DateTimeFormatter newdf = DateTimeFormat.forPattern("MM/dd");
 
         List<WeatherArea> tasks = tasks();
@@ -143,17 +142,5 @@ public class WeatherJob {
 
     public List<WeatherArea> tasks() {
         return weatherAreaRepository.findActive();
-    }
-
-    public static void main(String... args) throws Exception {
-        YahooWeatherClient ywclient = new YahooWeatherClient();
-        HeWeatherClient hwclient = new HeWeatherClient();
-        HttpRequestExecutorManager manager = new HttpRequestExecutorManager(new OkHttpClient());
-        ywclient.setHttpRequestExecutorManager(manager);
-        hwclient.setHttpRequestExecutorManager(manager);
-        WeatherJob job = new WeatherJob();
-        job.yahooWeatherClient = ywclient;
-        job.heWeatherClient = hwclient;
-        job.hourlyJob();
     }
 }
