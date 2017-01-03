@@ -156,7 +156,7 @@ public class MeasureController {
                                     }
                                 }
                                 ((ObjectNode) jsonNode).put("data", strBuf.toString());
-                                Days.daysBetween(today, new DateTime(date)).getDays();
+                                lastWeekData.set(Days.daysBetween(new DateTime(date), today).getDays(), jsonNode);
                             }
                             count++;
                         }
