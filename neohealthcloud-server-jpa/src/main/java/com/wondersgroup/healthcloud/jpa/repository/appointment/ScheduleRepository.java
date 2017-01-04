@@ -28,4 +28,8 @@ public interface ScheduleRepository extends JpaRepository<AppointmentDoctorSched
     @Modifying
     @Query("update AppointmentDoctorSchedule a set a.delFlag = '1' where a.updateDate < ?1 ")
     void deleteSchedule(Date nowDate);
+
+    @Modifying
+    @Query("update AppointmentDoctorSchedule a set a.delFlag = '1' where a.l2DepartmentId = ?1 and a.updateDate < ?2 ")
+    void deleteScheduleByDepartmentL2Id(String id, Date nowDate);
 }
