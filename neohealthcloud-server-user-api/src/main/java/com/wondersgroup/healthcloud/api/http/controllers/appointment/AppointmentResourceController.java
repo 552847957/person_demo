@@ -206,6 +206,7 @@ public class AppointmentResourceController {
         List<AppointmentDoctor> appointmentDoctors = appointmentApiService.findDoctorListByKw(kw,pageSize,flag,false,null);
         if(appointmentDoctors.size()>pageSize){
             moreDoctor = true;
+            flag = flag +1;
         }
         AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO();
         for (AppointmentDoctor doctor : appointmentDoctors) {
