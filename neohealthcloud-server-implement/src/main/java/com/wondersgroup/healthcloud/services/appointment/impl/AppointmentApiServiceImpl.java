@@ -849,6 +849,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
     public void saveOrUpdateAppointmentScheduleByDepartmentId(String departmentId) {
         //保存二级科室
         AppointmentL2Department l2Department = departmentL2Repository.findOne(departmentId);
+        Date nowDate  = DateUtils.addMinutes(new Date(), -10);
         Map<String,Object> result = getNumberSourceParameter(departmentId,"2");
         if(l2Department!=null && result !=null){
             String hospitalId = l2Department.getHospitalId();
@@ -862,16 +863,37 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             //保存预约资源信息
             if(deptNumSourceCommonList!=null && deptNumSourceCommonList.size()>0){
                 for (NumSourceInfo numSourceInfo :deptNumSourceCommonList){
+                    String registerName  = numSourceInfo.getDoctName();
+                    if(StringUtils.isBlank(registerName)){
+                        registerName = numSourceInfo.getDeptName();
+                    }
                     //保存科室的预约资源
                     List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
                     if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
                         for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+
                             //根据  NumSourceId
                             AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule
                                     (numSourceInfo.getScheduleId(), segmentNumberInfo.getNumSourceId(), hospitalId);
                             try {
                                 if(scheduleUpdate!=null){
                                     scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setStartTime(numSourceInfo.getStartTime());
+                                    scheduleUpdate.setEndTime(numSourceInfo.getEndTime());
+                                    scheduleUpdate.setStatus(numSourceInfo.getStatus());
+                                    scheduleUpdate.setUpdateDate(new Date());
+                                    scheduleRepository.saveAndFlush(scheduleUpdate);
+                                }else{
+                                    BeanUtils.copyProperties(numSourceInfo,scheduleUpdate,"scheduleDate");
+                                    scheduleUpdate.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                                    scheduleUpdate.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                                    scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                                    scheduleUpdate.setStartTime(segmentNumberInfo.getStartTime());
+                                    scheduleUpdate.setEndTime(segmentNumberInfo.getEndTime());
+                                    scheduleUpdate.setStatus(numSourceInfo.getStatus());
+                                    scheduleUpdate.setRegisterName(registerName);//专病或普通的名称用doctorName传
+                                    scheduleUpdate.setDelFlag("0");
                                     scheduleUpdate.setUpdateDate(new Date());
                                     scheduleRepository.saveAndFlush(scheduleUpdate);
                                 }
@@ -889,16 +911,37 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
             //保存预约资源信息
             if(deptNumSourceDiseaseList!=null && deptNumSourceDiseaseList.size()>0){
                 for (NumSourceInfo numSourceInfo :deptNumSourceDiseaseList){
+                    String registerName  = numSourceInfo.getDoctName();
+                    if(StringUtils.isBlank(registerName)){
+                        registerName = numSourceInfo.getDeptName();
+                    }
                     //保存科室的预约资源
                     List<SegmentNumberInfo> segmentNumberInfoList = getSegmentNumberInfoBySchedule(numSourceInfo);
                     if(segmentNumberInfoList!=null && segmentNumberInfoList.size()>0){
                         for(SegmentNumberInfo segmentNumberInfo : segmentNumberInfoList){
+
                             //根据  NumSourceId
                             AppointmentDoctorSchedule scheduleUpdate = scheduleRepository.getAppointmentDoctorSchedule
                                     (numSourceInfo.getScheduleId(), segmentNumberInfo.getNumSourceId(), hospitalId);
                             try {
                                 if(scheduleUpdate!=null){
                                     scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setStartTime(numSourceInfo.getStartTime());
+                                    scheduleUpdate.setEndTime(numSourceInfo.getEndTime());
+                                    scheduleUpdate.setStatus(numSourceInfo.getStatus());
+                                    scheduleUpdate.setUpdateDate(new Date());
+                                    scheduleRepository.saveAndFlush(scheduleUpdate);
+                                }else{
+                                    BeanUtils.copyProperties(numSourceInfo,scheduleUpdate,"scheduleDate");
+                                    scheduleUpdate.setOrderedNum(Integer.valueOf(numSourceInfo.getOrderedNum()));
+                                    scheduleUpdate.setSumOrderNum(Integer.valueOf(numSourceInfo.getSumOrderNum()));
+                                    scheduleUpdate.setReserveOrderNum(Integer.valueOf(segmentNumberInfo.getReserveOrderNum()));
+                                    scheduleUpdate.setScheduleDate(DateUtils.parseDate(numSourceInfo.getScheduleDate(), "yyyy-MM-dd"));
+                                    scheduleUpdate.setStartTime(segmentNumberInfo.getStartTime());
+                                    scheduleUpdate.setEndTime(segmentNumberInfo.getEndTime());
+                                    scheduleUpdate.setStatus(numSourceInfo.getStatus());
+                                    scheduleUpdate.setRegisterName(registerName);//专病或普通的名称用doctorName传
+                                    scheduleUpdate.setDelFlag("0");
                                     scheduleUpdate.setUpdateDate(new Date());
                                     scheduleRepository.saveAndFlush(scheduleUpdate);
                                 }
@@ -912,6 +955,7 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
             //查询二级科室下所有的医生
             List<DoctInfo> doctInfoList = getDoctorListByTwoDept(twoDeptInfo);
+
             if(doctInfoList!=null && doctInfoList.size()>0){
                 //根据医生查询医生的预约资源
                 for(DoctInfo doctInfo : doctInfoList){
@@ -932,16 +976,20 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
                                 }
                             }
                         }
+
                     }
 
                 }
             }
-        }
-        //逻辑删除没有二级科室的一级科室
-        departmentL1Repository.deleteDept1HasNoDept2();
+            //科室下面没有拉到的排班del_flag设为1
+            scheduleRepository.deleteScheduleByDepartmentL2Id(departmentId,nowDate);
+            //逻辑删除没有二级科室的一级科室
+            departmentL1Repository.deleteDept1HasNoDept2();
 
-        //给医院设置医生数量
-        hospitalRepository.setDoctorNumToHospital();
+            //给医院设置医生数量
+            hospitalRepository.setDoctorNumToHospital();
+        }
+
 
     }
 
