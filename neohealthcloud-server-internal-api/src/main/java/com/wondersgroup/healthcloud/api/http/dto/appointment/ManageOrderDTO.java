@@ -174,7 +174,7 @@ public class ManageOrderDTO {
             String orderStatus = order.getOrderStatus();
             if("4".equals(orderStatus)){
                 this.status = "2";
-             //状态8 退号中说是防黄牛做的 号源不会立即释放
+                //状态8 退号中说是防黄牛做的 号源不会立即释放
             }else if("3".equals(orderStatus) || "8".equals(orderStatus) ){
                 this.status = "3";
                 if(order.getCancelTime()!=null)
@@ -185,7 +185,7 @@ public class ManageOrderDTO {
             if("2".equals(order.getScheduleStatus())){
                 this.status = "5";
             }
-            if("1".equals(this.status) && DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
+            if("1".equals(orderStatus) && DateUtils.compareDate(new Date(),order.getScheduleDate())<0){
                 this.canCancel = true;
                 this.status = "1";
                 /**
@@ -198,9 +198,9 @@ public class ManageOrderDTO {
                     String cancelDate = DateFormatter.scheduleDateFormat(DateUtils.addDay(order.getScheduleDate(), -closeDays));
                     this.cancelDesc = "不迟于"+cancelDate+closeTimeHour+"点前取消，逾期取消失败。";
                 }catch (Exception e){
-                    log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getMessage());
+                    log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getLocalizedMessage());
                 }
-            }else if("1".equals(this.status) &&  DateUtils.compareDate(new Date(),order.getScheduleDate())>0){
+            }else if("1".equals(orderStatus) && DateUtils.compareDate(new Date(),order.getScheduleDate())>0){
                 this.status = "1";
                 try {
                     int closeDays = Integer.valueOf(order.getCloseDays());
@@ -208,7 +208,7 @@ public class ManageOrderDTO {
                     String cancelDate = DateFormatter.scheduleDateFormat(DateUtils.addDay(order.getScheduleDate(), -closeDays));
                     this.cancelDesc = "不迟于"+cancelDate+closeTimeHour+"点前取消，逾期取消失败。";
                 }catch (Exception e){
-                    log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getMessage());
+                    log.error("取消预约的备注数据转换错误:orderId="+this.id+","+e.getLocalizedMessage());
                 }
             }
 
