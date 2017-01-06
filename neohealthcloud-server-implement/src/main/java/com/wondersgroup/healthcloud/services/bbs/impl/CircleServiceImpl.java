@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.AppUrlSchemaUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -530,5 +531,10 @@ public class CircleServiceImpl implements CircleService {
             logger.error("设置圈子数据出错", e);
         }
         return dto;
+    }
+
+    @Override
+    public void deleteUserCircle(Integer circleId, String uid) {
+        userCircleRepository.deleteUserCirle(circleId, uid);
     }
 }
