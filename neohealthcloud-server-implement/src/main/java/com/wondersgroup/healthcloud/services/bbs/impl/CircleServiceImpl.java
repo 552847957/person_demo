@@ -183,7 +183,6 @@ public class CircleServiceImpl implements CircleService {
     @Override
     @Transactional
     public UserCircle saveUserCircle(UserCircle userCircle) {
-        userCircle.setUpdateTime(new Date());
         userCircle.setCreateTime(new Date());
         userCircle.setDelFlag("0");
         UserCircle result = userCircleRepository.save(userCircle);

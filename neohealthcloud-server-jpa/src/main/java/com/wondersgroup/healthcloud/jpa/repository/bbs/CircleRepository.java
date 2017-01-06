@@ -49,7 +49,7 @@ public interface CircleRepository extends JpaRepository<Circle, Integer> {
     @Query(value="SELECT t.* FROM tb_bbs_circle t WHERE t.is_recommend=1 AND t.is_default_attent=0 AND t.del_flag = 0 " +
             " AND t.id NOT in(" +
             " SELECT bc.id FROM tb_bbs_circle bc LEFT JOIN tb_bbs_user_circle buc ON bc.id=buc.circle_id " +
-            " WHERE buc.del_flag=0 AND buc.uid= ?1 " +
+            " WHERE  buc.uid= ?1 " +
             ") order by t.rank DESC ",nativeQuery=true)
     List<Circle> findGuessLikeCircles(String uid);
 
