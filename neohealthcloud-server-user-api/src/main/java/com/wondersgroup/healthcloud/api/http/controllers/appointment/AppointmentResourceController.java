@@ -209,9 +209,15 @@ public class AppointmentResourceController {
             flag = flag +1;
         }
         AppointmentDoctorDTO doctorDTO = new AppointmentDoctorDTO();
+        int count = 1;
         for (AppointmentDoctor doctor : appointmentDoctors) {
+            if(count > pageSize){
+                moreDoctor = true;
+                break;
+            }
             doctorDTO = doctorDTO.getDoctorDTOSearchList(doctor);
-                doctorDTOList.add(doctorDTO);
+            doctorDTOList.add(doctorDTO);
+            count += 1;
         }
 
         body.setContent(doctorDTOList, moreDoctor, null, String.valueOf(flag));
