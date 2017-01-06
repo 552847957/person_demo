@@ -201,10 +201,12 @@ public class AppointmentApiServiceImpl implements AppointmentApiService {
 
         if(!hasDepartRegistration){
             sql += " limit " + (pageNum - 1) * pageSize + " , " + (pageSize+1);
-        }else if(pageNum == 1){
-            sql += " limit " + (pageNum - 1) * pageSize + " , " + pageSize;
-        }else if(pageNum>1){
-            sql += " limit " + ((pageNum - 1) * pageSize -1) + " , " + (pageSize+1);
+        }else{
+            if(pageNum == 1){
+                sql += " limit " + (pageNum - 1) * pageSize + " , " + pageSize;
+            }else if(pageNum>1){
+                sql += " limit " + ((pageNum - 1) * pageSize -1) + " , " + (pageSize+1);
+            }
         }
 
         List<AppointmentDoctor> list = jt.query(sql.toString(), new BeanPropertyRowMapper(AppointmentDoctor.class));
