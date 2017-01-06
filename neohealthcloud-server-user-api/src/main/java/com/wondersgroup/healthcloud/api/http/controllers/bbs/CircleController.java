@@ -262,8 +262,7 @@ public class CircleController {
         try {
             UserCircle exist = circleService.getAndCheckIsDefaultJoin(circleId, uid);
             if (exist != null) {
-                exist.setDelFlag("1");
-                circleService.updateUserCircle(exist);
+                circleService.deleteUserCircle(circleId, uid);
                 entity.setMsg("成功退出圈子");
                 logger.info(String.format("[%s]退出[%s]圈子成功", uid, circleId));
                 // 更新关注人数
