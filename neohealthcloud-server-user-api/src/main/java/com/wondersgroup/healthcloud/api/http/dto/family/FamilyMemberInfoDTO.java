@@ -20,7 +20,7 @@ public class FamilyMemberInfoDTO {
     private Info              info;
     private List<InfoTemplet> infoTemplets;
 
-    public static String[]    desc = { "实名制", "就医记录", "家庭医生", "计步管理", "BMI管理", "血糖管理", "血压管理", "风险评估", "中医体质辨识" };
+    public static String[]    desc = { "实名制", "健康档案", "家庭医生", "计步管理", "BMI管理", "血糖管理", "血压管理", "风险评估", "中医体质辨识" };
 
     @Data
     public static class Info {
@@ -66,7 +66,7 @@ public class FamilyMemberInfoDTO {
 
     public static class MemberInfoTemplet {
         public static int                 VERIFICATION   = 1;                             //实名制
-        public static int                 DOCTOR_RECORD  = 2;                             //就医记录
+        public static int                 DOCTOR_RECORD  = 2;                             //健康档案
         public static int                 FAMILY_DOCTOR  = 3;                             //家庭医生
         public static int                 JOGGING        = 4;                             //计步管理
         public static int                 BMI            = 5;                             //BMI管理
@@ -80,7 +80,7 @@ public class FamilyMemberInfoDTO {
 
         static {
             map.put(VERIFICATION, "实名制");
-            map.put(DOCTOR_RECORD, "就医记录");
+            map.put(DOCTOR_RECORD, "健康档案");
             map.put(FAMILY_DOCTOR, "家庭医生");
             map.put(JOGGING, "计步管理");
             map.put(BMI, "BMI管理");
