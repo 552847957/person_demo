@@ -42,7 +42,7 @@ public class SpreadController {
                 || StringUtils.isEmpty(evangelist.getStaffId())) {
             throw new CommonException(1000, "信息缺失，请完善数据后提交！");
         }
-        if (evangelistRepository.findByStaffId(evangelist.getStaffId()) != null) {
+        if (StringUtils.isEmpty(evangelist.getId()) && evangelistRepository.findByStaffId(evangelist.getStaffId()) != null) {
             throw new CommonException(1000, "该工号信息已存在");
         }
         localSpreadService.saveAndUpdate(evangelist);
