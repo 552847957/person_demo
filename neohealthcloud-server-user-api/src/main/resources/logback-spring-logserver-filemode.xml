@@ -25,18 +25,24 @@
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
 		</filter>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<FileNamePattern>
+				${ALL_FILE_NAME_PATTERN}
+			</FileNamePattern>
+			<maxFileSize>1MB</maxFileSize>
+			<maxHistory>60</maxHistory>
+			<!--<totalSizeCap>20GB</totalSizeCap>-->
+		</rollingPolicy>
+		<!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>
 				${ALL_FILE_NAME_PATTERN}
 			</FileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>1MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
-			<!--
-			<MaxHistory>1</MaxHistory>
+			<MaxHistory>60</MaxHistory>
 			<cleanHistoryOnStart>true</cleanHistoryOnStart>
-			-->
-		</rollingPolicy>
+		</rollingPolicy>-->
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
