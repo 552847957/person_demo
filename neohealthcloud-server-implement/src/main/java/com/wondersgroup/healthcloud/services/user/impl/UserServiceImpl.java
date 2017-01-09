@@ -341,6 +341,20 @@ public class UserServiceImpl implements UserService {
         if (getInvitationActived(uid)) {
             throw new CommonException(1071, "已经激活过, 不能重复激活");
         }
+        Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
+        if (doctorInfo == null) {
+            throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
+        } else {
+            String doctorId = doctorInfo.getUid();
+            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
+        }
+    }
+/* 2016-01-09     勿删
+    @Override
+    public void activeInvitation(String uid, String code) {
+        if (getInvitationActived(uid)) {
+            throw new CommonException(1071, "已经激活过, 不能重复激活");
+        }
         String doctorId;
         boolean isValidate = true;
         if(code.startsWith("88")){
@@ -359,10 +373,7 @@ public class UserServiceImpl implements UserService {
         if(!isValidate)
             throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
         jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
-    }
-
-
-
+    }*/
 
     //----------------------后台使用----------------------
     @Override
