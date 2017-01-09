@@ -11,12 +11,14 @@ import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.constant.TopicConstant;
 import com.wondersgroup.healthcloud.jpa.constant.UserConstant;
 import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.bbs.*;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicPublishDto;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicDetailDto;
 import com.wondersgroup.healthcloud.services.bbs.exception.TopicException;
+import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +48,8 @@ public class TopicController {
 
     private final String bbsDefaultShareThumb="http://img.wdjky.com/1482201571733?imageView2/1/w/180/h/180";
 
+    @Autowired
+    private AppConfigService appConfigService;
     @Autowired
     private AppUrlH5Utils appUrlH5Utils;
 
@@ -226,9 +230,14 @@ public class TopicController {
 
     private ShareH5APIDTO getShareInfo(TopicDetailDto detailInfo){
         ShareH5APIDTO shareH5APIDTO = new ShareH5APIDTO();
+        AppConfig appConfig = appConfigService.findSingleAppConfigByKeyWord("3101", null, "app.common.share.defaultLogo");
+        if (null != appConfig && StringUtils.isNotEmpty(appConfig.getData())){
+            shareH5APIDTO.setThumb(appConfig.getData());
+        }else {
+            shareH5APIDTO.setThumb(this.bbsDefaultShareThumb);
+        }
         shareH5APIDTO.setId(detailInfo.getId());
         shareH5APIDTO.setTitle(detailInfo.getTitle());
-        shareH5APIDTO.setThumb(this.bbsDefaultShareThumb);
         shareH5APIDTO.setDesc(detailInfo.getIntro());
         shareH5APIDTO.setUrl(appUrlH5Utils.buildBbsTopicView(detailInfo.getId()));
         return shareH5APIDTO;
