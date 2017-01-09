@@ -817,7 +817,7 @@ public class FamilyController {
             if (id == MemberInfoTemplet.VERIFICATION) {
 
             } else if (id == MemberInfoTemplet.DOCTOR_RECORD) {
-                templet.setDesc("上海市就医记录，一查便知");
+                templet.setDesc("上海市健康档案，一查便知");
             } else if (id == MemberInfoTemplet.FAMILY_DOCTOR) {
 
             } else if (id == MemberInfoTemplet.JOGGING) {

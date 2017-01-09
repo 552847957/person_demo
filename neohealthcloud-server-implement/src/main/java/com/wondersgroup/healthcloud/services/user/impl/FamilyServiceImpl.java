@@ -494,8 +494,8 @@ public class FamilyServiceImpl implements FamilyService {
         String name = info.getNickname();
         
         if (type == 2) {
-            title = "就医记录";
-            content = name + "提示你，开启就医记录，即刻查看上海市就医记录。";
+            title = "健康档案";
+            content = name + "提示你，开启健康档案，即刻查看上海市健康档案。";
         }else if (type == 4) {
             title = "计步管理";
             content = name + "提示你，一起计步领积分金币，兑换奖品啦。";

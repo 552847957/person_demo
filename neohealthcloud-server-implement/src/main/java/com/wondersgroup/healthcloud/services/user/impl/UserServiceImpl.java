@@ -6,10 +6,12 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.common.utils.JailPropertiesUtils;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.spread.Evangelist;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.repository.spread.EvangelistRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
@@ -68,6 +70,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JailPropertiesUtils jailPropertiesUtils;
+
+    @Autowired
+    private EvangelistRepository evangelistRepository;
 
     @Value("${internal.api.service.measure.url}")
     private String measureUrl;
@@ -336,13 +341,24 @@ public class UserServiceImpl implements UserService {
         if (getInvitationActived(uid)) {
             throw new CommonException(1071, "已经激活过, 不能重复激活");
         }
-        Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
-        if (doctorInfo == null) {
-            throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
-        } else {
-            String doctorId = doctorInfo.getUid();
-            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
+        String doctorId;
+        boolean isValidate = true;
+        if(code.startsWith("88")){
+           Evangelist evangelist = evangelistRepository.findBySpreadCode(code);
+            if(evangelist==null){
+                isValidate = false;
+            }
+            doctorId = evangelist.getId();
+        }else{
+            Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
+            if (doctorInfo == null) {
+                isValidate = false;
+            }
+            doctorId = doctorInfo.getUid();
         }
+        if(!isValidate)
+            throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
+        jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
     }
 
 
