@@ -51,8 +51,8 @@ public class ServiceUrlPlaceholderResolver {
                 }
             }
         } catch (Exception ex) {
-            return originalUrl;
+            //ignore
         }
-        return originalUrl;
+        return StringUtils.replace(originalUrl, "${uid}", "");
     }
 }
