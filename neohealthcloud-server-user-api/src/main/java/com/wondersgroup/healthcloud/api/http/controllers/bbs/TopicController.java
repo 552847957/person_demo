@@ -46,7 +46,7 @@ import java.util.Map;
 @RequestMapping("/api/bbs/topic")
 public class TopicController {
 
-    private final String bbsDefaultShareThumb="http://img.wdjky.com/1482201571733?imageView2/1/w/180/h/180";
+    private final String bbsDefaultShareThumb="http://img.wdjky.com/1483946740909?imageView2/1/w/180/h/180";
 
     @Autowired
     private AppConfigService appConfigService;
