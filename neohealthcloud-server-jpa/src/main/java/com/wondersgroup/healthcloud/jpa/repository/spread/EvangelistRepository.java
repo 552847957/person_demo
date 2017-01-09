@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * Created by nick on 2016/12/23.
  */
-public interface EvangelistRepository extends JpaRepository<Evangelist, String>{
+public interface EvangelistRepository extends JpaRepository<Evangelist, String> {
 
     Evangelist findBySpreadCode(String spreadCode);
 
-    Evangelist findBySpreadCodeAndName(String spreadCode, String name);
+    Evangelist findByStaffId(String staffId);
 }

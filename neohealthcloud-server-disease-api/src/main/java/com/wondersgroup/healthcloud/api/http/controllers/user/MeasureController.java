@@ -243,7 +243,7 @@ public class MeasureController {
                                     }
                                 }
                                 ((ObjectNode) jsonNode).put("data", strBuf.toString());
-                                monthDate.set(-Days.daysBetween(endDateTime, new DateTime(date)).getDays(), jsonNode);
+                                monthDate.set(Days.daysBetween(new DateTime(date), endDateTime).getDays(), jsonNode);
                             }
                         }
                     }
