@@ -7,7 +7,7 @@
 	<springProperty scope="context" name="SPOOL_DIR" source="logagent.apilog.src" defaultValue=""/>
 	-->
 
-	<property name="ALL_FILE_NAME_PATTERN" value="${SPOOL_DIR}/%d{yyyyMMdd}/%d{HH}/${LOCAL_APP_NAME}_%d{yyyyMMdd}_%d{HH}_%i.log" />
+	<property name="ALL_FILE_NAME_PATTERN" value="${SPOOL_DIR}/%d{yyyyMMdd_HH}/${LOCAL_APP_NAME}_%d{yyyyMMdd_HH}_%i.log" />
 	<property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} --- ${LOG_LEVEL_PATTERN:-%5p} --- %-55.55logger{55} --- %m%n"/>
 
 	<!--
@@ -25,25 +25,13 @@
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
 		</filter>
-		<!--
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<FileNamePattern>
 				${ALL_FILE_NAME_PATTERN}
 			</FileNamePattern>
 			<maxFileSize>1MB</maxFileSize>
 			<maxHistory>60</maxHistory>
-			&lt;!&ndash;<totalSizeCap>20GB</totalSizeCap>&ndash;&gt;
-		</rollingPolicy>
-		-->
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>
-				${ALL_FILE_NAME_PATTERN}
-			</FileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>1MB</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-			<MaxHistory>60</MaxHistory>
-			<cleanHistoryOnStart>false</cleanHistoryOnStart>
+			<!--<totalSizeCap>100GB</totalSizeCap>-->
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
 			<pattern>${FILE_LOG_PATTERN}</pattern>
