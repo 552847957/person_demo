@@ -19,6 +19,8 @@ public class RequestMessageHeader {
 
     private String sign;
 
+    private String version = "3.0.26";
+
     public RequestMessageHeader() {
 
     }
@@ -63,5 +65,13 @@ public class RequestMessageHeader {
 
     public void setSign(String sign) {
         this.sign = sign;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
