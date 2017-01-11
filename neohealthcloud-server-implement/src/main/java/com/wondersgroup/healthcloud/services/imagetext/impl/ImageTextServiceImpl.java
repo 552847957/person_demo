@@ -208,7 +208,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT * FROM app_tb_neo_g_image_text WHERE   1 = 1 ")
                 .append(getGWhereSqlByParameter(params))
-                .append(" ORDER BY update_time DESC");
+                .append(" ORDER BY sequence ASC, update_time DESC");
                 //.append(" LIMIT " + (pageNum - 1) * pageSize + "," + pageSize);
         return getJt().query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<GImageText>(GImageText.class));
     }
@@ -402,7 +402,7 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (StringUtils.isNotEmpty(gImageText.getVersion())) {
             strBuf.append(" AND version = '" + gImageText.getVersion() + "'");
         }
-
+        strBuf.append(" ORDER BY sequence");
         return strBuf.toString();
     }
 
