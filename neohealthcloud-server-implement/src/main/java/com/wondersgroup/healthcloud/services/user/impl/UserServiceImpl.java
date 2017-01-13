@@ -335,21 +335,6 @@ public class UserServiceImpl implements UserService {
         List<Map<String, Object>> maps = jt.queryForList(String.format("select 0 from app_tb_invitation where uid='%s' limit 1", userId));
         return !maps.isEmpty();
     }
-
-    @Override
-    public void activeInvitation(String uid, String code) {
-        if (getInvitationActived(uid)) {
-            throw new CommonException(1071, "已经激活过, 不能重复激活");
-        }
-        Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
-        if (doctorInfo == null) {
-            throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
-        } else {
-            String doctorId = doctorInfo.getUid();
-            int rowsAffected = jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
-        }
-    }
-/* 2016-01-09     勿删
     @Override
     public void activeInvitation(String uid, String code) {
         if (getInvitationActived(uid)) {
@@ -373,8 +358,7 @@ public class UserServiceImpl implements UserService {
         if(!isValidate)
             throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
         jt.update(String.format("insert app_tb_invitation(id, uid, doctorid, create_date) values('%s','%s','%s','%s')", IdGen.uuid(),uid, doctorId, DateFormatter.dateTimeFormat(new Date())));
-    }*/
-
+    }
     //----------------------后台使用----------------------
     @Override
     public List<Map<String, Object>> findUserListByPager(int pageNum, int size, Map parameter) {
