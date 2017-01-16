@@ -184,6 +184,7 @@ public class CircleServiceImpl implements CircleService {
     @Transactional
     public UserCircle saveUserCircle(UserCircle userCircle) {
         userCircle.setCreateTime(new Date());
+        userCircle.setUpdateTime(new Date());
         userCircle.setDelFlag("0");
         UserCircle result = userCircleRepository.save(userCircle);
         return result;
