@@ -402,7 +402,6 @@ public class ImageTextServiceImpl implements ImageTextService {
         if (StringUtils.isNotEmpty(gImageText.getVersion())) {
             strBuf.append(" AND version = '" + gImageText.getVersion() + "'");
         }
-        strBuf.append(" ORDER BY sequence");
         return strBuf.toString();
     }
 
