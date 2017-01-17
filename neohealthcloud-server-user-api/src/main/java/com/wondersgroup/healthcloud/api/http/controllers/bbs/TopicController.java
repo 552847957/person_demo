@@ -225,6 +225,7 @@ public class TopicController {
         viewDto.setShareInfo(this.getShareInfo(detailInfo));
         viewDto.dealBadWords(badWordsService);
         responseEntity.setData(viewDto);
+        topicService.incTopicPv(topicId);
         return responseEntity;
     }
 
