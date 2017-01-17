@@ -158,6 +158,11 @@ public class TopicServiceImpl implements TopicService {
     public List<TopicListDto> getHotRecommendTopics(String uid, Integer page, Integer pageSize) {
         TopicSearchCriteria searchCriteria = new TopicSearchCriteria();
         searchCriteria.setPage(page);
+        //只要60天内发布的话题
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -60);
+        String startDate = DateUtils.sdf_day.format(calendar.getTime());
+        searchCriteria.setPublishStartTime(startDate);
         searchCriteria.setStatus(TopicConstant.Status.OK);
         searchCriteria.setPageSize(pageSize);
         searchCriteria.setOrderInfo("topic.score desc, topic.last_comment_time desc");
