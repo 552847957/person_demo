@@ -340,20 +340,22 @@ public class UserServiceImpl implements UserService {
         if (getInvitationActived(uid)) {
             throw new CommonException(1071, "已经激活过, 不能重复激活");
         }
-        String doctorId;
+        String doctorId = "";
         boolean isValidate = true;
         if(code.startsWith("88")){
            Evangelist evangelist = evangelistRepository.findBySpreadCode(code);
             if(evangelist==null){
                 isValidate = false;
+            }else{
+                doctorId = evangelist.getId();
             }
-            doctorId = evangelist.getId();
         }else{
             Doctor doctorInfo = doctorService.findDoctorInfoByActcode(code);
             if (doctorInfo == null) {
                 isValidate = false;
+            }else{
+                doctorId = doctorInfo.getUid();
             }
-            doctorId = doctorInfo.getUid();
         }
         if(!isValidate)
             throw new CommonException(1070, "我知道你在开玩笑，但邀请码还是要输对哦");
