@@ -45,7 +45,7 @@ public class WeatherHintUtil {
     }
 
     private Boolean isBadWeather(Integer code) {
-        return !((25 < code && code < 35) || code == 44);
+        return !((25 < code && code < 35) || code == 44 || code == 24);
     }
 
     private String[] getOneHint(String key) {
