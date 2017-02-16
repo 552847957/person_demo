@@ -5,10 +5,7 @@ import com.squareup.okhttp.*;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
-import com.wondersgroup.common.http.exception.ResponseParseException;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +14,7 @@ import java.util.Map;
  * Created by longshasha on 16/5/10.
  */
 public class HttpWdUtils {
-    private  String url = "http://10.1.65.106:82/webopenapi/toremotecustom";//测试环境
+    private String url = "http://10.1.65.106:82/webopenapi/toremotecustom";//测试环境
     private String appToken = "59b30cbd-7f39-4fa7-8fda-17acabb74d86";//测试环境
     private String octopusSid = "C6B18542F8E0000118BD1E2A1C001D9E";//测试环境
 
@@ -61,226 +58,234 @@ public class HttpWdUtils {
 
     /**
      * 1.1账号注册 根据手机号注册
+     *
      * @param mobile
      * @param password
-     * @return
-     * httpWdUtils.registe("15639763509","123456");
+     * @return httpWdUtils.registe("15639763509","123456");
      * {"tagid":"0231000001","userid":"ff808081546052c1015499d295660017","code":201,"msg":"注册成功","success":true,"session_token":"2982d4032f7248f984cf638b7e975217"}
      */
-    public JsonNode registe(String mobile, String password){
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode registe(String mobile, String password) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("registeApiId")};
-        String[] form = new String[]{"mobile",mobile,"password",password,"token",appToken};
+        String[] form = new String[]{"mobile", mobile, "password", password, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
-    public JsonNode registeByUsername(String username, String password){
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode registeByUsername(String username, String password) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("registeApiId")};
-        String[] form = new String[]{"username",username,"password",password,"token",appToken};
+        String[] form = new String[]{"username", username, "password", password, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.2 检验账号是否可用 account可为手机号、用户名、邮箱
+     *
      * @param account
-     * @return
-     * {"code":214,"success":true,"msg":"手机可使用"}
+     * @return {"code":214,"success":true,"msg":"手机可使用"}
      * {"code":413,"msg":"手机已被使用","success":false}
      */
-    public JsonNode checkAccount(String account){
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode checkAccount(String account) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("checkAccountApiId")};
-        String[] form = new String[]{"account",account,"token",appToken};
+        String[] form = new String[]{"account", account, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.3 根据账号密码登录
+     *
      * @param account
      * @param password
-     * @return
-     * {"code":202,"user":{"userid":"3a24cb5b173e4d6597f62a95d04e3340","username":"jky15639763552",
+     * @return {"code":202,"user":{"userid":"3a24cb5b173e4d6597f62a95d04e3340","username":"jky15639763552",
      * "mobile":"15639763552","email":null,"type":"healthcloud","name":null,"idcard":null,"sscard":null,
      * "tagid":"0051000012","sessionToken":"ab831db309e442699072a20032443195","realvalid":0},"msg":"登录成功",
      * "success":true,"session_token":"ab831db309e442699072a20032443195"}
      */
-    public JsonNode login(String account, String password){
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode login(String account, String password) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("loginApiId")};
-        String[] form = new String[]{"account",account,"password", password,"token",appToken};
+        String[] form = new String[]{"account", account, "password", password, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.4 获取用户信息(根据手机、用户名、邮箱)
      * account : 15639763552
-     * @return
      *
+     * @return
      */
     public JsonNode basicInfo(String account) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("baseInfoApiId")};
-        String[] form = new String[]{"account",account,"token",appToken};
+        String[] form = new String[]{"account", account, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.5 修改密码
+     *
      * @param account
      * @param oldPsd
      * @param newPsd
-     * @return  {"code":404,"message":"Api not found"}
+     * @return {"code":404,"message":"Api not found"}
      */
     public JsonNode updatePassword(String account, String oldPsd, String newPsd) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("updatepasswordApiId")};
-        String[] form = new String[]{"account",account,"oldpsd",oldPsd,"newpsd",newPsd,"token",appToken};
+        String[] form = new String[]{"account", account, "oldpsd", oldPsd, "newpsd", newPsd, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.6 重置密码
+     *
      * @param account
      * @param newPsd
      * @return
      */
     public JsonNode resetPassword(String account, String newPsd) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("resetpasswordApiId")};
-        String[] form = new String[]{"account",account,"newpsd",newPsd,"token",appToken};
+        String[] form = new String[]{"account", account, "newpsd", newPsd, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.8 发送短信验证码
-     * @param mobile 手机号
+     *
+     * @param mobile  手机号
      * @param message 短信内容格式，以":code"作为验证码的占位符
      * @return
      */
-    public JsonNode sendCode(String mobile , String message) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode sendCode(String mobile, String message) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sendCodeApiId")};
-        String[] form = new String[]{"mobile",mobile,"message",message,"token",appToken};
+        String[] form = new String[]{"mobile", mobile, "message", message, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.9 校验验证码
+     *
      * @param mobile
-     * @param code 验证码
-     * @param onlyOne  验证码是否具有一次性
+     * @param code    验证码
+     * @param onlyOne 验证码是否具有一次性
      * @return
      */
-    public JsonNode verifyCode(String mobile , String code, Boolean onlyOne) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode verifyCode(String mobile, String code, Boolean onlyOne) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("verifyCodeApiId")};
-        String[] form = new String[]{"mobile",mobile,"code",code,"onlyOne",String.valueOf(onlyOne),"token",appToken};
+        String[] form = new String[]{"mobile", mobile, "code", code, "onlyOne", String.valueOf(onlyOne), "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.14 获取第三方用户信息
+     *
      * @param userId
      * @return
      */
     public JsonNode thirdPartyBinding(String userId) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("thirdPartyBindingApiId")};
-        String[] form = new String[]{"userid",userId,"token",appToken};
+        String[] form = new String[]{"userid", userId, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.15修改手机号
+     *
      * @param account 手机号、邮箱、用户名、userId
      * @param mobile
      * @return
      */
-    public JsonNode updateMobile(String account , String mobile) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode updateMobile(String account, String mobile) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("updateMobileApiId")};
-        String[] form = new String[]{"account",account,"mobile",mobile,"token",appToken};
+        String[] form = new String[]{"account", account, "mobile", mobile, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.16 修改用户名
+     *
      * @param account
      * @param username 首字母开头，字母和数字组合，长度6-40位
      *                 1.	如果用户不存在用户名，才可以对用户的用户名进行修改
      * @return
      */
-    public JsonNode updateUserName(String account , String username) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode updateUserName(String account, String username) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("updateUsernameApiId")};
-        String[] form = new String[]{"account",account,"username",username,"token",appToken};
+        String[] form = new String[]{"account", account, "username", username, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.17 三方微信绑定接口
+     *
      * @param wechatToken
      * @param openId
      * @return
      */
     public JsonNode wechatLogin(String wechatToken, String openId) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("wechatbindApiId")};
-        String[] form = new String[]{"access_token",wechatToken,"openid",openId,"token",appToken};
+        String[] form = new String[]{"access_token", wechatToken, "openid", openId, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
 
@@ -303,20 +308,21 @@ public class HttpWdUtils {
 
     /**
      * 1.19快速登录
+     *
      * @param mobile
      * @param code
      * @param onceCode 是否验证后失效,默认为“是”
      * @return
      */
     public JsonNode fastLogin(String mobile, String code, Boolean onceCode) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("fastLoginApiId")};
-        String[] form = new String[]{"mobile",mobile,"code",code,"isInvalid",String.valueOf(onceCode),"token",appToken};
+        String[] form = new String[]{"mobile", mobile, "code", code, "isInvalid", String.valueOf(onceCode), "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
@@ -338,56 +344,60 @@ public class HttpWdUtils {
 
     /**
      * 1.21 退出登录
+     *
      * @param account 账号
      * @return
      */
     public JsonNode logout(String account) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("logoutApiId")};
-        String[] form = new String[]{"account",account,"token",appToken};
+        String[] form = new String[]{"account", account, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
 
     /**
      * 1.22 三方微博绑定接口
+     *
      * @param weiboToken
      * @return
      */
     public JsonNode weiboLogin(String weiboToken) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("weiboLoginApiId")};
-        String[] form = new String[]{"access_token",weiboToken,"token",appToken};
+        String[] form = new String[]{"access_token", weiboToken, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.23 三方QQ绑定接口
+     *
      * @param qqToken
      * @return
      */
     public JsonNode qqLogin(String qqToken) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("qqLoginApiId")};
-        String[] form = new String[]{"access_token",qqToken,"token",appToken};
+        String[] form = new String[]{"access_token", qqToken, "token", appToken};
 
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.24 实名认证提交
+     *
      * @param userId
      * @param name
      * @param idCard
@@ -396,14 +406,14 @@ public class HttpWdUtils {
      * @return
      */
     public JsonNode verificationSubmit(String userId, String name, String idCard, String contentType, byte[] photo) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("verificationSubmitApiId")};
 
         MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
 
 
-        String[] form = new String[]{"name",name,"idCardNum",idCard,"userid",userId,"token",appToken};
+        String[] form = new String[]{"name", name, "idCardNum", idCard, "userid", userId, "token", appToken};
 
         for (int i = 0; i < form.length; i += 2) {
             multipartBuilder.addFormDataPart(form[i], form[i + 1]);
@@ -415,8 +425,8 @@ public class HttpWdUtils {
 
         Request.Builder builder = new Request.Builder();
         builder.url(url);
-        for(int i = 0; i < header.length / 2; ++i) {
-            if(header[i * 2 + 1] != null) {
+        for (int i = 0; i < header.length / 2; ++i) {
+            if (header[i * 2 + 1] != null) {
                 builder.addHeader(header[i * 2], header[i * 2 + 1]);
             }
         }
@@ -426,98 +436,102 @@ public class HttpWdUtils {
 
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
      * 1.26	获取提交实名制审核用户状态信息
+     *
      * @param userId
      * @return
      */
     public JsonNode verficationSubmitInfo(String userId) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("verficationSubmitInfoApiId")};
-        String[] form = new String[]{"account",userId,"token",appToken};
+        String[] form = new String[]{"account", userId, "token", appToken};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
     /**
-     *1.27	扩展session自定义字段
+     * 1.27	扩展session自定义字段
+     *
      * @param session
      * @param key
      * @return
      */
-    public JsonNode addSessionExtra(String session, String key,String userType) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode addSessionExtra(String session, String key, String userType) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sessionExtraApiId")};
-        String[] form = new String[]{"session_token",session,"key",key,"type", userType,"token",appToken};
+        String[] form = new String[]{"session_token", session, "key", key, "type", userType, "token", appToken};
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
 
     /**
-     *  三方市民云绑定接口
+     * 三方市民云绑定接口
+     *
      * @param smyToken
      * @param username 平台用户名
      * @return
      */
-    public JsonNode smyLogin(String smyToken,String username) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode smyLogin(String smyToken, String username) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("smyLoginApiId")};
-        String[] form = new String[]{"access_token",smyToken,"username",username,"token",appToken};
+        String[] form = new String[]{"access_token", smyToken, "username", username, "token", appToken};
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
     }
 
 
     /**
      * 儿童实名认证提交
-     * @param childUserid 儿童云账号用户Id
-     * @param parentUserid 监护人云账号Id
-     * @param name  儿童真实姓名
-     * @param mobile 监护人的手机号
-     * @param idcard 儿童身份证号
+     *
+     * @param childUserid   儿童云账号用户Id
+     * @param parentUserid  监护人云账号Id
+     * @param name          儿童真实姓名
+     * @param mobile        监护人的手机号
+     * @param idcard        儿童身份证号
      * @param contentType
-     * @param idCardFile 户口本(儿童身份信息页照片)
+     * @param idCardFile    户口本(儿童身份信息页照片)
      * @param birthCertFile 出生证明(照片)
      * @return
      */
-    public JsonNode verificationChildSubmit(String childUserid, String name,String mobile, String idcard,String parentUserid,
-                                           String contentType, byte[] idCardFile,byte[] birthCertFile) {
-        String[] header = new String[]{"octopus_channelid",channelid,"octopus_appkey",appkey,
+    public JsonNode verificationChildSubmit(String childUserid, String name, String mobile, String idcard, String parentUserid,
+                                            String contentType, byte[] idCardFile, byte[] birthCertFile) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("verificationChildSubmitApiId")};
 
         MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
 
 
-        String[] form = new String[]{"name",name,"mobile",mobile,"idCardNum",idcard,"childUserid",childUserid,
-                "parentUserid",parentUserid,"token",appToken};
+        String[] form = new String[]{"name", name, "mobile", mobile, "idCardNum", idcard, "childUserid", childUserid,
+                "parentUserid", parentUserid, "token", appToken};
 
         for (int i = 0; i < form.length; i += 2) {
             multipartBuilder.addFormDataPart(form[i], form[i + 1]);
         }
 
         multipartBuilder.addFormDataPart("idCardFile", "idCardFile", RequestBody.create(MediaType.parse(contentType), idCardFile));
-        multipartBuilder.addFormDataPart("birthCertFile", "birthCertFile", RequestBody.create(MediaType.parse(contentType),birthCertFile));
+        multipartBuilder.addFormDataPart("birthCertFile", "birthCertFile", RequestBody.create(MediaType.parse(contentType), birthCertFile));
 
         RequestBody requestBody = multipartBuilder.build();
 
         Request.Builder builder = new Request.Builder();
         builder.url(url);
-        for(int i = 0; i < header.length / 2; ++i) {
-            if(header[i * 2 + 1] != null) {
+        for (int i = 0; i < header.length / 2; ++i) {
+            if (header[i * 2 + 1] != null) {
                 builder.addHeader(header[i * 2], header[i * 2 + 1]);
             }
         }
@@ -527,7 +541,19 @@ public class HttpWdUtils {
 
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
-        return  result;
+        return result;
+    }
+
+    public JsonNode guangzhouLogin(String token) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
+                "octopus_sid", octopusSid,
+                "octopus_apiid", idMap.get("verificationChildSubmitApiId")};
+
+        String[] form = new String[]{"access_token", token, "token", appToken};
+
+        Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        return response.convertBody();
     }
 
 
@@ -611,8 +637,8 @@ public class HttpWdUtils {
 
         try {
             String password = RSAUtil.encryptByPublicKey("888888", publicKey);
-            httpWdUtils.resetPassword("18886869999",password);
-        }catch (Exception e){
+            httpWdUtils.resetPassword("18886869999", password);
+        } catch (Exception e) {
 
         }
 
