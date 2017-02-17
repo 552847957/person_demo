@@ -553,7 +553,8 @@ public class HttpWdUtils {
 
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-        return response.convertBody();
+        JsonNode result = response.convertBody();
+        return result;
     }
 
 
@@ -587,21 +588,23 @@ public class HttpWdUtils {
         idMap.put("smyLoginApiId", "44304602-abf1-44b7-8a46-4fc9cee814e1");//三方市民云绑定接口
         idMap.put("verificationChildSubmitApiId", "4c118096-b3ed-4b06-bb4e-18b3547a8974");//儿童实名信息提交
 
+        idMap.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");
+
         HttpWdUtils httpWdUtils = new HttpWdUtils();
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
 
         //正式
-        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
-        httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
-        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
-        idMap.put("baseInfoApiId", "53086fc7-7789-4b5d-969d-2f2452ee0cde");//获取账号基本信息
-        idMap.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
-        idMap.put("updateMobileApiId", "e95a7895-9c55-49b2-b1d5-297526a9adf1");//修改手机号
-
-        idMap.put("resetpasswordApiId", "a412c377-98ab-4bba-aad7-5d77973fe515");//重置密码
-        idMap.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
-        idMap.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
+//        httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
+//        httpWdUtils.setOctopusSid("7FF8EB26-AE1F-452F-AC24-6BC61BB57433");
+//        httpWdUtils.setUrl("http://clientgateway.huidao168.com/webopenapi/toremotecustom");
+//        idMap.put("baseInfoApiId", "53086fc7-7789-4b5d-969d-2f2452ee0cde");//获取账号基本信息
+//        idMap.put("verficationSubmitInfoApiId", "a1954c2c-f6bd-4be2-9f41-604abfba02a6");//获取提交实名制审核用户状态信息
+//        idMap.put("updateMobileApiId", "e95a7895-9c55-49b2-b1d5-297526a9adf1");//修改手机号
+//
+//        idMap.put("resetpasswordApiId", "a412c377-98ab-4bba-aad7-5d77973fe515");//重置密码
+//        idMap.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
+//        idMap.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
 
         httpWdUtils.setIdMap(idMap);
@@ -623,7 +626,7 @@ public class HttpWdUtils {
 //        String psd = "Uj95afYI6wedng49hbJXhnqiuRd5EZRtbtE+ZfdvpHwByyA895hrLwC+lRrQoY0r/5enL/9DXBWalIwHKw5IdUqZ3EcxSg/v/fTyZxgapwk4o6OEXbzBZVMbAsNU8F5pidmdPQLqAGbgcJrunUDtxFwymKS+A0SdXkKoPZ5Qdow=";
         //1234567
 //        String psd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
-
+//
 //        httpWdUtils.login("15639763552",psd);
 
         /*//123456
@@ -635,12 +638,12 @@ public class HttpWdUtils {
         //1234567
 //        String newPsd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
 
-        try {
-            String password = RSAUtil.encryptByPublicKey("888888", publicKey);
-            httpWdUtils.resetPassword("18886869999", password);
-        } catch (Exception e) {
-
-        }
+//        try {
+//            String password = RSAUtil.encryptByPublicKey("1234567", publicKey);
+//            httpWdUtils.resetPassword("15639763552", password);
+//        } catch (Exception e) {
+//
+//        }
 
 
         /*String message = "【健康长宁】验证码:code,用于测试。";
@@ -677,6 +680,10 @@ public class HttpWdUtils {
 
 //        httpWdUtils.smyLogin("b926db07-7a8e-4101-9807-37bd14e76439","eshimin73762403");//测试
 //        httpWdUtils.smyLogin("4e633b91-3c77-41b3-bf1d-d6b8436dc9a3","eshimin16459301");
+
+
+//        httpWdUtils.guangzhouLogin("56b428b180cd48b49e8dea8be9a33d42");
+//        httpWdUtils.guangzhouLogin("TGC-80-W1degYtKg4byg75ybdspgzEaYrapgfZsjlkFSxASmIPGDEdE8t");
 
     }
 
