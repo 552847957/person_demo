@@ -547,7 +547,7 @@ public class HttpWdUtils {
     public JsonNode guangzhouLogin(String token) {
         String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
-                "octopus_apiid", idMap.get("verificationChildSubmitApiId")};
+                "octopus_apiid", idMap.get("guangzhouLoginApiId")};
 
         String[] form = new String[]{"access_token", token, "token", appToken};
 
