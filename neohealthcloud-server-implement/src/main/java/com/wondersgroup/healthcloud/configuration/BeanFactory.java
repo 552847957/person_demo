@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class BeanFactory {
 
-    @Bean(name="default")
+    @Bean(name = "default")
     @Profile({"de", "te"})
     public SMS defaultSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://10.1.67.253:8080", "jkja");
@@ -39,7 +39,7 @@ public class BeanFactory {
         return impl;
     }
 
-    @Bean(name="default")
+    @Bean(name = "default")
     @Profile({"re", "pe1"})
     public SMS prodDefaultSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("ahincKKBq3H9YGiyMUPRW6POHyAUmp", "http://172.18.11.164:8080", "jkja");
@@ -47,7 +47,7 @@ public class BeanFactory {
         return impl;
     }
 
-    @Bean(name="verification")
+    @Bean(name = "verification")
     @Profile({"de", "te"})
     public SMS verificationSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("g57imnqWS2bzapbuGfYhZmMlmG3i5L", "http://10.1.67.253:8080", "jkja");
@@ -55,7 +55,7 @@ public class BeanFactory {
         return impl;
     }
 
-    @Bean(name="verification")
+    @Bean(name = "verification")
     @Profile({"re", "pe1"})
     public SMS prodVerificationSms(HttpRequestExecutorManager httpRequestExecutorManager) {
         SMSWondersImpl impl = new SMSWondersImpl("MUFpJNT8WsbUZizlhVHF2Wvh84qz9J", "http://172.18.11.164:8080", "jky");
@@ -118,6 +118,8 @@ public class BeanFactory {
         builder.put("smyLoginApiId", "44304602-abf1-44b7-8a46-4fc9cee814e1");//三方市民云绑定接口
         builder.put("verificationChildSubmitApiId", "4c118096-b3ed-4b06-bb4e-18b3547a8974");//儿童实名信息提交
 
+        builder.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");//广州登录接口
+
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
@@ -158,6 +160,8 @@ public class BeanFactory {
 
         builder.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
         builder.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
+
+        builder.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");//todo:广州登录接口
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");

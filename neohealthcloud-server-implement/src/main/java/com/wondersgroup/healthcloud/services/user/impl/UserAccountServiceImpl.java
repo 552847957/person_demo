@@ -43,6 +43,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     private final Integer CHANNEL_TYPE_WEIBO = 3;
     private final Integer CHANNEL_TYPE_WECHAT = 4;
     private final Integer CHANNEL_TYPE_SMY = 5;
+    private final Integer CHANNEL_TYPE_GZ =6;
 
     @Autowired
     private HttpWdUtils httpWdUtils;
@@ -215,6 +216,19 @@ public class UserAccountServiceImpl implements UserAccountService {
                 throw new ErrorWondersCloudException(result.get("msg").asText());
             }
 
+        }
+    }
+
+    @Override
+    public AccessToken guangzhouLogin(String token) {
+        JsonNode result = httpWdUtils.guangzhouLogin(token);
+        Boolean success = result.get("success").asBoolean();
+        if (success) {
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_GZ);
+            mergeRegistration(user);
+            return fetchTokenFromWondersCloud(result.get("session_token").asText());
+        } else {
+            throw new ErrorWondersCloudException(result.get("msg").asText());
         }
     }
 
@@ -391,7 +405,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (success) {
             return true;
         } else {
-            if(result.get("code").asInt()==434){
+            if (result.get("code").asInt() == 434) {
                 throw new ErrorWondersCloudException("该身份证已被提交审核");
             }
             throw new ErrorWondersCloudException(result.get("msg").asText());

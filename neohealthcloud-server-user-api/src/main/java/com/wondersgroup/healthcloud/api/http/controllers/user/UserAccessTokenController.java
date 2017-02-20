@@ -178,6 +178,19 @@ public class UserAccessTokenController {
         return body;
     }
 
+    @WithoutToken
+    @RequestMapping(value = "/token/thirdparty/jkt", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<UserAccountAndSessionDTO> jktLogin(@RequestHeader(required = false, name = "request-id") String requestId,
+                                                                 @RequestParam String token) {
+        JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
+        body.setData(new UserAccountAndSessionDTO(userAccountService.guangzhouLogin(token)));
+        body.setMsg("登录成功");
+        attachInfo(body);
+        logger.info("GET url = api/token/thirdparty/jkt,requestId=" + requestId + "&uid=" + body.getData().getUid());
+        return body;
+    }
+
 
     @RequestMapping(value = "/token/logout", method = RequestMethod.DELETE)
     @VersionRange

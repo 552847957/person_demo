@@ -1,11 +1,11 @@
 package com.wondersgroup.healthcloud.services.user;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
+
+import java.util.Date;
 
 /**
  * Created by longshasha on 16/8/4.
@@ -53,6 +53,8 @@ public interface UserAccountService {
     RegisterInfo fetchInfo(String userId);
 
     AccessToken smyLogin(String token, String username);
+
+    AccessToken guangzhouLogin(String token);
 
     Boolean childVerificationSubmit(String id,String childId, String name, String idCard, String idCardFile, String birthCertFile);
 

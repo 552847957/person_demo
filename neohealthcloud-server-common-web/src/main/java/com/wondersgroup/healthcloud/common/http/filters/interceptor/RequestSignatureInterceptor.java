@@ -83,7 +83,7 @@ public final class RequestSignatureInterceptor extends AbstractHeaderInterceptor
             return true;
         } else {
             logger.info("error signature generate from " + signatureStr);
-            buildResponse(response, 21, "签名错误");
+            buildResponse(response, 21);
             return false;
         }
     }
@@ -137,11 +137,11 @@ public final class RequestSignatureInterceptor extends AbstractHeaderInterceptor
         return namesList;
     }
 
-    private void buildResponse(HttpServletResponse response, int code, String msg) {
+    private void buildResponse(HttpServletResponse response, int code) {
         try {
             response.setContentType("application/json;charset=UTF-8");
             PrintWriter writer = response.getWriter();
-            writer.write(String.format("{\"code\":%d,\"msg\":\"%s\"}", code, msg));
+            writer.write(String.format("{\"code\":%d}", code));
             writer.close();
         } catch (IOException e) {
             //ignore
