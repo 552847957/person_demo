@@ -161,7 +161,7 @@ public class BeanFactory {
         builder.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
         builder.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
-        builder.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");//todo:广州登录接口
+        builder.put("guangzhouLoginApiId", "59676d23-7458-4727-b8ad-5061bd6ae573");//广州登录接口
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");
