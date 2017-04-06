@@ -1,10 +1,6 @@
 package com.wondersgroup.healthcloud.jpa.entity.activity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -32,5 +28,8 @@ public class HealthActivityDetail extends BaseEntity {
     private String             pftitle;
     @Transient
     private HealthActivityInfo healthActivityInfo;//'活动id',
+
+    @Transient
+    private String nickname;//报名用户昵称
 
 }

@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 
+import com.wondersgroup.healthcloud.api.http.dto.activity.UserInfoDTO;
+import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,6 +210,33 @@ public class HealthActivityController {
             activityRepo.saveAndFlush(info);
         }
         entity.setMsg("删除成功");
+        return entity;
+    }
+
+    /**
+     * 根据活动activityId查询报名用户列表
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/userList", method = RequestMethod.POST)
+    public JsonListResponseEntity<UserInfoDTO> userList(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String activityId =  reader.readString("activityId", true);
+        int pageNum =  reader.readDefaultInteger("flag", 1);
+        int pageSize =  reader.readDefaultInteger("pageSize", 10);
+        JsonListResponseEntity<UserInfoDTO> entity = new JsonListResponseEntity<UserInfoDTO>();
+
+        List<HealthActivityDetail> details = infoService.getHealthActivityDetailsByActivityId(activityId,pageNum, pageSize);
+
+        int count = infoService.getHealthActivityDetailsCountByActivityId(activityId);
+        List<UserInfoDTO> infoDTOs = UserInfoDTO.infoDTO(details);
+        entity.setContent(infoDTOs, infoDTOs.size() == 10, null, String.valueOf((pageNum + 1)));
+        Map<String, Object> extras = new HashMap<String, Object>();
+        int ps = count / pageSize;
+        extras.put("total_pages", count % pageSize == 0 ? ps : ps + 1);
+        extras.put("total_elements", count);
+        entity.setExtras(extras);
+        entity.setMsg("查询成功");
         return entity;
     }
     

@@ -24,4 +24,9 @@ public interface HealthActivityInfoService {
     List<HealthActivityInfo> getHealthActivityInfos(String province, String city, String county, int pageNo, int pageSize);
     int getHealthActivityInfoCount(String province, String status, String title, String onlineTime, String offlineTime);
 
+
+
+    List<HealthActivityDetail> getHealthActivityDetailsByActivityId(String activityId, int pageNum, int pageSize);
+
+    int getHealthActivityDetailsCountByActivityId(String activityId);
 }

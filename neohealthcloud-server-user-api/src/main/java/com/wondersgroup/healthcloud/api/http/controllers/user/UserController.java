@@ -126,9 +126,9 @@ public class UserController {
     @WithoutToken
     @VersionRange
     @GetMapping(path = "/code")
-    public JsonResponseEntity<String> getVerificationCodes(@RequestParam String mobile,
+    public JsonResponseEntity<Map<String, String>> getVerificationCodes(@RequestParam String mobile,
                                                            @RequestParam(defaultValue = "0") Integer type) {
-        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         userAccountService.getVerifyCode(mobile, type);
         String msg = "短信验证码发送成功";
 
@@ -142,7 +142,12 @@ public class UserController {
             msg = "验证码已发送至" + mobile;
         }
         response.setMsg(msg);
-
+        //动态登录获取验证码时返回手机是否注册的状态
+        if(type == 2){
+            Map<String, String> data = Maps.newHashMap();
+            data.put("is_registe",userAccountService.checkAccount(mobile)?"1":"0");
+            response.setData(data);
+        }
         return response;
     }
 

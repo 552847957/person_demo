@@ -140,6 +140,7 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
         return getJt().queryForObject(sql,Integer.class);
     }
 
+
     @Override
     public List<HealthActivityInfo> getHealthActivityInfos(String province, String city, String county, int pageNo,
             int pageSize) {
@@ -161,6 +162,41 @@ public class HealthActivityInfoServiceImpl implements HealthActivityInfoService 
             list.add(new Gson().fromJson(new Gson().toJson(map), HealthActivityInfo.class));
         }
         return list;
+    }
+
+    /**
+     * 根据活动编号查询报名的用户列表
+     * @param activityId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public List<HealthActivityDetail> getHealthActivityDetailsByActivityId(String activityId, int pageNum, int pageSize) {
+        String sql = " select ad.id, ri.registerid,ri.nickname,date_format(ad.signtime,'%Y-%m-%d %T')  as signtime " +
+                " from  app_tb_healthactivity_detail ad left join " +
+                " app_tb_register_info  ri on ad.registerid = ri.registerid " +
+                " where ad.del_flag = 0 and ad.activityid = '" + activityId +"'" +
+                " limit " + (pageNum - 1) * pageSize + "," + (pageSize);
+
+        List<Map<String, Object>> resourceList = getJt().queryForList(sql);
+        List<HealthActivityDetail> list = Lists.newArrayList();
+        for (Map<String, Object> map : resourceList) {
+            list.add(new Gson().fromJson(new Gson().toJson(map), HealthActivityDetail.class));
+        }
+        return list;
+    }
+
+    /**
+     * 根据
+     * @param activityId
+     * @return
+     */
+    @Override
+    public int getHealthActivityDetailsCountByActivityId(String activityId) {
+        String sql = "select count(*) from app_tb_healthactivity_detail where del_flag = '0' " +
+                " and activityid = '"+activityId+"'";
+        return getJt().queryForObject(sql,Integer.class);
     }
 
 }
