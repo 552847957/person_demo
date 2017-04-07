@@ -563,7 +563,7 @@ public class UserController {
         String county = reader.readString("county", true);
         String town = reader.readString("town", true);
         String committee = reader.readString("committee", true);
-        String other = reader.readString("other", true);
+        String other = reader.readString("other", false);
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
         //如果包含表情则返回错误
