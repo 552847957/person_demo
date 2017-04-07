@@ -24,6 +24,7 @@ public class ExamController {
 
 	private static final String requestStationNearby = "%s/api/exam/station/nearby?";
 	private static final String requestStationDetail = "%s/api/exam/station/detail?id=%s";
+	private static final String requestStationSearch = "%s/api/exam/station/search?";
 
 	@Value("${internal.api.service.measure.url}")
 	private String host;
@@ -75,6 +76,34 @@ public class ExamController {
 		JsonResponseEntity<Object> result = new JsonResponseEntity<>(0, null);
 		result.setData(responseBody.get("data"));
 		return result;
+	}
+
+	@GetMapping(value = "station/search", produces = MediaType.APPLICATION_JSON_VALUE)
+	@WithoutToken
+	public JsonResponseEntity search(@RequestParam String kw,String areaCode, Double longitude, Double latitude,
+											Boolean need, Integer flag) {
+
+		String url = String.format(requestStationSearch, host) + "kw="+kw+"&areaCode=" + areaCode;
+		if (null != longitude && null != latitude) {
+			url += "&longitude=" + longitude + "&latitude=" + latitude;
+		}
+		if (need != null) {
+			url += "&need=" + need;
+		}
+		if (flag != null) {
+			url += "&flag=" + flag;
+		}
+
+		ResponseEntity<Map> response = template.getForEntity(url, Map.class);
+		if (response.getStatusCode().equals(HttpStatus.OK)) {
+			Map result = response.getBody();
+			int code = (int) result.get("code");
+			if (code == 101) {
+				return new JsonResponseEntity(101, (String) result.get("msg"));
+			}
+			return formatResponse(result);
+		}
+		return new JsonResponseEntity(500, "附近免费测量点获取失败");
 	}
 
 }
