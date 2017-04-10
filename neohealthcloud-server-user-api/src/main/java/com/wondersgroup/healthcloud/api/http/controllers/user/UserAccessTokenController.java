@@ -1,10 +1,13 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.wondersgroup.healthcloud.api.http.dto.user.AddressDTO;
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountAndSessionDTO;
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +46,8 @@ public class UserAccessTokenController {
     public JsonResponseEntity<UserAccountAndSessionDTO> fetchToken(
             @RequestHeader(required = false, name = "request-id") String requestId,
             @RequestParam String account,
-            @RequestParam String password) {
+            @RequestParam String password,
+            @RequestParam(defaultValue = "false") Boolean withAddress) {
 
         if (!(StringUtils.isNumeric(account) && account.length() == 11 && StringUtils.startsWith(account, "1"))) {
             throw new CommonException(1000, "手机号码格式不正确");
@@ -54,7 +58,7 @@ public class UserAccessTokenController {
 
         friendRelationshipService.login(account, body.getData().getUid());
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token ,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -85,12 +89,13 @@ public class UserAccessTokenController {
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> fastFetchToken(@RequestHeader(required = false, name = "request-id") String requestId,
                                                                        @RequestParam String mobile,
-                                                                       @RequestParam String verify_code) {
+                                                                       @RequestParam String verify_code,
+                                                                       @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.fastLogin(mobile, verify_code, false)));//改为false
         body.setMsg("登录成功");
         friendRelationshipService.login(mobile, body.getData().getUid());
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET, url = api/token/fast,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -108,11 +113,12 @@ public class UserAccessTokenController {
     public JsonResponseEntity<UserAccountAndSessionDTO> wechatLogin(
             @RequestHeader(required = false, name = "request-id") String requestId,
             @RequestParam String token,
-            @RequestParam String openid) {
+            @RequestParam String openid,
+            @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.wechatLogin(token, openid)));
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token/thirdparty/wechat,requestId=" + requestId + "&uid=" + body.getData().getUid() +
                 "&token=" + body.getData().getToken() + "&openid=" + openid);
         return body;
@@ -128,11 +134,12 @@ public class UserAccessTokenController {
     @RequestMapping(value = "/token/thirdparty/weibo", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> weiboLogin(@RequestHeader(required = false, name = "request-id") String requestId,
-                                                                   @RequestParam String token) {
+                                                                   @RequestParam String token,
+                                                                   @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.weiboLogin(token)));
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token/thirdparty/weibo,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -147,11 +154,12 @@ public class UserAccessTokenController {
     @RequestMapping(value = "/token/thirdparty/qq", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> qqLogin(@RequestHeader(required = false, name = "request-id") String requestId,
-                                                                @RequestParam String token) {
+                                                                @RequestParam String token,
+                                                                @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.qqLogin(token)));
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token/thirdparty/qq,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -169,11 +177,12 @@ public class UserAccessTokenController {
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> smyLogin(@RequestHeader(required = false, name = "request-id") String requestId,
                                                                  @RequestParam String token,
-                                                                 @RequestParam String username) {
+                                                                 @RequestParam String username,
+                                                                 @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.smyLogin(token, username)));
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token/thirdparty/smy,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -182,11 +191,12 @@ public class UserAccessTokenController {
     @RequestMapping(value = "/token/thirdparty/jkt", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<UserAccountAndSessionDTO> jktLogin(@RequestHeader(required = false, name = "request-id") String requestId,
-                                                                 @RequestParam String token) {
+                                                                 @RequestParam String token,
+                                                                 @RequestParam(defaultValue = "false") Boolean withAddress) {
         JsonResponseEntity<UserAccountAndSessionDTO> body = new JsonResponseEntity<>();
         body.setData(new UserAccountAndSessionDTO(userAccountService.guangzhouLogin(token)));
         body.setMsg("登录成功");
-        attachInfo(body);
+        attachInfo(body,withAddress);
         logger.info("GET url = api/token/thirdparty/jkt,requestId=" + requestId + "&uid=" + body.getData().getUid());
         return body;
     }
@@ -202,8 +212,16 @@ public class UserAccessTokenController {
     }
 
 
-    private void attachInfo(JsonResponseEntity<UserAccountAndSessionDTO> body) {
-        body.getData().setInfo(userController.getInfo(body.getData().getUid()));
+    private void attachInfo(JsonResponseEntity<UserAccountAndSessionDTO> body,Boolean withAddress) {
+        if(withAddress==null){
+            withAddress = false;
+        }
+        UserAccountDTO userAccountDTO = userController.getInfo(body.getData().getUid());
+        if(withAddress){
+            AddressDTO addressDTO = userController.getAddressDto(body.getData().getUid());
+            userAccountDTO.setAddressDTO(addressDTO);
+        }
+        body.getData().setInfo(userAccountDTO);
     }
 
 }

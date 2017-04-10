@@ -764,4 +764,21 @@ public class UserController {
         body.setMsg("激活成功");
         return body;
     }
+
+    /**
+     * 根据用户registerid获取地址信息
+     * @param uid
+     * @return
+     */
+    public AddressDTO getAddressDto(String uid) {
+        AddressDTO addressDTO = null;
+        Address address = userService.getAddress(uid);
+        if (address != null) {
+            addressDTO = new AddressDTO(address, dictCache);
+            if (addressDTO.getDisplay() == null) {
+                addressDTO = null;
+            }
+        }
+        return addressDTO;
+    }
 }
