@@ -42,16 +42,8 @@ public class DiabetesAssessmentController {
     public JsonResponseEntity kidney(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
         int result = assessmentService.kidney(assessment);
-        switch (result){
-            case 0:
-                entity.setData(ImmutableMap.of("result","您目前尚未出现肾脏病变症状，继续保持"));
-                break;
-            case 1:
-                entity.setData(ImmutableMap.of("result","您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意"));
-                break;
-            default:
-                entity.setData(ImmutableMap.of("result","您很有可能已经患有糖尿病肾病了，请及时咨询医生获得专业建议"));
-        }
+        entity.setData(ImmutableMap.of("result",result == 0?"您本次评估结果尚无糖尿病肾病风险，请继续维持健康的生活方式，并定期体检。":
+                "您本次评估结果具有糖尿病肾病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
         return entity;
     }
 
@@ -65,8 +57,8 @@ public class DiabetesAssessmentController {
     public JsonResponseEntity eye(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
         int result = assessmentService.eye(assessment);
-        entity.setData(ImmutableMap.of("result",result == 0?"恭喜您，暂未出现糖尿病眼病的症状，请您继续保持":
-                "您目前出现一部分糖尿病眼部症状，请及时咨询医生获得专业建议"));
+        entity.setData(ImmutableMap.of("result",result == 0?"您本次评估结果尚无糖尿病眼病风险，请继续维持健康的生活方式，并定期体检。":
+                "您本次评估结果具有糖尿病眼病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
         return entity;
     }
 
@@ -80,16 +72,8 @@ public class DiabetesAssessmentController {
     public JsonResponseEntity foot(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
         int result = assessmentService.foot(assessment);
-        switch (result){
-            case 0:
-                entity.setData(ImmutableMap.of("result","您不属于糖尿病足的高危人群，恭喜您，请继续保持"));
-                break;
-            case 1:
-                entity.setData(ImmutableMap.of("result","您属于轻度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业建议"));
-                break;
-            default:
-                entity.setData(ImmutableMap.of("result","您属于高度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业意见"));
-        }
+        entity.setData(ImmutableMap.of("result",result == 0?"您本次评估结果尚无糖尿病足病风险，请继续维持健康的生活方式，并定期体检。":
+                "您本次评估结果具有糖尿病足病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
         return entity;
     }
 

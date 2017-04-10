@@ -34,6 +34,7 @@ public class DiabetesAssessment {
     private Integer isSterol; //是否有一过性类固醇糖尿病病史者
     private Integer isPCOS; //是否是多囊卵巢综合征（PCOS）患者
     private Integer isMedicineTreat; //是否长期接受抗精神病药物和（或）抗抑郁症药物治疗的患者
+
     private Integer isHistory; //糖尿病史是否超过5年
     private Integer isEyeHistory; //是否有糖尿病眼病史
     private Integer isPressureHistory; //是否有高血压史
@@ -41,12 +42,15 @@ public class DiabetesAssessment {
     private Integer isEdema; //是否有反复眼睑或下肢浮肿
     private Integer isTired; //是否经常感到乏力、易疲劳
     private Integer isCramp; //是否经常感到腰背酸痛，易抽经
+
     private Integer isEyeSight; //是否有渐进性视力减退
     private Integer isEyeFuzzy; //是否视物不清，如隔云烟
     private Integer isEyeShadow; //是否眼前有小黑影漂浮
     private Integer isEyeGhosting; //是否看东西出现重影
     private Integer isEyeFlash;//是否看东西有闪光感
-    private Double  hbac; //最近一次糖化血红蛋白
+
+
+    private Integer isHbac; // 最近一次血红蛋白(HBA1C)>7.0%
     private Integer isSmoking; //是否抽烟
     private Integer isEyeProblem; //是否有视力问题
     private Integer isKidney; //是否有肾脏疾病
@@ -56,8 +60,11 @@ public class DiabetesAssessment {
     private Integer isDeformity; //下肢或者足部是否存在畸形
     private Integer isFootBeat; //足部动脉是否搏动
     private Integer isShinBeat; //胫后动脉（内侧踝骨下方可触及）是否搏动
+
+    private Integer isNormal;//以上症状全无
+
     private Integer type;//类型：1、患病风险评估;2、肾病症状评估;3、眼病症状评估;4、足部风险评估
-    private Integer result;//评估结果: 0、正常;  1、type1：高危/type2:满足1-2项/type3:出现症状/type4:轻度; 2、type2:满足3项及以上/type4:属于高度
+    private Integer result;//评估结果: 0、正常;  1、异常
     @Column(name = "del_flag")
     private String delFlag;
     @Column(name = "create_date")
