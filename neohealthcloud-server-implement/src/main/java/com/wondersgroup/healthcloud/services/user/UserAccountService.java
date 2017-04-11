@@ -58,4 +58,5 @@ public interface UserAccountService {
 
     Boolean childVerificationSubmit(String id,String childId, String name, String idCard, String idCardFile, String birthCertFile);
 
+    AccessToken getAccessToken(String sessionToken);
 }
