@@ -16,5 +16,5 @@ package com.wondersgroup.healthcloud.common.http.support.version;
  */
 public class VersionConstant {
     public static final String min = "3.0";
-    public static final String max = "4.0";
+    public static final String max = "4.1";
 }
