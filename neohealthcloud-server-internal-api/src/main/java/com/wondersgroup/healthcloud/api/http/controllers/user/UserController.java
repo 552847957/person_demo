@@ -101,8 +101,7 @@ public class UserController {
                     StringUtils.isNotBlank(address.getProvince()) &&
                     StringUtils.isNotBlank(address.getCity()) &&
                     StringUtils.isNotBlank(address.getCounty()) &&
-                    StringUtils.isNotBlank(address.getTown()) &&
-                    StringUtils.isNotBlank(address.getCommittee())){
+                    StringUtils.isNotBlank(address.getTown())){
                 judgeAddressIsComplete = true;
             }
         }catch (Exception e){
