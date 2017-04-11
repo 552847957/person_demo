@@ -562,7 +562,7 @@ public class UserController {
         String city = reader.readString("city", false);
         String county = reader.readString("county", false);
         String town = reader.readString("town", false);
-        String committee = reader.readString("committee", false);
+        String committee = reader.readString("committee", true);
         String other = reader.readString("other", true);
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
