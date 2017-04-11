@@ -750,7 +750,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         return getAccessToken(session);
     }
 
-    //    @Override
+    @Override
     public AccessToken getAccessToken(String session) {
         JsonNode result = httpWdUtils.getSession(session);
         Boolean success = result.get("success").asBoolean();
