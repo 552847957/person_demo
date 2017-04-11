@@ -558,20 +558,16 @@ public class UserController {
     public JsonResponseEntity<AddressDTO> updateAddress(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String id = reader.readString("uid", false);
-        String province = reader.readString("province", true);
-        String city = reader.readString("city", true);
-        String county = reader.readString("county", true);
-        String town = reader.readString("town", true);
-        String committee = reader.readString("committee", true);
+        String province = reader.readString("province", false);
+        String city = reader.readString("city", false);
+        String county = reader.readString("county", false);
+        String town = reader.readString("town", false);
+        String committee = reader.readString("committee", false);
         String other = reader.readString("other", true);
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
         //如果包含表情则返回错误
-        if(StringUtils.isBlank(other)){
-            body.setCode(1091);
-            body.setMsg("请填写地址信息");
-            return body;
-        }else{
+        if(StringUtils.isNotBlank(other)){
             String cleanName = EmojiUtils.cleanEmoji(other);
             if (other.length() > cleanName.length()) {
                 body.setCode(1090);
