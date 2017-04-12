@@ -333,7 +333,7 @@ public class ApiSpecHomeController {
         //家庭健康栏目
         data.put("familyHealth", familyHealth);
 
-
+       //资讯
         List<NewsArticleListAPIEntity> articleForFirst = null;
         try {
             articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(mainArea, 0, 10);
@@ -341,7 +341,8 @@ public class ApiSpecHomeController {
             logger.error(" msg " + e.getMessage());
         }
         articleForFirst = CollectionUtils.isEmpty(articleForFirst) ? new ArrayList<NewsArticleListAPIEntity>(0) : articleForFirst;
-        data.put("information", articleForFirst);
+
+        data.put("information", articleForFirst.size() > 3 ? articleForFirst.subList(0,3):articleForFirst);
 
         //云头条
         CloudTopLineDTO cloudTopLine = null;
@@ -360,4 +361,5 @@ public class ApiSpecHomeController {
         result.setMsg("获取数据成功");
         return result;
     }
+
 }
