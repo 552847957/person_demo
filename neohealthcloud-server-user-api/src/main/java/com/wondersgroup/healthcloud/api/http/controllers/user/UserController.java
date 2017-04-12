@@ -561,11 +561,18 @@ public class UserController {
         String province = reader.readString("province", false);
         String city = reader.readString("city", false);
         String county = reader.readString("county", false);
-        String town = reader.readString("town", false);
+        String town = reader.readString("town", true);
         String committee = reader.readString("committee", true);
         String other = reader.readString("other", true);
 
         JsonResponseEntity<AddressDTO> body = new JsonResponseEntity<>();
+
+        if("310000000000".equals(province) && StringUtils.isBlank(town)){
+            body.setCode(1091);
+            body.setMsg("请选择街道信息");
+            return body;
+        }
+
         //如果包含表情则返回错误
         if(StringUtils.isNotBlank(other)){
             String cleanName = EmojiUtils.cleanEmoji(other);
