@@ -86,6 +86,7 @@ public class UserController {
 
     /**
      * 根据用户登录token判断地址是否完整(用于慢病H5页面判断)
+     * 只有上海市的需要必填到街道 外省市的必填到省市区
      * @param token
      * @return
      */
@@ -93,16 +94,13 @@ public class UserController {
     public JsonResponseEntity<Map<String, String>> judgeAddressIsComplete(@RequestParam(required = true) String token){
         JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         Map<String, String> map = Maps.newHashMap();
-        Boolean judgeAddressIsComplete = false;
+        Boolean judgeAddressIsComplete = true;
         try {
             AccessToken accessToken = userAccountService.getAccessToken(token);
             Address address = userService.getAddress(accessToken.getUid());
-            if(address !=null &&
-                    StringUtils.isNotBlank(address.getProvince()) &&
-                    StringUtils.isNotBlank(address.getCity()) &&
-                    StringUtils.isNotBlank(address.getCounty()) &&
-                    StringUtils.isNotBlank(address.getTown())){
-                judgeAddressIsComplete = true;
+            if(address == null ||
+                    StringUtils.isBlank(address.getProvince())){
+                judgeAddressIsComplete = false;
             }
         }catch (Exception e){
             response.setCode(3104);
