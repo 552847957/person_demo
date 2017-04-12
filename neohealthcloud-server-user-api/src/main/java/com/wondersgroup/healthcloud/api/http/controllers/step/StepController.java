@@ -169,7 +169,7 @@ public class StepController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST)
-	@VersionRange
+	@VersionRange(to = "4.0.2")
 	public Object save(@RequestBody Map<String, Object> request) {
 		return stepCountService.save(request);
 	}
@@ -180,8 +180,8 @@ public class StepController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/save",method = RequestMethod.POST)
-	@VersionRange(from="4.1")
+	@RequestMapping(method = RequestMethod.POST)
+	@VersionRange(from="4.1",to="4.1")
 	public Object saveAll(@RequestBody Map<String, Object> request) {
 		return stepCountService.saveAll(request);
 	}
