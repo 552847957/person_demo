@@ -103,5 +103,15 @@ public class StepCountService {
 		String url = host + "/api/stepcount";
 		return restTemplate.postForObject(url, request, JsonNode.class);
 	}
-
+	/**
+	 * 更新计步数据(设备上传总步数)
+	 *
+	 * @param request
+	 * @return
+	 */
+	public JsonNode saveAll(Map<String, Object> request) {
+		RestTemplate restTemplate = new RestTemplate();
+		String url = host + "/api/stepcount/saveAll";
+		return restTemplate.postForObject(url, request, JsonNode.class);
+	}
 }

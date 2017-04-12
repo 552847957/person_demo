@@ -174,4 +174,16 @@ public class StepController {
 		return stepCountService.save(request);
 	}
 
+	/**
+	 * 更新今日计步数据(每次传总量)
+	 *
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/save",method = RequestMethod.POST)
+	@VersionRange(from="4.1")
+	public Object saveAll(@RequestBody Map<String, Object> request) {
+		return stepCountService.saveAll(request);
+	}
+
 }
