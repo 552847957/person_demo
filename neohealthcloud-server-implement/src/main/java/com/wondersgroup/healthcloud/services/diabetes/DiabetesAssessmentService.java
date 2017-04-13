@@ -10,12 +10,6 @@ import java.util.Map;
  * Created by zhuchunliu on 2016/12/6.
  */
 public interface DiabetesAssessmentService {
-    /**
-     * 患病风险评估
-     * @param assessment
-     * @return
-     */
-    Integer sicken(DiabetesAssessment assessment);
 
     /**
      * 肾病风险评估
@@ -68,4 +62,12 @@ public interface DiabetesAssessmentService {
 
     Map<String, Object> getLastAssessmentResult(String uid);
 
+    List<DiabetesAssessment> getAssessmentList(String registerid, Integer type ,Integer pageNum, int pageSize);
+
+    /**
+     * 统计用户每种类型评估数
+     * @param registerid
+     * @return
+     */
+    List<Map<String,Object>> getNumByTypeAndRegisterid(String registerid);
 }

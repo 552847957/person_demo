@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRe
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.dto.DiabetesAssessmentDTO;
+import com.wondersgroup.healthcloud.utils.PageFactory;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -58,24 +62,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
 
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
-    /**
-     * 患病风险评估
-     * @param assessment
-     * @return
-     */
-    @Override
-    public Integer sicken(DiabetesAssessment assessment) {
-        assessment.setId(IdGen.uuid());
-        assessment.setType(1);
-        assessment.setResult(this.sickenAssement(assessment));
-        assessment.setCreateDate(new Date());
-        assessment.setUpdateDate(new Date());
-        assessment.setDelFlag("0");
-        assessmentRepo.save(assessment);
 
-        tubeRelationService.getTubeRelation(assessment.getRegisterid(),null);
-        return assessment.getResult();
-    }
 
     /**
      * 肾病风险评估
@@ -249,30 +236,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
     }
 
 
-    private Integer sickenAssement(DiabetesAssessment assessment){
-        if(assessment.getAge() >= 40 || 1== assessment.getIsIGR()
-                || 1 == assessment.getIsSit() || 1 == assessment.getIsFamily() || (2 == assessment.getGender() && 1 == assessment.getIsLargeBaby())
-                || 1 == assessment.getIsHighPressure() || 1 == assessment.getIsBloodFat() || 1== assessment.getIsArteriesHarden()
-                || 1 == assessment.getIsSterol() || (2 == assessment.getGender() && 1 == assessment.getIsPCOS()) || 1 == assessment.getIsMedicineTreat()){
-            return 1;
-        }
-        if(null != assessment.getHeight() && null != assessment.getWeight()){//待定
-            DecimalFormat d =new DecimalFormat("##.00");
-            Double value = Double.valueOf(d.format(assessment.getWeight()/Math.pow((assessment.getHeight()/100), 2)));
-            if(value >= 24 ){
-                return 1;
-            }
-        }
-        if(null != assessment.getGender() && null != assessment.getWaist()){
-            if(1 == assessment.getGender() && assessment.getWaist() >= 90){
-                return 1;
-            }
-            if(2 == assessment.getGender() && assessment.getWaist() >= 85){
-                return 1;
-            }
-        }
-        return 0;
-    }
+
 
     @Override
     public Map<String, Object> getLastAssessmentResult(String uid) {
@@ -332,6 +296,29 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         }
         return null;
     }
+
+    @Override
+    public List<DiabetesAssessment> getAssessmentList(String registerid, Integer type , Integer pageNum, int pageSize) {
+        Pageable pageable  = PageFactory.create(pageNum,pageSize,"createDate:desc");
+        Page page = assessmentRepo.getAssessmentList(registerid,type,pageable);
+        return page.getContent();
+    }
+
+    /**
+     * 统计用户每种类型评估数
+     * @param registerid
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getNumByTypeAndRegisterid(String registerid) {
+        String sql = String.format(
+                "select count(1) as num,type from app_tb_diabetes_assessment " +
+                        " where registerid = '%s' and del_flag = 0 GROUP BY registerid,type",registerid);
+
+
+        return jdbcTemplate.queryForList(sql);
+    }
+
 
 
     @Data

@@ -1,14 +1,18 @@
 package com.wondersgroup.healthcloud.jpa.repository.diabetes;
 
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2016/12/6.
@@ -24,4 +28,10 @@ public interface DiabetesAssessmentRepository extends JpaRepository<DiabetesAsse
     @Query(value = "update DiabetesAssessment set hasRemind = 1 , updateDate = ?2 where type = 1 and registerid in ?1")
     void updateRemindByRegister(List ids, Date date);
 
+    @Query("select count(1) from DiabetesAssessment a where a.registerid = ?1 and a.type = ?2 and a.delFlag = '0'")
+    Integer getNumByTypeAndRegisterid(String registerid, Integer type);
+
+
+    @Query("select a from DiabetesAssessment a where a.registerid = ?1 and a.type = ?2 and a.delFlag = '0'")
+    Page getAssessmentList(String registerid, Integer type, Pageable pageable);
 }

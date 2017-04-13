@@ -407,4 +407,14 @@ public class AssessmentServiceImpl implements AssessmentService {
         return map;
     }
 
+    /**
+     * 根据用户id获取评估的数量
+     * @param uid
+     * @return
+     */
+    @Override
+    public Integer getAssessNum(String uid){
+        return assessmentRepository.getAssessNum(uid);
+    }
+
 }
