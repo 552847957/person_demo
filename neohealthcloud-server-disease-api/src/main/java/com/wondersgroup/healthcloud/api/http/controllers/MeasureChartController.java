@@ -48,8 +48,8 @@ public class MeasureChartController {
             try {
                 StringBuffer str = new StringBuffer();
                 str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore);
-//                String url = String.format(requestHistoryByArrayDay, host, str);
-                String url = "http://127.0.0.1:8080/api/measure/3.0/getHistoryByArrayDay?registerId=ff80808154177829015417bbe1970020&sex=1&dayAmount=2";
+                String url = String.format(requestHistoryByArrayDay, host, str);
+//                String url = "http://127.0.0.1:8080/api/measure/3.0/getHistoryByArrayDay?registerId=ff80808154177829015417bbe1970020&sex=1&dayAmount=2";
 
                 ResponseEntity<Map> response = buildGetEntity(url, Map.class);
                 if (response.getStatusCode().equals(HttpStatus.OK)) {
