@@ -45,12 +45,25 @@ public class MeasureController {
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
     private static final String recentMeasureStatisticalData = "%s/api/measure/3.0/recentStatisticalData?%s";
 
+    private static final String requestModifyPath = "%s/api/measure/3.0/modify/%s";
     private static final String queryNearestPath = "%s/api/measure/%s/nearest?%s";
     private static final String bmiH5ChartPath = "%s/api/measure/bmi/chart?%s";
     private static final String historyHba1cPath = "%s/api/measure/history/hba1c?%s";
 
     private RestTemplate template = new RestTemplate();
 
+    /**
+     *
+     * @param type 0－BMI(身高体重)
+     *             1－血氧
+     *             2－血压
+     *             3－血糖
+     *             4－记步
+     *             5－腰臀比
+     *             10-糖化血红蛋白
+     * @param paras
+     * @return
+     */
     @VersionRange
     @PostMapping("upload/{type}")
     public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
@@ -78,6 +91,48 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "数据上传失败");
     }
+
+    /**
+     * 修改测量数据
+     * @param type 0－BMI(身高体重)
+     *             1－血氧
+     *             2－血压
+     *             3－血糖
+     *             4－记步
+     *             5－腰臀比
+     *             10-糖化血红蛋白
+     * @param paras
+     * @return
+     */
+    @VersionRange
+    @PostMapping("modify/{type}")
+    public JsonResponseEntity<?> updateMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
+        try {
+            String registerId = (String) paras.get("registerId");
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
+
+            String personCard = info.getPersoncard();
+            if(personCard != null){
+                paras.put("personCard", personCard);
+            }
+
+            String url = String.format(requestModifyPath, host, type);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            headers.add("access-token", "version3.0");
+            ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "数据更新成功");
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("体征数据更新失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "数据更新失败");
+    }
+
+
 
     @RequestMapping(value = "/lastWeekHistory", method = RequestMethod.GET)
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
