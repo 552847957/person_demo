@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,6 +45,10 @@ public class MeasureController {
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
     private static final String recentMeasureStatisticalData = "%s/api/measure/3.0/recentStatisticalData?%s";
     private static final String requestModifyPath = "%s/api/measure/3.0/modify/%s";
+
+    private static final String queryNearestPath = "%s/api/measure/%s/nearest?%s";
+    private static final String bmiH5ChartPath = "%s/api/measure/bmi/chart?%s";
+    private static final String historyHba1cPath = "%s/api/measure/history/hba1c?%s";
 
     private RestTemplate template = new RestTemplate();
 
@@ -309,6 +314,101 @@ public class MeasureController {
         }
         return result;
     }
+
+
+    /**
+     * 查询最新的一条数据
+     * @param type
+     * @param registerId
+     * @param personCard
+     * @return
+     */
+    @VersionRange
+    @GetMapping("{type}/nearest")
+    public JsonResponseEntity<?> queryNearest(@PathVariable int type,String registerId, @RequestParam(defaultValue = "") String personCard) {
+        try {
+
+            StringBuffer param = new StringBuffer();
+            param.append("registerId="+registerId).append("&personCard="+personCard);
+
+            String url = String.format(queryNearestPath, host,type,param);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+    /**
+     * BMI图表H5
+     * @param registerId
+     * @param personCard
+     * @param date  "2017-04-15"
+     * @return
+     */
+    @VersionRange
+    @GetMapping("chart/bmi")
+    public JsonResponseEntity<?> chartBmi(
+            String registerId,
+            @RequestParam(required = false)String personCard,
+            String date,
+            @RequestParam(defaultValue = "true") Boolean isBefore,
+            @RequestParam(defaultValue = "5") Integer dayAmount){
+        try {
+
+            StringBuffer param = new StringBuffer();
+            param.append("registerId="+registerId).append("&personCard="+personCard)
+                    .append("&date="+date).append("&isBefore="+isBefore).append("&dayAmount="+dayAmount);
+            String url = String.format(bmiH5ChartPath, host,param);
+
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+    /**
+     * 糖化血红蛋白历史数据分页
+     * @param registerId
+     * @param personCard
+     * @param flag 页数 从0 开始
+     * @param pageSize 每页条数
+     * @return
+     */
+    @VersionRange
+    @GetMapping("history/hba1c")
+    public JsonResponseEntity<?> queryHba1cHistoryData(@RequestParam(defaultValue = "0") Integer flag,
+                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                        @RequestParam String registerId,String personCard) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append("registerId="+registerId).append("&personCard="+personCard)
+                    .append("&flag="+flag).append("&pageSize="+pageSize);
+            String url = String.format(historyHba1cPath, host,sb.toString());
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+
 
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
         RestTemplate template = new RestTemplate();
