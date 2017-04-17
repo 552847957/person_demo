@@ -57,6 +57,13 @@ public class FriendInviteService {
 	public Map<String, Object> inviteNew(String userId, String mobileNum) {
 		Map<String, Object> map = new HashMap<>();
 		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
+		FriendInvite inviteUser = friendInviteRepository.findByMobileNum(mobileNum);
+         if(null != inviteUser){
+			 map.put("code", 1001);
+			 map.put("msg", "用户已经被邀请过了");
+			 return map;
+		 }
+
 		if (user != null) {
 			if (user.getRegisterid().equals(userId)) {//自己不能领自己邀请的金币
 				map.put("code", 1001);
