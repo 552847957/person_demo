@@ -36,6 +36,8 @@ public class ReportScreeningDTO {
         private BigDecimal dgtt;//dgtt2h静脉血糖
         @JsonProperty("filterResult")
         private String reportResult;//筛查结果  1:糖尿病、2：糖尿病前期、3：血糖正常
+        @JsonProperty("doctorName")
+        private String doctorName;//筛查医生
     }
 
     @Data

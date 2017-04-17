@@ -8,7 +8,6 @@ import com.wondersgroup.healthcloud.api.http.dto.ReportScreeningEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.RequestPostMissingKeyException;
 import com.wondersgroup.healthcloud.dict.DictCache;
-import com.wondersgroup.healthcloud.jpa.entity.diabetes.BaseInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.BaseInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhuchunliu on 2016/12/13.
@@ -191,5 +191,26 @@ public class ReportController {
             list.add(entity);
         }
         return new JsonResponseEntity<>(0,null ,list);
+    }
+
+    /**
+     * 随访报告
+     * @return
+     */
+    @GetMapping("/num")
+    public JsonResponseEntity<Map<String,Object>> num(
+            @RequestParam(name="uid",required = true) String uid){
+
+        RegisterInfo  registerInfo = registerInfoRepo.findOne(uid);
+        if(null == registerInfo){
+            return new JsonResponseEntity(3001,"用户不存在" ,null);
+        }
+        if(StringUtils.isEmpty(registerInfo.getPersoncard())){
+            return new JsonResponseEntity(3002,"用户尚未进行实名认证" ,null);
+        }
+
+        Map<String,Object> map = diabetesService.getReportCount("01",registerInfo.getPersoncard());
+
+        return new JsonResponseEntity<>(0,null ,map);
     }
 }

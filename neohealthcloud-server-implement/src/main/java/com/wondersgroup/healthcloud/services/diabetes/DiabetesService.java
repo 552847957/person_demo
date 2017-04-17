@@ -6,6 +6,7 @@ import lombok.Data;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 调用web端慢病接口方法
@@ -55,5 +56,13 @@ public interface DiabetesService {
      * 随访报告
      */
     public List<ReportFollowDTO> getReportFollowList(String cardType,String cardNumber);
+
+    /**
+     * 获取用户报告数
+     * @param cardType
+     * @param cardNumber
+     * @return
+     */
+    Map<String,Object> getReportCount(String cardType, String cardNumber);
 }
 
