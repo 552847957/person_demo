@@ -44,7 +44,8 @@ public class DiabetesServiceImpl implements DiabetesService {
     private final static String REPORT_INSPECT_DETAIL = "/api/inspection/report";//检查报告详情
     private final static String REPORT_FOLLOW_LIST = "/api/diabetes/follow";//随访报告列表
     private final static String REPORT_COUNT = "/api/user/reports/num";//随访报告数目
-
+    private final static String FOLLOW_PLAN_LIST = "/api/user/followplan";//最近一次随访计划
+    
     @Value("${diabetes.web.url}")
     private String url;
 
@@ -279,7 +280,30 @@ public class DiabetesServiceImpl implements DiabetesService {
         }
         return null;
     }
-
+    
+    /**
+     * 获取最近一次随访计划
+     */
+    @Override
+    public FollowPlanDTO getFollowPlanList(String cardType, String cardNumber) {
+        Request request = new RequestBuilder().get().url(url+DiabetesServiceImpl.FOLLOW_PLAN_LIST).
+                params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode jsonNode = response.convertBody();
+        if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
+            try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("随访计划为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), FollowPlanDTO.class);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
+        }
+        return null;
+    }
     public static void main(String[] args){
         DiabetesServiceImpl diabetesService = new DiabetesServiceImpl();
         diabetesService.url = "http://10.1.93.111:8380/hds";

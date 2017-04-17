@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.diabetes;
 
 import com.wondersgroup.healthcloud.services.diabetes.dto.*;
+
 import lombok.Data;
 
 import java.io.IOException;
@@ -64,5 +65,13 @@ public interface DiabetesService {
      * @return
      */
     Map<String,Object> getReportCount(String cardType, String cardNumber);
+    
+    /**
+     * 随访计划频度展示
+     * @param cardType
+     * @param cardNumber
+     * @return
+     */
+    public FollowPlanDTO getFollowPlanList(String cardType, String cardNumber);
 }
 
