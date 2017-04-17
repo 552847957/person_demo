@@ -52,6 +52,13 @@ public class FriendInviteService {
 		Map<String, Object> map = new HashMap<>();
 		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
 		if (user != null) {
+			if(user.getRegisterid().equals(userId)){//自己不能领自己的金币
+				map.put("code", 1003);
+				map.put("msg", "本人分享的链接不能领取金币");
+				return map;
+			}
+
+
 			// 老用户走的流程
 			boolean isGet = goldRecordService.isGet(user.getRegisterid(), GoldRecordTypeEnum.INVITATION_OLD);
 			if (!isGet) {
