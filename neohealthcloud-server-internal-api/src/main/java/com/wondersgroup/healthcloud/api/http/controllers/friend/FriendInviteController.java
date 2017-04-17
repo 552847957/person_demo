@@ -22,7 +22,8 @@ public class FriendInviteController {
 		JsonResponseEntity<String> responseEntity = new JsonResponseEntity<>();
 		boolean varify = code == null || friendInviteService.verifySmsCode(mobileNum, code);
 		if (varify) {
-			Map<String, Object> map = friendInviteService.invite(userId, mobileNum);
+//			Map<String, Object> map = friendInviteService.invite(userId, mobileNum);
+			Map<String, Object> map = friendInviteService.inviteNew(userId, mobileNum);
 			return map;
 		} else {
 			responseEntity.setCode(1003);

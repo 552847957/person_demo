@@ -48,17 +48,54 @@ public class FriendInviteService {
 		return friendInviteRepository.findByUserIdAndStatus(userId, 1);
 	}
 
+	/**
+	 * 邀请用户
+	 * @param userId 发送链接用户ID
+	 * @param mobileNum 被邀请用户手机号
+	 * @return
+	 */
+	public Map<String, Object> inviteNew(String userId, String mobileNum) {
+		Map<String, Object> map = new HashMap<>();
+		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
+		if (user != null) {
+			if (user.getRegisterid().equals(userId)) {//自己不能领自己邀请的金币
+				map.put("code", 1003);
+				map.put("msg", "本人分享的链接不能领取金币");
+				return map;
+			} else {
+				map.put("code", 1001);
+				map.put("msg", "今日不能再领取更多红包了");
+				return map;
+			}
+
+		} else {
+			// 新用户走的流程
+			FriendInvite friendInvite = friendInviteRepository.findByMobileNum(mobileNum);
+			if (friendInvite != null) {
+				map.put("code", 1002);
+				map.put("msg", "使用以下手机登陆领取更多红包");
+				return map;
+			}
+
+			friendInvite = new FriendInvite();
+			friendInvite.setId(IdGen.uuid());
+			friendInvite.setMobileNum(mobileNum);
+			friendInvite.setStatus(0);
+			friendInvite.setUserId(userId);
+			friendInvite.setCreateTime(new Date());
+			friendInvite.setUpdateTime(new Date());
+			friendInviteRepository.save(friendInvite);
+
+			map.put("code", 0);
+			map.put("data", 100);
+			return map;
+		}
+	}
+
 	public Map<String, Object> invite(String userId, String mobileNum) {
 		Map<String, Object> map = new HashMap<>();
 		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
 		if (user != null) {
-			if(user.getRegisterid().equals(userId)){//自己不能领自己的金币
-				map.put("code", 1003);
-				map.put("msg", "本人分享的链接不能领取金币");
-				return map;
-			}
-
-
 			// 老用户走的流程
 			boolean isGet = goldRecordService.isGet(user.getRegisterid(), GoldRecordTypeEnum.INVITATION_OLD);
 			if (!isGet) {
