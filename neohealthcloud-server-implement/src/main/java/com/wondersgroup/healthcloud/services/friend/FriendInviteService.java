@@ -59,12 +59,12 @@ public class FriendInviteService {
 		RegisterInfo user = registerInfoRepository.findByMobile(mobileNum);
 		if (user != null) {
 			if (user.getRegisterid().equals(userId)) {//自己不能领自己邀请的金币
-				map.put("code", 1003);
+				map.put("code", 1001);
 				map.put("msg", "本人分享的链接不能领取金币");
 				return map;
 			} else {
 				map.put("code", 1001);
-				map.put("msg", "今日不能再领取更多红包了");
+				map.put("msg", "已注册用户不能领取金币");
 				return map;
 			}
 
