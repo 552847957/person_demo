@@ -2,9 +2,11 @@ package com.wondersgroup.healthcloud.services.remind.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
+import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindTime;
+import com.wondersgroup.healthcloud.jpa.repository.remind.CommonlyUsedMedicineRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.RemindItemRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.RemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.RemindTimeRepository;
@@ -35,6 +37,9 @@ public class RemindServiceImpl implements RemindService {
 
     @Autowired
     private RemindTimeRepository remindTimeRepo;
+
+    @Autowired
+    private CommonlyUsedMedicineRepository commonlyUsedMedicineRepo;
 
     @Override
     public List<RemindDTO> list(String userId, int pageNo, int pageSize) {
@@ -68,8 +73,20 @@ public class RemindServiceImpl implements RemindService {
     @Transactional
     @Override
     public int saveAndUpdate(Remind remind, RemindItem[] remindItems, RemindTime[] remindTimes, RemindItem[] delRemindItems, RemindTime[] delRemindTimes) {
-
         try {
+            HashMap<String, CommonlyUsedMedicine> cumMap = new HashMap<>();
+            if (StringUtils.isNotEmpty(remind.getUserId())) {
+                // 获取用户常用药品列表
+                List<CommonlyUsedMedicine> cums = commonlyUsedMedicineRepo.findByUserId(remind.getUserId());
+                if (cums != null && cums.size() > 0) {
+                    for (CommonlyUsedMedicine cum : cums) {
+                        cumMap.put(cum.getMedicineId(), cum);
+                    }
+                }
+            } else {
+                return -1;
+            }
+
             // 批量删除药品
             if (delRemindItems != null && delRemindItems.length > 0) {
                 remindItemRepo.deleteInBatch(Arrays.asList(delRemindItems));
@@ -123,9 +140,26 @@ public class RemindServiceImpl implements RemindService {
                     remindTime.setUpdateTime(now);
                 }
             }
-            remindItemRepo.save(Arrays.asList(remindItems));
-            remindTimeRepo.save(Arrays.asList(remindTimes));
-            remindRepo.save(remind);
+
+            List<CommonlyUsedMedicine> saveCUMs = new ArrayList<>();
+            for (RemindItem ri : remindItems) {
+                CommonlyUsedMedicine cum = cumMap.get(ri.getMedicineId());
+                CommonlyUsedMedicine tmpCUM = new CommonlyUsedMedicine(ri);
+                if (cum != null && StringUtils.isNotEmpty(cum.getId())) {
+                    tmpCUM.setUpdateTime(now);
+                } else {
+                    tmpCUM.setId(IdGen.uuid());
+                    tmpCUM.setUserId(remind.getUserId());
+                    tmpCUM.setDelFlag("0");
+                    tmpCUM.setCreateTime(now);
+                    tmpCUM.setUpdateTime(now);
+                }
+                saveCUMs.add(tmpCUM);
+            }
+            remindItemRepo.save(Arrays.asList(remindItems));// 保存药品信息
+            remindTimeRepo.save(Arrays.asList(remindTimes));// 保存时间信息
+            remindRepo.save(remind);// 保存用药提醒
+            commonlyUsedMedicineRepo.save(saveCUMs);// 保存常用药品
             return 0;
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));

@@ -3,12 +3,14 @@ package com.wondersgroup.healthcloud.api.http.controllers.remind;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindTime;
+import com.wondersgroup.healthcloud.jpa.repository.remind.CommonlyUsedMedicineRepository;
+import com.wondersgroup.healthcloud.services.remind.CommonlyUsedMedicineService;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,9 @@ public class RemindController {
 
     @Autowired
     private RemindService remindService;
+
+    @Autowired
+    private CommonlyUsedMedicineService commonlyUsedMedicineService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonListResponseEntity<RemindDTO> list(@RequestParam String userId,
@@ -63,9 +68,14 @@ public class RemindController {
         RemindTime[] delRemindTimes = remindReader.readObject("delRemindTimes", true, RemindTime[].class);
         Remind remind = new Remind(id, userId, type, remark);
 
-        remindService.saveAndUpdate(remind, remindItems, remindTimes, delRemindItems, delRemindTimes);
-
         JsonListResponseEntity result = new JsonListResponseEntity();
+        int rtnInt = remindService.saveAndUpdate(remind, remindItems, remindTimes, delRemindItems, delRemindTimes);
+        if (rtnInt == 0) {
+            result.setMsg("保存用药提醒成功");
+        } else {
+            result.setCode(500);
+            result.setMsg("保存用药提醒失败");
+        }
         return result;
     }
 
@@ -97,6 +107,30 @@ public class RemindController {
         } else {
             result.setCode(500);
             result.setMsg("删除提醒失败");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/listCUMs", method = RequestMethod.GET)
+    public JsonListResponseEntity<CommonlyUsedMedicine> listCUMs(String userId) {
+        JsonListResponseEntity<CommonlyUsedMedicine> result = new JsonListResponseEntity<>();
+        List<CommonlyUsedMedicine> commonlyUsedMedicines =commonlyUsedMedicineService.listTop5(userId);
+        result.setContent(commonlyUsedMedicines);
+        return result;
+    }
+
+    @RequestMapping(value = "/deleteCUM", method = RequestMethod.POST)
+    public JsonResponseEntity deleteCUM(@RequestBody String cumJson) {
+        JsonKeyReader reader = new JsonKeyReader(cumJson);
+        String id = reader.readString("id", false);
+
+        JsonResponseEntity result = new JsonResponseEntity();
+        int rtnInt = commonlyUsedMedicineService.delete(id);
+        if (rtnInt == 0) {
+            result.setMsg("删除常用药品成功");
+        } else {
+            result.setCode(500);
+            result.setMsg("删除常用药品失败");
         }
         return result;
     }

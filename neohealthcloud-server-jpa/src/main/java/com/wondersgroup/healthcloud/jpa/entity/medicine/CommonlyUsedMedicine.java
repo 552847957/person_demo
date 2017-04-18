@@ -1,25 +1,27 @@
-package com.wondersgroup.healthcloud.jpa.entity.remind;
+package com.wondersgroup.healthcloud.jpa.entity.medicine;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
 
 /**
- * Created by zhaozhenxing on 2017/04/11.
+ * Created by zhaozhenxing on 2017/04/15.
  */
 
 @Data
 @Entity
-@Table(name = "app_tb_remind_item")
-public class RemindItem {
+@Table(name = "app_tb_commonly_used_medicine")
+public class CommonlyUsedMedicine {
     @Id
     @Column(name = "id")
     private String id;// id
-    @Column(name = "remind_id")
-    private String remindId;// 提醒ID
     @Column(name = "medicine_id")
     private String medicineId;// 药品ID
+    @Column(name = "user_id")
+    private String userId;// 用户ID
     @Column(name = "name")
     private String name;// 名称
     @Column(name = "specification")
@@ -36,4 +38,15 @@ public class RemindItem {
     @Column(name = "update_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;// 更新时间
+
+    public CommonlyUsedMedicine() {
+    }
+
+    public CommonlyUsedMedicine(RemindItem remindItem) {
+        this.medicineId = remindItem.getMedicineId();
+        this.name = remindItem.getName();
+        this.specification = remindItem.getSpecification();
+        this.dose = remindItem.getDose();
+        this.unit = remindItem.getUnit();
+    }
 }
