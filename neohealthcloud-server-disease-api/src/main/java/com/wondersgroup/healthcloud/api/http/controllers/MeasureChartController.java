@@ -31,6 +31,7 @@ public class MeasureChartController {
 
     public static final Logger logger = LoggerFactory.getLogger("exlog");
     private static final String requestHistoryByArrayDay = "%s/api/measure/3.0/getHistoryByArrayDay/%s";
+    private static final String requestWeekIsExistByArrayDay = "%s/api/measure/3.0/getWeekIsExistByArrayDay/%s";
     @Value("${internal.api.service.measure.url}")
     private String host;
     private RestTemplate template = new RestTemplate();
@@ -50,6 +51,32 @@ public class MeasureChartController {
                 str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore);
                 String url = String.format(requestHistoryByArrayDay, host, str);
 //                String url = "http://127.0.0.1:8080/api/measure/3.0/getHistoryByArrayDay?registerId=ff80808154177829015417bbe1970020&sex=1&dayAmount=2";
+
+                ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+                if (response.getStatusCode().equals(HttpStatus.OK)) {
+                    Map<String, Object> responseBody = response.getBody();
+                    if (0 == (int) responseBody.get("code"))
+                        return new JsonResponseEntity<>(0, null, responseBody.get("data"));
+                }
+            } catch (RestClientException e) {
+                logger.info("请求测量数据异常", e);
+            }
+            return new JsonResponseEntity<>(1000, "内部错误");
+
+    }
+    
+    /**
+     * 查询7天是否有血糖测量
+     * @param registerId
+     * @return json
+     * @throws JsonProcessingException
+     */
+    @GetMapping("getWeekIsExistByArrayDay")
+    public JsonResponseEntity getWeekIsExistByArrayDay(String registerId, String date){
+            try {
+                StringBuffer str = new StringBuffer();
+                str.append("registerId=").append(registerId);
+                String url = String.format(requestWeekIsExistByArrayDay, host, str);
 
                 ResponseEntity<Map> response = buildGetEntity(url, Map.class);
                 if (response.getStatusCode().equals(HttpStatus.OK)) {
