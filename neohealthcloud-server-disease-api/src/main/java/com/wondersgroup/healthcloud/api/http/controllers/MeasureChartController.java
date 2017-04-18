@@ -48,7 +48,7 @@ public class MeasureChartController {
             @RequestParam(defaultValue = "true") Boolean isBefore, Pageable pageable) throws JsonProcessingException {
             try {
                 StringBuffer str = new StringBuffer();
-                str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore);
+                str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore).append("&date=").append(date);
                 String url = String.format(requestHistoryByArrayDay, host, str);
 //                String url = "http://127.0.0.1:8080/api/measure/3.0/getHistoryByArrayDay?registerId=ff80808154177829015417bbe1970020&sex=1&dayAmount=2";
 
