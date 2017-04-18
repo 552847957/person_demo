@@ -30,8 +30,8 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 public class MeasureChartController {
 
     public static final Logger logger = LoggerFactory.getLogger("exlog");
-    private static final String requestHistoryByArrayDay = "%s/api/measure/3.0/getHistoryByArrayDay/%s";
-    private static final String requestWeekIsExistByArrayDay = "%s/api/measure/3.0/getWeekIsExistByArrayDay/%s";
+    private static final String requestHistoryByArrayDay = "%s/api/measure/3.0/getHistoryByArrayDay?%s";
+    private static final String requestWeekIsExistByArrayDay = "%s/api/measure/3.0/getWeekIsExistByArrayDay?%s";
     @Value("${internal.api.service.measure.url}")
     private String host;
     private RestTemplate template = new RestTemplate();
