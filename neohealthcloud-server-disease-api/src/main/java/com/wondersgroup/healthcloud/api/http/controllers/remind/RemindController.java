@@ -112,9 +112,9 @@ public class RemindController {
     }
 
     @RequestMapping(value = "/listCUMs", method = RequestMethod.GET)
-    public JsonListResponseEntity<CommonlyUsedMedicine> listCUMs(String userId) {
+    public JsonListResponseEntity<CommonlyUsedMedicine> listCUMs(@RequestParam String userId, @RequestParam String type) {
         JsonListResponseEntity<CommonlyUsedMedicine> result = new JsonListResponseEntity<>();
-        List<CommonlyUsedMedicine> commonlyUsedMedicines =commonlyUsedMedicineService.listTop5(userId);
+        List<CommonlyUsedMedicine> commonlyUsedMedicines =commonlyUsedMedicineService.listTop5(userId, type);
         result.setContent(commonlyUsedMedicines);
         return result;
     }

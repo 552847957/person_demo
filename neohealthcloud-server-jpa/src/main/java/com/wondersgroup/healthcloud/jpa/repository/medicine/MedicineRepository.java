@@ -11,6 +11,6 @@ import java.util.List;
  */
 
 public interface MedicineRepository extends JpaRepository<Medicine, String> {
-    @Query("select a from Medicine a where a.delFlag = '0' order by a.id asc")
-    List<Medicine> findAllByOrderByIdAsc();
+    @Query("select a from Medicine a where a.delFlag = '0' and a.type = ?1 order by a.id asc")
+    List<Medicine> findByType(String type);
 }

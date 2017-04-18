@@ -11,7 +11,8 @@ import java.util.List;
  */
 
 public interface CommonlyUsedMedicineRepository extends JpaRepository<CommonlyUsedMedicine, String> {
-    List<CommonlyUsedMedicine> findByUserId(String userId);
-    @Query(nativeQuery = true, value = "select a.* from app_tb_commonly_used_medicine a where a.user_id = ?1 order by a.update_time desc limit 0, 5")
-    List<CommonlyUsedMedicine> findTop5(String userId);
+    @Query("select a from CommonlyUsedMedicine a where a.userId = ?1 and a.type = ?2 order by a.updateTime desc")
+    List<CommonlyUsedMedicine> findByUserId(String userId, String type);
+    @Query(nativeQuery = true, value = "select a.* from app_tb_commonly_used_medicine a where a.user_id = ?1 and a.type = ?2 order by a.update_time desc limit 0, 5")
+    List<CommonlyUsedMedicine> findTop5(String userId, String type);
 }

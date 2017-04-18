@@ -9,7 +9,7 @@ import java.util.List;
  */
 
 public interface MedicineService {
-    List<Medicine> list();
+    List<Medicine> list(String type);
     Medicine detail(String id);
     Medicine saveAndUpdate(Medicine medicine);
 }

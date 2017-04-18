@@ -25,10 +25,10 @@ public class MedicineServiceImpl implements MedicineService {
     private MedicineRepository medicineRepository;
 
     @Override
-    public List<Medicine> list() {
+    public List<Medicine> list(String type) {
         List<Medicine> rtnList = null;
         try {
-            rtnList = medicineRepository.findAllByOrderByIdAsc();
+            rtnList = medicineRepository.findByType(type);
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }

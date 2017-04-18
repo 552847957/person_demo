@@ -19,9 +19,9 @@ public class MedicineController {
     private MedicineService medicineService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public JsonResponseEntity list() {
+    public JsonResponseEntity list(String type) {
         JsonResponseEntity result = new JsonResponseEntity();
-        List<Medicine> rtnList = medicineService.list();
+        List<Medicine> rtnList = medicineService.list(type);
         if(rtnList != null && rtnList.size() > 0) {
             result.setData(rtnList);
         } else {

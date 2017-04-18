@@ -77,7 +77,7 @@ public class RemindServiceImpl implements RemindService {
             HashMap<String, CommonlyUsedMedicine> cumMap = new HashMap<>();
             if (StringUtils.isNotEmpty(remind.getUserId())) {
                 // 获取用户常用药品列表
-                List<CommonlyUsedMedicine> cums = commonlyUsedMedicineRepo.findByUserId(remind.getUserId());
+                List<CommonlyUsedMedicine> cums = commonlyUsedMedicineRepo.findByUserId(remind.getUserId(), remind.getType());
                 if (cums != null && cums.size() > 0) {
                     for (CommonlyUsedMedicine cum : cums) {
                         cumMap.put(cum.getMedicineId(), cum);
@@ -144,17 +144,23 @@ public class RemindServiceImpl implements RemindService {
             List<CommonlyUsedMedicine> saveCUMs = new ArrayList<>();
             for (RemindItem ri : remindItems) {
                 CommonlyUsedMedicine cum = cumMap.get(ri.getMedicineId());
-                CommonlyUsedMedicine tmpCUM = new CommonlyUsedMedicine(ri);
                 if (cum != null && StringUtils.isNotEmpty(cum.getId())) {
-                    tmpCUM.setUpdateTime(now);
+                    cum.setName(ri.getName());
+                    cum.setSpecification(ri.getSpecification());
+                    cum.setDose(ri.getDose());
+                    cum.setUnit(ri.getUnit());
+                    cum.setUpdateTime(now);
+                    saveCUMs.add(cum);
                 } else {
+                    CommonlyUsedMedicine tmpCUM = new CommonlyUsedMedicine(ri);
                     tmpCUM.setId(IdGen.uuid());
                     tmpCUM.setUserId(remind.getUserId());
+                    tmpCUM.setType(remind.getType());
                     tmpCUM.setDelFlag("0");
                     tmpCUM.setCreateTime(now);
                     tmpCUM.setUpdateTime(now);
+                    saveCUMs.add(tmpCUM);
                 }
-                saveCUMs.add(tmpCUM);
             }
             remindItemRepo.save(Arrays.asList(remindItems));// 保存药品信息
             remindTimeRepo.save(Arrays.asList(remindTimes));// 保存时间信息

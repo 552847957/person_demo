@@ -22,6 +22,8 @@ public class CommonlyUsedMedicine {
     private String medicineId;// 药品ID
     @Column(name = "user_id")
     private String userId;// 用户ID
+    @Column(name = "type")
+    private String type;// 药品类型 M-药品,I-胰岛素
     @Column(name = "name")
     private String name;// 名称
     @Column(name = "specification")

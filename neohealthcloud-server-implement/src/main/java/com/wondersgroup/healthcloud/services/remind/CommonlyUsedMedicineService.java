@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CommonlyUsedMedicineService {
     List<CommonlyUsedMedicine> list(CommonlyUsedMedicine commonlyUsedMedicine);
-    List<CommonlyUsedMedicine> listTop5(String userId);
+    List<CommonlyUsedMedicine> listTop5(String userId, String type);
     CommonlyUsedMedicine detail(String id);
     CommonlyUsedMedicine saveAndUpdate(CommonlyUsedMedicine commonlyUsedMedicine);
     int delete(String id);

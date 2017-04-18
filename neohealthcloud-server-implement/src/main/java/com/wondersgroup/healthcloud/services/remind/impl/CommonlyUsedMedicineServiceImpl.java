@@ -33,10 +33,10 @@ public class CommonlyUsedMedicineServiceImpl implements CommonlyUsedMedicineServ
     }
 
     @Override
-    public List<CommonlyUsedMedicine> listTop5(String userId) {
+    public List<CommonlyUsedMedicine> listTop5(String userId, String type) {
         List<CommonlyUsedMedicine> rtnList = null;
         try {
-            rtnList = commonlyUsedMedicineRepository.findTop5(userId);
+            rtnList = commonlyUsedMedicineRepository.findTop5(userId, type);
         } catch (Exception ex) {
             //todo log
         }
