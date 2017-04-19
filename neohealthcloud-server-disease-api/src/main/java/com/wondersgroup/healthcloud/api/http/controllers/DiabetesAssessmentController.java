@@ -1,11 +1,24 @@
 package com.wondersgroup.healthcloud.api.http.controllers;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessment;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.diabetes.DiabetesAssessmentService;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 风险评估
@@ -16,24 +29,20 @@ import org.springframework.web.bind.annotation.*;
 public class DiabetesAssessmentController {
 
     @Autowired
-    private DiabetesAssessmentService assessmentService;
+    private DiabetesAssessmentService diabetesAssessmentService;
 
-    /**
-     * 患病风险评估
-     * @param assessment
-     * @return
-     */
-    @RequestMapping(value = "/sicken", method = RequestMethod.POST)
-    @ResponseBody
-    public JsonResponseEntity sicken(@RequestBody DiabetesAssessment assessment) {
-        JsonResponseEntity entity = new JsonResponseEntity();
-        int result = assessmentService.sicken(assessment);
-        entity.setData(ImmutableMap.of("result",result == 0?"您的评估结果无糖尿病风险，请继续保持":"您属于糖尿病高危风险人群，请到医院进一步确诊"));
-        return entity;
-    }
+    @Autowired
+    private AssessmentService assessmentService;
+
+    @Autowired
+    private DiabetesAssessmentRepository assessmentRepo;
+
+    @Autowired
+    private RegisterInfoRepository registerInfoRepo;
 
     /**
      * 肾病风险评估
+     *
      * @param assessment
      * @return
      */
@@ -41,22 +50,15 @@ public class DiabetesAssessmentController {
     @ResponseBody
     public JsonResponseEntity kidney(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
-        int result = assessmentService.kidney(assessment);
-        switch (result){
-            case 0:
-                entity.setData(ImmutableMap.of("result","您目前尚未出现肾脏病变症状，继续保持"));
-                break;
-            case 1:
-                entity.setData(ImmutableMap.of("result","您目前存在一些类似糖尿病肾脏病变的症状或危险因素，请您在日常的生活中多多注意"));
-                break;
-            default:
-                entity.setData(ImmutableMap.of("result","您很有可能已经患有糖尿病肾病了，请及时咨询医生获得专业建议"));
-        }
+        int result = diabetesAssessmentService.kidney(assessment);
+        entity.setData(ImmutableMap.of("result", result == 0 ? "您本次评估结果尚无糖尿病肾病风险，请继续维持健康的生活方式，并定期体检。" :
+                "您本次评估结果具有糖尿病肾病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
         return entity;
     }
 
     /**
      * 眼病风险评估
+     *
      * @param assessment
      * @return
      */
@@ -64,14 +66,15 @@ public class DiabetesAssessmentController {
     @ResponseBody
     public JsonResponseEntity eye(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
-        int result = assessmentService.eye(assessment);
-        entity.setData(ImmutableMap.of("result",result == 0?"恭喜您，暂未出现糖尿病眼病的症状，请您继续保持":
-                "您目前出现一部分糖尿病眼部症状，请及时咨询医生获得专业建议"));
+        int result = diabetesAssessmentService.eye(assessment);
+        entity.setData(ImmutableMap.of("result", result == 0 ? "您本次评估结果尚无糖尿病眼病风险，请继续维持健康的生活方式，并定期体检。" :
+                "您本次评估结果具有糖尿病眼病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
         return entity;
     }
 
     /**
      * 足部风险评估
+     *
      * @param assessment
      * @return
      */
@@ -79,17 +82,109 @@ public class DiabetesAssessmentController {
     @ResponseBody
     public JsonResponseEntity foot(@RequestBody DiabetesAssessment assessment) {
         JsonResponseEntity entity = new JsonResponseEntity();
-        int result = assessmentService.foot(assessment);
-        switch (result){
-            case 0:
-                entity.setData(ImmutableMap.of("result","您不属于糖尿病足的高危人群，恭喜您，请继续保持"));
-                break;
-            case 1:
-                entity.setData(ImmutableMap.of("result","您属于轻度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业建议"));
-                break;
-            default:
-                entity.setData(ImmutableMap.of("result","您属于高度糖尿病足的高危人群，糖尿病足并非微不“足”道，请及时咨询医生获得专业意见"));
+        int result = diabetesAssessmentService.foot(assessment);
+        entity.setData(ImmutableMap.of("result", result == 0 ? "您本次评估结果尚无糖尿病足病风险，请继续维持健康的生活方式，并定期体检。" :
+                "您本次评估结果具有糖尿病足病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。"));
+        return entity;
+    }
+
+    /**
+     * 统计每个人的各类型风险评估数量
+     *
+     * @param registerid
+     * @return
+     */
+    @RequestMapping(value = "/history/num", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonResponseEntity historyNum(@RequestParam(name = "registerid") String registerid) {
+        JsonResponseEntity entity = new JsonResponseEntity();
+        int assessmentNum = assessmentService.getAssessNum(registerid);
+        List<Map<String,Object>> list = diabetesAssessmentService.getNumByTypeAndRegisterid(registerid);
+        int kidneyNum =0,eyeNum=0,footNum = 0 ;
+        for(Map<String,Object> map : list){
+            if(map.get("type").toString().equals("2")){
+                kidneyNum = Integer.parseInt(map.get("num").toString());
+            }
+            if(map.get("type").toString().equals("3")){
+                eyeNum = Integer.parseInt(map.get("num").toString());
+            }
+            if(map.get("type").toString().equals("4")){
+                footNum = Integer.parseInt(map.get("num").toString());
+            }
+
         }
+//        int kidneyNum = assessmentRepo.getNumByTypeAndRegisterid(registerid, 2);
+//        int eyeNum = assessmentRepo.getNumByTypeAndRegisterid(registerid, 3);
+//        int footNum = assessmentRepo.getNumByTypeAndRegisterid(registerid, 4);
+
+        entity.setData(ImmutableMap.of("assessmentNum", assessmentNum, "kidneyNum", kidneyNum, "eyeNum", eyeNum, "footNum", footNum));
+        return entity;
+    }
+
+    /**
+     * 统计每个人的各类型风险评估数量
+     *
+     * @param registerid
+     * @return
+     */
+    @RequestMapping(value = "/history/list", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonListResponseEntity historyList(
+            @RequestParam(name = "registerid") String registerid,
+            @RequestParam(name = "type") Integer type,
+            @RequestParam(required = false, defaultValue = "1") Integer flag) {
+
+        JsonListResponseEntity entity = new JsonListResponseEntity();
+        int pageSize = 5;
+
+
+        List<DiabetesAssessment> assessmentList = diabetesAssessmentService.getAssessmentList(registerid,type,flag,pageSize);
+        int total = assessmentRepo.getNumByTypeAndRegisterid(registerid,type);
+
+        RegisterInfo register = registerInfoRepo.findOne(registerid);
+
+        List<Map<String,String>> list = Lists.newArrayList();
+        for(DiabetesAssessment assessment : assessmentList) {
+            Map<String, String> map = Maps.newHashMap();
+            map.put("userName", null == register?"":(!StringUtils.isEmpty(register.getName())?register.getName():register.getNickname()));
+            map.put("time", new DateTime(assessment.getCreateDate()).toString("yyyy-MM-dd HH:mm:ss"));
+            map.put("result", assessment.getResult().toString());
+            switch (type) {
+                case 2:
+                    map.put("resultDoc", 0 == assessment.getResult() ? "无糖尿病肾病风险" : "有糖尿病肾病风险");
+                    break;
+                case 3:
+                    map.put("resultDoc", 0 == assessment.getResult() ? "无糖尿病眼病风险" : "有糖尿病眼病风险");
+                    break;
+                case 4:
+                    map.put("resultDoc", 0 == assessment.getResult() ? "无糖尿病足病风险" : "有糖尿病足病风险");
+                    break;
+            }
+
+            switch (type) {
+                case 2:
+                    map.put("advice", 0 == assessment.getResult() ? "您本次评估结果尚无糖尿病肾病风险，请继续维持健康的生活方式，并定期体检。" :
+                            "您本次评估结果具有糖尿病肾病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。");
+                    break;
+                case 3:
+                    map.put("advice", 0 == assessment.getResult() ? "您本次评估结果尚无糖尿病眼病风险，请继续维持健康的生活方式，并定期体检。" :
+                            "您本次评估结果具有糖尿病眼病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。");
+                    break;
+                case 4:
+                    map.put("advice", 0 == assessment.getResult() ? "您本次评估结果尚无糖尿病足病风险，请继续维持健康的生活方式，并定期体检。" :
+                            "您本次评估结果具有糖尿病足病风险，建议您到居住地所属社区卫生服务中心进行并发症筛查，及早控制病情。");
+                    break;
+
+
+            }
+            list.add(map);
+        }
+        boolean hasMore = false;
+        if(total > pageSize * flag){
+            hasMore = true;
+            flag++;
+        }
+        entity.setContent(list,hasMore,null,flag.toString());
         return entity;
     }
 

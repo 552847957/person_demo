@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 调用web端慢病接口方法
@@ -42,11 +43,13 @@ public class DiabetesServiceImpl implements DiabetesService {
     private final static String REPORT_INSPECT_LIST = "/api/inspection/reports";//检查报告列表
     private final static String REPORT_INSPECT_DETAIL = "/api/inspection/report";//检查报告详情
     private final static String REPORT_FOLLOW_LIST = "/api/diabetes/follow";//随访报告列表
-
+    private final static String REPORT_COUNT = "/api/user/reports/num";//随访报告数目
+    private final static String FOLLOW_PLAN_LIST = "/api/user/followplan";//最近一次随访计划
+    
     @Value("${diabetes.web.url}")
     private String url;
 
-//    private String url = "http://10.1.93.110:8480/hds";
+//    private String url = "http://10.1.93.110/hds";
 
     /**
      * 根据医生获取在管人群数
@@ -250,6 +253,57 @@ public class DiabetesServiceImpl implements DiabetesService {
         return null;
     }
 
+    /**
+     * 获取用户报告数
+     * @param cardType
+     * @param cardNumber
+     * @return
+     */
+    @Override
+    public Map<String, Object> getReportCount(String cardType, String cardNumber) {
+        Request request = new RequestBuilder().get().url(url+this.REPORT_COUNT).
+                params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode jsonNode = response.convertBody();
+        if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("报告数为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), Map.class);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 获取最近一次随访计划
+     */
+    @Override
+    public FollowPlanDTO getFollowPlanList(String cardType, String cardNumber) {
+        Request request = new RequestBuilder().get().url(url+DiabetesServiceImpl.FOLLOW_PLAN_LIST).
+                params(new String[]{"personcardType",cardType,"personcardNo",cardNumber}).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper)httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode jsonNode = response.convertBody();
+        if(200 == response.code() && 0 == jsonNode.get("code").asInt()){
+            try {
+                if(null == jsonNode.get("data") || StringUtils.isEmpty(jsonNode.get("data").toString())){
+                    logger.error("随访计划为空 "+cardType+"  "+cardNumber);
+                    logger.error(jsonNode.toString());
+                    return null;
+                }
+                return new ObjectMapper().readValue(jsonNode.get("data").toString(), FollowPlanDTO.class);
+            }catch (Exception ex){
+                logger.error(ex.getMessage(),ex);
+            }
+        }
+        return null;
+    }
     public static void main(String[] args){
         DiabetesServiceImpl diabetesService = new DiabetesServiceImpl();
         diabetesService.url = "http://10.1.93.111:8380/hds";

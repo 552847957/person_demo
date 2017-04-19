@@ -39,6 +39,7 @@ public class DiabetesHomeController {
     private String host;
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     private static final String queryNearestHistoryByTestPeriod = "%s/api/measure/3.0/queryNearestHistoryByTestPeriod?%s";
+    private static final String nearestOneYearBloodGlucoseInfo = "%s/api/measure/3.0/queryNearestBloodGlucoseInfo?%s";
     @Autowired
     private UserService userService;
 
@@ -79,19 +80,44 @@ public class DiabetesHomeController {
                                 dataMap.put("secondLastData", jsonNode);
                                 break;
                             }
-                        }
+                        }// end while
                         Map<String, Object> assessmentResult = diabetesAssessmentService.getLastAssessmentResult(registerId);
                         if (assessmentResult != null) {
                             dataMap.put("assessmentResult", assessmentResult);
                         }
+                        // 追加糖化血红蛋白等其他首页信息
+                        dataMap.put("bgInfos",queryBGInfos(host,registerId,personCard));
                         result.setData(dataMap);
-                    }
-                }
-            }
+                    }// end if data not null
+                }// end if 0
+            }// end if Status OK
         } catch (Exception e) {
             log.info("近期历史数据获取失败", e);
         }
         return result;
+    }
+
+    private Object queryBGInfos(String host,String registerId, String personCard) {
+        String param = "registarId=".concat(registerId)
+                .concat("&persionCard=").concat(StringUtils.isEmpty(personCard) ? "" : personCard);
+        String url = String.format(nearestOneYearBloodGlucoseInfo, host, param);
+        try {
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
+                    if (StringUtils.isNotEmpty(jsonStr)) {
+                        JsonNode resultJson = mapper.readTree(jsonStr);
+                        return resultJson;
+                    }// end if
+                }// end if
+            }// end if
+            return null;
+        } catch (Exception e) {
+            log.error("糖化血红蛋白等其他首页信息失败", e);
+        }
+        return null;
     }
 
     @RequestMapping(value = "/lastMeasure", method = RequestMethod.GET)

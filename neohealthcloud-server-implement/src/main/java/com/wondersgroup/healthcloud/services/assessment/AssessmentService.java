@@ -66,4 +66,14 @@ public interface AssessmentService {
      * @return  {state:true,date:yyyy-MM-dd HH:mm:ss}  【state:1:健康人群, state:2:风险人群，state:3:疾病人群】
      */
     Map<String,Object> getRecentAssessIsNormal(String uid);
+
+    /**
+     * 根据用户id获取评估的数量
+     * @param uid
+     * @return
+     */
+    Integer getAssessNum(String uid);
+
+
+
 }

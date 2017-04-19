@@ -22,6 +22,7 @@ public class ReportScreeningEntity {
     private BigDecimal peripheralBloodSugar;//空腹末梢血糖
     private BigDecimal venousBloodSugar;//空腹静脉血糖
     private BigDecimal dgtt;//dgtt2h静脉血糖
+    private String doctorName;//筛查医生
     private String riskFactors; //风险因素
     private String reportResult;//筛查结果  1:糖尿病、2：糖尿病前期、3：血糖正常
 
@@ -31,6 +32,7 @@ public class ReportScreeningEntity {
             this.peripheralBloodSugar = dto.getFilterResult().getPeripheralBloodSugar();
             this.venousBloodSugar = dto.getFilterResult().getVenousBloodSugar();
             this.dgtt = dto.getFilterResult().getDgtt();
+            this.doctorName = null != dto.getFilterResult()?dto.getFilterResult().getDoctorName():null;
             if (!StringUtils.isEmpty(dto.getFilterResult().getReportResult())) {
                 if ("1".equals(dto.getFilterResult().getReportResult())) {
                     this.reportResult = "糖尿病";

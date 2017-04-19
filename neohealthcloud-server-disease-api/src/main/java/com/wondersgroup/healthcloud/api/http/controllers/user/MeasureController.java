@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,8 +45,25 @@ public class MeasureController {
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
     private static final String recentMeasureStatisticalData = "%s/api/measure/3.0/recentStatisticalData?%s";
 
+    private static final String requestModifyPath = "%s/api/measure/3.0/modify/%s";
+    private static final String queryNearestPath = "%s/api/measure/%s/nearest?%s";
+    private static final String bmiH5ChartPath = "%s/api/measure/bmi/chart?%s";
+    private static final String historyHba1cPath = "%s/api/measure/history/hba1c?%s";
+
     private RestTemplate template = new RestTemplate();
 
+    /**
+     *
+     * @param type 0－BMI(身高体重)
+     *             1－血氧
+     *             2－血压
+     *             3－血糖
+     *             4－记步
+     *             5－腰臀比
+     *             10-糖化血红蛋白
+     * @param paras
+     * @return
+     */
     @VersionRange
     @PostMapping("upload/{type}")
     public JsonResponseEntity<?> uploadMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
@@ -73,6 +91,48 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "数据上传失败");
     }
+
+    /**
+     * 修改测量数据
+     * @param type 0－BMI(身高体重)
+     *             1－血氧
+     *             2－血压
+     *             3－血糖
+     *             4－记步
+     *             5－腰臀比
+     *             10-糖化血红蛋白
+     * @param paras
+     * @return
+     */
+    @VersionRange
+    @PostMapping("modify/{type}")
+    public JsonResponseEntity<?> updateMeasureIndexs(@PathVariable int type, @RequestBody Map<String, Object> paras) {
+        try {
+            String registerId = (String) paras.get("registerId");
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
+
+            String personCard = info.getPersoncard();
+            if(personCard != null){
+                paras.put("personCard", personCard);
+            }
+
+            String url = String.format(requestModifyPath, host, type);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            headers.add("access-token", "version3.0");
+            ResponseEntity<Map> response = template.postForEntity(url, new HttpEntity<>(paras, headers), Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "数据更新成功");
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("体征数据更新失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "数据更新失败");
+    }
+
+
 
     @RequestMapping(value = "/lastWeekHistory", method = RequestMethod.GET)
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
@@ -141,8 +201,9 @@ public class MeasureController {
                                                 dayDatas[0] = tmpJson.get("fpgValue").asText();
                                             }
                                         } else {
-                                            if (StringUtils.isEmpty(dayDatas[testPeriod + 1])) {// 同一时间段仅获取最新数据
-                                                dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                            String day = dayDatas[testPeriod + 1];
+                                            if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                             }
                                         }
                                     }
@@ -228,8 +289,9 @@ public class MeasureController {
                                                 dayDatas[0] = tmpJson.get("fpgValue").asText();
                                             }
                                         } else {
-                                            if (StringUtils.isEmpty(dayDatas[testPeriod + 1])) {// 同一时间段仅获取最新数据
-                                                dayDatas[testPeriod + 1] = tmpJson.get("fpgValue").asText();
+                                            String day = dayDatas[testPeriod + 1];
+                                            if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                             }
                                         }
                                     }
@@ -256,6 +318,101 @@ public class MeasureController {
         }
         return result;
     }
+
+
+    /**
+     * 查询最新的一条数据
+     * @param type
+     * @param registerId
+     * @param personCard
+     * @return
+     */
+    @VersionRange
+    @GetMapping("{type}/nearest")
+    public JsonResponseEntity<?> queryNearest(@PathVariable int type,String registerId, @RequestParam(defaultValue = "") String personCard) {
+        try {
+
+            StringBuffer param = new StringBuffer();
+            param.append("registerId="+registerId).append("&personCard="+personCard);
+
+            String url = String.format(queryNearestPath, host,type,param);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+    /**
+     * BMI图表H5
+     * @param registerId
+     * @param personCard
+     * @param date  "2017-04-15"
+     * @return
+     */
+    @VersionRange
+    @GetMapping("chart/bmi")
+    public JsonResponseEntity<?> chartBmi(
+            String registerId,
+            @RequestParam(required = false)String personCard,
+            String date,
+            @RequestParam(defaultValue = "true") Boolean isBefore,
+            @RequestParam(defaultValue = "5") Integer dayAmount){
+        try {
+
+            StringBuffer param = new StringBuffer();
+            param.append("registerId="+registerId).append("&personCard="+personCard)
+                    .append("&date="+date).append("&isBefore="+isBefore).append("&dayAmount="+dayAmount);
+            String url = String.format(bmiH5ChartPath, host,param);
+
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+    /**
+     * 糖化血红蛋白历史数据分页
+     * @param registerId
+     * @param personCard
+     * @param flag 页数 从0 开始
+     * @param pageSize 每页条数
+     * @return
+     */
+    @VersionRange
+    @GetMapping("history/hba1c")
+    public JsonResponseEntity<?> queryHba1cHistoryData(@RequestParam(defaultValue = "0") Integer flag,
+                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                        @RequestParam String registerId,String personCard) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append("registerId="+registerId).append("&personCard="+personCard)
+                    .append("&flag="+flag).append("&pageSize="+pageSize);
+            String url = String.format(historyHba1cPath, host,sb.toString());
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (RestClientException e) {
+            log.info("查询失败", e);
+        }
+        return new JsonResponseEntity<>(1000, "查询失败");
+    }
+
+
 
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
         RestTemplate template = new RestTemplate();
