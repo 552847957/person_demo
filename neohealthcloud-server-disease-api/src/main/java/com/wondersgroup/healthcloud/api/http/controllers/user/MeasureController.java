@@ -1,10 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.wondersgroup.healthcloud.api.utls.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -20,10 +18,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -361,7 +355,7 @@ public class MeasureController {
             String registerId,
             @RequestParam(required = false)String personCard,
             String date,
-            @RequestParam(defaultValue = "true") Boolean isBefore,
+            @RequestParam(defaultValue = "false") Boolean isBefore,
             @RequestParam(defaultValue = "5") Integer dayAmount){
         try {
 
