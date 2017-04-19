@@ -1,7 +1,14 @@
 package com.wondersgroup.healthcloud.services.remind.impl;
 
+import com.squareup.okhttp.Request;
+import com.wondersgroup.common.http.HttpRequestExecutorManager;
+import com.wondersgroup.common.http.builder.RequestBuilder;
+import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
+import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
@@ -13,9 +20,12 @@ import com.wondersgroup.healthcloud.jpa.repository.remind.RemindTimeRepository;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,6 +39,14 @@ public class RemindServiceImpl implements RemindService {
 
     protected static final Logger logger = LoggerFactory.getLogger(RemindServiceImpl.class);
 
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
+
+    @Value("${JOB_CONNECTION_URL}")
+    private String jobClientUrl;
+
+    private HttpRequestExecutorManager httpRequestExecutorManager;
+
     @Autowired
     private RemindRepository remindRepo;
 
@@ -40,6 +58,9 @@ public class RemindServiceImpl implements RemindService {
 
     @Autowired
     private CommonlyUsedMedicineRepository commonlyUsedMedicineRepo;
+
+    @Autowired
+    private PushClientWrapper pushClientWrapper;
 
     @Override
     public List<RemindDTO> list(String userId, int pageNo, int pageSize) {
@@ -73,6 +94,7 @@ public class RemindServiceImpl implements RemindService {
     @Transactional
     @Override
     public int saveAndUpdate(Remind remind, RemindItem[] remindItems, RemindTime[] remindTimes, RemindItem[] delRemindItems, RemindTime[] delRemindTimes) {
+        int flag = -1;// 返回标志,0-成功,-1-失败
         try {
             HashMap<String, CommonlyUsedMedicine> cumMap = new HashMap<>();
             if (StringUtils.isNotEmpty(remind.getUserId())) {
@@ -84,7 +106,7 @@ public class RemindServiceImpl implements RemindService {
                     }
                 }
             } else {
-                return -1;
+                return flag;
             }
 
             // 批量删除药品
@@ -166,6 +188,29 @@ public class RemindServiceImpl implements RemindService {
             remindTimeRepo.save(Arrays.asList(remindTimes));// 保存时间信息
             remindRepo.save(remind);// 保存用药提醒
             commonlyUsedMedicineRepo.save(saveCUMs);// 保存常用药品
+            try {
+                // 生成定时提醒任务
+                if (remindTimes != null && remindTimes.length > 0) {
+                    DateTime nowDateTime = new DateTime(now);
+                    String datePrefix = nowDateTime.toString(DATE_FORMAT);
+
+                    StringBuffer strBufRTs = new StringBuffer();
+                    for (RemindTime rt : remindTimes) {
+                        DateTime remindTime = new DateTime(datePrefix + " " + rt.getRemindTime().toString());
+                        if (remindTime.isBefore(nowDateTime)) {// 提醒时间早于等于当前时间
+                            remindTime.plusDays(1);
+                        }
+                        if (strBufRTs.length() == 0) {
+                            strBufRTs.append(remindTime.toString(DATE_TIME_FORMAT)).append("#").append(rt.getId());
+                        } else {
+                            strBufRTs.append(",").append(remindTime.toString(DATE_TIME_FORMAT)).append("#").append(rt.getId());
+                        }
+                    }
+                    Boolean rtnBoolean = generateJob(remind.getId(), strBufRTs.toString());
+                }
+            } catch (Exception ex) {
+                logger.error(Exceptions.getStackTraceAsString(ex));
+            }
             return 0;
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
@@ -213,5 +258,67 @@ public class RemindServiceImpl implements RemindService {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
         return -1;
+    }
+
+    @Override
+    public int medicationReminder(String id, String remindTimeId) {
+
+        int flag = -1;
+
+        Remind remind = remindRepo.findOne(id);
+        RemindTime rt = remindTimeRepo.findOne(remindTimeId);
+
+        if (remind == null || "1".equals(remind.getDelFlag()) || rt == null) {
+            // 若用药提醒被删除或禁用，以及提醒时间被删除，则不再提醒
+            return 0;
+        }
+
+        // 发送用药提醒PUSH
+        push(remind.getUserId(), "用药时间到，祝您身体健康", "天天笑哈哈");
+
+        // 生成下次用药提醒任务
+        try {
+            Date now = new Date();
+
+            DateTime nowDateTime = new DateTime(now);
+            String datePrefix = nowDateTime.toString(DATE_FORMAT);
+
+            DateTime remindTime = new DateTime(datePrefix + " " + rt.getRemindTime().toString());
+
+            Boolean rtnBoolean = generateJob(remind.getId(), remind.getId() + "#" + remindTime.plusDays(1).toString(DATE_TIME_FORMAT));
+            if (rtnBoolean) {
+                flag = 0;
+            }
+        } catch (Exception ex) {
+            logger.error(Exceptions.getStackTraceAsString(ex));
+        }
+        return flag;
+    }
+
+    private Boolean push(String userId, String title, String content) {
+        boolean result = false;
+        try {
+            AppMessage message = AppMessage.Builder.init().title(title).content(content)
+                    .type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
+            result = pushClientWrapper.pushToAlias(message, userId);
+        } catch (Exception e) {
+            return false;
+        }
+        return result;
+    }
+
+    private Boolean generateJob(String remindId, String params) {
+        try {
+            //调用jobClient的接口
+            Map<String, String> param = new HashMap<>();
+            param.put("id", remindId);
+            param.put("timeAndIds", params);
+            Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/remind/medicationReminder").params(param).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
+        } catch (Exception e) {
+            logger.error(Exceptions.getStackTraceAsString(e));
+            return false;
+        }
+        return true;
     }
 }

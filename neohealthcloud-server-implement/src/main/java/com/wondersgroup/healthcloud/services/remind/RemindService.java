@@ -20,4 +20,5 @@ public interface RemindService {
     int enableOrDisableRemind(String id);
     @Transactional
     int deleteRemind(String id);
+    int medicationReminder(String id, String remindTimeId);
 }

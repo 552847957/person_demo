@@ -31,7 +31,7 @@ public class MedicineController {
     }
 
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
-    public JsonResponseEntity detail(@RequestParam(name = "id", required = true) String id) {
+    public JsonResponseEntity detail(@RequestParam(name = "id") String id) {
         JsonResponseEntity result = new JsonResponseEntity();
         Medicine medicine = medicineService.detail(id);
         if(medicine != null) {
