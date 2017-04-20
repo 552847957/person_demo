@@ -23,11 +23,6 @@ public interface DiabetesAssessmentRepository extends JpaRepository<DiabetesAsse
             " and registerid not in (select registerid from app_tb_diabetes_assessment_remind where create_date >= curdate())")
     List<String> findRemidRegisterById(String[] ids);
 
-    @Modifying
-    @Transactional
-    @Query(value = "update DiabetesAssessment set hasRemind = 1 , updateDate = ?2 where type = 1 and registerid in ?1")
-    void updateRemindByRegister(List ids, Date date);
-
     @Query("select count(1) from DiabetesAssessment a where a.registerid = ?1 and a.type = ?2 and a.delFlag = '0'")
     Integer getNumByTypeAndRegisterid(String registerid, Integer type);
 
