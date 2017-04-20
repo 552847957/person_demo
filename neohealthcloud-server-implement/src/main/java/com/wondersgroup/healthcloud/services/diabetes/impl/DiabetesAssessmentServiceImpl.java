@@ -78,13 +78,11 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         assessment.setUpdateDate(new Date());
         assessment.setDelFlag("0");
 
-        if(1 == assessment.getIsNormal()){
-            assessment.setResult(0);
-        }else{
-            int total = assessment.getIsHistory() + assessment.getIsEyeHistory() + assessment.getIsPressureHistory()
-                    + assessment.getIsUrine() + assessment.getIsEdema() + assessment.getIsTired() + assessment.getIsCramp();
-            assessment.setResult(total == 0 ?0 :1);
-        }
+
+        int total = assessment.getIsHistory() + assessment.getIsEyeHistory() + assessment.getIsPressureHistory()
+                + assessment.getIsUrine() + assessment.getIsEdema() + assessment.getIsTired() + assessment.getIsCramp();
+        assessment.setResult(total == 0 ?0 :1);
+
 
         assessmentRepo.save(assessment);
         return assessment.getResult();
@@ -103,13 +101,11 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         assessment.setUpdateDate(new Date());
         assessment.setDelFlag("0");
 
-        if(1 == assessment.getIsNormal()){
-            assessment.setResult(0);
-        }else{
-            int total = assessment.getIsEyeSight() + assessment.getIsEyeFuzzy() + assessment.getIsEyeShadow()
-                    + assessment.getIsEyeGhosting() + assessment.getIsEyeFlash();
-            assessment.setResult(total == 0 ?0 :1);
-        }
+
+        int total = assessment.getIsEyeSight() + assessment.getIsEyeFuzzy() + assessment.getIsEyeShadow()
+                + assessment.getIsEyeGhosting() + assessment.getIsEyeFlash();
+        assessment.setResult(total == 0 ?0 :1);
+
 
         assessmentRepo.save(assessment);
         return assessment.getResult();
@@ -128,14 +124,12 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
         assessment.setUpdateDate(new Date());
         assessment.setDelFlag("0");
 
-        if(1 == assessment.getIsNormal()){
-            assessment.setResult(0);
-        }else{
-            int total = assessment.getIsHbac()+assessment.getIsSmoking() + assessment.getIsEyeProblem() + assessment.getIsKidney()
-                    + assessment.getIsCardiovascular() + assessment.getIsLimbsEdema() + assessment.getIsLimbsTemp()
-                    + assessment.getIsDeformity() + assessment.getIsFootBeat() + assessment.getIsShinBeat();
-            assessment.setResult(total == 0 ?0 :1);
-        }
+
+        int total = assessment.getIsHbac()+assessment.getIsSmoking() + assessment.getIsEyeProblem() + assessment.getIsKidney()
+                + assessment.getIsCardiovascular() + assessment.getIsLimbsEdema() + assessment.getIsLimbsTemp()
+                + assessment.getIsDeformity() + assessment.getIsFootBeat() + assessment.getIsShinBeat();
+        assessment.setResult(total == 0 ?0 :1);
+
         assessmentRepo.save(assessment);
         return assessment.getResult();
     }
