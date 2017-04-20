@@ -6,6 +6,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by longshasha on 16/6/24.
@@ -33,4 +34,49 @@ public class FamilyDoctorUtil {
         JsonNode result = response.convertBody();
         return result;
     }
+
+    /**
+     * 0 早餐前 1 早餐后 2 午餐前 3 午餐后 4 晚餐前 5 晚餐后 6睡前 7 凌晨 8 随机
+     * @param interval
+     * @return
+     */
+    public static String getStrInterval(String interval) {
+        String strInterval = "未知时间段";
+        if (StringUtils.isBlank(interval)) {
+            return strInterval;
+        }
+        switch (interval) {
+            case "0":
+                strInterval = "早餐前";
+                break;
+            case "1":
+                strInterval = "早餐后";
+                break;
+            case "2":
+                strInterval = "午餐前";
+                break;
+            case "3":
+                strInterval = "午餐后";
+                break;
+            case "4":
+                strInterval = "晚餐前";
+                break;
+            case "5":
+                strInterval = "晚餐后";
+                break;
+            case "6":
+                strInterval = "睡前";
+                break;
+            case "7":
+                strInterval = "凌晨";
+                break;
+            case "8":
+                strInterval = "随机";
+                break;
+            default:
+                break;
+        }
+        return strInterval;
+    }
 }
+

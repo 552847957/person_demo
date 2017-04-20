@@ -22,6 +22,7 @@ import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInterventionRepo
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.entity.BloodGlucoseAndPressureDto;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
@@ -118,8 +119,8 @@ public class DoctorInterventionController {
                     rtnList.get(i).setDutyName(doctor.getDutyName());
                     rtnList.get(i).setAvatar(doctor.getAvatar());
                 }
-            }
-        }
+            }// end for
+        }// end if
 
         if (rtnList != null && rtnList.size() > 0) {
             result.setData(rtnList);
@@ -127,6 +128,21 @@ public class DoctorInterventionController {
             result.setMsg("未查询到相关数据！");
         }
         return result;
+    }
+
+    @GetMapping(value = "/bloodGlucoseAndPressure")
+    public JsonResponseEntity bloodGlucoseAndPressure(@RequestParam(name = "uid", required = true) String patientId,
+                                                      @RequestParam(name = "type", required = true) String type) {
+        JsonResponseEntity jsonResponseEntity = new JsonResponseEntity();
+        DoctorIntervention doctorIntervention = new DoctorIntervention();
+        doctorIntervention.setPatientId(patientId);
+        doctorIntervention.setType(type);
+        List<DoctorIntervention> rtnList = doctorInterventionService.list(doctorIntervention);
+
+        BloodGlucoseAndPressureDto bgap = new BloodGlucoseAndPressureDto(rtnList);
+
+        jsonResponseEntity.setData(bgap);
+        return jsonResponseEntity;
     }
 
     @RequestMapping(value = "/saveAndUpdate", method = RequestMethod.POST)

@@ -13,6 +13,15 @@ import javax.persistence.*;
 @Entity
 @Table(name = "app_tb_doctor_intervention")
 public class DoctorIntervention {
+    /**
+     * 餐前血糖正常值水平
+     */
+    public static final String BEFORE_REFERENCE = "4.4~7.0";
+
+    /**
+     * 餐后血糖正常值范围
+     */
+    public static final String AFTER_REFERENCE = "4.4~10.0";
     @Id
     @Column(name = "id")
     private String id;// 流水ID
