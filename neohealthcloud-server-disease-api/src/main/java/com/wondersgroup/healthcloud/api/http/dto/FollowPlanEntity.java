@@ -1,5 +1,8 @@
 package com.wondersgroup.healthcloud.api.http.dto;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import lombok.Data;
@@ -20,33 +23,80 @@ public class FollowPlanEntity {
     private String followDate;//随访日期
     private String hospitalName;//医疗机构名称
     private String doctorName;//随访医生
-    private String followDateInterval;//随访日期间隔
+    //private String followDateInterval;//随访日期间隔
     private String followCrowedType;//随访人群种类
     private boolean isOverdueFlag;//是否过期标示
     public FollowPlanEntity(FollowPlanDTO dto) {
         this.followDate = null == dto.getFollowDate() ? null : new DateTime(dto.getFollowDate()).toString("yyyy-MM-dd");
+        int year = new DateTime(dto.getFollowDate()).getYear();
+        int month = new DateTime(dto.getFollowDate()).getMonthOfYear(); 
+        int day = new DateTime(dto.getFollowDate()).getDayOfMonth(); 
+        
         this.doctorName = dto.getDoctorName();
         this.hospitalName = dto.getHospitalName();
         this.followCrowedType = dto.getFollowCrowedType();
-        if(StringUtils.isNotBlank(followDate)){
+        if(StringUtils.isNotBlank(followDate)&&"3".equals(followCrowedType)){
             int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
-            if(dateInterval>=151&&dateInterval<=180){
-                this.followDateInterval="6个月之后";
-            }else if(dateInterval>=121&&dateInterval<=150){
-                this.followDateInterval="5个月之后";
-            }else if(dateInterval>=91&&dateInterval<=120){
-                this.followDateInterval="4个月之后";
-            }else if(dateInterval>=61&&dateInterval<=90){
-                this.followDateInterval="3个月之后";
-            }else if(dateInterval>=31&&dateInterval<=60){
-                this.followDateInterval="2个月之后";
-            }else if(dateInterval>=1&&dateInterval<=30){
-                this.followDateInterval=dateInterval+"天之后";
-            }else if(dateInterval==0){
-                this.followDateInterval="当天";
-            }else{
-                this.followDateInterval="随访已经过期";
+            if(dateInterval<0){
+                if(getQuarterByMonth(month)==9){
+                    this.followDate=year+"-10-1 到 "+year+"-12-31";
+                }else if(getQuarterByMonth(month)==0){
+                    this.followDate=year+"-1-1 到 "+year+"-3-31";
+                }else if(getQuarterByMonth(month)==3){
+                    this.followDate=year+"-4-1 到 "+year+"-6-30";
+                }else{
+                    this.followDate=year+"-7-1 到 "+year+"-9-30";
+                }
                 this.isOverdueFlag=true;
+            }else{
+                if(getQuarterByMonth(month)==9){
+                   if((month==10&&day==1)||(month==12&&day==31)){
+                    this.followDate=year+"-10-1 到 "+year+"-12-31";  
+                   }else{
+                    this.followDate=followDate+" 到 "+year+"-12-31";   
+                   }
+                }else if(getQuarterByMonth(month)==0){
+                    if((month==1&&day==1)||(month==3&&day==31)){
+                        this.followDate=year+"-1-1 到 "+year+"-3-31";  
+                    }else{
+                        this.followDate=followDate+" 到 "+year+"-3-31";
+                    }
+                }else if(getQuarterByMonth(month)==3){
+                    if((month==4&&day==1)||(month==6&&day==31)){
+                        this.followDate=year+"-4-1 到 "+year+"-6-30"; 
+                    }else{
+                        this.followDate=followDate+" 到 "+year+"-6-30"; 
+                    }
+                }else if(getQuarterByMonth(month)==6){
+                    if((month==7&&day==1)||(month==9&&day==30)){
+                        this.followDate=year+"-7-1 到 "+year+"-9-30"; 
+                    }else{
+                        this.followDate=followDate+" 到 "+year+"-9-30"; 
+                    }
+                }
+            }
+        }else if(StringUtils.isNotBlank(followDate)&&"1".equals(followCrowedType)){
+            int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
+            if(dateInterval<0){
+                if(getQuarterByMonth(month)==0){
+                    this.followDate=year+"-3-31 到 "+year+"-10-1";
+                }else{
+                    this.followDate=year+"-4-1 到 "+year+"-9-30";
+                }
+            }else{
+                if(getQuarterByMonth(month)==0){
+                    if((month==10&&day==1)||(month==3&&day==31)){
+                        this.followDate=year+"-3-31 到 "+year+"-10-1";  
+                    }else{
+                        this.followDate=followDate+" 到 "+year+"-10-1";
+                    }
+                }else{
+                    if((month==4&&day==1)||(month==9&&day==30)){
+                        this.followDate=year+"-4-1 到 "+year+"-10-1";  
+                    }else{
+                        this.followDate=followDate+" 到 "+year+"-10-1";
+                    }
+                }
             }
         }
     }
@@ -61,5 +111,52 @@ public class FollowPlanEntity {
     {
     int days = (int) ((date2.getTime() - date1.getTime()) / (1000*3600*24));
     return days;
+    }
+    /**
+     * String 转 Date
+     * @param time
+     * @return
+     */
+    public static Date stringToDate(String time) {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");//日期格式
+        Date date = null;
+        try {
+            date = format.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+    /**
+     * 季度一年四季， 第一季度：1月-3月， 第二季度：4月-6月， 第三季度：7月-9月， 第四季度：10月-12月
+     * 
+     * @param month
+     *            需要查找的月份0-11,Java中的月份是从0开始计算的.
+     * @return 当前季度开始的月份.分别是0=1月,3=4月,6=7月,9=10月
+     */
+    public static int getQuarterByMonth(int month) {
+            int months[] = { 0, 3, 6, 9 };
+            if (month >= 1 && month <= 3) // 1-3月;
+                    return months[0];
+            else if (month >= 4 && month <= 6) // 4-6月;
+                    return months[1];
+            else if (month >= 7 && month <= 9) // 7-9月;
+                    return months[2];
+            else
+                    // 10-12月;
+                    return months[3];
+    }
+    /**
+     * 高危人群随访日期月
+     * @param month
+     * @return
+     */
+    public static int getHighRishByMonth(int month){
+        int months[] = { 0, 1};
+        if(month >= 3 && month <= 10){//3月到10月
+           return   months[0];
+        }else{
+           return   months[1]; //4月到9月
+        }
     }
 }
