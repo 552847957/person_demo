@@ -39,13 +39,13 @@ public class FollowPlanEntity {
             int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
             if(dateInterval<0){
                 if(getQuarterByMonth(month)==9){
-                    this.followDate=year+"-10-1 到 "+year+"-12-31";
+                    this.followDate=year+"-10-01 到 "+year+"-12-31";
                 }else if(getQuarterByMonth(month)==0){
-                    this.followDate=year+"-1-1 到 "+year+"-3-31";
+                    this.followDate=year+"-01-01 到 "+year+"-03-31";
                 }else if(getQuarterByMonth(month)==3){
-                    this.followDate=year+"-4-1 到 "+year+"-6-30";
+                    this.followDate=year+"-04-01 到 "+year+"-06-30";
                 }else{
-                    this.followDate=year+"-7-1 到 "+year+"-9-30";
+                    this.followDate=year+"-07-01 到 "+year+"-09-30";
                 }
                 this.isOverdueFlag=true;
             }else{
@@ -57,21 +57,21 @@ public class FollowPlanEntity {
                    }
                 }else if(getQuarterByMonth(month)==0){
                     if((month==1&&day==1)||(month==3&&day==31)){
-                        this.followDate=year+"-1-1 到 "+year+"-3-31";  
+                        this.followDate=year+"-01-01 到 "+year+"-03-31";  
                     }else{
-                        this.followDate=followDate+" 到 "+year+"-3-31";
+                        this.followDate=followDate+" 到 "+year+"-03-31";
                     }
                 }else if(getQuarterByMonth(month)==3){
                     if((month==4&&day==1)||(month==6&&day==31)){
-                        this.followDate=year+"-4-1 到 "+year+"-6-30"; 
+                        this.followDate=year+"-04-01 到 "+year+"-06-30"; 
                     }else{
-                        this.followDate=followDate+" 到 "+year+"-6-30"; 
+                        this.followDate=followDate+" 到 "+year+"-06-30"; 
                     }
                 }else if(getQuarterByMonth(month)==6){
                     if((month==7&&day==1)||(month==9&&day==30)){
-                        this.followDate=year+"-7-1 到 "+year+"-9-30"; 
+                        this.followDate=year+"-07-01 到 "+year+"-09-30"; 
                     }else{
-                        this.followDate=followDate+" 到 "+year+"-9-30"; 
+                        this.followDate=followDate+" 到 "+year+"-09-30"; 
                     }
                 }
             }
@@ -79,22 +79,22 @@ public class FollowPlanEntity {
             int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
             if(dateInterval<0){
                 if(getQuarterByMonth(month)==0){
-                    this.followDate=year+"-3-31 到 "+year+"-10-1";
+                    this.followDate=year+"-03-31 到 "+year+"-10-01";
                 }else{
-                    this.followDate=year+"-4-1 到 "+year+"-9-30";
+                    this.followDate=year+"-04-01 到 "+year+"-09-30";
                 }
             }else{
                 if(getQuarterByMonth(month)==0){
                     if((month==10&&day==1)||(month==3&&day==31)){
-                        this.followDate=year+"-3-31 到 "+year+"-10-1";  
+                        this.followDate=year+"-03-31 到 "+year+"-10-01";  
                     }else{
-                        this.followDate=followDate+" 到 "+year+"-10-1";
+                        this.followDate=followDate+" 到 "+year+"-10-01";
                     }
                 }else{
                     if((month==4&&day==1)||(month==9&&day==30)){
-                        this.followDate=year+"-4-1 到 "+year+"-10-1";  
+                        this.followDate=year+"-04-01 到 "+year+"-10-01";  
                     }else{
-                        this.followDate=followDate+" 到 "+year+"-10-1";
+                        this.followDate=followDate+" 到 "+year+"-10-01";
                     }
                 }
             }
