@@ -30,74 +30,57 @@ public class FollowPlanEntity {
         this.followDate = null == dto.getFollowDate() ? null : new DateTime(dto.getFollowDate()).toString("yyyy-MM-dd");
         int year = new DateTime(dto.getFollowDate()).getYear();
         int month = new DateTime(dto.getFollowDate()).getMonthOfYear(); 
-        int day = new DateTime(dto.getFollowDate()).getDayOfMonth(); 
+        //int day = new DateTime(dto.getFollowDate()).getDayOfMonth(); 
         
         this.doctorName = dto.getDoctorName();
         this.hospitalName = dto.getHospitalName();
         this.followCrowedType = dto.getFollowCrowedType();
         if(StringUtils.isNotBlank(followDate)&&"3".equals(followCrowedType)){
-            int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
-            if(dateInterval<0){
                 if(getQuarterByMonth(month)==9){
-                    this.followDate=year+"-10-01 到 "+year+"-12-31";
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-12-31"));
+                    this.followDate=followDate+" 到 "+year+"-12-31";
+                    if(i<0){
+                        this.isOverdueFlag=true;   
+                    }
                 }else if(getQuarterByMonth(month)==0){
-                    this.followDate=year+"-01-01 到 "+year+"-03-31";
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-03-31"));
+                    this.followDate=followDate+" 到 "+year+"-03-31";
+                    if(i<0){
+                        this.isOverdueFlag=true;   
+                    }
                 }else if(getQuarterByMonth(month)==3){
-                    this.followDate=year+"-04-01 到 "+year+"-06-30";
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-06-30"));
+                    this.followDate=followDate+" 到 "+year+"-06-30";
+                    if(i<0){
+                        this.isOverdueFlag=true;   
+                    }
                 }else{
-                    this.followDate=year+"-07-01 到 "+year+"-09-30";
+                    this.followDate=followDate+" 到 "+year+"-09-30"; 
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-09-30"));
+                    if(i<0){
+                        this.isOverdueFlag=true;   
+                    }
                 }
-                this.isOverdueFlag=true;
-            }else{
-                if(getQuarterByMonth(month)==9){
-                   if((month==10&&day==1)||(month==12&&day==31)){
-                    this.followDate=year+"-10-1 到 "+year+"-12-31";  
-                   }else{
-                    this.followDate=followDate+" 到 "+year+"-12-31";   
-                   }
-                }else if(getQuarterByMonth(month)==0){
-                    if((month==1&&day==1)||(month==3&&day==31)){
-                        this.followDate=year+"-01-01 到 "+year+"-03-31";  
+          
+        }else if(StringUtils.isNotBlank(followDate)&&"1".equals(followCrowedType)){
+                if(getHighRishByMonth(month)==0){
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-09-30"));
+                    this.followDate=followDate+" 到 "+year+"-09-30";
+                    if(i<0){
+                        this.isOverdueFlag=true;   
+                    }
+                }else{
+                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-03-31"));
+                    //this.followDate=(year-1)+"-10-01 到 "+followDate;
+                    if(year<new DateTime(new Date()).getYear()){
+                        this.followDate=followDate+" 到 "+(year+1)+"-03-31";
                     }else{
                         this.followDate=followDate+" 到 "+year+"-03-31";
                     }
-                }else if(getQuarterByMonth(month)==3){
-                    if((month==4&&day==1)||(month==6&&day==31)){
-                        this.followDate=year+"-04-01 到 "+year+"-06-30"; 
-                    }else{
-                        this.followDate=followDate+" 到 "+year+"-06-30"; 
-                    }
-                }else if(getQuarterByMonth(month)==6){
-                    if((month==7&&day==1)||(month==9&&day==30)){
-                        this.followDate=year+"-07-01 到 "+year+"-09-30"; 
-                    }else{
-                        this.followDate=followDate+" 到 "+year+"-09-30"; 
+                    if(i<0){
+                        this.isOverdueFlag=true;   
                     }
                 }
-            }
-        }else if(StringUtils.isNotBlank(followDate)&&"1".equals(followCrowedType)){
-            int dateInterval = differentDaysByMillisecond(new Date(),dto.getFollowDate());
-            if(dateInterval<0){
-                if(getQuarterByMonth(month)==0){
-                    this.followDate=year+"-03-31 到 "+year+"-10-01";
-                }else{
-                    this.followDate=year+"-04-01 到 "+year+"-09-30";
-                }
-            }else{
-                if(getQuarterByMonth(month)==0){
-                    if((month==10&&day==1)||(month==3&&day==31)){
-                        this.followDate=year+"-03-31 到 "+year+"-10-01";  
-                    }else{
-                        this.followDate=followDate+" 到 "+year+"-10-01";
-                    }
-                }else{
-                    if((month==4&&day==1)||(month==9&&day==30)){
-                        this.followDate=year+"-04-01 到 "+year+"-10-01";  
-                    }else{
-                        this.followDate=followDate+" 到 "+year+"-10-01";
-                    }
-                }
-            }
         }
     }
     
@@ -153,7 +136,7 @@ public class FollowPlanEntity {
      */
     public static int getHighRishByMonth(int month){
         int months[] = { 0, 1};
-        if(month >= 3 && month <= 10){//3月到10月
+        if(month >= 4 && month <= 9){//3月到10月
            return   months[0];
         }else{
            return   months[1]; //4月到9月
