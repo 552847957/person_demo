@@ -21,6 +21,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wondersgroup.healthcloud.api.utls.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -31,7 +32,7 @@ public class MeasureChartController {
 
     public static final Logger logger = LoggerFactory.getLogger("exlog");
     private static final String requestHistoryByArrayDay = "%s/api/measure/3.0/getHistoryByArrayDay?%s";
-    private static final String requestWeekIsExistByArrayDay = "%s/api/measure/3.0/getWeekIsExistByArrayDay?%s";
+    private static final String BLOODGLUCOSE_TOP_ONE = "%s/api/measure/3.0/getBloodGlucoseTopOne?%s";
     @Value("${internal.api.service.measure.url}")
     private String host;
     private RestTemplate template = new RestTemplate();
@@ -44,11 +45,13 @@ public class MeasureChartController {
      * @throws JsonProcessingException
      */
     @GetMapping("getHistoryByArrayDay")
-    public JsonResponseEntity getHistoryByArrayDay(String registerId, String date,
+    public JsonResponseEntity getHistoryByArrayDay(String registerId, String date, String dayAmount,
             @RequestParam(defaultValue = "true") Boolean isBefore, Pageable pageable) throws JsonProcessingException {
             try {
                 StringBuffer str = new StringBuffer();
-                str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore).append("&date=").append(date);
+                str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore)
+                .append("&date=").append(date)
+                .append("&dayAmount=").append(dayAmount);
                 String url = String.format(requestHistoryByArrayDay, host, str);
 //                String url = "http://127.0.0.1:8080/api/measure/3.0/getHistoryByArrayDay?registerId=ff80808154177829015417bbe1970020&sex=1&dayAmount=2";
 
@@ -76,8 +79,8 @@ public class MeasureChartController {
             try {
                 StringBuffer str = new StringBuffer();
                 str.append("registerId=").append(registerId);
-                String url = String.format(requestWeekIsExistByArrayDay, host, str);
 
+                String url = String.format(BLOODGLUCOSE_TOP_ONE, host, str);
                 ResponseEntity<Map> response = buildGetEntity(url, Map.class);
                 if (response.getStatusCode().equals(HttpStatus.OK)) {
                     Map<String, Object> responseBody = response.getBody();

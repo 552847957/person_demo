@@ -305,6 +305,9 @@ public class MeasureController {
                     }
                 }
             }
+            rtnMap.put("before", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), rtnMap.get("nextMonth").toString(), true));
+            rtnMap.put("after", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), rtnMap.get("frontMonth").toString(), false));
+            rtnMap.put("thisMonth", monthDate);
             rtnMap.put("thisMonth", monthDate);
             result.setData(rtnMap);
         } catch (Exception e) {
@@ -417,5 +420,26 @@ public class MeasureController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("isStandard", "false");// 非标准版
         return headers;
+    }
+    
+    public boolean dateBeforeIsExistData(String registerId, String personCard, String date, Boolean isBefore){
+        boolean result = false;
+        try {
+            String param = "registerId=".concat(registerId)
+                    .concat("&personCard=").concat(personCard)
+                    .concat("&date=").concat(date)
+                    .concat("&isBefore=" + isBefore);
+            String url = String.format(queryHistoryRecordByDate, host, param);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    result = Integer.parseInt(response.getBody().get("data").toString()) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(" dateBeforeIsExistData " + e.getMessage());
+        }
+        return result;
     }
 }

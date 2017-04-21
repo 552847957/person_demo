@@ -10,8 +10,10 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.notice.Notice;
+import com.wondersgroup.healthcloud.jpa.repository.disease.DiseaseMessageRepository;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
+import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.faq.FaqService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.BasicImageTextDTO;
@@ -19,6 +21,7 @@ import com.wondersgroup.healthcloud.services.notice.NoticeService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.security.ServiceUrlPlaceholderResolver;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -38,30 +41,33 @@ import java.util.Map;
 @RequestMapping("/api/home")
 public class HomeController {
 
-    private static final Logger log = Logger.getLogger(HomeController.class);
+    private static final Logger           log = Logger.getLogger(HomeController.class);
 
     @Autowired
-    private ImageTextService imageTextService;
+    private ImageTextService              imageTextService;
 
     @Autowired
-    private NoticeService noticeService;
+    private NoticeService                 noticeService;
 
     @Autowired
-    private ManageNewsArticleService manageNewsArticleService;
+    private ManageNewsArticleService      manageNewsArticleService;
 
     @Autowired
-    private FaqService faqService;
+    private FaqService                    faqService;
 
     @Autowired
     private ServiceUrlPlaceholderResolver serviceUrlPlaceholderResolver;
+
+    @Autowired
+    private DiabetesService               diabetesService;
 
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
     public JsonResponseEntity bannerFunctionAds(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                                @RequestHeader(value = "spec-area", required = false) String specArea,
-                                                @RequestHeader(value = "app-version", required = true) String version,
-                                                @AccessToken(required = false, guestEnabled = true) Session session) {
+            @RequestHeader(value = "spec-area", required = false) String specArea,
+            @RequestHeader(value = "app-version", required = true) String version,
+            @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
 
@@ -83,7 +89,8 @@ public class HomeController {
         }
 
         // 首页功能栏
-        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, null, ImageTextEnum.G_HOME_FUNCTION.getType(), version);
+        List<ImageText> imageTextsB = imageTextService.findGImageTextForApp(mainArea, null,
+                ImageTextEnum.G_HOME_FUNCTION.getType(), version);
         if (imageTextsB != null && imageTextsB.size() > 0) {
             List functionIcons = new ArrayList();
             Map map = null;
@@ -120,14 +127,32 @@ public class HomeController {
             result.setCode(1000);
             result.setMsg("未查询到相关数据！");
         }
+
+        try {
+            diabetesService.addDiabetesRemindMessage(session.getUserId());
+        } catch (Exception e) {
+            log.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
+        }
         return result;
+    }
+
+    @RequestMapping(value = "/send", method = RequestMethod.GET)
+    @VersionRange
+    @WithoutToken
+    public Boolean bannerFunctionAds(String registerId) {
+        try {
+            diabetesService.addDiabetesRemindMessage(registerId);
+        } catch (Exception e) {
+            log.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
+        }
+        return true;
     }
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
     public JsonResponseEntity appTips(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                      @RequestHeader(value = "spec-area", required = false) String specArea) {
+            @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Notice notice = noticeService.findNoticeByAreaForApp(mainArea, specArea);
         if (notice != null) {
@@ -147,16 +172,18 @@ public class HomeController {
     @VersionRange
     @WithoutToken
     public JsonResponseEntity newsAndQuestions(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                               @RequestHeader(value = "spec-area", required = false) String specArea) {
+            @RequestHeader(value = "spec-area", required = false) String specArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
         try {
-            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 0, 10);
+            List<NewsArticleListAPIEntity> newsArticleList = manageNewsArticleService.findArticleForFirst(mainArea, 0,
+                    10);
             if (newsArticleList != null && newsArticleList.size() > 0) {
                 data.put("news", newsArticleList);
             }
         } catch (Exception ex) {
-            log.error("HomeController.newsAndQuestions Error --> manageNewsArticleService.findArticleForFirst -->" + ex.getLocalizedMessage());
+            log.error("HomeController.newsAndQuestions Error --> manageNewsArticleService.findArticleForFirst -->"
+                    + ex.getLocalizedMessage());
         }
 
         try {
@@ -174,7 +201,8 @@ public class HomeController {
                 data.put("questions", questions);
             }
         } catch (Exception ex) {
-            log.error("HomeController.newsAndQuestions Error --> faqService.findHomeFaqList -->" + ex.getLocalizedMessage());
+            log.error("HomeController.newsAndQuestions Error --> faqService.findHomeFaqList -->"
+                    + ex.getLocalizedMessage());
         }
 
         result.setData(data);

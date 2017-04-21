@@ -137,5 +137,26 @@ public class DateFormatter {
     public static Date parseIdCardDate(String date) {
         return parse(date, idCardDatePattern);
     }
+    
+    /**
+     * 两个日期之间相差的天数
+     * @param begin
+     * @param end
+     * @param type
+     * @return long
+     */
+    public static long dateMinusDateForDays(String begin, String end, String type) {
+        long quot = 0;
+        SimpleDateFormat ft = new SimpleDateFormat(type);
+        try {
+            Date date1 = ft.parse(begin);
+            Date date2 = ft.parse(end);
+            quot = date2.getTime() - date1.getTime();
+            quot = quot / 1000 / 60 / 60 / 24;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return quot < 0 ? quot * -1 : quot;
+    }
 
 }

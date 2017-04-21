@@ -73,5 +73,12 @@ public interface DiabetesService {
      * @return
      */
     public FollowPlanDTO getFollowPlanList(String cardType, String cardNumber);
+    
+    /**
+     * 糖料病用户一周没血糖记录，进行提醒
+     * @param registerId
+     * @return FollowPlanDTO
+     */
+    public Boolean addDiabetesRemindMessage(String registerId);
 }
 
