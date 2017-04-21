@@ -61,12 +61,13 @@ public class RemindController {
         String id = remindReader.readString("id", true);
         String userId = remindReader.readString("userId", false);
         String type = remindReader.readString("type", false);
-        String remark = remindReader.readString("remark", false);
+        String delFlag = remindReader.readString("delFlag", false);
+        String remark = remindReader.readString("remark", true);
         RemindItem[] remindItems = remindReader.readObject("remindItems", true, RemindItem[].class);
         RemindTime[] remindTimes = remindReader.readObject("remindTimes", true, RemindTime[].class);
         RemindItem[] delRemindItems = remindReader.readObject("delRemindItems", true, RemindItem[].class);
         RemindTime[] delRemindTimes = remindReader.readObject("delRemindTimes", true, RemindTime[].class);
-        Remind remind = new Remind(id, userId, type, remark);
+        Remind remind = new Remind(id, userId, type, remark, delFlag);
 
         JsonListResponseEntity result = new JsonListResponseEntity();
         int rtnInt = remindService.saveAndUpdate(remind, remindItems, remindTimes, delRemindItems, delRemindTimes);

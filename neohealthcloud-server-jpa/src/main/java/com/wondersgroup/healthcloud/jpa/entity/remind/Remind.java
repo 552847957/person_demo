@@ -33,7 +33,7 @@ public class Remind {
 
     public Remind(){}
 
-    public Remind(String id, String userId, String type, String remark) {
+    public Remind(String id, String userId, String type, String remark, String delFlag) {
         this.id = id;
         this.userId = userId;
         this.type = type;
