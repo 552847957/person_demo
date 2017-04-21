@@ -38,7 +38,7 @@ public class MeasureController {
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
     private static final String recentMeasureStatisticalData = "%s/api/measure/3.0/recentStatisticalData?%s";
-
+    private static final String queryHistoryRecordByDate = "%s/api/measure/3.0/queryHistoryRecordByDate?%s";
     private static final String requestModifyPath = "%s/api/measure/3.0/modify/%s";
     private static final String queryNearestPath = "%s/api/measure/%s/nearest?%s";
     private static final String bmiH5ChartPath = "%s/api/measure/bmi/chart?%s";
