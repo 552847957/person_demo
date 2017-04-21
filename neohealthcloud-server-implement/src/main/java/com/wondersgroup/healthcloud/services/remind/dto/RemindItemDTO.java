@@ -13,6 +13,7 @@ public class RemindItemDTO {
     private String id;// id
     private String remindId;// 提醒ID
     private String medicineId;// 药品ID
+    private String brand;// 品牌
     private String name;// 名称
     private String specification;// 规格
     private String dose;// 剂量
@@ -26,6 +27,7 @@ public class RemindItemDTO {
         this.id = ri.getId();
         this.remindId = ri.getRemindId();
         this.medicineId = ri.getMedicineId();
+        this.brand = ri.getBrand();
         this.name = ri.getName();
         this.specification = ri.getSpecification();
         this.dose = ri.getDose();

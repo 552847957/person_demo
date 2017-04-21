@@ -24,6 +24,8 @@ public class CommonlyUsedMedicine {
     private String userId;// 用户ID
     @Column(name = "type")
     private String type;// 药品类型 M-药品,I-胰岛素
+    @Column(name = "brand")
+    private String brand;// 品牌
     @Column(name = "name")
     private String name;// 名称
     @Column(name = "specification")
@@ -46,6 +48,7 @@ public class CommonlyUsedMedicine {
 
     public CommonlyUsedMedicine(RemindItem remindItem) {
         this.medicineId = remindItem.getMedicineId();
+        this.brand = remindItem.getBrand();
         this.name = remindItem.getName();
         this.specification = remindItem.getSpecification();
         this.dose = remindItem.getDose();

@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.remind.impl;
 
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
@@ -45,7 +46,7 @@ public class RemindServiceImpl implements RemindService {
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
 
-    private HttpRequestExecutorManager httpRequestExecutorManager;
+    private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
     @Autowired
     private RemindRepository remindRepo;
@@ -196,7 +197,7 @@ public class RemindServiceImpl implements RemindService {
 
                     StringBuffer strBufRTs = new StringBuffer();
                     for (RemindTime rt : remindTimes) {
-                        DateTime remindTime = new DateTime(datePrefix + " " + rt.getRemindTime().toString());
+                        DateTime remindTime = DateTimeFormat.forPattern(DATE_TIME_FORMAT).parseDateTime(datePrefix + " " + rt.getRemindTime().toString());
                         if (remindTime.isBefore(nowDateTime)) {// 提醒时间早于等于当前时间
                             remindTime.plusDays(1);
                         }

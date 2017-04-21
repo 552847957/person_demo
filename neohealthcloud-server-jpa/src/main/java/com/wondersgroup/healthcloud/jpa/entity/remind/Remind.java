@@ -38,5 +38,6 @@ public class Remind {
         this.userId = userId;
         this.type = type;
         this.remark = remark;
+        this.delFlag = delFlag;
     }
 }

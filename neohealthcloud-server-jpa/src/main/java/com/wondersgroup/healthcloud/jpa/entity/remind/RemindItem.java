@@ -20,6 +20,8 @@ public class RemindItem {
     private String remindId;// 提醒ID
     @Column(name = "medicine_id")
     private String medicineId;// 药品ID
+    @Column(name = "brand")
+    private String brand;// 品牌
     @Column(name = "name")
     private String name;// 名称
     @Column(name = "specification")
