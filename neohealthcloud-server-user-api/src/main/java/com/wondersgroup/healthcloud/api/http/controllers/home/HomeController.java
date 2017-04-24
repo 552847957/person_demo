@@ -58,9 +58,6 @@ public class HomeController {
     @Autowired
     private ServiceUrlPlaceholderResolver serviceUrlPlaceholderResolver;
 
-    @Autowired
-    private DiabetesService               diabetesService;
-
     @RequestMapping(value = "/bannerFunctionAds", method = RequestMethod.GET)
     @VersionRange
     @WithoutToken
@@ -127,25 +124,7 @@ public class HomeController {
             result.setCode(1000);
             result.setMsg("未查询到相关数据！");
         }
-
-        try {
-            diabetesService.addDiabetesRemindMessage(session.getUserId());
-        } catch (Exception e) {
-            log.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
-        }
         return result;
-    }
-
-    @RequestMapping(value = "/send", method = RequestMethod.GET)
-    @VersionRange
-    @WithoutToken
-    public Boolean bannerFunctionAds(String registerId) {
-        try {
-            diabetesService.addDiabetesRemindMessage(registerId);
-        } catch (Exception e) {
-            log.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
-        }
-        return true;
     }
 
     @RequestMapping(value = "/appTips", method = RequestMethod.GET)

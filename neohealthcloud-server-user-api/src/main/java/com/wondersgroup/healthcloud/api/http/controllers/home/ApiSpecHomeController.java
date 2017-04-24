@@ -15,6 +15,7 @@ import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
 import com.wondersgroup.healthcloud.services.article.dto.NewsArticleListAPIEntity;
 import com.wondersgroup.healthcloud.services.bbs.dto.topic.TopicListDto;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import com.wondersgroup.healthcloud.services.diabetes.DiabetesService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
@@ -27,6 +28,7 @@ import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalD
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.home.impl.TopicManageServiceImpl;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -71,7 +73,8 @@ public class ApiSpecHomeController {
     @Value("${api.vaccine.url}")
     private  String API_VACCINE_URL;
 
-
+    @Autowired
+    private DiabetesService               diabetesService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     @VersionRange(to = "4.0.2")
@@ -359,6 +362,14 @@ public class ApiSpecHomeController {
         result.setCode(0);
         result.setData(data);
         result.setMsg("获取数据成功");
+        
+        
+        
+        try {//访问首页的时候 看是否需要进行血糖一周未测提示
+            diabetesService.addDiabetesRemindMessage(session.getUserId());
+        } catch (Exception e) {
+            logger.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
+        }
         return result;
     }
 
