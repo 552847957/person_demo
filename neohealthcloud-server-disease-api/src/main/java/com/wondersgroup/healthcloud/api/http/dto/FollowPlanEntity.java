@@ -70,16 +70,21 @@ public class FollowPlanEntity {
                         this.isOverdueFlag=true;   
                     }
                 }else{
-                    int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-03-31"));
                     //this.followDate=(year-1)+"-10-01 到 "+followDate;
-                    if(year<new DateTime(new Date()).getYear()){
+                    if(month==10||month==11||month==12){
                         this.followDate=followDate+" 到 "+(year+1)+"-03-31";
+                        int i = differentDaysByMillisecond(new Date(),stringToDate((year+1)+"-03-31"));
+                        if(i<0){
+                            this.isOverdueFlag=true;   
+                        }
                     }else{
                         this.followDate=followDate+" 到 "+year+"-03-31";
+                        int i = differentDaysByMillisecond(new Date(),stringToDate(year+"-03-31"));
+                        if(i<0){
+                            this.isOverdueFlag=true;   
+                        }
                     }
-                    if(i<0){
-                        this.isOverdueFlag=true;   
-                    }
+                    
                 }
         }
     }
@@ -136,10 +141,10 @@ public class FollowPlanEntity {
      */
     public static int getHighRishByMonth(int month){
         int months[] = { 0, 1};
-        if(month >= 4 && month <= 9){//3月到10月
+        if(month >= 4 && month <= 9){//4月到9月
            return   months[0];
         }else{
-           return   months[1]; //4月到9月
+           return   months[1]; //3月到10月
         }
     }
 }
