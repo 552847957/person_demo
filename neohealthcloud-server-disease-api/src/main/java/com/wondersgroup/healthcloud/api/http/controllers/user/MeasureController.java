@@ -305,8 +305,8 @@ public class MeasureController {
                     }
                 }
             }
-            rtnMap.put("before", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), nextMonth.toString("yyyy-MM-dd"), true));
-            rtnMap.put("after", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), rtnMap.get("frontMonth").toString(), false));
+            rtnMap.put("before", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), new DateTime(flagDate).plusMonths(-1).plusDays(-1).toString("yyyy-MM-dd"), true));
+            rtnMap.put("after", dateBeforeIsExistData(registerId, StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard(), new DateTime(flagDate).plusDays(1).toString("yyyy-MM-dd"), false));
             rtnMap.put("thisMonth", monthDate);
             rtnMap.put("thisMonth", monthDate);
             result.setData(rtnMap);
