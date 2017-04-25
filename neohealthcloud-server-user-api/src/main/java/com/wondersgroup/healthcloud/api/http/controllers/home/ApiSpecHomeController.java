@@ -366,7 +366,7 @@ public class ApiSpecHomeController {
         
         
         try {//访问首页的时候 看是否需要进行血糖一周未测提示
-            diabetesService.addDiabetesRemindMessage(session.getUserId());
+            diabetesService.addDiabetesRemindMessage(uid);
         } catch (Exception e) {
             logger.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
         }
