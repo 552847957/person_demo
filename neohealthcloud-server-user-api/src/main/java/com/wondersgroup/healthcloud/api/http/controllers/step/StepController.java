@@ -181,7 +181,7 @@ public class StepController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST)
-	@VersionRange(from="4.1",to="4.1")
+	@VersionRange(from="4.1")
 	public Object saveAll(@RequestBody Map<String, Object> request) {
 		return stepCountService.saveAll(request);
 	}

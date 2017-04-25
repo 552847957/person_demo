@@ -242,7 +242,7 @@ public class ApiSpecHomeController {
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    @VersionRange(from = "4.1",to="4.1")
+    @VersionRange(from = "4.1")
     @WithoutToken
     public JsonResponseEntity indexForDisease(@RequestHeader(value = "main-area", required = true) String mainArea,
                                               @RequestHeader(value = "spec-area", required = false) String specArea,
