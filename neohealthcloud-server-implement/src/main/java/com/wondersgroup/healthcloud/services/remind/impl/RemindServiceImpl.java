@@ -1,5 +1,7 @@
 package com.wondersgroup.healthcloud.services.remind.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
@@ -7,9 +9,8 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
-import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
-import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
+import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
@@ -27,7 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -262,7 +267,7 @@ public class RemindServiceImpl implements RemindService {
     }
 
     @Override
-    public int medicationReminder(String id, String remindTimeId) {
+    public int medicationReminder(String id, String remindTimeId, String internalUrl) {
 
         int flag = -1;
 
@@ -275,7 +280,7 @@ public class RemindServiceImpl implements RemindService {
         }
 
         // 发送用药提醒PUSH
-        push(remind.getUserId(), "用药时间到，祝您身体健康", "天天笑哈哈");
+        push(remind.getUserId(), "用药时间到，祝您身体健康", "天天笑哈哈", internalUrl);
 
         // 生成下次用药提醒任务
         try {
@@ -296,14 +301,31 @@ public class RemindServiceImpl implements RemindService {
         return flag;
     }
 
-    private Boolean push(String userId, String title, String content) {
+    private Boolean push(String userId, String title, String content, String internalUrl) {
+
         boolean result = false;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        Map<String, Object> map = new HashMap<>();
+        map.put("title", title);
+        map.put("content", content);
+        map.put("type", "SYSTEM");
+        map.put("persistence", false);
+        map.put("area_special", false);
+        map.put("is_doctor", false);
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            AppMessage message = AppMessage.Builder.init().title(title).content(content)
-                    .type(AppMessageUrlUtil.Type.FAMILY).urlFragment(AppMessageUrlUtil.familyInvitation()).build();
-            result = pushClientWrapper.pushToAlias(message, userId);
-        } catch (Exception e) {
-            return false;
+            String jsonObj = mapper.writeValueAsString(map);
+            HttpEntity<String> formEntity = new HttpEntity<String>(jsonObj, headers);
+
+            String resultStr = restTemplate.postForObject(internalUrl + "message/push/single?alias=" + userId, formEntity,
+                    String.class);
+            result = true;
+        } catch (JsonProcessingException e) {
+            logger.error(Exceptions.getStackTraceAsString(e));
         }
         return result;
     }
