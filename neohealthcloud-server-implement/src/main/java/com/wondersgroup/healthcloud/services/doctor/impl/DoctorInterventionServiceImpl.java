@@ -31,7 +31,8 @@ public class DoctorInterventionServiceImpl implements DoctorInterventionService 
     public List<DoctorIntervention> list(DoctorIntervention doctorIntervention) {
         List<DoctorIntervention> rtnList = null;
         try {
-            rtnList = doctorInterventionRepository.findAll(Example.of(doctorIntervention), new Sort(Sort.Direction.DESC, "testTime"));
+            // 按照干预时间倒序排列
+            rtnList = doctorInterventionRepository.findAll(Example.of(doctorIntervention), new Sort(Sort.Direction.DESC, "createTime"));
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
