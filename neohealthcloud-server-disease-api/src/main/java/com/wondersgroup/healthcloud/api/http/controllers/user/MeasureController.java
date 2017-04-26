@@ -13,6 +13,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -276,8 +277,12 @@ public class MeasureController {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
                                 JsonNode jsonNodeData = jsonNode.get("data");
                                 Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
-                                Collections.sort(IteratorUtils.toList(itJsonNodeData), new Compartor());
-                                for (JsonNode tmpJson : jsonNodeData) {
+                                List<JsonNode> list = IteratorUtils.toList(itJsonNodeData);
+                                String str = list.get(0).get("fpgValue").asText();
+                                list.remove(0);
+                                Collections.sort(list, new Compartor());
+                                for (int i = 0; i < list.size(); i++) {
+                                    JsonNode tmpJson = list.get(i);
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
                                     if (0 <= testPeriod && testPeriod <= 7) {
                                         //  7 0 1 2 3 4 5 6 这样排序,醉了
@@ -286,7 +291,7 @@ public class MeasureController {
                                                 dayDatas[0] = tmpJson.get("fpgValue").asText();
                                             }
                                         } else {
-                                            String day = dayDatas[testPeriod + 1];
+                                            String day = dayDatas[testPeriod + 1] + (i == 0 ? str : "");
                                             if (day.split("&").length < 4) {// 第一个是按时间最新的一条，后面3条是按上传类型排序
                                                 dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                             }
@@ -322,21 +327,24 @@ public class MeasureController {
     class Compartor implements Comparator<JsonNode> {
         @Override
         public int compare(JsonNode o1, JsonNode o2) {
-            String o1va = o1.get("fpgValue").asText();
-            String o2va = o2.get("fpgValue").asText();
-            if("2".equals(o1va)){
+            String o1va = o1.get("measureWay").asText();
+            String o2va = o2.get("measureWay").asText();
+            if(o1va.equals(o2va)){
                 return 1;
+            }
+            if("2".equals(o1va)){
+                return -1;
             }
             if("2".equals(o2va)){
-                return -1;
-            }
-            if("3".equals(o1va)){
                 return 1;
             }
-            if("3".equals(o2va)){
+            if("3".equals(o1va)){
                 return -1;
             }
-            return 1;
+            if("3".equals(o2va)){
+                return 1;
+            }
+            return -1;
         }
     }
     
