@@ -204,7 +204,7 @@ public class RemindServiceImpl implements RemindService {
                     for (RemindTime rt : remindTimes) {
                         DateTime remindTime = DateTimeFormat.forPattern(DATE_TIME_FORMAT).parseDateTime(datePrefix + " " + rt.getRemindTime().toString());
                         if (remindTime.isBefore(nowDateTime)) {// 提醒时间早于等于当前时间
-                            remindTime.plusDays(1);
+                            remindTime = remindTime.plusDays(1);
                         }
                         if (strBufRTs.length() == 0) {
                             strBufRTs.append(remindTime.toString(DATE_TIME_FORMAT)).append("#").append(rt.getId());
