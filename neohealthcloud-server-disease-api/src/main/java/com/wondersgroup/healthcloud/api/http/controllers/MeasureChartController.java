@@ -45,11 +45,17 @@ public class MeasureChartController {
      * @throws JsonProcessingException
      */
     @GetMapping("getHistoryByArrayDay")
-    public JsonResponseEntity getHistoryByArrayDay(String registerId, String date, String dayAmount,
+    public JsonResponseEntity getHistoryByArrayDay(
+            String registerId,
+            String personCard,
+            String date,
+            @RequestParam(defaultValue = "5") String dayAmount,
             @RequestParam(defaultValue = "true") Boolean isBefore, Pageable pageable) throws JsonProcessingException {
             try {
                 StringBuffer str = new StringBuffer();
-                str.append("registerId=").append(registerId).append("&isBefore=").append(isBefore)
+                str.append("registerId=").append(registerId)
+                .append("&personCard=").append(personCard)
+                .append("&isBefore=").append(isBefore)
                 .append("&date=").append(date)
                 .append("&dayAmount=").append(dayAmount);
                 String url = String.format(requestHistoryByArrayDay, host, str);

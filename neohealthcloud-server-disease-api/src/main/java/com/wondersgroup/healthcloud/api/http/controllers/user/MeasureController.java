@@ -8,6 +8,8 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -18,6 +20,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.*;
 
 /**
@@ -273,8 +276,8 @@ public class MeasureController {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
                                 JsonNode jsonNodeData = jsonNode.get("data");
                                 Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
-                                while (itJsonNodeData.hasNext()) {
-                                    JsonNode tmpJson = itJsonNodeData.next();
+                                Collections.sort(IteratorUtils.toList(itJsonNodeData), new Compartor());
+                                for (JsonNode tmpJson : jsonNodeData) {
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
                                     if (0 <= testPeriod && testPeriod <= 7) {
                                         //  7 0 1 2 3 4 5 6 这样排序,醉了
@@ -284,7 +287,7 @@ public class MeasureController {
                                             }
                                         } else {
                                             String day = dayDatas[testPeriod + 1];
-                                            if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                            if (day.split("&").length < 4) {// 第一个是按时间最新的一条，后面3条是按上传类型排序
                                                 dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                             }
                                         }
@@ -315,8 +318,28 @@ public class MeasureController {
         }
         return result;
     }
-
-
+    
+    class Compartor implements Comparator<JsonNode> {
+        @Override
+        public int compare(JsonNode o1, JsonNode o2) {
+            String o1va = o1.get("fpgValue").asText();
+            String o2va = o2.get("fpgValue").asText();
+            if("2".equals(o1va)){
+                return 1;
+            }
+            if("2".equals(o2va)){
+                return -1;
+            }
+            if("3".equals(o1va)){
+                return 1;
+            }
+            if("3".equals(o2va)){
+                return -1;
+            }
+            return 1;
+        }
+    }
+    
     /**
      * 查询最新的一条数据
      * @param type
