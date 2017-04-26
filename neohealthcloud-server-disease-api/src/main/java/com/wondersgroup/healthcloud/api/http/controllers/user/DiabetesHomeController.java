@@ -38,7 +38,8 @@ public class DiabetesHomeController {
     @Value("${internal.api.service.measure.url}")
     private String host;
     private static final String recentMeasureHistory = "%s/api/measure/3.0/recentHistory/%s?%s";
-    private static final String queryNearestHistoryByTestPeriod = "%s/api/measure/3.0/queryNearestHistoryByTestPeriod?%s";
+    // private static final String queryNearestHistoryByTestPeriod = "%s/api/measure/3.0/queryNearestHistoryByTestPeriod?%s";
+    private static final String queryTodayLastestHistory = "%s/api/measure/3.0/queryTodayLastestHistory?%s";
     private static final String nearestOneYearBloodGlucoseInfo = "%s/api/measure/3.0/queryNearestBloodGlucoseInfo?%s";
     @Autowired
     private UserService userService;
@@ -52,10 +53,9 @@ public class DiabetesHomeController {
         JsonResponseEntity result = new JsonResponseEntity();
         try {
             RegisterInfo info = userService.getOneNotNull(registerId);
-            String param = "registarId=".concat(registerId)
-                    .concat("&persionCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard())
-                    .concat("&testPeriod=").concat(compareTime(true));
-            String url = String.format(queryNearestHistoryByTestPeriod, host, param);
+            String param = "registerId=".concat(registerId)
+                    .concat("&personCard=").concat(StringUtils.isEmpty(info.getPersoncard()) ? "" : info.getPersoncard());
+            String url = String.format(queryTodayLastestHistory, host, param);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -63,24 +63,9 @@ public class DiabetesHomeController {
                     String jsonStr = mapper.writeValueAsString(response.getBody().get("data"));
                     if (StringUtils.isNotEmpty(jsonStr)) {
                         JsonNode resultJson = mapper.readTree(jsonStr);
-                        Iterator<JsonNode> contentJson = resultJson.iterator();
                         Map<String, Object> dataMap = new HashMap<>();
-                        while (contentJson.hasNext()) {
-                            JsonNode jsonNode = contentJson.next();
-                            if (jsonNode.get("testPeriod") != null
-                                    && jsonNode.get("testPeriod").asText().equals(compareTime(true))
-                                    && jsonNode.get("testTime") != null
-                                    && jsonNode.get("testTime").asText().startsWith(DateTime.now().toString("yyyy-MM-dd"))) {
-                                dataMap.put("lastData", jsonNode);
-                                if (contentJson.hasNext()) {
-                                    dataMap.put("secondLastData", contentJson.next());
-                                }
-                                break;
-                            } else {
-                                dataMap.put("secondLastData", jsonNode);
-                                break;
-                            }
-                        }// end while
+                        // 册那、需求又改啦！！只查询当天最近的一条血糖测量数据
+                        dataMap.put("lastData",resultJson);
                         Map<String, Object> assessmentResult = diabetesAssessmentService.getLastAssessmentResult(registerId);
                         if (assessmentResult != null) {
                             dataMap.put("assessmentResult", assessmentResult);
