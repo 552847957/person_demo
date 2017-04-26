@@ -279,8 +279,15 @@ public class RemindServiceImpl implements RemindService {
             return 0;
         }
 
+        List<RemindItem> ris = remindItemRepo.findByRemindId(id);
+        if (ris == null || ris.size() < 1) {
+            return 0;
+        }
+        // 目前用药提醒仅有一个药品
+        RemindItem ri = ris.get(0);
+
         // 发送用药提醒PUSH
-        push(remind.getUserId(), "用药时间到，祝您身体健康", "天天笑哈哈", internalUrl);
+        push(remind.getUserId(), "用药提醒", "请您于" + rt.getRemindTime().toString() + "按时服用" + ("M".equals(remind.getType()) ? ri.getBrand() : ri.getName()), internalUrl);
 
         // 生成下次用药提醒任务
         try {
