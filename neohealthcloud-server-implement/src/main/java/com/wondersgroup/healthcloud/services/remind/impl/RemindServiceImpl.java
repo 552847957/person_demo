@@ -331,6 +331,7 @@ public class RemindServiceImpl implements RemindService {
     }
 
     private Boolean generateJob(String remindId, String params) {
+        logger.info("生成用药提醒定时任务：remindId = " + remindId + "params" + params);
         try {
             //调用jobClient的接口
             Map<String, String> param = new HashMap<>();
