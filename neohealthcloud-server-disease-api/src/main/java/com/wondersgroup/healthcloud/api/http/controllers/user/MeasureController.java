@@ -186,42 +186,9 @@ public class MeasureController {
                             if (date != null
                                     && !new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
-                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
+
                                 Map<Integer, List<JsonNode>> testPeriodMap = groupByTestPerid(jsonNode);
-                                if(null != testPeriodMap && testPeriodMap.keySet().size() > 0){
-                                    for(Integer testPeriodKey:testPeriodMap.keySet()){
-                                        List<JsonNode> testPeriodList =  testPeriodMap.get(testPeriodKey);
-                                        sortList(testPeriodList);
-                                        Iterator<JsonNode> itJsonNodeData = testPeriodList.iterator();
-                                        while (itJsonNodeData.hasNext()) {
-                                            JsonNode tmpJson = itJsonNodeData.next();
-                                            int testPeriod = tmpJson.get("testPeriod").asInt();
-                                            if (0 <= testPeriod && testPeriod <= 7) {
-                                                //  7 0 1 2 3 4 5 6 这样排序,醉了
-                                                if (testPeriod == 7) {
-                                                    if (StringUtils.isBlank(dayDatas[0])) {
-                                                        dayDatas[0] = tmpJson.get("fpgValue").asText();
-                                                    } else {
-                                                        String day = dayDatas[0];
-                                                        if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                            dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                                        }
-                                                    }
-
-
-                                                } else {
-                                                    String day = dayDatas[testPeriod + 1];
-                                                    if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                        dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                                    }
-                                                }
-                                            }
-                                        }
-
-
-                                    }
-
-                                }
+                                String[] dayDatas = genedayDatas(testPeriodMap);
 
                                 StringBuffer strBuf = new StringBuffer();
                                 for (int j = 0; j < dayDatas.length; j++) {
@@ -252,6 +219,7 @@ public class MeasureController {
 
     /**
      * 将一天的血糖数据，按照 testPeriod 分组
+     *
      * @param jsonNode
      * @return
      */
@@ -273,6 +241,49 @@ public class MeasureController {
 
         }
         return periodMap;
+    }
+
+    /**
+     * 生成一天的测量数据（根据业务排序的）
+     * @param testPeriodMap
+     * @return
+     */
+    private String[] genedayDatas(Map<Integer, List<JsonNode>> testPeriodMap) {
+        String[] dayDatas = {"", "", "", "", "", "", "", ""};
+        if (null != testPeriodMap && testPeriodMap.keySet().size() > 0) {
+            for (Integer testPeriodKey : testPeriodMap.keySet()) {
+                List<JsonNode> testPeriodList = testPeriodMap.get(testPeriodKey);
+                sortList(testPeriodList);
+                Iterator<JsonNode> itJsonNodeData = testPeriodList.iterator();
+                while (itJsonNodeData.hasNext()) {
+                    JsonNode tmpJson = itJsonNodeData.next();
+                    int testPeriod = tmpJson.get("testPeriod").asInt();
+                    if (0 <= testPeriod && testPeriod <= 7) {
+                        //  7 0 1 2 3 4 5 6 这样排序,醉了
+                        if (testPeriod == 7) {
+                            if (StringUtils.isBlank(dayDatas[0])) {
+                                dayDatas[0] = tmpJson.get("fpgValue").asText();
+                            } else {
+                                String day = dayDatas[0];
+                                if (day.split("&").length < 4) {// 同一时间段最新4条数据
+                                    dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
+                                }
+                            }
+
+
+                        } else {
+                            String day = dayDatas[testPeriod + 1];
+                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
+                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+        return dayDatas;
     }
 
     /**
@@ -339,28 +350,8 @@ public class MeasureController {
                             if (date != null
                                     && !new DateTime(date).isBefore(beginDateTime.withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(endDateTime.plusDays(1).withTimeAtStartOfDay())) {
-                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
-                                JsonNode jsonNodeData = jsonNode.get("data");
-                                Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
-                                List<JsonNode> list = sortList(jsonNode);
-                                for (int i = 0; i < list.size(); i++) {
-                                    JsonNode tmpJson = list.get(i);
-                                    int testPeriod = tmpJson.get("testPeriod").asInt();
-                                    if (0 <= testPeriod && testPeriod <= 7) {
-                                        //  7 0 1 2 3 4 5 6 这样排序,醉了
-                                        if (testPeriod == 7) {
-                                            String day = dayDatas[0];
-                                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                            }
-                                        } else {
-                                            String day = dayDatas[testPeriod + 1];
-                                            if (day.split("&").length < 4) {// 第一个是按时间最新的一条，后面3条是按上传类型排序
-                                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                            }
-                                        }
-                                    }
-                                }
+                                Map<Integer, List<JsonNode>> testPeriodMap = groupByTestPerid(jsonNode);
+                                String[] dayDatas = genedayDatas(testPeriodMap);
                                 StringBuffer strBuf = new StringBuffer();
                                 for (int j = 0; j < dayDatas.length; j++) {
                                     if (j == 0) {
