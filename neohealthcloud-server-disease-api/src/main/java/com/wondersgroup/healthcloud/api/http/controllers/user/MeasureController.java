@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -187,8 +188,8 @@ public class MeasureController {
                                     && !new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
                                 String[] dayDatas = {"", "", "", "", "", "", "", ""};
-                                JsonNode jsonNodeData = jsonNode.get("data");
-                                Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
+                                List<JsonNode> list = sortList(jsonNode);
+                                Iterator<JsonNode> itJsonNodeData = list.iterator();
                                 while (itJsonNodeData.hasNext()) {
                                     JsonNode tmpJson = itJsonNodeData.next();
                                     int testPeriod = tmpJson.get("testPeriod").asInt();
@@ -202,7 +203,7 @@ public class MeasureController {
                                                 dayDatas[0] = tmpJson.get("fpgValue").asText();
                                            }else{
                                                String day = dayDatas[0];
-                                               if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                               if (day.split("&").length < 4) {// 同一时间段最新4条数据
                                                    dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                                }
                                            }
@@ -210,7 +211,7 @@ public class MeasureController {
 
                                         } else {
                                             String day = dayDatas[testPeriod + 1];
-                                            if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
                                                 dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
                                             }
                                         }
@@ -240,6 +241,26 @@ public class MeasureController {
             log.info("近期历史数据获取失败", e);
         }
         return result;
+    }
+
+
+    /**
+     * 按时间排序后，除去第一条，剩下的要按照 measureWay 值的2,3,1 顺序排序
+     * @param jsonNode
+     * @return
+     */
+    private List<JsonNode> sortList(JsonNode jsonNode){
+        JsonNode jsonNodeData = jsonNode.get("data");
+        Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
+        List<JsonNode> list = IteratorUtils.toList(itJsonNodeData);
+        if(CollectionUtils.isNotEmpty(list) && list.size() > 2){
+            JsonNode firstNode = list.get(0);
+            list.remove(0);
+            Collections.sort(list, new Compartor());
+            list.add(0,firstNode);
+        }
+        return list;
+
     }
 
     @RequestMapping(value = "/getMeasureHistoryByDate", method = RequestMethod.GET)
