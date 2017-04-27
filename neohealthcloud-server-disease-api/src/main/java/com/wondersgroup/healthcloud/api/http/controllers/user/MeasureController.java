@@ -194,9 +194,19 @@ public class MeasureController {
                                     if (0 <= testPeriod && testPeriod <= 7) {
                                         //  7 0 1 2 3 4 5 6 这样排序,醉了
                                         if (testPeriod == 7) {
-                                            if (StringUtils.isEmpty(dayDatas[0])) {// 同一时间段仅获取最新数据
+                                            /*if (StringUtils.isEmpty(dayDatas[0])) {// 同一时间段仅获取最新数据
                                                 dayDatas[0] = tmpJson.get("fpgValue").asText();
-                                            }
+                                            }*/
+                                           if(StringUtils.isBlank(dayDatas[0])){
+                                                dayDatas[0] = tmpJson.get("fpgValue").asText();
+                                           }else{
+                                               String day = dayDatas[0];
+                                               if (day.split("&").length < 3) {// 同一时间段最新3条数据
+                                                   dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
+                                               }
+                                           }
+
+
                                         } else {
                                             String day = dayDatas[testPeriod + 1];
                                             if (day.split("&").length < 3) {// 同一时间段最新3条数据
