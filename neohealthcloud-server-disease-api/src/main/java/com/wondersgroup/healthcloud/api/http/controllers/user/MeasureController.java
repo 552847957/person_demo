@@ -52,14 +52,13 @@ public class MeasureController {
     private RestTemplate template = new RestTemplate();
 
     /**
-     *
-     * @param type 0－BMI(身高体重)
-     *             1－血氧
-     *             2－血压
-     *             3－血糖
-     *             4－记步
-     *             5－腰臀比
-     *             10-糖化血红蛋白
+     * @param type  0－BMI(身高体重)
+     *              1－血氧
+     *              2－血压
+     *              3－血糖
+     *              4－记步
+     *              5－腰臀比
+     *              10-糖化血红蛋白
      * @param paras
      * @return
      */
@@ -93,13 +92,14 @@ public class MeasureController {
 
     /**
      * 修改测量数据
-     * @param type 0－BMI(身高体重)
-     *             1－血氧
-     *             2－血压
-     *             3－血糖
-     *             4－记步
-     *             5－腰臀比
-     *             10-糖化血红蛋白
+     *
+     * @param type  0－BMI(身高体重)
+     *              1－血氧
+     *              2－血压
+     *              3－血糖
+     *              4－记步
+     *              5－腰臀比
+     *              10-糖化血红蛋白
      * @param paras
      * @return
      */
@@ -111,7 +111,7 @@ public class MeasureController {
             RegisterInfo info = userService.findRegOrAnonymous(registerId);
 
             String personCard = info.getPersoncard();
-            if(personCard != null){
+            if (personCard != null) {
                 paras.put("personCard", personCard);
             }
 
@@ -130,7 +130,6 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "数据更新失败");
     }
-
 
 
     @RequestMapping(value = "/lastWeekHistory", method = RequestMethod.GET)
@@ -187,36 +186,10 @@ public class MeasureController {
                             if (date != null
                                     && !new DateTime(date).isBefore(today.plusDays(-6).withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(today.plusDays(1).withTimeAtStartOfDay())) {
-                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
-                                List<JsonNode> list = sortList(jsonNode);
-                                Iterator<JsonNode> itJsonNodeData = list.iterator();
-                                while (itJsonNodeData.hasNext()) {
-                                    JsonNode tmpJson = itJsonNodeData.next();
-                                    int testPeriod = tmpJson.get("testPeriod").asInt();
-                                    if (0 <= testPeriod && testPeriod <= 7) {
-                                        //  7 0 1 2 3 4 5 6 这样排序,醉了
-                                        if (testPeriod == 7) {
-                                            /*if (StringUtils.isEmpty(dayDatas[0])) {// 同一时间段仅获取最新数据
-                                                dayDatas[0] = tmpJson.get("fpgValue").asText();
-                                            }*/
-                                           if(StringUtils.isBlank(dayDatas[0])){
-                                                dayDatas[0] = tmpJson.get("fpgValue").asText();
-                                           }else{
-                                               String day = dayDatas[0];
-                                               if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                   dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                               }
-                                           }
 
+                                Map<Integer, List<JsonNode>> testPeriodMap = groupByTestPerid(jsonNode);
+                                String[] dayDatas = genedayDatas(testPeriodMap);
 
-                                        } else {
-                                            String day = dayDatas[testPeriod + 1];
-                                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                            }
-                                        }
-                                    }
-                                }
                                 StringBuffer strBuf = new StringBuffer();
                                 for (int j = 0; j < dayDatas.length; j++) {
                                     if (j == 0) {
@@ -245,19 +218,91 @@ public class MeasureController {
 
 
     /**
-     * 按时间排序后，除去第一条，剩下的要按照 measureWay 值的2,3,1 顺序排序
+     * 将一天的血糖数据，按照 testPeriod 分组
+     *
      * @param jsonNode
      * @return
      */
-    private List<JsonNode> sortList(JsonNode jsonNode){
+    private Map<Integer, List<JsonNode>> groupByTestPerid(JsonNode jsonNode) {
+        Map<Integer, List<JsonNode>> periodMap = new HashMap<Integer, List<JsonNode>>();
         JsonNode jsonNodeData = jsonNode.get("data");
         Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
         List<JsonNode> list = IteratorUtils.toList(itJsonNodeData);
-        if(CollectionUtils.isNotEmpty(list) && list.size() > 2){
+
+        for (JsonNode node : list) {
+            Integer testPeriod = node.get("testPeriod").asInt();
+            if (periodMap.keySet().contains(testPeriod)) {
+                periodMap.get(testPeriod).add(node);
+            } else {
+                List<JsonNode> keyList = new ArrayList<JsonNode>();
+                keyList.add(node);
+                periodMap.put(testPeriod, keyList);
+            }
+
+        }
+        return periodMap;
+    }
+
+    /**
+     * 生成一天的测量数据（根据业务排序的）
+     * @param testPeriodMap
+     * @return
+     */
+    private String[] genedayDatas(Map<Integer, List<JsonNode>> testPeriodMap) {
+        String[] dayDatas = {"", "", "", "", "", "", "", ""};
+        if (null != testPeriodMap && testPeriodMap.keySet().size() > 0) {
+            for (Integer testPeriodKey : testPeriodMap.keySet()) {
+                List<JsonNode> testPeriodList = testPeriodMap.get(testPeriodKey);
+                sortList(testPeriodList);
+                Iterator<JsonNode> itJsonNodeData = testPeriodList.iterator();
+                while (itJsonNodeData.hasNext()) {
+                    JsonNode tmpJson = itJsonNodeData.next();
+                    int testPeriod = tmpJson.get("testPeriod").asInt();
+                    if (0 <= testPeriod && testPeriod <= 7) {
+                        //  7 0 1 2 3 4 5 6 这样排序,醉了
+                        if (testPeriod == 7) {
+                            if (StringUtils.isBlank(dayDatas[0])) {
+                                dayDatas[0] = tmpJson.get("fpgValue").asText();
+                            } else {
+                                String day = dayDatas[0];
+                                if (day.split("&").length < 4) {// 同一时间段最新4条数据
+                                    dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
+                                }
+                            }
+
+
+                        } else {
+                            String day = dayDatas[testPeriod + 1];
+                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
+                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+        return dayDatas;
+    }
+
+    /**
+     * 按时间排序后，除去第一条，剩下的要按照 measureWay 值的2,3,1 顺序排序
+     *
+     * @param list
+     * @return
+     */
+    private List<JsonNode> sortList(List<JsonNode> list) {
+        if (CollectionUtils.isNotEmpty(list) && list.size() > 2) {
             JsonNode firstNode = list.get(0);
             list.remove(0);
-            Collections.sort(list, new Compartor());
-            list.add(0,firstNode);
+            try {
+                Collections.sort(list, new Compartor());
+            } catch (Exception e) {
+//                e.printStackTrace();
+                log.info("排序异常 ", e);
+            }
+            list.add(0, firstNode);
         }
         return list;
 
@@ -305,28 +350,8 @@ public class MeasureController {
                             if (date != null
                                     && !new DateTime(date).isBefore(beginDateTime.withTimeAtStartOfDay().getMillis())
                                     && new DateTime(date).isBefore(endDateTime.plusDays(1).withTimeAtStartOfDay())) {
-                                String[] dayDatas = {"", "", "", "", "", "", "", ""};
-                                JsonNode jsonNodeData = jsonNode.get("data");
-                                Iterator<JsonNode> itJsonNodeData = jsonNodeData.iterator();
-                                List<JsonNode> list = sortList(jsonNode);
-                                for (int i = 0; i < list.size(); i++) {
-                                    JsonNode tmpJson = list.get(i);
-                                    int testPeriod = tmpJson.get("testPeriod").asInt();
-                                    if (0 <= testPeriod && testPeriod <= 7) {
-                                        //  7 0 1 2 3 4 5 6 这样排序,醉了
-                                        if (testPeriod == 7) {
-                                            String day = dayDatas[0];
-                                            if (day.split("&").length < 4) {// 同一时间段最新4条数据
-                                                dayDatas[0] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                            }
-                                        } else {
-                                            String day = dayDatas[testPeriod + 1];
-                                            if (day.split("&").length < 4) {// 第一个是按时间最新的一条，后面3条是按上传类型排序
-                                                dayDatas[testPeriod + 1] = day + (StringUtils.isBlank(day) ? "" : "&") + tmpJson.get("fpgValue").asText();
-                                            }
-                                        }
-                                    }
-                                }
+                                Map<Integer, List<JsonNode>> testPeriodMap = groupByTestPerid(jsonNode);
+                                String[] dayDatas = genedayDatas(testPeriodMap);
                                 StringBuffer strBuf = new StringBuffer();
                                 for (int j = 0; j < dayDatas.length; j++) {
                                     if (j == 0) {
@@ -352,33 +377,34 @@ public class MeasureController {
         }
         return result;
     }
-    
+
     class Compartor implements Comparator<JsonNode> {
         @Override
         public int compare(JsonNode o1, JsonNode o2) {
             String o1va = o1.get("measureWay").asText();
             String o2va = o2.get("measureWay").asText();
-            if(o1va.equals(o2va)){
+            if (o1va.equals(o2va)) {
                 return 1;
             }
-            if("2".equals(o1va)){
+            if ("2".equals(o1va)) {
                 return -1;
             }
-            if("2".equals(o2va)){
+            if ("2".equals(o2va)) {
                 return 1;
             }
-            if("3".equals(o1va)){
+            if ("3".equals(o1va)) {
                 return -1;
             }
-            if("3".equals(o2va)){
+            if ("3".equals(o2va)) {
                 return 1;
             }
             return -1;
         }
     }
-    
+
     /**
      * 查询最新的一条数据
+     *
      * @param type
      * @param registerId
      * @param personCard
@@ -386,13 +412,13 @@ public class MeasureController {
      */
     @VersionRange
     @GetMapping("{type}/nearest")
-    public JsonResponseEntity<?> queryNearest(@PathVariable int type,String registerId, @RequestParam(defaultValue = "") String personCard) {
+    public JsonResponseEntity<?> queryNearest(@PathVariable int type, String registerId, @RequestParam(defaultValue = "") String personCard) {
         try {
 
             StringBuffer param = new StringBuffer();
-            param.append("registerId="+registerId).append("&personCard="+personCard);
+            param.append("registerId=" + registerId).append("&personCard=" + personCard);
 
-            String url = String.format(queryNearestPath, host,type,param);
+            String url = String.format(queryNearestPath, host, type, param);
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -407,25 +433,26 @@ public class MeasureController {
 
     /**
      * BMI图表H5
+     *
      * @param registerId
      * @param personCard
-     * @param date  "2017-04-15"
+     * @param date       "2017-04-15"
      * @return
      */
     @VersionRange
     @GetMapping("chart/bmi")
     public JsonResponseEntity<?> chartBmi(
             String registerId,
-            @RequestParam(required = false)String personCard,
+            @RequestParam(required = false) String personCard,
             String date,
             @RequestParam(defaultValue = "false") Boolean isBefore,
-            @RequestParam(defaultValue = "5") Integer dayAmount){
+            @RequestParam(defaultValue = "5") Integer dayAmount) {
         try {
 
             StringBuffer param = new StringBuffer();
-            param.append("registerId="+registerId).append("&personCard="+personCard)
-                    .append("&date="+date).append("&isBefore="+isBefore).append("&dayAmount="+dayAmount);
-            String url = String.format(bmiH5ChartPath, host,param);
+            param.append("registerId=" + registerId).append("&personCard=" + personCard)
+                    .append("&date=" + date).append("&isBefore=" + isBefore).append("&dayAmount=" + dayAmount);
+            String url = String.format(bmiH5ChartPath, host, param);
 
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -441,22 +468,23 @@ public class MeasureController {
 
     /**
      * 糖化血红蛋白历史数据分页
+     *
      * @param registerId
      * @param personCard
-     * @param flag 页数 从0 开始
-     * @param pageSize 每页条数
+     * @param flag       页数 从0 开始
+     * @param pageSize   每页条数
      * @return
      */
     @VersionRange
     @GetMapping("history/hba1c")
     public JsonResponseEntity<?> queryHba1cHistoryData(@RequestParam(defaultValue = "0") Integer flag,
-                                        @RequestParam(defaultValue = "10") Integer pageSize,
-                                        @RequestParam String registerId,String personCard) {
+                                                       @RequestParam(defaultValue = "10") Integer pageSize,
+                                                       @RequestParam String registerId, String personCard) {
         try {
             StringBuffer sb = new StringBuffer();
-            sb.append("registerId="+registerId).append("&personCard="+personCard)
-                    .append("&flag="+flag).append("&pageSize="+pageSize);
-            String url = String.format(historyHba1cPath, host,sb.toString());
+            sb.append("registerId=" + registerId).append("&personCard=" + personCard)
+                    .append("&flag=" + flag).append("&pageSize=" + pageSize);
+            String url = String.format(historyHba1cPath, host, sb.toString());
             ResponseEntity<Map> response = buildGetEntity(url, Map.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 if (0 == (int) response.getBody().get("code")) {
@@ -470,7 +498,6 @@ public class MeasureController {
     }
 
 
-
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
         RestTemplate template = new RestTemplate();
         return template.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
@@ -481,8 +508,8 @@ public class MeasureController {
         headers.add("isStandard", "false");// 非标准版
         return headers;
     }
-    
-    public boolean dateBeforeIsExistData(String registerId, String personCard, String date, Boolean isBefore){
+
+    public boolean dateBeforeIsExistData(String registerId, String personCard, String date, Boolean isBefore) {
         boolean result = false;
         try {
             String param = "registerId=".concat(registerId)
