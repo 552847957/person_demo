@@ -134,6 +134,10 @@ public class RemindServiceImpl implements RemindService {
                 remind.setUpdateTime(now);
 
                 for (RemindItem remindItem : remindItems) {
+                    // 手工输入药品
+                    if ("-".equals(remindItem.getMedicineId()) || StringUtils.isEmpty(remindItem.getMedicineId())) {
+                        remindItem.setMedicineId(IdGen.uuid());
+                    }
                     remindItem.setId(IdGen.uuid());
                     remindItem.setRemindId(id);
                     remindItem.setDelFlag("0");
@@ -150,6 +154,10 @@ public class RemindServiceImpl implements RemindService {
             } else {// 更新提醒
                 remind.setUpdateTime(now);
                 for (RemindItem remindItem : remindItems) {
+                    // 手工输入药品
+                    if ("-".equals(remindItem.getMedicineId()) || StringUtils.isEmpty(remindItem.getMedicineId())) {
+                        remindItem.setMedicineId(IdGen.uuid());
+                    }
                     if (StringUtils.isEmpty(remindItem.getId())) {
                         remindItem.setId(IdGen.uuid());
                         remindItem.setRemindId(remind.getId());
@@ -173,6 +181,7 @@ public class RemindServiceImpl implements RemindService {
             for (RemindItem ri : remindItems) {
                 CommonlyUsedMedicine cum = cumMap.get(ri.getMedicineId());
                 if (cum != null && StringUtils.isNotEmpty(cum.getId())) {
+                    cum.setBrand(ri.getBrand());
                     cum.setName(ri.getName());
                     cum.setSpecification(ri.getSpecification());
                     cum.setDose(ri.getDose());
