@@ -6,6 +6,10 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParame
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestReplayDefenderInterceptor;
+import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
+import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
+import com.wondersgroup.healthcloud.jpa.repository.app.AppConfigurationInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -106,5 +110,21 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
+    }
+
+    @Bean
+    public PushClientSelector pushClientSelector(AppConfigurationInfoRepository repository) {
+        PushClientSelector selector = new PushClientSelector();
+        selector.init(repository.getAll());
+        return selector;
+    }
+
+    @Bean
+    public PushAreaService pushAreaService(UserPushInfoRepository userPushInfoRepository,
+                                           PushClientSelector pushClientSelector) {
+        PushAreaService pushAreaService = new PushAreaService();
+        pushAreaService.setPushClientSelector(pushClientSelector);
+        pushAreaService.setUserPushInfoRepository(userPushInfoRepository);
+        return pushAreaService;
     }
 }

@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
