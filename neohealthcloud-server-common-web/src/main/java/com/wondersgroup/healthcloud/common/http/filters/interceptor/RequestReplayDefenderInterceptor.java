@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.common.http.filters.interceptor;
 
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +37,8 @@ public class RequestReplayDefenderInterceptor extends AbstractHeaderInterceptor 
         if (skipHeaderCheck(request)) {
             return true;
         }
-
         String requestId = request.getHeader("request-id");
+
         if (!defender.check(requestId)) {
             try {
                 response.setContentType("application/json;charset=UTF-8");
