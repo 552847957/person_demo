@@ -9,6 +9,10 @@ import com.wondersgroup.healthcloud.common.http.filters.interceptor.*;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessTokenResolver;
 import com.wondersgroup.healthcloud.common.http.support.session.SessionExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionedRequestMappingHandlerMapping;
+import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
+import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
+import com.wondersgroup.healthcloud.jpa.repository.app.AppConfigurationInfoRepository;
+import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.utils.security.AppSecretKeySelector;
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
@@ -131,5 +135,21 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registration.setDispatcherTypes(DispatcherType.REQUEST);
         registration.setFilter(new ShallowEtagHeaderFilter());
         return registration;
+    }
+
+    @Bean
+    public PushClientSelector pushClientSelector(AppConfigurationInfoRepository repository) {
+        PushClientSelector selector = new PushClientSelector();
+        selector.init(repository.getAll());
+        return selector;
+    }
+
+    @Bean
+    public PushAreaService pushAreaService(UserPushInfoRepository userPushInfoRepository,
+                                           PushClientSelector pushClientSelector) {
+        PushAreaService pushAreaService = new PushAreaService();
+        pushAreaService.setPushClientSelector(pushClientSelector);
+        pushAreaService.setUserPushInfoRepository(userPushInfoRepository);
+        return pushAreaService;
     }
 }
