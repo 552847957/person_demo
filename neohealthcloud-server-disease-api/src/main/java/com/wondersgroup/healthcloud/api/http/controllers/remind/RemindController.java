@@ -1,16 +1,24 @@
 package com.wondersgroup.healthcloud.api.http.controllers.remind;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
 import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindTime;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.CommonlyUsedMedicineRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.remind.CommonlyUsedMedicineService;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
+import com.wondersgroup.healthcloud.services.user.SessionUtil;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +36,12 @@ public class RemindController {
 
     @Autowired
     private CommonlyUsedMedicineService commonlyUsedMedicineService;
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private SessionUtil sessionUtil;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonListResponseEntity<RemindDTO> list(@RequestParam String userId,
@@ -56,7 +70,7 @@ public class RemindController {
     }
 
     @RequestMapping(value = "/saveAndUpdate", method = RequestMethod.POST)
-    public JsonListResponseEntity saveAndUpdate(@RequestBody String remindJson) {
+    public JsonListResponseEntity saveAndUpdate(@RequestHeader("access-token") String token, @RequestBody String remindJson) {
         JsonKeyReader remindReader = new JsonKeyReader(remindJson);
         String id = remindReader.readString("id", true);
         String userId = remindReader.readString("userId", false);
@@ -70,6 +84,21 @@ public class RemindController {
         Remind remind = new Remind(id, userId, type, remark, delFlag);
 
         JsonListResponseEntity result = new JsonListResponseEntity();
+
+        Session session = sessionUtil.get(token);
+        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())) {
+            result.setCode(0);
+            result.setMsg("请登录后操作！");
+            return result;
+        }
+
+        UserInfo userInfo = userInfoRepository.findOne(userId);
+        if (userInfo == null || StringUtils.isEmpty(userInfo.getRegisterid())) {
+            result.setCode(0);
+            result.setMsg("不存在的用户！");
+            return result;
+        }
+
         int rtnInt = remindService.saveAndUpdate(remind, remindItems, remindTimes, delRemindItems, delRemindTimes);
         if (rtnInt == 0) {
             result.setMsg("保存用药提醒成功");
