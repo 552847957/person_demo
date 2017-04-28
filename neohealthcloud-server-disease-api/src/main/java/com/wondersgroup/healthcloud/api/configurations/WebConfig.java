@@ -5,6 +5,8 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExcept
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParameterExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
+import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestReplayDefenderInterceptor;
+import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +45,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private ReplayAttackDefender defender;
+
     private String getActiveProfile() {
         String[] profiles = environment.getActiveProfiles();
         if (profiles.length != 0) {
@@ -63,7 +68,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        Boolean isSandbox = "de".equals(getActiveProfile());
         registry.addInterceptor(new DiseaseGateInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new RequestReplayDefenderInterceptor(defender, isSandbox));
 //        registry.addInterceptor(new InternalAdminAPIInterceptor());
         super.addInterceptors(registry);
     }
