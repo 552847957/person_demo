@@ -86,7 +86,9 @@ public class RemindController {
         JsonListResponseEntity result = new JsonListResponseEntity();
 
         Session session = sessionUtil.get(token);
-        if(null == session || false == session.getIsValid() || StringUtils.isEmpty(session.getUserId())) {
+        if(null == session || false == session.getIsValid()
+                || StringUtils.isEmpty(session.getUserId())
+                || !session.getUserId().trim().equalsIgnoreCase(userId)) {
             result.setCode(0);
             result.setMsg("请登录后操作！");
             return result;

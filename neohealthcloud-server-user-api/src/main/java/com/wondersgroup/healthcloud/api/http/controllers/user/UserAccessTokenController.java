@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
+import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -32,6 +33,9 @@ public class UserAccessTokenController {
 
     @Autowired
     private FriendRelationshipService friendRelationshipService;
+
+    @Autowired
+    private SessionUtil sessionUtil;
 
     /**
      * 账号 密码登录
