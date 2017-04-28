@@ -1,7 +1,5 @@
 package com.wondersgroup.healthcloud.services.remind.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
@@ -9,8 +7,9 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
-import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
+import com.wondersgroup.healthcloud.helper.push.getui.PushClient;
 import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
@@ -21,6 +20,7 @@ import com.wondersgroup.healthcloud.jpa.repository.remind.RemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.RemindTimeRepository;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
+import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -28,11 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -66,7 +62,10 @@ public class RemindServiceImpl implements RemindService {
     private CommonlyUsedMedicineRepository commonlyUsedMedicineRepo;
 
     @Autowired
-    private PushClientWrapper pushClientWrapper;
+    private UserPrivateMessageService userPrivateMessageService;
+
+    @Autowired
+    private PushAreaService pushAreaService;
 
     @Override
     public List<RemindDTO> list(String userId, int pageNo, int pageSize) {
@@ -276,7 +275,7 @@ public class RemindServiceImpl implements RemindService {
     }
 
     @Override
-    public int medicationReminder(String id, String remindTimeId, String internalUrl) {
+    public int medicationReminder(String id, String remindTimeId) {
 
         int flag = -1;
 
@@ -296,7 +295,7 @@ public class RemindServiceImpl implements RemindService {
         RemindItem ri = ris.get(0);
 
         // 发送用药提醒PUSH
-        push(remind.getUserId(), "用药提醒", "请您于" + rt.getRemindTime().toString().substring(0, 5) + "按时服用" + ("M".equals(remind.getType()) ? ri.getBrand() : ri.getName()), internalUrl);
+        push(remind.getUserId(), "用药提醒", "请您于" + rt.getRemindTime().toString().substring(0, 5) + "按时服用" + ("M".equals(remind.getType()) ? ri.getBrand() : ri.getName()));
 
         // 生成下次用药提醒任务
         try {
@@ -317,33 +316,26 @@ public class RemindServiceImpl implements RemindService {
         return flag;
     }
 
-    private Boolean push(String userId, String title, String content, String internalUrl) {
-
-        boolean result = false;
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-        headers.setContentType(type);
-        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        Map<String, Object> map = new HashMap<>();
-        map.put("title", title);
-        map.put("content", content);
-        map.put("type", "SYSTEM");
-        map.put("persistence", false);
-        map.put("area_special", false);
-        map.put("is_doctor", false);
-        ObjectMapper mapper = new ObjectMapper();
+    private Boolean push(String userId, String title, String content) {
         try {
-            String jsonObj = mapper.writeValueAsString(map);
-            HttpEntity<String> formEntity = new HttpEntity<String>(jsonObj, headers);
+            AppMessage pushMessage = new AppMessage();
+            pushMessage.title = title;
+            pushMessage.content = content;
+            pushMessage.persistence = false;// 不存入消息表
 
-            String resultStr = restTemplate.postForObject(internalUrl + "message/push/single?alias=" + userId, formEntity,
-                    String.class);
-            result = true;
-        } catch (JsonProcessingException e) {
-            logger.error(Exceptions.getStackTraceAsString(e));
+            userPrivateMessageService.saveOneMessage(pushMessage, userId);
+            PushClient client = pushAreaService.getByUser(userId);
+            if (client != null) {
+                pushMessage.area = client.identityName();
+            } else {
+                return false;
+            }
+            client.pushToAliasWithExpireTime(pushMessage.toPushMessage(), userId, 15 * 60 * 1000);
+            return true;
+        } catch (Exception ex) {
+            logger.error(Exceptions.getStackTraceAsString(ex));
         }
-        return result;
+        return false;
     }
 
     private Boolean generateJob(String remindId, String params) {

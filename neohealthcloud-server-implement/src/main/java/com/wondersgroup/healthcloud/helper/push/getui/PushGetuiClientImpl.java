@@ -66,10 +66,17 @@ public class PushGetuiClientImpl implements PushClient {
 
     @Override
     public void pushToAlias(PushMessage message, String alias) {
+        pushToAliasWithExpireTime(message, alias, -1);
+    }
+
+    @Override
+    public void pushToAliasWithExpireTime(PushMessage message, String alias, long expireTime) {
         TransmissionTemplate template = buildTemplate(message);
         SingleMessage singleMessage = new SingleMessage();
         singleMessage.setOffline(true);
-//        singleMessage.setOfflineExpireTime();
+        if (expireTime >= 0) {
+            singleMessage.setOfflineExpireTime(expireTime);
+        }
         singleMessage.setData(template);
 
         Target target = new Target();

@@ -19,13 +19,10 @@ public class MedicationReminderController {
     @Autowired
     private RemindService remindService;
 
-    @Value("${neohealthcloud-internal.connection.url}")
-    private String internalUrl;
-
     @RequestMapping(value = "/medicationReminder", method = RequestMethod.GET)
     public JsonResponseEntity medicationReminder(@RequestParam String remindId, @RequestParam String remindTimeId) {
         JsonResponseEntity result = new JsonResponseEntity();
-        int rtnInt = remindService.medicationReminder(remindId, remindTimeId, internalUrl);
+        int rtnInt = remindService.medicationReminder(remindId, remindTimeId);
         return result;
     }
 }

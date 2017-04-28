@@ -24,5 +24,7 @@ public interface PushClient {
 
     void pushToAlias(PushMessage message, String alias);
 
+    void pushToAliasWithExpireTime(PushMessage message, String alias, long expireTime);
+
     void pushToTags(PushMessage message, List<String> tags);
 }
