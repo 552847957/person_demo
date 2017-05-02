@@ -1,11 +1,16 @@
 package com.wondersgroup.healthcloud.common.http.support.parms;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
+import com.wondersgroup.common.http.utils.JsonConverter;
 import okio.Okio;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -32,5 +37,25 @@ public class QueryParmUtils {
      */
     public static String getPostRequestQueryParam(HttpServletRequest request) throws IOException {
         return Okio.buffer(Okio.source(request.getInputStream())).readString(Charsets.UTF_8);
+    }
+
+    public static String filterUid(String query){
+        if(!StringUtils.isEmpty(query)){
+            if(query.startsWith("{")){
+                JsonNode jsonNode = JsonConverter.toJsonNode(query);
+                return jsonNode.get("uid").asText();
+            }else{
+                Map<String, String> paramMap = Maps.newHashMap();
+                String[] params = query.split("&");
+                for(String sub: params){
+                    String[] keyValues = sub.split("=");
+                    if(keyValues.length==2){
+                        paramMap.put(keyValues[0], keyValues[1]);
+                    }
+                }
+                return paramMap.get("uid");
+            }
+        }
+        return null;
     }
 }

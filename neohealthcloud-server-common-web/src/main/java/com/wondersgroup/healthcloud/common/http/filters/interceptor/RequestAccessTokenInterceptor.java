@@ -6,9 +6,11 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.ErrorMessageSelector;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
 import com.wondersgroup.healthcloud.common.http.support.misc.SessionDTO;
+import com.wondersgroup.healthcloud.common.http.support.parms.QueryParmUtils;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -48,8 +50,9 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             return true;
         }
 
-        int code;
-        String message;
+        int code = 0;
+        String message = "";
+        String uid = "";
         String token = request.getHeader(accesstokenHeader);
         if (StringUtils.isBlank(token)) {
             code = 10;
@@ -65,8 +68,17 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             } else if (session.isGuest()) {
                 code = 1000;
                 message = "请登录";
-            } else {
-                return true;
+            } else if(RequestMethod.GET.toString().equals(request.getMethod())||
+                    RequestMethod.DELETE.toString().equals(request.getMethod())){
+                uid = QueryParmUtils.filterUid(QueryParmUtils.getGetOrDeleteRequestQueryParam(request));
+            } else if(RequestMethod.POST.toString().equals(request.getMethod())){
+                uid = QueryParmUtils.filterUid(QueryParmUtils.getPostRequestQueryParam(request));
+            }
+            if(!StringUtils.isEmpty(uid)){
+                if(!checkOverAuth(uid, session)){
+                    code = 13;
+                    message = "账户在其他设备登录, 请重新登录";
+                }
             }
         }
 
@@ -76,7 +88,7 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             excluded = hm.getMethodAnnotation(WithoutToken.class) != null;
         }
 
-        if (!excluded || code == 12 || code == 13) {
+        if ((!excluded && code == 12) || (!excluded && code == 13)) {
             buildGuestResponseBody(response, code, message);
             return false;
         } else {
@@ -107,5 +119,13 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
         } catch (IOException e) {
             //ignore
         }
+    }
+
+    private boolean checkOverAuth(String uid, Session session){
+        if(session.getUserId().equalsIgnoreCase(uid))
+            return true;
+        else
+            return false;
+
     }
 }

@@ -5,11 +5,13 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExcept
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.MissingParameterExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
+import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestAccessTokenInterceptor;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestReplayDefenderInterceptor;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
 import com.wondersgroup.healthcloud.jpa.repository.app.AppConfigurationInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.app.UserPushInfoRepository;
+import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.utils.security.ReplayAttackDefender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -52,6 +54,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private ReplayAttackDefender defender;
 
+    @Autowired
+    private SessionUtil sessionUtil;
+
     private String getActiveProfile() {
         String[] profiles = environment.getActiveProfiles();
         if (profiles.length != 0) {
@@ -75,6 +80,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         Boolean isSandbox = "de".equals(getActiveProfile());
         registry.addInterceptor(new DiseaseGateInterceptor()).addPathPatterns("/**");
         registry.addInterceptor(new RequestReplayDefenderInterceptor(defender, isSandbox));
+        registry.addInterceptor(new RequestAccessTokenInterceptor(sessionUtil, isSandbox));
 //        registry.addInterceptor(new InternalAdminAPIInterceptor());
         super.addInterceptors(registry);
     }
