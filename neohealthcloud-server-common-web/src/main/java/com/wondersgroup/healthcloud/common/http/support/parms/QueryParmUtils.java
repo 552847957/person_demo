@@ -43,7 +43,7 @@ public class QueryParmUtils {
         if(!StringUtils.isEmpty(query)){
             if(query.startsWith("{")){
                 JsonNode jsonNode = JsonConverter.toJsonNode(query);
-                return jsonNode.get("uid").asText();
+                return jsonNode.get("uid").asText()!=null?jsonNode.get("uid").asText():jsonNode.get("userId").asText();
             }else{
                 Map<String, String> paramMap = Maps.newHashMap();
                 String[] params = query.split("&");
@@ -53,7 +53,7 @@ public class QueryParmUtils {
                         paramMap.put(keyValues[0], keyValues[1]);
                     }
                 }
-                return paramMap.get("uid");
+                return paramMap.get("uid")!=null?paramMap.get("uid"):paramMap.get("userId");
             }
         }
         return null;
