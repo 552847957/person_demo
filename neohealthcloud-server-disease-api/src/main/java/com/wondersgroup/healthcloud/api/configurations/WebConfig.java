@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExcept
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestAccessTokenInterceptor;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.RequestReplayDefenderInterceptor;
+import com.wondersgroup.healthcloud.common.http.support.OverAuthExclude;
 import com.wondersgroup.healthcloud.helper.push.area.PushAreaService;
 import com.wondersgroup.healthcloud.helper.push.area.PushClientSelector;
 import com.wondersgroup.healthcloud.jpa.repository.app.AppConfigurationInfoRepository;
@@ -78,9 +79,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         Boolean isSandbox = "de".equals(getActiveProfile());
+        OverAuthExclude overAuthExclude = new OverAuthExclude();
         registry.addInterceptor(new DiseaseGateInterceptor()).addPathPatterns("/**");
         registry.addInterceptor(new RequestReplayDefenderInterceptor(defender, isSandbox));
-        registry.addInterceptor(new RequestAccessTokenInterceptor(sessionUtil, isSandbox));
+        registry.addInterceptor(new RequestAccessTokenInterceptor(sessionUtil, isSandbox, overAuthExclude));
 //        registry.addInterceptor(new InternalAdminAPIInterceptor());
         super.addInterceptors(registry);
     }

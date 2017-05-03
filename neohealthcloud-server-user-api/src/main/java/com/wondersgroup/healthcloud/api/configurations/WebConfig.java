@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.common.http.exceptions.handler.DefaultExcept
 import com.wondersgroup.healthcloud.common.http.exceptions.handler.ServiceExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.filters.RequestWrapperFilter;
 import com.wondersgroup.healthcloud.common.http.filters.interceptor.*;
+import com.wondersgroup.healthcloud.common.http.support.OverAuthExclude;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessTokenResolver;
 import com.wondersgroup.healthcloud.common.http.support.session.SessionExceptionHandler;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionedRequestMappingHandlerMapping;
@@ -82,12 +83,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         Boolean isSandbox = "de".equals(getActiveProfile()) || "te".equals(getActiveProfile());
         RequestMappingHandlerMapping handlerMapping = new VersionedRequestMappingHandlerMapping();
         List<Object> interceptorList = Lists.newLinkedList();
+        OverAuthExclude overAuthExclude = new OverAuthExclude();
         interceptorList.add(new GateInterceptor());
         if (!"de".equals(getActiveProfile())) {
             interceptorList.add(new RequestTimeInterceptor(isSandbox));
             interceptorList.add(new RequestHeaderInterceptor(isSandbox));
             interceptorList.add(new RequestReplayDefenderInterceptor(defender, isSandbox));
-            interceptorList.add(new RequestAccessTokenInterceptor(sessionService, isSandbox));
+            interceptorList.add(new RequestAccessTokenInterceptor(sessionService, isSandbox, overAuthExclude));
             interceptorList.add(new RequestSignatureInterceptor(sessionService, isSandbox, appSecretKeySelector));
         }
         handlerMapping.setInterceptors(interceptorList.toArray());
