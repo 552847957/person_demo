@@ -50,9 +50,9 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
-        if (skipHeaderCheck(request)) {
-            return true;
-        }
+//        if (skipHeaderCheck(request)) {
+//            return true;
+//        }
 
         int code = 0;
         String message = "";

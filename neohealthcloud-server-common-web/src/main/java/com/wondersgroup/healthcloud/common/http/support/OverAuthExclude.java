@@ -24,6 +24,7 @@ public class OverAuthExclude {
         overAuthExcludes.add(APPOINTMENT);
         overAuthExcludes.add(BBS);
         overAuthExcludes.add(FAMILY);
+        overAuthExcludes.add(USER);
     }
 
     public Boolean isExclude(String request){
