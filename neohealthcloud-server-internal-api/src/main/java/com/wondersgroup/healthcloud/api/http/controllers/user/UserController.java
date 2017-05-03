@@ -7,8 +7,10 @@ import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
+import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
@@ -34,6 +36,9 @@ public class UserController {
 
     @Autowired
     private UserAccountService userAccountService;
+
+    @Autowired
+    private SessionUtil sessionUtil;
 
 
     @PostMapping(path = "/userInfo/update")
@@ -66,10 +71,20 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "/userInfo")
-    public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestParam String uid) {
+    public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestHeader("access-token") String token,
+            @RequestParam String uid) {
         JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         Map<String, String> map = Maps.newHashMap();
         try {
+            Session session = sessionUtil.get(token);
+            if(null == session || false == session.getIsValid()
+                    || StringUtils.isEmpty(session.getUserId())
+                    || !session.getUserId().trim().equalsIgnoreCase(uid)) {
+                response.setCode(13);
+                response.setMsg("请登录后操作！");
+                return response;
+            }
+
             RegisterInfo registerInfo = userService.getOneNotNull(uid);
             map.put("personcard", registerInfo.getPersoncard());
             response.setData(map);

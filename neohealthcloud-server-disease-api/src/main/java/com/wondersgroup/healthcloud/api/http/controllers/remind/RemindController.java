@@ -89,7 +89,7 @@ public class RemindController {
         if(null == session || false == session.getIsValid()
                 || StringUtils.isEmpty(session.getUserId())
                 || !session.getUserId().trim().equalsIgnoreCase(userId)) {
-            result.setCode(0);
+            result.setCode(13);
             result.setMsg("请登录后操作！");
             return result;
         }
