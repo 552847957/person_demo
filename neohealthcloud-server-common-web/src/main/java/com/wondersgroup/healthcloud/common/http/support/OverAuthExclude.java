@@ -20,11 +20,14 @@ public class OverAuthExclude {
 
     private static final String USER = "/api/user";
 
+    private static final String ASSESSMENT = "/api/assessment";
+
     static{
         overAuthExcludes.add(APPOINTMENT);
         overAuthExcludes.add(BBS);
         overAuthExcludes.add(FAMILY);
         overAuthExcludes.add(USER);
+        overAuthExcludes.add(ASSESSMENT);
     }
 
     public Boolean isExclude(String request){
