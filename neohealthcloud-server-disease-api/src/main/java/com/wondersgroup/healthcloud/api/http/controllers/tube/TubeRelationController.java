@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.tube;
 
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.TubeRelation;
 import com.wondersgroup.healthcloud.services.diabetes.TubeRelationService;
@@ -20,6 +21,7 @@ public class TubeRelationController {
     @Autowired
     private TubeRelationService tubeRelationService;
 
+    @WithoutToken
     @RequestMapping(value = "/getTubeRelation", method = RequestMethod.GET)
     public JsonResponseEntity getTubeRelation(@RequestParam(required = false) String registerId,
                                               @RequestParam(required = false) String personCard) {
