@@ -22,12 +22,15 @@ public class OverAuthExclude {
 
     private static final String ASSESSMENT = "/api/assessment";
 
+    private static final String TUBERELATION = "/api/tuberelation";
+
     static{
         overAuthExcludes.add(APPOINTMENT);
         overAuthExcludes.add(BBS);
         overAuthExcludes.add(FAMILY);
         overAuthExcludes.add(USER);
         overAuthExcludes.add(ASSESSMENT);
+        overAuthExcludes.add(TUBERELATION);
     }
 
     public Boolean isExclude(String request){
