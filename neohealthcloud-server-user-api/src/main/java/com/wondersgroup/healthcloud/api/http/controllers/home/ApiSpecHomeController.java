@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
@@ -31,6 +32,8 @@ import com.wondersgroup.healthcloud.services.home.impl.TopicManageServiceImpl;
 import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -445,6 +448,33 @@ public class ApiSpecHomeController {
         result.setCode(0);
         result.setData(data);
         result.setMsg("获取数据成功");
+        return result;
+    }
+
+    @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
+    @WithoutToken
+    public JsonResponseEntity editMyService(
+                                              @RequestParam(value = "uid", required = false) String uid,
+                                              @RequestBody(required = true) String mySerice,
+                                              @AccessToken(required = false, guestEnabled = true) Session session) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        if(StringUtils.isBlank(mySerice)){
+            result.setCode(-1);
+            result.setMsg("修改失败");
+            return result;
+        }
+
+        JSONArray json = JSONArray.fromObject(mySerice); // 首先把字符串转成 JSONArray  对象
+        if(json.size()>0){
+            for(int i=0;i<json.size();i++){
+                JSONObject job = json.getJSONObject(i);
+                System.out.println(job.get("id")+"=") ;
+            }
+        }
+        //TODO 编辑 (先软删除，再添加)
+
+        result.setCode(0);
+        result.setMsg("操作成功");
         return result;
     }
 }
