@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthD
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 
 import java.util.List;
@@ -63,6 +64,11 @@ public interface HomeService {
      */
     public List<FunctionIconsDTO> findFunctionIconsDTO(Session session,String appVersion,String mainArea, String specArea);
 
-
+    /**
+     * 首页我的服务
+     * @param registerInfo
+     * @return
+     */
+    public List<HomeServiceDTO> findHomeServices(RegisterInfo registerInfo,Map paramMap);
 
 }
