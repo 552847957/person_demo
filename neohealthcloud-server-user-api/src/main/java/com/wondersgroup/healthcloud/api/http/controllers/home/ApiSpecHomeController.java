@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
+import com.wondersgroup.healthcloud.jpa.enums.ServiceTypeEnum;
 import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
@@ -27,8 +29,11 @@ import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIcon
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.home.impl.TopicManageServiceImpl;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -65,16 +70,16 @@ public class ApiSpecHomeController {
     private ManageNewsArticleService manageNewsArticleServiceImpl;
 
     @Value("${internal.api.service.measure.url}")
-    private  String API_MEASURE_URL;
+    private String API_MEASURE_URL;
 
     @Value("${internal.api.service.healthrecord.url}")
-    private  String API_USERHEALTH_RECORD_URL;
+    private String API_USERHEALTH_RECORD_URL;
 
     @Value("${api.vaccine.url}")
-    private  String API_VACCINE_URL;
+    private String API_VACCINE_URL;
 
     @Autowired
-    private DiabetesService               diabetesService;
+    private DiabetesService diabetesService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     @VersionRange(to = "4.0.2")
@@ -142,9 +147,9 @@ public class ApiSpecHomeController {
             paramMap.put("apiMeasureUrl", API_MEASURE_URL);
             paramMap.put("apiUserhealthRecordUrl", API_USERHEALTH_RECORD_URL);
             paramMap.put("apiVaccineUrl", API_VACCINE_URL);
-            paramMap.put("vaccineLessThanDays","30");
-            paramMap.put("familyLessThanDays","30");
-            paramMap.put("userLessThanDays","7");
+            paramMap.put("vaccineLessThanDays", "30");
+            paramMap.put("familyLessThanDays", "30");
+            paramMap.put("userLessThanDays", "7");
 
             try {
                 familyHealth = homeService.findfamilyHealth(registerInfo, paramMap);
@@ -180,7 +185,7 @@ public class ApiSpecHomeController {
             }
         }
 
-        hotTopic = CollectionUtils.isEmpty(hotTopic) ? new ArrayList<TopicListDto>(0) : hotTopic.size() > 5 ? hotTopic.subList(0,5):hotTopic;
+        hotTopic = CollectionUtils.isEmpty(hotTopic) ? new ArrayList<TopicListDto>(0) : hotTopic.size() > 5 ? hotTopic.subList(0, 5) : hotTopic;
         //热门话题
         data.put("hotTopic", hotTopic);
 
@@ -223,7 +228,7 @@ public class ApiSpecHomeController {
             try {
                 String telephoneAd = appConfig.getData();
                 ObjectMapper om = new ObjectMapper();
-                 jsonNode = om.readTree(telephoneAd);
+                jsonNode = om.readTree(telephoneAd);
             } catch (Exception ex) {
                 logger.error("telephoneAd " + ex.getMessage());
             }
@@ -242,7 +247,7 @@ public class ApiSpecHomeController {
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    @VersionRange(from = "4.1")
+    @VersionRange(from = "4.1", to = "4.3")
     @WithoutToken
     public JsonResponseEntity indexForDisease(@RequestHeader(value = "main-area", required = true) String mainArea,
                                               @RequestHeader(value = "spec-area", required = false) String specArea,
@@ -336,7 +341,7 @@ public class ApiSpecHomeController {
         //家庭健康栏目
         data.put("familyHealth", familyHealth);
 
-       //资讯
+        //资讯
         List<NewsArticleListAPIEntity> articleForFirst = null;
         try {
             articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(mainArea, 0, 10);
@@ -345,7 +350,7 @@ public class ApiSpecHomeController {
         }
         articleForFirst = CollectionUtils.isEmpty(articleForFirst) ? new ArrayList<NewsArticleListAPIEntity>(0) : articleForFirst;
 
-        data.put("information", articleForFirst.size() > 3 ? articleForFirst.subList(0,3):articleForFirst);
+        data.put("information", articleForFirst.size() > 3 ? articleForFirst.subList(0, 3) : articleForFirst);
 
         //云头条
         CloudTopLineDTO cloudTopLine = null;
@@ -362,9 +367,8 @@ public class ApiSpecHomeController {
         result.setCode(0);
         result.setData(data);
         result.setMsg("获取数据成功");
-        
-        
-        
+
+
         try {//访问首页的时候 看是否需要进行血糖一周未测提示
             diabetesService.addDiabetesRemindMessage(uid);
         } catch (Exception e) {
@@ -373,4 +377,183 @@ public class ApiSpecHomeController {
         return result;
     }
 
+
+    @RequestMapping(value = "/index", method = RequestMethod.GET)
+    @VersionRange(from = "4.3")
+    @WithoutToken
+    public JsonResponseEntity indexForHomeService(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                                  @RequestHeader(value = "spec-area", required = false) String specArea,
+                                                  @RequestHeader(value = "app-version", required = true) String version,
+                                                  @RequestParam(value = "uid", required = false) String uid,
+                                                  @AccessToken(required = false, guestEnabled = true) Session session) {
+
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map data = new HashMap();
+
+        RegisterInfo registerInfo = null;
+        if (StringUtils.isNotBlank(uid)) {
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        //首页服务
+        List<HomeServiceDTO> myService = null;
+        try {
+            Map paramMap = new HashMap();
+            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+            paramMap.put("version", version);
+
+            myService = homeService.findHomeServices(registerInfo, paramMap);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
+        data.put("myService", myService);
+
+        //中央区广告
+        List<CenterAdDTO> advertisements = null;
+        try {
+            advertisements = homeService.findCenterAdDTO(mainArea);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+        advertisements = CollectionUtils.isEmpty(advertisements) ? new ArrayList<CenterAdDTO>(0) : advertisements;
+        data.put("advertisements", advertisements);
+
+
+        //新闻资讯
+        List<NewsArticleListAPIEntity> articleForFirst = null;
+        try {
+            articleForFirst = manageNewsArticleServiceImpl.findArticleForFirst(mainArea, 0, 10);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+        articleForFirst = CollectionUtils.isEmpty(articleForFirst) ? new ArrayList<NewsArticleListAPIEntity>(0) : articleForFirst;
+
+        data.put("information", articleForFirst.size() > 3 ? articleForFirst.subList(0, 3) : articleForFirst);
+
+        //健康头条
+        CloudTopLineDTO cloudTopLine = null;
+        try {
+            cloudTopLine = homeService.findCloudTopLine();
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        cloudTopLine = cloudTopLine == null ? new CloudTopLineDTO() : cloudTopLine;
+        data.put("cloudTopLine", cloudTopLine);
+
+        //健康管理 TODO
+
+        result.setCode(0);
+        result.setData(data);
+        result.setMsg("获取数据成功");
+        return result;
+    }
+
+    @RequestMapping(value = "/moreService", method = RequestMethod.GET)
+    @WithoutToken
+    public JsonResponseEntity moreService(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                                  @RequestHeader(value = "spec-area", required = false) String specArea,
+                                                  @RequestHeader(value = "app-version", required = true) String version,
+                                                  @RequestParam(value = "uid", required = false) String uid,
+                                                  @AccessToken(required = false, guestEnabled = true) Session session) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map data = new HashMap();
+        RegisterInfo registerInfo = null;
+        if (StringUtils.isNotBlank(uid)) {
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        List<HomeServiceDTO> myService = null;
+        try {
+            Map paramMap = new HashMap();
+            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+            paramMap.put("version", version);
+
+            myService = homeService.findHomeServices(registerInfo, paramMap);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
+        data.put("myService", myService);
+
+        List<HomeServiceDTO> baseService = null;
+        try {
+            Map paramMap = new HashMap();
+            paramMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
+            paramMap.put("version", version);
+
+            baseService = homeService.findBaseServices(paramMap);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        baseService = CollectionUtils.isEmpty(baseService) ? new ArrayList<HomeServiceDTO>(0) : baseService;
+        data.put("baseService", baseService);
+
+
+        //特色服务
+        List<SpecialServiceDTO> oldSpecialService = null;
+        try {
+            oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+        oldSpecialService = CollectionUtils.isEmpty(oldSpecialService) ? new ArrayList<SpecialServiceDTO>(0) : oldSpecialService;
+
+
+        List<HomeServiceDTO> specialService = new ArrayList<HomeServiceDTO>();
+        for(SpecialServiceDTO oldDto:oldSpecialService){ // TODO 注意判断医养云
+            HomeServiceDTO dto = new HomeServiceDTO();
+            dto.setMainTitle(oldDto.getMainTitle());
+            dto.setServiceType(ServiceTypeEnum.SPECIAL_SERVICE.getType());
+            dto.setImgUrl(oldDto.getImgUrl());
+            dto.setHoplink(oldDto.getHoplink());
+            specialService.add(dto);
+        }
+
+        data.put("specialService", specialService);
+
+        result.setCode(0);
+        result.setData(data);
+        result.setMsg("获取数据成功");
+        return result;
+    }
+
+
+        @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
+    @WithoutToken
+    public JsonResponseEntity editMyService(
+                                              @RequestParam(value = "uid", required = false) String uid,
+                                              @RequestBody(required = true) String mySerice,
+                                              @AccessToken(required = false, guestEnabled = true) Session session) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        if(StringUtils.isBlank(mySerice)){
+            result.setCode(-1);
+            result.setMsg("修改失败");
+            return result;
+        }
+
+        RegisterInfo registerInfo = null;
+        if (StringUtils.isNotBlank(uid)) {
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        JSONArray json = JSONArray.fromObject(mySerice);
+        List<String> editServiceIds = null;
+        if(json.size()>0){
+            editServiceIds = new ArrayList<String>();
+            for(int i=0;i<json.size();i++){
+                JSONObject job = json.getJSONObject(i);
+                editServiceIds.add(String.valueOf(job.get("id")));
+            }
+        }
+        // 编辑 (先删除，再添加)
+        homeService.editHomeServices(registerInfo,editServiceIds);
+        result.setCode(0);
+        result.setMsg("操作成功");
+        return result;
+    }
 }

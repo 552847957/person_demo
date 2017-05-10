@@ -5,12 +5,14 @@ import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
 import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.member.FamilyMember;
 import com.wondersgroup.healthcloud.jpa.enums.FamilyHealthStatusEnum;
+import com.wondersgroup.healthcloud.jpa.enums.ServiceTypeEnum;
 import com.wondersgroup.healthcloud.jpa.enums.UserHealthStatusEnum;
 import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
@@ -28,6 +30,8 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.*;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
+import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -75,6 +79,9 @@ public class HomeServiceImpl implements HomeService {
 
     @Autowired
     private ImageTextService imageTextService;
+
+    @Autowired
+    private HomeServices homeServicesImpl;
 
 //    @Autowired
 //    private H5ServiceSecurityUtil h5ServiceSecurityUtil;
@@ -261,7 +268,7 @@ public class HomeServiceImpl implements HomeService {
 
 
                 //3 家人风险评估结果 (取一个月以内的数据)
-                FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm,(null == paramMap.get("familyLessThanDays")) ? 30 : Integer.parseInt(String.valueOf(paramMap.get("familyLessThanDays"))));
+                FamilyMemberItemDTO fItemDTO = buildFamilyDangerousResult(fm, (null == paramMap.get("familyLessThanDays")) ? 30 : Integer.parseInt(String.valueOf(paramMap.get("familyLessThanDays"))));
                 if (null != fItemDTO) {
                     fItemDTO.setUid(fm.getUid());
                     familyMemberDangerousItemList.add(fItemDTO);
@@ -324,7 +331,7 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            }else if((goodsHealthCount+haveNoDataCount) == familyMemberHealthMap.size()){//家庭成员数据是 HAVE_FAMILY_AND_HEALTHY,HAVE_FAMILY_WITHOUT_DATA 两种状态的集合
+            } else if ((goodsHealthCount + haveNoDataCount) == familyMemberHealthMap.size()) {//家庭成员数据是 HAVE_FAMILY_AND_HEALTHY,HAVE_FAMILY_WITHOUT_DATA 两种状态的集合
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             }
         }
@@ -376,7 +383,7 @@ public class HomeServiceImpl implements HomeService {
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
             familyMember.setMainTitle("");
             familyMember.setSubTitle("");
-        }else{//有家庭成员，家人正常，无通知
+        } else {//有家庭成员，家人正常，无通知
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             familyMember.setMainTitle("家庭成员 健康状况良好");
             familyMember.setSubTitle("家人健康状况良好，要继续保持。");
@@ -464,14 +471,14 @@ public class HomeServiceImpl implements HomeService {
         }
 
         //先按照uid分组
-        Map<String,List<FamilyMemberItemDTO>> relationMap = new HashMap<String,List<FamilyMemberItemDTO>>();
+        Map<String, List<FamilyMemberItemDTO>> relationMap = new HashMap<String, List<FamilyMemberItemDTO>>();
 
-        for(FamilyMemberItemDTO dto:allList){
-            if(!relationMap.keySet().contains(dto.getUid())){
+        for (FamilyMemberItemDTO dto : allList) {
+            if (!relationMap.keySet().contains(dto.getUid())) {
                 List<FamilyMemberItemDTO> valueList = new ArrayList<FamilyMemberItemDTO>();
                 valueList.add(dto);
-                relationMap.put(dto.getUid(),valueList);
-            }else{
+                relationMap.put(dto.getUid(), valueList);
+            } else {
                 relationMap.get(dto.getUid()).add(dto);
             }
         }
@@ -480,23 +487,22 @@ public class HomeServiceImpl implements HomeService {
         //取每组里最新的一个
         List<FamilyMemberItemDTO> newList = new ArrayList<FamilyMemberItemDTO>();
 
-        for(String key:relationMap.keySet()){
-            List<FamilyMemberItemDTO> tmpList  = relationMap.get(key);
-            if(tmpList.size() > 1){
+        for (String key : relationMap.keySet()) {
+            List<FamilyMemberItemDTO> tmpList = relationMap.get(key);
+            if (tmpList.size() > 1) {
                 FamilyHealthItemComparable sort = new FamilyHealthItemComparable();// false 按照 testTime 降序排序
                 FamilyHealthItemComparable.sortASC = false;
-                Collections.sort(tmpList,sort);
+                Collections.sort(tmpList, sort);
             }
 
             newList.add(tmpList.get(0));
         }
 
 
-
         //排序，找出最大的两条
         FamilyHealthItemComparable sort = new FamilyHealthItemComparable();
         FamilyHealthItemComparable.sortASC = false;
-        Collections.sort(newList,sort);
+        Collections.sort(newList, sort);
 
         return CollectionUtils.isEmpty(newList) ? allList : newList.size() > 2 ? newList.subList(0, 2) : newList;
     }
@@ -722,7 +728,7 @@ public class HomeServiceImpl implements HomeService {
                     dto.setExceptionItems(dataResponse.getData().getExceptionItems());
                     UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
                     UserHealthItemComparable.sortASC = false;
-                    Collections.sort(dto.getExceptionItems(),sort);
+                    Collections.sort(dto.getExceptionItems(), sort);
 
                     dto.setMainTitle("您的健康状况：" + dto.getExceptionItems().size() + "项异常");
                     dto.setSubTitle("[显示最新的2项异常指标数据]");
@@ -746,9 +752,9 @@ public class HomeServiceImpl implements HomeService {
      * @param fm
      * @return
      */
-    private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMemberInfo fm,Integer limitDays) {
+    private FamilyMemberItemDTO buildFamilyDangerousResult(FamilyMemberInfo fm, Integer limitDays) {
         FamilyMemberItemDTO fItemDTO = null;
-        limitDays = (null == limitDays) ? 30:limitDays;
+        limitDays = (null == limitDays) ? 30 : limitDays;
         Map<String, Object> resultMap = assessmentServiceImpl.getRecentAssessIsNormal(fm.getUid());
         if (!CollectionUtils.isEmpty(resultMap) && "2".equals(resultMap.get("state"))) { //state:2:风险人群
             Long testTime = 0L;
@@ -760,10 +766,10 @@ public class HomeServiceImpl implements HomeService {
                 }
             }
 
-            if(null != testTime && testTime > 0){
+            if (null != testTime && testTime > 0) {
                 Calendar limitDay = Calendar.getInstance();
                 limitDay.add(Calendar.DATE, -limitDays);//当前时间后退天数
-                if(testTime >= limitDay.getTime().getTime()){ //没有被过滤
+                if (testTime >= limitDay.getTime().getTime()) { //没有被过滤
                     fItemDTO = new FamilyMemberItemDTO();
                     fItemDTO.setTestTime(testTime);
                     fItemDTO.setRelationship(FamilyMemberRelation.getName(fm.getRelation()));
@@ -907,5 +913,35 @@ public class HomeServiceImpl implements HomeService {
 
     }
 
+    @Override
+    public List<HomeServiceDTO> findHomeServices(RegisterInfo registerInfo, Map paramMap) {
+        List<HomeServiceDTO> dtoList = null;
+        List<HomeServiceEntity> entityList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+        if (!CollectionUtils.isEmpty(entityList)) {
+            dtoList = new ArrayList<HomeServiceDTO>();
+            for (HomeServiceEntity entity : entityList) {
+                dtoList.add(new HomeServiceDTO(entity));
+            }
+        }
+        return dtoList;
+    }
+
+    @Override
+    public List<HomeServiceDTO> findBaseServices(Map paramMap) {
+        List<HomeServiceDTO> dtoList = null;
+        List<HomeServiceEntity> entityList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+        if (!CollectionUtils.isEmpty(entityList)) {
+            dtoList = new ArrayList<HomeServiceDTO>();
+            for (HomeServiceEntity entity : entityList) {
+                dtoList.add(new HomeServiceDTO(entity));
+            }
+        }
+        return dtoList;
+    }
+
+    @Override
+    public void editHomeServices(RegisterInfo registerInfo, List<String> editServiceIds) {
+
+    }
 
 }

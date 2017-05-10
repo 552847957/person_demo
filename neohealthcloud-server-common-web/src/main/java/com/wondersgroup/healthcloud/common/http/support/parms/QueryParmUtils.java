@@ -43,7 +43,11 @@ public class QueryParmUtils {
         if(!StringUtils.isEmpty(query)){
             if(query.startsWith("{")){
                 JsonNode jsonNode = JsonConverter.toJsonNode(query);
-                return jsonNode.get("uid").asText()!=null?jsonNode.get("uid").asText():jsonNode.get("userId").asText();
+                if(jsonNode.get("uid")!=null)
+                    return jsonNode.get("uid").asText();
+                else if(jsonNode.get("userId")!=null){
+                    return jsonNode.get("userId").asText();
+                }
             }else{
                 Map<String, String> paramMap = Maps.newHashMap();
                 String[] params = query.split("&");

@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.exceptions.ErrorMessageSelector;
 import com.wondersgroup.healthcloud.common.http.servlet.ServletAttributeCacheUtil;
+import com.wondersgroup.healthcloud.common.http.support.OverAuthExclude;
 import com.wondersgroup.healthcloud.common.http.support.misc.SessionDTO;
 import com.wondersgroup.healthcloud.common.http.support.parms.QueryParmUtils;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
@@ -39,9 +40,12 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
 
     private SessionUtil sessionUtil;
 
-    public RequestAccessTokenInterceptor(SessionUtil sessionUtil, Boolean isSandbox) {
+    private OverAuthExclude overAuthExclude;
+
+    public RequestAccessTokenInterceptor(SessionUtil sessionUtil, Boolean isSandbox, OverAuthExclude overAuthExclude) {
         this.isSandbox = isSandbox;
         this.sessionUtil = sessionUtil;
+        this.overAuthExclude = overAuthExclude;
     }
 
     @Override
@@ -74,10 +78,13 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             } else if(RequestMethod.POST.toString().equals(request.getMethod())){
                 uid = QueryParmUtils.filterUid(QueryParmUtils.getPostRequestQueryParam(request));
             }
-            if(!StringUtils.isEmpty(uid)){
-                if(!checkOverAuth(uid, session)){
-                    code = 13;
-                    message = "账户在其他设备登录, 请重新登录";
+
+            if(!overAuthExclude.isExclude(request.getServletPath())){
+                if(!StringUtils.isEmpty(uid)){
+                    if(!checkOverAuth(uid, session)){
+                        code = 13;
+                        message = "账户在其他设备登录, 请重新登录";
+                    }
                 }
             }
         }
