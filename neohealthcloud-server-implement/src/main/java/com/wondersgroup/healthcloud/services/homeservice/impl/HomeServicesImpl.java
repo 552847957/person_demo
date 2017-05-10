@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.homeservice.impl;
 
+import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeUserServiceEntity;
 import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeServiceRepository;
@@ -35,6 +36,7 @@ public class HomeServicesImpl implements HomeServices {
 
     @Override
     public HomeServiceEntity saveHomeService(HomeServiceEntity entity) {
+        entity.setId(IdGen.uuid());
         return homeServiceRepository.save(entity);
     }
 
@@ -114,12 +116,15 @@ public class HomeServicesImpl implements HomeServices {
 
     @Override
     public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
-        String inSql = buildSql(oldServices);
-        final String deleteSql = "update app_tb_user_service set del_flag = '1' where register_id = '+userId+' and  service_id in "+inSql+" and del_flag = '0' ";
-        int count = jdbcTemplate.update(deleteSql);
+        if(!CollectionUtils.isEmpty(oldServices)){
+            String inSql = buildSql(oldServices);
+            final String deleteSql = "update app_tb_user_service set del_flag = '1' where register_id = '+userId+' and  service_id in "+inSql+" and del_flag = '0' ";
+            int count = jdbcTemplate.update(deleteSql);
+        }
 
         for(HomeServiceEntity dto:newServices){
             HomeUserServiceEntity entity = new HomeUserServiceEntity();
+            entity.setId(IdGen.uuid());
             entity.setRegisterId(userId);
             entity.setServiceId(dto.getId());
             entity.setDelFlag("0");

@@ -548,6 +548,12 @@ public class ApiSpecHomeController {
                 editServiceIds.add(String.valueOf(job.get("id")));
             }
         }
+
+        if(CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6){
+            result.setCode(0);
+            result.setMsg("超过6条数据");
+            return result;
+        }
         // 编辑 (先删除，再添加)
         homeService.editHomeServices(registerInfo,editServiceIds);
         result.setCode(0);

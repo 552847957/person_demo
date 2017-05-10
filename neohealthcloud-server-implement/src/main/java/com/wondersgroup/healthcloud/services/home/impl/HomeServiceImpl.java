@@ -945,7 +945,7 @@ public class HomeServiceImpl implements HomeService {
             baseServiceMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
             List<HomeServiceEntity> baseList = homeServicesImpl.findHomeServiceByCondition(baseServiceMap);
             if (!CollectionUtils.isEmpty(baseList)) {
-                for (HomeServiceEntity entity : defaultList) {
+                for (HomeServiceEntity entity : baseList) {
                     dtoList.add(new HomeServiceDTO(entity));
                 }
             }
@@ -964,6 +964,21 @@ public class HomeServiceImpl implements HomeService {
                 dtoList.add(new HomeServiceDTO(entity));
             }
         }
+
+        //中间表里的基础服务
+        Map homeUserServicesMap = new HashMap();
+        homeUserServicesMap.put("registerId", paramMap.get("registerId"));
+        List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
+
+        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在就不在 基础服务里展示，在此处做移除操作
+            Iterator<HomeServiceDTO>  it = dtoList.iterator();
+            while(it.hasNext()){
+                HomeServiceDTO dto = it.next();
+                if(dto.getId().equals(oldEntity.getServiceId())){
+                 it.remove();
+                }
+            }
+        }
         return dtoList;
     }
 
@@ -972,18 +987,20 @@ public class HomeServiceImpl implements HomeService {
         Map paramMap = new HashMap();
         paramMap.put("registerId", registerInfo.getRegisterid());
         List<HomeUserServiceEntity> oldUserServicelist = homeServicesImpl.findHomeUserServiceByCondition(paramMap);
-        List<HomeServiceEntity> oldServicelist = new ArrayList<HomeServiceEntity>();
+        List<HomeServiceEntity> oldServicelist = new ArrayList<HomeServiceEntity>(); //已有的服务
         for (HomeUserServiceEntity oldEntity : oldUserServicelist) {
             HomeServiceEntity entity = new HomeServiceEntity();
             entity.setId(oldEntity.getServiceId());
             oldServicelist.add(entity);
         }
 
-        List<HomeServiceEntity> newServices = new ArrayList<HomeServiceEntity>();
+        List<HomeServiceEntity> newServices = new ArrayList<HomeServiceEntity>(); //新编辑的服务
         for (String id : editServiceIds) {
             HomeServiceEntity entity = new HomeServiceEntity();
             entity.setId(id);
+            newServices.add(entity);
         }
+
         homeServicesImpl.editMyService(oldServicelist, newServices, registerInfo.getRegisterid());
     }
 

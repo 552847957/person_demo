@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Table(name = "app_tb_neoservice")
 public class HomeServiceEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     @Column(name = "main_title")
      private String mainTitle; //主标题
