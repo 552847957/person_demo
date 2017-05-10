@@ -23,6 +23,7 @@ public class FamilyMemberInfoDTO {
     public static String[]    desc = { "实名制", "健康档案", "家庭医生", "计步管理", "BMI管理", "血糖管理", "血压管理", "风险评估", "中医体质辨识" };
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Info {
         private String  id;             //id
         private String  nikcName;      //昵称
