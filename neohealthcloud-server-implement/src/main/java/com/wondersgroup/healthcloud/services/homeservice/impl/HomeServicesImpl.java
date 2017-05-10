@@ -1,16 +1,20 @@
 package com.wondersgroup.healthcloud.services.homeservice.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeUserServiceEntity;
 import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeServiceRepository;
+import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeUserServiceRepository;
 import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +30,17 @@ public class HomeServicesImpl implements HomeServices {
     @Autowired
     private HomeServiceRepository homeServiceRepository;
 
+    @Autowired
+    private HomeUserServiceRepository homeUserServiceRepository;
+
     @Override
     public HomeServiceEntity saveHomeService(HomeServiceEntity entity) {
         return homeServiceRepository.save(entity);
+    }
+
+    @Override
+    public HomeUserServiceEntity saveHomeUserService(HomeUserServiceEntity entity) {
+        return homeUserServiceRepository.save(entity);
     }
 
     @Override
@@ -38,6 +50,8 @@ public class HomeServicesImpl implements HomeServices {
         Integer serviceType = (null == paramMap.get("serviceType") ? null : Integer.parseInt(String.valueOf(paramMap.get("serviceType"))));
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
 
+        boolean baseServiceFlag = (null == paramMap.get("baseServiceFlag") ? false : Boolean.valueOf(String.valueOf(paramMap.get("baseServiceFlag"))));
+
         if (null != serviceType) {
             sql.append(" and service_type = " + serviceType);
         }
@@ -45,6 +59,16 @@ public class HomeServicesImpl implements HomeServices {
         if (StringUtils.isNotBlank(version)) {
             sql.append(" and version = '" + version.trim() + "'");
         }
+
+        if(baseServiceFlag){
+            List<HomeServiceEntity> baseService = (null == paramMap.get("baseServices") ? null : (List<HomeServiceEntity>)paramMap.get("baseServices"));
+            if(!CollectionUtils.isEmpty(baseService)){
+                String inSql = buildSql(baseService);
+                sql.append(" and id  in " + inSql);
+            }
+
+        }
+
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -60,12 +84,65 @@ public class HomeServicesImpl implements HomeServices {
             }
         });
 
+        return list;
+    }
+
+    @Override
+    public List<HomeUserServiceEntity> findHomeUserServiceByCondition(Map paramMap) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("select * from app_tb_user_service where del_flag = '0' ");
+
+        String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
+
+        if(StringUtils.isNotBlank(registerId)){
+            sql.append(" and register_id = '"+registerId+"' ");
+        }
+
+        sql.append(" order by create_time asc ");
+
+        List<HomeUserServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                HomeUserServiceEntity entity = new HomeUserServiceEntity();
+                entity.setId(rs.getString("id"));
+                entity.setServiceId(rs.getString("service_id"));
+                return entity;
+            }
+        });
 
         return list;
     }
 
     @Override
     public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
+        String inSql = buildSql(oldServices);
+        final String deleteSql = "update app_tb_user_service set del_flag = '1' where register_id = '+userId+' and  service_id in "+inSql+" and del_flag = '0' ";
+        int count = jdbcTemplate.update(deleteSql);
 
+        for(HomeServiceEntity dto:newServices){
+            HomeUserServiceEntity entity = new HomeUserServiceEntity();
+            entity.setRegisterId(userId);
+            entity.setServiceId(dto.getId());
+            entity.setDelFlag("0");
+            entity.setCreateTime(new Date());
+            entity.setUpdateTime(new Date());
+            homeUserServiceRepository.save(entity);
+        }
+
+    }
+
+
+    String buildSql(List<HomeServiceEntity> oldServices){
+        StringBuffer sql = new StringBuffer(" ( ");
+        boolean flag = true;
+        for(HomeServiceEntity entity:oldServices){
+           if(flag){
+               sql.append(" '"+entity.getId()+"' ");
+               flag = false;
+           }else{
+               sql.append(" , ").append(" '"+entity.getId()+"' ");
+           }
+        }
+        sql.append(" ) ");
+        return sql.toString();
     }
 }

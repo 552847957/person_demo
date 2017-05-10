@@ -65,15 +65,15 @@ public interface HomeService {
     public List<FunctionIconsDTO> findFunctionIconsDTO(Session session,String appVersion,String mainArea, String specArea);
 
     /**
-     * 首页我的服务
-     * @param registerInfo
+     * 首页我的服务(默认服务+基础服务)
+     * @param paramMap
      * @return
      */
-    public List<HomeServiceDTO> findHomeServices(RegisterInfo registerInfo,Map paramMap);
+    public List<HomeServiceDTO> findMyHomeServices(Map paramMap);
 
 
     /**
-     * 查询基础服务
+     * 条件查询服务
      * @param paramMap
      * @return
      */

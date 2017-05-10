@@ -384,7 +384,7 @@ public class ApiSpecHomeController {
     public JsonResponseEntity indexForHomeService(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                   @RequestHeader(value = "spec-area", required = false) String specArea,
                                                   @RequestHeader(value = "app-version", required = true) String version,
-                                                  @RequestParam(value = "uid", required = false) String uid,
+                                                  @RequestParam(value = "uid", required = true) String uid,
                                                   @AccessToken(required = false, guestEnabled = true) Session session) {
 
         JsonResponseEntity result = new JsonResponseEntity();
@@ -399,10 +399,9 @@ public class ApiSpecHomeController {
         List<HomeServiceDTO> myService = null;
         try {
             Map paramMap = new HashMap();
-            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
             paramMap.put("version", version);
-
-            myService = homeService.findHomeServices(registerInfo, paramMap);
+            paramMap.put("registerId", registerInfo.getRegisterid());
+            myService = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
         }
@@ -468,10 +467,9 @@ public class ApiSpecHomeController {
         List<HomeServiceDTO> myService = null;
         try {
             Map paramMap = new HashMap();
-            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
             paramMap.put("version", version);
-
-            myService = homeService.findHomeServices(registerInfo, paramMap);
+            paramMap.put("registerId", registerInfo.getRegisterid());
+            myService = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
         }

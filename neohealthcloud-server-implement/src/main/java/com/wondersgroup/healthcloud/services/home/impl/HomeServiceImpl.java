@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeUserServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
@@ -914,15 +915,42 @@ public class HomeServiceImpl implements HomeService {
     }
 
     @Override
-    public List<HomeServiceDTO> findHomeServices(RegisterInfo registerInfo, Map paramMap) {
-        List<HomeServiceDTO> dtoList = null;
-        List<HomeServiceEntity> entityList = homeServicesImpl.findHomeServiceByCondition(paramMap);
-        if (!CollectionUtils.isEmpty(entityList)) {
-            dtoList = new ArrayList<HomeServiceDTO>();
-            for (HomeServiceEntity entity : entityList) {
+    public List<HomeServiceDTO> findMyHomeServices(Map paramMap) {
+        paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+        List<HomeServiceDTO> dtoList =  new ArrayList<HomeServiceDTO>();
+
+        List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+        if (!CollectionUtils.isEmpty(defaultList)) {
+            for (HomeServiceEntity entity : defaultList) {
                 dtoList.add(new HomeServiceDTO(entity));
             }
         }
+
+
+        //查询中间表
+        Map homeUserServicesMap = new HashMap();
+        homeUserServicesMap.put("registerId", paramMap.get("registerId"));
+       List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
+       List<HomeServiceEntity> baseServices = new ArrayList<HomeServiceEntity>() ;
+        for (HomeUserServiceEntity oldEntity : homeUserServices) {
+            HomeServiceEntity entity = new HomeServiceEntity();
+            entity.setId(oldEntity.getServiceId());
+            baseServices.add(entity);
+        }
+
+        if(!CollectionUtils.isEmpty(baseServices)){
+            Map baseServiceMap = new HashMap();
+            baseServiceMap.put("baseServiceFlag", true);
+            baseServiceMap.put("baseServices",baseServices);
+            baseServiceMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
+            List<HomeServiceEntity> baseList = homeServicesImpl.findHomeServiceByCondition(baseServiceMap);
+            if (!CollectionUtils.isEmpty(baseList)) {
+                for (HomeServiceEntity entity : defaultList) {
+                    dtoList.add(new HomeServiceDTO(entity));
+                }
+            }
+        }
+
         return dtoList;
     }
 
@@ -941,7 +969,22 @@ public class HomeServiceImpl implements HomeService {
 
     @Override
     public void editHomeServices(RegisterInfo registerInfo, List<String> editServiceIds) {
+        Map paramMap = new HashMap();
+        paramMap.put("registerId", registerInfo.getRegisterid());
+        List<HomeUserServiceEntity> oldUserServicelist = homeServicesImpl.findHomeUserServiceByCondition(paramMap);
+        List<HomeServiceEntity> oldServicelist = new ArrayList<HomeServiceEntity>();
+        for (HomeUserServiceEntity oldEntity : oldUserServicelist) {
+            HomeServiceEntity entity = new HomeServiceEntity();
+            entity.setId(oldEntity.getServiceId());
+            oldServicelist.add(entity);
+        }
 
+        List<HomeServiceEntity> newServices = new ArrayList<HomeServiceEntity>();
+        for (String id : editServiceIds) {
+            HomeServiceEntity entity = new HomeServiceEntity();
+            entity.setId(id);
+        }
+        homeServicesImpl.editMyService(oldServicelist, newServices, registerInfo.getRegisterid());
     }
 
 }
