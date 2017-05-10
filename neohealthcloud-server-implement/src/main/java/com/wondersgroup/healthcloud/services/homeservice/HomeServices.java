@@ -11,4 +11,11 @@ import java.util.Map;
 public interface HomeServices {
     HomeServiceEntity saveHomeService(HomeServiceEntity entity);
     List<HomeServiceEntity> findHomeServiceByCondition(Map paramMap);
+
+    /**
+     * @param oldServices 编辑前的服务
+     * @param newServices  编辑后的服务
+     * @param userId  用户
+     */
+    void editMyService(List<HomeServiceEntity> oldServices,List<HomeServiceEntity> newServices,String userId);
 }

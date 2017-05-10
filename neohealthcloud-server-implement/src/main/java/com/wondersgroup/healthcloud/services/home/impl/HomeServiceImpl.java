@@ -926,4 +926,22 @@ public class HomeServiceImpl implements HomeService {
         return dtoList;
     }
 
+    @Override
+    public List<HomeServiceDTO> findBaseServices(Map paramMap) {
+        List<HomeServiceDTO> dtoList = null;
+        List<HomeServiceEntity> entityList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+        if (!CollectionUtils.isEmpty(entityList)) {
+            dtoList = new ArrayList<HomeServiceDTO>();
+            for (HomeServiceEntity entity : entityList) {
+                dtoList.add(new HomeServiceDTO(entity));
+            }
+        }
+        return dtoList;
+    }
+
+    @Override
+    public void editHomeServices(RegisterInfo registerInfo, List<String> editServiceIds) {
+
+    }
+
 }

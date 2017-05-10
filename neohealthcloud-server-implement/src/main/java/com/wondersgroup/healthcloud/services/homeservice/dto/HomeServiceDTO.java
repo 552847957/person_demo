@@ -25,6 +25,8 @@ public class HomeServiceDTO {
     private String delFlag;  //删除标志 0：不删除 1：已删除
     private int sort; // 排序
 
+    public HomeServiceDTO(){}
+
     public HomeServiceDTO(HomeServiceEntity entity) {
         try {
             BeanUtils.copyProperties(this, entity);

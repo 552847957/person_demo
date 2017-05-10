@@ -71,4 +71,19 @@ public interface HomeService {
      */
     public List<HomeServiceDTO> findHomeServices(RegisterInfo registerInfo,Map paramMap);
 
+
+    /**
+     * 查询基础服务
+     * @param paramMap
+     * @return
+     */
+    public List<HomeServiceDTO> findBaseServices(Map paramMap);
+
+    /**
+     * 编辑我的服务
+     * @param registerInfo
+     * @param editServiceIds
+     */
+    void editHomeServices(RegisterInfo registerInfo,List<String> editServiceIds);
+
 }

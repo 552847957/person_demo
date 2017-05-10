@@ -63,4 +63,9 @@ public class HomeServicesImpl implements HomeServices {
 
         return list;
     }
+
+    @Override
+    public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
+
+    }
 }

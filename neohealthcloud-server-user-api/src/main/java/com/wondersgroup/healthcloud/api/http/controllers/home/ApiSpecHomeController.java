@@ -451,7 +451,79 @@ public class ApiSpecHomeController {
         return result;
     }
 
-    @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
+    @RequestMapping(value = "/moreService", method = RequestMethod.GET)
+    @WithoutToken
+    public JsonResponseEntity moreService(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                                  @RequestHeader(value = "spec-area", required = false) String specArea,
+                                                  @RequestHeader(value = "app-version", required = true) String version,
+                                                  @RequestParam(value = "uid", required = false) String uid,
+                                                  @AccessToken(required = false, guestEnabled = true) Session session) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        Map data = new HashMap();
+        RegisterInfo registerInfo = null;
+        if (StringUtils.isNotBlank(uid)) {
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        List<HomeServiceDTO> myService = null;
+        try {
+            Map paramMap = new HashMap();
+            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+            paramMap.put("version", version);
+
+            myService = homeService.findHomeServices(registerInfo, paramMap);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
+        data.put("myService", myService);
+
+        List<HomeServiceDTO> baseService = null;
+        try {
+            Map paramMap = new HashMap();
+            paramMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
+            paramMap.put("version", version);
+
+            baseService = homeService.findBaseServices(paramMap);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+        baseService = CollectionUtils.isEmpty(baseService) ? new ArrayList<HomeServiceDTO>(0) : baseService;
+        data.put("baseService", baseService);
+
+
+        //特色服务
+        List<SpecialServiceDTO> oldSpecialService = null;
+        try {
+            oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+        oldSpecialService = CollectionUtils.isEmpty(oldSpecialService) ? new ArrayList<SpecialServiceDTO>(0) : oldSpecialService;
+
+
+        List<HomeServiceDTO> specialService = new ArrayList<HomeServiceDTO>();
+        for(SpecialServiceDTO oldDto:oldSpecialService){ // TODO 注意判断医养云
+            HomeServiceDTO dto = new HomeServiceDTO();
+            dto.setMainTitle(oldDto.getMainTitle());
+            dto.setServiceType(ServiceTypeEnum.SPECIAL_SERVICE.getType());
+            dto.setImgUrl(oldDto.getImgUrl());
+            dto.setHoplink(oldDto.getHoplink());
+            specialService.add(dto);
+        }
+
+        data.put("specialService", specialService);
+
+        result.setCode(0);
+        result.setData(data);
+        result.setMsg("获取数据成功");
+        return result;
+    }
+
+
+        @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
     @WithoutToken
     public JsonResponseEntity editMyService(
                                               @RequestParam(value = "uid", required = false) String uid,
@@ -464,15 +536,22 @@ public class ApiSpecHomeController {
             return result;
         }
 
-        JSONArray json = JSONArray.fromObject(mySerice); // 首先把字符串转成 JSONArray  对象
+        RegisterInfo registerInfo = null;
+        if (StringUtils.isNotBlank(uid)) {
+            registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        JSONArray json = JSONArray.fromObject(mySerice);
+        List<String> editServiceIds = null;
         if(json.size()>0){
+            editServiceIds = new ArrayList<String>();
             for(int i=0;i<json.size();i++){
                 JSONObject job = json.getJSONObject(i);
-                System.out.println(job.get("id")+"=") ;
+                editServiceIds.add(String.valueOf(job.get("id")));
             }
         }
-        //TODO 编辑 (先软删除，再添加)
-
+        // 编辑 (先删除，再添加)
+        homeService.editHomeServices(registerInfo,editServiceIds);
         result.setCode(0);
         result.setMsg("操作成功");
         return result;
