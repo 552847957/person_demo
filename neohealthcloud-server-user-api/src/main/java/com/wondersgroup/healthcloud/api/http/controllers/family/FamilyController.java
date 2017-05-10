@@ -782,6 +782,9 @@ public class FamilyController {
             sex = ano.getSex();
             birthday = ano.getBirthDate();
             info.setIsVerification(ano.getIdcard() != null);
+            if(info.getAge() == null && !StringUtils.isBlank(ano.getIdcard())){
+                info.setAge(IdcardUtils.getAgeByIdCard(ano.getIdcard()));
+            }
         } else {
             registerId = regInfo.getRegisterid();
             personCard = regInfo.getPersoncard();
@@ -798,6 +801,8 @@ public class FamilyController {
             }
             info.setMobile(regInfo.getRegmobilephone());
             birthday = regInfo.getBirthday();
+
+
         }
         info.setId(memberId);
         if (uid.equals(memberId)) {
