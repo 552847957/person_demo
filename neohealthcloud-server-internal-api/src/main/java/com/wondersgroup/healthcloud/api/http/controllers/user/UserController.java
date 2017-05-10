@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.user;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.utils.Debug;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -40,6 +41,9 @@ public class UserController {
     @Autowired
     private SessionUtil sessionUtil;
 
+    @Autowired
+    private Debug debug;
+
 
     @PostMapping(path = "/userInfo/update")
     public JsonResponseEntity updateUserInfo(@RequestBody String request) {
@@ -71,15 +75,19 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "/userInfo")
-    public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestHeader("access-token") String token,
-            @RequestParam String uid) {
+    public JsonResponseEntity<Map<String, String>> getUserInfo(@RequestHeader(name = "access-token", required = false) String token,
+                                                               @RequestParam String uid) {
         JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         Map<String, String> map = Maps.newHashMap();
         try {
             Session session = sessionUtil.get(token);
-            if(null == session || false == session.getIsValid()
-                    || StringUtils.isEmpty(session.getUserId())
-                    || !session.getUserId().trim().equalsIgnoreCase(uid)) {
+            boolean deOrTe = null == session || false == session.getIsValid()
+                    || StringUtils.isEmpty(session.getUserId());
+            if(debug.sandbox()){
+                deOrTe = deOrTe || !session.getUserId().trim().equalsIgnoreCase(uid);
+            }
+
+            if(deOrTe) {
                 response.setCode(13);
                 response.setMsg("请登录后操作！");
                 return response;
