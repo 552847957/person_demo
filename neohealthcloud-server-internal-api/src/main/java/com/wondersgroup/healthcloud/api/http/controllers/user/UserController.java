@@ -80,18 +80,25 @@ public class UserController {
         JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
         Map<String, String> map = Maps.newHashMap();
         try {
-            Session session = sessionUtil.get(token);
-            boolean deOrTe = null == session || false == session.getIsValid()
-                    || StringUtils.isEmpty(session.getUserId());
-            if(debug.sandbox()){
-                deOrTe = deOrTe || !session.getUserId().trim().equalsIgnoreCase(uid);
-            }
-
-            if(deOrTe) {
+            if(debug.sandbox() && StringUtils.isBlank(token)) {
                 response.setCode(13);
                 response.setMsg("请登录后操作！");
                 return response;
+            }else if(debug.sandbox() && StringUtils.isNotBlank(token)){
+                Session session = sessionUtil.get(token);
+                boolean deOrTe = null == session || false == session.getIsValid()
+                        || StringUtils.isEmpty(session.getUserId());
+                if(debug.sandbox()){
+                    deOrTe = deOrTe || !session.getUserId().trim().equalsIgnoreCase(uid);
+                }
+
+                if(deOrTe) {
+                    response.setCode(13);
+                    response.setMsg("请登录后操作！");
+                    return response;
+                }
             }
+
 
             RegisterInfo registerInfo = userService.getOneNotNull(uid);
             map.put("personcard", registerInfo.getPersoncard());
