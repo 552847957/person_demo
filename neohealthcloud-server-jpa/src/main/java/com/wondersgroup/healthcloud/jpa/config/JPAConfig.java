@@ -83,14 +83,9 @@ public class JPAConfig {
     public DataSource dataSource() throws PropertyVetoException {
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        /*dataSource.setUrl(env.getProperty("mysql.connection.url"));
+        dataSource.setUrl(env.getProperty("mysql.connection.url"));
         dataSource.setUsername(env.getProperty("mysql.connection.username"));
-        dataSource.setPassword(env.getProperty("mysql.connection.password"));*/
-
-        dataSource.setUrl("jdbc:mysql://mysql-m.wdjky.me:9035/healthcloud?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull");
-        dataSource.setUsername("healthcloud");
-        dataSource.setPassword("healthcloud123456");
-
+        dataSource.setPassword(env.getProperty("mysql.connection.password"));
         dataSource.setInitialSize(10);
         dataSource.setMinIdle(1);
         dataSource.setMaxActive(2000);
