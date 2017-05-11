@@ -970,12 +970,12 @@ public class HomeServiceImpl implements HomeService {
         homeUserServicesMap.put("registerId", paramMap.get("registerId"));
         List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
 
-        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在就不在 基础服务里展示，在此处做移除操作
+        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，就不在基础服务里展示，在此处做标记操作
             Iterator<HomeServiceDTO>  it = dtoList.iterator();
             while(it.hasNext()){
                 HomeServiceDTO dto = it.next();
                 if(dto.getId().equals(oldEntity.getServiceId())){
-                 it.remove();
+                    dto.setIsAdd(1);
                 }
             }
         }

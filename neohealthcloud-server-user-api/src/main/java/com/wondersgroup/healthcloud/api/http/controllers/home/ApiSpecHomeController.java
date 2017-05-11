@@ -453,10 +453,10 @@ public class ApiSpecHomeController {
     @RequestMapping(value = "/moreService", method = RequestMethod.GET)
     @WithoutToken
     public JsonResponseEntity moreService(@RequestHeader(value = "main-area", required = true) String mainArea,
-                                                  @RequestHeader(value = "spec-area", required = false) String specArea,
-                                                  @RequestHeader(value = "app-version", required = true) String version,
-                                                  @RequestParam(value = "uid", required = false) String uid,
-                                                  @AccessToken(required = false, guestEnabled = true) Session session) {
+                                          @RequestHeader(value = "spec-area", required = false) String specArea,
+                                          @RequestHeader(value = "app-version", required = true) String version,
+                                          @RequestParam(value = "uid", required = false) String uid,
+                                          @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
         Map data = new HashMap();
         RegisterInfo registerInfo = null;
@@ -503,7 +503,7 @@ public class ApiSpecHomeController {
 
 
         List<HomeServiceDTO> specialService = new ArrayList<HomeServiceDTO>();
-        for(SpecialServiceDTO oldDto:oldSpecialService){ // TODO 注意判断医养云
+        for (SpecialServiceDTO oldDto : oldSpecialService) { // TODO 注意判断医养云
             HomeServiceDTO dto = new HomeServiceDTO();
             dto.setMainTitle(oldDto.getMainTitle());
             dto.setServiceType(ServiceTypeEnum.SPECIAL_SERVICE.getType());
@@ -521,14 +521,14 @@ public class ApiSpecHomeController {
     }
 
 
-        @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
+    @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
     @WithoutToken
     public JsonResponseEntity editMyService(
-                                              @RequestParam(value = "uid", required = false) String uid,
-                                              @RequestBody(required = true) String mySerice,
-                                              @AccessToken(required = false, guestEnabled = true) Session session) {
+            @RequestParam(value = "uid", required = false) String uid,
+            @RequestBody(required = true) String mySerice,
+            @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
-        if(StringUtils.isBlank(mySerice)){
+        if (StringUtils.isBlank(mySerice)) {
             result.setCode(-1);
             result.setMsg("修改失败");
             return result;
@@ -541,21 +541,21 @@ public class ApiSpecHomeController {
 
         JSONArray json = JSONArray.fromObject(mySerice);
         List<String> editServiceIds = null;
-        if(json.size()>0){
+        if (json.size() > 0) {
             editServiceIds = new ArrayList<String>();
-            for(int i=0;i<json.size();i++){
+            for (int i = 0; i < json.size(); i++) {
                 JSONObject job = json.getJSONObject(i);
                 editServiceIds.add(String.valueOf(job.get("id")));
             }
         }
 
-        if(CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6){
+        if (CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6) {
             result.setCode(0);
             result.setMsg("超过6条数据");
             return result;
         }
         // 编辑 (先删除，再添加)
-        homeService.editHomeServices(registerInfo,editServiceIds);
+        homeService.editHomeServices(registerInfo, editServiceIds);
         result.setCode(0);
         result.setMsg("操作成功");
         return result;
