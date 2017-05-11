@@ -395,6 +395,12 @@ public class ApiSpecHomeController {
             registerInfo = registerInfoRepo.findOne(uid);
         }
 
+        if(null == registerInfo){
+            result.setCode(-1);
+            result.setMsg("用户信息不存在");
+            return result;
+        }
+
         //首页服务
         List<HomeServiceDTO> myService = null;
         try {
@@ -403,7 +409,6 @@ public class ApiSpecHomeController {
             paramMap.put("registerId", registerInfo.getRegisterid());
             myService = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(" msg " + e.getMessage());
         }
 
@@ -463,6 +468,12 @@ public class ApiSpecHomeController {
         RegisterInfo registerInfo = null;
         if (StringUtils.isNotBlank(uid)) {
             registerInfo = registerInfoRepo.findOne(uid);
+        }
+
+        if(null == registerInfo){
+            result.setCode(-1);
+            result.setMsg("用户信息不存在");
+            return result;
         }
 
         List<HomeServiceDTO> myService = null;
@@ -538,6 +549,11 @@ public class ApiSpecHomeController {
         RegisterInfo registerInfo = null;
         if (StringUtils.isNotBlank(uid)) {
             registerInfo = registerInfoRepo.findOne(uid);
+        }
+        if(null == registerInfo){
+            result.setCode(-1);
+            result.setMsg("用户信息不存在");
+            return result;
         }
 
         JSONArray json = JSONArray.fromObject(mySerice);
