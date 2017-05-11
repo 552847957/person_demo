@@ -61,6 +61,9 @@ public class SpecCommonController {
 
         // 更新接口无需校验 specArea
         AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.appUpdate");
+        if ("0".equals(platform)) {// iOS 升级配置
+            acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.appUpdate.ios");
+        }
         if (acUpdate != null) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
