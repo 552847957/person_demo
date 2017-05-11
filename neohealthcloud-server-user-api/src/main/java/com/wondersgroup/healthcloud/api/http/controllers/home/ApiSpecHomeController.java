@@ -397,19 +397,15 @@ public class ApiSpecHomeController {
 
         //首页服务
         List<HomeServiceDTO> myService = null;
-        /*try {
+        try {
             Map paramMap = new HashMap();
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
             myService = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(" msg " + e.getMessage());
-        }*/
-
-        Map paramMap = new HashMap();
-        paramMap.put("version", version);
-        paramMap.put("registerId", registerInfo.getRegisterid());
-        myService = homeService.findMyHomeServices(paramMap);
+        }
 
         myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
         data.put("myService", myService);

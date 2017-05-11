@@ -71,6 +71,7 @@ public class HomeServicesImpl implements HomeServices {
 
         }
 
+         sql.append(" order by sort asc ");
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
