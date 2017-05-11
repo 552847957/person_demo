@@ -118,7 +118,7 @@ public class HomeServicesImpl implements HomeServices {
     public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
         if(!CollectionUtils.isEmpty(oldServices)){
             String inSql = buildSql(oldServices);
-            final String deleteSql = "update app_tb_user_service set del_flag = '1' where register_id = '+userId+' and  service_id in "+inSql+" and del_flag = '0' ";
+            final String deleteSql = "update app_tb_user_service set del_flag = '1',update_time = now() where register_id = '"+userId+"' and  service_id in "+inSql+" and del_flag = '0' ";
             int count = jdbcTemplate.update(deleteSql);
         }
 
