@@ -16,8 +16,10 @@ import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.remind.CommonlyUsedMedicineService;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
+import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +70,19 @@ public class RemindController {
         }
         return result;
     }
-
+    
+    @RequestMapping(value = "/getRemind", method = RequestMethod.GET)
+    public JsonResponseEntity<RemindForHomeDTO> getRemind(@RequestParam String userId) {
+        JsonResponseEntity<RemindForHomeDTO> result = new JsonResponseEntity();
+       RemindForHomeDTO homeDTO = remindService.getRemindForHome(userId);
+        if (homeDTO != null) {
+            result.setData(homeDTO);
+        } else {
+            result.setMsg("未查询到相关记录");
+        }
+        return result;
+    }
+    
     @RequestMapping(value = "/saveAndUpdate", method = RequestMethod.POST)
     public JsonListResponseEntity saveAndUpdate(@RequestHeader("access-token") String token, @RequestBody String remindJson) {
         JsonKeyReader remindReader = new JsonKeyReader(remindJson);

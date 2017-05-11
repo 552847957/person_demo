@@ -20,7 +20,10 @@ import com.wondersgroup.healthcloud.jpa.repository.remind.RemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.remind.RemindTimeRepository;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
+import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 import com.wondersgroup.healthcloud.services.user.message.UserPrivateMessageService;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -31,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
 import java.util.*;
 
 /**
@@ -46,6 +50,9 @@ public class RemindServiceImpl implements RemindService {
 
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
+    
+    @Value("${disease.h5.url}")
+    public String API_DISEASE_H5_URL;
 
     private HttpRequestExecutorManager httpRequestExecutorManager = new HttpRequestExecutorManager(new OkHttpClient());
 
@@ -67,6 +74,8 @@ public class RemindServiceImpl implements RemindService {
     @Autowired
     private PushAreaService pushAreaService;
 
+    private RemindForHomeDTO remindForHomeDTO;
+
     @Override
     public List<RemindDTO> list(String userId, int pageNo, int pageSize) {
         List<RemindDTO> remindDTOS = new ArrayList<>();
@@ -79,6 +88,24 @@ public class RemindServiceImpl implements RemindService {
             }
         }
         return remindDTOS;
+    }
+    
+    @Override
+    public RemindForHomeDTO getRemindForHome(String userId){
+        List<Remind> reminds = remindRepo.findByUserId(userId,0,1);
+        if(CollectionUtils.isEmpty(reminds)){
+            RemindForHomeDTO  remindForHomeDTO=new RemindForHomeDTO();
+            remindForHomeDTO.setName("您身体棒棒的暂无用药提醒");
+            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
+            return remindForHomeDTO;
+        }
+        for (Remind remind : reminds) {
+            List<RemindItem> remindItems = remindItemRepo.findByRemindId(remind.getId());
+            List<RemindTime> remindTimes = remindTimeRepo.findByRemindId(remind.getId());
+            remindForHomeDTO=new RemindForHomeDTO(remind, remindItems, remindTimes);
+            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
+        }
+        return remindForHomeDTO;
     }
 
     @Override

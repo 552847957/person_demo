@@ -77,6 +77,8 @@ public class ApiSpecHomeController {
 
     @Value("${api.vaccine.url}")
     private String API_VACCINE_URL;
+    
+    
 
     @Autowired
     private DiabetesService diabetesService;
