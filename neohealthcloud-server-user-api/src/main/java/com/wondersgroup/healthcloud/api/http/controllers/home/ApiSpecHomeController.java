@@ -587,7 +587,6 @@ public class ApiSpecHomeController {
     @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
     @WithoutToken
     public JsonResponseEntity editMyService(
-            @RequestParam(value = "uid", required = false) String uid,
             @RequestBody(required = true) String mySerice,
             @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -596,6 +595,16 @@ public class ApiSpecHomeController {
             result.setMsg("修改失败");
             return result;
         }
+
+        JSONObject jo = JSONObject.fromObject(mySerice);
+
+        if(null ==jo ){
+            result.setCode(-1);
+            result.setMsg("修改失败，数据格式转换异常");
+            return result;
+        }
+
+        String uid = jo.getString("uid");
 
         RegisterInfo registerInfo = null;
         if (StringUtils.isNotBlank(uid)) {
@@ -607,7 +616,7 @@ public class ApiSpecHomeController {
             return result;
         }
 
-        JSONArray json = JSONArray.fromObject(mySerice);
+        JSONArray json = jo.getJSONArray("ids");
         List<String> editServiceIds = null;
         if (json.size() > 0) {
             editServiceIds = new ArrayList<String>();
