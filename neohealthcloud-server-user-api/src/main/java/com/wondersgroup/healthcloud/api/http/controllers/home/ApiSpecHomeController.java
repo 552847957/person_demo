@@ -416,18 +416,18 @@ public class ApiSpecHomeController {
         }
 
         //首页服务
-        List<HomeServiceDTO> myService = null;
+        List<HomeServiceDTO> functionIcons = null;
         try {
             Map paramMap = new HashMap();
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
-            myService = homeService.findMyHomeServices(paramMap);
+            functionIcons = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
         }
 
-        myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
-        data.put("myService", myService);
+        functionIcons = CollectionUtils.isEmpty(functionIcons) ? new ArrayList<HomeServiceDTO>(0) : functionIcons;
+        data.put("functionIcons", functionIcons);
 
         //中央区广告
         List<CenterAdDTO> advertisements = null;
@@ -627,7 +627,7 @@ public class ApiSpecHomeController {
         }
 
         if (CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6) {
-            result.setCode(0);
+            result.setCode(-1);
             result.setMsg("超过6条数据");
             return result;
         }
