@@ -14,10 +14,11 @@ import java.util.List;
 @Data
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FamilyMemberDTO {
+public class FamilyMemberJKGLDTO {
     private String healthStatus;
     private String mainTitle;
     private String subTitle;
-    private List<FamilyMemberItemDTO> exceptionItems;
+    private String headPhoto;
+    private List<FamilyHealthItemJKGLDTO> exceptionItems;
 
 }

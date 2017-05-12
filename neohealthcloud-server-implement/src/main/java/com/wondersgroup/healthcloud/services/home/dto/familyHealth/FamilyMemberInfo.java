@@ -21,6 +21,6 @@ public class FamilyMemberInfo {
 
     private String  relation;    //成员与申请人关系',
 
-
+    private String headPhoto; // 头像
 
 }
