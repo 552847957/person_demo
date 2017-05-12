@@ -4,6 +4,7 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 
 /**
  * 家庭健康栏目
@@ -12,11 +13,12 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @Data
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FamilyHealthDTO {
+public class FamilyHealthJKGLDTO {
     private UserHealthDTO userHealth;
-    private FamilyMemberDTO familyMember;
-    public FamilyHealthDTO(){}
-    public FamilyHealthDTO(UserHealthDTO userHealth,FamilyMemberDTO familyMember){
+    private FamilyMemberJKGLDTO familyMember;
+    private RemindForHomeDTO takeDrugsRemind;
+    public FamilyHealthJKGLDTO(){}
+    public FamilyHealthJKGLDTO(UserHealthDTO userHealth,FamilyMemberJKGLDTO familyMember){
         this.userHealth = userHealth;
         this.familyMember = familyMember;
     }

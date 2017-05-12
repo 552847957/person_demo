@@ -17,6 +17,7 @@ public class UserHealthDTO {
     private String healthStatus;
     private String mainTitle;
     private String  subTitle;
+    private String headPhoto;
     private List<UserHealthItemDTO> exceptionItems;
 
 }

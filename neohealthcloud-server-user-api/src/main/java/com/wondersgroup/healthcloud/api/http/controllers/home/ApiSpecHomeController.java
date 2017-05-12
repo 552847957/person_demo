@@ -1,10 +1,30 @@
 package com.wondersgroup.healthcloud.api.http.controllers.home;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
@@ -23,29 +43,18 @@ import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.cloudTopLine.CloudTopLineDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthDTO;
+import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthJKGLDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyMemberDTO;
+import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyMemberJKGLDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.UserHealthDTO;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.home.impl.TopicManageServiceImpl;
 import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
+import com.wondersgroup.healthcloud.services.remind.RemindService;
+import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by xianglinhai on 2016/12/14.
@@ -68,6 +77,9 @@ public class ApiSpecHomeController {
 
     @Autowired
     private ManageNewsArticleService manageNewsArticleServiceImpl;
+    
+    @Autowired
+    private RemindService remindService;
 
     @Value("${internal.api.service.measure.url}")
     private String API_MEASURE_URL;
@@ -77,6 +89,8 @@ public class ApiSpecHomeController {
 
     @Value("${api.vaccine.url}")
     private String API_VACCINE_URL;
+    
+    
 
     @Autowired
     private DiabetesService diabetesService;
@@ -379,7 +393,7 @@ public class ApiSpecHomeController {
 
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    @VersionRange(from = "4.3")
+    @VersionRange(from = "4.3.0")
     @WithoutToken
     public JsonResponseEntity indexForHomeService(@RequestHeader(value = "main-area", required = true) String mainArea,
                                                   @RequestHeader(value = "spec-area", required = false) String specArea,
@@ -402,18 +416,18 @@ public class ApiSpecHomeController {
         }
 
         //首页服务
-        List<HomeServiceDTO> myService = null;
+        List<HomeServiceDTO> functionIcons = null;
         try {
             Map paramMap = new HashMap();
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
-            myService = homeService.findMyHomeServices(paramMap);
+            functionIcons = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
         }
 
-        myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
-        data.put("myService", myService);
+        functionIcons = CollectionUtils.isEmpty(functionIcons) ? new ArrayList<HomeServiceDTO>(0) : functionIcons;
+        data.put("functionIcons", functionIcons);
 
         //中央区广告
         List<CenterAdDTO> advertisements = null;
@@ -448,8 +462,45 @@ public class ApiSpecHomeController {
         cloudTopLine = cloudTopLine == null ? new CloudTopLineDTO() : cloudTopLine;
         data.put("cloudTopLine", cloudTopLine);
 
-        //健康管理 TODO
+        //健康管理   
+        // 用药提醒 &个人健康&家庭健康
+        FamilyHealthJKGLDTO familyHealth = null;
 
+        if (null != registerInfo) {
+            Map<String, Object> paramMap = new HashMap<String, Object>();
+            paramMap.put("apiMeasureUrl", API_MEASURE_URL);
+            paramMap.put("apiUserhealthRecordUrl", API_USERHEALTH_RECORD_URL);
+            paramMap.put("apiVaccineUrl", API_VACCINE_URL);
+            paramMap.put("vaccineLessThanDays", "30");
+            paramMap.put("familyLessThanDays", "30");
+            paramMap.put("userLessThanDays", "30");
+
+            try {
+                familyHealth = homeService.findfamilyHealthForJKGL(registerInfo, paramMap);
+                
+            } catch (Exception e) {
+                logger.error(" msg " + e.getMessage());
+            }
+        }
+        //用药提醒
+        RemindForHomeDTO remindForHome=remindService.getRemindForHome(uid);
+        familyHealth.setTakeDrugsRemind(remindForHome);
+        
+        if (null == familyHealth) {
+            UserHealthDTO userHealth = new UserHealthDTO();
+            userHealth.setMainTitle("请录入您的健康数据");
+            userHealth.setSubTitle("添加您的健康数据>>");
+            userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
+
+            FamilyMemberJKGLDTO familyMember = new FamilyMemberJKGLDTO();
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            familyMember.setMainTitle("设置您的家庭成员数据");
+            familyMember.setSubTitle("添加您家人的健康数据吧>>");
+
+            familyHealth = new FamilyHealthJKGLDTO(userHealth, familyMember);
+        }
+        data.put("familyHealth", familyHealth);
+        
         result.setCode(0);
         result.setData(data);
         result.setMsg("获取数据成功");
@@ -536,7 +587,6 @@ public class ApiSpecHomeController {
     @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
     @WithoutToken
     public JsonResponseEntity editMyService(
-            @RequestParam(value = "uid", required = false) String uid,
             @RequestBody(required = true) String mySerice,
             @AccessToken(required = false, guestEnabled = true) Session session) {
         JsonResponseEntity result = new JsonResponseEntity();
@@ -545,6 +595,16 @@ public class ApiSpecHomeController {
             result.setMsg("修改失败");
             return result;
         }
+
+        JSONObject jo = JSONObject.fromObject(mySerice);
+
+        if(null ==jo ){
+            result.setCode(-1);
+            result.setMsg("修改失败，数据格式转换异常");
+            return result;
+        }
+
+        String uid = jo.getString("uid");
 
         RegisterInfo registerInfo = null;
         if (StringUtils.isNotBlank(uid)) {
@@ -556,7 +616,7 @@ public class ApiSpecHomeController {
             return result;
         }
 
-        JSONArray json = JSONArray.fromObject(mySerice);
+        JSONArray json = jo.getJSONArray("ids");
         List<String> editServiceIds = null;
         if (json.size() > 0) {
             editServiceIds = new ArrayList<String>();
@@ -567,7 +627,7 @@ public class ApiSpecHomeController {
         }
 
         if (CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6) {
-            result.setCode(0);
+            result.setCode(-1);
             result.setMsg("超过6条数据");
             return result;
         }

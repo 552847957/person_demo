@@ -4,8 +4,10 @@ import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindTime;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
+import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 
 import javax.transaction.Transactional;
+
 import java.util.List;
 
 /**
@@ -21,4 +23,6 @@ public interface RemindService {
     @Transactional
     int deleteRemind(String id);
     int medicationReminder(String id, String remindTimeId);
+    
+    public RemindForHomeDTO getRemindForHome(String userId);
 }

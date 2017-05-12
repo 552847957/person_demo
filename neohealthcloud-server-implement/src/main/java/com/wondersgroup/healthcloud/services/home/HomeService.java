@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.services.home.dto.advertisements.CenterAdDTO
 import com.wondersgroup.healthcloud.services.home.dto.advertisements.SideAdDTO;
 import com.wondersgroup.healthcloud.services.home.dto.cloudTopLine.CloudTopLineDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthDTO;
+import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthJKGLDTO;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
@@ -85,5 +86,13 @@ public interface HomeService {
      * @param editServiceIds
      */
     void editHomeServices(RegisterInfo registerInfo,List<String> editServiceIds);
+    
+    /**
+     * 首页4.3健康管理
+     * @param registerInfo
+     * @param paramMap
+     * @return
+     */
+    public FamilyHealthJKGLDTO findfamilyHealthForJKGL(RegisterInfo registerInfo, Map<String, Object> paramMap);
 
 }

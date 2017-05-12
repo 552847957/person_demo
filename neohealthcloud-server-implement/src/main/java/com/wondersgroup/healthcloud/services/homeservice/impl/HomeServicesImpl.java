@@ -136,6 +136,18 @@ public class HomeServicesImpl implements HomeServices {
 
     }
 
+    @Override
+    public List<String> findAllVersions() {
+        String sql = " select * from (select a.version as version from app_tb_neoservice a where a.del_flag = '0' group by a.version) as b order by b.version ";
+        List<String> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+               String version = rs.getString("version");
+                return version;
+            }
+        });
+        return list;
+    }
+
 
     String buildSql(List<HomeServiceEntity> oldServices){
         StringBuffer sql = new StringBuffer(" ( ");

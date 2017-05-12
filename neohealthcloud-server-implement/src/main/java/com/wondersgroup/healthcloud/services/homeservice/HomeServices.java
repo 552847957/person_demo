@@ -25,4 +25,10 @@ public interface HomeServices {
      * @param userId  用户
      */
     void editMyService(List<HomeServiceEntity> oldServices,List<HomeServiceEntity> newServices,String userId);
+
+    /**
+     * 查询所有的版本
+     * @return
+     */
+    List<String> findAllVersions();
 }
