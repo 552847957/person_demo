@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +103,7 @@ public class HomeServicesImpl implements HomeServices {
             sql.append(" and register_id = '"+registerId+"' ");
         }
 
-        sql.append(" order by create_time asc ");
+        sql.append(" order by sort asc ");
 
         List<HomeUserServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -116,6 +118,37 @@ public class HomeServicesImpl implements HomeServices {
     }
 
     @Override
+    public List<HomeServiceEntity> findMyHomeServices(Map paramMap) {
+            StringBuffer sql = new StringBuffer();
+            String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+            String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
+
+            if(StringUtils.isBlank(version) || StringUtils.isBlank(registerId)){
+                return Collections.EMPTY_LIST;
+            }
+
+            sql.append("select * from (select b.*,a.sort as bsort from app_tb_user_service a JOIN app_tb_neoservice b on a.service_id = b.id " );
+            sql.append(" where register_id = '"+registerId+"' and b.version = '"+version+"' and b.del_flag = '0' and a.del_flag = '0') as c order by c.bsort ");
+
+            List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+                public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    HomeServiceEntity entity = new HomeServiceEntity();
+                    entity.setId(rs.getString("id"));
+                    entity.setMainTitle(rs.getString("main_title"));
+                    entity.setHoplink(rs.getString("hoplink"));
+                    entity.setImgUrl(rs.getString("img_url"));
+                    entity.setCertified(rs.getInt("certified"));
+                    entity.setServiceType(rs.getInt("service_type"));
+                    entity.setVersion(rs.getString("version"));
+                    return entity;
+                }
+            });
+
+            return list;
+    }
+
+    @Transactional
+    @Override
     public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
         if(!CollectionUtils.isEmpty(oldServices)){
             String inSql = buildSql(oldServices);
@@ -123,12 +156,14 @@ public class HomeServicesImpl implements HomeServices {
             int count = jdbcTemplate.update(deleteSql);
         }
 
+        int sort = 0;
         for(HomeServiceEntity dto:newServices){
             HomeUserServiceEntity entity = new HomeUserServiceEntity();
             entity.setId(IdGen.uuid());
             entity.setRegisterId(userId);
             entity.setServiceId(dto.getId());
             entity.setDelFlag("0");
+            entity.setSort(++sort);
             entity.setCreateTime(new Date());
             entity.setUpdateTime(new Date());
             homeUserServiceRepository.save(entity);

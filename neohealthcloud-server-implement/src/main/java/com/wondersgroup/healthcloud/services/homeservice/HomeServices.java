@@ -20,6 +20,13 @@ public interface HomeServices {
     List<HomeUserServiceEntity> findHomeUserServiceByCondition(Map paramMap);
 
     /**
+     * 查詢我的服務
+     * @param paramMap
+     * @return
+     */
+    List<HomeServiceEntity> findMyHomeServices(Map paramMap);
+
+    /**
      * @param oldServices 编辑前的服务
      * @param newServices  编辑后的服务
      * @param userId  用户

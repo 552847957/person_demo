@@ -598,7 +598,7 @@ public class ApiSpecHomeController {
 
         JSONObject jo = JSONObject.fromObject(mySerice);
 
-        if(null ==jo ){
+        if(null == jo ){
             result.setCode(-1);
             result.setMsg("修改失败，数据格式转换异常");
             return result;
@@ -626,9 +626,9 @@ public class ApiSpecHomeController {
             }
         }
 
-        if (CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 6) {
+        if (CollectionUtils.isNotEmpty(editServiceIds) && editServiceIds.size() > 11) {
             result.setCode(-1);
-            result.setMsg("超过6条数据");
+            result.setMsg("超过11条数据");
             return result;
         }
         // 编辑 (先删除，再添加)

@@ -20,6 +20,8 @@ public class HomeUserServiceEntity {
     private String  serviceId; //服务ID
     @Column(name = "del_flag")
     private  String delFlag; // 删除标志 0：不删除 1：已删除
+    @Column(name = "sort")
+    private int sort; //排序
     @Column(name = "create_time")
     private Date createTime; //创建时间
     @Column(name = "update_time")

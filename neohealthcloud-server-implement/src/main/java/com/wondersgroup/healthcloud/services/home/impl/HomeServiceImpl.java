@@ -919,42 +919,26 @@ public class HomeServiceImpl implements HomeService {
 
     @Override
     public List<HomeServiceDTO> findMyHomeServices(Map paramMap) {
-        paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
-        List<HomeServiceDTO> dtoList = new ArrayList<HomeServiceDTO>();
+        List<HomeServiceDTO> allServicesList = new ArrayList<HomeServiceDTO>();
 
-        List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
-        if (!CollectionUtils.isEmpty(defaultList)) {
-            for (HomeServiceEntity entity : defaultList) {
-                dtoList.add(new HomeServiceDTO(entity));
+       // 优先根據查询关系表里的 我的服务 信息
+        List<HomeServiceEntity> myHomeServicesList = homeServicesImpl.findMyHomeServices(paramMap);
+
+        if (!CollectionUtils.isEmpty(myHomeServicesList)) {
+            for (HomeServiceEntity entity : myHomeServicesList) {
+                allServicesList.add(new HomeServiceDTO(entity));
             }
-        }
-
-
-        //查询中间表
-        Map homeUserServicesMap = new HashMap();
-        homeUserServicesMap.put("registerId", paramMap.get("registerId"));
-        List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
-        List<HomeServiceEntity> baseServices = new ArrayList<HomeServiceEntity>();
-        for (HomeUserServiceEntity oldEntity : homeUserServices) {
-            HomeServiceEntity entity = new HomeServiceEntity();
-            entity.setId(oldEntity.getServiceId());
-            baseServices.add(entity);
-        }
-
-        if (!CollectionUtils.isEmpty(baseServices)) {
-            Map baseServiceMap = new HashMap();
-            baseServiceMap.put("baseServiceFlag", true);
-            baseServiceMap.put("baseServices", baseServices);
-            baseServiceMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
-            List<HomeServiceEntity> baseList = homeServicesImpl.findHomeServiceByCondition(baseServiceMap);
-            if (!CollectionUtils.isEmpty(baseList)) {
-                for (HomeServiceEntity entity : baseList) {
-                    dtoList.add(new HomeServiceDTO(entity));
+        }else{ //如果没有， 设置默认服务为 我的服务
+            paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+            List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+            if (!CollectionUtils.isEmpty(defaultList)) {
+                for (HomeServiceEntity entity : defaultList) {
+                    allServicesList.add(new HomeServiceDTO(entity));
                 }
             }
         }
 
-        return dtoList;
+        return allServicesList;
     }
 
     @Override
@@ -973,7 +957,7 @@ public class HomeServiceImpl implements HomeService {
         homeUserServicesMap.put("registerId", paramMap.get("registerId"));
         List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
 
-        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，就不在基础服务里展示，在此处做标记操作
+        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，在基础服务里展示，在此处做标记不允許添加
             Iterator<HomeServiceDTO> it = dtoList.iterator();
             while (it.hasNext()) {
                 HomeServiceDTO dto = it.next();
@@ -1005,21 +989,15 @@ public class HomeServiceImpl implements HomeService {
             newServices.add(entity);
         }
 
-        Map defaultServiceMap = new HashMap();
-        defaultServiceMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
-        List<HomeServiceEntity> defaultUserServicelist = homeServicesImpl.findHomeServiceByCondition(defaultServiceMap);
 
-        // 根据ID去数据库查询，校验编辑数据ID是否在数据库存在
+       /* // 根据ID去数据库查询，校验编辑数据ID是否在数据库存在
         Map exitsServiceMap = new HashMap();
-        exitsServiceMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
         exitsServiceMap.put("baseServiceFlag", true);
         exitsServiceMap.put("baseServices", newServices);
-        List<HomeServiceEntity> exitsEditServiceList = homeServicesImpl.findHomeServiceByCondition(exitsServiceMap);
+        List<HomeServiceEntity> exitsEditServiceList = homeServicesImpl.findHomeServiceByCondition(exitsServiceMap);*/
 
-        filterDefaultService(defaultUserServicelist, exitsEditServiceList);
-
-        if (!CollectionUtils.isEmpty(exitsEditServiceList)) {
-            homeServicesImpl.editMyService(oldServicelist, exitsEditServiceList, registerInfo.getRegisterid());
+        if (!CollectionUtils.isEmpty(newServices)) {
+            homeServicesImpl.editMyService(oldServicelist, newServices, registerInfo.getRegisterid());
         }
     }
 
