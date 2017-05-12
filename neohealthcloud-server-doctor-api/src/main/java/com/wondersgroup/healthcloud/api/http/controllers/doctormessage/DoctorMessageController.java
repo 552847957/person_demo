@@ -1,21 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctormessage;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -94,6 +87,20 @@ public class DoctorMessageController {
 
         return body;
     }
+
+    /**
+     * 医生首页tab消息红点提示 4.1版本
+     * @param uid
+     * @return
+     */
+    @GetMapping(path = "/prompt")
+    @VersionRange
+    public JsonResponseEntity<Map<String, Object>> prompt(@RequestParam String uid) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("has_unread", true);
+        return new JsonResponseEntity<>(0, null, map);
+    }
+
 
     private DoctorMessage generateMessage(JsonKeyReader reader) {
 
