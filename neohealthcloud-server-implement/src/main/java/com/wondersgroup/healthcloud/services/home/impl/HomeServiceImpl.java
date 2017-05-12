@@ -952,7 +952,7 @@ public class HomeServiceImpl implements HomeService {
             }
         }
 
-        //中间表里的基础服务
+        //中间表里的基础服务（多版本時需要注意）
         Map homeUserServicesMap = new HashMap();
         homeUserServicesMap.put("registerId", paramMap.get("registerId"));
         List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);

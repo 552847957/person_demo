@@ -429,6 +429,21 @@ public class ApiSpecHomeController {
         functionIcons = CollectionUtils.isEmpty(functionIcons) ? new ArrayList<HomeServiceDTO>(0) : functionIcons;
         data.put("functionIcons", functionIcons);
 
+
+        List<SpecialServiceDTO> oldSpecialService = null;
+        try {
+            oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
+        } catch (Exception e) {
+            logger.error(" msg " + e.getMessage());
+        }
+
+         //是否有特色服务
+        int hasSpecialService = 0;
+        if(CollectionUtils.isNotEmpty(oldSpecialService)){
+            hasSpecialService = 1;
+        }
+        data.put("hasSpecialService", hasSpecialService);
+
         //中央区广告
         List<CenterAdDTO> advertisements = null;
         try {
