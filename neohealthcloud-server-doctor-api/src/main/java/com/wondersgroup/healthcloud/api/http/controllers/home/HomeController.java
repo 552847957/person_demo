@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,36 @@ public class HomeController {
         }
 
         body.setData(services);
+
+        return body;
+    }
+
+    /**
+     * 首页汇总数据
+     * @param uid
+     * @return
+     */
+    @RequestMapping(value = "/statistics", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity statistics(@RequestParam(required = true) String uid){
+        JsonResponseEntity body = new JsonResponseEntity();
+
+        Map<String,Object>  number = new HashMap<>();
+        int unread = 0;
+        try {
+            unread = doctorQuestionService.queryUnreadCount(uid);// 杜宽心的接口
+        }catch (Exception e){
+            log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
+        }
+        number.put("signed_num",1088);//我的签约-签约人数
+        number.put("group_num",22);//我的分组-分组数
+        number.put("screened_num",115);//筛查提醒-已筛查数
+        number.put("intervened_num",123);//异常干预-已干预人数
+        number.put("follow_num",43);//随访提醒-已随访人数
+        number.put("ask_answered",45);//问诊回答—已回答数
+        number.put("ask_unread",unread);//问诊回答-未读数
+
+        body.setData(number);
 
         return body;
     }
