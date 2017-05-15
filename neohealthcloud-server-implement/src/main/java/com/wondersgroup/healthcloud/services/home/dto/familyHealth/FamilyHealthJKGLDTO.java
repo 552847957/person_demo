@@ -14,11 +14,11 @@ import com.wondersgroup.healthcloud.services.remind.dto.RemindForHomeDTO;
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FamilyHealthJKGLDTO {
-    private UserHealthDTO userHealth;
+    private UserHealthJKGLDTO userHealth;
     private FamilyMemberJKGLDTO familyMember;
     private RemindForHomeDTO takeDrugsRemind;
     public FamilyHealthJKGLDTO(){}
-    public FamilyHealthJKGLDTO(UserHealthDTO userHealth,FamilyMemberJKGLDTO familyMember){
+    public FamilyHealthJKGLDTO(UserHealthJKGLDTO userHealth,FamilyMemberJKGLDTO familyMember){
         this.userHealth = userHealth;
         this.familyMember = familyMember;
     }

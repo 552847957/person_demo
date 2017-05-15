@@ -48,7 +48,7 @@ public class Application extends SpringBootServletInitializer {
     }
 
     private static void preCheck() throws Exception {
-        APIVersionChecker.check();
+       // APIVersionChecker.check();
     }
 
     private static String getProfile() {

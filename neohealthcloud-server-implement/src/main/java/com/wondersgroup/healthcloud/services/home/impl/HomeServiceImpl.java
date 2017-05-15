@@ -722,10 +722,8 @@ public class HomeServiceImpl implements HomeService {
                 } else if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
                     dto = new UserHealthDTO();
                     dto.setHealthStatus(dataResponse.getData().getHealthStatus());
-                    dto.setExceptionItems(new ArrayList<UserHealthItemDTO>());
                     dto.setMainTitle("您的健康状况：良好");
                     dto.setSubTitle("你的健康状况良好，要继续保持哦");
-
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
                     dto = new UserHealthDTO();
                     dto.setHealthStatus(dataResponse.getData().getHealthStatus());
@@ -1017,7 +1015,7 @@ public class HomeServiceImpl implements HomeService {
         }
 
         FamilyHealthJKGLDTO dto = new FamilyHealthJKGLDTO();
-        UserHealthDTO userHealth = null;   //用户健康对象
+        UserHealthJKGLDTO userHealth = null;   //用户健康对象
         FamilyMemberJKGLDTO familyMember = new FamilyMemberJKGLDTO();
         familyMember.setExceptionItems(new ArrayList<FamilyHealthItemJKGLDTO>());
 
@@ -1032,13 +1030,13 @@ public class HomeServiceImpl implements HomeService {
         input.put("cardId", "");
 
         //个人健康信息  健康状态0:无数据 1:良好 2:异常
-        userHealth = getUserHealthInfo(input, apiMeasureUrl);
+        userHealth = getUserHealthInfoJKGL(input, apiMeasureUrl);
 
 
         //家人健康信息  健康状态 0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
 
         List<FamilyMemberInfo> fmList = getFamilyMembers(registerInfo.getRegisterid());
-        Map<FamilyMemberInfo, UserHealthDTO> familyMemberHealthMap = new HashMap<FamilyMemberInfo, UserHealthDTO>(); //家庭成员健康集合
+        Map<FamilyMemberInfo, UserHealthJKGLDTO> familyMemberHealthMap = new HashMap<FamilyMemberInfo, UserHealthJKGLDTO>(); //家庭成员健康集合
 
         if (!CollectionUtils.isEmpty(fmList)) {
             for (FamilyMemberInfo fm : fmList) {
@@ -1051,7 +1049,7 @@ public class HomeServiceImpl implements HomeService {
                 familyMemberInput.put("personCard", "");
                 familyMemberInput.put("cardType", "");
                 familyMemberInput.put("cardId", "");
-                UserHealthDTO familyMemberHealth = getUserHealthInfo(familyMemberInput, apiMeasureUrl);
+                UserHealthJKGLDTO familyMemberHealth = getUserHealthInfoJKGL(familyMemberInput, apiMeasureUrl);
                 if (null != familyMemberHealth) {
                     familyMemberHealthMap.put(fm, familyMemberHealth);
                 }
@@ -1064,18 +1062,34 @@ public class HomeServiceImpl implements HomeService {
 /////////////////////////////////////begin 获取最新数据///////////////////////////////////////////
 
         if (!CollectionUtils.isEmpty(familyMemberHealthMap)) {//家人健康信息集合
-            int goodsHealthCount = 0;
-            int haveNoDataCount = 0;
-            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO = null;
+//            int goodsHealthCount = 0;
+//            int haveNoDataCount = 0;
+            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO=null;
             Iterator<FamilyMemberInfo> it = familyMemberHealthMap.keySet().iterator();
 
             while (it.hasNext()) {  //统计 无数据/健康 两种状态的数据
                 FamilyMemberInfo fm = it.next();
-                UserHealthDTO item = familyMemberHealthMap.get(fm);
+                UserHealthJKGLDTO item = familyMemberHealthMap.get(fm);
                 if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
-                    goodsHealthCount++;
+                    if(!CollectionUtils.isEmpty(item.getHealthItems())){
+                        for (UserHealthItemDTO dto1 : item.getHealthItems()) {
+                            familyHealthItemJKGLDTO = new FamilyHealthItemJKGLDTO();
+                            familyHealthItemJKGLDTO.setName(dto1.getName());
+                            familyHealthItemJKGLDTO.setData(dto1.getData());
+                            familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
+                            familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                        }
+                    }
+                    familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
+                    familyMember.setHeadPhoto(fm.getHeadPhoto());
+                    familyMember.setRelation(fm.getRelation());
+                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                    //goodsHealthCount++;
                 } else if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
-                    haveNoDataCount++;
+                    familyMember.setHeadPhoto(fm.getHeadPhoto());
+                    familyMember.setRelation(fm.getRelation());
+                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+                    //haveNoDataCount++;
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {//异常数据，显示给前端
                     // FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     if (!CollectionUtils.isEmpty(item.getExceptionItems())) {
@@ -1090,6 +1104,7 @@ public class HomeServiceImpl implements HomeService {
                     // ftemDTO.setUid(fm.getUid()); //用于分组
                     familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
                     familyMember.setHeadPhoto(fm.getHeadPhoto());
+                    familyMember.setRelation(fm.getRelation());
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                 } else {//未知状态(默认为 有家人家人正常)
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
@@ -1097,18 +1112,23 @@ public class HomeServiceImpl implements HomeService {
 
             }
 
-            if (goodsHealthCount == familyMemberHealthMap.size()) {
+            /*if (goodsHealthCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
             } else if (haveNoDataCount == familyMemberHealthMap.size()) {
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
             } else if ((goodsHealthCount + haveNoDataCount) == familyMemberHealthMap.size()) {//家庭成员数据是 HAVE_FAMILY_AND_HEALTHY,HAVE_FAMILY_WITHOUT_DATA 两种状态的集合
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
-            }
+            }*/
         }
 
         //取每个家庭成员最新的一条数据,汇总成最新的两条
-        if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems())) {
+//        if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems())) {
+//            familyMember.setExceptionItems(familyMember.getExceptionItems().size() > 2 ? familyMember.getExceptionItems().subList(0, 2) : familyMember.getExceptionItems());
+//        }
+        if(!CollectionUtils.isEmpty(familyMember.getExceptionItems())){
             familyMember.setExceptionItems(familyMember.getExceptionItems().size() > 2 ? familyMember.getExceptionItems().subList(0, 2) : familyMember.getExceptionItems());
+        }else if(!CollectionUtils.isEmpty(familyMember.getHealthItems())){
+            familyMember.setHealthItems(familyMember.getHealthItems().size()>2 ? familyMember.getHealthItems().subList(0, 2):familyMember.getHealthItems());
         }
 
 /////////////////////////////////////end 获取最新数据///////////////////////////////////////////
@@ -1131,7 +1151,7 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle("设置您的家庭成员数据");
             familyMember.setSubTitle("添加您家人的健康数据吧>>");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
-            familyMember.setMainTitle("");
+            familyMember.setMainTitle(familyMember.getRelation()+"健康状况：" + familyMember.getExceptionItems().size() + "项异常");
             familyMember.setSubTitle("");
         } else {//有家庭成员，家人正常，无通知
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
@@ -1142,20 +1162,86 @@ public class HomeServiceImpl implements HomeService {
         ////////////////////////////////////end 根据状态 设置主标题，副标题//////////////////////
 
         if (null == userHealth) {
-            userHealth = new UserHealthDTO();
+            userHealth = new UserHealthJKGLDTO();
             userHealth.setMainTitle("请录入您的健康数据");
             userHealth.setSubTitle("添加您的健康数据>>");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
         }
 
         //个人健康异常数据最多显示两条
-        List<UserHealthItemDTO> userItemList = CollectionUtils.isEmpty(userHealth.getExceptionItems()) ? new ArrayList<UserHealthItemDTO>() : userHealth.getExceptionItems().size() > 2 ? userHealth.getExceptionItems().subList(0, 2) : userHealth.getExceptionItems();
+        List<UserHealthItemDTO> userItemList=null;
+        if(!CollectionUtils.isEmpty(userHealth.getExceptionItems())){
+            userItemList=userHealth.getExceptionItems().size() > 2 ? userHealth.getExceptionItems().subList(0, 2) : userHealth.getExceptionItems();
+            userHealth.setExceptionItems(userItemList);
+        }else if(!CollectionUtils.isEmpty(userHealth.getHealthItems())){
+            userItemList=userHealth.getHealthItems().size() > 2 ? userHealth.getHealthItems().subList(0, 2) :userHealth.getHealthItems();
+            userHealth.setHealthItems(userItemList);
+        }
+        //List<UserHealthItemDTO> userItemList = CollectionUtils.isEmpty(userHealth.getExceptionItems()) ? userHealth.getHealthItems().size() > 2 ? userHealth.getHealthItems().subList(0, 2) :userHealth.getHealthItems() : userHealth.getExceptionItems().size() > 2 ? userHealth.getExceptionItems().subList(0, 2) : userHealth.getExceptionItems();
         replaceUnitStr(userItemList);
         userHealth.setHeadPhoto(registerInfo.getHeadphoto());
-        userHealth.setExceptionItems(userItemList);
 
         dto.setUserHealth(userHealth);
         dto.setFamilyMember(familyMember);
+
+        return dto;
+    }
+    
+    /**
+     * 查询个人健康信息
+     *
+     * @param userInfoMap   参数
+     * @param apiMeasureUrl 请求地址
+     * @return //情况一：个人健康无数据情况
+     * //情况二：个人健康有数据，且数据正常情况
+     * //情况三：个人健康有数据，且数据异常情况
+     */
+    private UserHealthJKGLDTO getUserHealthInfoJKGL(Map<String, Object> userInfoMap, String apiMeasureUrl) {
+        UserHealthJKGLDTO dto = null;
+        String userHealthResponse = healthApiClient.userHealth(apiMeasureUrl, userInfoMap);
+        if (StringUtils.isNotBlank(userHealthResponse)) {
+
+            DataMsg<HealthResponse<List<UserHealthItemDTO>>> dataResponse = JsonConverter.toObject(userHealthResponse, new TypeReference<DataMsg<HealthResponse<List<UserHealthItemDTO>>>>() {
+            });
+
+            if (null != dataResponse && null != dataResponse.getData() && StringUtils.isNotBlank(dataResponse.getData().getHealthStatus())) {
+                // dataResponse.getData().getHealthStatus() 状体  UserHealthStatusEnum 枚举
+
+                if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
+                    dto = new UserHealthJKGLDTO();
+                    dto.setHealthStatus(dataResponse.getData().getHealthStatus());
+                    dto.setExceptionItems(new ArrayList<UserHealthItemDTO>());
+                    dto.setMainTitle("请录入您的健康数据");
+                    dto.setSubTitle("添加您的健康数据>>");
+                } else if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
+                    dto = new UserHealthJKGLDTO();
+                    dto.setHealthStatus(dataResponse.getData().getHealthStatus());
+                    dto.setHealthItems(dataResponse.getData().getHealthList());
+                    UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
+                    UserHealthItemComparable.sortASC = false;
+                    Collections.sort(dto.getHealthItems(), sort);
+                    dto.setMainTitle("您的健康状况：良好");
+                    dto.setSubTitle("你的健康状况良好，要继续保持哦");
+
+                } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
+                    dto = new UserHealthJKGLDTO();
+                    dto.setHealthStatus(dataResponse.getData().getHealthStatus());
+                    dto.setExceptionItems(dataResponse.getData().getExceptionItems());
+                    UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
+                    UserHealthItemComparable.sortASC = false;
+                    Collections.sort(dto.getExceptionItems(), sort);
+
+                    dto.setMainTitle("您的健康状况：" + dto.getExceptionItems().size() + "项异常");
+                    dto.setSubTitle("[显示最新的2项异常指标数据]");
+
+                } else {//未知 UserHealthStatusEnum 状态
+
+                }
+            }
+
+        } else { //数据解析异常 TODO
+
+        }
 
         return dto;
     }

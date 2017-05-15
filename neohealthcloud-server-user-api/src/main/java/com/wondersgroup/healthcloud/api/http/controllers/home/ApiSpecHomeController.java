@@ -47,6 +47,7 @@ import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyHealthJ
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyMemberDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.FamilyMemberJKGLDTO;
 import com.wondersgroup.healthcloud.services.home.dto.familyHealth.UserHealthDTO;
+import com.wondersgroup.healthcloud.services.home.dto.familyHealth.UserHealthJKGLDTO;
 import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIconsDTO;
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
@@ -497,12 +498,8 @@ public class ApiSpecHomeController {
                 logger.error(" msg " + e.getMessage());
             }
         }
-        //用药提醒
-        RemindForHomeDTO remindForHome=remindService.getRemindForHome(uid);
-        familyHealth.setTakeDrugsRemind(remindForHome);
-        
         if (null == familyHealth) {
-            UserHealthDTO userHealth = new UserHealthDTO();
+            UserHealthJKGLDTO userHealth = new UserHealthJKGLDTO();
             userHealth.setMainTitle("请录入您的健康数据");
             userHealth.setSubTitle("添加您的健康数据>>");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
@@ -514,6 +511,10 @@ public class ApiSpecHomeController {
 
             familyHealth = new FamilyHealthJKGLDTO(userHealth, familyMember);
         }
+        //用药提醒
+        RemindForHomeDTO remindForHome=remindService.getRemindForHome(uid);
+        familyHealth.setTakeDrugsRemind(remindForHome);
+        
         data.put("familyHealth", familyHealth);
         
         result.setCode(0);

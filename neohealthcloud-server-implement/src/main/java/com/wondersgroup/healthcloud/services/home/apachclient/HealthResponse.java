@@ -26,8 +26,9 @@ public class HealthResponse<T> {
 
     @JsonProperty("exceptionItems")
     private T exceptionItems;//数据实体
-
-
+    
+    @JsonProperty("healthList")
+    private T healthList;
 
 
 }
