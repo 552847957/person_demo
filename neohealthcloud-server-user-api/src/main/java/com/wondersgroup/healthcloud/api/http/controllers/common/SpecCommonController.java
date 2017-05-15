@@ -155,9 +155,30 @@ public class SpecCommonController {
     }
 
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
-    @VersionRange
+    @VersionRange(to = "4.3")
     @WithoutToken
     public JsonResponseEntity getNavigationBar(@RequestHeader(value = "main-area", required = true) String mainArea) {
+        JsonResponseEntity result = new JsonResponseEntity();
+        ImageText imgText = new ImageText();
+        imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
+        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgText);
+        if (imageTexts != null && imageTexts.size() > 0) {
+            List<String> navigationBars = new ArrayList<>();
+            for (ImageText imageText : imageTexts) {
+                navigationBars.add(imageText.getImgUrl());
+            }
+            result.setData(navigationBars);
+        } else {
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置信息！");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
+    @WithoutToken
+    @VersionRange(from = "4.3")
+    public JsonResponseEntity getNavigationBarForVersion(@RequestHeader(value = "main-area", required = true) String mainArea) {
         JsonResponseEntity result = new JsonResponseEntity();
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
