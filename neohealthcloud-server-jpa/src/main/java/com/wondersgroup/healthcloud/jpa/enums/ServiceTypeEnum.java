@@ -8,7 +8,7 @@ public enum ServiceTypeEnum {
     DEFAULT_SERVICE(0, "默认服务"),
     BASE_SERVICE(1, "基础服务"),
     SPECIAL_SERVICE(2, "特色服务"),
-    MEDICINE_CLOUD_SERVICE(2, "医养云");
+    MEDICINE_CLOUD_SERVICE(3, "医养云");
 
     private Integer type;
     private String name;

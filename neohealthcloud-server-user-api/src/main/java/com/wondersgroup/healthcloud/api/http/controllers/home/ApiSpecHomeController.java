@@ -428,6 +428,7 @@ public class ApiSpecHomeController {
         }
 
         functionIcons = CollectionUtils.isEmpty(functionIcons) ? new ArrayList<HomeServiceDTO>(0) : functionIcons;
+        checkService(functionIcons);
         data.put("functionIcons", functionIcons);
 
 
@@ -554,6 +555,7 @@ public class ApiSpecHomeController {
         }
 
         myService = CollectionUtils.isEmpty(myService) ? new ArrayList<HomeServiceDTO>(0) : myService;
+        checkService(myService);
         data.put("myService", myService);
 
         List<HomeServiceDTO> baseService = null;
@@ -568,6 +570,7 @@ public class ApiSpecHomeController {
         }
 
         baseService = CollectionUtils.isEmpty(baseService) ? new ArrayList<HomeServiceDTO>(0) : baseService;
+        checkService(baseService);
         data.put("baseService", baseService);
 
 
@@ -591,6 +594,7 @@ public class ApiSpecHomeController {
             specialService.add(dto);
         }
 
+        checkService(specialService);
         data.put("specialService", specialService);
 
         result.setCode(0);
@@ -599,7 +603,17 @@ public class ApiSpecHomeController {
         return result;
     }
 
-
+    /**
+     * 判斷是否為醫養云等
+     * @param list
+     */
+    void checkService(List<HomeServiceDTO> list){
+        for(HomeServiceDTO dto:list){
+            if(dto.getMainTitle().equals("医养云")){
+                dto.setServiceType(ServiceTypeEnum.MEDICINE_CLOUD_SERVICE.getType());
+            }
+        }
+    }
     @RequestMapping(value = "/editMyService", method = RequestMethod.POST)
     @WithoutToken
     public JsonResponseEntity editMyService(
