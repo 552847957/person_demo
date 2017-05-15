@@ -98,6 +98,10 @@ public class HomeServicesController {
                 return new JsonResponseEntity(-1, "版本号不满足规则!");
             }
 
+            if(StringUtils.isNotBlank(entity.getRecommendTitle()) && entity.getRecommendTitle().length() > 3){
+                return new JsonResponseEntity(-1, "推荐不能超过三个字!");
+            }
+
             if (StringUtils.isNotBlank(entity.getId())) { //修改
                 homeServicesImpl.updateHomeService(entity);
             } else if (StringUtils.isBlank(entity.getId())) {//新增
