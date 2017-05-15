@@ -97,6 +97,7 @@ public class HomeTabServiceController {
             if (StringUtils.isNotBlank(entity.getId())) { //修改
                 homeServicesImpl.updateHomeTabService(entity);
             } else if (StringUtils.isBlank(entity.getId())) {//新增
+                entity.setDelFlag("0");
                 homeServicesImpl.saveHomeTabService(entity);
             }
         }

@@ -105,6 +105,7 @@ public class HomeServicesController {
             if (StringUtils.isNotBlank(entity.getId())) { //修改
                 homeServicesImpl.updateHomeService(entity);
             } else if (StringUtils.isBlank(entity.getId())) {//新增
+                entity.setDelFlag("0");
                 homeServicesImpl.saveHomeService(entity);
             }
         }
