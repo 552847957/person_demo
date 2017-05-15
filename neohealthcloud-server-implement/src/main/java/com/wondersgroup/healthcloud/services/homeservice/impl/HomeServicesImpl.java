@@ -109,7 +109,7 @@ public class HomeServicesImpl implements HomeServices {
                 entity.setId(rs.getString("id"));
                 entity.setHoplink(rs.getString("hoplink"));
                 entity.setImgUrl(rs.getString("img_url"));
-                entity.setTabType(rs.getInt("service_type"));
+                entity.setTabType(rs.getInt("tab_type"));
                 entity.setVersion(rs.getString("version"));
                 return entity;
             }
@@ -310,7 +310,7 @@ public class HomeServicesImpl implements HomeServices {
             return Collections.EMPTY_LIST;
         }
 
-        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and a.version = '"+version+"' ORDER BY a.sort ");
+        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and del_flag = '0' and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and a.version = '"+version+"' ORDER BY a.sort ");
 
         List<HomeServiceDTO> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
