@@ -30,53 +30,50 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/homeService")
-public class HomeServicesController  {
+public class HomeServicesController {
 
     @Autowired
     private HomeServices homeServicesImpl;
 
-    @Autowired
-    private HomeUserServiceRepository homeUserServiceRepository;
-
 
     @VersionRange
     @RequestMapping(value = "/manage/allVersions", method = RequestMethod.GET)
-    public Object allVersions(){
-        List<String> list = homeServicesImpl.findAllVersions();
-        List<Map<String,String>> versons = new ArrayList<Map<String,String>>();
-         if(!CollectionUtils.isEmpty(list)){
-             for(String str:list){
-               Map<String,String> map = new HashMap<String,String>();
-                 map.put("version",str);
-                 versons.add(map);
-             }
-         }
-        return  new JsonResponseEntity(0, "操作成功!",versons);
+    public Object allVersions(@RequestParam(value = "version", required = false) String version) {
+        List<String> list = homeServicesImpl.findAllVersions(version);
+        List<Map<String, String>> versons = new ArrayList<Map<String, String>>();
+        if (!CollectionUtils.isEmpty(list)) {
+            for (String str : list) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("version", str);
+                versons.add(map);
+            }
+        }
+        return new JsonResponseEntity(0, "操作成功!", versons);
     }
 
 
     @VersionRange
     @RequestMapping(value = "/manage/getServicesByVersion", method = RequestMethod.GET)
-    public Object getServicesByVersion(@RequestParam(value = "version", required = true) String version){
+    public Object getServicesByVersion(@RequestParam(value = "version", required = true) String version) {
         Map paramMap = new HashMap();
-        paramMap.put("version",version);
+        paramMap.put("version", version);
         List<HomeServiceEntity> list = homeServicesImpl.findHomeServiceByCondition(paramMap);
         List<HomeServiceDTO> listDto = new ArrayList<HomeServiceDTO>();
-        for(HomeServiceEntity entity:list){
+        for (HomeServiceEntity entity : list) {
             listDto.add(new HomeServiceDTO(entity));
         }
-        return  new JsonResponseEntity(0, "操作成功!",listDto);
+        return new JsonResponseEntity(0, "操作成功!", listDto);
     }
 
     @VersionRange
     @RequestMapping(value = "/manage/getServiceType", method = RequestMethod.GET)
-    public Object getServiceType(){
-               List<ServiceType> serviceType = new ArrayList<ServiceType>();
-                for(ServiceTypeEnum ste:ServiceTypeEnum.values()){
-                    serviceType.add(new ServiceType(ste.getType(),ste.getName()));
-                }
+    public Object getServiceType() {
+        List<ServiceType> serviceType = new ArrayList<ServiceType>();
+        for (ServiceTypeEnum ste : ServiceTypeEnum.values()) {
+            serviceType.add(new ServiceType(ste.getType(), ste.getName()));
+        }
 
-        return  new JsonResponseEntity(0, "操作成功!",serviceType);
+        return new JsonResponseEntity(0, "操作成功!", serviceType);
     }
 
     @VersionRange
@@ -85,17 +82,17 @@ public class HomeServicesController  {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonArray array = parser.parse(body).getAsJsonArray();// object.get("student").getAsJsonArray();
-        for(int i=0;i<array.size();i++){
-            JsonObject subObject=array.get(i).getAsJsonObject();//获取数组的值并转化为JsonObjecty格式
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject subObject = array.get(i).getAsJsonObject();//获取数组的值并转化为JsonObjecty格式
             HomeServiceEntity entity = gson.fromJson(subObject, HomeServiceEntity.class);//重要
-            if(null != entity && StringUtils.isNotBlank(entity.getId())){ //修改
+            if (null != entity && StringUtils.isNotBlank(entity.getId())) { //修改
                 homeServicesImpl.updateHomeService(entity);
-            }else if(null != entity && StringUtils.isBlank(entity.getId())){//新增
+            } else if (null != entity && StringUtils.isBlank(entity.getId())) {//新增
                 homeServicesImpl.saveHomeService(entity);
             }
         }
 
-        return  new JsonResponseEntity(0, "操作成功!");
+        return new JsonResponseEntity(0, "操作成功!");
     }
 
 }
@@ -103,9 +100,15 @@ public class HomeServicesController  {
 @Data
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class ServiceType{
-    public ServiceType (){}
-    public ServiceType(int id,String name){this.id = id;this.name = name;}
-      private int id;
-      private String name;
+class ServiceType {
+    public ServiceType() {
+    }
+
+    public ServiceType(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    private int id;
+    private String name;
 }

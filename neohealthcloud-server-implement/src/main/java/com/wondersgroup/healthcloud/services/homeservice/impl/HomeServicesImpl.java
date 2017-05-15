@@ -2,10 +2,13 @@ package com.wondersgroup.healthcloud.services.homeservice.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeTabServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeUserServiceEntity;
 import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeServiceRepository;
+import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeTabServiceRepository;
 import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeUserServiceRepository;
 import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,10 +36,87 @@ public class HomeServicesImpl implements HomeServices {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private HomeTabServiceRepository homeTabServiceRepository;
+
+    @Autowired
     private HomeServiceRepository homeServiceRepository;
 
     @Autowired
     private HomeUserServiceRepository homeUserServiceRepository;
+
+    @Override
+    public HomeTabServiceEntity saveHomeTabService(HomeTabServiceEntity entity) {
+        entity.setId(IdGen.uuid());
+        return homeTabServiceRepository.save(entity);
+    }
+
+    @Override
+    public boolean updateHomeTabService(final HomeTabServiceEntity entity) {
+        final String sql = "update app_tb_tabservice set img_url = ? ,hoplink = ?,tab_type = ?,del_flag = ?,sort = ?,update_time = ?,version = ?  where id = ?";
+        int count = jdbcTemplate.update(sql, new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, entity.getImgUrl());
+                ps.setString(4, entity.getHoplink());
+                ps.setInt(6, entity.getTabType());
+                ps.setString(7, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
+                ps.setInt(8, entity.getSort());
+                ps.setDate(9, new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(11, entity.getVersion());
+                ps.setString(12, entity.getId());
+                ps.execute();
+            }
+        });
+        return count > 0 ? true : false;
+    }
+
+    @Override
+    public List<String> findAllHomeTabServiceVersions(String version) {
+        StringBuffer sql = new StringBuffer();
+        sql.append(" select * from (select a.version as version from app_tb_tabservice a where a.del_flag = '0' group by a.version) as b  ");
+        if (StringUtils.isNotBlank(version)) {
+            sql.append(" where b.version = '" + version + "'");
+        }
+
+        sql.append(" order by b.version");
+
+        List<String> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                String version = rs.getString("version");
+                return version;
+            }
+        });
+        return list;
+    }
+
+    @Override
+    public List<HomeTabServiceEntity> findMyHomeTabService(Map paramMap) {
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("select * from app_tb_tabservice where del_flag = '0' ");
+        String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+
+
+        if (StringUtils.isNotBlank(version)) {
+            sql.append(" and version = '" + version.trim() + "'");
+        }
+
+        sql.append(" order by sort asc ");
+
+        List<HomeTabServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                HomeTabServiceEntity entity = new HomeTabServiceEntity();
+                entity.setId(rs.getString("id"));
+                entity.setHoplink(rs.getString("hoplink"));
+                entity.setImgUrl(rs.getString("img_url"));
+                entity.setTabType(rs.getInt("service_type"));
+                entity.setVersion(rs.getString("version"));
+                return entity;
+            }
+        });
+
+        return list;
+    }
 
     @Override
     public HomeServiceEntity saveHomeService(HomeServiceEntity entity) {
@@ -50,23 +130,23 @@ public class HomeServicesImpl implements HomeServices {
         int count = jdbcTemplate.update(sql, new PreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setString(1,entity.getMainTitle());
-                ps.setString(2,entity.getRecommendTitle());
-                ps.setString(3,entity.getImgUrl());
-                ps.setString(4,entity.getHoplink());
-                ps.setInt(5,entity.getCertified());
-                ps.setInt(6,entity.getServiceType());
-                ps.setString(7,StringUtils.isNotBlank(entity.getDelFlag())?entity.getDelFlag():"0");
-                ps.setInt(8,entity.getSort());
-                ps.setDate(9,new java.sql.Date(System.currentTimeMillis()));
-                ps.setString(10,entity.getRemark());
-                ps.setString(11,entity.getVersion());
-                ps.setString(12,entity.getId());
+                ps.setString(1, entity.getMainTitle());
+                ps.setString(2, entity.getRecommendTitle());
+                ps.setString(3, entity.getImgUrl());
+                ps.setString(4, entity.getHoplink());
+                ps.setInt(5, entity.getCertified());
+                ps.setInt(6, entity.getServiceType());
+                ps.setString(7, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
+                ps.setInt(8, entity.getSort());
+                ps.setDate(9, new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(10, entity.getRemark());
+                ps.setString(11, entity.getVersion());
+                ps.setString(12, entity.getId());
                 ps.execute();
             }
         });
 
-        return count > 0 ? true:false;
+        return count > 0 ? true : false;
     }
 
     @Override
@@ -91,16 +171,16 @@ public class HomeServicesImpl implements HomeServices {
             sql.append(" and version = '" + version.trim() + "'");
         }
 
-        if(baseServiceFlag){
-            List<HomeServiceEntity> baseService = (null == paramMap.get("baseServices") ? null : (List<HomeServiceEntity>)paramMap.get("baseServices"));
-            if(!CollectionUtils.isEmpty(baseService)){
+        if (baseServiceFlag) {
+            List<HomeServiceEntity> baseService = (null == paramMap.get("baseServices") ? null : (List<HomeServiceEntity>) paramMap.get("baseServices"));
+            if (!CollectionUtils.isEmpty(baseService)) {
                 String inSql = buildSql(baseService);
                 sql.append(" and id  in " + inSql);
             }
 
         }
 
-         sql.append(" order by sort asc ");
+        sql.append(" order by sort asc ");
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -127,8 +207,8 @@ public class HomeServicesImpl implements HomeServices {
 
         String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
 
-        if(StringUtils.isNotBlank(registerId)){
-            sql.append(" and register_id = '"+registerId+"' ");
+        if (StringUtils.isNotBlank(registerId)) {
+            sql.append(" and register_id = '" + registerId + "' ");
         }
 
         sql.append(" order by sort asc ");
@@ -147,46 +227,46 @@ public class HomeServicesImpl implements HomeServices {
 
     @Override
     public List<HomeServiceEntity> findMyHomeServices(Map paramMap) {
-            StringBuffer sql = new StringBuffer();
-            String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
-            String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
+        StringBuffer sql = new StringBuffer();
+        String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+        String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
 
-            if(StringUtils.isBlank(version) || StringUtils.isBlank(registerId)){
-                return Collections.EMPTY_LIST;
+        if (StringUtils.isBlank(version) || StringUtils.isBlank(registerId)) {
+            return Collections.EMPTY_LIST;
+        }
+
+        sql.append("select * from (select b.*,a.sort as bsort from app_tb_user_service a JOIN app_tb_neoservice b on a.service_id = b.id ");
+        sql.append(" where register_id = '" + registerId + "' and b.version = '" + version + "' and b.del_flag = '0' and a.del_flag = '0') as c order by c.bsort ");
+
+        List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                HomeServiceEntity entity = new HomeServiceEntity();
+                entity.setId(rs.getString("id"));
+                entity.setMainTitle(rs.getString("main_title"));
+                entity.setRecommendTitle(rs.getString("recommend_title"));
+                entity.setHoplink(rs.getString("hoplink"));
+                entity.setImgUrl(rs.getString("img_url"));
+                entity.setCertified(rs.getInt("certified"));
+                entity.setServiceType(rs.getInt("service_type"));
+                entity.setVersion(rs.getString("version"));
+                return entity;
             }
+        });
 
-            sql.append("select * from (select b.*,a.sort as bsort from app_tb_user_service a JOIN app_tb_neoservice b on a.service_id = b.id " );
-            sql.append(" where register_id = '"+registerId+"' and b.version = '"+version+"' and b.del_flag = '0' and a.del_flag = '0') as c order by c.bsort ");
-
-            List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
-                public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    HomeServiceEntity entity = new HomeServiceEntity();
-                    entity.setId(rs.getString("id"));
-                    entity.setMainTitle(rs.getString("main_title"));
-                    entity.setRecommendTitle(rs.getString("recommend_title"));
-                    entity.setHoplink(rs.getString("hoplink"));
-                    entity.setImgUrl(rs.getString("img_url"));
-                    entity.setCertified(rs.getInt("certified"));
-                    entity.setServiceType(rs.getInt("service_type"));
-                    entity.setVersion(rs.getString("version"));
-                    return entity;
-                }
-            });
-
-            return list;
+        return list;
     }
 
     @Transactional
     @Override
     public void editMyService(List<HomeServiceEntity> oldServices, List<HomeServiceEntity> newServices, String userId) {
-        if(!CollectionUtils.isEmpty(oldServices)){
+        if (!CollectionUtils.isEmpty(oldServices)) {
             String inSql = buildSql(oldServices);
-            final String deleteSql = "update app_tb_user_service set del_flag = '1',update_time = now() where register_id = '"+userId+"' and  service_id in "+inSql+" and del_flag = '0' ";
+            final String deleteSql = "update app_tb_user_service set del_flag = '1',update_time = now() where register_id = '" + userId + "' and  service_id in " + inSql + " and del_flag = '0' ";
             int count = jdbcTemplate.update(deleteSql);
         }
 
         int sort = 0;
-        for(HomeServiceEntity dto:newServices){
+        for (HomeServiceEntity dto : newServices) {
             HomeUserServiceEntity entity = new HomeUserServiceEntity();
             entity.setId(IdGen.uuid());
             entity.setRegisterId(userId);
@@ -201,28 +281,66 @@ public class HomeServicesImpl implements HomeServices {
     }
 
     @Override
-    public List<String> findAllVersions() {
-        String sql = " select * from (select a.version as version from app_tb_neoservice a where a.del_flag = '0' group by a.version) as b order by b.version ";
+    public List<String> findAllVersions(String version) {
+
+        StringBuffer sql = new StringBuffer();
+        sql.append(" select * from (select a.version as version from app_tb_neoservice a where a.del_flag = '0' group by a.version) as b  ");
+        if (StringUtils.isNotBlank(version)) {
+            sql.append(" where b.version = '" + version + "'");
+        }
+
+        sql.append(" order by b.version");
+
         List<String> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-               String version = rs.getString("version");
+                String version = rs.getString("version");
                 return version;
             }
         });
         return list;
     }
 
+    @Override
+    public List<HomeServiceDTO> findMyBaseHomeService(Map paramMap) {
+        StringBuffer sql = new StringBuffer();
+        String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+        String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
 
-    String buildSql(List<HomeServiceEntity> oldServices){
+        if (StringUtils.isBlank(version) || StringUtils.isBlank(registerId)) {
+            return Collections.EMPTY_LIST;
+        }
+
+        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and a.version = '"+version+"' ORDER BY a.sort ");
+
+        List<HomeServiceDTO> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                HomeServiceDTO entity = new HomeServiceDTO();
+                entity.setId(rs.getString("id"));
+                entity.setMainTitle(rs.getString("main_title"));
+                entity.setRecommendTitle(rs.getString("recommend_title"));
+                entity.setHoplink(rs.getString("hoplink"));
+                entity.setImgUrl(rs.getString("img_url"));
+                entity.setCertified(rs.getInt("certified"));
+                entity.setServiceType(rs.getInt("service_type"));
+                entity.setIsAdd(rs.getInt("isAdd"));
+                return entity;
+            }
+        });
+
+        return list;
+    }
+
+
+    String buildSql(List<HomeServiceEntity> oldServices) {
         StringBuffer sql = new StringBuffer(" ( ");
         boolean flag = true;
-        for(HomeServiceEntity entity:oldServices){
-           if(flag){
-               sql.append(" '"+entity.getId()+"' ");
-               flag = false;
-           }else{
-               sql.append(" , ").append(" '"+entity.getId()+"' ");
-           }
+        for (HomeServiceEntity entity : oldServices) {
+            if (flag) {
+                sql.append(" '" + entity.getId() + "' ");
+                flag = false;
+            } else {
+                sql.append(" , ").append(" '" + entity.getId() + "' ");
+            }
         }
         sql.append(" ) ");
         return sql.toString();

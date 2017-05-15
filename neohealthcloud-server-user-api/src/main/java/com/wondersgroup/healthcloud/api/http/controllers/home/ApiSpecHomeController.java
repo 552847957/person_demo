@@ -560,7 +560,7 @@ public class ApiSpecHomeController {
             Map paramMap = new HashMap();
             paramMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
             paramMap.put("version", version);
-
+            paramMap.put("registerId", registerInfo.getRegisterid());
             baseService = homeService.findBaseServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());

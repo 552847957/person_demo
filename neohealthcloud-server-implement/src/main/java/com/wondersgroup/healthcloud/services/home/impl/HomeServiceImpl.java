@@ -921,14 +921,14 @@ public class HomeServiceImpl implements HomeService {
     public List<HomeServiceDTO> findMyHomeServices(Map paramMap) {
         List<HomeServiceDTO> allServicesList = new ArrayList<HomeServiceDTO>();
 
-       // 优先根據查询关系表里的 我的服务 信息
+        // 优先根據查询关系表里的 我的服务 信息
         List<HomeServiceEntity> myHomeServicesList = homeServicesImpl.findMyHomeServices(paramMap);
 
         if (!CollectionUtils.isEmpty(myHomeServicesList)) {
             for (HomeServiceEntity entity : myHomeServicesList) {
                 allServicesList.add(new HomeServiceDTO(entity));
             }
-        }else{ //如果没有， 设置默认服务为 我的服务
+        } else { //如果没有， 设置默认服务为 我的服务
             paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
             List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
             if (!CollectionUtils.isEmpty(defaultList)) {
@@ -943,30 +943,8 @@ public class HomeServiceImpl implements HomeService {
 
     @Override
     public List<HomeServiceDTO> findBaseServices(Map paramMap) {
-        List<HomeServiceDTO> dtoList = null;
-        List<HomeServiceEntity> entityList = homeServicesImpl.findHomeServiceByCondition(paramMap);
-        if (!CollectionUtils.isEmpty(entityList)) {
-            dtoList = new ArrayList<HomeServiceDTO>();
-            for (HomeServiceEntity entity : entityList) {
-                dtoList.add(new HomeServiceDTO(entity));
-            }
-        }
-
-        //中间表里的基础服务（多版本時需要注意）
-        Map homeUserServicesMap = new HashMap();
-        homeUserServicesMap.put("registerId", paramMap.get("registerId"));
-        List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
-
-        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，在基础服务里展示时，在此处做标记不允許添加
-            Iterator<HomeServiceDTO> it = dtoList.iterator();
-            while (it.hasNext()) {
-                HomeServiceDTO dto = it.next();
-                if (dto.getId().equals(oldEntity.getServiceId())) {
-                    dto.setIsAdd(1);
-                }
-            }
-        }
-        return dtoList;
+        List<HomeServiceDTO> baseServiceList = homeServicesImpl.findMyBaseHomeService(paramMap);
+        return baseServiceList;
     }
 
     @Override
@@ -1019,8 +997,10 @@ public class HomeServiceImpl implements HomeService {
 
         }
     }
+
     /**
      * for4.3 健康管理 个人和家庭首页显示
+     *
      * @param registerInfo
      * @param paramMap
      * @return
@@ -1086,7 +1066,7 @@ public class HomeServiceImpl implements HomeService {
         if (!CollectionUtils.isEmpty(familyMemberHealthMap)) {//家人健康信息集合
             int goodsHealthCount = 0;
             int haveNoDataCount = 0;
-            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO=null;
+            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO = null;
             Iterator<FamilyMemberInfo> it = familyMemberHealthMap.keySet().iterator();
 
             while (it.hasNext()) {  //统计 无数据/健康 两种状态的数据
@@ -1097,7 +1077,7 @@ public class HomeServiceImpl implements HomeService {
                 } else if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
                     haveNoDataCount++;
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {//异常数据，显示给前端
-                   // FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
+                    // FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     if (!CollectionUtils.isEmpty(item.getExceptionItems())) {
                         for (UserHealthItemDTO dto1 : item.getExceptionItems()) {
                             familyHealthItemJKGLDTO = new FamilyHealthItemJKGLDTO();
@@ -1107,7 +1087,7 @@ public class HomeServiceImpl implements HomeService {
                             familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
                         }
                     }
-                   // ftemDTO.setUid(fm.getUid()); //用于分组
+                    // ftemDTO.setUid(fm.getUid()); //用于分组
                     familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
                     familyMember.setHeadPhoto(fm.getHeadPhoto());
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
