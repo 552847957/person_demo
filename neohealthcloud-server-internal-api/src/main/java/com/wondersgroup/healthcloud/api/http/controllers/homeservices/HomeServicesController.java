@@ -78,7 +78,7 @@ public class HomeServicesController {
 
     @VersionRange
     @RequestMapping(value = "/manage/editHomeServices", method = RequestMethod.POST)
-    public Object addCloudTopLine(@RequestBody(required = true) String body) {
+    public Object editHomeServices(@RequestBody(required = true) String body) {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonArray array = parser.parse(body).getAsJsonArray();// object.get("student").getAsJsonArray();
@@ -86,6 +86,14 @@ public class HomeServicesController {
             JsonObject subObject = array.get(i).getAsJsonObject();//获取数组的值并转化为JsonObjecty格式
             HomeServiceEntity entity = gson.fromJson(subObject, HomeServiceEntity.class);//重要
             if (null != entity && StringUtils.isNotBlank(entity.getId())) { //修改
+                 if(StringUtils.isBlank(entity.getVersion())){
+                     return new JsonResponseEntity(-1, "版本号不能为空!");
+                 }
+
+                if(!entity.getVersion().matches("\\d+\\.\\d+\\.\\d+")){
+                    return new JsonResponseEntity(-1, "版本号不满足规则!");
+                }
+
                 homeServicesImpl.updateHomeService(entity);
             } else if (null != entity && StringUtils.isBlank(entity.getId())) {//新增
                 homeServicesImpl.saveHomeService(entity);
@@ -94,8 +102,9 @@ public class HomeServicesController {
 
         return new JsonResponseEntity(0, "操作成功!");
     }
-
 }
+
+
 
 @Data
 @JsonNaming
