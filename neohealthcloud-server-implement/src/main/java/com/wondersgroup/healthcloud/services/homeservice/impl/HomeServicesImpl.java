@@ -57,13 +57,13 @@ public class HomeServicesImpl implements HomeServices {
             @Override
             public void setValues(PreparedStatement ps) throws SQLException {
                 ps.setString(1, entity.getImgUrl());
-                ps.setString(4, entity.getHoplink());
-                ps.setInt(6, entity.getTabType());
-                ps.setString(7, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
-                ps.setInt(8, entity.getSort());
-                ps.setDate(9, new java.sql.Date(System.currentTimeMillis()));
-                ps.setString(11, entity.getVersion());
-                ps.setString(12, entity.getId());
+                ps.setString(2, entity.getHoplink());
+                ps.setInt(3, entity.getTabType());
+                ps.setString(4, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
+                ps.setInt(5, entity.getSort());
+                ps.setDate(6, new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(7, entity.getVersion());
+                ps.setString(8, entity.getId());
                 ps.execute();
             }
         });

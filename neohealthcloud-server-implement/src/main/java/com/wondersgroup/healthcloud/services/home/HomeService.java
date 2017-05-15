@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.services.home.dto.functionIcons.FunctionIcon
 import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalDTO;
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeTabServiceDTO;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 
 import java.util.List;
@@ -86,6 +87,9 @@ public interface HomeService {
      * @param editServiceIds
      */
     void editHomeServices(RegisterInfo registerInfo,List<String> editServiceIds);
+
+
+    List<HomeTabServiceDTO> findHomeTableService(Map paramMap);
     
     /**
      * 首页4.3健康管理

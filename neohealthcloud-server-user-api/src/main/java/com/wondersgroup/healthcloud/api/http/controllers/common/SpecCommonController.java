@@ -14,6 +14,8 @@ import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
+import com.wondersgroup.healthcloud.services.home.HomeService;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeTabServiceDTO;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
@@ -21,6 +23,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -46,6 +49,9 @@ public class SpecCommonController {
 
     @Autowired
     private AppUrlH5Utils appUrlH5Utils;
+
+    @Autowired
+    private HomeService homeService;
 
     @GetMapping(value = "/appConfig")
     @VersionRange
@@ -178,22 +184,23 @@ public class SpecCommonController {
     @RequestMapping(value = "/appNavigationBar", method = RequestMethod.GET)
     @WithoutToken
     @VersionRange(from = "4.3")
-    public JsonResponseEntity getNavigationBarForVersion(@RequestHeader(value = "main-area", required = true) String mainArea) {
+    public JsonResponseEntity getNavigationBarForVersion(@RequestHeader(value = "main-area", required = true) String mainArea,
+                                                         @RequestHeader(value = "app-version", required = true) String version) {
         JsonResponseEntity result = new JsonResponseEntity();
-        ImageText imgText = new ImageText();
-        imgText.setAdcode(ImageTextEnum.NAVIGATION_BAR.getType());
-        List<ImageText> imageTexts = imageTextService.findImageTextByAdcodeForApp(mainArea, null, imgText);
-        if (imageTexts != null && imageTexts.size() > 0) {
-            List<String> navigationBars = new ArrayList<>();
-            for (ImageText imageText : imageTexts) {
-                navigationBars.add(imageText.getImgUrl());
+            Map paramMap = new HashMap();
+            paramMap.put("version",version);
+            List<HomeTabServiceDTO> list = homeService.findHomeTableService(paramMap);
+            if(!CollectionUtils.isEmpty(list)){
+                List<String> navigationBars = new ArrayList<>();
+                for (HomeTabServiceDTO dto : list) {
+                    navigationBars.add(dto.getImgUrl());
+                }
+                result.setData(navigationBars);
+            }else {
+                result.setCode(1000);
+                result.setMsg("未查询到相关配置信息！");
             }
-            result.setData(navigationBars);
-        } else {
-            result.setCode(1000);
-            result.setMsg("未查询到相关配置信息！");
-        }
-        return result;
+            return result;
     }
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)

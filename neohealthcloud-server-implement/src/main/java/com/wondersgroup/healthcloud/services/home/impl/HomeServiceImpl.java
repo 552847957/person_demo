@@ -6,6 +6,7 @@ import com.wondersgroup.healthcloud.helper.family.FamilyMemberRelation;
 import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeTabServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeUserServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.moduleportal.ModulePortal;
@@ -33,6 +34,7 @@ import com.wondersgroup.healthcloud.services.home.dto.modulePortal.ModulePortalD
 import com.wondersgroup.healthcloud.services.home.dto.specialService.SpecialServiceDTO;
 import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
 import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeTabServiceDTO;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.modulePortal.ModulePortalService;
 import com.wondersgroup.healthcloud.services.user.FamilyService;
@@ -975,6 +977,21 @@ public class HomeServiceImpl implements HomeService {
         if (!CollectionUtils.isEmpty(newServices)) {
             homeServicesImpl.editMyService(oldServicelist, newServices, registerInfo.getRegisterid());
         }
+    }
+
+    @Override
+    public List<HomeTabServiceDTO> findHomeTableService(Map paramMap) {
+        List<HomeTabServiceEntity> entitiyList = homeServicesImpl.findMyHomeTabService(paramMap);
+        if(CollectionUtils.isEmpty(entitiyList)){
+            return Collections.EMPTY_LIST;
+        }
+
+        List<HomeTabServiceDTO> dtoList = new ArrayList<HomeTabServiceDTO>();
+
+        for(HomeTabServiceEntity entity:entitiyList){
+            dtoList.add(new HomeTabServiceDTO(entity));
+        }
+        return dtoList;
     }
 
     /**
