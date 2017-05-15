@@ -9,11 +9,13 @@ import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -40,6 +42,31 @@ public class HomeServicesImpl implements HomeServices {
     public HomeServiceEntity saveHomeService(HomeServiceEntity entity) {
         entity.setId(IdGen.uuid());
         return homeServiceRepository.save(entity);
+    }
+
+    @Override
+    public boolean updateHomeService(final HomeServiceEntity entity) {
+        final String sql = "update app_tb_neoservice set main_title = ? ,recommend_title = ?,img_url = ? ,hoplink = ?,certified = ?,service_type = ?,del_flag = ?,sort = ?,update_time = ?,remark = ?,version = ?  where id = ?";
+        int count = jdbcTemplate.update(sql, new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1,entity.getMainTitle());
+                ps.setString(2,entity.getRecommendTitle());
+                ps.setString(3,entity.getImgUrl());
+                ps.setString(4,entity.getHoplink());
+                ps.setInt(5,entity.getCertified());
+                ps.setInt(6,entity.getServiceType());
+                ps.setString(7,StringUtils.isNotBlank(entity.getDelFlag())?entity.getDelFlag():"0");
+                ps.setInt(8,entity.getSort());
+                ps.setDate(9,new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(10,entity.getRemark());
+                ps.setString(11,entity.getVersion());
+                ps.setString(12,entity.getId());
+                ps.execute();
+            }
+        });
+
+        return count > 0 ? true:false;
     }
 
     @Override
@@ -80,6 +107,7 @@ public class HomeServicesImpl implements HomeServices {
                 HomeServiceEntity entity = new HomeServiceEntity();
                 entity.setId(rs.getString("id"));
                 entity.setMainTitle(rs.getString("main_title"));
+                entity.setRecommendTitle(rs.getString("recommend_title"));
                 entity.setHoplink(rs.getString("hoplink"));
                 entity.setImgUrl(rs.getString("img_url"));
                 entity.setCertified(rs.getInt("certified"));
@@ -135,6 +163,7 @@ public class HomeServicesImpl implements HomeServices {
                     HomeServiceEntity entity = new HomeServiceEntity();
                     entity.setId(rs.getString("id"));
                     entity.setMainTitle(rs.getString("main_title"));
+                    entity.setRecommendTitle(rs.getString("recommend_title"));
                     entity.setHoplink(rs.getString("hoplink"));
                     entity.setImgUrl(rs.getString("img_url"));
                     entity.setCertified(rs.getInt("certified"));

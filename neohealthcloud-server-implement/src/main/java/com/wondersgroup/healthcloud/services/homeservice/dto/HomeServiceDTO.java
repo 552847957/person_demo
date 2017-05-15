@@ -13,10 +13,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 @Data
 @JsonNaming
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class HomeServiceDTO {
     private String id;
     private String mainTitle;  //主标题
+    private String recommendTitle; //角标文字
     private String imgUrl; //图片地址
     private String hoplink; //跳转链接
     private int certified; //是否需要实名认证:0 不需要，1 需要

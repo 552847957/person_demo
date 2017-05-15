@@ -13,6 +13,12 @@ public interface HomeServices {
 
     HomeServiceEntity saveHomeService(HomeServiceEntity entity);
 
+    /** 修改
+     * @param entity
+     * @return
+     */
+    boolean updateHomeService(HomeServiceEntity entity);
+
     HomeUserServiceEntity saveHomeUserService(HomeUserServiceEntity entity);
 
     List<HomeServiceEntity> findHomeServiceByCondition(Map paramMap);

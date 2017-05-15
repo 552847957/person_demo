@@ -2,25 +2,17 @@ package com.wondersgroup.healthcloud.api.http.controllers.homeservices;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.wondersgroup.healthcloud.api.http.dto.cloudtopline.CloudTopLineViewDTO;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
-import com.wondersgroup.healthcloud.jpa.entity.article.NewsArticle;
-import com.wondersgroup.healthcloud.jpa.entity.bbs.Topic;
-import com.wondersgroup.healthcloud.jpa.entity.cloudtopline.CloudTopLine;
-import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeServiceEntity;
-import com.wondersgroup.healthcloud.jpa.enums.CloudTopLineEnum;
 import com.wondersgroup.healthcloud.jpa.enums.ServiceTypeEnum;
-import com.wondersgroup.healthcloud.jpa.repository.bbs.TopicRepository;
-import com.wondersgroup.healthcloud.jpa.repository.cloudtopline.CloudTopLineRepository;
 import com.wondersgroup.healthcloud.jpa.repository.homeservice.HomeUserServiceRepository;
-import com.wondersgroup.healthcloud.services.article.ManageNewsArticleService;
-import com.wondersgroup.healthcloud.services.cloudTopLine.CloudTopLineService;
-import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.homeservice.HomeServices;
+import com.wondersgroup.healthcloud.services.homeservice.dto.HomeServiceDTO;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 后台服务管理
@@ -71,8 +61,11 @@ public class HomeServicesController  {
         Map paramMap = new HashMap();
         paramMap.put("version",version);
         List<HomeServiceEntity> list = homeServicesImpl.findHomeServiceByCondition(paramMap);
-
-        return  new JsonResponseEntity(0, "操作成功!",list);
+        List<HomeServiceDTO> listDto = new ArrayList<HomeServiceDTO>();
+        for(HomeServiceEntity entity:list){
+            listDto.add(new HomeServiceDTO(entity));
+        }
+        return  new JsonResponseEntity(0, "操作成功!",listDto);
     }
 
     @VersionRange
@@ -89,8 +82,18 @@ public class HomeServicesController  {
     @VersionRange
     @RequestMapping(value = "/manage/editHomeServices", method = RequestMethod.POST)
     public Object addCloudTopLine(@RequestBody(required = true) String body) {
-        JsonResponseEntity entity = new JsonResponseEntity();
-        JsonKeyReader reader = new JsonKeyReader(body);
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+        JsonArray array = parser.parse(body).getAsJsonArray();// object.get("student").getAsJsonArray();
+        for(int i=0;i<array.size();i++){
+            JsonObject subObject=array.get(i).getAsJsonObject();//获取数组的值并转化为JsonObjecty格式
+            HomeServiceEntity entity = gson.fromJson(subObject, HomeServiceEntity.class);//重要
+            if(null != entity && StringUtils.isNotBlank(entity.getId())){ //修改
+                homeServicesImpl.updateHomeService(entity);
+            }else if(null != entity && StringUtils.isBlank(entity.getId())){//新增
+                homeServicesImpl.saveHomeService(entity);
+            }
+        }
 
         return  new JsonResponseEntity(0, "操作成功!");
     }

@@ -957,7 +957,7 @@ public class HomeServiceImpl implements HomeService {
         homeUserServicesMap.put("registerId", paramMap.get("registerId"));
         List<HomeUserServiceEntity> homeUserServices = homeServicesImpl.findHomeUserServiceByCondition(homeUserServicesMap);
 
-        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，在基础服务里展示，在此处做标记不允許添加
+        for (HomeUserServiceEntity oldEntity : homeUserServices) { //在我的服务里存在，在基础服务里展示时，在此处做标记不允許添加
             Iterator<HomeServiceDTO> it = dtoList.iterator();
             while (it.hasNext()) {
                 HomeServiceDTO dto = it.next();

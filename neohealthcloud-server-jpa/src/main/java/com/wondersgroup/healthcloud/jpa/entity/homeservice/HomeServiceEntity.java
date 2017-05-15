@@ -15,6 +15,8 @@ public class HomeServiceEntity {
     private String id;
     @Column(name = "main_title")
      private String mainTitle; //主标题
+    @Column(name = "recommend_title")
+    private String recommendTitle; //角标文字
     @Column(name = "img_url")
     private String  imgUrl; //图片地址
     @Column(name = "hoplink")
