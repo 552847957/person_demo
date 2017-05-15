@@ -81,21 +81,26 @@ public class HomeServicesController {
     public Object editHomeServices(@RequestBody(required = true) String body) {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
-        JsonArray array = parser.parse(body).getAsJsonArray();// object.get("student").getAsJsonArray();
+        JsonArray array = parser.parse(body).getAsJsonArray();
         for (int i = 0; i < array.size(); i++) {
             JsonObject subObject = array.get(i).getAsJsonObject();//获取数组的值并转化为JsonObjecty格式
             HomeServiceEntity entity = gson.fromJson(subObject, HomeServiceEntity.class);//重要
-            if (null != entity && StringUtils.isNotBlank(entity.getId())) { //修改
-                 if(StringUtils.isBlank(entity.getVersion())){
-                     return new JsonResponseEntity(-1, "版本号不能为空!");
-                 }
 
-                if(!entity.getVersion().matches("\\d+\\.\\d+\\.\\d+")){
-                    return new JsonResponseEntity(-1, "版本号不满足规则!");
-                }
+              if(null == entity){
+                  return new JsonResponseEntity(-1, "內部錯誤，数据解析异常!");
+              }
 
+            if(StringUtils.isBlank(entity.getVersion())){
+                return new JsonResponseEntity(-1, "版本号不能为空!");
+            }
+
+            if(!entity.getVersion().matches("\\d+\\.\\d+\\.\\d+")){
+                return new JsonResponseEntity(-1, "版本号不满足规则!");
+            }
+
+            if (StringUtils.isNotBlank(entity.getId())) { //修改
                 homeServicesImpl.updateHomeService(entity);
-            } else if (null != entity && StringUtils.isBlank(entity.getId())) {//新增
+            } else if (StringUtils.isBlank(entity.getId())) {//新增
                 homeServicesImpl.saveHomeService(entity);
             }
         }
