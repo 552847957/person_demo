@@ -27,6 +27,7 @@ public class HomeServiceDTO {
     private int sort; // 排序
     private int isAdd; //是否在我的服务里添加过 0:未添加 1：已添加
     private String version; //版本号
+    private String remark; //备注
 
     public HomeServiceDTO(){}
 
