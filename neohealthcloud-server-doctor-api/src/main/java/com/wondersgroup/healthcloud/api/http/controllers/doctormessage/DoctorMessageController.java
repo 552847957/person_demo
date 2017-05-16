@@ -25,7 +25,7 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 @RequestMapping("/api/doctorMessage")
 public class DoctorMessageController {
 
-    private static Logger log = LoggerFactory.getLogger("SRTE");
+    private static Logger log = LoggerFactory.getLogger("EX");
     private static final int PAGE_SIZE = 20;
 
     @Resource

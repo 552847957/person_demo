@@ -42,7 +42,7 @@ import com.wondersgroup.healthcloud.utils.ImageUtils;
 @RestController
 public class MedcinCaseController {
 
-	private static final Logger log = LoggerFactory.getLogger("SRTE");
+	private static final Logger log = LoggerFactory.getLogger("EX");
 	private static final int PAGE_SIZE = 20;
 
 	@Resource

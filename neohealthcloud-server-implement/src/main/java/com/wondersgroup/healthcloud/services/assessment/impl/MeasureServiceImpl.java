@@ -28,7 +28,7 @@ import java.util.List;
 @Service("measureServiceImpl")
 public class MeasureServiceImpl implements MeasureService {
 
-    private static final Logger log = LoggerFactory.getLogger("SRTE");
+    private static final Logger log = LoggerFactory.getLogger("EX");
 
 	private static DecimalFormat d =new DecimalFormat("##.00");
 	static{
