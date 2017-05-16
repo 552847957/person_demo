@@ -69,9 +69,13 @@ public class HomeServicesController {
     @RequestMapping(value = "/manage/getServiceType", method = RequestMethod.GET)
     public Object getServiceType() {
         List<ServiceType> serviceType = new ArrayList<ServiceType>();
-        for (ServiceTypeEnum ste : ServiceTypeEnum.values()) {
+       /* for (ServiceTypeEnum ste : ServiceTypeEnum.values()) {
             serviceType.add(new ServiceType(ste.getType(), ste.getName()));
-        }
+        }*/
+
+       serviceType.add(new ServiceType(ServiceTypeEnum.DEFAULT_SERVICE.getType(), ServiceTypeEnum.DEFAULT_SERVICE.getName()));
+       serviceType.add(new ServiceType(ServiceTypeEnum.BASE_SERVICE.getType(), ServiceTypeEnum.BASE_SERVICE.getName()));
+
 
         return new JsonResponseEntity(0, "操作成功!", serviceType);
     }

@@ -422,6 +422,7 @@ public class ApiSpecHomeController {
             Map paramMap = new HashMap();
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
+            paramMap.put("allowClose", 0);
             functionIcons = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
@@ -549,6 +550,7 @@ public class ApiSpecHomeController {
             Map paramMap = new HashMap();
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
+            paramMap.put("allowClose", 0);
             myService = homeService.findMyHomeServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
@@ -564,6 +566,7 @@ public class ApiSpecHomeController {
             paramMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
             paramMap.put("version", version);
             paramMap.put("registerId", registerInfo.getRegisterid());
+            paramMap.put("allowClose", 0);
             baseService = homeService.findBaseServices(paramMap);
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
@@ -578,6 +581,10 @@ public class ApiSpecHomeController {
         List<SpecialServiceDTO> oldSpecialService = null;
         try {
             oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
+            for(int index = 0;index < oldSpecialService.size();index++){//设置id，兼容iso
+                oldSpecialService.get(index).setId(index+"");
+            }
+
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
         }

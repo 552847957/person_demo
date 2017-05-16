@@ -12,6 +12,7 @@ import lombok.Data;
 @JsonNaming
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpecialServiceDTO {
+    private String id;
     private String imgUrl;
     private String mainTitle;
     private String subTitle;

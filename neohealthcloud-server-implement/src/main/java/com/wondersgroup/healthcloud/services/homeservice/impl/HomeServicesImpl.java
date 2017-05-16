@@ -93,9 +93,11 @@ public class HomeServicesImpl implements HomeServices {
     public List<HomeTabServiceEntity> findMyHomeTabService(Map paramMap) {
 
         StringBuffer sql = new StringBuffer();
-        sql.append("select * from app_tb_tabservice where del_flag = '0' ");
+
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
 
+
+        sql.append("select * from app_tb_tabservice where del_flag = '0'  ");
 
         if (StringUtils.isNotBlank(version)) {
             sql.append(" and version = '" + version.trim() + "'");
@@ -159,11 +161,14 @@ public class HomeServicesImpl implements HomeServices {
     @Override
     public List<HomeServiceEntity> findHomeServiceByCondition(Map paramMap) {
         StringBuffer sql = new StringBuffer();
-        sql.append("select * from app_tb_neoservice where del_flag = '0' ");
         Integer serviceType = (null == paramMap.get("serviceType") ? null : Integer.parseInt(String.valueOf(paramMap.get("serviceType"))));
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+        Integer allowClose = ((null == paramMap.get("allowClose") ? null : Integer.parseInt("paramMap.get(\"allowClose\")")));
 
         boolean baseServiceFlag = (null == paramMap.get("baseServiceFlag") ? false : Boolean.valueOf(String.valueOf(paramMap.get("baseServiceFlag"))));
+
+
+        sql.append("select * from app_tb_neoservice where del_flag = '0' ");
 
         if (null != serviceType) {
             sql.append(" and service_type = " + serviceType);
@@ -171,6 +176,10 @@ public class HomeServicesImpl implements HomeServices {
 
         if (StringUtils.isNotBlank(version)) {
             sql.append(" and version = '" + version.trim() + "'");
+        }
+
+        if(null != allowClose){
+            sql.append(" and  allow_close = "+allowClose+"");
         }
 
         if (baseServiceFlag) {
@@ -240,7 +249,7 @@ public class HomeServicesImpl implements HomeServices {
         }
 
         sql.append("select * from (select b.*,a.sort as bsort from app_tb_user_service a JOIN app_tb_neoservice b on a.service_id = b.id ");
-        sql.append(" where register_id = '" + registerId + "' and b.version = '" + version + "' and b.del_flag = '0' and a.del_flag = '0') as c order by c.bsort ");
+        sql.append(" where register_id = '" + registerId + "' and b.version = '" + version + "' and b.del_flag = '0' and b.allow_close = 0 and a.del_flag = '0' ) as c order by c.bsort ");
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -309,12 +318,11 @@ public class HomeServicesImpl implements HomeServices {
         StringBuffer sql = new StringBuffer();
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
         String registerId = (null == paramMap.get("registerId") ? null : String.valueOf(paramMap.get("registerId")));
-
         if (StringUtils.isBlank(version) || StringUtils.isBlank(registerId)) {
             return Collections.EMPTY_LIST;
         }
 
-        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and del_flag = '0' and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and a.version = '"+version+"' ORDER BY a.sort ");
+        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and del_flag = '0' and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and allow_close = 0 and a.version = '"+version+"' ORDER BY a.sort ");
 
         List<HomeServiceDTO> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
