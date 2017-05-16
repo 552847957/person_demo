@@ -194,6 +194,7 @@ public class HomeServicesImpl implements HomeServices {
                 entity.setCertified(rs.getInt("certified"));
                 entity.setServiceType(rs.getInt("service_type"));
                 entity.setVersion(rs.getString("version"));
+                entity.setRemark(rs.getString("remark"));
                 return entity;
             }
         });
