@@ -57,11 +57,21 @@ public class HomeTabServiceController {
         Map paramMap = new HashMap();
         paramMap.put("version", version);
         List<HomeTabServiceEntity> list = homeServicesImpl.findMyHomeTabService(paramMap);
-        List<HomeTabServiceDTO> listDto = new ArrayList<HomeTabServiceDTO>();
+        List<HomeTabServiceDTO> highlight = new ArrayList<HomeTabServiceDTO>(); //高亮
+        List<HomeTabServiceDTO> noHighlight = new ArrayList<HomeTabServiceDTO>(); //非高亮
+        List<HomeTabServiceDTO> background = new ArrayList<HomeTabServiceDTO>();//背景
         for (HomeTabServiceEntity entity : list) {
-            listDto.add(new HomeTabServiceDTO(entity));
+            if(TabServiceTypeEnum.HIGHTLIGHT.getType().equals(entity.getTabType())){
+                highlight.add(new HomeTabServiceDTO(entity));
+            }
+            if(TabServiceTypeEnum.NO_HIGHTLIGHT.getType().equals(entity.getTabType())){
+                noHighlight.add(new HomeTabServiceDTO(entity));
+            }
+            if(TabServiceTypeEnum.BACKGROUND.getType().equals(entity.getTabType())){
+                background.add(new HomeTabServiceDTO(entity));
+            }
         }
-        return new JsonResponseEntity(0, "操作成功!", listDto);
+        return new JsonResponseEntity(0, "操作成功!", new TabServiceData(highlight,noHighlight,background));
     }
 
     @VersionRange
@@ -122,4 +132,18 @@ class TabServiceType {
     private int id;
     private String name;
 }
+@Data
+@JsonNaming
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+class TabServiceData{
+    List<HomeTabServiceDTO> highlight = null; //高亮
+    List<HomeTabServiceDTO> noHighlight = null; //非高亮
+    List<HomeTabServiceDTO> background = null;//背景
+    TabServiceData(){};
+    TabServiceData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> background ){
+        this.highlight = highlight;
+        this.noHighlight = noHighlight;
+        this.background = background;
 
+    };
+}

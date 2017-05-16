@@ -111,6 +111,7 @@ public class HomeServicesImpl implements HomeServices {
                 entity.setImgUrl(rs.getString("img_url"));
                 entity.setTabType(rs.getInt("tab_type"));
                 entity.setVersion(rs.getString("version"));
+                entity.setSort(rs.getInt("sort"));
                 return entity;
             }
         });

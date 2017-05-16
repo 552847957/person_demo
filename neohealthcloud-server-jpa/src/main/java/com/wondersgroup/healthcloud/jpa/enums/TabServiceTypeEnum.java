@@ -5,9 +5,9 @@ package com.wondersgroup.healthcloud.jpa.enums;
  */
 public enum TabServiceTypeEnum {
     //服务分类
-    DEFAULT_SERVICE(0, "背景图片"),
-    BASE_SERVICE(1, "非高亮图标"),
-    SPECIAL_SERVICE(2, "高亮图标");
+    BACKGROUND(0, "背景图片"),
+    NO_HIGHTLIGHT(1, "非高亮图标"),
+    HIGHTLIGHT(2, "高亮图标");
 
     private Integer type;
     private String name;
