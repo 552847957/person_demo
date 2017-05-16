@@ -126,7 +126,7 @@ public class HomeServicesImpl implements HomeServices {
 
     @Override
     public boolean updateHomeService(final HomeServiceEntity entity) {
-        final String sql = "update app_tb_neoservice set main_title = ? ,recommend_title = ?,img_url = ? ,hoplink = ?,certified = ?,service_type = ?,del_flag = ?,sort = ?,update_time = ?,remark = ?,version = ?  where id = ?";
+        final String sql = "update app_tb_neoservice set main_title = ? ,recommend_title = ?,img_url = ? ,hoplink = ?,certified = ?,allow_close = ?,service_type = ?,del_flag = ?,sort = ?,update_time = ?,remark = ?,version = ?  where id = ?";
         int count = jdbcTemplate.update(sql, new PreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps) throws SQLException {
@@ -135,13 +135,14 @@ public class HomeServicesImpl implements HomeServices {
                 ps.setString(3, entity.getImgUrl());
                 ps.setString(4, entity.getHoplink());
                 ps.setInt(5, entity.getCertified());
-                ps.setInt(6, entity.getServiceType());
-                ps.setString(7, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
-                ps.setInt(8, entity.getSort());
-                ps.setDate(9, new java.sql.Date(System.currentTimeMillis()));
-                ps.setString(10, entity.getRemark());
-                ps.setString(11, entity.getVersion());
-                ps.setString(12, entity.getId());
+                ps.setInt(6, entity.getAllowClose());
+                ps.setInt(7, entity.getServiceType());
+                ps.setString(8, StringUtils.isNotBlank(entity.getDelFlag()) ? entity.getDelFlag() : "0");
+                ps.setInt(9, entity.getSort());
+                ps.setDate(10, new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(11, entity.getRemark());
+                ps.setString(12, entity.getVersion());
+                ps.setString(13, entity.getId());
                 ps.execute();
             }
         });
