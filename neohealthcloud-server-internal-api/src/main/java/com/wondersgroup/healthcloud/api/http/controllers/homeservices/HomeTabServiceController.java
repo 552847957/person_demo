@@ -87,7 +87,7 @@ public class HomeTabServiceController {
 
     @VersionRange
     @RequestMapping(value = "/manage/editTabHomeService", method = RequestMethod.POST)
-    public Object addCloudTopLine(@RequestBody(required = true) String body) {
+    public Object editTabHomeService(@RequestBody(required = true) String body) {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonArray array = parser.parse(body).getAsJsonArray();
@@ -101,6 +101,14 @@ public class HomeTabServiceController {
 
             if(StringUtils.isBlank(entity.getVersion())){
                 return new JsonResponseEntity(-1, "版本号不能为空!");
+            }
+
+            if(!entity.getVersion().matches("\\d+\\.\\d+\\.\\d+")){
+                return new JsonResponseEntity(-1, "版本号不满足规则!");
+            }
+
+            if(StringUtils.isBlank(entity.getImgUrl())){
+                return new JsonResponseEntity(-1," 图片地址不能为空!");
             }
 
 

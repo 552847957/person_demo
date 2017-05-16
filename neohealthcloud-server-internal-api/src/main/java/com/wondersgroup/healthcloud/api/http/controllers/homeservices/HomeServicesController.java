@@ -98,9 +98,23 @@ public class HomeServicesController {
                 return new JsonResponseEntity(-1, "版本号不能为空!");
             }
 
+            if(StringUtils.isBlank(entity.getImgUrl())){
+                return new JsonResponseEntity(-1," 图片地址不能为空!");
+            }
+
+            if(StringUtils.isBlank(entity.getMainTitle())){
+                return new JsonResponseEntity(-1," 标题不能为空!");
+            }
+
             if(!entity.getVersion().matches("\\d+\\.\\d+\\.\\d+")){
                 return new JsonResponseEntity(-1, "版本号不满足规则!");
             }
+
+
+            if(StringUtils.isBlank(entity.getHoplink())){
+                return new JsonResponseEntity(-1," 链接地址不能为空!");
+            }
+
 
             if(StringUtils.isNotBlank(entity.getRecommendTitle()) && entity.getRecommendTitle().length() > 3){
                 return new JsonResponseEntity(-1, "推荐不能超过三个字!");
