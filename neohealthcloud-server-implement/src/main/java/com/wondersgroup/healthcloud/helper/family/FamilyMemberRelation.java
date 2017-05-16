@@ -26,15 +26,13 @@ public class FamilyMemberRelation {
     }
    
     public static String getName(String code) {
-        Integer _code = Integer.valueOf(code);
-        Preconditions.checkArgument(-1 < _code && _code < 40, "错误的关系代码, 只能为0~5之间的整数");
-        return relationNames[_code];
+        return getName(code, null);
     }
 
     public static String getName(String code, String defaultName) {
         Integer _code = Integer.valueOf(code);
         Preconditions.checkArgument(-1 < _code && _code < 40, "错误的关系代码, 只能为0~5之间的整数");
-        return relationNames[_code];
+        return relationNames[_code]==null?defaultName:relationNames[_code];
     }
 
     public static String getOppositeRelation(String code, String gender) {

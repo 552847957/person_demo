@@ -13,6 +13,7 @@
         <module>neohealthcloud-server-amqp</module>
         <module>neohealthcloud-server-implement</module>
         <module>neohealthcloud-server-common-web</module>
+        <module>neohealthcloud-server-solr</module>
     </modules>
     <packaging>pom</packaging>
 
