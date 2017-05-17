@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
+import java.sql.Time;
 import java.util.*;
 
 /**
@@ -92,22 +93,70 @@ public class RemindServiceImpl implements RemindService {
     
     @Override
     public RemindForHomeDTO getRemindForHome(String userId){
-        List<Remind> reminds = remindRepo.findByUserId(userId,0,1);
-        if(CollectionUtils.isEmpty(reminds)){
+        List<RemindTime> remindTimes = remindTimeRepo.findRemindByUid(userId);
+        if(CollectionUtils.isEmpty(remindTimes)){
             RemindForHomeDTO  remindForHomeDTO=new RemindForHomeDTO();
             remindForHomeDTO.setName("您身体棒棒的暂无用药提醒");
             remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
             return remindForHomeDTO;
         }
-        for (Remind remind : reminds) {
-            List<RemindItem> remindItems = remindItemRepo.findByRemindId(remind.getId());
-            List<RemindTime> remindTimes = remindTimeRepo.findByRemindId(remind.getId());
-            remindForHomeDTO=new RemindForHomeDTO(remind, remindItems, remindTimes);
-            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
+        RemindForHomeDTO dto = new RemindForHomeDTO();
+        long nowTime = 0;
+        if(CollectionUtils.isNotEmpty(remindTimes)){
+            if(remindTimes.size()==1){
+                dto.setRemindTime(remindTimes.get(0).getRemindTime()+"");
+                dto.setId(remindTimes.get(0).getId());
+                List<RemindItem> remindItems = remindItemRepo.findByRemindId(remindTimes.get(0).getRemindId());
+                dto.setName(getRemindMedicineName(remindItems));
+            }else{
+                nowTime = RemindForHomeDTO.stringToDate(RemindForHomeDTO.dateToString(new Date())).getTime();
+                if(remindTimes.get(0).getRemindTime().getTime()<nowTime){
+                    List<RemindItem> remindItems = remindItemRepo.findByRemindId(remindTimes.get(0).getRemindId());
+                    dto.setRemindTime(RemindForHomeDTO.dateToString(remindTimes.get(0).getRemindTime()));
+                    dto.setName(getRemindMedicineName(remindItems));
+                }else if(remindTimes.get(remindTimes.size()-1).getRemindTime().getTime()>nowTime){
+                    List<RemindItem> remindItems = remindItemRepo.findByRemindId(remindTimes.get(remindTimes.size()-1).getRemindId());
+                    dto.setRemindTime(RemindForHomeDTO.dateToString(remindTimes.get(remindTimes.size()-1).getRemindTime()));
+                    dto.setName(getRemindMedicineName(remindItems));
+                }else{
+                    for (int i = remindTimes.size()-1; i >=0 ; i--) {
+                        long time = remindTimes.get(i).getRemindTime().getTime();
+                        if(nowTime>time){
+                            continue;
+                        }
+                        if(time>nowTime){
+                            List<RemindItem> remindItems =  remindItemRepo.findByRemindId(remindTimes.get(i).getRemindId());
+                            dto.setRemindTime(RemindForHomeDTO.dateToString(remindTimes.get(i).getRemindTime()));
+                            dto.setName(getRemindMedicineName(remindItems));
+                            break;
+                        }
+                    }
+                }
+            }
         }
-        return remindForHomeDTO;
+        dto.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
+//        for (RemindTime remind : reminds) {
+//            List<RemindItem> remindItems = remindItemRepo.findByRemindId(remind.getId());
+//            List<RemindTime> remindTimes = remindTimeRepo.findByRemindId(remind.getId());
+//            //remindForHomeDTO=new RemindForHomeDTO(remind, remindItems, remindTimes);
+//            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
+//        }
+        return dto;
     }
-
+    
+    public static String getRemindMedicineName(List<RemindItem> remindItems){
+        String medicineName="";
+        if(CollectionUtils.isNotEmpty(remindItems)){
+            String name=remindItems.get(0).getName();
+            if(name.length()>5){
+                medicineName=name.substring(0, 5)+"...";
+            }else{
+                medicineName=name;
+            }
+        }
+        return medicineName;
+    }
+    
     @Override
     public RemindDTO detail(String id) {
         try {
