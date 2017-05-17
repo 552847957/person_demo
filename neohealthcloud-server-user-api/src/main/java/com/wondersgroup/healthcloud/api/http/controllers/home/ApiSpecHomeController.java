@@ -617,7 +617,7 @@ public class ApiSpecHomeController {
      */
     void checkService(List<HomeServiceDTO> list){
         for(HomeServiceDTO dto:list){
-            if(dto.getMainTitle().equals("医养云")){
+            if(dto.getMainTitle().contains("医养云")){
                 dto.setServiceType(ServiceTypeEnum.MEDICINE_CLOUD_SERVICE.getType());
             }
         }

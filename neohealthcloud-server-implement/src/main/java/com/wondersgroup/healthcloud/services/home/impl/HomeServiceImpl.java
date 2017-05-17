@@ -966,14 +966,6 @@ public class HomeServiceImpl implements HomeService {
             entity.setId(id);
             newServices.add(entity);
         }
-
-
-       /* // 根据ID去数据库查询，校验编辑数据ID是否在数据库存在
-        Map exitsServiceMap = new HashMap();
-        exitsServiceMap.put("baseServiceFlag", true);
-        exitsServiceMap.put("baseServices", newServices);
-        List<HomeServiceEntity> exitsEditServiceList = homeServicesImpl.findHomeServiceByCondition(exitsServiceMap);*/
-
         if (!CollectionUtils.isEmpty(newServices)) {
             homeServicesImpl.editMyService(oldServicelist, newServices, registerInfo.getRegisterid());
         }
