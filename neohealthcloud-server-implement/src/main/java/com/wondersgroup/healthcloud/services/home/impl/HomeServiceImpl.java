@@ -1079,7 +1079,7 @@ public class HomeServiceImpl implements HomeService {
                 FamilyMemberInfo fm = it.next();
                 UserHealthJKGLDTO item = familyMemberHealthMap.get(fm);
                 if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
-                    familyMember.setHeadPhoto(fm.getHeadPhoto());
+                    //familyMember.setHeadPhoto(fm.getHeadPhoto());
                     familyMember.setRelation(fm.getRelation());
                     familyMember.setUid(fm.getUid());
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
@@ -1151,6 +1151,10 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setHealthItems(fm.getHealthItems().size()>2 ? fm.getHealthItems().subList(0, 2):fm.getHealthItems());
                 familyMember.setExceptionItems(null);
             }
+        }else if(!CollectionUtils.isEmpty(noDataList)){
+            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+            familyMember.setHealthItems(null);
+            familyMember.setExceptionItems(null);
         }
 
 /////////////////////////////////////end 获取最新数据///////////////////////////////////////////
@@ -1167,7 +1171,7 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle("请添加您的家庭成员");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
-            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"最近健康状况良好");
+            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"健康状况良好");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
             familyMember.setMainTitle("请录入家庭健康数据");
@@ -1238,7 +1242,7 @@ public class HomeServiceImpl implements HomeService {
                     UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
                     UserHealthItemComparable.sortASC = false;
                     Collections.sort(dto.getHealthItems(), sort);
-                    dto.setMainTitle("您最近健康状况良好");
+                    dto.setMainTitle("您健康状况良好");
                     dto.setSubTitle("");
 
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
