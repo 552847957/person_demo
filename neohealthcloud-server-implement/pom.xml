@@ -22,11 +22,11 @@
             <artifactId>neohealthcloud-server-jpa</artifactId>
             <version>${parent.version}</version>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>com.wondersgroup.healthcloud</groupId>
             <artifactId>neohealthcloud-server-solr</artifactId>
             <version>${parent.version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>com.wondersgroup.healthcloud</groupId>
             <artifactId>neohealthcloud-server-redis</artifactId>
