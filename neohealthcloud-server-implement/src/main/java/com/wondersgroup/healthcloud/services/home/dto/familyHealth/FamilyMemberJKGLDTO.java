@@ -19,7 +19,8 @@ public class FamilyMemberJKGLDTO {
     private String mainTitle;
     private String subTitle;
     private String headPhoto;
-    private String  relation;    //成员与申请人关系
+    private String relation;    //成员与申请人关系
+    private String uid;
     private List<FamilyHealthItemJKGLDTO> exceptionItems;
     private List<FamilyHealthItemJKGLDTO> healthItems;
 }

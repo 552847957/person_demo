@@ -497,19 +497,20 @@ public class ApiSpecHomeController {
                 familyHealth = homeService.findfamilyHealthForJKGL(registerInfo, paramMap);
                 
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error(" msg " + e.getMessage());
             }
         }
         if (null == familyHealth) {
             UserHealthJKGLDTO userHealth = new UserHealthJKGLDTO();
-            userHealth.setMainTitle("请录入您的健康数据");
-            userHealth.setSubTitle("添加您的健康数据>>");
+            userHealth.setMainTitle("请添加您的健康数据");
+            userHealth.setSubTitle("");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
 
             FamilyMemberJKGLDTO familyMember = new FamilyMemberJKGLDTO();
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            familyMember.setMainTitle("设置您的家庭成员数据");
-            familyMember.setSubTitle("添加您家人的健康数据吧>>");
+            familyMember.setMainTitle("请录入家人健康数据");
+            familyMember.setSubTitle("");
 
             familyHealth = new FamilyHealthJKGLDTO(userHealth, familyMember);
         }
