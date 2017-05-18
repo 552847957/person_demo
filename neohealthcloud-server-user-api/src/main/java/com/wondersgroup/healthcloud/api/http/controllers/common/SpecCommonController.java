@@ -368,7 +368,7 @@ class TabData{
     List<HomeTabServiceDTO> noHighlight = null; //非高亮
     List<HomeTabServiceDTO> background = null;//背景
     public TabData(){};
-    TabData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> background ){
+    public TabData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> background ){
         this.highlight = highlight;
         this.noHighlight = noHighlight;
         this.background = background;
