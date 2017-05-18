@@ -208,7 +208,7 @@ public class SpecCommonController {
 
         List<HomeTabServiceDTO> highlight = new ArrayList<HomeTabServiceDTO>(); //高亮
         List<HomeTabServiceDTO> noHighlight = new ArrayList<HomeTabServiceDTO>(); //非高亮
-        List<HomeTabServiceDTO> background = new ArrayList<HomeTabServiceDTO>();//背景
+        List<HomeTabServiceDTO> backGround = new ArrayList<HomeTabServiceDTO>();//背景
 
         if(CollectionUtils.isEmpty(list)){
             result.setCode(1000);
@@ -222,10 +222,10 @@ public class SpecCommonController {
                 noHighlight.add(new HomeTabServiceDTO(dto.getImgUrl()));
             }
             if(TabServiceTypeEnum.BACKGROUND.getType().equals(dto.getTabType())){
-                background.add(new HomeTabServiceDTO(dto.getImgUrl()));
+                backGround.add(new HomeTabServiceDTO(dto.getImgUrl()));
             }
         }
-        return new JsonResponseEntity(0, "操作成功!", new TabData(highlight,noHighlight,background));
+        return new JsonResponseEntity(0, "操作成功!", new TabData(highlight,noHighlight,backGround));
     }
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
@@ -365,12 +365,12 @@ public class SpecCommonController {
 class TabData{
     List<HomeTabServiceDTO> highlight = null; //高亮
     List<HomeTabServiceDTO> noHighlight = null; //非高亮
-    List<HomeTabServiceDTO> background = null;//背景
+    List<HomeTabServiceDTO> backGround = null;//背景
     public TabData(){};
-    public TabData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> background ){
+    public TabData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> backGround ){
         this.highlight = highlight;
         this.noHighlight = noHighlight;
-        this.background = background;
+        this.backGround = backGround;
 
     };
 }
