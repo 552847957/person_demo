@@ -56,6 +56,9 @@ public class DoctorTubeSignUser {
     @Column(name = "tubeDoctorpersoncard")
     private String tube_doctor_personcard;//所属在管医生身份证号
 
+    @Column(name = "tube_type")
+    private Integer tubeType;//在管区域类型  0：C端用户街道判断 1：G端在管
+
     @Column(name = "sign_doctor_personcard")
     private String signDoctorPersoncard;//所属签约医生身份证号
 
