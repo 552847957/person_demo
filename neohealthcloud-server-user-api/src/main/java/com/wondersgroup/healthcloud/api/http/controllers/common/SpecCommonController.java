@@ -91,8 +91,11 @@ public class SpecCommonController {
                     appUpdate.put("forceUpdate", forceUpdate);
                     appUpdate.put("lastVersion", lastVersion);
                     appUpdate.put("updateMsg", updateMsg);
-                    appUpdate.put("androidUrl", downloadUrl);
-                    appUpdate.put("iosUrl", iosDownloadUrl);
+                    if ("0".equals(platform)) {// iOS
+                        appUpdate.put("iosUrl", iosDownloadUrl);
+                    } else {
+                        appUpdate.put("androidUrl", downloadUrl);
+                    }
                     data.put("appUpdate", appUpdate);
                 }
             } catch (Exception ex) {
