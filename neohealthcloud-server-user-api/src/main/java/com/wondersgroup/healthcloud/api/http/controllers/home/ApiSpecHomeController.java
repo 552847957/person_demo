@@ -509,7 +509,7 @@ public class ApiSpecHomeController {
 
             FamilyMemberJKGLDTO familyMember = new FamilyMemberJKGLDTO();
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            familyMember.setMainTitle("请录入家人健康数据");
+            familyMember.setMainTitle("请添加家人的健康数据");
             familyMember.setSubTitle("");
 
             familyHealth = new FamilyHealthJKGLDTO(userHealth, familyMember);

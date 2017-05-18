@@ -1119,7 +1119,6 @@ public class HomeServiceImpl implements HomeService {
                     familyMember.setUid(fm.getUid());
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                     exceptionList.add(familyMember);
-                    break;
                 } else {//未知状态(默认为 有家人家人正常)
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
                 }
@@ -1174,7 +1173,7 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"健康状况良好");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
-            familyMember.setMainTitle("请录入家庭健康数据");
+            familyMember.setMainTitle("请添加家人的健康数据");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
             int i=familyMember.getExceptionItems().size()>2?2:familyMember.getExceptionItems().size();
@@ -1199,8 +1198,11 @@ public class HomeServiceImpl implements HomeService {
         }else if(!CollectionUtils.isEmpty(userHealth.getHealthItems())){
             userItemList=userHealth.getHealthItems().size() > 2 ? userHealth.getHealthItems().subList(0, 2) :userHealth.getHealthItems();
             userHealth.setHealthItems(userItemList);
+        }else{
+            userHealth.setExceptionItems(userItemList);
+            userHealth.setHealthItems(userItemList);
         }
-        replaceUnitStr(userItemList);
+        //replaceUnitStr(userItemList);
         userHealth.setHeadPhoto(registerInfo.getHeadphoto());
 
         dto.setUserHealth(userHealth);
