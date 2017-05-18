@@ -269,6 +269,10 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (type == 3 && checkAccountIsNew(mobile)) {
             throw new ErrorUserMobileHasNotRegisteredException("该手机号未注册，请先注册");
         }
+        //动态登录 校验如果手机号未注册则不能发送验证码
+        if (type == 21 && checkAccountIsNew(mobile)) {
+            throw new ErrorUserMobileHasNotRegisteredException("该手机号未注册，请先注册");
+        }
 
         //修改手机号时校验手机号是否被占用
         if (type == 5 && checkAccount(mobile)) {

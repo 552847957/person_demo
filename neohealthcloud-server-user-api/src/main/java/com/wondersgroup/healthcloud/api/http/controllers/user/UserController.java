@@ -118,6 +118,7 @@ public class UserController {
 
     /**
      * 获取验证码 type : `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码 ,4 :修改手机号 ,5:绑定手机号
+     * `21`:手机动态码登陆(未注册时不发送验证码 提示未注册)
      *
      * @param mobile
      * @param type
