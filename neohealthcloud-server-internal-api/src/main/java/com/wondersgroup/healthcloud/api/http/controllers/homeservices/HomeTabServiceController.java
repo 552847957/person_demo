@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 後台APP地步tab服务管理
@@ -112,6 +109,7 @@ public class HomeTabServiceController {
                 homeServicesImpl.updateHomeTabService(entity);
             } else if (StringUtils.isBlank(entity.getId())) {//新增
                 entity.setDelFlag("0");
+                entity.setCreateTime(new Date());
                 homeServicesImpl.saveHomeTabService(entity);
             }
         }
@@ -120,6 +118,9 @@ public class HomeTabServiceController {
     }
 
     List<HomeTabServiceEntity> toEntityList(JsonArray array,String version){
+        if(null == array){
+            return Collections.EMPTY_LIST;
+        }
         Gson gson = new Gson();
         List<HomeTabServiceEntity> list = new ArrayList<HomeTabServiceEntity>();
         for (int i = 0; i < array.size(); i++) {
@@ -143,9 +144,28 @@ public class HomeTabServiceController {
              return new JsonResponseEntity(-1, "版本号不能为空!");
          }
 
-        JsonArray backgroundArray =  jo.getAsJsonArray("background");//背景
-        JsonArray noHighlightArray = jo.getAsJsonArray("noHighlight");//非高亮
-        JsonArray highlightArray = jo.getAsJsonArray("highlight");//高亮
+        JsonArray backgroundArray =  null;
+         try{
+             backgroundArray = jo.getAsJsonArray("background");//背景
+         }catch(Exception e){
+
+         }
+
+
+        JsonArray noHighlightArray = null;
+        try{
+            noHighlightArray = jo.getAsJsonArray("noHighlight");//非高亮
+        }catch(Exception e){
+
+        }
+
+        JsonArray highlightArray = null;
+        try{
+            highlightArray = jo.getAsJsonArray("highlight");//高亮
+        }catch(Exception e){
+
+        }
+
 
         List<HomeTabServiceEntity> backgroundList =  toEntityList(backgroundArray,version.getAsString());
         List<HomeTabServiceEntity> noHighlightList = toEntityList(noHighlightArray,version.getAsString());
@@ -168,6 +188,7 @@ public class HomeTabServiceController {
             return entity;
         }
 
+        homeServicesImpl.deleteHomeTableServiceByVersion(version.getAsString());
         saveTabService(backgroundList,TabServiceTypeEnum.BACKGROUND);
         saveTabService(noHighlightList,TabServiceTypeEnum.NO_HIGHTLIGHT);
         saveTabService(highlightList,TabServiceTypeEnum.HIGHTLIGHT);

@@ -583,7 +583,8 @@ public class ApiSpecHomeController {
         try {
             oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
             for(int index = 0;index < oldSpecialService.size();index++){//设置id，兼容iso
-                oldSpecialService.get(index).setId(index+"");
+                SpecialServiceDTO dto =  oldSpecialService.get(index);
+                dto.setId(index+"");
             }
 
         } catch (Exception e) {

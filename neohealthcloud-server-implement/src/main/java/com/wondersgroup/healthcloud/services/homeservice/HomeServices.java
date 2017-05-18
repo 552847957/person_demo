@@ -35,6 +35,13 @@ public interface HomeServices {
     List<String> findAllHomeTabServiceVersions(String version);
 
     /**
+     * 根据版本号删除
+     * @param version
+     * @return
+     */
+    boolean deleteHomeTableServiceByVersion(String version);
+
+    /**
      * 根据条件查询底部tabl
      * @param paramMap
      * @return

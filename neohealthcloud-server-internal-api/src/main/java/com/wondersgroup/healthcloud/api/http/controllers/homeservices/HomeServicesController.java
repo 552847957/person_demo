@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 后台服务管理
@@ -57,6 +54,10 @@ public class HomeServicesController {
     public Object getServicesByVersion(@RequestParam(value = "version", required = true) String version) {
         Map paramMap = new HashMap();
         paramMap.put("version", version);
+        Map<String,String> orderMap = new HashMap<String,String>();
+         orderMap.put("orderBy","create_time");
+         orderMap.put("descOrAsc","desc");
+         paramMap.put("orderBy",orderMap);
         List<HomeServiceEntity> list = homeServicesImpl.findHomeServiceByCondition(paramMap);
         List<HomeServiceDTO> listDto = new ArrayList<HomeServiceDTO>();
         for (HomeServiceEntity entity : list) {
@@ -124,6 +125,7 @@ public class HomeServicesController {
                 homeServicesImpl.updateHomeService(entity);
             } else if (StringUtils.isBlank(entity.getId())) {//新增
                 entity.setDelFlag("0");
+                entity.setCreateTime(new Date());
                 homeServicesImpl.saveHomeService(entity);
             }
         }

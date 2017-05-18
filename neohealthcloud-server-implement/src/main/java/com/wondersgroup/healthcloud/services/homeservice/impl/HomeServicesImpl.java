@@ -90,6 +90,20 @@ public class HomeServicesImpl implements HomeServices {
     }
 
     @Override
+    public boolean deleteHomeTableServiceByVersion(final String version) {
+        String sql  = " update app_tb_tabservice set del_flag = '1',update_time = ? where version = ? ";
+        int count = jdbcTemplate.update(sql, new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setDate(1,new java.sql.Date(System.currentTimeMillis()));
+                ps.setString(2,version);
+                ps.execute();
+            }
+        });
+        return count > 0 ? true : false;
+    }
+
+    @Override
     public List<HomeTabServiceEntity> findMyHomeTabService(Map paramMap) {
 
         StringBuffer sql = new StringBuffer();
@@ -163,6 +177,7 @@ public class HomeServicesImpl implements HomeServices {
         StringBuffer sql = new StringBuffer();
         Integer serviceType = (null == paramMap.get("serviceType") ? null : Integer.parseInt(String.valueOf(paramMap.get("serviceType"))));
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
+        Map<String,String> orderMap = (null == paramMap.get("orderBy") ? null : ( Map<String,String>)paramMap.get("orderBy"));
         Integer allowClose = ((null == paramMap.get("allowClose") ? null : Integer.parseInt(String.valueOf(paramMap.get("allowClose")))));
 
         sql.append("select * from app_tb_neoservice where del_flag = '0' ");
@@ -178,8 +193,14 @@ public class HomeServicesImpl implements HomeServices {
         if(null != allowClose){
             sql.append(" and  allow_close = "+allowClose);
         }
+        if(null != orderMap){
+             String orderBy = orderMap.get("orderBy");
+             String descOrAsc = orderMap.get("descOrAsc");
+             sql.append(" order by  ").append(" "+orderBy+" ").append(" "+descOrAsc+" ");
+        }else{
+            sql.append(" order by sort desc ");
+        }
 
-        sql.append(" order by sort desc ");
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -194,6 +215,7 @@ public class HomeServicesImpl implements HomeServices {
                 entity.setVersion(rs.getString("version"));
                 entity.setRemark(rs.getString("remark"));
                 entity.setAllowClose(rs.getInt("allow_close"));
+                entity.setSort(rs.getInt("sort"));
                 return entity;
             }
         });
@@ -237,7 +259,7 @@ public class HomeServicesImpl implements HomeServices {
         }
 
         sql.append("select * from (select b.*,a.sort as bsort from app_tb_user_service a JOIN app_tb_neoservice b on a.service_id = b.id ");
-        sql.append(" where register_id = '" + registerId + "' and b.version = '" + version + "' and b.del_flag = '0' and b.allow_close = 0 and a.del_flag = '0' ) as c order by c.bsort desc");
+        sql.append(" where register_id = '" + registerId + "' and b.version = '" + version + "' and b.del_flag = '0' and b.allow_close = 0 and a.del_flag = '0' ) as c order by c.bsort asc");
 
         List<HomeServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
