@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.question;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
+import com.wondersgroup.healthcloud.services.question.dto.AllQuestionDetails;
 import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
@@ -77,4 +78,13 @@ public interface DoctorQuestionService {
      * @return
      */
     public int queryUnreadCount(String doctorId);
+
+
+    /**
+     * 问答详情(问题汇总)
+     * @param doctorId
+     * @param questionId
+     * @return
+     */
+    public AllQuestionDetails queryAllQuestionDetails(String doctorId,String questionId);
 }

@@ -19,6 +19,9 @@ public interface DoctorAccountRepository extends JpaRepository<DoctorAccount, St
     @Query(" select a from DoctorAccount a where (a.mobile=?1 or a.loginName=?1) and a.isAvailable='0' and a.delFlag = '0' ")
     DoctorAccount findDoctorByAccount(String account);
 
+    @Query(" select a from DoctorAccount a where a.delFlag = '0' and id in ?1")
+    List<DoctorAccount> findDoctorsByIds(List<String> id);
+
     @Query(" select a from DoctorAccount a where a.mobile = ?1 ")
     DoctorAccount findDoctorByMobileWithOutDelfag(String mobile);
 

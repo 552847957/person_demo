@@ -1,18 +1,18 @@
 package com.wondersgroup.healthcloud.services.question.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,8 +37,13 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     private ReplyGroupRepository replyGroupRepository;
 
     @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
+
+
+    @Autowired
     private DataSource dataSource;
 
+    @Autowired
     private JdbcTemplate jt;
 
     @Override
@@ -82,7 +87,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         elementType.add(doctor_id);
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize+1);
+        elementType.add(pageSize + 1);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
         if (null != list) {
             return transformat(list);
@@ -106,17 +111,17 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
                 "ORDER BY status,date DESC limit ?,?";
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize+1);
+        elementType.add(pageSize + 1);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
-        int size=list.size();
+        int size = list.size();
         elementType2.add(doctor_id);
-        elementType2.add((page - 1) * pageSize+size);
-        elementType2.add(pageSize+1);
+        elementType2.add((page - 1) * pageSize + size);
+        elementType2.add(pageSize + 1);
         List<Map<String, Object>> list2 = getJt().queryForList(sql2, elementType2.toArray());
-        if (size<11) {
+        if (size < 11) {
             list.addAll(list2);
             return transformat(list);
-        }else{
+        } else {
             list.addAll(list);
             return transformat(list);
         }
@@ -275,6 +280,115 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return unreadQuestion + unreadAsk;
     }
 
+    @Override
+    public AllQuestionDetails queryAllQuestionDetails(String doctorId, String questionId) {
+        String questionSql = "select a.id,a.sex,a.age,a.content,a.content_imgs,a.create_time from app_tb_neoquestion as a where id = '" + questionId + "' ";
+        AllQuestionDetails allQuestionDetails = null;
+        Map<String, Object> map = jt.queryForMap(questionSql);
+        if (null != map && map.entrySet().size() > 0) {
+            //组 select * from app_tb_neogroup as c where c.question_id = '10309dc177894a4782d9444ff3ad0b9b' ORDER BY create_time desc;
+
+            String id = String.valueOf(map.get("id"));
+            String sex = String.valueOf(map.get("sex"));
+            int age = Integer.parseInt(String.valueOf(map.get("age")));
+            String content = String.valueOf(map.get("content"));
+            String contentImgs = String.valueOf(map.get("content_imgs"));
+            String date = String.valueOf(map.get("create_time"));
+            allQuestionDetails = new AllQuestionDetails(id, sex, age, content, contentImgs, date);
+
+
+            List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
+
+            List<String> doctorIds = new ArrayList<>();
+            List<String> groupIds = new ArrayList<>();
+            for (ReplyGroup gp : groupList) {
+                groupIds.add(gp.getId());
+                doctorIds.add(gp.getAnswer_id());
+            }
+
+            List<DoctorAccount> doctorList = doctorAccountRepository.findDoctorsByIds(doctorIds);
+            Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
+            Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
+
+
+            for (ReplyGroup rg : groupList) {//一个组放到一个集合里
+                List list = new ArrayList();
+                List<Reply> replyList = replyRepository.getReplyByGroupId(rg.getId());
+                for (Reply rp : replyList) {
+                    if (rp.getUserReply() == 0) {//0:医生的回复,1:用户的回复
+                        ReplyGroup group = groupMap.get(rp.getGroupId());
+                        DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
+                        int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
+                        list.add(new DoctorAnster(questionType, replayDoctor.getAvatar(), replayDoctor.getId(), replayDoctor.getName(), rp.getContent(), rp.getCreateTime().toString()));
+                    } else if (rp.getUserReply() == 1) {
+                        list.add(new PationAsk(1, sex, age, rp.getContent(), rp.getContentImgs(), date));
+                    }
+                }
+                allQuestionDetails.getDialogs().add(list);
+            }
+        }
+
+
+       /*  if (null != map && map.entrySet().size() > 0) {
+            String id = String.valueOf(map.get("id"));
+            String sex = String.valueOf(map.get("sex"));
+            int age = Integer.parseInt(String.valueOf(map.get("age")));
+            String content = String.valueOf(map.get("content"));
+            String contentImgs = String.valueOf(map.get("content_imgs"));
+            String date = String.valueOf(map.get("create_time"));
+            allQuestionDetails = new AllQuestionDetails(id, sex, age, content, contentImgs, date);
+            List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
+            if (CollectionUtils.isNotEmpty(groupList)) {
+                List<String> doctorIds = new ArrayList<>();
+                List<String> groupIds = new ArrayList<>();
+                for (ReplyGroup gp : groupList) {
+                    groupIds.add(gp.getId());
+                    doctorIds.add(gp.getAnswer_id());
+                }
+
+                List<DoctorAccount> doctorList = doctorAccountRepository.findDoctorsByIds(doctorIds);
+                List<Reply> replyList = replyRepository.getCommentGroupList(groupIds);
+                if (CollectionUtils.isNotEmpty(groupList) && CollectionUtils.isNotEmpty(doctorList)) {
+                    Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
+                    Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
+
+                    List list = new ArrayList();
+                    for (Reply rp : replyList) {
+                        // 查找顺序 groupId ---> answerId ---> doctorId---> doctorAccount
+                        if (rp.getUserReply() == 0) {//0:医生的回复,1:用户的回复
+                            ReplyGroup group = groupMap.get(rp.getGroupId());
+                            DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
+                            int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
+                            list.add(new DoctorAnster(questionType,replayDoctor.getAvatar(),replayDoctor.getId(),replayDoctor.getName(),rp.getContent(),rp.getCreateTime().toString()));
+                        } else if (rp.getUserReply() == 1) {
+                            list.add(new PationAsk(1,sex,age,rp.getContent(),rp.getContentImgs(),date));
+                        }
+                    }
+                    allQuestionDetails.setDialogs(list);
+                }
+            }
+
+        }*/
+
+        return allQuestionDetails;
+    }
+
+    private Map<String, DoctorAccount> doctorList2Map(List<DoctorAccount> list) {
+        Map<String, DoctorAccount> map = new HashMap<>();
+        for (DoctorAccount doctor : list) {
+            map.put(doctor.getId(), doctor);
+        }
+        return map;
+    }
+
+    private Map<String, ReplyGroup> groupList2Map(List<ReplyGroup> list) {
+        Map<String, ReplyGroup> map = new HashMap<>();
+        for (ReplyGroup group : list) {
+            map.put(group.getId(), group);
+        }
+        return map;
+    }
+
     private List<QuestionInfoForm> transformat(List<Map<String, Object>> param) {
         List<QuestionInfoForm> list = new ArrayList<>();
         for (Map<String, Object> map : param) {
@@ -296,21 +410,21 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         //已關閉的問題
         List<Map<String, Object>> maps = param.subList(list.size(), param.size());
 
-            List<QuestionInfoForm> closeQuestions = transformat(maps);
-            Collections.sort(closeQuestions, new Comparator<QuestionInfoForm>() {
-                public int compare(QuestionInfoForm info1, QuestionInfoForm info2) {
-                    //按照提問時間进行降序排列
-                    int res = info1.getDate().compareTo(info2.getDate());
-                    if (res < 1) {
-                        return 1;
-                    }
-                    if (res == 0) {
-                        return 0;
-                    }
-                    return -1;
+        List<QuestionInfoForm> closeQuestions = transformat(maps);
+        Collections.sort(closeQuestions, new Comparator<QuestionInfoForm>() {
+            public int compare(QuestionInfoForm info1, QuestionInfoForm info2) {
+                //按照提問時間进行降序排列
+                int res = info1.getDate().compareTo(info2.getDate());
+                if (res < 1) {
+                    return 1;
                 }
-            });
-            list.addAll(closeQuestions);
+                if (res == 0) {
+                    return 0;
+                }
+                return -1;
+            }
+        });
+        list.addAll(closeQuestions);
         return list;
     }
 

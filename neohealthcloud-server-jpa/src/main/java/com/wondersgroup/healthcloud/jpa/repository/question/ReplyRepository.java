@@ -20,4 +20,10 @@ public interface ReplyRepository extends JpaRepository<Reply, String> {
      */
     @Query(nativeQuery = true, value = "SELECT c.* from app_tb_neoreply c where c.comment_group_id in ?1 and c.is_valid=1 order by c.create_time desc")
     List<Reply> getCommentGroupList(List<String> group_ids);
+
+    /**
+     * 获取分组下的对话
+     */
+    @Query(nativeQuery = true, value = "SELECT c.* from app_tb_neoreply c where c.comment_group_id = ?1 and c.is_valid=1 order by c.create_time desc")
+    List<Reply> getReplyByGroupId(String groupId);
 }
