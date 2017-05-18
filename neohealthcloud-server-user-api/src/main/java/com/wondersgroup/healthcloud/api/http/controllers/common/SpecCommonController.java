@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.appenum.ImageTextEnum;
@@ -12,7 +13,9 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
+import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeTabServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.enums.TabServiceTypeEnum;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.home.HomeService;
 import com.wondersgroup.healthcloud.services.homeservice.dto.HomeTabServiceDTO;
@@ -193,7 +196,7 @@ public class SpecCommonController {
             Map paramMap = new HashMap();
             paramMap.put("version",version);
             List<HomeTabServiceDTO> list = homeService.findHomeTableService(paramMap);
-            if(!CollectionUtils.isEmpty(list)){
+            /*if(!CollectionUtils.isEmpty(list)){
                 List<String> navigationBars = new ArrayList<>();
                 for (HomeTabServiceDTO dto : list) {
                     navigationBars.add(dto.getImgUrl());
@@ -202,8 +205,28 @@ public class SpecCommonController {
             }else {
                 result.setCode(1000);
                 result.setMsg("未查询到相关配置信息！");
+            }*/
+
+        List<HomeTabServiceDTO> highlight = new ArrayList<HomeTabServiceDTO>(); //高亮
+        List<HomeTabServiceDTO> noHighlight = new ArrayList<HomeTabServiceDTO>(); //非高亮
+        List<HomeTabServiceDTO> background = new ArrayList<HomeTabServiceDTO>();//背景
+
+        if(CollectionUtils.isEmpty(list)){
+            result.setCode(1000);
+            result.setMsg("未查询到相关配置信息！");
+        }
+        for (HomeTabServiceDTO dto : list) {
+            if(TabServiceTypeEnum.HIGHTLIGHT.getType().equals(dto.getTabType())){
+                highlight.add(new HomeTabServiceDTO(dto.getImgUrl()));
             }
-            return result;
+            if(TabServiceTypeEnum.NO_HIGHTLIGHT.getType().equals(dto.getTabType())){
+                noHighlight.add(new HomeTabServiceDTO(dto.getImgUrl()));
+            }
+            if(TabServiceTypeEnum.BACKGROUND.getType().equals(dto.getTabType())){
+                background.add(new HomeTabServiceDTO(dto.getImgUrl()));
+            }
+        }
+        return new JsonResponseEntity(0, "操作成功!", new TabData(highlight,noHighlight,background));
     }
 
     @RequestMapping(value = "/aboutApp", method = RequestMethod.GET)
@@ -334,4 +357,21 @@ public class SpecCommonController {
         private String disclaimerUrl;// 健康档案说明文案
         private String vrules;//圈子的版规
     }
+}
+
+
+@Data
+@JsonNaming
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+class TabData{
+    List<HomeTabServiceDTO> highlight = null; //高亮
+    List<HomeTabServiceDTO> noHighlight = null; //非高亮
+    List<HomeTabServiceDTO> background = null;//背景
+    public TabData(){};
+    public TabData(List<HomeTabServiceDTO> highlight,List<HomeTabServiceDTO> noHighlight,List<HomeTabServiceDTO> background ){
+        this.highlight = highlight;
+        this.noHighlight = noHighlight;
+        this.background = background;
+
+    };
 }
