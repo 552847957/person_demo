@@ -13,7 +13,6 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
 import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
-import com.wondersgroup.healthcloud.jpa.entity.homeservice.HomeTabServiceEntity;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.enums.TabServiceTypeEnum;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
