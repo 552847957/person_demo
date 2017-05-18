@@ -129,10 +129,10 @@ public class DoctorQuestionController {
      */
     @VersionRange
     @RequestMapping(value = "/allQuestions", method = RequestMethod.GET)
-    public JsonResponseEntity allQuestions(@RequestParam String doctorId,
+    public JsonListResponseEntity allQuestions(@RequestParam String doctorId,
                                            @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
-
+        JsonListResponseEntity<QuestionInfoForm> response = new JsonListResponseEntity<>();
         List<QuestionInfoForm> list = doctorQuestionService.getQuestionSquareList(doctorId, flag, doctor_question_list_size);
 
         Boolean hasMore = false;
@@ -140,9 +140,9 @@ public class DoctorQuestionController {
             hasMore = true;
             list = list.subList(0, doctor_question_list_size);
         }
-//        response.setContent(list, hasMore, "", String.valueOf(flag + 1));
+        response.setContent(list, hasMore, "", String.valueOf(flag + 1));
 
-        return new JsonResponseEntity(0, "操作成功!", list);
+        return response;
     }
 
     /**
@@ -166,11 +166,21 @@ public class DoctorQuestionController {
      */
     @VersionRange
     @RequestMapping(value = "/allRepliedQuestions", method = RequestMethod.GET)
-    public JsonResponseEntity allRepliedQuestions(@RequestParam String doctorId,
+    public JsonListResponseEntity allRepliedQuestions(@RequestParam String doctorId,
                                                   @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
 
-        return new JsonResponseEntity(0, "操作成功!", null);
+        JsonListResponseEntity<QuestionInfoForm> response = new JsonListResponseEntity<>();
+        List<QuestionInfoForm> list = doctorQuestionService.getQuestionSquareList(doctorId, flag, doctor_question_list_size);
+
+        Boolean hasMore = false;
+        if (list != null && list.size() > doctor_question_list_size) {
+            hasMore = true;
+            list = list.subList(0, doctor_question_list_size);
+        }
+        response.setContent(list, hasMore, "", String.valueOf(flag + 1));
+
+        return response;
     }
 
 

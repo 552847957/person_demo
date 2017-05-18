@@ -79,7 +79,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getQuestionSquareList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql = "SELECT t1.id,t1.content,t1.is_new_question as isNoRead,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
+        String sql = "SELECT t1.id,t1.`status`,t1.content,t1.is_new_question as isNoRead,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
                 " FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
                 "WHERE (t1.assign_answer_id='' OR t1.assign_answer_id=?) AND t1.status<>3 AND t1.id not in(select t1.id FROM app_tb_neoquestion t1 " +
                 "INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id WHERE answer_id=?) " +
