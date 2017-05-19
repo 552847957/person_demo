@@ -245,7 +245,7 @@ public class HomeServicesImpl implements HomeServices {
             sql.append(" and register_id = '" + registerId + "' ");
         }
 
-        sql.append(" order by sort desc ");
+        sql.append(" order by sort desc,create_time desc ");
 
         List<HomeUserServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
