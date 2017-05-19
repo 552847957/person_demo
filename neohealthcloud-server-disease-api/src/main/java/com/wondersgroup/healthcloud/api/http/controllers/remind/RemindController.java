@@ -1,18 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.remind;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
-import com.wondersgroup.healthcloud.jpa.entity.game.WechatRegister;
 import com.wondersgroup.healthcloud.jpa.entity.medicine.CommonlyUsedMedicine;
 import com.wondersgroup.healthcloud.jpa.entity.remind.Remind;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindItem;
 import com.wondersgroup.healthcloud.jpa.entity.remind.RemindTime;
-import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
-import com.wondersgroup.healthcloud.jpa.repository.permission.UserRepository;
-import com.wondersgroup.healthcloud.jpa.repository.remind.CommonlyUsedMedicineRepository;
-import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.remind.CommonlyUsedMedicineService;
 import com.wondersgroup.healthcloud.services.remind.RemindService;
 import com.wondersgroup.healthcloud.services.remind.dto.RemindDTO;
@@ -40,7 +36,7 @@ public class RemindController {
     private CommonlyUsedMedicineService commonlyUsedMedicineService;
 
     @Autowired
-    private UserInfoRepository userInfoRepository;
+    private RegisterInfoRepository registerInfoRepository;
 
     @Autowired
     private SessionUtil sessionUtil;
@@ -108,9 +104,9 @@ public class RemindController {
             return result;
         }
 
-        UserInfo userInfo = userInfoRepository.findOne(userId);
-        if (userInfo == null || StringUtils.isEmpty(userInfo.getRegisterid())) {
-            result.setCode(0);
+        RegisterInfo registerInfo = registerInfoRepository.findOne(userId);
+        if (registerInfo == null || StringUtils.isEmpty(registerInfo.getRegisterid())) {
+            result.setCode(13);
             result.setMsg("不存在的用户！");
             return result;
         }
