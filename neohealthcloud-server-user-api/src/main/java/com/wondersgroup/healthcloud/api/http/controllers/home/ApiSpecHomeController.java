@@ -582,10 +582,6 @@ public class ApiSpecHomeController {
         List<SpecialServiceDTO> oldSpecialService = null;
         try {
             oldSpecialService = homeService.findSpecialServiceDTO(session, version, mainArea, specArea);
-            for(int index = 0;index < oldSpecialService.size();index++){//设置id，兼容iso
-                SpecialServiceDTO dto =  oldSpecialService.get(index);
-                dto.setId(index+"");
-            }
 
         } catch (Exception e) {
             logger.error(" msg " + e.getMessage());
@@ -594,8 +590,10 @@ public class ApiSpecHomeController {
 
 
         List<HomeServiceDTO> specialService = new ArrayList<HomeServiceDTO>();
-        for (SpecialServiceDTO oldDto : oldSpecialService) { // TODO 注意判断医养云
+        for(int index = 0;index < oldSpecialService.size();index++){
+            SpecialServiceDTO oldDto =  oldSpecialService.get(index);
             HomeServiceDTO dto = new HomeServiceDTO();
+            dto.setId(index+"");//设置虚拟id，兼容iso
             dto.setMainTitle(oldDto.getMainTitle());
             dto.setServiceType(ServiceTypeEnum.SPECIAL_SERVICE.getType());
             dto.setImgUrl(oldDto.getImgUrl());

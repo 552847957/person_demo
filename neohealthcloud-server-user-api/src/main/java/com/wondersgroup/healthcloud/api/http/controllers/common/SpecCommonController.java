@@ -195,16 +195,6 @@ public class SpecCommonController {
             Map paramMap = new HashMap();
             paramMap.put("version",version);
             List<HomeTabServiceDTO> list = homeService.findHomeTableService(paramMap);
-            /*if(!CollectionUtils.isEmpty(list)){
-                List<String> navigationBars = new ArrayList<>();
-                for (HomeTabServiceDTO dto : list) {
-                    navigationBars.add(dto.getImgUrl());
-                }
-                result.setData(navigationBars);
-            }else {
-                result.setCode(1000);
-                result.setMsg("未查询到相关配置信息！");
-            }*/
 
         List<HomeTabServiceDTO> highlight = new ArrayList<HomeTabServiceDTO>(); //高亮
         List<HomeTabServiceDTO> noHighlight = new ArrayList<HomeTabServiceDTO>(); //非高亮

@@ -201,9 +201,10 @@ public class HomeServicesImpl implements HomeServices {
                  String descOrAsc = orderMap.get("descOrAsc");
                  if(flag){
                      sql.append(" order by  ");
+                     sql.append(" "+orderBy+" ").append(" "+descOrAsc+" ");
                      flag = false;
                  }else{
-                     sql.append(" "+orderBy+" ").append(" "+descOrAsc+" ");
+                     sql.append(" ,"+orderBy+" ").append(" "+descOrAsc+" ");
                  }
              }
 
