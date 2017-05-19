@@ -282,22 +282,25 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
 
     @Override
     public AllQuestionDetails queryAllQuestionDetails(String doctorId, String questionId) {
-        String questionSql = "select a.id,a.sex,a.age,a.content,a.content_imgs,a.create_time from app_tb_neoquestion as a where id = '" + questionId + "' ";
+        String questionSql = "select a.id,a.sex,a.age,a.status,a.content,a.content_imgs,a.create_time from app_tb_neoquestion as a where id = '" + questionId + "' ";
         AllQuestionDetails allQuestionDetails = null;
         Map<String, Object> map = jt.queryForMap(questionSql);
         if (null != map && map.entrySet().size() > 0) {
-            //组 select * from app_tb_neogroup as c where c.question_id = '10309dc177894a4782d9444ff3ad0b9b' ORDER BY create_time desc;
 
             String id = String.valueOf(map.get("id"));
             String sex = String.valueOf(map.get("sex"));
             int age = Integer.parseInt(String.valueOf(map.get("age")));
+            Integer status = Integer.parseInt(String.valueOf(map.get("status")));
             String content = String.valueOf(map.get("content"));
             String contentImgs = String.valueOf(map.get("content_imgs"));
             String date = String.valueOf(map.get("create_time"));
-            allQuestionDetails = new AllQuestionDetails(id, sex, age, content, contentImgs, date);
+            allQuestionDetails = new AllQuestionDetails(id, sex, age, status,content, contentImgs, date);
 
 
             List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
+            if(CollectionUtils.isEmpty(groupList)){
+                return allQuestionDetails;
+            }
 
             List<String> doctorIds = new ArrayList<>();
             List<String> groupIds = new ArrayList<>();

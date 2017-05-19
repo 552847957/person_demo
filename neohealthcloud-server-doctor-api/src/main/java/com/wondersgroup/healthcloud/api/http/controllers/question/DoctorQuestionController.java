@@ -171,7 +171,7 @@ public class DoctorQuestionController {
 
 
         JsonListResponseEntity<QuestionInfoForm> response = new JsonListResponseEntity<>();
-        List<QuestionInfoForm> list = doctorQuestionService.getQuestionSquareList(doctorId, flag, doctor_question_list_size);
+        List<QuestionInfoForm> list = doctorQuestionService.getDoctorReplyQuestionList(doctorId, flag, doctor_question_list_size);
 
         Boolean hasMore = false;
         if (list != null && list.size() > doctor_question_list_size) {
