@@ -54,10 +54,24 @@ public class HomeServicesController {
     public Object getServicesByVersion(@RequestParam(value = "version", required = true) String version) {
         Map paramMap = new HashMap();
         paramMap.put("version", version);
-        Map<String,String> orderMap = new HashMap<String,String>();
-         orderMap.put("orderBy","create_time");
-         orderMap.put("descOrAsc","desc");
-         paramMap.put("orderBy",orderMap);
+
+         List<Map<String,String>> orderList = new ArrayList<>();
+          Map<String,String> serviceType = new HashMap<String,String>();
+           serviceType.put("orderBy","service_type");
+           serviceType.put("descOrAsc","asc");
+           orderList.add(serviceType);
+
+        Map<String,String> sort = new HashMap<String,String>();
+          sort.put("orderBy","sort");
+          sort.put("descOrAsc","desc");
+        orderList.add(sort);
+
+        Map<String,String> createTime = new HashMap<String,String>();
+          createTime.put("orderBy","create_time");
+          createTime.put("descOrAsc","desc");
+          orderList.add(createTime);
+
+        paramMap.put("orderBy",orderList);
         List<HomeServiceEntity> list = homeServicesImpl.findHomeServiceByCondition(paramMap);
         List<HomeServiceDTO> listDto = new ArrayList<HomeServiceDTO>();
         for (HomeServiceEntity entity : list) {

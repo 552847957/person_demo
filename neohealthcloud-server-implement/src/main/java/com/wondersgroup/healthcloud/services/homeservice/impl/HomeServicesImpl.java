@@ -177,7 +177,8 @@ public class HomeServicesImpl implements HomeServices {
         StringBuffer sql = new StringBuffer();
         Integer serviceType = (null == paramMap.get("serviceType") ? null : Integer.parseInt(String.valueOf(paramMap.get("serviceType"))));
         String version = (null == paramMap.get("version") ? null : String.valueOf(paramMap.get("version")));
-        Map<String,String> orderMap = (null == paramMap.get("orderBy") ? null : ( Map<String,String>)paramMap.get("orderBy"));
+        List<Map<String,String>> orderList = (null == paramMap.get("orderBy") ? null : ( List<Map<String,String>>)paramMap.get("orderBy"));
+
         Integer allowClose = ((null == paramMap.get("allowClose") ? null : Integer.parseInt(String.valueOf(paramMap.get("allowClose")))));
 
         sql.append("select * from app_tb_neoservice where del_flag = '0' ");
@@ -193,12 +194,21 @@ public class HomeServicesImpl implements HomeServices {
         if(null != allowClose){
             sql.append(" and  allow_close = "+allowClose);
         }
-        if(null != orderMap){
-             String orderBy = orderMap.get("orderBy");
-             String descOrAsc = orderMap.get("descOrAsc");
-             sql.append(" order by  ").append(" "+orderBy+" ").append(" "+descOrAsc+" ");
+        if(null != orderList){
+             boolean flag = true;
+             for(Map<String,String> orderMap: orderList){
+                 String orderBy = orderMap.get("orderBy");
+                 String descOrAsc = orderMap.get("descOrAsc");
+                 if(flag){
+                     sql.append(" order by  ");
+                     flag = false;
+                 }else{
+                     sql.append(" "+orderBy+" ").append(" "+descOrAsc+" ");
+                 }
+             }
+
         }else{
-            sql.append(" order by sort desc ");
+            sql.append(" order by sort desc,create_time desc  ");
         }
 
 

@@ -921,7 +921,7 @@ public class HomeServiceImpl implements HomeService {
     public List<HomeServiceDTO> findMyHomeServices(Map paramMap) {
         List<HomeServiceDTO> allServicesList = new ArrayList<HomeServiceDTO>();
 
-        // 优先根據查询关系表里的 我的服务 信息
+        // 优先根据查询关系表里的 我的服务 信息
         List<HomeServiceEntity> myHomeServicesList = homeServicesImpl.findMyHomeServices(paramMap);
 
         if (!CollectionUtils.isEmpty(myHomeServicesList)) {
