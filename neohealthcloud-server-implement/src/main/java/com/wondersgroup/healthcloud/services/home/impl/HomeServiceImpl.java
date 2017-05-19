@@ -1073,7 +1073,6 @@ public class HomeServiceImpl implements HomeService {
         List<FamilyMemberJKGLDTO> noDataList = new ArrayList<FamilyMemberJKGLDTO>();
 
         if (!CollectionUtils.isEmpty(familyMemberHealthMap)) {//家人健康信息集合
-            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO=null;
             Iterator<FamilyMemberInfo> it = familyMemberHealthMap.keySet().iterator();
             while (it.hasNext()) {  
                 FamilyMemberInfo fm = it.next();
@@ -1088,14 +1087,14 @@ public class HomeServiceImpl implements HomeService {
                 } else if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
                     if(!CollectionUtils.isEmpty(item.getHealthItems())){
                         for (UserHealthItemDTO dto1 : item.getHealthItems()) {
-                            familyHealthItemJKGLDTO = new FamilyHealthItemJKGLDTO();
+                            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
                             familyHealthItemJKGLDTO.setName(dto1.getName());
                             familyHealthItemJKGLDTO.setData(dto1.getData());
                             familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
                             familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                            familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
                         }
                     }
-                    familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
                     familyMember.setHeadPhoto(fm.getHeadPhoto());
                     familyMember.setRelation(fm.getRelation());
                     familyMember.setUid(fm.getUid());
@@ -1105,20 +1104,21 @@ public class HomeServiceImpl implements HomeService {
                     // FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
                     if (!CollectionUtils.isEmpty(item.getExceptionItems())) {
                         for (UserHealthItemDTO dto1 : item.getExceptionItems()) {
-                            familyHealthItemJKGLDTO = new FamilyHealthItemJKGLDTO();
+                            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
                             familyHealthItemJKGLDTO.setName(dto1.getName());
                             familyHealthItemJKGLDTO.setData(dto1.getData());
                             familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
                             familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                            familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
                         }
                     }
                     // ftemDTO.setUid(fm.getUid()); //用于分组
-                    familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
                     familyMember.setHeadPhoto(fm.getHeadPhoto());
                     familyMember.setRelation(fm.getRelation());
                     familyMember.setUid(fm.getUid());
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
                     exceptionList.add(familyMember);
+                    break;
                 } else {//未知状态(默认为 有家人家人正常)
                     familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
                 }

@@ -111,8 +111,8 @@ public class RemindServiceImpl implements RemindService {
             }else{
                 nowTime = RemindForHomeDTO.stringToDate(RemindForHomeDTO.dateToString(new Date())).getTime();
                 if(remindTimes.get(0).getRemindTime().getTime()<nowTime){
-                    List<RemindItem> remindItems = remindItemRepo.findByRemindId(remindTimes.get(0).getRemindId());
-                    dto.setId(remindTimes.get(0).getId());
+                    List<RemindItem> remindItems = remindItemRepo.findByRemindId(remindTimes.get(remindTimes.size()-1).getRemindId());
+                    dto.setId(remindTimes.get(remindTimes.size()-1).getId());
                     dto.setRemindTime(RemindForHomeDTO.dateToString(remindTimes.get(remindTimes.size()-1).getRemindTime()));
                     dto.setName(getRemindMedicineName(remindItems));
                 }else if(remindTimes.get(remindTimes.size()-1).getRemindTime().getTime()>nowTime){
