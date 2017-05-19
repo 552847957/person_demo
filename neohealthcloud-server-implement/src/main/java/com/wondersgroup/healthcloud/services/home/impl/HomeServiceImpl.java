@@ -1091,6 +1091,7 @@ public class HomeServiceImpl implements HomeService {
                             familyHealthItemJKGLDTO.setName(dto1.getName());
                             familyHealthItemJKGLDTO.setData(dto1.getData());
                             familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
+                            familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
                             familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
                             familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
                         }
@@ -1109,6 +1110,7 @@ public class HomeServiceImpl implements HomeService {
                             familyHealthItemJKGLDTO.setData(dto1.getData());
                             familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
                             familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                            familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
                             familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
                         }
                     }
@@ -1170,14 +1172,14 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle("请添加您的家庭成员");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
-            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"健康状况良好");
+            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月健康状况良好");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus())) {
-            familyMember.setMainTitle("请添加家人的健康数据");
+            familyMember.setMainTitle("您的家人近一月无健康数据");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
             int i=familyMember.getExceptionItems().size()>2?2:familyMember.getExceptionItems().size();
-            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"有" + intNumToString(i) + "项异常");
+            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(i) + "项异常");
             familyMember.setSubTitle("");
         } 
 
@@ -1185,7 +1187,7 @@ public class HomeServiceImpl implements HomeService {
 
         if (null == userHealth) {
             userHealth = new UserHealthJKGLDTO();
-            userHealth.setMainTitle("请添加您的健康数据");
+            userHealth.setMainTitle("您近一月无健康数据");
             userHealth.setSubTitle("");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
         }
@@ -1235,7 +1237,7 @@ public class HomeServiceImpl implements HomeService {
                     dto = new UserHealthJKGLDTO();
                     dto.setHealthStatus(dataResponse.getData().getHealthStatus());
                     dto.setExceptionItems(new ArrayList<UserHealthItemDTO>());
-                    dto.setMainTitle("请添加您的健康数据");
+                    dto.setMainTitle("您近一月无健康数据");
                     dto.setSubTitle("");
                 } else if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
                     dto = new UserHealthJKGLDTO();
@@ -1244,7 +1246,7 @@ public class HomeServiceImpl implements HomeService {
                     UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
                     UserHealthItemComparable.sortASC = false;
                     Collections.sort(dto.getHealthItems(), sort);
-                    dto.setMainTitle("您健康状况良好");
+                    dto.setMainTitle("您近一月健康状况良好");
                     dto.setSubTitle("");
 
                 } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(dataResponse.getData().getHealthStatus())) {
@@ -1255,7 +1257,7 @@ public class HomeServiceImpl implements HomeService {
                     UserHealthItemComparable.sortASC = false;
                     Collections.sort(dto.getExceptionItems(), sort);
                     int i=dto.getExceptionItems().size() >2?2:dto.getExceptionItems().size();
-                    dto.setMainTitle("您有" + intNumToString(i) + "项异常");
+                    dto.setMainTitle("您近一月有" + intNumToString(i) + "项异常");
                     dto.setSubTitle("");
 
                 } else {//未知 UserHealthStatusEnum 状态

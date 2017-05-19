@@ -503,13 +503,13 @@ public class ApiSpecHomeController {
         }
         if (null == familyHealth) {
             UserHealthJKGLDTO userHealth = new UserHealthJKGLDTO();
-            userHealth.setMainTitle("请添加您的健康数据");
+            userHealth.setMainTitle("您近一月无健康数据");
             userHealth.setSubTitle("");
             userHealth.setHealthStatus(UserHealthStatusEnum.HAVE_NO_DATA.getId());
 
             FamilyMemberJKGLDTO familyMember = new FamilyMemberJKGLDTO();
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            familyMember.setMainTitle("请添加家人的健康数据");
+            familyMember.setMainTitle("您的家人近一月无健康数据");
             familyMember.setSubTitle("");
 
             familyHealth = new FamilyHealthJKGLDTO(userHealth, familyMember);
