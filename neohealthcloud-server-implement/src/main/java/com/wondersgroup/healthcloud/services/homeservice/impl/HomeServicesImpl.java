@@ -209,7 +209,7 @@ public class HomeServicesImpl implements HomeServices {
              }
 
         }else{
-            sql.append(" order by sort desc,create_time desc  ");
+            sql.append(" order by sort desc,update_time desc  ");
         }
 
 
@@ -245,7 +245,7 @@ public class HomeServicesImpl implements HomeServices {
             sql.append(" and register_id = '" + registerId + "' ");
         }
 
-        sql.append(" order by sort desc,create_time desc ");
+        sql.append(" order by sort desc,update_time desc ");
 
         List<HomeUserServiceEntity> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -343,7 +343,7 @@ public class HomeServicesImpl implements HomeServices {
             return Collections.EMPTY_LIST;
         }
 
-        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and del_flag = '0' and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and allow_close = 0 and a.version = '"+version+"' ORDER BY a.sort desc ");
+        sql.append("select a.*,(select count(1) from app_tb_user_service  as b where b.service_id = a.id and del_flag = '0' and register_id = '"+registerId+"' ) as isAdd from app_tb_neoservice as a where service_type = 1 and del_flag = '0' and allow_close = 0 and a.version = '"+version+"' ORDER BY a.sort desc ,update_time desc");
 
         List<HomeServiceDTO> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {

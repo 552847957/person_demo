@@ -67,7 +67,7 @@ public class HomeServicesController {
         orderList.add(sort);
 
         Map<String,String> createTime = new HashMap<String,String>();
-          createTime.put("orderBy","create_time");
+          createTime.put("orderBy","update_time");
           createTime.put("descOrAsc","desc");
           orderList.add(createTime);
 
@@ -140,6 +140,7 @@ public class HomeServicesController {
             } else if (StringUtils.isBlank(entity.getId())) {//新增
                 entity.setDelFlag("0");
                 entity.setCreateTime(new Date());
+                entity.setUpdateTime(new Date());
                 homeServicesImpl.saveHomeService(entity);
             }
         }

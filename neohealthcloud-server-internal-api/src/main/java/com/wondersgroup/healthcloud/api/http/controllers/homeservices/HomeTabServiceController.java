@@ -110,6 +110,7 @@ public class HomeTabServiceController {
             } else if (StringUtils.isBlank(entity.getId())) {//新增
                 entity.setDelFlag("0");
                 entity.setCreateTime(new Date());
+                entity.setUpdateTime(new Date());
                 homeServicesImpl.saveHomeTabService(entity);
             }
         }
