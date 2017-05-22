@@ -130,7 +130,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getDoctorReplyQuestionList(String doctorId, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql = "SELECT q.id,q.status,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,cg.has_new_user_comment as isNoRead,"
+        String sql = "SELECT q.id,q.status,q.sex,q.content,date_format(q.create_time,'%Y-%m-%d %H:%i') as date,cg.has_new_user_comment as isNoRead,"
                 + "q.comment_count FROM app_tb_neoquestion q LEFT JOIN app_tb_neogroup cg ON q.id=cg.question_id "
                 + " WHERE cg.answer_id=? AND q.status>1 and q.is_valid=1 ORDER BY cg.has_new_user_comment DESC, q.status asc, q.create_time DESC limit ?,?";
         elementType.add(doctorId);
@@ -313,8 +313,11 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
             Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
 
+            List<Dialogs> dialogsGroupList = new ArrayList<Dialogs>();
 
             for (ReplyGroup rg : groupList) {//一个组放到一个集合里
+                Dialogs dialogs = new Dialogs();
+                dialogs.setIsCurrentDoctor(rg.getAnswer_id().equals(doctorId) ? 0:1);
                 List list = new ArrayList();
                 List<Reply> replyList = replyRepository.getReplyByGroupId(rg.getId());
                 for (Reply rp : replyList) {
@@ -327,8 +330,14 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
                         list.add(new PationAsk(1, sex, age, rp.getContent(), rp.getContentImgs(), date));
                     }
                 }
-                allQuestionDetails.getDialogs().add(list);
+                  dialogs.setDialogDetails(list);
+                  dialogsGroupList.add(dialogs);
             }
+
+            DialogsComparable sort = new DialogsComparable();// true 按照 isCurrentDoctor 升序排序
+            sort.sortASC = true;
+            Collections.sort(dialogsGroupList, sort);
+            allQuestionDetails.setDialogs(dialogsGroupList);
         }
 
 

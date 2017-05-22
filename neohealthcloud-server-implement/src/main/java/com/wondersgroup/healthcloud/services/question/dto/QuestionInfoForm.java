@@ -21,6 +21,7 @@ public class QuestionInfoForm {
 	private Integer contentCount;
 	private Integer hasAt=1;
 	private String assign_answer_id;
+	private String sex;
 	public QuestionInfoForm(Map<String,Object> map) {
 		this.id = (String) map.get("id");
 		this.status = map.containsKey("status") ? (int) map.get("status") : null;
@@ -28,6 +29,7 @@ public class QuestionInfoForm {
 		this.doctorName = map.containsKey("name") ? (String) map.get("name") : null;
 		this.contentCount = map.containsKey("comment_count") ? (int) map.get("comment_count") : null;
 		this.isRead =map.containsKey("isNoRead") ?(int) map.get("isNoRead"):null;
+		this.sex = map.containsKey("sex") ?(String.valueOf(map.get("sex")).equals("1")?"男":"女"):null;
 		if((map.containsKey("status")&&status==3)||status==null){
 			this.date = map.containsKey("date") ?((String) map.get("date")): "";
 		}else{
