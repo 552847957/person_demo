@@ -386,7 +386,7 @@ public class RemindServiceImpl implements RemindService {
             DateTime remindTime = DateTime.parse(datePrefix + " " + rt.getRemindTime().toString(), format);
 
             //Boolean rtnBoolean = generateJob(remind.getId(), remind.getId() + "#" + remindTime.plusDays(1).toString(DATE_TIME_FORMAT));
-            Boolean rtnBoolean = generateJob(remind.getId(), remind.getId() + "#" + remindTime.plusMinutes(1).toString(DATE_TIME_FORMAT));
+            Boolean rtnBoolean = generateJob(remind.getId(), remindTime.plusMinutes(1).toString(DATE_TIME_FORMAT) + "#" + remind.getId());
             if (rtnBoolean) {
                 flag = 0;
             }
