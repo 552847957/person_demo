@@ -52,4 +52,5 @@ public class Assessment extends BaseEntity{
     private Integer isDepression; //您是否长期接受抗精神类药物和（或）抗抑郁症药物治疗
     @Column(name="is_oneself")
     private Integer isOneself; //是否本人测试
+    private Integer result;//评估结果，0：正常，1：异常
 }
