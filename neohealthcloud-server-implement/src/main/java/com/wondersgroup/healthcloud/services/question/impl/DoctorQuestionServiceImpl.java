@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("doctorQuestionService")
@@ -292,8 +293,8 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             int age = Integer.parseInt(String.valueOf(map.get("age")));
             Integer status = Integer.parseInt(String.valueOf(map.get("status")));
             String content = String.valueOf(map.get("content"));
-            String contentImgs = String.valueOf(map.get("content_imgs"));
-            String date = String.valueOf(map.get("create_time"));
+            String contentImgs = String.valueOf(map.get("content_imgs")== null ? "": map.get("content_imgs"));
+            String date = formatDate((Date)map.get("create_time"));
             allQuestionDetails = new AllQuestionDetails(id, sex, age, status,content, contentImgs, date);
 
 
@@ -325,7 +326,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
                         ReplyGroup group = groupMap.get(rp.getGroupId());
                         DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
                         int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
-                        list.add(new DoctorAnster(questionType, replayDoctor.getAvatar(), replayDoctor.getId(), replayDoctor.getName(), rp.getContent(), rp.getCreateTime().toString()));
+                        list.add(new DoctorAnster(questionType, replayDoctor.getAvatar(), replayDoctor.getId(), replayDoctor.getName(), rp.getContent(), formatDate(rp.getCreateTime())));
                     } else if (rp.getUserReply() == 1) {
                         list.add(new PationAsk(1, sex, age, rp.getContent(), rp.getContentImgs(), date));
                     }
@@ -339,48 +340,6 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             Collections.sort(dialogsGroupList, sort);
             allQuestionDetails.setDialogs(dialogsGroupList);
         }
-
-
-       /*  if (null != map && map.entrySet().size() > 0) {
-            String id = String.valueOf(map.get("id"));
-            String sex = String.valueOf(map.get("sex"));
-            int age = Integer.parseInt(String.valueOf(map.get("age")));
-            String content = String.valueOf(map.get("content"));
-            String contentImgs = String.valueOf(map.get("content_imgs"));
-            String date = String.valueOf(map.get("create_time"));
-            allQuestionDetails = new AllQuestionDetails(id, sex, age, content, contentImgs, date);
-            List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
-            if (CollectionUtils.isNotEmpty(groupList)) {
-                List<String> doctorIds = new ArrayList<>();
-                List<String> groupIds = new ArrayList<>();
-                for (ReplyGroup gp : groupList) {
-                    groupIds.add(gp.getId());
-                    doctorIds.add(gp.getAnswer_id());
-                }
-
-                List<DoctorAccount> doctorList = doctorAccountRepository.findDoctorsByIds(doctorIds);
-                List<Reply> replyList = replyRepository.getCommentGroupList(groupIds);
-                if (CollectionUtils.isNotEmpty(groupList) && CollectionUtils.isNotEmpty(doctorList)) {
-                    Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
-                    Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
-
-                    List list = new ArrayList();
-                    for (Reply rp : replyList) {
-                        // 查找顺序 groupId ---> answerId ---> doctorId---> doctorAccount
-                        if (rp.getUserReply() == 0) {//0:医生的回复,1:用户的回复
-                            ReplyGroup group = groupMap.get(rp.getGroupId());
-                            DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
-                            int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
-                            list.add(new DoctorAnster(questionType,replayDoctor.getAvatar(),replayDoctor.getId(),replayDoctor.getName(),rp.getContent(),rp.getCreateTime().toString()));
-                        } else if (rp.getUserReply() == 1) {
-                            list.add(new PationAsk(1,sex,age,rp.getContent(),rp.getContentImgs(),date));
-                        }
-                    }
-                    allQuestionDetails.setDialogs(list);
-                }
-            }
-
-        }*/
 
         return allQuestionDetails;
     }
@@ -450,5 +409,11 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
             jt = new JdbcTemplate(dataSource);
         }
         return jt;
+    }
+
+    public static String formatDate(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = formatter.format(time);
+        return dateString;
     }
 }
