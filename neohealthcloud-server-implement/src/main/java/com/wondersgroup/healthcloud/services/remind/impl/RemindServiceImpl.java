@@ -27,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
-import java.sql.Time;
 import java.util.*;
 
 /**
@@ -378,12 +378,12 @@ public class RemindServiceImpl implements RemindService {
 
         // 生成下次用药提醒任务
         try {
-            Date now = new Date();
 
-            DateTime nowDateTime = new DateTime(now);
+            DateTime nowDateTime = DateTime.now();
             String datePrefix = nowDateTime.toString(DATE_FORMAT);
 
-            DateTime remindTime = new DateTime(datePrefix + " " + rt.getRemindTime().toString());
+            DateTimeFormatter format = DateTimeFormat.forPattern(DATE_TIME_FORMAT);
+            DateTime remindTime = DateTime.parse(datePrefix + " " + rt.getRemindTime().toString(), format);
 
             //Boolean rtnBoolean = generateJob(remind.getId(), remind.getId() + "#" + remindTime.plusDays(1).toString(DATE_TIME_FORMAT));
             Boolean rtnBoolean = generateJob(remind.getId(), remind.getId() + "#" + remindTime.plusMinutes(1).toString(DATE_TIME_FORMAT));
@@ -419,7 +419,7 @@ public class RemindServiceImpl implements RemindService {
     }
 
     private Boolean generateJob(String remindId, String params) {
-        logger.info("生成用药提醒定时任务：remindId = " + remindId + "params" + params);
+        logger.info("生成用药提醒定时任务：remindId = " + remindId + " params = " + params);
         try {
             //调用jobClient的接口
             Map<String, String> param = new HashMap<>();
