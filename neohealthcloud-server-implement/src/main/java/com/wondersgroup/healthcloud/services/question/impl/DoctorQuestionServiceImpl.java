@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.services.question.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
-import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
@@ -10,16 +9,17 @@ import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.*;
+import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
+import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
+import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
+import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("doctorQuestionService")
@@ -281,84 +281,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return unreadQuestion + unreadAsk;
     }
 
-    @Override
-    public AllQuestionDetails queryAllQuestionDetails(String doctorId, String questionId) {
-        String questionSql = "select a.id,a.sex,a.age,a.status,a.content,a.content_imgs,a.create_time from app_tb_neoquestion as a where id = '" + questionId + "' ";
-        AllQuestionDetails allQuestionDetails = null;
-        Map<String, Object> map = jt.queryForMap(questionSql);
-        if (null != map && map.entrySet().size() > 0) {
 
-            String id = String.valueOf(map.get("id"));
-            String sex = String.valueOf(map.get("sex"));
-            int age = Integer.parseInt(String.valueOf(map.get("age")));
-            Integer status = Integer.parseInt(String.valueOf(map.get("status")));
-            String content = String.valueOf(map.get("content"));
-            String contentImgs = String.valueOf(map.get("content_imgs")== null ? "": map.get("content_imgs"));
-            String date = formatDate((Date)map.get("create_time"));
-            allQuestionDetails = new AllQuestionDetails(id, sex, age, status,content, contentImgs, date);
-
-
-            List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
-            if(CollectionUtils.isEmpty(groupList)){
-                return allQuestionDetails;
-            }
-
-            List<String> doctorIds = new ArrayList<>();
-            List<String> groupIds = new ArrayList<>();
-            for (ReplyGroup gp : groupList) {
-                groupIds.add(gp.getId());
-                doctorIds.add(gp.getAnswer_id());
-            }
-
-            List<DoctorAccount> doctorList = doctorAccountRepository.findDoctorsByIds(doctorIds);
-            Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
-            Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
-
-            List<Dialogs> dialogsGroupList = new ArrayList<Dialogs>();
-
-            for (ReplyGroup rg : groupList) {//一个组放到一个集合里
-                Dialogs dialogs = new Dialogs();
-                dialogs.setIsCurrentDoctor(rg.getAnswer_id().equals(doctorId) ? 0:1);
-                List list = new ArrayList();
-                List<Reply> replyList = replyRepository.getReplyByGroupId(rg.getId());
-                for (Reply rp : replyList) {
-                    if (rp.getUserReply() == 0) {//0:医生的回复,1:用户的回复
-                        ReplyGroup group = groupMap.get(rp.getGroupId());
-                        DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
-                        int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
-                        list.add(new DoctorAnster(questionType, replayDoctor.getAvatar(), replayDoctor.getId(), replayDoctor.getName(), rp.getContent(), formatDate(rp.getCreateTime())));
-                    } else if (rp.getUserReply() == 1) {
-                        list.add(new PationAsk(1, sex, age, rp.getContent(), rp.getContentImgs(), date));
-                    }
-                }
-                  dialogs.setDialogDetails(list);
-                  dialogsGroupList.add(dialogs);
-            }
-
-            DialogsComparable sort = new DialogsComparable();// true 按照 isCurrentDoctor 升序排序
-            sort.sortASC = true;
-            Collections.sort(dialogsGroupList, sort);
-            allQuestionDetails.setDialogs(dialogsGroupList);
-        }
-
-        return allQuestionDetails;
-    }
-
-    private Map<String, DoctorAccount> doctorList2Map(List<DoctorAccount> list) {
-        Map<String, DoctorAccount> map = new HashMap<>();
-        for (DoctorAccount doctor : list) {
-            map.put(doctor.getId(), doctor);
-        }
-        return map;
-    }
-
-    private Map<String, ReplyGroup> groupList2Map(List<ReplyGroup> list) {
-        Map<String, ReplyGroup> map = new HashMap<>();
-        for (ReplyGroup group : list) {
-            map.put(group.getId(), group);
-        }
-        return map;
-    }
 
     private List<QuestionInfoForm> transformat(List<Map<String, Object>> param) {
         List<QuestionInfoForm> list = new ArrayList<>();
@@ -411,9 +334,4 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return jt;
     }
 
-    public static String formatDate(Date time) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = formatter.format(time);
-        return dateString;
-    }
 }
