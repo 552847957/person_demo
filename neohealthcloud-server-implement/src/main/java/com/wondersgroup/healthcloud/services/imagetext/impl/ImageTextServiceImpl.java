@@ -282,7 +282,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                     imageTexts.get(i).setGid(gid);
                     imageTexts.get(i).setCreateTime(now);
                     imageTexts.get(i).setUpdate_time(now);
-                    imageTexts.get(i).setDelFlag(0);
+                    imageTexts.get(i).setDelFlag((imageTexts.get(i).getDelFlag() == null ? 0:imageTexts.get(i).getDelFlag()));
                     imageTexts.get(i).setSource(gImageText.getSource());
                 }
             } else {
@@ -292,7 +292,7 @@ public class ImageTextServiceImpl implements ImageTextService {
                         imageTexts.get(i).setId(IdGen.uuid());
                         imageTexts.get(i).setGid(gImageText.getId());
                         imageTexts.get(i).setCreateTime(now);
-                        imageTexts.get(i).setDelFlag(0);
+                        imageTexts.get(i).setDelFlag((imageTexts.get(i).getDelFlag() == null ? 0:imageTexts.get(i).getDelFlag()));
                         imageTexts.get(i).setSource(gImageText.getSource());
                     }
                     imageTexts.get(i).setUpdate_time(now);

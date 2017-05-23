@@ -20,6 +20,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
@@ -60,6 +61,9 @@ public class AssessmentController {
 
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
+
+    @Autowired
+    private AssessmentRepository assessmentRepository;
 
     @GetMapping(value = "/predata")
     @VersionRange
@@ -219,6 +223,7 @@ public class AssessmentController {
         assessment.setIsOneself(isOneself);
         assessment.setDelFlag("0");
         assessment.setCreateDate(new Date());
+        assessment.setResult(0);
 
         return getResult(assessment,true);
     }
@@ -251,6 +256,14 @@ public class AssessmentController {
             assessmentAPIEntity.setHasFamilyHistory(assessmentService.hasFamilyHistory(assessment));
             assessmentAPIEntity.setSport(assessment.getSport());
             response.setData(assessmentAPIEntity);
+
+            if(!assessmentAPIEntity.getRisk().equals("0") || assessmentAPIEntity.getIsFat() ||
+                    assessmentAPIEntity.getIsOverWeight() || assessmentAPIEntity.getIsHypertension() ||
+                    assessmentAPIEntity.getNeedMovement() || assessmentAPIEntity.getNeedAmendLife()||
+                    assessmentAPIEntity.getHasFamilyHistory()){
+                assessment.setResult(1);
+                assessmentRepository.save(assessment);
+            }
         }
         return response;
     }
