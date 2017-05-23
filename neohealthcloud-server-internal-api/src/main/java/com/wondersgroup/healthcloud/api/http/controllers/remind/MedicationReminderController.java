@@ -23,6 +23,9 @@ public class MedicationReminderController {
     public JsonResponseEntity medicationReminder(@RequestParam String remindId, @RequestParam String remindTimeId) {
         JsonResponseEntity result = new JsonResponseEntity();
         int rtnInt = remindService.medicationReminder(remindId, remindTimeId);
+        if (rtnInt != 0) {
+            result.setCode(rtnInt);
+        }
         return result;
     }
 }

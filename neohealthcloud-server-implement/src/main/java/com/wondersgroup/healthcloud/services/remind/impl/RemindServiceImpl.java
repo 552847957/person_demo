@@ -427,6 +427,7 @@ public class RemindServiceImpl implements RemindService {
             param.put("timeAndIds", params);
             Request req = new RequestBuilder().get().url(jobClientUrl + "/api/jobclient/remind/medicationReminder").params(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(req).run().as(JsonNodeResponseWrapper.class);
+            logger.info("JobClient response:" + response.body());
         } catch (Exception e) {
             logger.error(Exceptions.getStackTraceAsString(e));
             return false;
