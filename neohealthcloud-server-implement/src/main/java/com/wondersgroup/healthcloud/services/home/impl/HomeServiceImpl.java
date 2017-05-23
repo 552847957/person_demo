@@ -1044,7 +1044,7 @@ public class HomeServiceImpl implements HomeService {
         //家人健康信息  健康状态 0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
 
         List<FamilyMemberInfo> fmList = getFamilyMembers(registerInfo.getRegisterid());
-        Map<FamilyMemberInfo, UserHealthJKGLDTO> familyMemberHealthMap = new HashMap<FamilyMemberInfo, UserHealthJKGLDTO>(); //家庭成员健康集合
+        Map<FamilyMemberInfo, UserHealthJKGLDTO> familyMemberHealthMap = new LinkedHashMap<FamilyMemberInfo, UserHealthJKGLDTO>(); //家庭成员健康集合
 
         if (!CollectionUtils.isEmpty(fmList)) {
             for (FamilyMemberInfo fm : fmList) {

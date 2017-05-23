@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -528,5 +529,38 @@ public class MeasureController {
             log.error(" dateBeforeIsExistData " + e.getMessage());
         }
         return result;
+    }
+    
+    /**
+     * 查询历史记录 3.0
+     * 根据天的维度展示
+     * @param type       0－BMI 1－血氧 2－血压 3－血糖 4－记步 5－腰臀比
+     * @param registerId 注册认证码
+     * @param flag       分页 页号
+     * @return
+     * @throws JsonProcessingException
+     */
+    @VersionRange
+    @GetMapping("recentHistory/{type}")
+    public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
+        try {
+            RegisterInfo info = userService.findRegOrAnonymous(registerId);
+            String gender = info.getGender();
+            String personcard = info.getPersoncard();
+           
+            String param = "registerId=".concat(registerId).concat("&sex=").concat(StringUtils.isEmpty(gender) ? "1" : gender)
+                    .concat("&personCard=").concat(StringUtils.isEmpty(personcard) ? "" : personcard);
+            String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
+            String url = String.format(recentMeasureHistory, host, type, params);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                if (0 == (int) response.getBody().get("code")) {
+                    return new JsonResponseEntity<>(0, "近期数据查询成功", response.getBody().get("data"));
+                }
+            }
+        } catch (Exception e) {
+            log.info("近期历史数据获取失败", e);
+        }
+        return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
 }

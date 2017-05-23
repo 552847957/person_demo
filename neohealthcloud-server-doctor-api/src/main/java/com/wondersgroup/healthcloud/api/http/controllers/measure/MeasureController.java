@@ -618,11 +618,11 @@ public class MeasureController {
     }
     
     @GetMapping("userInfo")
-    public JsonResponseEntity userInfo(String id) throws JsonProcessingException {
-        DoctorTubeSignUser info = doctorTubeSignUserRepository.findOne(id);
+    public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
+        DoctorTubeSignUser info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
         
         
-        return new JsonResponseEntity(1000, "近期历史数据获取失败", info);
+        return new JsonResponseEntity(0, "获取成功", info);
     }
     
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
