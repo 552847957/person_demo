@@ -318,12 +318,12 @@ public class HomeServicesImpl implements HomeServices {
     public List<String> findAllVersions(String version) {
 
         StringBuffer sql = new StringBuffer();
-        sql.append(" select * from (select a.version as version from app_tb_neoservice a where a.del_flag = '0' group by a.version) as b  ");
+        sql.append(" select * from (select a.version as version,max(a.update_time) as update_time from app_tb_neoservice a where a.del_flag = '0' group by a.version) as b  ");
         if (StringUtils.isNotBlank(version)) {
             sql.append(" where b.version = '" + version + "'");
         }
 
-        sql.append(" order by b.version");
+        sql.append(" order by b.update_time");
 
         List<String> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {

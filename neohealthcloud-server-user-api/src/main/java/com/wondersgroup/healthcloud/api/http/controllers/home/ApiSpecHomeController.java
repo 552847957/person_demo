@@ -611,13 +611,18 @@ public class ApiSpecHomeController {
     }
 
     /**
-     * 判斷是否為醫養云等
+     * 添加判断
      * @param list
      */
     void checkService(List<HomeServiceDTO> list){
         for(HomeServiceDTO dto:list){
-            if(dto.getMainTitle().contains("医养云")){
+            if(dto.getMainTitle().contains("医养云")){//判断是否为医养云
                 dto.setServiceType(ServiceTypeEnum.MEDICINE_CLOUD_SERVICE.getType());
+            }
+
+            if(dto.getHoplink().contains("=button_")){
+                String[] arrayStr = dto.getHoplink().split("=button_");
+                dto.setHoplink(arrayStr[0]);
             }
         }
     }

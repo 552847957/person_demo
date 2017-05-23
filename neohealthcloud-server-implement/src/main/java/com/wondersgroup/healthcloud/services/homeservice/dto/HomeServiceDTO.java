@@ -28,6 +28,7 @@ public class HomeServiceDTO {
     private int isAdd; //是否在我的服务里添加过 0:未添加 1：已添加
     private String version; //版本号
     private String remark; //备注
+    private String buttonKey;//埋点button的key（名称的拼音缩写）
 
     public HomeServiceDTO(){}
 
