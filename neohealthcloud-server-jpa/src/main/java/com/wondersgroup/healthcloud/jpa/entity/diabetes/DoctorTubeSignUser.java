@@ -28,6 +28,7 @@ public class DoctorTubeSignUser {
 
     private String gender;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date birth;//出生日期
 
     @Column(name = "card_type")
