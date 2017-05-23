@@ -1178,8 +1178,7 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle("您的家人近一月无健康数据");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
-            int i=familyMember.getExceptionItems().size()>2?2:familyMember.getExceptionItems().size();
-            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(i) + "项异常");
+            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(familyMember.getExceptionItems().size()) + "项异常");
             familyMember.setSubTitle("");
         } 
 
@@ -1256,8 +1255,7 @@ public class HomeServiceImpl implements HomeService {
                     UserHealthItemComparable sort = new UserHealthItemComparable();// false 按照 testTime 降序排序
                     UserHealthItemComparable.sortASC = false;
                     Collections.sort(dto.getExceptionItems(), sort);
-                    int i=dto.getExceptionItems().size() >2?2:dto.getExceptionItems().size();
-                    dto.setMainTitle("您近一月有" + intNumToString(i) + "项异常");
+                    dto.setMainTitle("您近一月有" + intNumToString(dto.getExceptionItems().size()) + "项异常");
                     dto.setSubTitle("");
 
                 } else {//未知 UserHealthStatusEnum 状态
@@ -1273,6 +1271,21 @@ public class HomeServiceImpl implements HomeService {
     }
     
     private String intNumToString(int i){
-        return i==1?"一":"两";
+        String item="";
+        switch (i) {
+        case 1:
+            item="一";
+            break;
+        case 2:
+            item="两";
+            break;
+        case 3:
+            item="三";
+            break;
+        case 4:
+            item="四";
+            break;
+        }
+        return item;
     }
 }
