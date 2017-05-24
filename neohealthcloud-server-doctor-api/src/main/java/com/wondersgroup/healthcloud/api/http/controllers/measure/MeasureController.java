@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,11 +38,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.AssessmentAbnormal;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 
@@ -60,6 +65,10 @@ public class MeasureController {
     private UserService userService;
     @Autowired
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
+    @Autowired
+    private AssessmentRepository assessmentRepository;
+    @Autowired
+    private AssessmentService assessmentService;
 
     private RestTemplate restTemplate = new RestTemplate();
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
@@ -621,8 +630,44 @@ public class MeasureController {
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
         DoctorTubeSignUser info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
         
-        
         return new JsonResponseEntity(0, "获取成功", info);
+    }
+    
+    @VersionRange
+    @GetMapping("assessmentAbnormal")
+    public JsonResponseEntity assessmentAbnormal(String registerId){
+        List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
+        try {
+            String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
+            List<Assessment> list = assessmentRepository.queryAssessment(registerId, date);
+            for (Assessment assessment : list) {
+                AssessmentAbnormal as = new AssessmentAbnormal();
+                as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
+                as.setCause(AssessmentAbnormal.cause(assessment, assessmentService));
+                String   result = "";
+                String   su = assessmentService.getResult(assessment);
+                String[] split = su.split(",");
+                for (String str : split) {
+                    if("1-2".equals(str) || "1-3".equals(str)){
+                        result+= ",糖尿病";
+                    }else if("2-2".equals(str) || "2-3".equals(str)){
+                        result+= ",高血压";
+                    }else if("3-2".equals(str) || "3-3".equals(str)){
+                        result+= ",脑卒中";
+                    }
+                }
+                if(!StringUtils.isBlank(result)){
+                    as.setResult(result.substring(1, result.length()) + "风险");
+                }
+                arr.add(as);
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("数据获取失败", e);
+            return new JsonResponseEntity(1000, "数据获取失败");
+        }
+        return new JsonResponseEntity(0, "数据获取成功", arr);
     }
     
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {

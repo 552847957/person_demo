@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.jpa.repository.assessment;
 
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +28,7 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
     @Query("select count(1) from Assessment a where a.uid = ?1 and a.isOneself = 1 and a.delFlag=0")
     Integer getAssessNum(String uid);
     
-    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.result = 1 and a.del_flag=0 GROUP BY DATEDIFF(create_date,'%Y-%c-%d') ORDER BY create_date desc")
-    List<Assessment> queryAssessment(String registerId);
+    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.result = 1 and a.del_flag=0 and a.create_date >= ?2 GROUP BY DATEDIFF(create_date,'%Y-%c-%d') ORDER BY create_date desc")
+    List<Assessment> queryAssessment(String registerId, String date);
 
 }
