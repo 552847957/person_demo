@@ -1,30 +1,52 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import com.wondersgroup.healthcloud.services.user.UserService;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wondersgroup.healthcloud.api.http.dto.AssessmentAbnormal;
+import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
+import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 
 /**
  * Created by zhaozhenxing on 2016/12/21.
@@ -37,6 +59,10 @@ public class MeasureController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AssessmentRepository assessmentRepository;
+    @Autowired
+    private AssessmentService assessmentService;
 
     @Value("${internal.api.service.measure.url}")
     private String host;
@@ -405,7 +431,6 @@ public class MeasureController {
 
     /**
      * 查询最新的一条数据
-     *
      * @param type
      * @param registerId
      * @param personCard
@@ -434,7 +459,6 @@ public class MeasureController {
 
     /**
      * BMI图表H5
-     *
      * @param registerId
      * @param personCard
      * @param date       "2017-04-15"
@@ -469,7 +493,6 @@ public class MeasureController {
 
     /**
      * 糖化血红蛋白历史数据分页
-     *
      * @param registerId
      * @param personCard
      * @param flag       页数 从0 开始
@@ -563,4 +586,42 @@ public class MeasureController {
         }
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
+    
+    @VersionRange
+    @GetMapping("assessmentAbnormal")
+    public JsonResponseEntity assessmentAbnormal(String registerId){
+        List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
+        try {
+            List<Assessment> list = assessmentRepository.queryAssessment(registerId);
+            for (Assessment assessment : list) {
+                AssessmentAbnormal as = new AssessmentAbnormal();
+                as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
+                as.setCause(AssessmentAbnormal.cause(assessment, assessmentService));
+                String   result = "";
+                String   su = assessmentService.getResult(assessment);
+                String[] split = su.split(",");
+                for (String str : split) {
+                    if("1-2".equals(str) || "1-3".equals(str)){
+                        result+= ",糖尿病";
+                    }else if("2-2".equals(str) || "2-3".equals(str)){
+                        result+= ",高血压";
+                    }else if("3-2".equals(str) || "3-3".equals(str)){
+                        result+= ",脑卒中";
+                    }
+                }
+                if(!StringUtils.isBlank(result)){
+                    as.setResult(result.substring(1, result.length()) + "风险");
+                }
+                arr.add(as);
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("数据获取失败", e);
+            return new JsonResponseEntity(1000, "数据获取失败");
+        }
+        return new JsonResponseEntity(0, "数据获取成功", arr);
+    }
+    
+    
 }

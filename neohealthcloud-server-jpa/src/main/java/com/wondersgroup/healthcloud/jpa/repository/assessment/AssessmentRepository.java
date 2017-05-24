@@ -26,5 +26,8 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
 
     @Query("select count(1) from Assessment a where a.uid = ?1 and a.isOneself = 1 and a.delFlag=0")
     Integer getAssessNum(String uid);
+    
+    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.result = 1 and a.del_flag=0 GROUP BY DATEDIFF(create_date,'%Y-%c-%d') ORDER BY create_date desc")
+    List<Assessment> queryAssessment(String registerId);
 
 }
