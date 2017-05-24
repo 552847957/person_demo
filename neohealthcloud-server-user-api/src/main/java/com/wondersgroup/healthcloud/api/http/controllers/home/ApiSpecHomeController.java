@@ -622,7 +622,7 @@ public class ApiSpecHomeController {
 
             if(dto.getHoplink().contains("=button_")){
                 String[] arrayStr = dto.getHoplink().split("=button_");
-                dto.setHoplink(arrayStr[0]);
+                dto.setButtonKey(arrayStr[1]);
             }
         }
     }
