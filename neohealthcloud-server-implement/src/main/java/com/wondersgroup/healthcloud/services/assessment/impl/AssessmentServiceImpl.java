@@ -417,4 +417,13 @@ public class AssessmentServiceImpl implements AssessmentService {
         return assessmentRepository.getAssessNum(uid);
     }
 
+    @Override
+    public Boolean getIsRisk(String registerid) {
+        Assessment assessment = assessmentRepository.getRecentAssess(registerid);
+        if(1==assessment.getResult()){
+            return true;
+        }
+        return false;
+    }
+
 }

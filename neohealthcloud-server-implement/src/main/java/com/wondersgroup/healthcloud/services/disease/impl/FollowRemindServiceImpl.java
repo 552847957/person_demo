@@ -1,0 +1,51 @@
+package com.wondersgroup.healthcloud.services.disease.impl;
+
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by zhuchunliu on 2017/5/24.
+ */
+@Service("followRemindService")
+public class FollowRemindServiceImpl implements FollowRemindService{
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    /**
+     * 获取随访列表数据
+     * @param pageNo
+     * @param pageSize
+     * @param signStatus 签约状态 1：已经签约居民，0：未签约居民，null：所有类型的居民
+     * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, Integer diseaseType, DoctorInfo doctorInfo,DoctorAccount doctorAccount) {
+        String sql = "select t1.follow_date,t1.remind_end_date,t2.registerid,t2.name,t2.gender,t2.identifytype,t2.headphoto,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
+                " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
+                " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
+                " from app_tb_report_follow t1\n" +
+                " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
+                " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
+                " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
+                "     type=2 and registerid = t1.registerid and  create_date BETWEEN t1.remind_begin_date AND t1.remind_end_date and del_flag = '0')\n" +
+                " AND NOW() BETWEEN t1.remind_begin_date AND t1.remind_end_date AND t1.del_flag = '0' \n" +
+                " AND t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"'\n" +
+                " and t3.card_type = '01' and t3.tube_type != '1' and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
+                " %s %s\n" +
+                " order by group_type desc , t1.follow_date DESC"+
+                " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+
+        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,
+                null == diseaseType ?"":(1 == diseaseType? " and diabetes_type != 0": (2 == diseaseType?" and hyp_type = 1":" and apo_type = 1")));
+        return jdbcTemplate.queryForList(sql);
+    }
+}

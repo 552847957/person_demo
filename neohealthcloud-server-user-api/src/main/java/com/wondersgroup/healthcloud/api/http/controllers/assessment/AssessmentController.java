@@ -21,6 +21,7 @@ import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
@@ -64,6 +65,9 @@ public class AssessmentController {
 
     @Autowired
     private AssessmentRepository assessmentRepository;
+
+    @Autowired
+    private DoctorTubeSignUserRepository tubeSignUserRepo;
 
     @GetMapping(value = "/predata")
     @VersionRange
@@ -263,6 +267,11 @@ public class AssessmentController {
                     assessmentAPIEntity.getHasFamilyHistory()){
                 assessment.setResult(1);
                 assessmentRepository.save(assessment);
+            }
+            if(assessment.getIsOneself() == 1) {//本人风险评估
+                RegisterInfo registerInfo = registerInfoRepo.findOne(assessment.getUid());
+                if(null != registerInfo.getPersoncard())
+                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
             }
         }
         return response;

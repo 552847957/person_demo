@@ -1,20 +1,19 @@
 package com.wondersgroup.healthcloud.api.http.controllers.disease;
 
-/**
- * Created by zhuchunliu on 2017/5/23.
- */
-
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.ScreeningDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
+import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,18 +22,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 高危筛查
- * Created by Administrator on 2016/12/8.
+ * 随访提醒
+ * Created by zhuchunliu on 2017/5/23.
  */
 @RestController
-@RequestMapping(value = "/api/screening")
-public class ScreeningController {
+@RequestMapping(value = "/api/follow")
+public class FollowRemindController {
 
     @Autowired
     private DoctorInfoRepository doctorInfoRepo;
 
     @Autowired
-    private ScreeningService screeningService;
+    private DoctorAccountRepository doctorAccountRepo;
+
+    @Autowired
+    private FollowRemindService followRemindService;
 
     @Autowired
     private AssessmentRepository assessmentRepo;
@@ -47,6 +49,9 @@ public class ScreeningController {
 
     @Autowired
     private DiabetesAssessmentRepository diabetesAssessmentRepo;
+
+    @Autowired
+    private ScreeningService screeningService;
 
     /**
      * 高危筛查列表
@@ -66,13 +71,14 @@ public class ScreeningController {
         JsonListResponseEntity response = new JsonListResponseEntity();
 
         DoctorInfo doctorInfo = doctorInfoRepo.findOne(doctorId);
+        DoctorAccount doctorAccount = doctorAccountRepo.findOne(doctorId);
         if(null == doctorInfo){
             response.setCode(1001);
             response.setMsg("不存在当前医生信息");
             return response;
         }
 
-        List<Map<String,Object>> list = screeningService.findScreening(flag,pageSize,signStatus,diseaseType,doctorInfo);
+        List<Map<String,Object>> list = followRemindService.findFollow(flag,pageSize,signStatus,diseaseType,doctorInfo,doctorAccount);
         boolean hasMore = false;
         if(list.size() > pageSize){
             hasMore = true;
@@ -108,7 +114,7 @@ public class ScreeningController {
             return entity;
         }
 
-        Boolean flag = screeningService.remind(registerIds,doctorId,1);
+        Boolean flag = screeningService.remind(registerIds,doctorId,2);
 
         if(flag){
             entity.setMsg("您的糖尿病高危筛查提醒已经发送成功");

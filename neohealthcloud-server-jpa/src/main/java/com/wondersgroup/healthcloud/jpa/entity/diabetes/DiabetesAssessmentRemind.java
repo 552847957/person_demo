@@ -26,4 +26,5 @@ public class DiabetesAssessmentRemind {
     private Date createDate;
     @Column(name = "update_date")
     private Date updateDate;
+    private Integer type; // 提醒类型，1：筛查提醒，2：随访提醒
 }
