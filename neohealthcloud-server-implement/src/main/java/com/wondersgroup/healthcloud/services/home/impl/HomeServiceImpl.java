@@ -1044,11 +1044,11 @@ public class HomeServiceImpl implements HomeService {
         //家人健康信息  健康状态 0:无家人 1:有家人家人无数据 2:有家人家人正常 3:异常
 
         List<FamilyMemberInfo> fmList = getFamilyMembers(registerInfo.getRegisterid());
-        Map<FamilyMemberInfo, UserHealthJKGLDTO> familyMemberHealthMap = new LinkedHashMap<FamilyMemberInfo, UserHealthJKGLDTO>(); //家庭成员健康集合
+        Map<FamilyMemberInfo, UserHealthJKGLDTO> familyMemberHealthMap = new HashMap<FamilyMemberInfo, UserHealthJKGLDTO>(); //家庭成员健康集合
 
         if (!CollectionUtils.isEmpty(fmList)) {
             for (FamilyMemberInfo fm : fmList) {
-                // 2 家人健康信息
+                //  家人健康信息,检查对方是否可以查看健康档案
                 Boolean canReadRecord = familyService.canReadRecord(fm.getUid(),registerInfo.getRegisterid());
                 if(!canReadRecord){
                     continue;
@@ -1068,104 +1068,101 @@ public class HomeServiceImpl implements HomeService {
             }
         } else { //无家人
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_NO_FAMILY.getId());
-
+            familyMember.setHealthItems(null);
+            familyMember.setExceptionItems(null);
         }
 
 /////////////////////////////////////begin 获取最新数据///////////////////////////////////////////
-        List<FamilyMemberJKGLDTO> exceptionList = new ArrayList<FamilyMemberJKGLDTO>();
-        List<FamilyMemberJKGLDTO> healthList = new ArrayList<FamilyMemberJKGLDTO>();
-        List<FamilyMemberJKGLDTO> noDataList = new ArrayList<FamilyMemberJKGLDTO>();
-
-        if (!CollectionUtils.isEmpty(familyMemberHealthMap)) {//家人健康信息集合
+        FamilyMemberInfo maxExTimeF = null;
+        UserHealthItemDTO maxExTimeU = null; 
+        FamilyMemberInfo maxHealthTimeF = null;
+        UserHealthItemDTO maxHealthTimeU = null; 
+        
+        if (!CollectionUtils.isEmpty(familyMemberHealthMap)&&!CollectionUtils.isEmpty(fmList)) {//家人健康信息集合
+            int exNum = 0;
+            Collection<UserHealthJKGLDTO> values = familyMemberHealthMap.values();
+            Iterator<UserHealthJKGLDTO> iterator = values.iterator();
+            while(iterator.hasNext()){
+                UserHealthJKGLDTO healthJKGLDTO = iterator.next();
+                exNum+=healthJKGLDTO.getExceptionItems().size();
+            }
             Iterator<FamilyMemberInfo> it = familyMemberHealthMap.keySet().iterator();
             while (it.hasNext()) {  
                 FamilyMemberInfo fm = it.next();
                 UserHealthJKGLDTO item = familyMemberHealthMap.get(fm);
-                if (UserHealthStatusEnum.HAVE_NO_DATA == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
-                    //familyMember.setHeadPhoto(fm.getHeadPhoto());
-                    familyMember.setRelation(fm.getRelation());
-                    familyMember.setUid(fm.getUid());
-                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-                    noDataList.add(familyMember);
-                    continue;
-                } else if (UserHealthStatusEnum.HAVE_GOOD_HEALTH == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {
-                    if(!CollectionUtils.isEmpty(item.getHealthItems())){
-                        for (UserHealthItemDTO dto1 : item.getHealthItems()) {
-                            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
-                            familyHealthItemJKGLDTO.setName(dto1.getName());
-                            familyHealthItemJKGLDTO.setData(dto1.getData());
-                            familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
-                            familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
-                            familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
-                            familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
+                //获取最新的健康数据
+                if(exNum==0){
+                    for(UserHealthItemDTO dto1:item.getHealthItems()){
+                        if(maxHealthTimeU==null){
+                            maxHealthTimeU = dto1;
+                            maxHealthTimeF = fm;
+                        }
+                        if(dto1.getTestTime() >maxHealthTimeU.getTestTime()){
+                            maxHealthTimeU = dto1;
+                            maxHealthTimeF = fm;
                         }
                     }
-                    familyMember.setHeadPhoto(fm.getHeadPhoto());
-                    familyMember.setRelation(fm.getRelation());
-                    familyMember.setUid(fm.getUid());
-                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
-                    healthList.add(familyMember);
-                } else if (UserHealthStatusEnum.HAVE_UNHEALTHY == UserHealthStatusEnum.getEnumById(item.getHealthStatus())) {//异常数据，显示给前端
-                    // FamilyMemberItemDTO ftemDTO = buildFamilyMemberHealth(fm, item);
+                }else{
                     if (!CollectionUtils.isEmpty(item.getExceptionItems())) {
-                        for (UserHealthItemDTO dto1 : item.getExceptionItems()) {
-                            FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
-                            familyHealthItemJKGLDTO.setName(dto1.getName());
-                            familyHealthItemJKGLDTO.setData(dto1.getData());
-                            familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
-                            familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
-                            familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
-                            familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
+                        for(UserHealthItemDTO dto1:item.getExceptionItems()){
+                            if(maxExTimeU == null){
+                                maxExTimeU = dto1;
+                                maxExTimeF = fm;
+                            }
+                            if(dto1.getTestTime() >maxExTimeU.getTestTime() ){
+                                maxExTimeU = dto1;
+                                maxExTimeF = fm;
+                            }
                         }
-                    }
-                    // ftemDTO.setUid(fm.getUid()); //用于分组
-                    familyMember.setHeadPhoto(fm.getHeadPhoto());
-                    familyMember.setRelation(fm.getRelation());
-                    familyMember.setUid(fm.getUid());
-                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
-                    exceptionList.add(familyMember);
-                    break;
-                } else {//未知状态(默认为 有家人家人正常)
-                    familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
+                    } 
                 }
-
+                
             }
-
-            /*if (goodsHealthCount == familyMemberHealthMap.size()) {
-                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
-            } else if (haveNoDataCount == familyMemberHealthMap.size()) {
-                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            } else if ((goodsHealthCount + haveNoDataCount) == familyMemberHealthMap.size()) {//家庭成员数据是 HAVE_FAMILY_AND_HEALTHY,HAVE_FAMILY_WITHOUT_DATA 两种状态的集合
-                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
-            }*/
-        }else{
-            familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
-            familyMember.setHealthItems(null);
-            familyMember.setExceptionItems(null);
-        }
-
-        //取每个家庭成员最新的一条数据,汇总成最新的两条
-//        if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && !CollectionUtils.isEmpty(familyMember.getExceptionItems())) {
-//            familyMember.setExceptionItems(familyMember.getExceptionItems().size() > 2 ? familyMember.getExceptionItems().subList(0, 2) : familyMember.getExceptionItems());
-//        }
-        if(!CollectionUtils.isEmpty(exceptionList)){
-            for(FamilyMemberJKGLDTO fm:  exceptionList){
+            if(null !=maxExTimeF&&null!=maxExTimeU){
+                UserHealthJKGLDTO userHealthJKGLDTO = familyMemberHealthMap.get(maxExTimeF);
+                for(UserHealthItemDTO dto1 :userHealthJKGLDTO.getExceptionItems()){
+                    FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
+                    familyHealthItemJKGLDTO.setName(dto1.getName());
+                    familyHealthItemJKGLDTO.setData(dto1.getData());
+                    familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
+                    familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                    familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
+                    familyMember.getExceptionItems().add(familyHealthItemJKGLDTO);
+                }
+                familyMember.setHeadPhoto(maxExTimeF.getHeadPhoto());
+                familyMember.setRelation(maxExTimeF.getRelation());
+                familyMember.setUid(maxExTimeF.getUid());
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
-                familyMember.setExceptionItems(fm.getExceptionItems().size() > 2 ? fm.getExceptionItems().subList(0, 2) : fm.getExceptionItems()); 
+                familyMember.setExceptionItems(familyMember.getExceptionItems().size() > 2 ? familyMember.getExceptionItems().subList(0, 2) : familyMember.getExceptionItems()); 
                 familyMember.setHealthItems(null);
-            }
-        }else if(!CollectionUtils.isEmpty(healthList)){
-            for(FamilyMemberJKGLDTO fm:  healthList){
+            }else if(null!=maxHealthTimeF&&null!=maxHealthTimeU){
+                UserHealthJKGLDTO userHealthJKGLDTO = familyMemberHealthMap.get(maxHealthTimeF);
+                for (UserHealthItemDTO dto1 : userHealthJKGLDTO.getHealthItems()) {
+                    FamilyHealthItemJKGLDTO familyHealthItemJKGLDTO= new FamilyHealthItemJKGLDTO();
+                    familyHealthItemJKGLDTO.setName(dto1.getName());
+                    familyHealthItemJKGLDTO.setData(dto1.getData());
+                    familyHealthItemJKGLDTO.setHightAndLow(dto1.getHightAndLow());
+                    familyHealthItemJKGLDTO.setTestPeriod(dto1.getTestPeriod());
+                    familyHealthItemJKGLDTO.setTestTime(dto1.getTestTime());
+                    familyMember.getHealthItems().add(familyHealthItemJKGLDTO);
+                }
+                familyMember.setHeadPhoto(maxHealthTimeF.getHeadPhoto());
+                familyMember.setRelation(maxHealthTimeF.getRelation());
+                familyMember.setUid(maxHealthTimeF.getUid());
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_HEALTHY.getId());
-                familyMember.setHealthItems(fm.getHealthItems().size()>2 ? fm.getHealthItems().subList(0, 2):fm.getHealthItems());
+                familyMember.setHealthItems(familyMember.getHealthItems().size()>2 ? familyMember.getHealthItems().subList(0, 2):familyMember.getHealthItems());
+                familyMember.setExceptionItems(null);
+            }else{
+                familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
+                familyMember.setHealthItems(null);
                 familyMember.setExceptionItems(null);
             }
-        }else if(!CollectionUtils.isEmpty(noDataList)){
+            
+        }else if(CollectionUtils.isEmpty(familyMemberHealthMap)&&!CollectionUtils.isEmpty(fmList)){
             familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_WITHOUT_DATA.getId());
             familyMember.setHealthItems(null);
             familyMember.setExceptionItems(null);
         }
-
 /////////////////////////////////////end 获取最新数据///////////////////////////////////////////
 
 

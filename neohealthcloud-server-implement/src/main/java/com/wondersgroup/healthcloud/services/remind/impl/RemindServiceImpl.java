@@ -97,7 +97,7 @@ public class RemindServiceImpl implements RemindService {
         if(CollectionUtils.isEmpty(remindTimes)){
             RemindForHomeDTO  remindForHomeDTO=new RemindForHomeDTO();
             remindForHomeDTO.setName("您身体棒棒的暂无用药提醒");
-            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminderDrug/null");
+            remindForHomeDTO.setTarGetUrl(API_DISEASE_H5_URL+"/MedicationReminder");
             return remindForHomeDTO;
         }
         RemindForHomeDTO dto = new RemindForHomeDTO();
