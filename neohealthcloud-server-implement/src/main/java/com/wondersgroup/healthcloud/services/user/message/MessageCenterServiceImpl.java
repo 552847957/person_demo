@@ -138,6 +138,8 @@ public class MessageCenterServiceImpl {
             content="您有一条新的干预提醒";
         }else if(type.equals("1")){
             content="您有一条新的筛查提醒";
+        } else if ("3".equals(type)) {
+            content = "您有一条血糖测量提醒";
         }
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
