@@ -1136,6 +1136,7 @@ public class HomeServiceImpl implements HomeService {
                 familyMember.setRelation(maxExTimeF.getRelation());
                 familyMember.setUid(maxExTimeF.getUid());
                 familyMember.setHealthStatus(FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY.getId());
+                familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(familyMember.getExceptionItems().size()) + "项异常");
                 familyMember.setExceptionItems(familyMember.getExceptionItems().size() > 2 ? familyMember.getExceptionItems().subList(0, 2) : familyMember.getExceptionItems()); 
                 familyMember.setHealthItems(null);
             }else if(null!=maxHealthTimeF&&null!=maxHealthTimeU){
@@ -1186,7 +1187,7 @@ public class HomeServiceImpl implements HomeService {
             familyMember.setMainTitle("您的家人近一月无健康数据");
             familyMember.setSubTitle("");
         } else if (FamilyHealthStatusEnum.HAVE_FAMILY_AND_UNHEALTHY == FamilyHealthStatusEnum.getEnumById(familyMember.getHealthStatus()) && familyMember.getExceptionItems().size() > 0) {
-            familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(familyMember.getExceptionItems().size()) + "项异常");
+            //familyMember.setMainTitle(FamilyMemberRelation.getName(familyMember.getRelation())+"近一月有" + intNumToString(familyMember.getExceptionItems().size()) + "项异常");
             familyMember.setSubTitle("");
         } 
 
