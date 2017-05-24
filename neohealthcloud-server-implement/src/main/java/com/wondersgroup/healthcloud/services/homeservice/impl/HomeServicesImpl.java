@@ -323,7 +323,7 @@ public class HomeServicesImpl implements HomeServices {
             sql.append(" where b.version = '" + version + "'");
         }
 
-        sql.append(" order by b.update_time");
+        sql.append(" order by b.update_time desc ");
 
         List<String> list = jdbcTemplate.query(sql.toString(), new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
