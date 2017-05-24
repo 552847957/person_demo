@@ -1084,6 +1084,7 @@ public class HomeServiceImpl implements HomeService {
             Iterator<UserHealthJKGLDTO> iterator = values.iterator();
             while(iterator.hasNext()){
                 UserHealthJKGLDTO healthJKGLDTO = iterator.next();
+                if(null==healthJKGLDTO.getExceptionItems()) continue;
                 exNum+=healthJKGLDTO.getExceptionItems().size();
             }
             Iterator<FamilyMemberInfo> it = familyMemberHealthMap.keySet().iterator();
@@ -1092,14 +1093,16 @@ public class HomeServiceImpl implements HomeService {
                 UserHealthJKGLDTO item = familyMemberHealthMap.get(fm);
                 //获取最新的健康数据
                 if(exNum==0){
-                    for(UserHealthItemDTO dto1:item.getHealthItems()){
-                        if(maxHealthTimeU==null){
-                            maxHealthTimeU = dto1;
-                            maxHealthTimeF = fm;
-                        }
-                        if(dto1.getTestTime() >maxHealthTimeU.getTestTime()){
-                            maxHealthTimeU = dto1;
-                            maxHealthTimeF = fm;
+                    if (!CollectionUtils.isEmpty(item.getHealthItems())) {
+                        for(UserHealthItemDTO dto1:item.getHealthItems()){
+                            if(maxHealthTimeU==null){
+                                maxHealthTimeU = dto1;
+                                maxHealthTimeF = fm;
+                            }
+                            if(dto1.getTestTime() >maxHealthTimeU.getTestTime()){
+                                maxHealthTimeU = dto1;
+                                maxHealthTimeF = fm;
+                            }
                         }
                     }
                 }else{
