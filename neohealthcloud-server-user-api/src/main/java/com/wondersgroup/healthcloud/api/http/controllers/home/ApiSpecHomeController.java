@@ -520,6 +520,13 @@ public class ApiSpecHomeController {
         
         data.put("familyHealth", familyHealth);
         
+        
+        try {//访问首页的时候 看是否需要进行血糖一周未测提示
+            diabetesService.addDiabetesRemindMessage(uid);
+        } catch (Exception e) {
+            logger.error("HomeController 一周血糖 -->" + e.getLocalizedMessage());
+        }
+        
         result.setCode(0);
         result.setData(data);
         result.setMsg("获取数据成功");
