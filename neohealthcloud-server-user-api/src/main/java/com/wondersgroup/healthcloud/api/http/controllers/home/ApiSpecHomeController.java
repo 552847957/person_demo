@@ -582,6 +582,7 @@ public class ApiSpecHomeController {
 
         baseService = CollectionUtils.isEmpty(baseService) ? new ArrayList<HomeServiceDTO>(0) : baseService;
         checkService(baseService);
+        handMyServiceAndBaseService(myService,baseService);
         data.put("baseService", baseService);
 
 
@@ -615,6 +616,28 @@ public class ApiSpecHomeController {
         result.setData(data);
         result.setMsg("获取数据成功");
         return result;
+    }
+
+    /**
+     * 检查我的服务里的基础服务的添加状态 （在我的服务里的基础服务的isAdd 设置为 1 （0:为添加，1: 已添加） ）
+     * @param myServices
+     * @param baseServices
+     */
+    void handMyServiceAndBaseService(List<HomeServiceDTO> myServices,List<HomeServiceDTO> baseServices){
+       for(HomeServiceDTO myServiceDto:myServices){
+           if (ServiceTypeEnum.BASE_SERVICE.getType().equals(myServiceDto.getServiceType()) ){
+               for(HomeServiceDTO baseServiceDto:baseServices){
+                   if(baseServiceDto.getId().equals(myServiceDto.getId()) && baseServiceDto.getIsAdd() == 0){
+                       baseServiceDto.setIsAdd(1);
+                   }
+
+               }
+           }
+
+
+
+       }
+
     }
 
     /**

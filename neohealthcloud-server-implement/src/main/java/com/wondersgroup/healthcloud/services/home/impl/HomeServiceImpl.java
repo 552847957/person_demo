@@ -936,6 +936,15 @@ public class HomeServiceImpl implements HomeService {
                     allServicesList.add(new HomeServiceDTO(entity));
                 }
             }
+
+              paramMap.put("serviceType", ServiceTypeEnum.BASE_SERVICE.getType());
+            List<HomeServiceEntity> baseServiceList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+            if (!CollectionUtils.isEmpty(baseServiceList)) {//从默认服务里截取三个，凑成7个返回
+                List<HomeServiceEntity> firstThreeService = baseServiceList.size() > 3 ? baseServiceList.subList(0,3):baseServiceList;
+                for (HomeServiceEntity entity : firstThreeService) {
+                    allServicesList.add(new HomeServiceDTO(entity));
+                }
+            }
         }
 
         return allServicesList;
