@@ -77,7 +77,7 @@ public class ScreeningController {
         if(list.size() > pageSize){
             hasMore = true;
             flag++;
-            list.remove(10);
+            list.remove(pageSize);
         }
 
         List<ScreeningDto> entityList = Lists.newArrayList();

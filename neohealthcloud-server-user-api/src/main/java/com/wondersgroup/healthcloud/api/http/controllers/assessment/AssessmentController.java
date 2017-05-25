@@ -270,8 +270,8 @@ public class AssessmentController {
             }
             if(assessment.getIsOneself() == 1) {//本人风险评估
                 RegisterInfo registerInfo = registerInfoRepo.findOne(assessment.getUid());
-                if(null != registerInfo.getPersoncard())
-                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
+//                if(null != registerInfo.getPersoncard())
+//                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
             }
         }
         return response;

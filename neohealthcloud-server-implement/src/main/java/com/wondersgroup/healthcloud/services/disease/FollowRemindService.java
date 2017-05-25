@@ -11,4 +11,6 @@ import java.util.Map;
  */
 public interface FollowRemindService {
     List<Map<String,Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, Integer diseaseType, DoctorInfo doctorInfo, DoctorAccount doctorAccount);
+
+    List<Map<String,Object>> findMineFollow(Integer flag, int pageSize, DoctorInfo doctorInfo, DoctorAccount doctorAccount);
 }

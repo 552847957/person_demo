@@ -54,7 +54,7 @@ public class FollowRemindController {
     private ScreeningService screeningService;
 
     /**
-     * 高危筛查列表
+     * 随访提醒列表
      * @param doctorId 医生主键
      * @param signStatus 签约状态 1：已经签约居民，0：未签约居民，null：所有类型的居民
      * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民
@@ -96,6 +96,44 @@ public class FollowRemindController {
     }
 
     /**
+     * 我的随访列表
+     * @param doctorId 医生主键
+     * @return
+     */
+    @GetMapping("/mine")
+    public JsonListResponseEntity mine(
+            @RequestParam(required = true) String doctorId,
+            @RequestParam(required = false, defaultValue = "1") Integer flag) {
+
+        int pageSize = 20;
+        JsonListResponseEntity response = new JsonListResponseEntity();
+
+        DoctorInfo doctorInfo = doctorInfoRepo.findOne(doctorId);
+        DoctorAccount doctorAccount = doctorAccountRepo.findOne(doctorId);
+        if(null == doctorInfo){
+            response.setCode(1001);
+            response.setMsg("不存在当前医生信息");
+            return response;
+        }
+
+        List<Map<String,Object>> list = followRemindService.findMineFollow(flag,pageSize,doctorInfo,doctorAccount);
+        boolean hasMore = false;
+        if(list.size() > pageSize){
+            hasMore = true;
+            flag++;
+            list.remove(pageSize);
+        }
+
+        List<ScreeningDto> entityList = Lists.newArrayList();
+        for(Map<String,Object> map : list)
+            entityList.add(new ScreeningDto(map, assessmentRepo.findOne(map.get("id").toString()),
+                    registerInfoRepo.findOne(map.get("registerid").toString()), userInfoRepo.findOne(map.get("registerid").toString())));
+
+        response.setContent(entityList,hasMore,null,flag.toString());
+        return response;
+    }
+
+    /**
      * 高危提醒
      * @return
      */
@@ -124,4 +162,6 @@ public class FollowRemindController {
         }
         return entity;
     }
+
+
 }
