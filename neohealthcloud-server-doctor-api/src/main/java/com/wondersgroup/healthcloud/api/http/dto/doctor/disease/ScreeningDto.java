@@ -84,14 +84,47 @@ public class ScreeningDto {
         if(3 == assessment.getIsDrink()){
             return "每天都喝酒";
         }
-        if(1 == assessment.getIsSmoking()){
-            return "现在每天吸烟";
+        if(1 == assessment.getIsSmoking() || 2 == assessment.getIsSmoking()){
+            return 1 == assessment.getIsSmoking() ? "现在每天吸烟" : "现在吸烟，但不是每天吸烟";
         }
-        if(2 == assessment.getIsSmoking()){
-            return "现在吸烟，但不是每天吸烟";
+        if(1 != assessment.getEatHabits()){
+            return 2 == assessment.getEatHabits()?"饮食习惯荤食为主":"饮食习惯素食为主";
         }
-        
-
+        if(!"4".equals(assessment.getEatTaste())){
+            if(assessment.getEatTaste().contains("1")) return "饮食口味嗜盐";
+            if(assessment.getEatTaste().contains("2")) return "饮食口味嗜油";
+            if(assessment.getEatTaste().contains("3")) return "饮食口味嗜糖";
+        }
+        if(3 == assessment.getSport() || 4 == assessment.getSport()){
+            return "严重缺乏运动";
+        }
+        String[] pressures = assessment.getPressure().split("/");
+        Integer diastolic = Integer.valueOf(pressures[1]);
+        Integer systolic = Integer.valueOf(pressures[0]);
+        if(diastolic >=85 || systolic >=130){
+            return "血压"+assessment.getPressure()+"mmHg";
+        }
+        if(1 == assessment.getTakeAntihypertensiveDrugs()){
+            return "正在服用降压药";
+        }
+        if(1 == assessment.getIsDyslipidemia()){
+            return "血脂异常";
+        }
+        if(!"6".equals(assessment.getMedicalHistory())){
+            if(assessment.getMedicalHistory().contains("1")) return "有糖调节受损（IGR，又称糖尿病前期";
+            if(assessment.getMedicalHistory().contains("2")) return "动脉粥样硬化心脑血管疾病";
+            if(assessment.getMedicalHistory().contains("3")) return "有一过性类固醇糖尿病";
+            if(assessment.getMedicalHistory().contains("4")) return "房颤或明显的脉搏不齐";
+            if(assessment.getMedicalHistory().contains("5")) return "短暂脑缺血发作病史（TIA）";
+        }
+        if(1 == assessment.getIsDepression()){
+            return "长期接受抗精神类药物（或）抗抑郁症药物治疗";
+        }
+        if("2".equals(assessment.getGender()) && !"4".equals(assessment.getFemaleMedicalHistory())){
+            if(assessment.getFemaleMedicalHistory().contains("1")) return "有巨大儿（出生体重>=4KG）生产史";
+            if(assessment.getFemaleMedicalHistory().contains("2")) return "有妊娠期糖尿病史";
+            if(assessment.getFemaleMedicalHistory().contains("3")) return "多囊卵巢综合症患者";
+        }
         return  "";
     }
 
