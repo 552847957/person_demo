@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.disease.impl;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,8 @@ public class FollowRemindServiceImpl implements FollowRemindService{
      * @return
      */
     @Override
-    public List<Map<String, Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, Integer diseaseType, DoctorInfo doctorInfo,DoctorAccount doctorAccount) {
-        String sql = "select t1.follow_date,t1.remind_end_date,t2.registerid,t2.name,t2.gender,t2.identifytype,t2.headphoto,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
+    public List<Map<String, Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo,DoctorAccount doctorAccount) {
+        String sql = "select t1.follow_date,t1.remind_end_date,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from app_tb_report_follow t1\n" +
@@ -44,14 +45,23 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " order by group_type desc , t1.follow_date DESC"+
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
 
-        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,
-                null == diseaseType ?"":(1 == diseaseType? " and diabetes_type != 0": (2 == diseaseType?" and hyp_type = 1":" and apo_type = 1")));
+
+        StringBuffer buffer = new StringBuffer();
+        if(null != diseaseType && !StringUtils.isEmpty(diseaseType)){
+            buffer.append(" and (  ");
+            if(diseaseType.contains("1")) buffer.append(" or diabetes_type != 0");
+            if(diseaseType.contains("2")) buffer.append(" or hyp_type = 1");
+            if(diseaseType.contains("3")) buffer.append(" or apo_type = 1");
+            buffer.append(" ) ");
+        }
+
+        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString().replaceFirst("or",""));
         return jdbcTemplate.queryForList(sql);
     }
 
     @Override
     public List<Map<String, Object>> findMineFollow(Integer pageNo, int pageSize, DoctorInfo doctorInfo, DoctorAccount doctorAccount) {
-        String sql = "select t1.report_date,t2.name,t2.gender,t2.identifytype,t2.headphoto,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk\n" +
+        String sql = "select t1.report_date,t2.name,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk\n" +
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
                 " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +

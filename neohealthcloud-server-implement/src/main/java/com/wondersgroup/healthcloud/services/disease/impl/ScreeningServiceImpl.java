@@ -10,6 +10,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,9 +47,9 @@ public class ScreeningServiceImpl implements ScreeningService {
      * @return
      */
     @Override
-    public List<Map<String, Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, Integer diseaseType, DoctorInfo doctorInfo) {
+    public List<Map<String, Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo) {
 
-        String sql = "select t1.id,t2.registerid,t2.name,t2.gender,t2.identifytype,t2.headphoto,t3.diabetes_type,t3.hyp_type,t3.apo_type,\n" +
+        String sql = "select t1.id,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from (select * from app_tb_patient_assessment where del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t1 \n" +
@@ -61,8 +62,17 @@ public class ScreeningServiceImpl implements ScreeningService {
                 " GROUP BY t1.uid\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
-        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,
-                null == diseaseType ?"":(1 == diseaseType? " and diabetes_type != 0": (2 == diseaseType?" and hyp_type = 1":" and apo_type = 1")));
+
+        StringBuffer buffer = new StringBuffer();
+        if(null != diseaseType && !StringUtils.isEmpty(diseaseType)){
+            buffer.append(" and ( ");
+            if(diseaseType.contains("1")) buffer.append(" or diabetes_type != 0");
+            if(diseaseType.contains("2")) buffer.append(" or hyp_type = 1");
+            if(diseaseType.contains("3")) buffer.append(" or apo_type = 1");
+            buffer.append(" ) ");
+        }
+
+        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString().replaceFirst("or",""));
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -75,6 +85,7 @@ public class ScreeningServiceImpl implements ScreeningService {
             remind.setDoctorId(doctorId);
             remind.setCreateDate(new Date());
             remind.setUpdateDate(new Date());
+            remind.setType(type);
             remind.setDelFlag("0");
             remindRepo.save(remind);
 

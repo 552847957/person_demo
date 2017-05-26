@@ -1,14 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers.disease;
 
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.ScreeningDto;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.FollowRemindDto;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.FollowRemindMineDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
-import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
@@ -48,23 +49,23 @@ public class FollowRemindController {
     private UserInfoRepository userInfoRepo;
 
     @Autowired
-    private DiabetesAssessmentRepository diabetesAssessmentRepo;
+    private ScreeningService screeningService;
 
     @Autowired
-    private ScreeningService screeningService;
+    private DiabetesAssessmentRemindRepository remindRepo;
 
     /**
      * 随访提醒列表
      * @param doctorId 医生主键
      * @param signStatus 签约状态 1：已经签约居民，0：未签约居民，null：所有类型的居民
-     * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民
+     * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民，逗号间隔
      * @return
      */
     @GetMapping("/list")
     public JsonListResponseEntity list(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer  signStatus,
-            @RequestParam(required = false) Integer  diseaseType,
+            @RequestParam(required = false) String  diseaseType,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
         int pageSize = 20;
@@ -86,10 +87,10 @@ public class FollowRemindController {
             list.remove(10);
         }
 
-        List<ScreeningDto> entityList = Lists.newArrayList();
+        List<FollowRemindDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new ScreeningDto(map, assessmentRepo.findOne(map.get("id").toString()),
-                    registerInfoRepo.findOne(map.get("registerid").toString()), userInfoRepo.findOne(map.get("registerid").toString())));
+            entityList.add(new FollowRemindDto(map, registerInfoRepo.findOne(map.get("registerid").toString()),
+                    userInfoRepo.findOne(map.get("registerid").toString())));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
@@ -124,10 +125,10 @@ public class FollowRemindController {
             list.remove(pageSize);
         }
 
-        List<ScreeningDto> entityList = Lists.newArrayList();
+        List<FollowRemindMineDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new ScreeningDto(map, assessmentRepo.findOne(map.get("id").toString()),
-                    registerInfoRepo.findOne(map.get("registerid").toString()), userInfoRepo.findOne(map.get("registerid").toString())));
+            entityList.add(new FollowRemindMineDto(map, registerInfoRepo.findOne(map.get("registerid").toString()),
+                    userInfoRepo.findOne(map.get("registerid").toString())));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
@@ -145,8 +146,8 @@ public class FollowRemindController {
         String ids = reader.readString("ids",false);
         String doctorId = reader.readString("doctorId",false);
 
-        List<String> registerIds = diabetesAssessmentRepo.findRemidRegisterById(ids.split(","));
-        if(0 == registerIds.size() && 1 == ids.split(",").length){
+        List<String> registerIds = remindRepo.findFollowByRegisterId(ids.split(","),2);
+        if(0 == registerIds.size()){
             entity.setCode(1001);
             entity.setMsg("该用户当日已经被提醒");
             return entity;
@@ -155,10 +156,10 @@ public class FollowRemindController {
         Boolean flag = screeningService.remind(registerIds,doctorId,2);
 
         if(flag){
-            entity.setMsg("您的糖尿病高危筛查提醒已经发送成功");
+            entity.setMsg("您的随访提醒已经发送成功");
         }else{
             entity.setCode(1002);
-            entity.setMsg("您的糖尿病高危筛查提醒发送失败");
+            entity.setMsg("您的随访提醒发送失败");
         }
         return entity;
     }

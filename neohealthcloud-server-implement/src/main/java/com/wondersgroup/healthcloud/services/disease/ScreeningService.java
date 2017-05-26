@@ -17,7 +17,7 @@ public interface ScreeningService {
      * @param diseaseType
      * @return
      */
-    List<Map<String,Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, Integer diseaseType, DoctorInfo doctorInfo);
+    List<Map<String,Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo);
 
     Boolean remind(List<String> registerIds, String doctorId,Integer type);
 }

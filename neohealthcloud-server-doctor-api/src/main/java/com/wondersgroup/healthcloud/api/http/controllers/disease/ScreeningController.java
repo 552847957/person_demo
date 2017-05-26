@@ -11,7 +11,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
-import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
@@ -46,20 +46,20 @@ public class ScreeningController {
     private UserInfoRepository userInfoRepo;
 
     @Autowired
-    private DiabetesAssessmentRepository diabetesAssessmentRepo;
+    private DiabetesAssessmentRemindRepository remindRepo;
 
     /**
      * 高危筛查列表
      * @param doctorId 医生主键
      * @param signStatus 签约状态 1：已经签约居民，0：未签约居民，null：所有类型的居民
-     * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民
+     * @param diseaseType 慢病类型 1：糖尿病，2：高血压，3：脑卒中，null：所有类型的居民 逗号间隔
      * @return
      */
     @GetMapping("/list")
     public JsonListResponseEntity list(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer  signStatus,
-            @RequestParam(required = false) Integer  diseaseType,
+            @RequestParam(required = false) String  diseaseType,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
         int pageSize = 20;
@@ -101,8 +101,8 @@ public class ScreeningController {
         String ids = reader.readString("ids",false);
         String doctorId = reader.readString("doctorId",false);
 
-        List<String> registerIds = diabetesAssessmentRepo.findRemidRegisterById(ids.split(","));
-        if(0 == registerIds.size() && 1 == ids.split(",").length){
+        List<String> registerIds = remindRepo.findScreeningByRegisterId(ids.split(","),1);
+        if(0 == registerIds.size()){
             entity.setCode(1001);
             entity.setMsg("该用户当日已经被提醒");
             return entity;

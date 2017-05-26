@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.dto.doctor.disease;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
@@ -8,6 +9,7 @@ import com.wondersgroup.healthcloud.services.assessment.dto.AssessmentConstrains
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -34,10 +36,10 @@ public class ScreeningDto {
 
     public ScreeningDto(Map<String, Object> map,Assessment assessment, RegisterInfo register, UserInfo userInfo) {
         this.registerid = map.get("registerid").toString();
-        this.headphoto = null == map.get("headphoto")?null : map.get("headphoto").toString();
-        this.name = null == map.get("name")?null : map.get("name").toString();
-        this.gender = null == map.get("gender")?null : map.get("gender").toString();
-        this.hasIdentify = null == map.get("identifytype") || "0".equals(map.get("identifytype").toString()) ?false:true;
+        this.headphoto = StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix();
+        this.name = register.getName();
+        this.gender = register.getGender();
+        this.hasIdentify = "0".equals(register.getIdentifytype()) ?false:true;
         this.hasHignRisk = true;
         this.hasDiabetes = null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true;
         this.hasBloodPressure = null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true;
