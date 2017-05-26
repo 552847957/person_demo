@@ -925,9 +925,34 @@ public class HomeServiceImpl implements HomeService {
         List<HomeServiceEntity> myHomeServicesList = homeServicesImpl.findMyHomeServices(paramMap);
 
         if (!CollectionUtils.isEmpty(myHomeServicesList)) {
+            int defaultServiceCount = 0;//默认服务计数
+            Set<String> defaultServiceIds = new HashSet<String>();
             for (HomeServiceEntity entity : myHomeServicesList) {
+                 if(ServiceTypeEnum.DEFAULT_SERVICE.getType().equals(entity.getServiceType())){
+                     defaultServiceCount++;
+                     defaultServiceIds.add(entity.getId());
+                 }
+
                 allServicesList.add(new HomeServiceDTO(entity));
             }
+
+            if(defaultServiceCount < 4){//少多少，补充多少（后台管理员编辑默认服务的操作）
+                paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
+                List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
+                int index = 0;
+                for(HomeServiceEntity defaultEntity:defaultList){
+                    if(!defaultServiceIds.contains(defaultEntity.getId())){//不包含，就添加上
+                        allServicesList.add(index++,new HomeServiceDTO(defaultEntity));//后台新增的默认服务，排在前面
+                        if((defaultServiceCount+index) == 4){ //默认服务为4个
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+
+
         } else { //如果没有， 设置默认服务为 我的服务
             paramMap.put("serviceType", ServiceTypeEnum.DEFAULT_SERVICE.getType());
             List<HomeServiceEntity> defaultList = homeServicesImpl.findHomeServiceByCondition(paramMap);
