@@ -16,6 +16,8 @@ public class DateFormatter {
 
     private static final String dateTimePattern = "yyyy-MM-dd HH:mm:ss";
 
+    private static final String dateTime2Pattern = "yyyy-MM-dd HH:mm";
+
     private static final String yearPattern = "yyyy";
 
     private static final String monthDayPattern = "MM-dd";
@@ -62,6 +64,10 @@ public class DateFormatter {
 
     public static String dateTimeFormat(Date date) {
         return format(date, dateTimePattern);
+    }
+
+    public static String dateTim2eFormat(Date date) {
+        return format(date, dateTime2Pattern);
     }
 
     public static String monthDayFormat(Date date) {

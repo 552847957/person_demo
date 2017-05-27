@@ -5,7 +5,9 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.message.DoctorMessageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -95,10 +97,95 @@ public class DoctorMessageController {
      */
     @GetMapping(path = "/prompt")
     @VersionRange
-    public JsonResponseEntity<Map<String, Object>> prompt(@RequestParam String uid) {
+    public JsonResponseEntity<Map<String, Object>> prompt(@RequestParam(required = true) String uid) {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("has_unread", true);
+
+        int count = manageDoctorMessageService.countUnreadMsgByUid(uid);
+        Boolean hasUnread = false;
+        if(count>0)
+            hasUnread = true;
+
+        map.put("has_unread", hasUnread);
         return new JsonResponseEntity<>(0, null, map);
+    }
+
+    /**
+     * 消息页面 消息类型列表 4.1版本
+     * @param uid
+     * @return
+     */
+    @GetMapping(path = "/typeMsgList")
+    @VersionRange
+    public JsonListResponseEntity<DoctorMessageDTO> typeMsgList(@RequestParam(required = true) String uid) {
+        JsonListResponseEntity<DoctorMessageDTO> response = new JsonListResponseEntity<>();
+        List<DoctorMessageDTO> resultList = Lists.newArrayList();
+        List<DoctorMessage> typeMsgList = manageDoctorMessageService.findTypeMsgListByUid(uid);
+        for (DoctorMessage doctorMessage : typeMsgList){
+            DoctorMessageDTO doctorMessageDTO = new DoctorMessageDTO(doctorMessage);
+            int count = manageDoctorMessageService.countUnreadMsgByUidAndType(uid,doctorMessage.getMsgType());
+            if(count>0){
+                doctorMessageDTO.setHasUnread(true);
+            }else{
+                doctorMessageDTO.setHasUnread(false);
+            }
+            resultList.add(doctorMessageDTO);
+        }
+        return response;
+    }
+
+    /**
+     * 分类查询消息列表
+     * @param uid
+     * @param msg_type
+     * @return
+     */
+    @GetMapping(path = "/msgList")
+    @VersionRange
+    public JsonListResponseEntity<DoctorMessageDTO> msgList(@RequestParam(required = true) String uid,
+                                                            @RequestParam(required = true) String msg_type,
+                                                            @RequestParam(defaultValue = "0") String flag) {
+        int pageSize = 20;
+        JsonListResponseEntity<DoctorMessageDTO> response = new JsonListResponseEntity<>();
+        List<DoctorMessageDTO> resultList = Lists.newArrayList();
+        List<DoctorMessage> typeMsgList = manageDoctorMessageService.findMsgListByUidAndType(uid,msg_type,Integer.valueOf(flag),pageSize);
+        for (DoctorMessage doctorMessage : typeMsgList){
+            DoctorMessageDTO doctorMessageDTO = new DoctorMessageDTO(doctorMessage);
+            doctorMessageDTO.setHasUnread(false);
+            resultList.add(doctorMessageDTO);
+        }
+        //todo 要不要把这个类型所有的消息都设置为已读？
+        //把医生下面所有这个类型的消息都设置为已读
+        manageDoctorMessageService.setMsgIsReadByMsgType(uid,msg_type);
+        return response;
+    }
+
+    /**
+     * 单条消息删除
+     * @param id
+     * @return
+     */
+    @DeleteMapping(path = "/delete")
+    @VersionRange
+    public JsonResponseEntity<String> delateMsg(@RequestParam(required = true) String id) {
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        manageDoctorMessageService.deleteDoctorMsgById(id);
+        response.setMsg("删除成功");
+        return response;
+    }
+
+    /**
+     * 根据msgType 删除类型所有消息
+     * @param
+     * @return
+     */
+    @DeleteMapping(path = "/msgTypeDelete")
+    @VersionRange
+    public JsonResponseEntity<String> delateMsgByType(@RequestParam(required = true) String uid,
+                                                      @RequestParam(required = true) String msg_type) {
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        manageDoctorMessageService.deleteDoctorMsgByMsgType(uid,msg_type);
+        response.setMsg("删除成功");
+        return response;
     }
 
 

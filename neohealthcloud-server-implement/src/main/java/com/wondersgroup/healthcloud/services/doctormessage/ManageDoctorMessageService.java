@@ -22,4 +22,18 @@ public interface ManageDoctorMessageService {
     public boolean addDoctorPushMessage(DoctorPushMessage pushMessage);
 
     public List<DoctorPushMessage> getAllPushMessages();
+
+    int countUnreadMsgByUid(String uid);
+
+    List<DoctorMessage> findTypeMsgListByUid(String uid);
+
+    int countUnreadMsgByUidAndType(String uid, String msgType);
+
+    List<DoctorMessage> findMsgListByUidAndType(String uid, String msgType, Integer integer, int pageSize);
+
+    void deleteDoctorMsgById(String id);
+
+    void deleteDoctorMsgByMsgType(String uid, String msgType);
+
+    void setMsgIsReadByMsgType(String uid, String msgType);
 }
