@@ -97,4 +97,9 @@ public class ScreeningServiceImpl implements ScreeningService {
         }
         return true;
     }
+
+    @Override
+    public Integer getRemindCount(String doctorId) {
+        return remindRepo.getRemindCountByType(doctorId,1);
+    }
 }

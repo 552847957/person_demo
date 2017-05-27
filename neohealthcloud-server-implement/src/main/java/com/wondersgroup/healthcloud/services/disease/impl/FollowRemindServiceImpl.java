@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.disease.impl;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class FollowRemindServiceImpl implements FollowRemindService{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private DiabetesAssessmentRemindRepository remindRepo;
 
     /**
      * 获取随访列表数据
@@ -71,5 +75,10 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
 
         return jdbcTemplate.queryForList(sql);
+    }
+
+    @Override
+    public Integer getRemindCount(String doctorId) {
+        return remindRepo.getRemindCountByType(doctorId,2);
     }
 }

@@ -13,4 +13,11 @@ public interface FollowRemindService {
     List<Map<String,Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo, DoctorAccount doctorAccount);
 
     List<Map<String,Object>> findMineFollow(Integer flag, int pageSize, DoctorInfo doctorInfo, DoctorAccount doctorAccount);
+
+    /**
+     * 医生随访提醒数量
+     * @param doctorId
+     * @return
+     */
+    Integer getRemindCount(String doctorId);
 }

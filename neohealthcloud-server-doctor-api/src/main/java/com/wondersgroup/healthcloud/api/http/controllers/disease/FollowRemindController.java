@@ -40,9 +40,6 @@ public class FollowRemindController {
     private FollowRemindService followRemindService;
 
     @Autowired
-    private AssessmentRepository assessmentRepo;
-
-    @Autowired
     private RegisterInfoRepository registerInfoRepo;
 
     @Autowired

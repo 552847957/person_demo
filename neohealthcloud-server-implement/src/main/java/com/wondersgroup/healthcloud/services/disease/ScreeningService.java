@@ -20,4 +20,11 @@ public interface ScreeningService {
     List<Map<String,Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo);
 
     Boolean remind(List<String> registerIds, String doctorId,Integer type);
+
+    /**
+     * 医生筛查提醒数量
+     * @param doctorId
+     * @return
+     */
+    Integer getRemindCount(String doctorId);
 }

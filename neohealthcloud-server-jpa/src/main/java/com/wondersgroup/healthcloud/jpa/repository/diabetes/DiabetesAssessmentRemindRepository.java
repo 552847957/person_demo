@@ -27,4 +27,8 @@ public interface DiabetesAssessmentRemindRepository extends JpaRepository<Diabet
                     "   select * from app_tb_diabetes_assessment_remind t2 where t2.registerid = t1.registerid " +
                     "   and t2.type = ?2 and t2.create_date > t1.create_date and t2.del_flag = '0')")
     List<String> findFollowByRegisterId(String[] registerIds, Integer type);
+
+    @Query(value = "select count(1) from DiabetesAssessmentRemind a where " +
+            " a.doctorId = ?1 and a.type = ?2 and a.delFlag = '0'")
+    Integer getRemindCountByType(String doctorId, Integer type);
 }
