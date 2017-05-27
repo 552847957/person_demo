@@ -26,4 +26,7 @@ public interface DoctorIntervenService {
     List<NeoFamIntervention> findBloodGlucoseOutlierListByInterventionId(String interventionId, Boolean is_all, int pageNo, int pageSize, int size);
 
     List<NeoFamIntervention> findpressureOutlierListByInterventionId(String interventionId, Boolean is_all, int pageNo, int pageSize, int size);
+
+    int countHasInterventionByDoctorId(String doctorId);
+
 }

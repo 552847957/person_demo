@@ -285,4 +285,15 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
         sql = String.format(sql,neoFamIntervention.getRegisterId(), DateFormatter.dateTimeFormat(neoFamIntervention.getCreateDate()));
         return jdbcTemplate.queryForList(sql, NeoFamIntervention.class);
     }
+
+    /**
+     * 根据医生Id 查询异常干预 已干预条数
+     * @param doctorId
+     * @return
+     */
+    @Override
+    public int countHasInterventionByDoctorId(String doctorId) {
+
+        return doctorInterventionRepository.countHasInterventionByDoctorId(doctorId);
+    }
 }

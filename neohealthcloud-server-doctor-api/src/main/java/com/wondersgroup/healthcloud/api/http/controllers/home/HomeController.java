@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class HomeController {
 
     @Autowired
     private DoctorQuestionService doctorQuestionService;
+
+    @Autowired
+    private DoctorIntervenService doctorIntervenService;
 
     private static final Logger log = Logger.getLogger(HomeController.class);
 
@@ -69,22 +73,32 @@ public class HomeController {
 
         Map<String,Object>  number = new HashMap<>();
         int unread = 0;
+        int intervenNum = 0;
         try {
             unread = doctorQuestionService.queryUnreadCount(uid);// 杜宽心的接口
+            intervenNum = doctorIntervenService.countHasInterventionByDoctorId(uid);
         }catch (Exception e){
             log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
         }
-        number.put("signed_num",1088);//我的签约-签约人数 Todo
-        number.put("group_num",22);//我的分组-分组数 Todo
-        number.put("screened_num",115);//筛查提醒-已筛查数 Todo
-        number.put("intervened_num",123);//异常干预-已干预人数 Todo
-        number.put("follow_num",43);//随访提醒-已随访人数 Todo
-        number.put("ask_answered",45);//问诊回答—已回答数 Todo
-        number.put("ask_unread",unread);//问诊回答-未读数
+        number.put("signed_num",getNumStr(1088));//我的签约-签约人数 Todo
+        number.put("group_num",getNumStr(22));//我的分组-分组数 Todo
+        number.put("screened_num",getNumStr(115));//筛查提醒-已筛查数 Todo
+        number.put("intervened_num",getNumStr(intervenNum));//异常干预-已干预人数
+        number.put("follow_num",getNumStr(43));//随访提醒-已随访人数 Todo
+        number.put("ask_answered",getNumStr(45));//问诊回答—已回答数 Todo
+        number.put("ask_unread",getNumStr(unread));//问诊回答-未读数
 
         body.setData(number);
 
         return body;
+    }
+
+    public String getNumStr(int number){
+        if(number<=999){
+            return String.valueOf(number);
+        }else{
+            return "999+";
+        }
     }
 
 }
