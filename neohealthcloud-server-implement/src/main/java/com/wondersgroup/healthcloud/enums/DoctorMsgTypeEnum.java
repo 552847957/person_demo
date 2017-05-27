@@ -9,10 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 public enum DoctorMsgTypeEnum {
 
     msgType1("1","系统消息"),
-    msgType2("2","医生私信"),//不知道是不是医生私信
-    msgType3("3","筛查提醒"),
-    msgType4("4","干预提醒"),
-    msgType5("5","随访提醒");
+    msgType2("2","医生私信"),//不知道是不是医生私信(产品说他也不知道医生私信是什么==去掉)
+    msgType3("3","问诊消息"),
+    msgType4("4","干预提醒");
 
 
     private final String typeCode;
