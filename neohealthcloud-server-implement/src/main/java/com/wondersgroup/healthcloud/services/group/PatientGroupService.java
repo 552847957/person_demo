@@ -14,7 +14,7 @@ public interface PatientGroupService {
     
     public void sortPatientGroup(List<String> editIds,String doctorId);
     
-    public int getGroupNmuByDoctorId(String doctorId);
+    public int getGroupNumByDoctorId(String doctorId);
     
     public void addUserToGroup(List<String> groupIds,String userId);
 }

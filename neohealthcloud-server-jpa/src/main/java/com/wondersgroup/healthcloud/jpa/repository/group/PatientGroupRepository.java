@@ -22,5 +22,5 @@ public interface PatientGroupRepository extends JpaRepository<PatientGroup, Inte
     int getMaxSortByDoctorId(String doctorId);
     
     @Query(nativeQuery=true,value="SELECT COUNT(1) FROM app_tb_patient_group p WHERE p.doctor_id=?1 AND p.del_flag='0' ")
-    int getGroupNmuByDoctorId(String doctorId);
+    int getGroupNumByDoctorId(String doctorId);
 }

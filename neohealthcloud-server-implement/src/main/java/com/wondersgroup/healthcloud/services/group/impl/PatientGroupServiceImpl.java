@@ -117,8 +117,8 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     }
 
     @Override
-    public int getGroupNmuByDoctorId(String doctorId) {
-        return patientGroupRepository.getGroupNmuByDoctorId(doctorId);
+    public int getGroupNumByDoctorId(String doctorId) {
+        return patientGroupRepository.getGroupNumByDoctorId(doctorId);
     }
 
     @Transactional
