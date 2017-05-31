@@ -592,7 +592,8 @@ public class MeasureController {
     public JsonResponseEntity assessmentAbnormal(String registerId){
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         try {
-            List<Assessment> list = assessmentRepository.queryAssessment(registerId);
+            String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
+            List<Assessment> list = assessmentRepository.queryAssessment(registerId,date);
             for (Assessment assessment : list) {
                 AssessmentAbnormal as = new AssessmentAbnormal();
                 as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
