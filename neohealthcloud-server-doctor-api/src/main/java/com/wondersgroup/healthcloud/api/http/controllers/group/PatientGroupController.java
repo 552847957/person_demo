@@ -25,6 +25,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.group.PatientGroup;
+import com.wondersgroup.healthcloud.jpa.repository.group.PatientGroupRepository;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 
 /**
@@ -39,6 +40,8 @@ public class PatientGroupController {
     private static final Logger logger = LoggerFactory.getLogger(PatientGroupController.class);
     @Autowired
     private PatientGroupService patientGroupService;
+    @Autowired
+    PatientGroupRepository patientGroupRepository;
     
     /**
      * 获取当前医生id下面的分组信息
@@ -79,8 +82,10 @@ public class PatientGroupController {
         String id = reader.readString("id", true);
         try {
             String msg = patientGroupService.savePatientGroup(id, doctorId, name);
+            PatientGroup group = patientGroupRepository.findIsNameRepeated(doctorId, name);
             Map<String, String> data = Maps.newHashMap();
             data.put("name", name);
+            data.put("id", group.getId().toString());
             entity.setData(data);
             entity.setMsg(msg);
             return entity;
@@ -169,9 +174,16 @@ public class PatientGroupController {
                 groupIds.add(String.valueOf(job.get("id")));
             }
         }
-        patientGroupService.addUserToGroup(groupIds, userId);
-        entity.setCode(0);
-        entity.setMsg("用户分组成功");
+        try {
+            patientGroupService.addUserToGroup(groupIds, userId);
+            entity.setCode(0);
+            entity.setMsg("用户分组成功");
+        } catch (Exception e) {
+            String errorMsg = "用户分组出错";
+            logger.error(errorMsg, e);
+            entity.setCode(1000);
+            entity.setMsg(errorMsg);
+        }
         return entity;
     }
     

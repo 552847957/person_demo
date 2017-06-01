@@ -56,8 +56,8 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         if(name.length()>cleanName.length()){
             throw new CommonException(1043, "分组名称不支持表情符号") ;
         }
-        String isRepeatedName = patientGroupRepository.findIsNameRepeated(doctorId, name);
-        if(name.equals(isRepeatedName)){
+        PatientGroup isRepeatedName = patientGroupRepository.findIsNameRepeated(doctorId, name);
+        if(null!=isRepeatedName&&StringUtils.isNoneBlank(isRepeatedName.getName())&&name.equals(isRepeatedName.getName())){
             throw new CommonException(1044,"分组名称不支持重复");
         }
         PatientGroup group = new PatientGroup();
@@ -89,7 +89,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         }
         String name = findOne.getName();
         if("我的分组".equals(name)&&StringUtils.isNotBlank(name)){
-            throw new CommonException(1044,"默认分组不能删除"); 
+            throw new CommonException(1045,"默认分组不能删除"); 
         }
         PatientGroup one = patientGroupRepository.findOne(Integer.parseInt(id));
         one.setId(Integer.parseInt(id));
