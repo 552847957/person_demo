@@ -32,9 +32,10 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         List<PatientGroup> list = patientGroupRepository.getPatientGroupByDoctorId(doctorId);
         if(CollectionUtils.isEmpty(list)){
             PatientGroup group = new PatientGroup();
-            group.setName("我的分组");
+            group.setName("默认分组");
             group.setDoctorId(doctorId);
             group.setDelFlag("0");
+            group.setIsDefault("0");
             group.setRank(DEFAULT_SORT);
             group.setCreateTime(new Date());
             patientGroupRepository.saveAndFlush(group);
@@ -73,7 +74,8 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             int maxSort = patientGroupRepository.getMaxSortByDoctorId(doctorId);
             group.setDoctorId(doctorId);
             group.setName(StringUtils.trim(name));
-            group.setRank(maxSort++);
+            group.setRank(++maxSort);
+            group.setIsDefault("1");
             group.setCreateTime(new Date());
             patientGroupRepository.save(group);
             return "新建分组成功";
@@ -83,12 +85,12 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     @Transactional
     @Override
     public Boolean delPatientGroup(String id, String doctorId) {
-        PatientGroup findOne = patientGroupRepository.findOne(Integer.parseInt(id));
+        PatientGroup findOne = patientGroupRepository.getByIdAndDoctorId(Integer.parseInt(id),doctorId);
         if(findOne==null){
             throw new CommonException(1044,"分组不存在");
         }
-        String name = findOne.getName();
-        if("我的分组".equals(name)&&StringUtils.isNotBlank(name)){
+        String isDefault = findOne.getIsDefault();
+        if("0".equals(isDefault)&&StringUtils.isNotBlank(isDefault)){
             throw new CommonException(1045,"默认分组不能删除"); 
         }
         PatientGroup one = patientGroupRepository.findOne(Integer.parseInt(id));

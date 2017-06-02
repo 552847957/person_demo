@@ -23,4 +23,7 @@ public interface PatientGroupRepository extends JpaRepository<PatientGroup, Inte
     
     @Query(nativeQuery=true,value="SELECT COUNT(1) FROM app_tb_patient_group p WHERE p.doctor_id=?1 AND p.del_flag='0' ")
     int getGroupNumByDoctorId(String doctorId);
+    
+    @Query(nativeQuery=true,value="SELECT * FROM app_tb_patient_group p WHERE p.id=?1 AND p.doctor_id=?2")
+    PatientGroup getByIdAndDoctorId(Integer id, String doctorId);
 }

@@ -25,6 +25,8 @@ public class PatientGroupDto {
     private String createDate;
     
     private String sort;
+    
+    private String isDefault;
     public PatientGroupDto(){
         
     }
@@ -33,6 +35,7 @@ public class PatientGroupDto {
         this.id=p.getId();
         this.name=p.getName();
         this.sort=p.getRank()+"";
+        this.isDefault=p.getIsDefault();
         this.createDate=dateToString(p.getCreateTime());
     }
     public static String dateToString(Date date) { 

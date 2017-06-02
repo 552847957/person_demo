@@ -7,6 +7,7 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,16 +105,26 @@ public class PatientGroupController {
      */
     @VersionRange
     @DeleteMapping(value="/delete")
-    public JsonResponseEntity<Object> delGroup(@RequestBody String request){
-        JsonResponseEntity<Object> entity = new JsonResponseEntity<>();
+    public JsonResponseEntity<Map<String, Boolean>> delGroup(@RequestBody String request){
+        JsonResponseEntity<Map<String, Boolean>> entity = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(request);
         String doctorId = reader.readString("uid", false);
         String id = reader.readString("id", false);
-        Boolean delPatientGroup = patientGroupService.delPatientGroup(id, doctorId);
-        if(!delPatientGroup){
-            entity.setCode(2021);
+        List<PatientGroup> isExistPatientGroup = patientGroupRepository.getIsPatientGroupByDoctorIdAndId(doctorId, Integer.parseInt(id));
+        Map<String, Boolean> data = Maps.newHashMap();
+        if(CollectionUtils.isNotEmpty(isExistPatientGroup)){
+            data.put("isExist",true);
+            entity.setCode(2020);
+            entity.setData(data);
+        }else{
+            Boolean delPatientGroup = patientGroupService.delPatientGroup(id, doctorId);
+            if(!delPatientGroup){
+                entity.setCode(2021);
+            }
+            data.put("isExist",false);
+            entity.setData(data);
+            entity.setMsg(delPatientGroup?"删除成功":"删除失败");
         }
-        entity.setMsg(delPatientGroup?"删除成功":"删除失败");
         return entity;
     }
     /**

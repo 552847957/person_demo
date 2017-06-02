@@ -35,6 +35,8 @@ public class PatientGroup {
     @Column(name = "doctor_id")
     private String doctorId;
     
+    private String isDefault;
+    
     @Column(name = "del_flag")
     private String delFlag="0";
     
