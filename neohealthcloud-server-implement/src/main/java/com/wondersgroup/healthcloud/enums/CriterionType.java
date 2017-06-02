@@ -1,6 +1,5 @@
 package com.wondersgroup.healthcloud.enums;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -23,7 +22,7 @@ public enum CriterionType {
         this.name = name;
     }
 
-    public static CriterionType parse(@NotNull String index) {
+    public static CriterionType parse(String index) {
         if (StringUtils.isBlank(index)) {
             return null;
         }
