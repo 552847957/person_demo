@@ -35,7 +35,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             group.setName("默认分组");
             group.setDoctorId(doctorId);
             group.setDelFlag("0");
-            group.setIsDefault("0");
+            group.setIsDefault("1");
             group.setRank(DEFAULT_SORT);
             group.setCreateTime(new Date());
             patientGroupRepository.saveAndFlush(group);
@@ -75,7 +75,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             group.setDoctorId(doctorId);
             group.setName(StringUtils.trim(name));
             group.setRank(++maxSort);
-            group.setIsDefault("1");
+            group.setIsDefault("0");
             group.setCreateTime(new Date());
             patientGroupRepository.save(group);
             return "新建分组成功";

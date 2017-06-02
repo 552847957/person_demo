@@ -27,6 +27,8 @@ public class PatientGroupDto {
     private String sort;
     
     private String isDefault;
+    
+    private int patientNum;
     public PatientGroupDto(){
         
     }

@@ -7,13 +7,12 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +26,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.group.PatientGroup;
 import com.wondersgroup.healthcloud.jpa.repository.group.PatientGroupRepository;
+import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 
 /**
@@ -43,6 +43,8 @@ public class PatientGroupController {
     private PatientGroupService patientGroupService;
     @Autowired
     PatientGroupRepository patientGroupRepository;
+    @Autowired
+    SignUserDoctorGroupRepository signUserDoctorGroupRepository;
     
     /**
      * 获取当前医生id下面的分组信息
@@ -57,7 +59,14 @@ public class PatientGroupController {
         try {
             List<PatientGroup> patientList = patientGroupService.getPatientGroupByDoctorId(doctorId);
             for(PatientGroup p:patientList){
-                PatientGroupDto dto = new PatientGroupDto(p);
+                PatientGroupDto dto = new PatientGroupDto();
+                dto.setId(p.getId());
+                dto.setName(p.getName());
+                dto.setIsDefault(p.getIsDefault());
+                dto.setSort(p.getRank()+"");
+                dto.setCreateDate(PatientGroupDto.dateToString(p.getCreateTime()));
+                int patientNum=signUserDoctorGroupRepository.getNumByGroupId(p.getId());
+                dto.setPatientNum(patientNum);
                 list.add(dto);
             }
             entity.setData(list);
@@ -104,27 +113,17 @@ public class PatientGroupController {
      * @return
      */
     @VersionRange
-    @DeleteMapping(value="/delete")
+    @PutMapping(value="/delete")
     public JsonResponseEntity<Map<String, Boolean>> delGroup(@RequestBody String request){
         JsonResponseEntity<Map<String, Boolean>> entity = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(request);
         String doctorId = reader.readString("uid", false);
         String id = reader.readString("id", false);
-        List<PatientGroup> isExistPatientGroup = patientGroupRepository.getIsPatientGroupByDoctorIdAndId(doctorId, Integer.parseInt(id));
-        Map<String, Boolean> data = Maps.newHashMap();
-        if(CollectionUtils.isNotEmpty(isExistPatientGroup)){
-            data.put("isExist",true);
-            entity.setCode(2020);
-            entity.setData(data);
-        }else{
             Boolean delPatientGroup = patientGroupService.delPatientGroup(id, doctorId);
             if(!delPatientGroup){
                 entity.setCode(2021);
             }
-            data.put("isExist",false);
-            entity.setData(data);
             entity.setMsg(delPatientGroup?"删除成功":"删除失败");
-        }
         return entity;
     }
     /**
