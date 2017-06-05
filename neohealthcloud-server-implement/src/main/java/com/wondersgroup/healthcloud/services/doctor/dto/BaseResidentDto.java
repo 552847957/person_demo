@@ -23,6 +23,6 @@ public abstract class BaseResidentDto {
     private Boolean diabetesType;//标签:是否糖尿病 true:是 false:否
     private Boolean apoType;//标签:是否脑卒中 true:是 false:否
     private Boolean isRisk;//标签:是否高危人群 true:是 false:否
-    private Boolean identifytype;//标签:是否实名认证用户 true:是 false:否
+    private Boolean identifyType;//标签:是否实名认证用户 true:是 false:否
     private String address;// 地址
 }
