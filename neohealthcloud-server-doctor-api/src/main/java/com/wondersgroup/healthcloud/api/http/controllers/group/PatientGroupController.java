@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -113,13 +114,10 @@ public class PatientGroupController {
      * @return
      */
     @VersionRange
-    @PutMapping(value="/delete")
-    public JsonResponseEntity<Map<String, Boolean>> delGroup(@RequestBody String request){
+    @DeleteMapping(value="/delete")
+    public JsonResponseEntity<Map<String, Boolean>> delGroup(@RequestParam String uid,@RequestParam String id){
         JsonResponseEntity<Map<String, Boolean>> entity = new JsonResponseEntity<>();
-        JsonKeyReader reader = new JsonKeyReader(request);
-        String doctorId = reader.readString("uid", false);
-        String id = reader.readString("id", false);
-            Boolean delPatientGroup = patientGroupService.delPatientGroup(id, doctorId);
+            Boolean delPatientGroup = patientGroupService.delPatientGroup(id, uid);
             if(!delPatientGroup){
                 entity.setCode(2021);
             }

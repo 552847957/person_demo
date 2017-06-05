@@ -90,7 +90,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             throw new CommonException(1044,"分组不存在");
         }
         String isDefault = findOne.getIsDefault();
-        if("0".equals(isDefault)&&StringUtils.isNotBlank(isDefault)){
+        if("1".equals(isDefault)&&StringUtils.isNotBlank(isDefault)){
             throw new CommonException(1045,"默认分组不能删除"); 
         }
         PatientGroup one = patientGroupRepository.findOne(Integer.parseInt(id));
