@@ -7,6 +7,7 @@ import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.assessment.dto.AssessmentConstrains;
+import com.wondersgroup.healthcloud.services.doctor.dto.BaseResidentDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
@@ -22,44 +23,29 @@ import java.util.Map;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ScreeningDto {
-    @JsonProperty(value="registerId")
-    private String registerid;//用户主键
-    @JsonProperty(value="avatar")
-    private String headphoto;// 头像
-    private String name;//姓名
-    private String gender;//性别
-    private Integer age;//年龄
-    @JsonProperty(value="identifyType")
-    private Boolean hasIdentify;// 是否实名认证
-    @JsonProperty(value="isRisk")
-    private Boolean hasHignRisk;//是否高危
-    @JsonProperty(value="diabetesType")
-    private Boolean hasDiabetes;//是否糖尿病
-    @JsonProperty(value="hypType")
-    private Boolean hasBloodPressure;//是否高血压
-    @JsonProperty(value="apoType")
-    private Boolean hasStroke;//是否脑卒中
+public class ScreeningDto extends BaseResidentDto {
+
     private String riskFactor;//危险因素
 
     public ScreeningDto(Map<String, Object> map,Assessment assessment, RegisterInfo register, UserInfo userInfo) {
-        this.registerid = map.get("registerid").toString();
-        this.headphoto = StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix();
-        this.name = register.getName();
-        this.gender = register.getGender();
-        this.hasIdentify = "0".equals(register.getIdentifytype()) ?false:true;
-        this.hasHignRisk = true;
-        this.hasDiabetes = null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true;
-        this.hasBloodPressure = null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true;
-        this.hasStroke = null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true;
+
+        this.setRegisterId(map.get("registerid").toString());
+        this.setAvatar(StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix());
+        this.setName(register.getName());
+        this.setGender(register.getGender());
+        this.setIdentifyType("0".equals(register.getIdentifytype()) ?false:true);
+        this.setIsRisk(true);
+        this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
+        this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
+        this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
 
         if(null != register && null != register.getPersoncard()){
             Date birthday = DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(register.getPersoncard()));
-            this.age = new DateTime().getYear() - new DateTime(birthday).getYear();
+            this.setAge( new DateTime().getYear() - new DateTime(birthday).getYear());
         }else if(null != userInfo){
-            this.age = userInfo.getAge();
+            this.setAge(userInfo.getAge());
         }else if(null != register && null != register.getBirthday()){
-            this.age = new DateTime().getYear() - new DateTime(register.getBirthday()).getYear();
+            this.setAge(new DateTime().getYear() - new DateTime(register.getBirthday()).getYear());
         }
 
         this.riskFactor = this.getRiskInfo(assessment);
@@ -78,8 +64,8 @@ public class ScreeningDto {
             return "肥胖";
         }
 
-        if ((gender.equals(AssessmentConstrains.GENDER_MAN) && assessment.getWaist() >= 90 )||
-                (gender.equals(AssessmentConstrains.GENDER_WOMAN) && assessment.getWaist() >= 85 )) {
+        if ((this.getGender().equals(AssessmentConstrains.GENDER_MAN) && assessment.getWaist() >= 90 )||
+                (this.getGender().equals(AssessmentConstrains.GENDER_WOMAN) && assessment.getWaist() >= 85 )) {
             return "中心行肥胖";
         }
         if(!"0".equals(assessment.getDiabetesRelatives())){

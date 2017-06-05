@@ -6,6 +6,7 @@ import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.services.doctor.dto.BaseResidentDto;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
@@ -21,41 +22,29 @@ import java.util.Map;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FollowRemindMineDto {
-    @JsonProperty(value="avatar")
-    private String headphoto;// 头像
-    private String name;//姓名
-    private String gender;//性别
-    private Integer age;//年龄
-    @JsonProperty(value="identifyType")
-    private Boolean hasIdentify;// 是否实名认证
-    @JsonProperty(value="isRisk")
-    private Boolean hasHignRisk;//是否高危
-    @JsonProperty(value="diabetesType")
-    private Boolean hasDiabetes;//是否糖尿病
-    @JsonProperty(value="hypType")
-    private Boolean hasBloodPressure;//是否高血压
-    @JsonProperty(value="apoType")
-    private Boolean hasStroke;//是否脑卒中
+public class FollowRemindMineDto extends BaseResidentDto {
     private String followDate;//随访开始时间
 
     public FollowRemindMineDto(Map<String, Object> map,  RegisterInfo register, UserInfo userInfo) {
-        this.headphoto = StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix();
-        this.name = register.getName();
-        this.gender = register.getGender();
-        this.hasIdentify = "0".equals(register.getIdentifytype()) ?false:true;
-        this.hasHignRisk = null == map.get("is_risk") || "0".equals(map.get("is_risk").toString()) ?false:true;;
-        this.hasDiabetes = null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true;
-        this.hasBloodPressure = null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true;
-        this.hasStroke = null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true;
+
+        this.setRegisterId(map.get("registerid").toString());
+        this.setAvatar(StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix());
+        this.setName(register.getName());
+        this.setGender(register.getGender());
+        this.setIdentifyType("0".equals(register.getIdentifytype()) ?false:true);
+        this.setIsRisk(null == map.get("is_risk") || "0".equals(map.get("is_risk").toString()) ?false:true);
+        this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
+        this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
+        this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
+
 
         if(null != register && null != register.getPersoncard()){
             Date birthday = DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(register.getPersoncard()));
-            this.age = new DateTime().getYear() - new DateTime(birthday).getYear();
+            this.setAge( new DateTime().getYear() - new DateTime(birthday).getYear());
         }else if(null != userInfo){
-            this.age = userInfo.getAge();
+            this.setAge(userInfo.getAge());
         }else if(null != register && null != register.getBirthday()){
-            this.age = new DateTime().getYear() - new DateTime(register.getBirthday()).getYear();
+            this.setAge(new DateTime().getYear() - new DateTime(register.getBirthday()).getYear());
         }
         if(null != map.get("report_date")){
             this.followDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S").parseDateTime(map.get("report_date").toString()).toString("yyyy-MM-dd");
