@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.dto.doctor.disease;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.common.image.utils.ImagePath;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -22,15 +23,22 @@ import java.util.Map;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScreeningDto {
+    @JsonProperty(value="registerId")
     private String registerid;//用户主键
+    @JsonProperty(value="avatar")
     private String headphoto;// 头像
     private String name;//姓名
     private String gender;//性别
     private Integer age;//年龄
+    @JsonProperty(value="identifyType")
     private Boolean hasIdentify;// 是否实名认证
+    @JsonProperty(value="isRisk")
     private Boolean hasHignRisk;//是否高危
+    @JsonProperty(value="diabetesType")
     private Boolean hasDiabetes;//是否糖尿病
+    @JsonProperty(value="hypType")
     private Boolean hasBloodPressure;//是否高血压
+    @JsonProperty(value="apoType")
     private Boolean hasStroke;//是否脑卒中
     private String riskFactor;//危险因素
 
