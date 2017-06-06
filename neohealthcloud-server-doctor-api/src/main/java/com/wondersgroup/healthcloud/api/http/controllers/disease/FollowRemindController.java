@@ -80,7 +80,7 @@ public class FollowRemindController {
         if(list.size() > pageSize){
             hasMore = true;
             flag++;
-            list.remove(10);
+            list.remove(pageSize);
         }
 
         List<FollowRemindDto> entityList = Lists.newArrayList();
