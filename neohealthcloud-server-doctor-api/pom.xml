@@ -22,6 +22,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.wondersgroup.healthcloud</groupId>
             <artifactId>neohealthcloud-server-common-web</artifactId>
             <version>${parent.version}</version>
