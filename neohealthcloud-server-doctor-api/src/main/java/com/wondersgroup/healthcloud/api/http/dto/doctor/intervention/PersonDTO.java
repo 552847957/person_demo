@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor.intervention;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.enums.IntervenEnum;
+import com.wondersgroup.healthcloud.services.doctor.dto.BaseResidentDto;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class PersonDTO {
+public class PersonDTO{
 
     private String name;//姓名
     private String gender;//性别 1 男 2 女
@@ -29,25 +30,23 @@ public class PersonDTO {
      * （记录用户风险评估的最后一次状态，新检测的结果替换服务器的数据，以最后一次为准！）
      * 如果有高糖脑 那就没有危标签
      */
-    @JsonProperty("is_risk")
+    @JsonProperty("isRisk")
     private Boolean isRisk;//
-    @JsonProperty("is_jky")
+
+    @JsonProperty("identifyType")
     private Boolean isJky;//是否是 "实" 健康云注册并实名认证的
-    @JsonProperty("is_hyp")
+    @JsonProperty("hypType")
     private Boolean isHyp;//是否是高血压 "高"
-    @JsonProperty("is_diabetes")
+
+    @JsonProperty("diabetesType")
     private Boolean isDiabetes;//是否是糖尿病 "糖"
-    @JsonProperty("is_apo")
+
+    @JsonProperty("apoType")
     private Boolean isApo;//是否是脑卒中 "脑"
 
     private String memo;//列表下描述 例:血糖首次异常、血糖连续7天过高
 
-    @JsonProperty("can_intervene")
     private Boolean canIntervene;//能否干预
-
-
-    private String addressText;
-    private String addressOther;
 
     /**
      * 我的干预列表使用以下字段

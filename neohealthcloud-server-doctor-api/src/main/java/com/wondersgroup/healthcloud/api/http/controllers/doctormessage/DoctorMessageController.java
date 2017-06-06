@@ -130,6 +130,7 @@ public class DoctorMessageController {
             }
             resultList.add(doctorMessageDTO);
         }
+        response.setContent(resultList, false, null, null);
         return response;
     }
 
@@ -153,9 +154,10 @@ public class DoctorMessageController {
             doctorMessageDTO.setHasUnread(false);
             resultList.add(doctorMessageDTO);
         }
-        //todo 要不要把这个类型所有的消息都设置为已读？
         //把医生下面所有这个类型的消息都设置为已读
         manageDoctorMessageService.setMsgIsReadByMsgType(uid,msg_type);
+
+        response.setContent(resultList, false, null, null);
         return response;
     }
 

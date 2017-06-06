@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.services.doctormessage.ManageDoctorMessageSe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -88,11 +89,11 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 	@Override
 	public List<DoctorMessage> findTypeMsgListByUid(String uid) {
 		String sql = "select * from ( select * from app_tb_doctor_message" +
-				" where receiveId = '%s' and del_flag = '0'" +
+				" where receiveId = '%s' and del_flag = '0' and msgType !='2' " +
 				" order by updateDate desc)" +
 				" a group by msgType order by msgType";
 		sql = String.format(sql,uid);
-		return jdbcTemplate.queryForList(sql, DoctorMessage.class);
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper(DoctorMessage.class));
 	}
 
 	/**
@@ -122,7 +123,7 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 				" order by a.updateDate desc " +
 				" limit %d,%d";
 		sql = String.format(sql,uid,msgType,pageNo*pageSize,pageSize);
-		return jdbcTemplate.queryForList(sql, DoctorMessage.class);
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper(DoctorMessage.class));
 	}
 
 	/**

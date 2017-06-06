@@ -31,4 +31,7 @@ public class DoctorMessage{
     @Column(name = "del_flag")
     private String delFlag;//删除标志
 
+    @Column(name = "url_fragment")
+    private String urlFragment;//消息跳转地址
+
 }

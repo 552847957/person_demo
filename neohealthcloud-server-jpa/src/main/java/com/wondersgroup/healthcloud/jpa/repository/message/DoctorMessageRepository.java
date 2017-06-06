@@ -6,7 +6,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctormessage.DoctorMessage;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface DoctorMessageRepository extends JpaRepository<DoctorMessage, String>{
 	
@@ -20,12 +22,18 @@ public interface DoctorMessageRepository extends JpaRepository<DoctorMessage, St
 			" and m.isRead = 0 and m.receiveId = ?1 and m.msgType = ?2")
 	int countUnreadMsgByUidAndType(String uid, String msgType);
 
+	@Transactional
+	@Modifying
 	@Query(" update DoctorMessage set delFlag ='1' where id = ?1 ")
 	void deleteDoctorMsgById(String id);
 
+	@Transactional
+	@Modifying
 	@Query(" update DoctorMessage set delFlag ='1' where receiveId = ?1 and msgType = ?2 ")
 	void deleteDoctorMsgByMsgType(String uid, String msgType);
 
-	@Query(" update DoctorMessage set isRead ='1' where receiveId = ?1 and msgType = ?2  and isRead = 0 ")
+	@Transactional
+	@Modifying
+	@Query(" update DoctorMessage set isRead ='1' where receiveId = ?1 and msgType = ?2  and isRead = '0' ")
 	void setMsgIsReadByMsgType(String uid, String msgType);
 }

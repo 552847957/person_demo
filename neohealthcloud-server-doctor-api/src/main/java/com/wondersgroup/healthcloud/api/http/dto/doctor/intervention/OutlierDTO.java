@@ -70,6 +70,8 @@ public class OutlierDTO {
      */
     private String diastolicFlag;
 
+    private String measureWay;//测试途径 1:手动输入2:全程设备输入3:蓝牙设备4:G端报告解析  1是有笔的那个图表，其他是另一个图标
+
     public String getFlag() {
 
         if (fpgValue == null || StringUtils.isBlank(getTestPeriod())) {
@@ -132,5 +134,6 @@ public class OutlierDTO {
         this.testHour = neoFamIntervention.getWarnDate()==null?"":DateFormatter.hourDateFormat(neoFamIntervention.getWarnDate());
         this.systolic = neoFamIntervention.getSystolic();
         this.diastolic = neoFamIntervention.getDiastolic();
+        this.measureWay = neoFamIntervention.getMeasureWay();
     }
 }

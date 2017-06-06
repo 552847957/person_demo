@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -70,29 +71,31 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
                 " from ( " +
-                " select * from (\n" +
-                " select register_id,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
-                " where type!='30000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) group by register_id) a\n" +
+                " select a.* from (\n" +
+                " select register_id,warn_date,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
+                " where type!='30000' and type!='41000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) group by register_id) a\n" +
                 " INNER JOIN\n" +
                 " (select register_id from neo_fam_intervention \n" +
-                " where type!='30000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) and type REGEXP '%s' group by register_id\n" +
+                " where type!='30000' and type!='41000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) %s group by register_id \n" +
                 " ) b on a.register_id=b.register_id " +
                 ") t1\n" +
                 " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid \n" +
                 " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
                 " %s " +
                 " order by group_type desc,t1.warn_date desc " +
-                " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+                " limit "+(pageNo)*pageSize+","+(pageSize);
         StringBuffer  sb = new StringBuffer("");
         if(StringUtils.isNotBlank(interven_type)){
+            sb.append("and type REGEXP '");
             String[] types = interven_type.split(",");
             for (String type : types){
                 sb.append(type).append("|");
             }
             sb.deleteCharAt(sb.length()-1);
+            sb.append("'");
         }
-        sql = String.format(sql,uid,sb.toString(),null == signStatus?"": " and sign_status = " + signStatus);
-        return jdbcTemplate.queryForList(sql, IntervenEntity.class);
+        sql = String.format(sql,uid,sb.toString(),StringUtils.isBlank(signStatus)?"": " and sign_status = " + signStatus);
+        return jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
     }
 
 
@@ -111,12 +114,12 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                      " and del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
                      " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
         }else{
             sql = sql + " limit "+size;
         }
         sql = String.format(sql,registerId);
-        return jdbcTemplate.queryForList(sql, NeoFamIntervention.class);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
     /**
@@ -135,12 +138,12 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and register_id = '%s' and type REGEXP '40000|40001|40002|40003|40004'" +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+            sql = sql + " limit "+pageNo*pageSize+","+(pageSize);
         }else{
             sql = sql + " limit "+size;
         }
         sql = String.format(sql,registerId);
-        return jdbcTemplate.queryForList(sql, NeoFamIntervention.class);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
     /**
@@ -226,9 +229,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                      " JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
                      " where di.del_flag = '0' and di.doctor_id = '%s'" +
                      " order by di.create_time desc" +
-                     " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+                     " limit "+(pageNo)*pageSize+","+(pageSize);
         sql = String.format(sql,uid);
-        return jdbcTemplate.queryForList(sql, IntervenEntity.class);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(IntervenEntity.class));
     }
 
     /**
@@ -250,12 +253,12 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and del_flag='0' and is_deal ='1' and create_date <= '%s')" +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
         }else{
             sql = sql + " limit "+size;
         }
         sql = String.format(sql,neoFamIntervention.getRegisterId(), DateFormatter.dateTimeFormat(neoFamIntervention.getCreateDate()));
-        return jdbcTemplate.queryForList(sql, NeoFamIntervention.class);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(IntervenEntity.class));
     }
 
     /**
@@ -278,12 +281,12 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and register_id = '%s' and type REGEXP '40000|40001|40002|40003|40004' and create_date <= '%s'" +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
         }else{
             sql = sql + " limit "+size;
         }
         sql = String.format(sql,neoFamIntervention.getRegisterId(), DateFormatter.dateTimeFormat(neoFamIntervention.getCreateDate()));
-        return jdbcTemplate.queryForList(sql, NeoFamIntervention.class);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
     /**
