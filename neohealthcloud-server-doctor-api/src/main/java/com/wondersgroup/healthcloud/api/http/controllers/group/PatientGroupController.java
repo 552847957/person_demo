@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +25,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.group.PatientGroup;
+import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.repository.group.PatientGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
@@ -194,5 +194,34 @@ public class PatientGroupController {
         }
         return entity;
     }
-    
+
+    @VersionRange
+    @GetMapping(value = "/selectGroupList")
+    public JsonResponseEntity<List<PatientGroupDto>> getGroupByUserIdAndDoctorId(
+            @RequestParam(value = "doctorId", required = true) String doctorId,
+            @RequestParam(value = "userId", required = true) String userId) {
+        JsonResponseEntity<List<PatientGroupDto>> entity = new JsonResponseEntity<>();
+        List<PatientGroupDto> list = new ArrayList<>();
+        List<PatientGroup> patientList = patientGroupService.getPatientGroupByDoctorId(doctorId);
+        for(PatientGroup p:patientList){
+            PatientGroupDto dto = new PatientGroupDto();
+            dto.setId(p.getId());
+            SignUserDoctorGroup isSelectedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId());
+            if(null==isSelectedByGroupIdAndUserId&&"1".equals(p.getIsDefault())){
+                dto.setIsSelected(true); 
+            }else if(null!=isSelectedByGroupIdAndUserId){
+                dto.setIsSelected(true);
+            }else{
+                dto.setIsSelected(false);
+            }
+            dto.setName(p.getName());
+            dto.setIsDefault(p.getIsDefault());
+            int patientNum=signUserDoctorGroupRepository.getNumByGroupId(p.getId());
+            dto.setPatientNum(patientNum);
+            dto.setCreateDate(PatientGroupDto.dateToString(p.getCreateTime()));
+            list.add(dto);
+        }
+        entity.setData(list);
+        return entity;
+    }
 }

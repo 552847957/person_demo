@@ -21,4 +21,7 @@ public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoc
     
     @Query(nativeQuery = true,value="SELECT count(1) FROM app_tb_sign_user_doctor_group t WHERE t.group_id=?1 AND t.del_flag='0'")
     int getNumByGroupId(Integer groupId);
+    
+    @Query(nativeQuery=true,value="SELECT * FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.group_id=?2 AND t.del_flag='0'")
+    SignUserDoctorGroup getIsSelectedByGroupIdAndUserId(String userId,Integer groupId);
 }

@@ -29,6 +29,9 @@ public class PatientGroupDto {
     private String isDefault;
     
     private int patientNum;
+    
+    private Boolean isSelected;
+    
     public PatientGroupDto(){
         
     }
