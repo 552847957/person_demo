@@ -4,6 +4,7 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorTemplateRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,14 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
     @Override
     public void deleteOne(String id) {
         doctorTemplateRepository.delete(id);
+    }
+
+    @Override
+    public void saveTemplate(DoctorTemplate entity) {
+        if(StringUtils.isBlank(entity.getId())){
+            entity.setId(IdGen.uuid());
+        }
+        doctorTemplateRepository.save(entity);
     }
 
     @Autowired

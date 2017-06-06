@@ -22,4 +22,6 @@ public class DoctorTemplate {
     private String content;
     @Column(name = "update_time")
     private Date updateTime;
+    @Column(name = "create_time")
+    private Date createTime;
 }

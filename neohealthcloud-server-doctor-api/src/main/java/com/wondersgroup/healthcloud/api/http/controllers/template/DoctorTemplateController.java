@@ -11,6 +11,7 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -20,33 +21,11 @@ public class DoctorTemplateController {
     @Autowired
     private DoctorTemplateService doctorTemplateService;
 
+    private String defaultType = "1";
 
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
-    @VersionRange
-    public JsonResponseEntity<TemplateDTO> update(@RequestBody String body) {
-        JsonKeyReader reader = new JsonKeyReader(body);
-        String id = reader.readString("id", true);
-        String doctorId = reader.readString("doctor_id", false);
-        String type = reader.readString("type", false);
-        String title = reader.readString("title", false);
-        String content = reader.readString("content", false);
 
-        DoctorTemplate doctorTemplate = doctorTemplateService.update(id, doctorId, type, title, content);
 
-        JsonResponseEntity<TemplateDTO> response = new JsonResponseEntity<>();
-        response.setData(new TemplateDTO(doctorTemplate));
-        return response;
-    }
-
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    @VersionRange
-    public JsonResponseEntity<String> delete(@RequestParam String id) {
-        doctorTemplateService.deleteOne(id);
-        JsonResponseEntity<String> response = new JsonResponseEntity<>();
-        response.setMsg("删除成功");
-        return response;
-    }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
@@ -74,6 +53,73 @@ public class DoctorTemplateController {
         return response;
     }
 
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<TemplateDTO> detail(@RequestParam("doctorId") String doctorId,String id) {
+        DoctorTemplate template = doctorTemplateService.findOne(id);
+        JsonResponseEntity<TemplateDTO> response = new JsonResponseEntity<>();
+        if(null != template){
+            response.setData(new TemplateDTO(template));
+        }else{
+            response.setCode(-1);
+            response.setMsg("无数据");
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity add(@RequestBody String body) {
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String doctorId = reader.readString("doctorId", false);
+        String title = reader.readString("title", false);
+        String content = reader.readString("content", false);
+
+        DoctorTemplate entity = new DoctorTemplate();
+        entity.setTitle(title);//TODO　数据检查
+        entity.setContent(content);
+        entity.setDoctorId(doctorId);
+        entity.setType("1");
+        entity.setUpdateTime(new Date());
+        entity.setCreateTime(new Date());
+
+        doctorTemplateService.saveTemplate(entity);
+        JsonResponseEntity response = new JsonResponseEntity<>();
+        response.setData("添加成功");
+        response.setCode(0);
+        return response;
+    }
+
+    @RequestMapping(value = "/edit", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity edit(@RequestBody String body) {
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String id = reader.readString("id", false);
+        String doctorId = reader.readString("doctorId", false);
+        String title = reader.readString("title", false);
+        String content = reader.readString("content", false);
+
+
+        //TODO 数据检查
+
+        doctorTemplateService.update(id, doctorId, defaultType, title, content);
+        JsonResponseEntity response = new JsonResponseEntity<>();
+        response.setData("编辑成功");
+        response.setCode(0);
+        return response;
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<String> delete(@RequestBody String body) {
+        JsonKeyReader reader = new JsonKeyReader(body);
+        String id = reader.readString("id", false);
+        String doctorId = reader.readString("doctorId", false);
+        doctorTemplateService.deleteOne(id);
+        JsonResponseEntity<String> response = new JsonResponseEntity<>();
+        response.setMsg("删除成功");
+        return response;
+    }
 
 }
 

@@ -14,4 +14,6 @@ public interface DoctorTemplateService {
     DoctorTemplate findOne(String id);
 
     void deleteOne(String id);
+
+    void saveTemplate(DoctorTemplate entity);
 }
