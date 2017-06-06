@@ -58,7 +58,8 @@ public class DoctorAccountDTO {
     private Long dynamicNum;//动态
 
     private Boolean verified = true;
-
+    
+    private Integer groupNum;
 
 
     public DoctorAccountDTO(Map<String, Object> doctor) {
@@ -292,4 +293,15 @@ public class DoctorAccountDTO {
     public void setVerified(Boolean verified) {
         this.verified = verified;
     }
+
+    public Integer getGroupNum() {
+        return groupNum;
+    }
+
+    public void setGroupNum(Integer groupNum) {
+        this.groupNum = groupNum;
+    }
+
+    
+    
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.group.PatientGroupDto;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -54,8 +55,8 @@ public class PatientGroupController {
      */
     @VersionRange
     @GetMapping(value="/list")
-    public JsonResponseEntity<List<PatientGroupDto>> getGroupByDoctorId(@RequestParam(value="uid",required=true) String doctorId){
-        JsonResponseEntity<List<PatientGroupDto>> entity = new JsonResponseEntity<>();
+    public JsonListResponseEntity<PatientGroupDto> getGroupByDoctorId(@RequestParam(value="uid",required=true) String doctorId){
+        JsonListResponseEntity<PatientGroupDto> entity = new JsonListResponseEntity<>();
         List<PatientGroupDto> list = new ArrayList<>();
         try {
             List<PatientGroup> patientList = patientGroupService.getPatientGroupByDoctorId(doctorId);
@@ -70,7 +71,7 @@ public class PatientGroupController {
                 dto.setPatientNum(patientNum);
                 list.add(dto);
             }
-            entity.setData(list);
+            entity.setContent(list);
             return entity;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -197,10 +198,10 @@ public class PatientGroupController {
 
     @VersionRange
     @GetMapping(value = "/selectGroupList")
-    public JsonResponseEntity<List<PatientGroupDto>> getGroupByUserIdAndDoctorId(
+    public JsonListResponseEntity<PatientGroupDto> getGroupByUserIdAndDoctorId(
             @RequestParam(value = "doctorId", required = true) String doctorId,
             @RequestParam(value = "userId", required = true) String userId) {
-        JsonResponseEntity<List<PatientGroupDto>> entity = new JsonResponseEntity<>();
+        JsonListResponseEntity<PatientGroupDto> entity = new JsonListResponseEntity<>();
         List<PatientGroupDto> list = new ArrayList<>();
         List<PatientGroup> patientList = patientGroupService.getPatientGroupByDoctorId(doctorId);
         for(PatientGroup p:patientList){
@@ -221,7 +222,7 @@ public class PatientGroupController {
             dto.setCreateDate(PatientGroupDto.dateToString(p.getCreateTime()));
             list.add(dto);
         }
-        entity.setData(list);
+        entity.setContent(list);
         return entity;
     }
 }

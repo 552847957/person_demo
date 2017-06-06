@@ -1,5 +1,15 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountDTO;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
@@ -10,12 +20,8 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountNoneException;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorInforUpdateLengthException;
+import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * Created by longshasha on 16/8/1.
@@ -32,8 +38,9 @@ public class DoctorController {
 
     @Autowired
     private MedicalCircleService medicalCircleService;
-
-
+    
+    @Autowired
+    private PatientGroupService patientGroupService;
 
     /**
      * 根据uid获取医生详情
@@ -197,7 +204,7 @@ public class DoctorController {
         doctorAccountDTO.setFansNum(medicalCircleService.getDocFansNum(id));
         doctorAccountDTO.setNotecaseNum(medicalCircleService.getNoteCaseNum(id));
         doctorAccountDTO.setDynamicNum(medicalCircleService.getDynamicNum(id));
-
+        doctorAccountDTO.setGroupNum(patientGroupService.getGroupNumByDoctorId(id));
         doctorAccountDTO.setHasQA(doctorService.checkDoctorHasService(id,"Q&A"));
         return doctorAccountDTO;
     }
