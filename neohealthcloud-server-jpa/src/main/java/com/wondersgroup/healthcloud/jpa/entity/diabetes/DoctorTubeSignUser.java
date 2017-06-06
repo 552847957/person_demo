@@ -51,11 +51,11 @@ public class DoctorTubeSignUser {
     @Column(name = "contact_phone")
     private String contactPhone;//联系电话
 
-    @Column(name = "hospitalCode")
-    private String hospital_code;//医疗机构代码
+    @Column(name = "hospital_code")
+    private String hospitalCode;//医疗机构代码
 
-    @Column(name = "tubeDoctorpersoncard")
-    private String tube_doctor_personcard;//所属在管医生身份证号
+    @Column(name = "tube_doctor_personcard")
+    private String tubeDoctorpersoncard;//所属在管医生身份证号
 
     @Column(name = "tube_type")
     private Integer tubeType;//在管区域类型  0：C端用户街道判断 1：G端在管
@@ -63,8 +63,8 @@ public class DoctorTubeSignUser {
     @Column(name = "sign_doctor_personcard")
     private String signDoctorPersoncard;//所属签约医生身份证号
 
-    @Column(name = "signStatus")
-    private String sign_status;//签约状态 1：已签约,0:未签约
+    @Column(name = "sign_status")
+    private String signStatus;//签约状态 1：已签约,0:未签约
 
     private String identifytype;//0：未实名认证 1：已实名认证C端用户
 
@@ -86,6 +86,7 @@ public class DoctorTubeSignUser {
     @Column(name = "source_id")
     private String sourceId;
 
+    private String address;// 地址
 
     private String create_by;
 

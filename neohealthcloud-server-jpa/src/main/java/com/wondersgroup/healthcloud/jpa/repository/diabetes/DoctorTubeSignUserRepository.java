@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Created by longshasha on 17/5/16.
@@ -20,4 +21,7 @@ public interface DoctorTubeSignUserRepository extends JpaRepository<DoctorTubeSi
     @Modifying
     @Query(nativeQuery = true,value ="update fam_doctor_tube_sign_user set is_risk = ?2 where card_number = ?1 and card_type = '01'")
     public void updateRisk(String cardNumber,Integer isRisk);
+
+    @Query(nativeQuery = true,value = "select d.*,a.province as address from fam_doctor_tube_sign_user d left join app_tb_register_address a on d.id = a.registerid")
+    List<DoctorTubeSignUser> getAll();
 }
