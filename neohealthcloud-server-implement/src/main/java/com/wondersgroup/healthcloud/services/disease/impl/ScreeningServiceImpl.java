@@ -54,7 +54,7 @@ public class ScreeningServiceImpl implements ScreeningService {
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from (select * from app_tb_patient_assessment where del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t1 \n" +
                 " JOIN app_tb_register_info t2 on t1.uid = t2.registerid\n" +
-                " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'"+
+                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'"+
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "       type=1 and registerid = t1.uid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')\n" +
                 " and t3.is_risk = 1 and t3.tube_type != '1' and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"') " +

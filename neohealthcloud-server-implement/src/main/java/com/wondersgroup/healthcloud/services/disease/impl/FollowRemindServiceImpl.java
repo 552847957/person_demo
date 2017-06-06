@@ -39,7 +39,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
-                " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
+                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "     type=2 and registerid = t1.registerid and  create_date BETWEEN t1.remind_begin_date AND t1.remind_end_date and del_flag = '0')\n" +
                 " AND NOW() BETWEEN t1.remind_begin_date AND t1.remind_end_date AND t1.del_flag = '0' \n" +
@@ -68,7 +68,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
         String sql = "select t1.report_date,t2.name,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk\n" +
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
-                " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
+                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
                 " where  t1.del_flag = '0' AND t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"'\n" +
                 " and t3.card_type = '01' and t3.tube_type != '1' and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
                 " order by  t1.report_date DESC"+
