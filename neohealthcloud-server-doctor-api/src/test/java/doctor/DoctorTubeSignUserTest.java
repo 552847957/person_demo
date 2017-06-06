@@ -3,12 +3,15 @@ package doctor;
 import com.wondersgroup.healthcloud.api.configurations.Application;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
+import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -27,8 +30,10 @@ public class DoctorTubeSignUserTest {
 
     @Autowired
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
+    @Autowired
+    private DoctorTubeSignUserService doctorTubeSignUserService;
 
-    @Test
+    //@Test
     public void getAllTest() {
         List<DoctorTubeSignUser> doctorTubeSignUserList = doctorTubeSignUserRepository.getAll();
         logger.info(String.format("共查询到[%d条]数据", doctorTubeSignUserList.size()));
@@ -37,5 +42,15 @@ public class DoctorTubeSignUserTest {
         }
 
         doctorTubeSignUserRepository.findAll();
+    }
+
+    @Test
+    public void search() {
+        ResidentInfoDto residentInfoDto = new ResidentInfoDto();
+        residentInfoDto.setApoType(false);
+        Page<DoctorTubeSignUser> page = doctorTubeSignUserService.search(residentInfoDto, 0);
+        List<DoctorTubeSignUser> list = page.getContent();
+        logger.info(String.format("共查询到%d条数据", list.size()));
+        logger.info(page.toString());
     }
 }

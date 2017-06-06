@@ -86,7 +86,7 @@ public class DoctorTubeSignUser {
     @Column(name = "source_id")
     private String sourceId;
 
-    private String address;// 地址
+    //private String address;// 地址
 
     private String create_by;
 
