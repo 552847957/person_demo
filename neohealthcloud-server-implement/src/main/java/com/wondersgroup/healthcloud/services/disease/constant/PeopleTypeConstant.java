@@ -5,7 +5,7 @@ package com.wondersgroup.healthcloud.services.disease.constant;
  *
  * @author limenghua
  */
-public class PeopleTypeEnumConstant {
+public class PeopleTypeConstant {
     public static final String DISEASE = "disease";
     public static final String RISK = "risk";
     public static final String HEALTHY = "healthy";

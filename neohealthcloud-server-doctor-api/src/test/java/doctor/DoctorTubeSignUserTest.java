@@ -47,7 +47,10 @@ public class DoctorTubeSignUserTest {
     @Test
     public void search() {
         ResidentCondition residentInfoDto = new ResidentCondition();
-        residentInfoDto.setDiseaseType("apo,hyp,diabetes");
+        // apo,hyp,diabetes
+        // residentInfoDto.setDiseaseType("apo,hyp,diabetes");
+        // disease  risk  healthy
+        residentInfoDto.setPeopleType("healthy");
         residentInfoDto.setSigned(1);
         Page<DoctorTubeSignUser> page = doctorTubeSignUserService.search(residentInfoDto, 0);
         List<DoctorTubeSignUser> list = page.getContent();

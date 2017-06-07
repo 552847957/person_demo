@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
+import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         Page<DoctorTubeSignUser> list = doctorTubeSignUserRepository.findAll(new Specification<DoctorTubeSignUser>() {
             @Override
             public Predicate toPredicate(Root<DoctorTubeSignUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> predicates = Lists.newArrayList();
                 Map<String, String> equalMap = Maps.newHashMap();
                 Map<String, String> notEqualMap = Maps.newHashMap();
 
@@ -53,6 +55,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                     equalMap.put("signStatus", String.valueOf(user.getSigned()));
                 }
 
+                // 慢病种类筛选
                 if (StringUtils.isNotBlank(user.getDiseaseType())) {
                     String[] diseaseArray = user.getDiseaseType().split(",");
                     for (String s : diseaseArray) {
@@ -70,7 +73,27 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                     }// end for
                 }// end if
 
-                List<Predicate> predicates = Lists.newArrayList();
+                // 人群分类
+                if (StringUtils.isNotBlank(user.getPeopleType())) {
+                    switch (user.getPeopleType()) {
+                        case PeopleTypeConstant.RISK:
+                            // 高危人群
+                            equalMap.put("isRisk", "1");
+                            break;
+                        case PeopleTypeConstant.DISEASE:
+                            // 疾病人群
+                            Predicate condition = cb.or(cb.notEqual(root.<String>get("apoType"), "0"), cb.notEqual(root.<String>get("diabetesType"), "0"), cb.notEqual(root.<String>get("hypType"), "0"));
+                            predicates.add(condition);
+                            break;
+                        case PeopleTypeConstant.HEALTHY:
+                            // 健康人群
+                            Predicate conditionH = cb.and(cb.equal(root.<String>get("apoType"), "0"), cb.equal(root.<String>get("diabetesType"), "0"), cb.equal(root.<String>get("hypType"), "0"), cb.equal(root.<String>get("isRisk"), "0"));
+                            predicates.add(conditionH);
+                            break;
+                    }// end switch
+                }// end if
+
+
                 // equal
                 for (String s : equalMap.keySet()) {
                     Predicate condition = cb.equal(root.<String>get(s), equalMap.get(s));
