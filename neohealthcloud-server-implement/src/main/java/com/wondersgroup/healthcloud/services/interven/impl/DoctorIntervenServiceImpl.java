@@ -8,8 +8,10 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.NeoFamInterventionRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInterventionRepository;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
@@ -49,6 +51,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     private NeoFamInterventionRepository neoFamInterventionRepository;
 
     @Autowired
+    private DoctorInfoRepository doctorInfoRepository;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
 
@@ -64,7 +69,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     @Override
     public List<IntervenEntity> findTodoInterveneList(String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
 
-        String sql = " select t1.register_id,t1.typelist,t3.`name`,t3.gender,t3.age,t3.identifytype," +
+        DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
+        String sql = " select t1.register_id,t1.typelist,t2.`name`,t2.gender,t3.age,t2.identifytype," +
                 " t2.headphoto as avatar,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
@@ -78,7 +84,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " ) b on a.register_id=b.register_id " +
                 ") t1\n" +
                 " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid \n" +
-                " JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
+                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01' " +
+                "          AND (t3.sign_doctor_personcard is null or t3.sign_doctor_personcard ='%s') and t3.del_flag = '0' \n" +
                 " %s " +
                 " order by group_type desc,t1.warn_date desc " +
                 " limit "+(pageNo)*pageSize+","+(pageSize);
@@ -92,7 +99,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             sb.deleteCharAt(sb.length()-1);
             sb.append("'");
         }
-        sql = String.format(sql,uid,sb.toString(),StringUtils.isBlank(signStatus)?"": " and sign_status = " + signStatus);
+        sql = String.format(sql,uid,sb.toString(),doctorInfo.getIdcard(),StringUtils.isBlank(signStatus)?"": " and sign_status = " + signStatus);
         return jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
     }
 
@@ -108,7 +115,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<NeoFamIntervention> findBloodGlucoseOutlierListByRegisterId(String registerId, Boolean is_all, int pageNo, int pageSize, int size) {
-        String sql = " select * from neo_fam_intervention where  register_id = '%s' and (type = '10000' or type = '20000')\n" +
+        String sql = " select * from neo_fam_intervention where  register_id = '%s' and type REGEXP '10000|20000|30000' \n" +
                      " and del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
                      " order by warn_date desc ";
         if(is_all){
@@ -212,8 +219,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<IntervenEntity> findPersonalInterveneList(String uid, int pageNo, int pageSize) {
-        String sql = " select di.patient_id as register_id,aa.typelist,u.`name`,u.gender,u.age,\n" +
-                     " u.identifytype,di.id,di.create_time asinterventionDate,di.content\n" +
+        String sql = " select di.patient_id as register_id,aa.typelist,info.`name`,info.gender,u.age,\n" +
+                     " info.identifytype,di.id,di.create_time asinterventionDate,di.content\n" +
                      " from app_tb_doctor_intervention di\n" +
                      " inner join \n" +
                      " (select a.* from (\n" +
@@ -305,7 +312,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public IntervenEntity getUserDiseaseLabelByRegisterId(String registerId) {
-        String sql = " select a.registerid as register_id,b.`name`,b.gender,a.headphoto as avatar,b.age,b.identifytype,\n" +
+        String sql = " select a.registerid as register_id,a.`name`,b.gender,a.headphoto as avatar,b.age,a.identifytype,\n" +
                 "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk\n" +
                 " from app_tb_register_info a \n" +
                 " join fam_doctor_tube_sign_user b on a.personcard = b.card_number and b.card_type = '01'\n" +
