@@ -14,4 +14,11 @@ import lombok.Data;
 public class ResidentInfoDto extends BaseResidentDto {
     //是否分组
     private Boolean ifGrouped;
+
+    @Override
+    public String toString() {
+        return "ResidentInfoDto{" +
+                "ifGrouped=" + ifGrouped +
+                "} " + super.toString();
+    }
 }

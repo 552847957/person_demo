@@ -9,11 +9,13 @@ import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRe
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
 import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant;
+import com.wondersgroup.healthcloud.services.disease.constant.ResidentConstant;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -117,5 +119,52 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     @Override
     public List<ResidentInfoDto> queryByGroup(String groupId, int page, int pageSize) {
         return null;
+    }
+
+    @Override
+    public List<ResidentInfoDto> searchResidents(Page<DoctorTubeSignUser> pageData) {
+        List<ResidentInfoDto> dtoList = Lists.newArrayList();
+        ;
+        if (pageData != null && pageData.getContent() != null) {
+            List<DoctorTubeSignUser> tubeSignUserList = pageData.getContent();
+
+            if (tubeSignUserList.size() > 0) {
+
+                for (DoctorTubeSignUser doctorTubeSignUser : tubeSignUserList) {
+                    ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+                    dtoList.add(dto);
+                }
+            }// end if
+        }
+        return dtoList;
+    }
+
+    private ResidentInfoDto copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
+        ResidentInfoDto dto = new ResidentInfoDto();
+        BeanUtils.copyProperties(doctorTubeSignUser, dto);
+        dto.setRegisterId(doctorTubeSignUser.getId());
+
+        // 高糖脑危标签设置
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getHypType())) {
+            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getHypType())) {
+                dto.setHypType(true);
+            }
+        }
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getDiabetesType())) {
+            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getDiabetesType())) {
+                dto.setDiabetesType(true);
+            }
+        }
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getApoType())) {
+            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getApoType())) {
+                dto.setApoType(true);
+            }
+        }
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getIsRisk())) {
+            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getIsRisk())) {
+                dto.setIsRisk(true);
+            }
+        }
+        return dto;
     }
 }

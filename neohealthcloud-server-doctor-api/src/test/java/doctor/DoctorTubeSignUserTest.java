@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -48,16 +49,20 @@ public class DoctorTubeSignUserTest {
     public void search() {
         ResidentCondition residentInfoDto = new ResidentCondition();
         // apo,hyp,diabetes
-        // residentInfoDto.setDiseaseType("apo,hyp,diabetes");
+        residentInfoDto.setDiseaseType("apo,hyp,diabetes");
         // disease  risk  healthy
-        residentInfoDto.setPeopleType("healthy");
+        // residentInfoDto.setPeopleType("healthy");
         residentInfoDto.setSigned(1);
         Page<DoctorTubeSignUser> page = doctorTubeSignUserService.search(residentInfoDto, 0);
         List<DoctorTubeSignUser> list = page.getContent();
         logger.info(String.format("共查询到%d条数据", list.size()));
-        for (DoctorTubeSignUser doctorTubeSignUser : list) {
-            logger.info(doctorTubeSignUser.toString());
+
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.searchResidents(page);
+        for (ResidentInfoDto infoDto : dtoList) {
+            logger.info(infoDto.toString());
         }
         logger.info(page.toString());
     }
+
+
 }

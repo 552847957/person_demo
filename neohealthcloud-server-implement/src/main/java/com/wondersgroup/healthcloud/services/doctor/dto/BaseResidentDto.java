@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.doctor.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 居民信息基础数据<br/>
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@ToString
 public abstract class BaseResidentDto {
 
     private String registerId;//用户id
