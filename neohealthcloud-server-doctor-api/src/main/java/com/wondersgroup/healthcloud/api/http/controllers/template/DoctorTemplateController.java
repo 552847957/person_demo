@@ -25,11 +25,27 @@ public class DoctorTemplateController {
 
 
 
+    @RequestMapping(value = "/listAll", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<MyTemplateDTO> listAll(@RequestParam("doctorId") String doctorId) {
+        String defaultType = "1";
+        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
+        JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
+        MyTemplateDTO dto = new MyTemplateDTO();
 
+        List<TemplateDTO> dtos = Lists.newLinkedList();
+        for (DoctorTemplate template : templates) {
+            dtos.add(new TemplateDTO(template));
+        }
+        dto.setTemplates(dtos);
+
+        response.setData(dto);
+        return response;
+    }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @VersionRange
-    public JsonResponseEntity<MyTemplateDTO> listTemplate(@RequestParam("doctorId") String doctorId) {
+    public JsonResponseEntity<MyTemplateDTO> lastUsedList(@RequestParam("doctorId") String doctorId) {
         String defaultType = "1";
         List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();

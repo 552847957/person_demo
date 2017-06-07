@@ -8,9 +8,8 @@ import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
 public class TemplateDTO {
 
     public String id;
-    @JsonProperty("doctor_id")
     public String doctorId;
-    public String type;
+//    public String type;
     public String title;
     public String content;
 
@@ -22,7 +21,7 @@ public class TemplateDTO {
     public TemplateDTO(DoctorTemplate template) {
         this.id = template.getId();
         this.doctorId = template.getDoctorId();
-        this.type = template.getType();
+//        this.type = template.getType();
         this.title = template.getTitle();
         this.content = template.getContent();
     }
