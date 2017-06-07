@@ -7,7 +7,10 @@ import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
+import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,22 +40,45 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
 
     @Override
-    public Page<DoctorTubeSignUser> search(final ResidentInfoDto user, int page) {
+    public Page<DoctorTubeSignUser> search(final ResidentCondition user, int page) {
         logger.info(String.format("doctorTubeSignUserRepository:[%s]", doctorTubeSignUserRepository));
         Page<DoctorTubeSignUser> list = doctorTubeSignUserRepository.findAll(new Specification<DoctorTubeSignUser>() {
             @Override
             public Predicate toPredicate(Root<DoctorTubeSignUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                Map<String, String> conditionMap = Maps.newHashMap();
-                if (null != user.getApoType()) {
-                    if (user.getApoType()) {
+                Map<String, String> equalMap = Maps.newHashMap();
+                Map<String, String> notEqualMap = Maps.newHashMap();
 
-                    } else {
-                        conditionMap.put("apoType", "0");
-                    }
+                // 是否签约
+                if (user.getSigned() != null) {
+                    equalMap.put("signStatus", String.valueOf(user.getSigned()));
                 }
+
+                if (StringUtils.isNotBlank(user.getDiseaseType())) {
+                    String[] diseaseArray = user.getDiseaseType().split(",");
+                    for (String s : diseaseArray) {
+                        switch (s) {
+                            case DiseaseTypeConstant.APO:
+                                equalMap.put("apoType", "1");
+                                break;
+                            case DiseaseTypeConstant.DIABETES:
+                                notEqualMap.put("diabetesType", "0");
+                                break;
+                            case DiseaseTypeConstant.HYP:
+                                notEqualMap.put("hypType", "0");
+                                break;
+                        }
+                    }// end for
+                }// end if
+
                 List<Predicate> predicates = Lists.newArrayList();
-                for (String s : conditionMap.keySet()) {
-                    Predicate condition = cb.equal(root.<String>get(s), conditionMap.get(s));
+                // equal
+                for (String s : equalMap.keySet()) {
+                    Predicate condition = cb.equal(root.<String>get(s), equalMap.get(s));
+                    predicates.add(condition);
+                }
+                // notEqual
+                for (String s : notEqualMap.keySet()) {
+                    Predicate condition = cb.notEqual(root.<String>get(s), notEqualMap.get(s));
                     predicates.add(condition);
                 }
 
