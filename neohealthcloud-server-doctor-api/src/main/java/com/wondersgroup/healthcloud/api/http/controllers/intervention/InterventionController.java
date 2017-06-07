@@ -1,12 +1,14 @@
 package com.wondersgroup.healthcloud.api.http.controllers.intervention;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.IntervenDetailDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.OutlierDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.PersonDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.enums.IntervenEnum;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
@@ -68,7 +70,7 @@ public class InterventionController {
     }
 
     /**
-     * 未干预的血糖异常
+     * 未干预的血糖异常(查看全部)
      * @param registerId
      * @param is_all
      * @param flag
@@ -113,7 +115,7 @@ public class InterventionController {
     }
 
     /**
-     * 未干预的血压
+     * 未干预的血压(查看全部)
      * @param registerId
      * @param is_all
      * @param flag
@@ -176,6 +178,66 @@ public class InterventionController {
         doctorInterventionService.intervenSaveOrUpdate(doctorId,patientId,content);
 
         response.setMsg("干预成功");
+        return response;
+    }
+
+    /**
+     * 异常干预 近期异常详情
+     * @param registerId
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    @VersionRange
+    public JsonResponseEntity<IntervenDetailDTO> detail(@RequestParam String registerId,
+                                                           @RequestParam(defaultValue = "4") String size) {
+
+        JsonResponseEntity<IntervenDetailDTO> response = new JsonResponseEntity<>();
+        List<OutlierDTO> outlierDTOs = Lists.newArrayList();
+        IntervenDetailDTO intervenDetailDTO = new IntervenDetailDTO();
+        IntervenEntity intervenEntity = doctorInterventionService.getUserDiseaseLabelByRegisterId(registerId);
+        Boolean canIntervention = doctorInterventionService.hasTodoIntervensByRegisterId(registerId);
+        String typeList = doctorInterventionService.findNotDealInterveneTypes(registerId);
+        PersonDTO personDTO = new PersonDTO(intervenEntity);
+        String interveneTypeNames = "";
+        if(StringUtils.isNotBlank(typeList)){
+            interveneTypeNames = IntervenEnum.getIntervenTypeNames(typeList);
+        }
+        personDTO.setMemo(interveneTypeNames);
+        personDTO.setCanIntervene(canIntervention);
+
+        intervenDetailDTO.setPersonDTO(personDTO);
+        //血糖
+        List<NeoFamIntervention> bloodGlucoseOutlierList = doctorInterventionService.findBloodGlucoseOutlierListByRegisterId(registerId, false, 0, 0, Integer.valueOf(size)+1);
+
+        for (NeoFamIntervention neoFamIntervention : bloodGlucoseOutlierList){
+            if(outlierDTOs.size()<Integer.valueOf(size)){
+                OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
+                outlierDTO.setFlag(outlierDTO.getFlag());
+                outlierDTOs.add(outlierDTO);
+                intervenDetailDTO.setBloodGlucoseList(outlierDTOs);
+            }
+        }
+        if(bloodGlucoseOutlierList.size()> Integer.valueOf(size)){
+            intervenDetailDTO.setBloodGlucose_more(true);
+        }
+
+        //血压
+        List<NeoFamIntervention> pressureOutlierList = doctorInterventionService.findpressureOutlierListByRegisterId(registerId, false, 0, 0, Integer.valueOf(size) + 1);
+        for (NeoFamIntervention neoFamIntervention : pressureOutlierList){
+            if(outlierDTOs.size()<Integer.valueOf(size)){
+                OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
+                outlierDTO.setFlag(outlierDTO.getFlag());
+                outlierDTOs.add(outlierDTO);
+                intervenDetailDTO.setPressureList(outlierDTOs);
+            }
+        }
+        if(pressureOutlierList.size()> Integer.valueOf(size)){
+            intervenDetailDTO.setPressure_more(true);
+        }
+
+        response.setData(intervenDetailDTO);
+
         return response;
     }
 

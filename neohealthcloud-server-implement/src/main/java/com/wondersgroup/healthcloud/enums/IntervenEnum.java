@@ -61,22 +61,25 @@ public enum IntervenEnum {
     }
 
     public static String getIntervenTypeNames(String types){
-        String typeStr = types;
-        String[] typeList = typeStr.split(",");
-        List<String> data = new ArrayList<String>();
-        String result = "";
-        for (int i = 0; i < typeList.length; i++) {
-            String s = typeList[i];
-            if (!data.contains(s)) {
-                data.add(s);
+        if(StringUtils.isNotBlank(types)){
+            String[] typeList = types.split(",");
+            List<String> data = new ArrayList<String>();
+            String result = "";
+            for (int i = 0; i < typeList.length; i++) {
+                String s = typeList[i];
+                if (!data.contains(s)) {
+                    data.add(s);
+                }
             }
-        }
-        Collections.sort(data);
+            Collections.sort(data);
 
-        for(String type : data){
-            result = result + IntervenEnum.fromTypeCode(type).getTypeName();
+            for(String type : data){
+                result = result + IntervenEnum.fromTypeCode(type).getTypeName();
+            }
+            return result;
         }
-        return result;
+        return "";
+
     }
 
 }

@@ -29,4 +29,8 @@ public interface DoctorIntervenService {
 
     int countHasInterventionByDoctorId(String doctorId);
 
+    IntervenEntity getUserDiseaseLabelByRegisterId(String registerId);
+
+    Boolean hasTodoIntervensByRegisterId(String registerId);
+
 }
