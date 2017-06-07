@@ -57,6 +57,7 @@ public class PersonDTO{
     private String content;
 
     public PersonDTO (IntervenEntity intervenEntity){
+        this.registerId = intervenEntity.getRegister_id();
         this.name = intervenEntity.getName();
         this.gender = intervenEntity.getGender();
         this.age = intervenEntity.getAge()==null?"":String.valueOf(intervenEntity.getAge());

@@ -48,8 +48,6 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     @Autowired
     private NeoFamInterventionRepository neoFamInterventionRepository;
 
-
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -298,5 +296,41 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     public int countHasInterventionByDoctorId(String doctorId) {
 
         return doctorInterventionRepository.countHasInterventionByDoctorId(doctorId);
+    }
+
+    /**
+     * 根据用户registerId 查询用户G端基本信息 和 疾病标签
+     * @param registerId
+     * @return
+     */
+    @Override
+    public IntervenEntity getUserDiseaseLabelByRegisterId(String registerId) {
+        String sql = " select a.registerid as register_id,b.`name`,b.gender,a.headphoto as avatar,b.age,b.identifytype,\n" +
+                "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk\n" +
+                " from app_tb_register_info a \n" +
+                " join fam_doctor_tube_sign_user b on a.personcard = b.card_number and b.card_type = '01'\n" +
+                " where a.registerid = '%s' order by b.update_date desc \n" +
+                " limit 1";
+        sql = String.format(sql,registerId);
+        List<IntervenEntity> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
+        if(list!=null && list.size()>0){
+            return list.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 根据患者registerId查询用户待干预异常数量
+     * @param registerId
+     * @return
+     */
+    @Override
+    public Boolean hasTodoIntervensByRegisterId(String registerId) {
+
+        int intervens = neoFamInterventionRepository.countTodoIntervensByRegisterId(registerId);
+        if(intervens>0){
+            return true;
+        }
+        return false;
     }
 }

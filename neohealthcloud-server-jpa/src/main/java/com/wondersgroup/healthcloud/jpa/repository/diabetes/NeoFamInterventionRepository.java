@@ -22,4 +22,8 @@ public interface NeoFamInterventionRepository extends JpaRepository<NeoFamInterv
 
     @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' order by a.create_date desc limit 1 ")
     NeoFamIntervention findLatestByInterventionId(String interventionId);
+
+    @Query("select count(*) from NeoFamIntervention a where a.registerId = ?1 and a.type <>'30000' and a.type <> '41000'" +
+            " and a.delFlag ='0' and a.isDeal = '0' ")
+    int countTodoIntervensByRegisterId(String registerId);
 }
