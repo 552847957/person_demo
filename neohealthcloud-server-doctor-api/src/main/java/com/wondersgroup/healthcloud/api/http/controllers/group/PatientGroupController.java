@@ -207,7 +207,7 @@ public class PatientGroupController {
         for(PatientGroup p:patientList){
             PatientGroupDto dto = new PatientGroupDto();
             dto.setId(p.getId());
-            SignUserDoctorGroup isSelectedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId());
+            SignUserDoctorGroup isSelectedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId(),"0");
             if(null==isSelectedByGroupIdAndUserId&&"1".equals(p.getIsDefault())){
                 dto.setIsSelected(true); 
             }else if(null!=isSelectedByGroupIdAndUserId){
