@@ -1,23 +1,69 @@
 package com.wondersgroup.healthcloud.services.disease.impl;
 
+import static com.google.common.collect.Iterables.toArray;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by limenghua on 2017/6/6.
  *
  * @author limenghua
  */
+@Service
 public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService {
 
-    @Override
-    public List<DoctorTubeSignUser> search(DoctorTubeSignUser user, int page) {
+    private static final Logger logger = LoggerFactory.getLogger(DoctorTubeSignUserServiceImpl.class);
+    @Autowired
+    private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
 
-        return null;
-    }
+    @Override
+    public Page<DoctorTubeSignUser> search(final ResidentInfoDto user, int page) {
+        logger.info(String.format("doctorTubeSignUserRepository:[%s]", doctorTubeSignUserRepository));
+        Page<DoctorTubeSignUser> list = doctorTubeSignUserRepository.findAll(new Specification<DoctorTubeSignUser>() {
+            @Override
+            public Predicate toPredicate(Root<DoctorTubeSignUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Map<String, String> conditionMap = Maps.newHashMap();
+                if (null != user.getApoType()) {
+                    if (user.getApoType()) {
+
+                    } else {
+                        conditionMap.put("apoType", "0");
+                    }
+                }
+                List<Predicate> predicates = Lists.newArrayList();
+                for (String s : conditionMap.keySet()) {
+                    Predicate condition = cb.equal(root.<String>get(s), conditionMap.get(s));
+                    predicates.add(condition);
+                }
+
+                Predicate result = predicates.isEmpty() ? cb.conjunction() : cb.and(toArray(predicates, Predicate.class));
+                return result;
+            }// end inner method
+        }, new PageRequest(page, 20, new Sort(Sort.Direction.ASC, "name")));// end method
+
+
+        return list;
+    }// end outer method
 
     @Override
     public List<ResidentInfoDto> queryByGroup(String groupId, int page, int pageSize) {

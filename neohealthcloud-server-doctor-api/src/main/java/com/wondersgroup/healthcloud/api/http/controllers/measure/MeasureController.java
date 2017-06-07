@@ -9,8 +9,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathIconDto;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathUserInfoDto;
+import com.wondersgroup.healthcloud.dict.DictCache;
+import com.wondersgroup.healthcloud.enums.IntervenEnum;
+import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
+import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -69,6 +79,12 @@ public class MeasureController {
     private AssessmentRepository assessmentRepository;
     @Autowired
     private AssessmentService assessmentService;
+    @Autowired
+    private DictCache dictCache;
+    @Autowired
+    private ImageTextService imageTextService;
+    @Autowired
+    private DoctorIntervenService doctorIntervenService;
 
     private RestTemplate restTemplate = new RestTemplate();
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
@@ -79,7 +95,7 @@ public class MeasureController {
     private static final String bmiH5ChartPath = "%s/api/measure/bmi/chart?%s";
     private static final String requestHistoryByArrayDay = "%s/api/measure/3.0/getHistoryByArrayDay?%s";
     private static final String BLOODGLUCOSE_TOP_ONE = "%s/api/measure/3.0/getBloodGlucoseTopOne?%s";
-    
+
     private static final String requestBMI = "%s/api/measure/nearest/bmiAndWhr?%s";
     private static final String REQUEST_BLOODGLUCOSE_ABNORMAL = "%s/api/measure/3.0/queryBloodGlucoseAbnormalHistorys?%s";
     private static final String REQUEST_PRESSURE_ABNORMAL = "%s/api/measure/3.0/queryPressureAbnormalHistorys?%s";
@@ -100,9 +116,10 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "健康数据获取失败");
     }
-    
+
     /**
      * 血压异常查询
+     *
      * @param registerId
      * @param personCard
      * @param currentPage
@@ -115,7 +132,7 @@ public class MeasureController {
             @RequestParam(required = false, defaultValue = "") String personCard,
             @RequestParam(required = false, defaultValue = "1") int currentPage,
             @RequestParam(required = false, defaultValue = "5") int numPerPage
-            ) {
+    ) {
         String path = "registerId=" + registerId + "&personCard=" + personCard
                 + "currentPage=" + currentPage + "&numPerPage=" + numPerPage;
         try {
@@ -131,9 +148,10 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "健康数据获取失败");
     }
-    
+
     /**
      * 血糖异常查询
+     *
      * @param registerId
      * @param personCard
      * @param currentPage
@@ -146,7 +164,7 @@ public class MeasureController {
             @RequestParam(required = false, defaultValue = "") String personCard,
             @RequestParam(required = false, defaultValue = "1") int currentPage,
             @RequestParam(required = false, defaultValue = "5") int numPerPage
-            ) {
+    ) {
         String path = "registerId=" + registerId + "&personCard=" + personCard
                 + "currentPage=" + currentPage + "&numPerPage=" + numPerPage;
         try {
@@ -162,10 +180,11 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "健康数据获取失败");
     }
-    
-    
+
+
     /**
      * 周血糖
+     *
      * @param registerId
      * @param personCard
      * @return JsonResponseEntity
@@ -258,6 +277,7 @@ public class MeasureController {
 
     /**
      * 将一天的血糖数据，按照 testPeriod 分组
+     *
      * @param jsonNode
      * @return
      */
@@ -283,6 +303,7 @@ public class MeasureController {
 
     /**
      * 生成一天的测量数据（根据业务排序的）
+     *
      * @param testPeriodMap
      * @return
      */
@@ -343,9 +364,10 @@ public class MeasureController {
         return list;
 
     }
-    
+
     /**
      * 月血糖
+     *
      * @param registerId
      * @param personCard
      * @param begin_date
@@ -445,7 +467,7 @@ public class MeasureController {
             return -1;
         }
     }
-    
+
     public boolean dateBeforeIsExistData(String registerId, String personCard, String date, Boolean isBefore) {
         boolean result = false;
         try {
@@ -466,9 +488,10 @@ public class MeasureController {
         }
         return result;
     }
-    
+
     /**
      * 糖化血红蛋白历史数据分页
+     *
      * @param registerId
      * @param personCard
      * @param flag       页数 从0 开始
@@ -496,9 +519,10 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "查询失败");
     }
-    
+
     /**
      * BMI图表H5
+     *
      * @param registerId
      * @param personCard
      * @param date       "2017-04-15"
@@ -530,10 +554,11 @@ public class MeasureController {
         }
         return new JsonResponseEntity<>(1000, "查询失败");
     }
-    
+
     /**
      * 查询一周血压
      * 根据天的维度展示
+     *
      * @param registerId
      * @return json
      * @throws JsonProcessingException
@@ -545,57 +570,59 @@ public class MeasureController {
             String date,
             @RequestParam(defaultValue = "5") String dayAmount,
             @RequestParam(defaultValue = "true") Boolean isBefore, Pageable pageable) throws JsonProcessingException {
-            try {
-                StringBuffer str = new StringBuffer();
-                str.append("registerId=").append(registerId)
-                .append("&personCard=").append(personCard)
-                .append("&isBefore=").append(isBefore)
-                .append("&date=").append(date)
-                .append("&dayAmount=").append(dayAmount);
-                String url = String.format(requestHistoryByArrayDay, host, str);
+        try {
+            StringBuffer str = new StringBuffer();
+            str.append("registerId=").append(registerId)
+                    .append("&personCard=").append(personCard)
+                    .append("&isBefore=").append(isBefore)
+                    .append("&date=").append(date)
+                    .append("&dayAmount=").append(dayAmount);
+            String url = String.format(requestHistoryByArrayDay, host, str);
 
-                ResponseEntity<Map> response = buildGetEntity(url, Map.class);
-                if (response.getStatusCode().equals(HttpStatus.OK)) {
-                    Map<String, Object> responseBody = response.getBody();
-                    if (0 == (int) responseBody.get("code"))
-                        return new JsonResponseEntity<>(0, null, responseBody.get("data"));
-                }
-            } catch (RestClientException e) {
-                log.info("请求测量数据异常", e);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                Map<String, Object> responseBody = response.getBody();
+                if (0 == (int) responseBody.get("code"))
+                    return new JsonResponseEntity<>(0, null, responseBody.get("data"));
             }
-            return new JsonResponseEntity<>(1000, "内部错误");
+        } catch (RestClientException e) {
+            log.info("请求测量数据异常", e);
+        }
+        return new JsonResponseEntity<>(1000, "内部错误");
 
     }
-    
+
     /**
      * 查询7天是否有血糖测量
+     *
      * @param registerId
      * @return json
      * @throws JsonProcessingException
      */
     @GetMapping("getWeekIsExistByArrayDay")
-    public JsonResponseEntity getWeekIsExistByArrayDay(String registerId, String date){
-            try {
-                StringBuffer str = new StringBuffer();
-                str.append("registerId=").append(registerId);
+    public JsonResponseEntity getWeekIsExistByArrayDay(String registerId, String date) {
+        try {
+            StringBuffer str = new StringBuffer();
+            str.append("registerId=").append(registerId);
 
-                String url = String.format(BLOODGLUCOSE_TOP_ONE, host, str);
-                ResponseEntity<Map> response = buildGetEntity(url, Map.class);
-                if (response.getStatusCode().equals(HttpStatus.OK)) {
-                    Map<String, Object> responseBody = response.getBody();
-                    if (0 == (int) responseBody.get("code"))
-                        return new JsonResponseEntity<>(0, null, responseBody.get("data"));
-                }
-            } catch (RestClientException e) {
-                log.info("请求测量数据异常", e);
+            String url = String.format(BLOODGLUCOSE_TOP_ONE, host, str);
+            ResponseEntity<Map> response = buildGetEntity(url, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                Map<String, Object> responseBody = response.getBody();
+                if (0 == (int) responseBody.get("code"))
+                    return new JsonResponseEntity<>(0, null, responseBody.get("data"));
             }
-            return new JsonResponseEntity<>(1000, "内部错误");
+        } catch (RestClientException e) {
+            log.info("请求测量数据异常", e);
+        }
+        return new JsonResponseEntity<>(1000, "内部错误");
 
     }
-    
+
     /**
      * 查询历史记录 3.0
      * 根据天的维度展示
+     *
      * @param type       0－BMI 1－血氧 2－血压 3－血糖 4－记步 5－腰臀比
      * @param registerId 注册认证码
      * @param flag       分页 页号
@@ -609,7 +636,7 @@ public class MeasureController {
             RegisterInfo info = userService.findRegOrAnonymous(registerId);
             String gender = info.getGender();
             String personcard = info.getPersoncard();
-           
+
             String param = "registerId=".concat(registerId).concat("&sex=").concat(StringUtils.isEmpty(gender) ? "1" : gender)
                     .concat("&personCard=").concat(StringUtils.isEmpty(personcard) ? "" : personcard);
             String params = (flag == null) ? param : param.concat("&flag=").concat(String.valueOf(flag));
@@ -625,17 +652,31 @@ public class MeasureController {
         }
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
-    
+
     @GetMapping("userInfo")
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
-        DoctorTubeSignUser info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
-        
+        DoctorTubeSignUser info = new DoctorTubeSignUser();
+        if(StringUtils.isBlank(personcard)){
+            RegisterInfo registerInfo = userService.getOneNotNull(uid);
+            UserInfo userInfo = userService.getUserInfo(uid);
+
+            info.setName(registerInfo.getName());
+            info.setGender(registerInfo.getGender());
+            info.setCardType("01");
+            info.setCardNumber(registerInfo.getPersoncard());
+            info.setMoblilePhone(registerInfo.getRegmobilephone());
+            if(registerInfo.getBirthday() != null){
+                info.setBirth(registerInfo.getBirthday());
+            }
+        }else{
+            info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
+        }
         return new JsonResponseEntity(0, "获取成功", info);
     }
-    
+
     @VersionRange
     @GetMapping("assessmentAbnormal")
-    public JsonResponseEntity assessmentAbnormal(String registerId){
+    public JsonResponseEntity assessmentAbnormal(String registerId) {
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         try {
             String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
@@ -644,23 +685,23 @@ public class MeasureController {
                 AssessmentAbnormal as = new AssessmentAbnormal();
                 as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
                 as.setCause(AssessmentAbnormal.cause(assessment, assessmentService));
-                String   result = "";
-                String   su = assessmentService.getResult(assessment);
+                String result = "";
+                String su = assessmentService.getResult(assessment);
                 String[] split = su.split(",");
                 for (String str : split) {
-                    if("1-2".equals(str) || "1-3".equals(str)){
-                        result+= ",糖尿病";
-                    }else if("2-2".equals(str) || "2-3".equals(str)){
-                        result+= ",高血压";
-                    }else if("3-2".equals(str) || "3-3".equals(str)){
-                        result+= ",脑卒中";
+                    if ("1-2".equals(str) || "1-3".equals(str)) {
+                        result += ",糖尿病";
+                    } else if ("2-2".equals(str) || "2-3".equals(str)) {
+                        result += ",高血压";
+                    } else if ("3-2".equals(str) || "3-3".equals(str)) {
+                        result += ",脑卒中";
                     }
                 }
-                if(!StringUtils.isBlank(result)){
+                if (!StringUtils.isBlank(result)) {
                     as.setResult(result.substring(1, result.length()) + "风险");
                 }
                 arr.add(as);
-                
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -669,12 +710,76 @@ public class MeasureController {
         }
         return new JsonResponseEntity(0, "数据获取成功", arr);
     }
-    
+
+
+    @VersionRange
+    @GetMapping("heathUserInfo")
+    public JsonResponseEntity heathUserInfo(String registerId) {
+
+        HeathUserInfoDto infoDto = new HeathUserInfoDto();
+        try {
+            RegisterInfo registerInfo = userService.getOneNotNull(registerId);
+            UserInfo userInfo = userService.getUserInfo(registerId);
+            Address address = userService.getAddress(registerId);
+            infoDto.setName(registerInfo.getName());
+            StringBuffer buffer = new StringBuffer();
+            if(address != null){
+                buffer.append(StringUtils.trimToEmpty(dictCache.    queryArea(address.getProvince())))
+                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())))
+                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())))
+                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())))
+                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
+            }
+
+            infoDto.setAddress(buffer.toString());
+            infoDto.setAge(userInfo.getAge());
+            infoDto.setIdentifyType(!"0".equals(registerInfo.getIdentifytype()));
+            infoDto.setAvatar(registerInfo.getHeadphoto());
+            infoDto.setPhone(registerInfo.getRegmobilephone());
+            infoDto.setGender("1".equals(registerInfo.getGender()) ? "男" : "女");
+
+            List<HeathIconDto> icons = new ArrayList<HeathIconDto>();
+
+            String mainArea = "3101";
+            String specArea ="";
+            ImageText imageText = new ImageText();
+            List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
+            for (ImageText image : imageTextList) {
+                icons.add(new HeathIconDto(image.getMainTitle(),image.getImgUrl(),1));
+                infoDto.setIcons(icons);
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("数据获取失败", e);
+            return new JsonResponseEntity(1000, "数据获取失败");
+        }
+        return new JsonResponseEntity(0, "数据获取成功", infoDto);
+    }
+
+    @VersionRange
+    @GetMapping("findAbnormalType")
+    public Map findAbnormalType(String registerId){
+        Map<String,Object> result = new HashedMap();
+        String types = doctorIntervenService.findNotDealInterveneTypes(registerId);
+        String interveneTypeNames = "json";
+        if(StringUtils.isNotBlank(types)){
+            interveneTypeNames = IntervenEnum.getIntervenTypeNames(types);
+        }
+        result.put("code" , 0);
+        result.put("msg"  , "数据获取成功");
+        result.put("data" , interveneTypeNames);
+
+        return result;
+    }
+
     private <T> ResponseEntity<T> buildGetEntity(String url, Class<T> responseType, Object... urlVariables) {
         RestTemplate template = new RestTemplate();
         return template.exchange(url, HttpMethod.GET, new HttpEntity<>(buildHeader()), responseType, urlVariables);
     }
-    
+
     private HttpHeaders buildHeader() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("isStandard", "false");// 非标准版
