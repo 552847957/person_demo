@@ -99,6 +99,7 @@ public class UserController {
                 }
             }
 
+
             RegisterInfo registerInfo = userService.getOneNotNull(uid);
             map.put("personcard", registerInfo.getPersoncard());
             response.setData(map);

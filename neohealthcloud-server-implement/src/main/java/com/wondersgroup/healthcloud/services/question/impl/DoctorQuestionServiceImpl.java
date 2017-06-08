@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.question.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
@@ -9,17 +10,16 @@ import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyRepository;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionGroup;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 import com.wondersgroup.healthcloud.services.question.exception.ErrorReplyException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("doctorQuestionService")
@@ -40,11 +40,9 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Autowired
     private DoctorAccountRepository doctorAccountRepository;
 
-
     @Autowired
     private DataSource dataSource;
 
-    @Autowired
     private JdbcTemplate jt;
 
     @Override
@@ -80,7 +78,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
     @Override
     public List<QuestionInfoForm> getQuestionSquareList(String doctor_id, int page, int pageSize) {
         List<Object> elementType = new ArrayList<>();
-        String sql = "SELECT t1.id,t1.`status`,t1.content,t1.is_new_question as isNoRead,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
+        String sql = "SELECT t1.id,t1.content,t1.is_new_question as isNoRead,t1.assign_answer_id,date_format(t1.create_time,'%Y-%m-%d %H:%i') as date " +
                 " FROM app_tb_neoquestion t1 LEFT JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
                 "WHERE (t1.assign_answer_id='' OR t1.assign_answer_id=?) AND t1.status<>3 AND t1.id not in(select t1.id FROM app_tb_neoquestion t1 " +
                 "INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id WHERE answer_id=?) " +
@@ -88,7 +86,7 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         elementType.add(doctor_id);
         elementType.add(doctor_id);
         elementType.add((page - 1) * pageSize);
-        elementType.add(pageSize + 1);
+        elementType.add(pageSize+1);
         List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
         if (null != list) {
             return transformat(list);
@@ -292,6 +290,304 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return answeredQuestion;
     }
 
+    @Override
+    public AllQuestionDetails queryAllQuestionDetails(String doctorId, String questionId) {
+        String questionSql = "select a.id,a.sex,a.age,a.status,a.content,a.content_imgs,a.create_time from app_tb_neoquestion as a where id = '" + questionId + "' ";
+        AllQuestionDetails allQuestionDetails = null;
+        Map<String, Object> map = null;
+        try {
+            map = getJt().queryForMap(questionSql);
+        }catch (Exception e){
+
+        }
+
+        Question question = repository.findOne(questionId);
+
+        if (question.getIs_new_question() == 1) {
+            question.setIs_new_question(0);
+            repository.saveAndFlush(question);
+        }
+
+        ReplyGroup myGroupInfo = replyGroupRepository.getCommentGroup(questionId, doctorId);
+        if (null != myGroupInfo && myGroupInfo.getHasNewUserComment() == 1) {
+            myGroupInfo.setHasNewUserComment(0);
+            replyGroupRepository.saveAndFlush(myGroupInfo);
+        }
+
+        if (null != map && map.entrySet().size() > 0) {
+
+            String id = String.valueOf(map.get("id"));
+            String sex = String.valueOf(map.get("sex"));
+            int age = Integer.parseInt(String.valueOf(map.get("age")));
+            Integer status = Integer.parseInt(String.valueOf(map.get("status"))) == 3 ? 3:0;// 0 当前医生没有回复
+            String content = String.valueOf(map.get("content"));
+            String contentImgs = String.valueOf(map.get("content_imgs")== null ? "": map.get("content_imgs"));
+            String date = formatDate((Date)map.get("create_time"));
+            allQuestionDetails = new AllQuestionDetails(id, sex, age, status,content, contentImgs, date);
+
+
+            List<ReplyGroup> groupList = replyGroupRepository.getCommentGroupList(questionId);
+            if(CollectionUtils.isEmpty(groupList)){
+                return allQuestionDetails;
+            }
+
+            Reply lastReply = replyRepository.getCommonGroupLastReply(questionId,doctorId);
+
+            if(null != lastReply && status != 3){
+                if(lastReply.getUserReply() == 0){ // 0:医生的回复,1:用户的回复
+                    allQuestionDetails.setStatus(1);
+                }else if(lastReply.getUserReply() == 1){
+                    allQuestionDetails.setStatus(2);
+                }
+            }else if(null == lastReply && status != 3){//问题未关闭，当前医生没有回复
+                allQuestionDetails.setStatus(0);
+            }
+
+
+            List<String> doctorIds = new ArrayList<>();
+            List<String> groupIds = new ArrayList<>();
+            for (ReplyGroup gp : groupList) {
+                groupIds.add(gp.getId());
+                doctorIds.add(gp.getAnswer_id());
+            }
+
+            List<DoctorAccount> doctorList = doctorAccountRepository.findDoctorsByIds(doctorIds);
+
+            if(CollectionUtils.isEmpty(doctorList)){
+                return allQuestionDetails;
+            }
+
+            Map<String, DoctorAccount> doctorMap = doctorList2Map(doctorList);
+            Map<String, ReplyGroup> groupMap = groupList2Map(groupList);
+
+            List<Dialogs> dialogsGroupList = new ArrayList<Dialogs>();
+            Dialogs currentDoctorDialogs = null; //当前医生对话
+
+
+            int isCurrentDoctor = 0; // 1 是当前医生 0 不是
+            for (ReplyGroup rg : groupList) {//一个组放到一个集合里
+                Dialogs dialogs = new Dialogs();
+                isCurrentDoctor = rg.getAnswer_id().equals(doctorId) ? 1:0 ;
+                dialogs.setIsCurrentDoctor(isCurrentDoctor);
+                List<DoctorAndPations> allDoctorList = new ArrayList<DoctorAndPations>();//所有的问答详情
+                List<DoctorAndPations> currentDoctorList = new ArrayList<DoctorAndPations>(); //当前医生的问答详情
+                List<Reply> replyList = replyRepository.getReplyByGroupId(rg.getId());
+                if(isCurrentDoctor == 1){ //如果是当前医生，放到第一个
+                    createDialogs(dialogs,replyList,currentDoctorList, doctorMap ,groupMap ,doctorId, sex,age);
+                    currentDoctorDialogs = dialogs;
+                }else{
+                    createDialogs(dialogs,replyList,allDoctorList, doctorMap ,groupMap ,doctorId, sex,age);
+                    dialogsGroupList.add(dialogs);
+                }
+            }
+
+            DialogDoctorDateComparable sort = new DialogDoctorDateComparable();// true 按照 lastDoctorDate 降序排序
+            sort.sortASC = false;
+            Collections.sort(dialogsGroupList, sort);
+
+            if(null != currentDoctorDialogs){ //把当前医生的对话放到第一
+                dialogsGroupList.add(0,currentDoctorDialogs);
+            }
+            allQuestionDetails.setDialogs(dialogsGroupList);
+        }
+
+        return allQuestionDetails;
+    }
+
+    /**
+     * 创建dialog对话对象
+     * @param dialogs
+     * @param replyList
+     * @param list
+     * @param doctorMap
+     * @param groupMap
+     * @param doctorId
+     * @param sex
+     * @param age
+     */
+    public void createDialogs(Dialogs dialogs,List<Reply> replyList,List<DoctorAndPations> list, Map<String, DoctorAccount> doctorMap ,Map<String, ReplyGroup> groupMap , String doctorId, String sex,int age){
+        for (Reply rp : replyList) {
+            if (rp.getUserReply() == 0) {//0:医生的回复,1:用户的回复
+                ReplyGroup group = groupMap.get(rp.getGroupId());
+                DoctorAccount replayDoctor = doctorMap.get(group.getAnswer_id());
+                int questionType = doctorId.equals(replayDoctor.getId()) ? 0 : 2;  //0 我的回复，1 患者追问  2 其他医生回复
+                String doctorName = doctorId.equals(replayDoctor.getId()) ? "我":replayDoctor.getName();
+                list.add(new DoctorAnster(questionType, replayDoctor.getAvatar(), replayDoctor.getId(), doctorName, rp.getContent(), formatDate(rp.getCreateTime()),rp.getCreateTime()));
+            } else if (rp.getUserReply() == 1) {
+                list.add(new PationAsk(1, sex, age, rp.getContent(), rp.getContentImgs(), formatDate(rp.getCreateTime()),rp.getCreateTime()));
+            }
+        }
+        //list 需要按时间排序
+        DoctorAndPatientComparable dpSort = new DoctorAndPatientComparable();// true 按照 sortDate 升序排序
+        dpSort.sortASC = true;
+        Collections.sort(list, dpSort);
+
+        dialogs.setMyDialogDetails(list);
+    }
+
+    @Override
+    public List<QuestionInfoFormNew> getAllQuestionList(String doctorId, int page, int pageSize) {
+        List<Object> elementType = new ArrayList<>();
+        String sql = "select * from ( select  " +
+                "(case a.assign_answer_id when  ? then 0 else 1 end ) as orderSort," +
+                "                a.id,a.content, " +
+                "                 (case (select count(1) from app_tb_neogroup as c where c.question_id = a.id ) " +
+                "                 when 0 then 0  " +
+                "                 else 2 end) as status," +
+                "                 a.is_new_question as isNoRead," +
+                "                 a.assign_answer_id, " +
+                "                 date_format(a.create_time,'%Y-%m-%d %H:%i:%S') as date, " +
+                "                 a.create_time as sortDate " +
+                "                 from app_tb_neoquestion as a where not exists ( " +
+                "                 select * from app_tb_neogroup as b where b.question_id = a.id " +
+                "                 and b.answer_id = ? " +
+                "                 )  and a.`status` <> 3  " +
+                "                 and ( a.assign_answer_id = '' " +
+                "                 or a.assign_answer_id= ? ) " +
+                "                 ) as d order by d.orderSort ASC,d.`status` ASC,d.sortDate DESC limit ?,? " ;
+
+        elementType.add(doctorId);
+        elementType.add(doctorId);
+        elementType.add(doctorId);
+        elementType.add((page - 1) * pageSize);
+        elementType.add(pageSize);
+        List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
+        if (null != list) {
+            List<QuestionInfoFormNew> questionInfoFormList = transformatNew(list);
+            isAtCurrentDoctor(questionInfoFormList,doctorId);
+            return questionInfoFormList;
+        }
+        return null;
+    }
+
+    @Override
+    public List<QuestionInfoFormNew> getAllReplyQuestionList(String doctorId, int page, int pageSize) {
+        List<Object> elementType = new ArrayList<>();
+        String sql = "select " +
+                " a.id, " +
+                " a.content," +
+                " case a.`status` when 3 then 3 else " +
+                " (" +
+                " select case d.is_user_reply when 0  then 1 else 2 end from  app_tb_neoreply as d INNER JOIN app_tb_neogroup as c on d.comment_group_id = c.id where c.question_id = a.id and c.answer_id = ?  order by d.create_time desc limit 0,1 " +
+                " ) end as status," +
+                " (select c.has_new_user_comment from app_tb_neogroup as c where c.question_id = a.id and c.answer_id = ? ) as isNoRead," +
+                " a.assign_answer_id, " +
+                " date_format(a.create_time,'%Y-%m-%d %H:%i:%s') as date, " +
+                " a.create_time as sortDate"+
+                " from app_tb_neoquestion as a where  exists ( " +
+                " select * from app_tb_neogroup as b where b.question_id = a.id " +
+                " and b.answer_id = ? " +
+                ")  and a.`status` <> 1   " +
+                " ORDER BY date DESC " +
+                "limit ?,?" ;
+
+        elementType.add(doctorId);
+        elementType.add(doctorId);
+        elementType.add(doctorId);
+        elementType.add((page - 1) * pageSize);
+        elementType.add(pageSize);
+        List<Map<String, Object>> list = getJt().queryForList(sql, elementType.toArray());
+        if (null != list) {
+            List<QuestionInfoFormNew> questionInfoFormList = transformatNew(list);
+            isAtCurrentDoctor(questionInfoFormList,doctorId);
+            return groupAndSortQuestionInfoForm(questionInfoFormList,doctorId);
+        }
+        return null;
+    }
+
+    /*
+     * 设置@我的 状态
+     */
+    public void isAtCurrentDoctor(List<QuestionInfoFormNew> list,String doctorId){
+        for(QuestionInfoFormNew qf:list){
+            if(StringUtils.isNotBlank(qf.getAssign_answer_id()) && qf.getAssign_answer_id().equals(doctorId)){
+                qf.setHasAt(0);
+            }
+        }
+    }
+
+    private Map<String, DoctorAccount> doctorList2Map(List<DoctorAccount> list) {
+        Map<String, DoctorAccount> map = new HashMap<>();
+        for (DoctorAccount doctor : list) {
+            map.put(doctor.getId(), doctor);
+        }
+        return map;
+    }
+
+    /**
+     * 1. 我已回答列表顺序：按已追问、已回复、已关闭分组排序。已追问区分已读未读。未读消息会在ui上做出区别（字体和大小）。已追问的消息按追问时间排序，已回复的消息按回复时间排序，已关闭的消息按提问时间排序。
+     * 2. 已追问状态，前台显示的时间为追问时间；已回复状态，前台显示的时间为回复时间；已关闭状态，前台显示的时间为提问时间；
+     *
+     * @param list
+     */
+    public List<QuestionInfoFormNew> groupAndSortQuestionInfoForm(List<QuestionInfoFormNew> list,String doctorId){
+        List<QuestionInfoFormNew> userAppendAskList = new ArrayList<QuestionInfoFormNew>(); //用戶追问
+        List<QuestionInfoFormNew> doctorReplyList = new ArrayList<QuestionInfoFormNew>();//医生已回复
+        List<QuestionInfoFormNew> closeQuestionList = new ArrayList<QuestionInfoFormNew>(); //问题已关闭
+        for(QuestionInfoFormNew qm:list){
+            if(qm.getStatus() != 3){
+
+                ReplyGroup lastReply = replyGroupRepository.getCommentGroup(qm.getId(),doctorId);
+                if(null != lastReply){
+                    qm.setMySortDate(lastReply.getNewCommentTime());
+                }
+            }
+
+            if(qm.getStatus() == 1){//已回答
+                doctorReplyList.add(qm);
+            }
+            if(qm.getStatus() == 2){ //追问
+                userAppendAskList.add(qm);
+            }
+
+            if(qm.getStatus() == 3){//关闭
+                closeQuestionList.add(qm);
+            }
+        }
+
+
+        QuestionInfoFormComparable userAppendAskListSort = new QuestionInfoFormComparable();// true 按照 sortDate 降序排序
+        userAppendAskListSort.sortASC = false;
+        Collections.sort(userAppendAskList, userAppendAskListSort); //追问，降序
+
+       /* QuestionInfoFormIsReadComparable userAppendAskIsReadSort = new QuestionInfoFormIsReadComparable();// true 按照 isRead 降序排序
+        userAppendAskIsReadSort.sortASC = false;
+        Collections.sort(userAppendAskList, userAppendAskIsReadSort); //追问，isRead 降序*/
+
+
+        QuestionInfoFormComparable doctorReplyListSort = new QuestionInfoFormComparable();// true 按照 sortDate 降序排序
+        doctorReplyListSort.sortASC = false;
+        Collections.sort(doctorReplyList, doctorReplyListSort); //已回答，降序
+
+        QuestionInfoFormComparable closeQuestionListSort = new QuestionInfoFormComparable();// true 按照 sortDate 降序排序
+        closeQuestionListSort.sortASC = false;
+        Collections.sort(closeQuestionList, closeQuestionListSort); //关闭，降序
+
+        List<QuestionInfoFormNew> sortList = new ArrayList<QuestionInfoFormNew>();
+        sortList.addAll(userAppendAskList); //已追问
+        sortList.addAll(doctorReplyList); //已回复
+        sortList.addAll(closeQuestionList); //已关闭
+        return sortList;
+
+    }
+
+    private Map<String, ReplyGroup> groupList2Map(List<ReplyGroup> list) {
+        Map<String, ReplyGroup> map = new HashMap<>();
+        for (ReplyGroup group : list) {
+            map.put(group.getId(), group);
+        }
+        return map;
+    }
+
+
+    private List<QuestionInfoFormNew> transformatNew(List<Map<String, Object>> param) {
+        List<QuestionInfoFormNew> list = new ArrayList<>();
+        for (Map<String, Object> map : param) {
+            QuestionInfoFormNew qf = new QuestionInfoFormNew(map);
+            list.add(qf);
+        }
+        return list;
+    }
 
     private List<QuestionInfoForm> transformat(List<Map<String, Object>> param) {
         List<QuestionInfoForm> list = new ArrayList<>();
@@ -344,4 +640,9 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return jt;
     }
 
+    public static String formatDate(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = formatter.format(time);
+        return dateString;
+    }
 }

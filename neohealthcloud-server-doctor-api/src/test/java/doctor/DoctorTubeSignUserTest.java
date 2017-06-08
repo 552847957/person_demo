@@ -53,7 +53,9 @@ public class DoctorTubeSignUserTest {
         // disease  risk  healthy
         // residentInfoDto.setPeopleType("healthy");
         residentInfoDto.setSigned(1);
-        Page<DoctorTubeSignUser> page = doctorTubeSignUserService.search(residentInfoDto, 0);
+        residentInfoDto.setPage(1);
+        residentInfoDto.setPageSize(20);
+        Page<DoctorTubeSignUser> page = doctorTubeSignUserService.search(residentInfoDto);
         List<DoctorTubeSignUser> list = page.getContent();
         logger.info(String.format("共查询到%d条数据", list.size()));
 

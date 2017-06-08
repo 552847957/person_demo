@@ -47,8 +47,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private PatientGroupService patientGroupService;
 
     @Override
-    public Page<DoctorTubeSignUser> search(final ResidentCondition user, int page) {
-        logger.info(String.format("doctorTubeSignUserRepository:[%s]", doctorTubeSignUserRepository));
+    public Page<DoctorTubeSignUser> search(final ResidentCondition user) {
+
         Page<DoctorTubeSignUser> list = doctorTubeSignUserRepository.findAll(new Specification<DoctorTubeSignUser>() {
             @Override
             public Predicate toPredicate(Root<DoctorTubeSignUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -114,7 +114,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 Predicate result = predicates.isEmpty() ? cb.conjunction() : cb.and(toArray(predicates, Predicate.class));
                 return result;
             }// end inner method
-        }, new PageRequest(page, 20, new Sort(Sort.Direction.ASC, "name")));// end method
+        }, new PageRequest(user.getPage() - 1, user.getPageSize(), new Sort(Sort.Direction.ASC, "name")));// end method
 
 
         return list;

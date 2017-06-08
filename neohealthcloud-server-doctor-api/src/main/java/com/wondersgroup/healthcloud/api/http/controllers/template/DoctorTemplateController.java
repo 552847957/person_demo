@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +30,13 @@ public class DoctorTemplateController {
     @VersionRange
     public JsonResponseEntity<MyTemplateDTO> listAll(@RequestParam("doctorId") String doctorId) {
         String defaultType = "1";
-        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
+
+        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
+        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
         MyTemplateDTO dto = new MyTemplateDTO();
+        dto.setTotalCount(count == null ? 0:count);
+        dto.setCurrentIndex(CollectionUtils.isEmpty(templates)?0:templates.size());
 
         List<TemplateDTO> dtos = Lists.newLinkedList();
         for (DoctorTemplate template : templates) {
@@ -47,14 +52,19 @@ public class DoctorTemplateController {
     @VersionRange
     public JsonResponseEntity<MyTemplateDTO> lastUsedList(@RequestParam("doctorId") String doctorId) {
         String defaultType = "1";
-        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
+
+        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
+        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
         MyTemplateDTO dto = new MyTemplateDTO();
+        dto.setTotalCount(count == null ? 0:count);
+        dto.setCurrentIndex(CollectionUtils.isEmpty(templates)?0:templates.size());
+
         List<TemplateDTO> lastUsed = Lists.newLinkedList();
 
-        List<DoctorTemplate> tmp =doctorTemplateService.findByDoctorIdAndType("123456", defaultType);
+        List<DoctorTemplate> last =doctorTemplateService.findLastUsedTemplate(doctorId);
 
-        for (DoctorTemplate template : tmp) {
+        for (DoctorTemplate template : last) {
             lastUsed.add(new TemplateDTO(template));
          }
         dto.setLastUsed(lastUsed);
@@ -86,10 +96,18 @@ public class DoctorTemplateController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @VersionRange
     public JsonResponseEntity add(@RequestBody String body) {
+        JsonResponseEntity response = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(body);
         String doctorId = reader.readString("doctorId", false);
         String title = reader.readString("title", false);
         String content = reader.readString("content", false);
+
+        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
+        if(count > 30){
+            response.setData("添加失败");
+            response.setCode(-1);
+            return response;
+        }
 
         DoctorTemplate entity = new DoctorTemplate();
         entity.setTitle(title);//TODO　数据检查
@@ -100,7 +118,6 @@ public class DoctorTemplateController {
         entity.setCreateTime(new Date());
 
         doctorTemplateService.saveTemplate(entity);
-        JsonResponseEntity response = new JsonResponseEntity<>();
         response.setData("添加成功");
         response.setCode(0);
         return response;

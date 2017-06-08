@@ -19,4 +19,8 @@ public interface DoctorTemplateService {
     void saveTemplate(DoctorTemplate entity);
 
     void saveDoctorUsedTemplate(DoctorUsedTemplate entity);
+
+    List<DoctorTemplate> findLastUsedTemplate(String doctorId);
+
+    Integer findDoctorTemplateCount(String doctorId, String type);
 }
