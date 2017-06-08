@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface DoctorTubeSignUserService {
 
-    Page<DoctorTubeSignUser> search(final ResidentCondition user, int page);
+    Page<DoctorTubeSignUser> search(final ResidentCondition user);
 
     /**
      * @param groupId  分组id
