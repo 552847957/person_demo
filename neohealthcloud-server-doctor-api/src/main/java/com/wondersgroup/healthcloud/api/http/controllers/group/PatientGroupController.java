@@ -93,8 +93,12 @@ public class PatientGroupController {
             if (pageData.getTotalPages() > page) {
                 more = true;
             }
+            Map<String, Integer> extrasMap = Maps.newHashMap();
+            extrasMap.put("totalPage", pageData.getTotalPages());
+            extrasMap.put("page", page);
             listResponseEntity.setContent(dtoList, more, null, page.toString());
-        }else{
+            listResponseEntity.setExtras(extrasMap);
+        } else {
             listResponseEntity.setContent(dtoList, false, null, page.toString());
         }
         return listResponseEntity;
