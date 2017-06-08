@@ -1,18 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.common;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -24,12 +11,25 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.AppUrlH5Utils;
 import com.wondersgroup.healthcloud.common.utils.UploaderUtil;
+import com.wondersgroup.healthcloud.jpa.entity.config.AppConfig;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.services.config.AppConfigService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.imagetext.dto.InterImageDTO;
 import com.wondersgroup.healthcloud.services.imagetext.dto.LoadingImageDTO;
 import com.wondersgroup.healthcloud.utils.wonderCloud.HttpWdUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by longshasha on 16/8/12.
@@ -154,6 +154,46 @@ public class CommonController {
                 }
             }
         }
+
+        //
+        // 更新接口无需校验 specArea
+        AppConfig acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.appUpdate","2");
+        if ("0".equals(platform)) {// iOS 升级配置
+            acUpdate = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.appUpdate.ios","2");
+        }
+        if (acUpdate != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode content = objectMapper.readTree(acUpdate.getData());
+                String lastVersion = content.get("lastVersion") == null ? "" : content.get("lastVersion").asText();
+                Boolean hasUpdate = CommonUtils.compareVersion(appVersion, lastVersion);
+                if (hasUpdate) {
+                    Boolean forceUpdate = false;
+                    String forceUpdateVersion = content.get("enforceUpdate") == null ? "" : content.get("enforceUpdate").asText();
+                    if (!com.qiniu.util.StringUtils.isNullOrEmpty(forceUpdateVersion) && forceUpdateVersion.split(",").length == 2) {
+                        forceUpdate = CommonUtils.compareVersion(forceUpdateVersion.split(",")[0], appVersion) && CommonUtils.compareVersion(appVersion, forceUpdateVersion.split(",")[1]);
+                    }
+                    String updateMsg = content.get("updateMsg") == null ? "" : content.get("updateMsg").asText();
+                    String downloadUrl = content.get("downloadUrl") == null ? "" : content.get("downloadUrl").asText();
+                    String iosDownloadUrl = content.get("iosDownloadUrl") == null ? "" : content.get("iosDownloadUrl").asText();
+
+                    Map appUpdate = new HashMap();
+                    appUpdate.put("hasUpdate", hasUpdate);
+                    appUpdate.put("forceUpdate", forceUpdate);
+                    appUpdate.put("lastVersion", lastVersion);
+                    appUpdate.put("updateMsg", updateMsg);
+                    if ("0".equals(platform)) {// iOS
+                        appUpdate.put("iosUrl", iosDownloadUrl);
+                    } else {
+                        appUpdate.put("androidUrl", downloadUrl);
+                    }
+                    data.put("appUpdate", appUpdate);
+                }
+            } catch (Exception ex) {
+                log.error("CommonController.appConfig Error -->" + ex.getLocalizedMessage());
+            }
+        }
+        //
         
         ImageText imgText = new ImageText();
         imgText.setAdcode(ImageTextEnum.LOADING_IMAGE.getType());

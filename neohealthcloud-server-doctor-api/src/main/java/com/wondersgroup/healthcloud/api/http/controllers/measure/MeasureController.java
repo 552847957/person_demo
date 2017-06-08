@@ -761,15 +761,18 @@ public class MeasureController {
             String mainArea = "3101";
             String specArea ="";
             ImageText imageText = new ImageText();
+            imageText.setAdcode(14);
             List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
             boolean isNew = doctorIntervenService.hasTodoIntervensByRegisterId(registerId);
-            for (ImageText image : imageTextList) {
-                HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getImgUrl());
-                if("异常".contains(image.getMainTitle())){
-                    icon.setIsNew(isNew ? 1  : 0);
+            if(imageTextList !=null){
+                for (ImageText image : imageTextList) {
+                    HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getImgUrl());
+                    if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
+                        icon.setIsNew(isNew ? 1  : 0);
+                    }
+                    icons.add(icon);
+                    infoDto.setIcons(icons);
                 }
-                icons.add(icon);
-                infoDto.setIcons(icons);
             }
 
         } catch (Exception e) {
