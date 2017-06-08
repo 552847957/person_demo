@@ -12,7 +12,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.acl.LastOwnerException;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +24,8 @@ public class DoctorTemplateController {
 
     private String defaultType = "1";
 
+    public static final int LIMIT_COUNT = 30;
+
 
 
     @RequestMapping(value = "/listAll", method = RequestMethod.GET)
@@ -34,9 +35,8 @@ public class DoctorTemplateController {
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
 
         List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
-        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
         MyTemplateDTO dto = new MyTemplateDTO();
-        dto.setTotalCount(count == null ? 0:count);
+        dto.setTotalCount(LIMIT_COUNT);
         dto.setCurrentIndex(CollectionUtils.isEmpty(templates)?0:templates.size());
 
         List<TemplateDTO> dtos = Lists.newLinkedList();
@@ -56,9 +56,8 @@ public class DoctorTemplateController {
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
 
         List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
-        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
         MyTemplateDTO dto = new MyTemplateDTO();
-        dto.setTotalCount(count == null ? 0:count);
+        dto.setTotalCount(LIMIT_COUNT);
         dto.setCurrentIndex(CollectionUtils.isEmpty(templates)?0:templates.size());
 
         List<TemplateDTO> lastUsed = Lists.newLinkedList();
@@ -110,8 +109,8 @@ public class DoctorTemplateController {
         String content = reader.readString("content", false);
 
         Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
-        if(count > 30){
-            response.setData("添加失败");
+        if(count > LIMIT_COUNT){
+            response.setData("添加失败,超过 "+LIMIT_COUNT+" 条");
             response.setCode(-1);
             return response;
         }
