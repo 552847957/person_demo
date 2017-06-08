@@ -66,7 +66,7 @@ public class HomeController {
                     try {
                          unread = doctorQuestionService.queryUnreadCount(uid);// 杜宽心的接口
                     }catch (Exception e){
-                        log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
+                        log.error("HomeController-error:"+e.getLocalizedMessage());
                     }
                     service.put("unread",unread);
                 }
@@ -100,8 +100,7 @@ public class HomeController {
         Boolean intervened_red = false;
 
         try {
-//            unread = doctorQuestionService.queryUnreadCount(uid);// 杜宽心的接口 医生未回答数
-            answeredNum = 43;
+            answeredNum = doctorQuestionService.queryAnsweredCount(uid);
             intervenNum = doctorIntervenService.countHasInterventionByDoctorId(uid);//异常干预
             screenNum = screeningService.getRemindCount(uid);
             followNum = followRemindService.getRemindCount(uid);
@@ -121,7 +120,7 @@ public class HomeController {
         number.put("screened_num",getNumStr(screenNum));//筛查提醒-已筛查数
         number.put("intervened_num",getNumStr(intervenNum));//异常干预-已干预人数
         number.put("follow_num",getNumStr(followNum));//随访提醒-已随访人数
-        number.put("ask_answered",getNumStr(45));//问诊回答—已回答数 Todo
+        number.put("ask_answered",getNumStr(answeredNum));//问诊回答—已回答数
 
         number.put("ask_red",ask_red);//问诊回答-红点
         number.put("follow_red",follow_red);//随访提醒-红点

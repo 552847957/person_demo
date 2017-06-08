@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.wondersgroup.healthcloud.jpa.entity.doctormessage.DoctorMessage;
 import com.wondersgroup.healthcloud.jpa.entity.doctormessage.DoctorPushMessage;
+import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 
 /**
  * Created by qiujun on 2015/9/10.
@@ -36,4 +37,6 @@ public interface ManageDoctorMessageService {
     void deleteDoctorMsgByMsgType(String uid, String msgType);
 
     void setMsgIsReadByMsgType(String uid, String msgType);
+
+    void saveDoctorQuestionMessage(String doctorId,String questionId, int type);
 }

@@ -281,6 +281,16 @@ public class DoctorQuestionServiceImpl implements DoctorQuestionService {
         return unreadQuestion + unreadAsk;
     }
 
+    /**
+     * 查询医生已回答的数量
+     * @param doctorId
+     * @return
+     */
+    @Override
+    public int queryAnsweredCount(String doctorId) {
+        int answeredQuestion = repository.answeredQuestionuCount(doctorId);
+        return answeredQuestion;
+    }
 
 
     private List<QuestionInfoForm> transformat(List<Map<String, Object>> param) {

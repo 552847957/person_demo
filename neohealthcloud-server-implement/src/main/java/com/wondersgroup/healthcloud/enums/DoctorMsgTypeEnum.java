@@ -8,18 +8,20 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum DoctorMsgTypeEnum {
 
-    msgType1("1","系统消息"),
-    msgType2("2","医生私信"),//不知道是不是医生私信(产品说他也不知道医生私信是什么==去掉)
-    msgType3("3","问诊消息"),
-    msgType4("4","干预提醒");
+    msgTypeSys("1","系统消息",""),
+    msgType2("2","医生私信",""),//不知道是不是医生私信(产品说他也不知道医生私信是什么==去掉)
+    msgTypeQuestion("3","问诊消息","com.wondersgroup.healthcloud.3101://doctor/question?questionId=%s"),
+    msgTypeInterven("4","干预提醒","com.wondersgroup.healthcloud.3101://doctor/intervention_detail?patientId=%s");
 
 
     private final String typeCode;
     private final String typeName;
+    private final String urlFragment;
 
-    DoctorMsgTypeEnum(String code,String name) {
-        typeCode=code;
-        typeName=name;
+    DoctorMsgTypeEnum(String code,String name,String url) {
+        typeCode = code;
+        typeName = name;
+        urlFragment = url;
     }
 
     public String getTypeCode() {
@@ -28,6 +30,10 @@ public enum DoctorMsgTypeEnum {
     public String getTypeName() {
         return typeName;
     }
+    public String getUrlFragment(){
+        return urlFragment;
+    }
+
 
     public static DoctorMsgTypeEnum fromTypeCode(String v) {
         if(StringUtils.isNotBlank(v)){

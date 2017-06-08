@@ -10,6 +10,8 @@ import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.enums.IntervenEnum;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorUsedTemplate;
+import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +29,10 @@ public class InterventionController {
 
     @Autowired
     private DoctorIntervenService doctorInterventionService;
+
+    @Autowired
+    private DoctorTemplateService doctorTemplateService;
+
 
     /**
      *
@@ -174,8 +180,14 @@ public class InterventionController {
         String doctorId = reader.readString("doctorId", false);
         String patientId = reader.readString("patientId", false);
         String content = reader.readString("content", false);
+        String templateId = reader.readString("templateId", false);//模板Id
 
         doctorInterventionService.intervenSaveOrUpdate(doctorId,patientId,content);
+
+        //调用模板接口
+        if(StringUtils.isNotBlank(templateId)){
+            doctorTemplateService.saveDoctorUsedTemplate(new DoctorUsedTemplate(doctorId,templateId));
+        }
 
         response.setMsg("干预成功");
         return response;

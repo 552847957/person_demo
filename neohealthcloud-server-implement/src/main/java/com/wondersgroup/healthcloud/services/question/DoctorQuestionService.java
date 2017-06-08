@@ -79,4 +79,10 @@ public interface DoctorQuestionService {
     public int queryUnreadCount(String doctorId);
 
 
+    /**
+     * 查询医生已回答的问题数量
+     * @param uid
+     * @return
+     */
+    int queryAnsweredCount(String uid);
 }

@@ -16,4 +16,10 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @Query(nativeQuery = true,value ="SELECT count(*) FROM app_tb_neoquestion t1 INNER JOIN app_tb_neogroup t2 ON t1.id=t2.question_id " +
              "WHERE t2.answer_id=?1 AND  t1.status<>3 AND t2.has_new_user_comment=1")
     int unreadAskCount(String doctorId);
+
+    @Query(nativeQuery = true,value ="select count(*) from app_tb_neoreply a left join app_tb_neogroup b on a.comment_group_id = b.id \n" +
+            "where b.answer_id = ?1 and a.is_user_reply = '0' \n" +
+            "and a.is_valid ='1' and b.is_valid = '1' ")
+    int answeredQuestionuCount(String doctorId);
+
 }

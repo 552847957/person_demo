@@ -1,11 +1,22 @@
 package com.wondersgroup.healthcloud.services.doctormessage.impl;
 
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.enums.DoctorMsgTypeEnum;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.doctormessage.DoctorMessage;
 import com.wondersgroup.healthcloud.jpa.entity.doctormessage.DoctorPushMessage;
+import com.wondersgroup.healthcloud.jpa.entity.question.Question;
+import com.wondersgroup.healthcloud.jpa.repository.appointment.DoctorRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.message.DoctorMessageRepository;
 import com.wondersgroup.healthcloud.jpa.repository.message.DoctorPushMessageRepository;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctormessage.ManageDoctorMessageService;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -13,6 +24,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +39,9 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 
 	@Autowired
 	DoctorPushMessageRepository doctorPushMessageRepository;
+
+	@Autowired
+	private DoctorAccountRepository doctorAccountRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -119,7 +134,7 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 	public List<DoctorMessage> findMsgListByUidAndType(String uid, String msgType, Integer pageNo, int pageSize) {
 		String sql = "select * from app_tb_doctor_message a where" +
 				" a.receiveId = '%s'" +
-				" and a.msgType = '%s'" +
+				" and a.msgType = '%s' and a.del_flag = '0' " +
 				" order by a.updateDate desc " +
 				" limit %d,%d";
 		sql = String.format(sql,uid,msgType,pageNo*pageSize,pageSize);
@@ -153,6 +168,34 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 	@Override
 	public void setMsgIsReadByMsgType(String uid, String msgType) {
 		doctorMessageRepository.setMsgIsReadByMsgType(uid,msgType);
+	}
+
+	/**
+	 * 保存
+	 * @param
+	 * @param type 1-提问 2-追问
+	 */
+	@Override
+	public void saveDoctorQuestionMessage(String doctorId,String questionId, int type) {
+		DoctorAccount doctorAccount = doctorAccountRepository.findOne(doctorId);
+		DoctorMessage doctorMessage = new DoctorMessage();
+		doctorMessage.setId(IdGen.uuid());
+		doctorMessage.setDelFlag("0");
+		doctorMessage.setIsRead(0);
+		doctorMessage.setMsgType(DoctorMsgTypeEnum.msgTypeQuestion.getTypeCode());//问诊提醒
+		if(type==1){
+			doctorMessage.setTitle("问诊提醒");
+			doctorMessage.setContent("有患者向您进行了咨询,请查看。");
+		}else{
+			doctorMessage.setTitle("追问提醒");
+			doctorMessage.setContent("您回复的患者有了新的追问,请查看。");
+		}
+		doctorMessage.setUpdateDate(new DateTime(new Date()).toString());
+
+		doctorMessage.setUrlFragment(String.format(DoctorMsgTypeEnum.msgTypeQuestion.getUrlFragment(),questionId));
+		doctorMessage.setReceive(doctorAccount.getName());
+		doctorMessage.setReceiveId(doctorId);
+		doctorMessageRepository.save(doctorMessage);
 	}
 
 

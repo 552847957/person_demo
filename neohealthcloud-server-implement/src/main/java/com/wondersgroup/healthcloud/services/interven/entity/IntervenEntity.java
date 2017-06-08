@@ -12,7 +12,7 @@ public class IntervenEntity {
 
     private String name;//姓名
     private String gender;//性别 1 男 2 女
-    private String age;//年龄
+    private Integer age;//年龄
     private String avatar;//头像
 
     private String identifytype;

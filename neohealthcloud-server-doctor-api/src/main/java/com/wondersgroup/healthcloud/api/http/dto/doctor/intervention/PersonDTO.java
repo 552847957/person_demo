@@ -21,7 +21,7 @@ public class PersonDTO{
 
     private String name;//姓名
     private String gender;//性别 1 男 2 女
-    private String age;//年龄
+    private Integer age;//年龄
     private String avatar;//头像
 
     private String registerId;//如果C端实名认证过的用户有registerId
@@ -60,7 +60,7 @@ public class PersonDTO{
         this.registerId = intervenEntity.getRegister_id()==null?"":intervenEntity.getRegister_id();
         this.name = intervenEntity.getName()==null?"":intervenEntity.getName();
         this.gender = intervenEntity.getGender() == null?"":intervenEntity.getGender();
-        this.age = intervenEntity.getAge()==null?"":String.valueOf(intervenEntity.getAge());
+        this.age = intervenEntity.getAge();
         this.avatar = intervenEntity.getAvatar() == null?"":intervenEntity.getAvatar();
         this.isRisk = StringUtils.isBlank(intervenEntity.getIs_risk())?false:"1".equals(intervenEntity.getIs_risk());
         this.isJky = StringUtils.isBlank(intervenEntity.getIdentifytype())?false:!"0".equals(intervenEntity.getIdentifytype());

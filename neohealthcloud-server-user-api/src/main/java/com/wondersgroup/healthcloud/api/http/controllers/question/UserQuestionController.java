@@ -1,14 +1,11 @@
 package com.wondersgroup.healthcloud.api.http.controllers.question;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Response;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
-import com.wondersgroup.common.http.entity.ResponseWrapper;
-import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+import com.wondersgroup.healthcloud.api.http.controllers.common.CommonController;
+import com.wondersgroup.healthcloud.api.utils.CommonUtils;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -20,7 +17,7 @@ import com.wondersgroup.healthcloud.jpa.entity.question.Reply;
 import com.wondersgroup.healthcloud.jpa.entity.question.ReplyGroup;
 import com.wondersgroup.healthcloud.jpa.repository.question.QuestionRepository;
 import com.wondersgroup.healthcloud.jpa.repository.question.ReplyGroupRepository;
-import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
+import com.wondersgroup.healthcloud.services.doctormessage.ManageDoctorMessageService;
 import com.wondersgroup.healthcloud.services.question.QuestionService;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
@@ -31,8 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +49,9 @@ public class UserQuestionController {
 	private ReplyGroupRepository replyGroupRepository;
 	@Autowired
 	private QuestionRepository repository;
+
+	@Autowired
+	private ManageDoctorMessageService doctorMessageService;
 	/**
 	 * 提问
 	 * @param question
@@ -91,6 +89,10 @@ public class UserQuestionController {
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
 			boolean success=aBoolean;
+
+			//保存到医生信息表
+			doctorMessageService.saveDoctorQuestionMessage(question.getAnswerId(),question.getId(), 1);
+
 		}
 		
 		Request request= new RequestBuilder().get().url(url).build();
@@ -152,6 +154,10 @@ public class UserQuestionController {
 			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId).param("questionId",group.getQuestion_id())
 					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
 			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+
+			//保存到医生信息表
+			doctorMessageService.saveDoctorQuestionMessage(doctorId,group.getQuestion_id(),2);
+
 		}
 		response.setMsg("回复成功");
 		return response;
