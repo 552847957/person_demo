@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.acl.LastOwnerException;
 import java.util.Date;
 import java.util.List;
 
@@ -62,12 +63,18 @@ public class DoctorTemplateController {
 
         List<TemplateDTO> lastUsed = Lists.newLinkedList();
 
-        List<DoctorTemplate> last =doctorTemplateService.findLastUsedTemplate(doctorId);
+        List<DoctorTemplate> last = doctorTemplateService.findLastUsedTemplate(doctorId);
+        if(CollectionUtils.isNotEmpty(last)){
+            for (DoctorTemplate template : last) {
+                if(null != template){
+                    lastUsed.add(new TemplateDTO(template));
+                }
+            }
+            if(CollectionUtils.isNotEmpty(lastUsed)){
+                dto.setLastUsed(lastUsed);
+            }
+        }
 
-        for (DoctorTemplate template : last) {
-            lastUsed.add(new TemplateDTO(template));
-         }
-        dto.setLastUsed(lastUsed);
 
         List<TemplateDTO> dtos = Lists.newLinkedList();
         for (DoctorTemplate template : templates) {

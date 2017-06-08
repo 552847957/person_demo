@@ -93,17 +93,21 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
                 " and b.doctor_id = '"+doctorId+"' " +
                 ") " +
                 "and a.doctor_id = '"+doctorId+"' " +
-                "ORDER BY create_time desc limit 0,3";
+                "ORDER BY a.create_time desc limit 0,3";
 
 
         List<DoctorTemplate> list = template.query(sql, new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-                DoctorTemplate entity = new DoctorTemplate();
-                entity.setId(rs.getString("id"));
-                entity.setDoctorId(rs.getString("doctor_id"));
-                entity.setTitle(rs.getString("title"));
-                entity.setContent(rs.getString("content"));
-                entity.setCreateTime(rs.getTime("create_time"));
+                DoctorTemplate entity = null;
+                String id = rs.getString("id");
+                if(StringUtils.isNotBlank(id)){
+                    entity =  new DoctorTemplate();
+                    entity.setId(id);
+                    entity.setDoctorId(rs.getString("doctor_id"));
+                    entity.setTitle(rs.getString("title"));
+                    entity.setContent(rs.getString("content"));
+                    entity.setCreateTime(rs.getTime("create_time"));
+                }
                 return entity;
             }
         });
