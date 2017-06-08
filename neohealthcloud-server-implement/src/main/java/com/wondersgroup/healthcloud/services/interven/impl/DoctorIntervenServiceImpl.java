@@ -67,7 +67,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      * @return
      */
     @Override
-    public List<IntervenEntity> findTodoInterveneList(String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
+    public List<IntervenEntity> findTodoInterveneList(String name,String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
 
         DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
         String sql = " select t1.register_id,t1.typelist,t2.`name`,t2.gender,t3.age,t2.identifytype," +
@@ -83,13 +83,30 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " where type!='30000' and type!='41000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) %s group by register_id \n" +
                 " ) b on a.register_id=b.register_id " +
                 ") t1\n" +
-                " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid \n" +
+                " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid %s \n" +
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01' " +
                 "          AND (t3.sign_doctor_personcard is null or t3.sign_doctor_personcard ='%s') and t3.del_flag = '0' \n" +
                 " %s " +
-                " order by group_type desc,t1.warn_date desc " +
+                " order by %s group_type desc,t1.warn_date desc " +
                 " limit "+(pageNo)*pageSize+","+(pageSize);
         StringBuffer  sb = new StringBuffer("");
+
+        String nameWhere = "";
+        String nameOrder = "";
+        //如果name非空则是搜索页面(只根据name搜索)
+        if(StringUtils.isNotBlank(name)){
+            interven_type = "";
+            signStatus = "";
+            nameWhere = " and t2.name like '%"+name+"%' ";
+            nameOrder = " (case\n" +
+                    " when t2.name = '"+name+"' then 1\n" +
+                    " when t2.name like '"+name+"%' then 2\n" +
+                    " when t2.name like '%"+name+"' then 3\n" +
+                    " when t2.name like '%"+name+"%' then 4\n" +
+                    " else 0 \n" +
+                    " end ) , ";
+
+        }
         if(StringUtils.isNotBlank(interven_type)){
             sb.append("and type REGEXP '");
             String[] types = interven_type.split(",");
@@ -99,7 +116,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             sb.deleteCharAt(sb.length()-1);
             sb.append("'");
         }
-        sql = String.format(sql,uid,sb.toString(),doctorInfo.getIdcard(),StringUtils.isBlank(signStatus)?"": " and sign_status = " + signStatus);
+        sql = String.format(sql,uid,sb.toString(),nameWhere,
+                doctorInfo.getIdcard(),StringUtils.isBlank(signStatus)?"": " and sign_status = " +
+                        signStatus,nameOrder);
         return jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
     }
 

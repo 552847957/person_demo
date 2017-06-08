@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface DoctorIntervenService {
 
-    List<IntervenEntity> findTodoInterveneList(String uid, String sign, String interven_type, int pageNo, int pageSize);
+    List<IntervenEntity> findTodoInterveneList(String name,String uid, String sign, String interven_type, int pageNo, int pageSize);
 
     List<NeoFamIntervention> findBloodGlucoseOutlierListByRegisterId(String registerId, Boolean is_all, int pageNo, int pageSize, int size);
 

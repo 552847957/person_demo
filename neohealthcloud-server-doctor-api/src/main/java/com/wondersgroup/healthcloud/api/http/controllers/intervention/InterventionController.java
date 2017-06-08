@@ -47,7 +47,8 @@ public class InterventionController {
     public JsonListResponseEntity<PersonDTO> toDoList(@RequestParam String uid,
                                                       @RequestParam(defaultValue = "") String sign,
                                                       @RequestParam(defaultValue = "") String interven_type,
-                                                      @RequestParam(defaultValue = "", required = false) String flag) {
+                                                      @RequestParam(defaultValue = "", required = false) String flag,
+                                                      @RequestParam(defaultValue = "",required = false) String name) {
 
         JsonListResponseEntity<PersonDTO> response = new JsonListResponseEntity<>();
         List<PersonDTO> toDoList = Lists.newArrayList();
@@ -57,7 +58,7 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(uid, sign, interven_type, pageNo, pageSize+1);
+        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,uid, sign, interven_type, pageNo, pageSize+1);
 
         for (IntervenEntity intervenEntity : interventionList){
             if(toDoList.size()<pageSize){
