@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.interven.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
@@ -134,6 +135,10 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<NeoFamIntervention> findBloodGlucoseOutlierListByRegisterId(String registerId, Boolean is_all, int pageNo, int pageSize, int size) {
+        Boolean hasInterven = hasTodoIntervensByRegisterId(registerId);
+        if(!hasInterven){
+            return Lists.newArrayList();
+        }
         String sql = " select * from neo_fam_intervention where  register_id = '%s' and type REGEXP '10000|20000|30000' \n" +
                      " and del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
                      " order by warn_date desc ";
@@ -157,9 +162,13 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<NeoFamIntervention> findpressureOutlierListByRegisterId(String registerId, Boolean is_all, int pageNo, int pageSize, int size) {
+        Boolean hasInterven = hasTodoIntervensByRegisterId(registerId);
+        if(!hasInterven){
+            return Lists.newArrayList();
+        }
         String sql = " select * from neo_fam_intervention \n" +
                 " where  del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) \n" +
-                " and register_id = '%s' and type REGEXP '40000|40001|40002|40003|40004'" +
+                " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004'" +
                 " order by warn_date desc ";
         if(is_all){
             sql = sql + " limit "+pageNo*pageSize+","+(pageSize);
