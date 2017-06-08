@@ -5,6 +5,7 @@ import static com.google.common.collect.Iterables.toArray;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
+import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;

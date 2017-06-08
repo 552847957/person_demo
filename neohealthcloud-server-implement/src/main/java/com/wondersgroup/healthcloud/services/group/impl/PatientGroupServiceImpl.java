@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +31,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     PatientGroupRepository patientGroupRepository;
     @Autowired
     SignUserDoctorGroupRepository signUserDoctorGroupRepository;
-    
+
     @Override
     public List<PatientGroup> getPatientGroupByDoctorId(String doctorId) {
         List<PatientGroup> list = patientGroupRepository.getPatientGroupByDoctorId(doctorId);
@@ -54,7 +56,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             throw new CommonException(1041, "分组已超过20个,无法继续创建");
         }
         if(StringUtils.trim(name)==null||"".equals(StringUtils.trim(name))){
-            throw new CommonException(1042,"分组名称不支持空白"); 
+            throw new CommonException(1042,"分组名称不支持空白");
         }
         String cleanName=EmojiUtils.cleanEmoji(name);
         if(name.length()>cleanName.length()){
@@ -158,7 +160,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             for(Integer groupId:list2){
                 SignUserDoctorGroup userDoctorGroup = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, groupId, delFlag);
                 if(null!=userDoctorGroup){
-                    signUserDoctorGroupRepository.updateDoctorGroup(notDelFlag, groupId);  
+                    signUserDoctorGroupRepository.updateDoctorGroup(notDelFlag, groupId);
                 }else{
                     SignUserDoctorGroup signUserDoctorGroup = new SignUserDoctorGroup();
                     signUserDoctorGroup.setGroupId(groupId);
@@ -169,7 +171,19 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             }
         }
     }
-    
+
+    @Override
+    public List<String> getUserIdsByGroupId(Integer groupId) {
+        List<SignUserDoctorGroup> groupList = signUserDoctorGroupRepository.queryByDelFlagAndGroupId(CommonConstant.USED_DEL_FLAG, groupId);
+        List<String> userIdList = Lists.newArrayList();
+        if (groupList != null && groupList.size() > 0) {
+            for (SignUserDoctorGroup signUserDoctorGroup : groupList) {
+                userIdList.add(signUserDoctorGroup.getUid());
+            }
+        }
+        return userIdList;
+    }
+
     /**
      * List<String> to List<Integer>
      * @param inList
