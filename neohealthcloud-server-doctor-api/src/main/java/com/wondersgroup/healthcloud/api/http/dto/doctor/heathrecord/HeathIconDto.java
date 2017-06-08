@@ -17,10 +17,9 @@ public class HeathIconDto {
 
     }
 
-    public HeathIconDto(String name, String imgUrl, int isNew){
+    public HeathIconDto(String name, String imgUrl){
         this.name = name;
         this.imgUrl = imgUrl;
-        this.isNew = isNew;
     }
 
 

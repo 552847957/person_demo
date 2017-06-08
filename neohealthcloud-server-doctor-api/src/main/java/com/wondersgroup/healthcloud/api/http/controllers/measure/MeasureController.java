@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathIconDto;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathUserInfoDto;
 import com.wondersgroup.healthcloud.dict.DictCache;
@@ -654,24 +655,41 @@ public class MeasureController {
     }
 
     @GetMapping("userInfo")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
-        DoctorTubeSignUser info = new DoctorTubeSignUser();
+        HeathUserInfoDto infoDto = new HeathUserInfoDto();
         if(StringUtils.isBlank(personcard)){
             RegisterInfo registerInfo = userService.getOneNotNull(uid);
             UserInfo userInfo = userService.getUserInfo(uid);
 
-            info.setName(registerInfo.getName());
-            info.setGender(registerInfo.getGender());
-            info.setCardType("01");
-            info.setCardNumber(registerInfo.getPersoncard());
-            info.setMoblilePhone(registerInfo.getRegmobilephone());
+            infoDto.setName(registerInfo.getName());
+            infoDto.setGender(registerInfo.getGender());
+            infoDto.setCardType("01");
+            infoDto.setCardNumber(registerInfo.getPersoncard());
+            infoDto.setMoblilePhone(registerInfo.getRegmobilephone());
             if(registerInfo.getBirthday() != null){
-                info.setBirth(registerInfo.getBirthday());
+                infoDto.setBirth(registerInfo.getBirthday());
             }
         }else{
-            info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
+            DoctorTubeSignUser info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
+            infoDto.setName(info.getName());
+            infoDto.setGender(info.getGender());
+            infoDto.setBirth(info.getBirth());
+            infoDto.setCardType(info.getCardType());
+            infoDto.setCardNumber(info.getCardNumber());
+            infoDto.setProfession(info.getProfession());
+            infoDto.setEmployStatus(info.getEmployStatus());
+            infoDto.setMoblilePhone(info.getMoblilePhone());
+            infoDto.setFixedPhone(info.getFixedPhone());
+            infoDto.setContactPhone(info.getContactPhone());
+            infoDto.setHypType(!"0".equals(info.getHypType()));
+            infoDto.setDiabetesType(!"0".equals(info.getDiabetesType()));
+            infoDto.setApoType(!"0".equals(info.getApoType()));
+            infoDto.setIsRisk(!"0".equals(info.getIsRisk()));
+            infoDto.setIdentifyType(!"0".equals(info.getIdentifytype()));
+
         }
-        return new JsonResponseEntity(0, "获取成功", info);
+        return new JsonResponseEntity(0, "获取成功", infoDto);
     }
 
     @VersionRange
@@ -736,7 +754,7 @@ public class MeasureController {
             infoDto.setIdentifyType(!"0".equals(registerInfo.getIdentifytype()));
             infoDto.setAvatar(registerInfo.getHeadphoto());
             infoDto.setPhone(registerInfo.getRegmobilephone());
-            infoDto.setGender("1".equals(registerInfo.getGender()) ? "男" : "女");
+            infoDto.setGender(registerInfo.getGender());
 
             List<HeathIconDto> icons = new ArrayList<HeathIconDto>();
 
@@ -744,12 +762,15 @@ public class MeasureController {
             String specArea ="";
             ImageText imageText = new ImageText();
             List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
+            boolean isNew = doctorIntervenService.hasTodoIntervensByRegisterId(registerId);
             for (ImageText image : imageTextList) {
-                icons.add(new HeathIconDto(image.getMainTitle(),image.getImgUrl(),1));
+                HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getImgUrl());
+                if("异常".contains(image.getMainTitle())){
+                    icon.setIsNew(isNew ? 1  : 0);
+                }
+                icons.add(icon);
                 infoDto.setIcons(icons);
             }
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
