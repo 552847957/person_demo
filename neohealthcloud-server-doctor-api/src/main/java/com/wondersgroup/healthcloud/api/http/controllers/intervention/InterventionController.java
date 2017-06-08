@@ -40,6 +40,7 @@ public class InterventionController {
      * @param flag
      * @param sign 0-非签约 1-签约
      * @param interven_type 异常类型
+     * @param name 如果name不为空则为搜索 其他参数忽略
      * @return
      */
     @RequestMapping(value = "/todoList", method = RequestMethod.GET)

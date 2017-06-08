@@ -250,7 +250,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                      " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id\n" +
                      " ) b on a.register_id=b.register_id ) aa on di.id = aa.doctor_intervention_id\n" +
                      " JOIN app_tb_register_info info on di.patient_id = info.registerid\n" +
-                     " JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
+                     " LEFT  JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
                      " where di.del_flag = '0' and di.doctor_id = '%s'" +
                      " order by di.create_time desc" +
                      " limit "+(pageNo)*pageSize+","+(pageSize);
@@ -273,8 +273,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
         if(neoFamIntervention == null){
             return null;
         }
-        String sql = " select * from neo_fam_intervention where  register_id = '%s' and (type = '10000' or type = '20000')\n" +
-                " and del_flag='0' and is_deal ='1' and create_date <= '%s')" +
+        String sql = " select * from neo_fam_intervention where  register_id = '%s' and type REGEXP '20000|10000|30000' \n" +
+                " and del_flag='0'  and create_date <= '%s' " +
                 " order by warn_date desc ";
         if(is_all){
             sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
@@ -282,7 +282,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             sql = sql + " limit "+size;
         }
         sql = String.format(sql,neoFamIntervention.getRegisterId(), DateFormatter.dateTimeFormat(neoFamIntervention.getCreateDate()));
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(IntervenEntity.class));
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
     /**
@@ -301,8 +301,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             return null;
         }
         String sql = " select * from neo_fam_intervention \n" +
-                " where  del_flag='0' and is_deal ='1' \n" +
-                " and register_id = '%s' and type REGEXP '40000|40001|40002|40003|40004' and create_date <= '%s'" +
+                " where  del_flag='0'  \n" +
+                " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004' and create_date <= '%s'" +
                 " order by warn_date desc ";
         if(is_all){
             sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
