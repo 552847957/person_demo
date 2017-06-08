@@ -88,6 +88,10 @@ public class PatientGroupController {
         List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(pageData);
 
         if (dtoList.size() > 0) {
+            for (ResidentInfoDto residentInfoDto : dtoList) {
+                // 全部是已分组状态
+                residentInfoDto.setIfGrouped(true);
+            }
             boolean more = false;
             // 总页数>当前页码
             if (pageData.getTotalPages() > page) {
