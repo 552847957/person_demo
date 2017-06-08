@@ -23,7 +23,7 @@ public class IntervenDetailDTO {
     @JsonProperty("bloodGlucose_list")
     private List<OutlierDTO> bloodGlucoseList;
 
-    @JsonProperty("bloodGlucoseList")
+    @JsonProperty("pressure_list")
     private List<OutlierDTO> pressureList;
 
 
