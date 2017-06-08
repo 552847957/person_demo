@@ -2,9 +2,7 @@ package com.wondersgroup.healthcloud.services.question;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
-import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionMsg;
-import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.*;
 
 import java.util.List;
 
@@ -78,5 +76,29 @@ public interface DoctorQuestionService {
      */
     public int queryUnreadCount(String doctorId);
 
+    /**
+     * 问答详情(问题汇总)
+     * @param doctorId
+     * @param questionId
+     * @return
+     */
+    public AllQuestionDetails queryAllQuestionDetails(String doctorId, String questionId);
 
+    /**
+     * 问题汇总
+     * @param doctorId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    List<QuestionInfoFormNew> getAllQuestionList(String doctorId, int page, int pageSize);
+
+    /**
+     * 已回答
+     * @param doctorId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    List<QuestionInfoFormNew> getAllReplyQuestionList(String doctorId, int page, int pageSize);
 }

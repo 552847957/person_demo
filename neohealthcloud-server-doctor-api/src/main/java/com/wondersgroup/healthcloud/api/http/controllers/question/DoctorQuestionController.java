@@ -10,8 +10,11 @@ import com.wondersgroup.healthcloud.helper.push.api.PushClientWrapper;
 import com.wondersgroup.healthcloud.jpa.entity.question.Question;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
+import com.wondersgroup.healthcloud.services.question.dto.AllQuestionDetails;
 import com.wondersgroup.healthcloud.services.question.dto.DoctorQuestionDetail;
 import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoForm;
+import com.wondersgroup.healthcloud.services.question.dto.QuestionInfoFormNew;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,5 +122,79 @@ public class DoctorQuestionController {
         return response;
     }
 
+    /**
+     * 问题汇总
+     *
+     * @param doctorId
+     * @param flag
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/allQuestions", method = RequestMethod.GET)
+    public JsonListResponseEntity allQuestions(@RequestParam String doctorId,
+                                               @RequestParam(required = false, defaultValue = "1") Integer flag) {
+
+        JsonListResponseEntity<QuestionInfoFormNew> response = new JsonListResponseEntity<>();
+        List<QuestionInfoFormNew> list = doctorQuestionService.getAllQuestionList(doctorId, flag, doctor_question_list_size);
+
+        Boolean hasMore = false;
+        if (CollectionUtils.isNotEmpty(list) && list.size() == doctor_question_list_size) {
+            hasMore = true;
+        }
+        response.setContent(list, hasMore, "", String.valueOf(flag + 1));
+
+        return response;
+    }
+
+    /**
+     * 问答详情(问题汇总)
+     *
+     * @param doctorId
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/allQuestionDetails", method = RequestMethod.GET)
+    public JsonResponseEntity allQuestionDetails(@RequestParam String doctorId, @RequestParam String questionId) {
+
+        AllQuestionDetails allQuestionDetails = doctorQuestionService.queryAllQuestionDetails(doctorId, questionId);
+        return new JsonResponseEntity(0, "操作成功!", allQuestionDetails);
+    }
+
+    /**
+     * 已回答
+     * @param doctorId
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/allRepliedQuestions", method = RequestMethod.GET)
+    public JsonListResponseEntity allRepliedQuestions(@RequestParam String doctorId,
+                                                      @RequestParam(required = false, defaultValue = "1") Integer flag) {
+        JsonListResponseEntity<QuestionInfoFormNew> response = new JsonListResponseEntity<>();
+        List<QuestionInfoFormNew> list = doctorQuestionService.getAllReplyQuestionList(doctorId, flag, doctor_question_list_size);
+
+        Boolean hasMore = false;
+        if (CollectionUtils.isNotEmpty(list) && list.size() == doctor_question_list_size) {
+            hasMore = true;
+        }
+        response.setContent(list, hasMore, "", String.valueOf(flag + 1));
+
+        return response;
+    }
+
+
+    /**
+     * 问答详情(已回答)
+     *
+     * @param doctorId
+     * @param questionId
+     * @return
+     */
+    @VersionRange
+    @RequestMapping(value = "/repliedQuestionDetail", method = RequestMethod.GET)
+    public JsonResponseEntity repliedQuestionDetail(@RequestParam String doctorId, @RequestParam String questionId) {
+
+        AllQuestionDetails allQuestionDetails = doctorQuestionService.queryAllQuestionDetails(doctorId, questionId);
+        return new JsonResponseEntity(0, "操作成功!", allQuestionDetails);
+    }
 
 }
