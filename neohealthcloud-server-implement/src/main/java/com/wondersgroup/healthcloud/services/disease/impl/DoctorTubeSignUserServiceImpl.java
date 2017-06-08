@@ -4,7 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
+import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
+import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
+import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
 import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant;
@@ -49,6 +53,10 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
     @Autowired
     private PatientGroupService patientGroupService;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private SignUserDoctorGroupRepository signUserDoctorGroupRepository;
 
     @Override
     public Page<DoctorTubeSignUser> search(final ResidentCondition user) {
@@ -236,6 +244,34 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 dto.setIsRisk(true);
             }
         }
+        // 是否签约
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
+            if (ResidentConstant.NORMAL.equals(doctorTubeSignUser.getSignStatus())) {
+                dto.setIfSigned(true);
+            }
+        }
+
+        // 是否实名
+        if (StringUtils.isNotBlank(doctorTubeSignUser.getIdentifytype())) {
+            if (ResidentConstant.IDENTIFIED.equals(doctorTubeSignUser.getIdentifytype())) {
+                dto.setIdentifyType(true);
+            }
+        }
+
+        // 设置地址信息
+        Address address = addressRepository.queryFirst1ByDelFlagAndUserId(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
+        if (address != null) {
+            String adr = String.format("%s%s%s", address.getProvince(), address.getCity(), address.getCounty());
+            dto.setAddress(adr);
+        }
+        // 是否分组
+        SignUserDoctorGroup signUserDoctorGroup = signUserDoctorGroupRepository.queryFirst1ByDelFlagAndUid(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
+        if (signUserDoctorGroup != null) {
+            dto.setIfGrouped(true);
+        } else {
+            dto.setIfGrouped(false);
+        }
+
         return dto;
     }
 

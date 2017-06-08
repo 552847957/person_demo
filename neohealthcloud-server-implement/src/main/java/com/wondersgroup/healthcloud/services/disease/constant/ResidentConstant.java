@@ -10,4 +10,5 @@ public class ResidentConstant {
      * 正常指标,如:无糖尿病标签
      */
     public static final String NORMAL = "0";
+    public static final String IDENTIFIED = "1";
 }

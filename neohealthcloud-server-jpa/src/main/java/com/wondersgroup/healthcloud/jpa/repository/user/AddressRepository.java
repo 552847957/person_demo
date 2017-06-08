@@ -14,4 +14,6 @@ public interface AddressRepository extends JpaRepository<Address,String> {
     @Query("select a from Address a where a.userId=?1 and a.delFlag='0'")
     List<Address> findByUserId(String userId);
 
+    Address queryFirst1ByDelFlagAndUserId(String delFlag,String userId);
+
 }
