@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.interven.entity;
 
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
 
 import java.util.Date;
@@ -24,6 +25,8 @@ public class IntervenEntity {
 
     private String typelist;//异常类型 10000,20000
 
+    private String personcard;//身份证号
+
 
     /**
      * 我的干预列表
@@ -32,4 +35,8 @@ public class IntervenEntity {
     private Date interventionDate;
     private String content;
 
+
+    public Integer getAge() {
+        return IdcardUtils.getAgeByIdCard(this.personcard);
+    }
 }

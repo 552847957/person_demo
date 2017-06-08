@@ -70,7 +70,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     public List<IntervenEntity> findTodoInterveneList(String name,String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
 
         DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
-        String sql = " select t1.register_id,t1.typelist,t2.`name`,t2.gender,t3.age,t2.identifytype," +
+        String sql = " select t1.register_id,t1.typelist,t2.`name`,t2.gender,t2.personcard,t2.identifytype," +
                 " t2.headphoto as avatar,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
@@ -238,7 +238,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<IntervenEntity> findPersonalInterveneList(String uid, int pageNo, int pageSize) {
-        String sql = " select di.patient_id as register_id,aa.typelist,info.`name`,info.gender,u.age,\n" +
+        String sql = " select di.patient_id as register_id,aa.typelist,info.`name`,info.personcard,info.gender,u.age,\n" +
                      " info.identifytype,di.id,di.create_time asinterventionDate,di.content\n" +
                      " from app_tb_doctor_intervention di\n" +
                      " inner join \n" +
@@ -331,7 +331,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public IntervenEntity getUserDiseaseLabelByRegisterId(String registerId) {
-        String sql = " select a.registerid as register_id,a.`name`,b.gender,a.headphoto as avatar,b.age,a.identifytype,\n" +
+        String sql = " select a.registerid as register_id,a.`name`,b.gender,a.headphoto as avatar,a.personcard,a.identifytype,\n" +
                 "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk\n" +
                 " from app_tb_register_info a \n" +
                 " join fam_doctor_tube_sign_user b on a.personcard = b.card_number and b.card_type = '01'\n" +
