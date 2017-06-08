@@ -45,7 +45,7 @@ public class DoctorTubeSignUserTest {
 //        doctorTubeSignUserRepository.findAll();
 //    }
 
-    @Test
+    // @Test
     public void search() {
         ResidentCondition residentInfoDto = new ResidentCondition();
         // apo,hyp,diabetes
@@ -64,6 +64,16 @@ public class DoctorTubeSignUserTest {
             logger.info(infoDto.toString());
         }
         logger.info(page.toString());
+    }
+
+    @Test
+    public void kwSearchListTest() {
+        List<DoctorTubeSignUser> kwSearchList = doctorTubeSignUserService.kwSearchList("方路", 1, 3);
+        long result = doctorTubeSignUserService.kwSearchCount("方路");
+        logger.info(String.format("数据总条数:%d", result));
+        for (DoctorTubeSignUser doctorTubeSignUser : kwSearchList) {
+            logger.info(doctorTubeSignUser.toString());
+        }
     }
 
 

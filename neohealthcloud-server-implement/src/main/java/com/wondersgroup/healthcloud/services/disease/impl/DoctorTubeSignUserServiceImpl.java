@@ -21,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -41,6 +43,8 @@ import static com.google.common.collect.Iterables.toArray;
 public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService {
 
     private static final Logger logger = LoggerFactory.getLogger(DoctorTubeSignUserServiceImpl.class);
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     @Autowired
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
     @Autowired
@@ -121,6 +125,35 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }// end outer method
 
     @Override
+    public List<DoctorTubeSignUser> kwSearchList(String kw, int page, int pageSize) {
+        // List<DoctorTubeSignUser> kwSearchList = doctorTubeSignUserRepository.searchByKw(kw, (page - 1) * pageSize, pageSize);
+        String sql = "select * from fam_doctor_tube_sign_user f where del_flag = '0' and f.name like '%%%s%%' order by \n" +
+                "(case\n" +
+                "when f.name = '%s' then 1 \n" +
+                "when f.name like '%s%%' then 2\n" +
+                "when f.name like '%%%s' then 3\n" +
+                "when f.name like '%%%s%%' then 4  \n" +
+                "else 0\n" +
+                "end ) limit %s,%s";
+        sql = String.format(sql, kw, kw, kw, kw, kw, (page - 1) * pageSize, pageSize);
+        List<DoctorTubeSignUser> kwSearchList = jdbcTemplate.query(sql, new Object[]{}, new BeanPropertyRowMapper(DoctorTubeSignUser.class));
+        return kwSearchList;
+    }
+
+    @Override
+    public long kwSearchCount(String kw) {
+        String sql = "select count(f.id) from fam_doctor_tube_sign_user f where f.name like '%%%s%%' and del_flag = '0'";
+        sql = String.format(sql, kw);
+        long result = jdbcTemplate.queryForObject(sql, new Object[]{}, Long.class);
+        return result;
+    }
+
+    @Override
+    public Page<DoctorTubeSignUser> kwSearch(final String kw, int page, int pageSize) {
+        return null;
+    }
+
+    @Override
     public List<ResidentInfoDto> queryByGroup(Integer groupId, int page, int pageSize) {
         List<ResidentInfoDto> dtoList = Lists.newArrayList();
         List<String> list = patientGroupService.getUserIdsByGroupId(groupId);
@@ -165,6 +198,18 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         return dtoList;
     }
 
+    @Override
+    public List<ResidentInfoDto> dbListToDtoList(List<DoctorTubeSignUser> dbList) {
+        List<ResidentInfoDto> dtoList = Lists.newArrayList();
+        if (dbList != null && dbList.size() > 0) {
+            for (DoctorTubeSignUser doctorTubeSignUser : dbList) {
+                ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+                dtoList.add(dto);
+            }
+        }// end if
+        return dtoList;
+    }
+
     private ResidentInfoDto copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
         ResidentInfoDto dto = new ResidentInfoDto();
         BeanUtils.copyProperties(doctorTubeSignUser, dto);
@@ -192,5 +237,22 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
             }
         }
         return dto;
+    }
+
+    public static void main(String[] args) {
+        String kw = "方路";
+        int page = 1;
+        int pageSize = 2;
+        String sql = "select * from fam_doctor_tube_sign_user f where f.name like '%%%s%%' order by \n" +
+                "(case\n" +
+                "when f.name = '%s' then 1 \n" +
+                "when f.name like '%s%%' then 2\n" +
+                "when f.name like '%%%s' then 3\n" +
+                "when f.name like '%%%s%%' then 4  \n" +
+                "else 0\n" +
+                "end ) limit %s,%s";
+        sql = String.format(sql, kw, kw, kw, kw, kw, page, pageSize);
+        System.out.println(sql);
+//        System.out.println(String.format("%%%s","a"));
     }
 }

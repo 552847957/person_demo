@@ -16,6 +16,18 @@ public interface DoctorTubeSignUserService {
 
     Page<DoctorTubeSignUser> search(final ResidentCondition user);
 
+    List<DoctorTubeSignUser> kwSearchList(String kw, int page, int pageSize);
+
+    long kwSearchCount(String kw);
+
+    /**
+     * 关键字搜索
+     *
+     * @param kw
+     * @return
+     */
+    Page<DoctorTubeSignUser> kwSearch(String kw, int page, int pageSize);
+
     /**
      * @param groupId  分组id
      * @param page     页码  不传默认第一页
@@ -27,5 +39,7 @@ public interface DoctorTubeSignUserService {
     Page<DoctorTubeSignUser> queryByGroupId(Integer groupId, int page, int pageSize);
 
     List<ResidentInfoDto> pageDataToDtoList(Page<DoctorTubeSignUser> pageData);
+
+    List<ResidentInfoDto> dbListToDtoList(List<DoctorTubeSignUser> dbList);
 
 }

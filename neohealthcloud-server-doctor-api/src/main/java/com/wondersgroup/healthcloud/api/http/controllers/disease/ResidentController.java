@@ -5,6 +5,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class ResidentController {
 
     @GetMapping("/list")
     public JsonListResponseEntity list(
-            @RequestParam(required = true) String famId,
+            @RequestParam(required = false) String famId,
             @RequestParam(required = false) Integer signed,
             @RequestParam(required = false) String peopleType,
             @RequestParam(required = false) String diseaseType,
@@ -36,10 +37,29 @@ public class ResidentController {
             @RequestParam(required = false, defaultValue = "1") Integer flag,
             @RequestParam(required = false, defaultValue = "20") Integer pageSize) {
         JsonListResponseEntity response = new JsonListResponseEntity();
-
+        Page<DoctorTubeSignUser> pageData = null;
         ResidentCondition residentCondition = new ResidentCondition(famId, flag, pageSize, signed, peopleType, diseaseType, kw);
 
-        Page<DoctorTubeSignUser> pageData = doctorTubeSignUserService.search(residentCondition);
+        // 关键字搜索
+        if (StringUtils.isNotBlank(kw)) {
+            List<DoctorTubeSignUser> tubeList = doctorTubeSignUserService.kwSearchList(kw, flag, pageSize);
+            int count = (int) doctorTubeSignUserService.kwSearchCount(kw);
+            int pages = 0;
+            if (count % pageSize == 0) {
+                pages = count / pageSize;
+            } else {
+                pages = (count / pageSize) + 1;
+            }
+            boolean more = false;
+            // 总页数>当前页码
+            if (pages > flag) {
+                more = true;
+            }
+            response.setContent(doctorTubeSignUserService.dbListToDtoList(tubeList), more, null, "" + flag);
+            return response;
+        } else {
+            pageData = doctorTubeSignUserService.search(residentCondition);
+        }
 
         List<ResidentInfoDto> listData = doctorTubeSignUserService.pageDataToDtoList(pageData);
 
