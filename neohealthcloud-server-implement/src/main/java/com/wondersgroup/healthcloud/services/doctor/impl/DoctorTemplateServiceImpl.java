@@ -2,7 +2,9 @@ package com.wondersgroup.healthcloud.services.doctor.impl;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorUsedTemplate;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorTemplateRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorUsedTemplateRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import java.util.List;
 public class DoctorTemplateServiceImpl implements DoctorTemplateService {
 
     private DoctorTemplateRepository doctorTemplateRepository;
+    @Autowired
+    private DoctorUsedTemplateRepository doctorUsedTemplateRepository;
 
     @Override
     public List<DoctorTemplate> findByDoctorIdAndType(String doctorId, String type) {
@@ -58,6 +62,14 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
             entity.setId(IdGen.uuid());
         }
         doctorTemplateRepository.save(entity);
+    }
+
+    @Override
+    public void saveDoctorUsedTemplate(DoctorUsedTemplate entity) {
+        if(StringUtils.isBlank(entity.getId())){
+            entity.setId(IdGen.uuid());
+        }
+        doctorUsedTemplateRepository.save(entity);
     }
 
     @Autowired

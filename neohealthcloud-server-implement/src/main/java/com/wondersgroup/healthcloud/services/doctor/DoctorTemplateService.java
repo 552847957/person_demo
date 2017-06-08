@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.doctor;
 
 
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorUsedTemplate;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface DoctorTemplateService {
     void deleteOne(String id);
 
     void saveTemplate(DoctorTemplate entity);
+
+    void saveDoctorUsedTemplate(DoctorUsedTemplate entity);
 }
