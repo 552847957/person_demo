@@ -1,11 +1,9 @@
 package com.wondersgroup.healthcloud.services.disease.impl;
 
-import static com.google.common.collect.Iterables.toArray;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
-import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
@@ -13,14 +11,7 @@ import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant
 import com.wondersgroup.healthcloud.services.disease.constant.ResidentConstant;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
+import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +23,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
-import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
-import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
-import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
-import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
-import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Iterables.toArray;
 
 /**
  * Created by limenghua on 2017/6/6.
@@ -52,6 +43,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private static final Logger logger = LoggerFactory.getLogger(DoctorTubeSignUserServiceImpl.class);
     @Autowired
     private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
+    @Autowired
+    private PatientGroupService patientGroupService;
 
     @Override
     public Page<DoctorTubeSignUser> search(final ResidentCondition user, int page) {
@@ -129,13 +122,35 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
 
     @Override
     public List<ResidentInfoDto> queryByGroup(Integer groupId, int page, int pageSize) {
-        return null;
+        List<ResidentInfoDto> dtoList = Lists.newArrayList();
+        List<String> list = patientGroupService.getUserIdsByGroupId(groupId);
+        // 注意:分页下标从0开始
+        Page<DoctorTubeSignUser> pageData = doctorTubeSignUserRepository.queryByDelFlagAndIdIn(CommonConstant.USED_DEL_FLAG, list, new PageRequest(page - 1, pageSize));
+        List<DoctorTubeSignUser> tubeSignUserList = pageData.getContent();
+        if (tubeSignUserList != null && tubeSignUserList.size() > 0) {
+            for (DoctorTubeSignUser doctorTubeSignUser : tubeSignUserList) {
+                ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+                dtoList.add(dto);
+            }
+        }
+        return dtoList;
     }
 
     @Override
-    public List<ResidentInfoDto> searchResidents(Page<DoctorTubeSignUser> pageData) {
+    public Page<DoctorTubeSignUser> queryByGroupId(Integer groupId, int page, int pageSize) {
+        List<String> list = patientGroupService.getUserIdsByGroupId(groupId);
+        Page<DoctorTubeSignUser> pageData = null;
+        if (list.size() > 0) {
+            // 注意:分页下标从0开始
+            pageData = doctorTubeSignUserRepository.queryByDelFlagAndIdIn(CommonConstant.USED_DEL_FLAG, list, new PageRequest(page - 1, pageSize));
+        }
+        return pageData;
+    }
+
+    @Override
+    public List<ResidentInfoDto> pageDataToDtoList(Page<DoctorTubeSignUser> pageData) {
         List<ResidentInfoDto> dtoList = Lists.newArrayList();
-        ;
+
         if (pageData != null && pageData.getContent() != null) {
             List<DoctorTubeSignUser> tubeSignUserList = pageData.getContent();
 

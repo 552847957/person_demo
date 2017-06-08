@@ -1,23 +1,5 @@
 package com.wondersgroup.healthcloud.api.http.controllers.group;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.group.PatientGroupDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -25,11 +7,25 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.group.PatientGroup;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.repository.group.PatientGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
+import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -45,6 +41,8 @@ public class PatientGroupController {
     private PatientGroupService patientGroupService;
     @Autowired
     PatientGroupRepository patientGroupRepository;
+    @Autowired
+    private DoctorTubeSignUserService doctorTubeSignUserService;
     @Autowired
     SignUserDoctorGroupRepository signUserDoctorGroupRepository;
     
@@ -79,6 +77,28 @@ public class PatientGroupController {
         return entity;
         
     }
+
+    @VersionRange
+    @GetMapping(value = "/patientList")
+    public JsonListResponseEntity<ResidentInfoDto> patientList(@RequestParam(value = "groupId", required = true) Integer groupId,
+                                                               @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                               @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+        JsonListResponseEntity listResponseEntity = new JsonListResponseEntity();
+        Page<DoctorTubeSignUser> pageData = doctorTubeSignUserService.queryByGroupId(groupId, page, pageSize);
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(pageData);
+
+        if (dtoList.size() > 0) {
+            boolean more = false;
+            // 总页数>当前页码
+            if (pageData.getTotalPages() > page) {
+                more = true;
+            }
+            listResponseEntity.setContent(dtoList, more, null, page.toString());
+        }else{
+            listResponseEntity.setContent(dtoList, false, null, page.toString());
+        }
+        return listResponseEntity;
+    }
     /**
      * 新增or修改分组信息
      * @param request
@@ -111,7 +131,7 @@ public class PatientGroupController {
     }
     /**
      * 删除分组
-     * @param request
+     * @param uid
      * @return
      */
     @VersionRange

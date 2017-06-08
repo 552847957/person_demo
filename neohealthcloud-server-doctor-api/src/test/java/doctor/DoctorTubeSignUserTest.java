@@ -35,15 +35,15 @@ public class DoctorTubeSignUserTest {
     private DoctorTubeSignUserService doctorTubeSignUserService;
 
     //@Test
-    public void getAllTest() {
-        List<DoctorTubeSignUser> doctorTubeSignUserList = doctorTubeSignUserRepository.getAll();
-        logger.info(String.format("共查询到[%d条]数据", doctorTubeSignUserList.size()));
-        for (DoctorTubeSignUser doctorTubeSignUser : doctorTubeSignUserList) {
-            logger.info(doctorTubeSignUser.toString());
-        }
-
-        doctorTubeSignUserRepository.findAll();
-    }
+//    public void getAllTest() {
+//        List<DoctorTubeSignUser> doctorTubeSignUserList = doctorTubeSignUserRepository.getAll();
+//        logger.info(String.format("共查询到[%d条]数据", doctorTubeSignUserList.size()));
+//        for (DoctorTubeSignUser doctorTubeSignUser : doctorTubeSignUserList) {
+//            logger.info(doctorTubeSignUser.toString());
+//        }
+//
+//        doctorTubeSignUserRepository.findAll();
+//    }
 
     @Test
     public void search() {
@@ -57,7 +57,7 @@ public class DoctorTubeSignUserTest {
         List<DoctorTubeSignUser> list = page.getContent();
         logger.info(String.format("共查询到%d条数据", list.size()));
 
-        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.searchResidents(page);
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(page);
         for (ResidentInfoDto infoDto : dtoList) {
             logger.info(infoDto.toString());
         }

@@ -24,6 +24,8 @@ public interface DoctorTubeSignUserService {
      */
     List<ResidentInfoDto> queryByGroup(Integer groupId, int page, int pageSize);
 
-    List<ResidentInfoDto> searchResidents(Page<DoctorTubeSignUser> pageData);
+    Page<DoctorTubeSignUser> queryByGroupId(Integer groupId, int page, int pageSize);
+
+    List<ResidentInfoDto> pageDataToDtoList(Page<DoctorTubeSignUser> pageData);
 
 }
