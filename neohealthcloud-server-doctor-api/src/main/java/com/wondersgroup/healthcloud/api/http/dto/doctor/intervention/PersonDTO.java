@@ -57,11 +57,11 @@ public class PersonDTO{
     private String content;
 
     public PersonDTO (IntervenEntity intervenEntity){
-        this.registerId = intervenEntity.getRegister_id();
-        this.name = intervenEntity.getName();
-        this.gender = intervenEntity.getGender();
+        this.registerId = intervenEntity.getRegister_id()==null?"":intervenEntity.getRegister_id();
+        this.name = intervenEntity.getName()==null?"":intervenEntity.getName();
+        this.gender = intervenEntity.getGender() == null?"":intervenEntity.getGender();
         this.age = intervenEntity.getAge()==null?"":String.valueOf(intervenEntity.getAge());
-        this.avatar = intervenEntity.getAvatar();
+        this.avatar = intervenEntity.getAvatar() == null?"":intervenEntity.getAvatar();
         this.isRisk = StringUtils.isBlank(intervenEntity.getIs_risk())?false:"1".equals(intervenEntity.getIs_risk());
         this.isJky = StringUtils.isBlank(intervenEntity.getIdentifytype())?false:!"0".equals(intervenEntity.getIdentifytype());
         this.isHyp = StringUtils.isBlank(intervenEntity.getHyp_type())?false:!"0".equals(intervenEntity.getHyp_type());

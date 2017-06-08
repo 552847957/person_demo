@@ -22,7 +22,8 @@ public interface DoctorTubeSignUserService {
      * @param pageSize 每页多少条数据,默认100条
      * @return
      */
-    List<ResidentInfoDto> queryByGroup(String groupId, int page, int pageSize);
+    List<ResidentInfoDto> queryByGroup(Integer groupId, int page, int pageSize);
 
     List<ResidentInfoDto> searchResidents(Page<DoctorTubeSignUser> pageData);
+
 }

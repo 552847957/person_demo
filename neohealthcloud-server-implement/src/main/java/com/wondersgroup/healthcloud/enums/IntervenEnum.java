@@ -74,8 +74,10 @@ public enum IntervenEnum {
             Collections.sort(data);
 
             for(String type : data){
-                result = result + IntervenEnum.fromTypeCode(type).getTypeName();
+                result = result + IntervenEnum.fromTypeCode(type).getTypeName() + ",";
             }
+            if(result.length()>0)
+                result = result.substring(0,result.length()-1);
             return result;
         }
         return "";

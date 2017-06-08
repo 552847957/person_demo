@@ -13,15 +13,15 @@ import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoctorGroup, Integer> {
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag='1' where t.group_id=?1 ")
-    void updateDoctorGroup(Integer groupId);
+    @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag=?1 where t.group_id=?2 ")
+    void updateDoctorGroup(String delFlag,Integer groupId);
     
-    @Query(nativeQuery = true,value="SELECT t.group_id FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.del_flag='0'")
-    List<Integer>  getGroupIdsByUserId(String userId);
+    @Query(nativeQuery = true,value="SELECT t.group_id FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.del_flag=?2")
+    List<Integer>  getGroupIdsByUserId(String userId,String delFlag);
     
     @Query(nativeQuery = true,value="SELECT count(1) FROM app_tb_sign_user_doctor_group t WHERE t.group_id=?1 AND t.del_flag='0'")
     int getNumByGroupId(Integer groupId);
     
-    @Query(nativeQuery=true,value="SELECT * FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.group_id=?2 AND t.del_flag='0'")
-    SignUserDoctorGroup getIsSelectedByGroupIdAndUserId(String userId,Integer groupId);
+    @Query(nativeQuery=true,value="SELECT * FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.group_id=?2 AND t.del_flag=?3")
+    SignUserDoctorGroup getIsSelectedByGroupIdAndUserId(String userId,Integer groupId,String delFlag);
 }

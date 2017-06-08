@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.aop.AopInvocationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,8 @@ import com.wondersgroup.healthcloud.utils.EmojiUtils;
 @Service("patientGroupService")
 public class PatientGroupServiceImpl implements PatientGroupService{
     public static Integer DEFAULT_SORT=1;
+    public static String notDelFlag="0";
+    public static String delFlag="1";
     @Autowired
     PatientGroupRepository patientGroupRepository;
     @Autowired
@@ -71,7 +74,12 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             patientGroupRepository.save(group);
             return "编辑分组成功";
         }else{
-            int maxSort = patientGroupRepository.getMaxSortByDoctorId(doctorId);
+            int maxSort=0;
+            try {
+                maxSort = patientGroupRepository.getMaxSortByDoctorId(doctorId);
+            } catch (AopInvocationException e) {
+                throw new CommonException(1047,"医生id不存在");
+            }
             group.setDoctorId(doctorId);
             group.setName(StringUtils.trim(name));
             group.setRank(++maxSort);
@@ -98,7 +106,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         one.setDelFlag("1");
         one.setUpdateTime(new Date());
         patientGroupRepository.save(one);
-        signUserDoctorGroupRepository.updateDoctorGroup(Integer.parseInt(id));
+        signUserDoctorGroupRepository.updateDoctorGroup(delFlag,Integer.parseInt(id));
         return true;
         
     }
@@ -127,19 +135,37 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     @Override
     public void addUserToGroup(List<String> groupIds, String userId) {
         //已分组的id
-        List<Integer> list = signUserDoctorGroupRepository.getGroupIdsByUserId(userId);
+        List<Integer> list = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,notDelFlag);
         //传入的分组id
-        List<Integer> list2 = CollStringToIntegerLst(groupIds);
-        //取差集
-        list2.removeAll(list);
-        
+        List<Integer> list2 = null;
+        if(CollectionUtils.isNotEmpty(groupIds)){
+            list2 = CollStringToIntegerLst(groupIds);
+            //取差集
+            //list2.removeAll(list);
+            list.removeAll(list2);
+            for(Integer groupId:list){
+                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId);
+            }
+        }else{
+            //传入的ids是空时,将原有的进行删除
+            for(Integer groupId:list){
+                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId);
+            }
+        }
         if(CollectionUtils.isNotEmpty(list2)){
+            List<Integer> reList = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,notDelFlag);
+            list2.removeAll(reList);
             for(Integer groupId:list2){
-                SignUserDoctorGroup signUserDoctorGroup = new SignUserDoctorGroup();
-                signUserDoctorGroup.setGroupId(groupId);
-                signUserDoctorGroup.setUid(userId);
-                signUserDoctorGroup.setDelFlag("0");
-                signUserDoctorGroupRepository.saveAndFlush(signUserDoctorGroup);
+                SignUserDoctorGroup userDoctorGroup = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, groupId, delFlag);
+                if(null!=userDoctorGroup){
+                    signUserDoctorGroupRepository.updateDoctorGroup(notDelFlag, groupId);  
+                }else{
+                    SignUserDoctorGroup signUserDoctorGroup = new SignUserDoctorGroup();
+                    signUserDoctorGroup.setGroupId(groupId);
+                    signUserDoctorGroup.setUid(userId);
+                    signUserDoctorGroup.setDelFlag("0");
+                    signUserDoctorGroupRepository.saveAndFlush(signUserDoctorGroup);
+                }
             }
         }
     }

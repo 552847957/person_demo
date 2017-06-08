@@ -12,6 +12,14 @@ import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant
 import com.wondersgroup.healthcloud.services.disease.constant.ResidentConstant;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,19 +31,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
+import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
+import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 
 /**
  * Created by limenghua on 2017/6/6.
  *
  * @author limenghua
  */
-@Service
+@Service("doctorTubeSignUserService")
 public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService {
 
     private static final Logger logger = LoggerFactory.getLogger(DoctorTubeSignUserServiceImpl.class);
@@ -117,7 +127,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }// end outer method
 
     @Override
-    public List<ResidentInfoDto> queryByGroup(String groupId, int page, int pageSize) {
+    public List<ResidentInfoDto> queryByGroup(Integer groupId, int page, int pageSize) {
         return null;
     }
 

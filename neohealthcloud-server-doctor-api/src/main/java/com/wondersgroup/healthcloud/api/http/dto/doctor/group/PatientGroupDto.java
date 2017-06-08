@@ -3,11 +3,13 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor.group;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.jpa.entity.group.PatientGroup;
+import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 
 /**
  * 
