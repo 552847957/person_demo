@@ -15,8 +15,11 @@ import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepo
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
+import com.wondersgroup.healthcloud.utils.EmojiUtils;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -236,7 +239,8 @@ public class PatientGroupController {
             PatientGroupDto dto = new PatientGroupDto();
             dto.setId(p.getId());
             SignUserDoctorGroup isSelectedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId(),"0");
-            if(null==isSelectedByGroupIdAndUserId&&"1".equals(p.getIsDefault())){
+            SignUserDoctorGroup isDeletedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId(),"1");
+            if(null==isDeletedByGroupIdAndUserId&&null==isSelectedByGroupIdAndUserId&&"1".equals(p.getIsDefault())){
                 dto.setIsSelected(true); 
             }else if(null!=isSelectedByGroupIdAndUserId){
                 dto.setIsSelected(true);

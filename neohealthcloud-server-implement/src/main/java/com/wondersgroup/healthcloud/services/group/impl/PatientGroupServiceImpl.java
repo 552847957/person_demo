@@ -58,8 +58,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         if(StringUtils.trim(name)==null||"".equals(StringUtils.trim(name))){
             throw new CommonException(1042,"分组名称不支持空白");
         }
-        String cleanName=EmojiUtils.cleanEmoji(name);
-        if(name.length()>cleanName.length()){
+        if(EmojiUtils.containsEmoji(name)){
             throw new CommonException(1043, "分组名称不支持表情符号") ;
         }
         PatientGroup isRepeatedName = patientGroupRepository.findIsNameRepeated(doctorId, name);
@@ -68,12 +67,12 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         }
         PatientGroup group = new PatientGroup();
         if(StringUtils.isNotBlank(id)){
-            group.setId(Integer.parseInt(id));
-            group.setUpdateTime(new Date());
-            group.setCreateTime(group.getUpdateTime());
-            group.setDoctorId(doctorId);
-            group.setName(StringUtils.trim(name));
-            patientGroupRepository.save(group);
+            PatientGroup one = patientGroupRepository.findOne(Integer.parseInt(id));
+            one.setUpdateTime(new Date());
+            one.setCreateTime(one.getUpdateTime());
+            one.setDoctorId(doctorId);
+            one.setName(StringUtils.trim(name));
+            patientGroupRepository.save(one);
             return "编辑分组成功";
         }else{
             int maxSort=0;
