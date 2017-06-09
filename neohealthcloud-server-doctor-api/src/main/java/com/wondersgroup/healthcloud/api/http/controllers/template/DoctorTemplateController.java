@@ -9,6 +9,7 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorTemplate;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -115,6 +116,37 @@ public class DoctorTemplateController {
             return response;
         }
 
+        if(StringUtils.isBlank(doctorId)){
+            response.setData("添加失败,doctorId 不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(StringUtils.isBlank(title)){
+            response.setData("添加失败,title 不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(StringUtils.isBlank(content)){
+            response.setData("添加失败, 内容不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(title.length() > 15){
+            response.setData("添加失败,title 长度超过15个字符 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(content.length() > 300){
+            response.setData("添加失败,title 内容长度超过300个字符 ");
+            response.setCode(-1);
+            return response;
+        }
+
+
         DoctorTemplate entity = new DoctorTemplate();
         entity.setTitle(title);//TODO　数据检查
         entity.setContent(content);
@@ -137,12 +169,47 @@ public class DoctorTemplateController {
         String doctorId = reader.readString("doctorId", false);
         String title = reader.readString("title", false);
         String content = reader.readString("content", false);
+        JsonResponseEntity response = new JsonResponseEntity<>();
 
 
-        //TODO 数据检查
+        if(StringUtils.isBlank(id)){
+            response.setData("编辑失败,id 不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(StringUtils.isBlank(doctorId)){
+            response.setData("编辑失败,doctorId 不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(StringUtils.isBlank(title)){
+            response.setData("编辑失败,title 不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(StringUtils.isBlank(content)){
+            response.setData("编辑失败, 内容不能为空 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(title.length() > 15){
+            response.setData("编辑失败,title 长度超过15个字符 ");
+            response.setCode(-1);
+            return response;
+        }
+
+        if(content.length() > 300){
+            response.setData("编辑失败,title 内容长度超过300个字符 ");
+            response.setCode(-1);
+            return response;
+        }
 
         doctorTemplateService.update(id, doctorId, defaultType, title, content);
-        JsonResponseEntity response = new JsonResponseEntity<>();
+
         response.setData("编辑成功");
         response.setCode(0);
         return response;
