@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class HeathIconDto {
     public String name;
+    public String url;
     public String imgUrl;
     public int isNew;
 
@@ -17,8 +18,9 @@ public class HeathIconDto {
 
     }
 
-    public HeathIconDto(String name, String imgUrl){
+    public HeathIconDto(String name, String url, String imgUrl){
         this.name = name;
+        this.url = url;
         this.imgUrl = imgUrl;
     }
 

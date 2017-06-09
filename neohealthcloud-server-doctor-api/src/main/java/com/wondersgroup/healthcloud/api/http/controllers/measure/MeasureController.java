@@ -19,6 +19,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
+import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -658,10 +659,10 @@ public class MeasureController {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
+        RegisterInfo registerInfo = userService.getOneNotNull(uid);
+        infoDto.setAddress(getAddress(uid, false));
+        infoDto.setMedicarecard(registerInfo.getMedicarecard());
         if(StringUtils.isBlank(personcard)){
-            RegisterInfo registerInfo = userService.getOneNotNull(uid);
-            UserInfo userInfo = userService.getUserInfo(uid);
-
             infoDto.setName(registerInfo.getName());
             infoDto.setGender(registerInfo.getGender());
             infoDto.setCardType("01");
@@ -687,7 +688,6 @@ public class MeasureController {
             infoDto.setApoType(!"0".equals(info.getApoType()));
             infoDto.setIsRisk(!"0".equals(info.getIsRisk()));
             infoDto.setIdentifyType(!"0".equals(info.getIdentifytype()));
-
         }
         return new JsonResponseEntity(0, "获取成功", infoDto);
     }
@@ -719,7 +719,6 @@ public class MeasureController {
                     as.setResult(result.substring(1, result.length()) + "风险");
                 }
                 arr.add(as);
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -738,19 +737,14 @@ public class MeasureController {
         try {
             RegisterInfo registerInfo = userService.getOneNotNull(registerId);
             UserInfo userInfo = userService.getUserInfo(registerId);
-            Address address = userService.getAddress(registerId);
             infoDto.setName(registerInfo.getName());
-            StringBuffer buffer = new StringBuffer();
-            if(address != null){
-                buffer.append(StringUtils.trimToEmpty(dictCache.    queryArea(address.getProvince())))
-                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())))
-                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())))
-                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())))
-                        .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
-            }
 
-            infoDto.setAddress(buffer.toString());
-            infoDto.setAge(userInfo.getAge());
+            infoDto.setAddress(getAddress(registerId, true));
+            if(userInfo == null || userInfo.getAge() == null){
+                IdcardUtils.getAgeByIdCard(registerInfo.getPersoncard());
+            }else{
+                infoDto.setAge(userInfo.getAge());
+            }
             infoDto.setIdentifyType(!"0".equals(registerInfo.getIdentifytype()));
             infoDto.setAvatar(registerInfo.getHeadphoto());
             infoDto.setPhone(registerInfo.getRegmobilephone());
@@ -766,7 +760,7 @@ public class MeasureController {
             boolean isNew = doctorIntervenService.hasTodoIntervensByRegisterId(registerId);
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {
-                    HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getImgUrl());
+                    HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getHoplink(), image.getImgUrl());
                     if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
                         icon.setIsNew(isNew ? 1  : 0);
                     }
@@ -808,5 +802,20 @@ public class MeasureController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("isStandard", "false");// 非标准版
         return headers;
+    }
+
+    public String getAddress(String registerId, boolean wantProvince){
+        Address address = userService.getAddress(registerId);
+        StringBuffer addrs = new StringBuffer();
+        if(address != null){
+            if(wantProvince){
+                    addrs.append(StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())))
+                    .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())));
+            }
+                    addrs.append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())))
+                    .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())))
+                    .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
+        }
+        return addrs.toString();
     }
 }
