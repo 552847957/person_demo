@@ -57,28 +57,31 @@ public class PersonDTO{
     private String content;
 
     public PersonDTO (IntervenEntity intervenEntity){
-        this.registerId = intervenEntity.getRegister_id()==null?"":intervenEntity.getRegister_id();
-        this.name = intervenEntity.getName()==null?"":intervenEntity.getName();
-        this.gender = intervenEntity.getGender() == null?"":intervenEntity.getGender();
-        this.age = intervenEntity.getAge();
-        this.avatar = intervenEntity.getAvatar() == null?"":intervenEntity.getAvatar();
-        this.isRisk = StringUtils.isBlank(intervenEntity.getIs_risk())?false:"1".equals(intervenEntity.getIs_risk());
-        this.isJky = StringUtils.isBlank(intervenEntity.getIdentifytype())?false:!"0".equals(intervenEntity.getIdentifytype());
-        this.isHyp = StringUtils.isBlank(intervenEntity.getHyp_type())?false:!"0".equals(intervenEntity.getHyp_type());
-        this.isDiabetes = StringUtils.isBlank(intervenEntity.getDiabetes_type())?false:!"0".equals(intervenEntity.getDiabetes_type());
-        this.isApo = StringUtils.isBlank(intervenEntity.getApo_type())?false:!"0".equals(intervenEntity.getApo_type());
 
-        this.canIntervene = this.isJky;//目前的规则是只有在C端有账号的可以进行干预
+        if(intervenEntity!=null){
+            this.registerId = intervenEntity.getRegister_id()==null?"":intervenEntity.getRegister_id();
+            this.name = intervenEntity.getName()==null?"":intervenEntity.getName();
+            this.gender = intervenEntity.getGender() == null?"":intervenEntity.getGender();
+            this.age = intervenEntity.getAge();
+            this.avatar = intervenEntity.getAvatar() == null?"":intervenEntity.getAvatar();
+            this.isRisk = StringUtils.isBlank(intervenEntity.getIs_risk())?false:"1".equals(intervenEntity.getIs_risk());
+            this.isJky = StringUtils.isBlank(intervenEntity.getIdentifytype())?false:!"0".equals(intervenEntity.getIdentifytype());
+            this.isHyp = StringUtils.isBlank(intervenEntity.getHyp_type())?false:!"0".equals(intervenEntity.getHyp_type());
+            this.isDiabetes = StringUtils.isBlank(intervenEntity.getDiabetes_type())?false:!"0".equals(intervenEntity.getDiabetes_type());
+            this.isApo = StringUtils.isBlank(intervenEntity.getApo_type())?false:!"0".equals(intervenEntity.getApo_type());
 
-        this.memo = IntervenEnum.getIntervenTypeNames(intervenEntity.getTypelist());
+            this.canIntervene = this.isJky;//目前的规则是只有在C端有账号的可以进行干预
 
-        this.id = intervenEntity.getId();
-        Date intervenDate = intervenEntity.getInterventionDate();
-        if(intervenDate!=null){
-            this.interventionTime = DateFormatter.dateTim2eFormat(intervenDate);
-            this.interventionDate = DateFormatter.dateFormat(intervenDate);
+            this.memo = IntervenEnum.getIntervenTypeNames(intervenEntity.getTypelist());
+
+            this.id = intervenEntity.getId();
+            Date intervenDate = intervenEntity.getInterventionDate();
+            if(intervenDate!=null){
+                this.interventionTime = DateFormatter.dateTim2eFormat(intervenDate);
+                this.interventionDate = DateFormatter.dateFormat(intervenDate);
+            }
+            this.content = intervenEntity.getContent();
         }
-        this.content = intervenEntity.getContent();
 
     }
 

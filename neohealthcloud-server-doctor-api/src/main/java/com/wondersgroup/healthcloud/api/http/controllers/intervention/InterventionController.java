@@ -224,30 +224,35 @@ public class InterventionController {
         //血糖
         List<NeoFamIntervention> bloodGlucoseOutlierList = doctorInterventionService.findBloodGlucoseOutlierListByRegisterId(registerId, false, 0, 0, Integer.valueOf(size)+1);
 
-        for (NeoFamIntervention neoFamIntervention : bloodGlucoseOutlierList){
-            if(outlierDTOs.size()<Integer.valueOf(size)){
-                OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
-                outlierDTO.setFlag(outlierDTO.getFlag());
-                outlierDTOs.add(outlierDTO);
-                intervenDetailDTO.setBloodGlucoseList(outlierDTOs);
+        if(bloodGlucoseOutlierList!=null && bloodGlucoseOutlierList.size()>0){
+            for (NeoFamIntervention neoFamIntervention : bloodGlucoseOutlierList){
+                if(outlierDTOs.size()<Integer.valueOf(size)){
+                    OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
+                    outlierDTO.setFlag(outlierDTO.getFlag());
+                    outlierDTOs.add(outlierDTO);
+                    intervenDetailDTO.setBloodGlucoseList(outlierDTOs);
+                }
+            }
+            if(bloodGlucoseOutlierList.size()> Integer.valueOf(size)){
+                intervenDetailDTO.setBloodGlucose_more(true);
             }
         }
-        if(bloodGlucoseOutlierList.size()> Integer.valueOf(size)){
-            intervenDetailDTO.setBloodGlucose_more(true);
-        }
+
 
         //血压
         List<NeoFamIntervention> pressureOutlierList = doctorInterventionService.findpressureOutlierListByRegisterId(registerId, false, 0, 0, Integer.valueOf(size) + 1);
-        for (NeoFamIntervention neoFamIntervention : pressureOutlierList){
-            if(outlierDTOs.size()<Integer.valueOf(size)){
-                OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
-                outlierDTO.setFlag(outlierDTO.getFlag());
-                outlierDTOs.add(outlierDTO);
-                intervenDetailDTO.setPressureList(outlierDTOs);
+        if(pressureOutlierList!=null && pressureOutlierList.size()>0){
+            for (NeoFamIntervention neoFamIntervention : pressureOutlierList){
+                if(outlierDTOs.size()<Integer.valueOf(size)){
+                    OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
+                    outlierDTO.setFlag(outlierDTO.getFlag());
+                    outlierDTOs.add(outlierDTO);
+                    intervenDetailDTO.setPressureList(outlierDTOs);
+                }
             }
-        }
-        if(pressureOutlierList.size()> Integer.valueOf(size)){
-            intervenDetailDTO.setPressure_more(true);
+            if(pressureOutlierList.size()> Integer.valueOf(size)){
+                intervenDetailDTO.setPressure_more(true);
+            }
         }
 
         response.setData(intervenDetailDTO);
