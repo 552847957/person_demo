@@ -19,9 +19,10 @@ public class HeathUserInfoDto extends BaseResidentDto{
    public  String  cardNumber;
    public  String  profession;
    public  String  employStatus;
-   public  String  moblilePhone;
+   public  String  mobilePhone;
    public  String  fixedPhone;
    public  String  contactPhone;
+   public  String  medicarecard;
 
    public List<HeathIconDto> icons;
 

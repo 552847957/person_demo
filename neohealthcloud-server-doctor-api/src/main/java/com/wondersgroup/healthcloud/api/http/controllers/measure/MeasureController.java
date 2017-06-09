@@ -660,13 +660,13 @@ public class MeasureController {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
         infoDto.setAddress(getAddress(uid, false));
-//        infoDto.setMedicarecard(registerInfo.getMedicarecard());
+        infoDto.setMedicarecard(registerInfo.getMedicarecard());
         if(StringUtils.isBlank(personcard)){
             infoDto.setName(registerInfo.getName());
             infoDto.setGender(registerInfo.getGender());
             infoDto.setCardType("01");
             infoDto.setCardNumber(registerInfo.getPersoncard());
-            infoDto.setMoblilePhone(registerInfo.getRegmobilephone());
+            infoDto.setMobilePhone(registerInfo.getRegmobilephone());
             if(registerInfo.getBirthday() != null){
                 infoDto.setBirth(registerInfo.getBirthday());
             }
@@ -679,7 +679,7 @@ public class MeasureController {
             infoDto.setCardNumber(info.getCardNumber());
             infoDto.setProfession(info.getProfession());
             infoDto.setEmployStatus(info.getEmployStatus());
-            infoDto.setMoblilePhone(info.getMoblilePhone());
+            infoDto.setMobilePhone(info.getMoblilePhone());
             infoDto.setFixedPhone(info.getFixedPhone());
             infoDto.setContactPhone(info.getContactPhone());
             infoDto.setHypType(!"0".equals(info.getHypType()));
@@ -759,7 +759,8 @@ public class MeasureController {
             boolean isNew = doctorIntervenService.hasTodoIntervensByRegisterId(registerId);
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {
-                    HeathIconDto icon = new HeathIconDto(image.getMainTitle(),image.getHoplink(), image.getImgUrl());
+                    String hopLink = repliceUrl(image.getHoplink(), registerId, registerInfo.getPersoncard());
+                    HeathIconDto icon = new HeathIconDto(image.getMainTitle(), hopLink, image.getImgUrl());
                     if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
                         icon.setIsNew(isNew ? 1  : 0);
                     }
@@ -816,5 +817,18 @@ public class MeasureController {
                     .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
         }
         return addrs.toString();
+    }
+
+    public String repliceUrl(String url, String registerId, String idc){
+        if(StringUtils.isBlank(url)){
+            return null;
+        }
+        if(url.contains("{registerId}")){
+            url = url.replace("{registerId}",registerId);
+        }
+        if (url.contains("{idc}")) {
+            url = url.replace("{idc}",idc);
+        }
+        return url;
     }
 }
