@@ -656,12 +656,11 @@ public class MeasureController {
     }
 
     @GetMapping("userInfo")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
         infoDto.setAddress(getAddress(uid, false));
-        infoDto.setMedicarecard(registerInfo.getMedicarecard());
+//        infoDto.setMedicarecard(registerInfo.getMedicarecard());
         if(StringUtils.isBlank(personcard)){
             infoDto.setName(registerInfo.getName());
             infoDto.setGender(registerInfo.getGender());
