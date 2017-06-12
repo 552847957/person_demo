@@ -79,7 +79,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                     for (String s : diseaseArray) {
                         switch (s) {
                             case DiseaseTypeConstant.APO:
-                                equalMap.put("apoType", "1");
+                                notEqualMap.put("apoType", "0");
                                 break;
                             case DiseaseTypeConstant.DIABETES:
                                 notEqualMap.put("diabetesType", "0");

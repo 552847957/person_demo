@@ -16,4 +16,7 @@ public interface AddressRepository extends JpaRepository<Address,String> {
 
     Address queryFirst1ByDelFlagAndUserId(String delFlag,String userId);
 
+    @Query(nativeQuery = true, value = "SELECT a.* from ")
+    Address queryFirst1ByDelFlagAndPersoncard(String delFlag, String personcard);
+
 }

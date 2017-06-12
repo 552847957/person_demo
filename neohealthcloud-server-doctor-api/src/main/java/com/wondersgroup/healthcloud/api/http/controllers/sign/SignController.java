@@ -36,11 +36,13 @@ public class SignController {
     @RequestMapping(value = "/userLists", method = RequestMethod.GET)
     @VersionRange
     public JsonListResponseEntity userLists(@RequestParam(required = false) String name,
+                                            @RequestParam(required = false) String diseaseType,
+                                            @RequestParam(required = false) String peopleType,
                                             @RequestParam(required = false, defaultValue = "0", name = "flag") int pageNo,
                                             @RequestParam(required = false, defaultValue = "20") int pageSize) {
         JsonListResponseEntity responseEntity = new JsonListResponseEntity();
         pageSize += 1;
-        List<SignDTO> list = signService.userLists(name, pageNo, pageSize);
+        List<SignDTO> list = signService.userLists(name, diseaseType, peopleType, pageNo, pageSize);
         boolean hasMore = false;
         if (list != null && list.size() > pageSize - 1) {
             hasMore = true;

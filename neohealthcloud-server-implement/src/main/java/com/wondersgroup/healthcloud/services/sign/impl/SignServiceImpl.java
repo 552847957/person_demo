@@ -8,6 +8,8 @@ import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
+import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
+import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant;
 import com.wondersgroup.healthcloud.services.disease.constant.ResidentConstant;
 import com.wondersgroup.healthcloud.services.sign.SignDTO;
 import com.wondersgroup.healthcloud.services.sign.SignService;
@@ -39,21 +41,58 @@ public class SignServiceImpl implements SignService {
     private SignUserDoctorGroupRepository sudgRepo;
 
     @Override
-    public List<SignDTO> userLists(String name, int pageNo, int pageSize) {
+    public List<SignDTO> userLists(String name, String diseaseType, String peopleType, int pageNo, int pageSize) {
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT a.* FROM fam_doctor_tube_sign_user a")
-        .append(" LEFT JOIN (SELECT y.personcard FROM app_tb_sign_user_doctor_group x, app_tb_register_info y" +
-                "            WHERE x.user_id = y.registerid AND y.personcard IS NOT NULL) b" +
-                " ON a.card_number = b.personcard");
 
+        // SELECT
+        sql.append("SELECT a.* FROM fam_doctor_tube_sign_user a");
+
+        // WHERE
+        sql.append(" WHERE 1 = 1");
+        // name 搜索
         if (StringUtils.isNotEmpty(name)) {
-            sql.append(" WHERE LOCATE('" + name + "', a.name) > 0");
+            sql.append(" AND LOCATE('" + name + "', a.name) > 0");
         }
+        // 慢病种类搜索
+        if (StringUtils.isNotEmpty(diseaseType)) {
+            String[] diseaseArray = diseaseType.split(",");
+            for (String s : diseaseArray) {
+                switch (s) {
+                    case DiseaseTypeConstant.APO:
+                        sql.append(" AND a.apo_type <> '0'");
+                        break;
+                    case DiseaseTypeConstant.DIABETES:
+                        sql.append(" AND a.diabetes_type <> '0'");
+                        break;
+                    case DiseaseTypeConstant.HYP:
+                        sql.append(" AND a.hyp_type <> '0'");
+                        break;
+                }
+            }
+        }
+        // 人群分类搜索
+        if (StringUtils.isNotBlank(peopleType)) {
+            switch (peopleType) {
+                case PeopleTypeConstant.RISK:// 高危人群
+                    sql.append(" AND a.is_risk <> '0'");
+                    break;
+                case PeopleTypeConstant.DISEASE:// 疾病人群
+                    sql.append(" AND (a.apo_type <> '0' OR a.diabetes_type <> '0' OR a.hyp_type <> '0')");
+                    break;
+                case PeopleTypeConstant.HEALTHY:// 健康人群
+                    sql.append(" AND a.apo_type = '0' AND a.diabetes_type = '0' AND a.hyp_type = '0'");
+                    break;
+            }
+        }
+
+        // ORDER BY
         sql.append(" ORDER BY b.personcard DESC, CONVERT(a.name USING gbk) COLLATE gbk_chinese_ci");
         if (StringUtils.isNotEmpty(name)) {
             sql.append(", LOCATE('" + name + "', a.name), length(a.name)");
         }
+
+        // LIMIT
         sql.append(" LIMIT " + (pageNo * (pageSize - 1)) + ", " + pageSize);
         List<DoctorTubeSignUser> rtnList = jdbcTemplate.query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<>(DoctorTubeSignUser.class));
 
@@ -66,6 +105,11 @@ public class SignServiceImpl implements SignService {
             return dtoList;
         }
         return null;
+    }
+
+    @Override
+    public int countSignedUserByDoctorPersoncard(String personcard) {
+        return 0;
     }
 
     private SignDTO copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
