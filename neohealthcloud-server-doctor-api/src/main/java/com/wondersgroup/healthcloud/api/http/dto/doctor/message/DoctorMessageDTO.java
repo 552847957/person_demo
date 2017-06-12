@@ -36,12 +36,16 @@ public class DoctorMessageDTO {
     @JsonProperty("time_str")
     private String timeStr;
 
+    @JsonProperty("url_fragment")
+    private String urlFragment;//跳转地址
+
     public DoctorMessageDTO (DoctorMessage doctorMessage){
         this.id = doctorMessage.getId();
         this.title = doctorMessage.getTitle();
         this.msgType = doctorMessage.getMsgType();
         this.typeName = DoctorMsgTypeEnum.fromTypeCode(doctorMessage.getMsgType()).getTypeName();
         this.content = doctorMessage.getContent();
+        this.urlFragment = doctorMessage.getUrlFragment();
 
         // 若时间为今天则显示具体时间到分钟［10:30］，
         // 若时间为昨天则显示昨天＋具体时间到分钟［昨天 10:30］，

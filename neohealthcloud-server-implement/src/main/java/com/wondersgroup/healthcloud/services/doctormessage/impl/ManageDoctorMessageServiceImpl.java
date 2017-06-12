@@ -190,7 +190,7 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 			doctorMessage.setTitle("追问提醒");
 			doctorMessage.setContent("您回复的患者有了新的追问,请查看。");
 		}
-		doctorMessage.setUpdateDate(new DateTime(new Date()).toString());
+		doctorMessage.setUpdateDate(new DateTime(new Date()).toString("yyyy-MM-dd HH:mm:ss"));
 
 		doctorMessage.setUrlFragment(String.format(DoctorMsgTypeEnum.msgTypeQuestion.getUrlFragment(),questionId));
 		doctorMessage.setReceive(doctorAccount.getName());
