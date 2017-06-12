@@ -12,6 +12,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathIconDto;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathUserInfoDto;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.enums.IntervenEnum;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
@@ -693,7 +694,8 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("assessmentAbnormal")
-    public JsonResponseEntity assessmentAbnormal(String registerId) {
+    public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(String registerId) {
+        JsonListResponseEntity<AssessmentAbnormal> entity = new JsonListResponseEntity<>();
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         try {
             String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
@@ -722,9 +724,12 @@ public class MeasureController {
         } catch (Exception e) {
             e.printStackTrace();
             log.info("数据获取失败", e);
-            return new JsonResponseEntity(1000, "数据获取失败");
+            entity.setCode(1000);
+            entity.setMsg("调用失败");
+            return entity;
         }
-        return new JsonResponseEntity(0, "数据获取成功", arr);
+        entity.setContent(arr);
+        return entity;
     }
 
 
