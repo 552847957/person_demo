@@ -54,7 +54,7 @@ public class SignServiceImpl implements SignService {
         if (StringUtils.isNotEmpty(name)) {
             sql.append(", LOCATE('" + name + "', a.name), length(a.name)");
         }
-        sql.append(" LIMIT " + pageNo + ", " + pageSize);
+        sql.append(" LIMIT " + (pageNo * (pageSize - 1)) + ", " + pageSize);
         List<DoctorTubeSignUser> rtnList = jdbcTemplate.query(sql.toString(), new Object[]{}, new BeanPropertyRowMapper<>(DoctorTubeSignUser.class));
 
         if (rtnList != null && rtnList.size() > 0) {
