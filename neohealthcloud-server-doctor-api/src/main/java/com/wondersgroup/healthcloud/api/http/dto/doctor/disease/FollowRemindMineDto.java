@@ -24,8 +24,9 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FollowRemindMineDto extends BaseResidentDto {
     private String followDate;//随访开始时间
+    private String followDetailUrl;//随访详情
 
-    public FollowRemindMineDto(Map<String, Object> map,  RegisterInfo register, UserInfo userInfo) {
+    public FollowRemindMineDto(Map<String, Object> map,  RegisterInfo register, UserInfo userInfo,String baseUrl) {
 
         this.setRegisterId(map.get("registerid").toString());
         this.setAvatar(StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix());
@@ -36,6 +37,7 @@ public class FollowRemindMineDto extends BaseResidentDto {
         this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
+
 
 
         if(null != register && null != register.getPersoncard()){
@@ -49,6 +51,7 @@ public class FollowRemindMineDto extends BaseResidentDto {
         if(null != map.get("report_date")){
             this.followDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S").parseDateTime(map.get("report_date").toString()).toString("yyyy-MM-dd");
         }
+        this.followDetailUrl = baseUrl+"/FollowUpReport/"+this.getRegisterId()+"/"+this.followDate;
 
     }
 }

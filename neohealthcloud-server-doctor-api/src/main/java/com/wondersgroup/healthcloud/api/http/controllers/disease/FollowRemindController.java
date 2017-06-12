@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,9 @@ public class FollowRemindController {
 
     @Autowired
     private DiabetesAssessmentRemindRepository remindRepo;
+
+    @Value("${disease.h5.url}")
+    private String diseaseUrl;
 
     /**
      * 随访提醒列表
@@ -124,7 +128,7 @@ public class FollowRemindController {
         List<FollowRemindMineDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
             entityList.add(new FollowRemindMineDto(map, registerInfoRepo.findOne(map.get("registerid").toString()),
-                    userInfoRepo.findOne(map.get("registerid").toString())));
+                    userInfoRepo.findOne(map.get("registerid").toString()),diseaseUrl));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
