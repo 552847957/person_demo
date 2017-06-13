@@ -2,12 +2,14 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.question.DoctorQuestionService;
+import com.wondersgroup.healthcloud.services.sign.SignService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,9 @@ public class HomeController {
 
     @Autowired
     private PatientGroupService patientGroupService;
+
+    @Autowired
+    private DoctorTubeSignUserRepository doctorTubeSignUserRepository;
 
     @Autowired
     private JedisPool jedisPool;
@@ -93,18 +98,20 @@ public class HomeController {
         int intervenNum = 0;
         int screenNum = 0;
         int followNum = 0;
-        int group_num = 0;
+        int groupNum = 0;
+        int signedNum = 0;
         Boolean ask_red = false;
         Boolean follow_red = false;
         Boolean screened_red = false;
         Boolean intervened_red = false;
 
         try {
+            signedNum = doctorTubeSignUserRepository.countSignedUserByDoctorId(uid);
             answeredNum = doctorQuestionService.queryAnsweredCount(uid);
             intervenNum = doctorIntervenService.countHasInterventionByDoctorId(uid);//异常干预
             screenNum = screeningService.getRemindCount(uid);
             followNum = followRemindService.getRemindCount(uid);
-            group_num = patientGroupService.getGroupNumByDoctorId(uid);
+            groupNum = patientGroupService.getGroupNumByDoctorId(uid);
 
             try (Jedis jedis = jedisPool.getResource()) {
                 ask_red = getIsRedByRedis(jedis,"answeredNum",uid,answeredNum);
@@ -115,8 +122,8 @@ public class HomeController {
         }catch (Exception e){
             log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
         }
-        number.put("signed_num",getNumStr(1088));//我的签约-签约人数 Todo
-        number.put("group_num",getNumStr(group_num));//我的分组-分组数
+        number.put("signed_num",getNumStr(signedNum));//我的签约-签约人数
+        number.put("group_num",getNumStr(groupNum));//我的分组-分组数
         number.put("screened_num",getNumStr(screenNum));//筛查提醒-已筛查数
         number.put("intervened_num",getNumStr(intervenNum));//异常干预-已干预人数
         number.put("follow_num",getNumStr(followNum));//随访提醒-已随访人数
