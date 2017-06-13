@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.sign.impl;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
@@ -29,9 +30,6 @@ import java.util.List;
 public class SignServiceImpl implements SignService {
 
     @Autowired
-    private DoctorTubeSignUserRepository dtsuRepo;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -39,6 +37,9 @@ public class SignServiceImpl implements SignService {
 
     @Autowired
     private SignUserDoctorGroupRepository sudgRepo;
+
+    @Autowired
+    private DictCache dictCache;
 
     @Override
     public List<SignDTO> userLists(String name, String diseaseType, String peopleType, int pageNo, int pageSize) {
@@ -87,7 +88,7 @@ public class SignServiceImpl implements SignService {
         }
 
         // ORDER BY
-        sql.append(" ORDER BY b.personcard DESC, CONVERT(a.name USING gbk) COLLATE gbk_chinese_ci");
+        sql.append(" ORDER BY CONVERT(a.name USING gbk) COLLATE gbk_chinese_ci");
         if (StringUtils.isNotEmpty(name)) {
             sql.append(", LOCATE('" + name + "', a.name), length(a.name)");
         }
@@ -148,9 +149,14 @@ public class SignServiceImpl implements SignService {
         }
 
         // 设置地址信息
-        Address address = addressRepository.queryFirst1ByDelFlagAndUserId(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
+        Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(doctorTubeSignUser.getCardNumber());
         if (address != null) {
-            String adr = String.format("%s%s%s", address.getProvince(), address.getCity(), address.getCounty());
+            String adr = String.format("%s%s%s",
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
+                    StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())),
+                    StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())),
+                    StringUtils.trimToEmpty(address.getOther()));
             dto.setAddress(adr);
         }
         // 是否分组

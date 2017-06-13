@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.disease.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
@@ -57,6 +58,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private AddressRepository addressRepository;
     @Autowired
     private SignUserDoctorGroupRepository signUserDoctorGroupRepository;
+    @Autowired
+    private DictCache dictCache;
 
     @Override
     public Page<DoctorTubeSignUser> search(final ResidentCondition user) {
@@ -259,9 +262,14 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         }
 
         // 设置地址信息
-        Address address = addressRepository.queryFirst1ByDelFlagAndUserId(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
+        Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(doctorTubeSignUser.getCardNumber());
         if (address != null) {
-            String adr = String.format("%s%s%s", address.getProvince(), address.getCity(), address.getCounty());
+            String adr = String.format("%s%s%s",
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
+                    StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())),
+                    StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())),
+                    StringUtils.trimToEmpty(address.getOther()));
             dto.setAddress(adr);
         }
         // 是否分组
