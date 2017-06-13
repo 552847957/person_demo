@@ -87,11 +87,13 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid %s \n" +
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01' " +
                 "          AND (t3.sign_doctor_personcard is null or t3.sign_doctor_personcard ='%s') and t3.del_flag = '0' \n" +
-                " %s " +
+                " %s %s" +
                 " order by %s group_type desc,t1.warn_date desc " +
                 " limit "+(pageNo)*pageSize+","+(pageSize);
-        StringBuffer  sb = new StringBuffer("");
-
+        //内层查询要用正则把每个人的异常干预拼接起来
+        StringBuffer REGEXPStr = new StringBuffer("");
+        //在中间挑选参数的交集
+        StringBuffer intersectionStr = new StringBuffer("");
         String nameWhere = "";
         String nameOrder = "";
         //如果name非空则是搜索页面(只根据name搜索)
@@ -109,17 +111,20 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
 
         }
         if(StringUtils.isNotBlank(interven_type)){
-            sb.append("and type REGEXP '");
+            REGEXPStr.append("and type REGEXP '");
+            intersectionStr.append(" where 1=1 ");
             String[] types = interven_type.split(",");
             for (String type : types){
-                sb.append(type).append("|");
+                REGEXPStr.append(type).append("|");
+                intersectionStr.append(" and typelist like '%"+type+"%' ");
             }
-            sb.deleteCharAt(sb.length()-1);
-            sb.append("'");
+            REGEXPStr.deleteCharAt(REGEXPStr.length()-1);
+            REGEXPStr.append("'");
         }
-        sql = String.format(sql,uid,sb.toString(),nameWhere,
+
+        sql = String.format(sql,uid,REGEXPStr.toString(),nameWhere,
                 doctorInfo.getIdcard(),StringUtils.isBlank(signStatus)?"": " and sign_status = " +
-                        signStatus,nameOrder);
+                        signStatus,intersectionStr.toString(),nameOrder);
         return jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
     }
 
