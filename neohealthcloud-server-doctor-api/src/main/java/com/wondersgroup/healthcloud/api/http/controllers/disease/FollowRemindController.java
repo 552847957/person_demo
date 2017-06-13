@@ -68,7 +68,7 @@ public class FollowRemindController {
             @RequestParam(required = false) String  diseaseType,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
 
-        int pageSize = 4;
+        int pageSize = 20;
         JsonListResponseEntity response = new JsonListResponseEntity();
 
         DoctorInfo doctorInfo = doctorInfoRepo.findOne(doctorId);
