@@ -107,11 +107,6 @@ public class SignServiceImpl implements SignService {
         return null;
     }
 
-    @Override
-    public int countSignedUserByDoctorPersoncard(String personcard) {
-        return 0;
-    }
-
     private SignDTO copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
         SignDTO dto = new SignDTO();
         BeanUtils.copyProperties(doctorTubeSignUser, dto);

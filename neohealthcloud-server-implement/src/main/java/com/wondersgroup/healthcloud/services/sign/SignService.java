@@ -1,7 +1,5 @@
 package com.wondersgroup.healthcloud.services.sign;
 
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 /**
@@ -9,7 +7,4 @@ import java.util.List;
  */
 public interface SignService {
     List userLists(String name, String diseaseType, String peopleType, int pageNo, int pageSize);
-
-    //@Query()
-    int countSignedUserByDoctorPersoncard(String personcard);
 }

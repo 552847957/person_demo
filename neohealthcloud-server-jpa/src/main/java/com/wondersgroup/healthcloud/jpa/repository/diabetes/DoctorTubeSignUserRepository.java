@@ -26,6 +26,9 @@ public interface DoctorTubeSignUserRepository extends JpaRepository<DoctorTubeSi
     @Query("select a from DoctorTubeSignUser a where a.delFlag = ?1 and a.id in (?2)")
     Page<DoctorTubeSignUser> queryByDelFlagAndIdIn(String delFlag, List<String> ids, Pageable pageable);
 
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM fam_doctor_tube_sign_user a, doctor_info_tb b where a.sign_doctor_personcard = b.idcard and b.del_flag = '0' AND b.id = ?1")
+    int countSignedUserByDoctorId(String doctorId);
+
 //    @Query(nativeQuery = true, value = "select * from fam_doctor_tube_sign_user f where f.del_flag = 0 and f.name like %:kw% order by \n" +
 //            "(case\n" +
 //            "when f.name = :kw then 1 \n" +
