@@ -420,9 +420,9 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     public Boolean getIsRisk(String registerid) {
         Assessment assessment = assessmentRepository.getRecentAssess(registerid);
-        if(1==assessment.getResult()){
-            return true;
-        }
+//        if(1==assessment.getResult()){
+//            return true;
+//        }
         return false;
     }
 

@@ -77,6 +77,15 @@ public class DoctorTubeSignUser {
     @Column(name = "apo_type")
     private String apoType;//脑卒中类型 0：没有脑卒中 1：脑卒中
 
+    @Column(name = "hyp_c_type")
+    private String hypCType;//C端高血压类型 0：非高血压 1：高血压
+
+    @Column(name = "diabetes_c_type")
+    private String diabetesCType;//C端糖尿病类型 0:没有糖尿病、1:糖尿病
+
+    @Column(name = "apo_c_type")
+    private String apoCType;//C端脑卒中类型 0：没有脑卒中 1：脑卒中
+
     @Column(name = "is_risk")
     private String isRisk;//是否高危 0:不是高危(根据用户端危险评估判断，有高糖脑的属于高危) 1:高危
 

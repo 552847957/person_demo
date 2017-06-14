@@ -227,7 +227,7 @@ public class AssessmentController {
         assessment.setIsOneself(isOneself);
         assessment.setDelFlag("0");
         assessment.setCreateDate(new Date());
-        assessment.setResult(0);
+        assessment.setResult(null);
 
         return getResult(assessment,true);
     }
@@ -265,13 +265,13 @@ public class AssessmentController {
                     assessmentAPIEntity.getIsOverWeight() || assessmentAPIEntity.getIsHypertension() ||
                     assessmentAPIEntity.getNeedMovement() || assessmentAPIEntity.getNeedAmendLife()||
                     assessmentAPIEntity.getHasFamilyHistory()){
-                assessment.setResult(1);
+                assessment.setResult("");
                 assessmentRepository.save(assessment);
             }
             if(assessment.getIsOneself() == 1) {//本人风险评估
                 RegisterInfo registerInfo = registerInfoRepo.findOne(assessment.getUid());
-                if(null != registerInfo.getPersoncard())
-                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
+//                if(null != registerInfo.getPersoncard())
+//                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
             }
         }
         return response;
