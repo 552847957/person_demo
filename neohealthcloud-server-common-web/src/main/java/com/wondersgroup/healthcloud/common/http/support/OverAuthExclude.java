@@ -11,6 +11,7 @@ import java.util.List;
 public class OverAuthExclude {
 
     private static List<String> overAuthExcludes = Lists.newArrayList();
+    private static List<String> overAuthExcludesForDoctor = Lists.newArrayList();
 
     private static final String APPOINTMENT = "/api/reservation";
 
@@ -23,7 +24,8 @@ public class OverAuthExclude {
     private static final String ASSESSMENT = "/api/assessment";
 
     private static final String TUBERELATION = "/api/tuberelation";
-
+    
+    private static final String USERINFO="/api/measure/userInfo";
     static{
         overAuthExcludes.add(APPOINTMENT);
         overAuthExcludes.add(BBS);
@@ -31,11 +33,22 @@ public class OverAuthExclude {
         overAuthExcludes.add(USER);
         overAuthExcludes.add(ASSESSMENT);
         overAuthExcludes.add(TUBERELATION);
+        overAuthExcludesForDoctor.add(USERINFO);
     }
 
     public Boolean isExclude(String request){
         if(!StringUtils.isEmpty(request)){
             for(String overAuthExclude: overAuthExcludes){
+                if(request.startsWith(overAuthExclude))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    public Boolean isExcludeForDoctor(String request){
+        if(!StringUtils.isEmpty(request)){
+            for(String overAuthExclude: overAuthExcludesForDoctor){
                 if(request.startsWith(overAuthExclude))
                     return true;
             }
