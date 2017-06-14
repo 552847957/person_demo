@@ -85,8 +85,12 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " ) b on a.register_id=b.register_id " +
                 ") t1\n" +
                 " JOIN app_tb_register_info t2 on t1.register_id = t2.registerid %s \n" +
-                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01' " +
-                "          AND (t3.sign_doctor_personcard is null or t3.sign_doctor_personcard ='%s') and t3.del_flag = '0' \n" +
+                " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01' and t3.del_flag = '0' \n" +
+                " left join (select a.registerid,b.hospital_id from  app_tb_register_address a \n" +
+                "           left join t_dic_hospital_info b on a.county = b.address_county\n" +
+                "                and b.hospital_id = '"+doctorInfo.getHospitalId()+"' )  h on h.registerid = t2.registerid" +
+                " where t3.sign_doctor_personcard ='"+doctorInfo.getIdcard()+"'\n" +
+                "       or (t3.sign_doctor_personcard is null and h.hospital_id is not null) " +
                 " %s %s" +
                 " order by %s group_type desc,t1.warn_date desc " +
                 " limit "+(pageNo)*pageSize+","+(pageSize);
@@ -108,11 +112,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                     " when t2.name like '%"+name+"%' then 4\n" +
                     " else 0 \n" +
                     " end ) , ";
-
         }
         if(StringUtils.isNotBlank(interven_type)){
             REGEXPStr.append("and type REGEXP '");
-            intersectionStr.append(" where 1=1 ");
             String[] types = interven_type.split(",");
             for (String type : types){
                 REGEXPStr.append(type).append("|");
@@ -122,8 +124,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             REGEXPStr.append("'");
         }
 
-        sql = String.format(sql,uid,REGEXPStr.toString(),nameWhere,
-                doctorInfo.getIdcard(),StringUtils.isBlank(signStatus)?"": " and sign_status = " +
+        sql = String.format(sql,uid,REGEXPStr.toString(),nameWhere,StringUtils.isBlank(signStatus)?"": " and sign_status = " +
                         signStatus,intersectionStr.toString(),nameOrder);
         return jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
     }
