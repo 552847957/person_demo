@@ -1,7 +1,10 @@
 package com.wondersgroup.healthcloud.services.disease.impl;
 
+import com.wondersgroup.healthcloud.dict.DictCache;
+import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentHospital;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.repository.appointment.HospitalRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +27,9 @@ public class FollowRemindServiceImpl implements FollowRemindService{
     @Autowired
     private DiabetesAssessmentRemindRepository remindRepo;
 
+    @Autowired
+    private DictCache dictCache;
+
     /**
      * 获取随访列表数据
      * @param pageNo
@@ -39,27 +45,39 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
+                " LEFT JOIN app_tb_register_address address on t1.registerid = address.registerid\n"+
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "     type=2 and registerid = t1.registerid and  create_date BETWEEN t1.remind_begin_date AND t1.remind_end_date and del_flag = '0')\n" +
                 " AND NOW() BETWEEN t1.remind_begin_date AND t1.remind_end_date AND t1.del_flag = '0' \n" +
                 " AND t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"'\n" +
-                " and t3.card_type = '01'  and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
+                " and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"'  %s )\n" +
                 " %s %s\n" +
                 " order by group_type desc , t1.follow_date DESC"+
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
 
 
+
         StringBuffer buffer = new StringBuffer();
         if(null != diseaseType && !StringUtils.isEmpty(diseaseType)){
             buffer.append(" and (  ");
-            if(diseaseType.contains("1")) buffer.append(" and diabetes_type != 0");
-            if(diseaseType.contains("2")) buffer.append(" and hyp_type = 1");
-            if(diseaseType.contains("3")) buffer.append(" and apo_type = 1");
+            StringBuffer child = new StringBuffer();
+            if(diseaseType.contains("1")) child.append(" and diabetes_type != 0");
+            if(diseaseType.contains("2")) child.append(" and hyp_type = 1");
+            if(diseaseType.contains("3")) child.append(" and apo_type = 1");
+            buffer.append(child.toString().replaceFirst("and",""));
             buffer.append(" ) ");
         }
 
-        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString().replaceFirst("and",""));
+        String county = dictCache.queryHospitalAddressCounty(doctorInfo.getHospitalId());
+        String area_filter = "";
+        if(null != county && !StringUtils.isEmpty(county)){
+            area_filter = " or (t3.tube_doctor_personcard is null and t3.sign_doctor_personcard is null and " +
+                    " (address.province = '"+county+"' or address.city = '"+county+"' or" +
+                    " address.county = '"+county+"' or address.town = '"+county+"' ))";
+        }
+
+        sql = String.format(sql,area_filter,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());
         return jdbcTemplate.queryForList(sql);
     }
 

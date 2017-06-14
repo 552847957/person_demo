@@ -6,6 +6,7 @@ import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
@@ -35,6 +36,9 @@ public class ScreeningServiceImpl implements ScreeningService {
     @Autowired
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
+    @Autowired
+    private DictCache dictCache;
+
     @Value("${JOB_CONNECTION_URL}")
     private String jobClientUrl;
 
@@ -52,12 +56,13 @@ public class ScreeningServiceImpl implements ScreeningService {
         String sql = "select t1.id,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
-                " from (select * from app_tb_patient_assessment where del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t1 \n" +
+                " from (select * from app_tb_patient_assessment where result = 1 and del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t1 \n" +
                 " JOIN app_tb_register_info t2 on t1.uid = t2.registerid\n" +
+                " LEFT JOIN app_tb_register_address address on t2.registerid = address.registerid\n"+
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'"+
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "       type=1 and registerid = t1.uid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')\n" +
-                " and t3.is_risk = 1 and t3.tube_type != '1' and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"') " +
+                "  and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
                 " %s %s\n" +
                 " GROUP BY t1.uid\n" +
                 " order by group_type desc , t1.create_date DESC" +
@@ -66,13 +71,23 @@ public class ScreeningServiceImpl implements ScreeningService {
         StringBuffer buffer = new StringBuffer();
         if(null != diseaseType && !StringUtils.isEmpty(diseaseType)){
             buffer.append(" and ( ");
-            if(diseaseType.contains("1")) buffer.append(" and diabetes_type != 0");
-            if(diseaseType.contains("2")) buffer.append(" and hyp_type = 1");
-            if(diseaseType.contains("3")) buffer.append(" and apo_type = 1");
+            StringBuffer child = new StringBuffer();
+            if(diseaseType.contains("1")) child.append(" and diabetes_type != 0");
+            if(diseaseType.contains("2")) child.append(" and hyp_type = 1");
+            if(diseaseType.contains("3")) child.append(" and apo_type = 1");
+            buffer.append(child.toString().replaceFirst("and",""));
             buffer.append(" ) ");
         }
 
-        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString().replaceFirst("and",""));
+        String county = dictCache.queryHospitalAddressCounty(doctorInfo.getHospitalId());
+        String area_filter = "";
+        if(null != county && !StringUtils.isEmpty(county)){
+            area_filter = " or (t3.tube_doctor_personcard is null and t3.sign_doctor_personcard is null and " +
+                    " (address.province = '"+county+"' or address.city = '"+county+"' or" +
+                    " address.county = '"+county+"' or address.town = '"+county+"' ))";
+        }
+
+        sql = String.format(sql,area_filter,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());
         return jdbcTemplate.queryForList(sql);
     }
 
