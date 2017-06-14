@@ -27,8 +27,6 @@ public class FollowRemindServiceImpl implements FollowRemindService{
     @Autowired
     private DiabetesAssessmentRemindRepository remindRepo;
 
-    @Autowired
-    private DictCache dictCache;
 
     /**
      * 获取随访列表数据
@@ -50,8 +48,9 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "     type=2 and registerid = t1.registerid and  create_date BETWEEN t1.remind_begin_date AND t1.remind_end_date and del_flag = '0')\n" +
                 " AND NOW() BETWEEN t1.remind_begin_date AND t1.remind_end_date AND t1.del_flag = '0' \n" +
-                " AND t2.identifytype != '0' AND t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"'\n" +
-                " and (t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"'  %s )\n" +
+                " AND t2.identifytype != '0' " +
+                " AND ((t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"')\n" +
+                    " or t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
                 " %s %s\n" +
                 " order by group_type desc , t1.follow_date DESC"+
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
@@ -69,15 +68,9 @@ public class FollowRemindServiceImpl implements FollowRemindService{
             buffer.append(" ) ");
         }
 
-        String county = dictCache.queryHospitalAddressCounty(doctorInfo.getHospitalId());
-        String area_filter = "";
-        if(null != county && !StringUtils.isEmpty(county)){
-            area_filter = " or (t3.sign_doctor_personcard is null and " +
-                    " (address.province = '"+county+"' or address.city = '"+county+"' or" +
-                    " address.county = '"+county+"' or address.town = '"+county+"' ))";
-        }
 
-        sql = String.format(sql,area_filter,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());
+
+        sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());
         return jdbcTemplate.queryForList(sql);
     }
 
