@@ -56,15 +56,14 @@ public class ScreeningServiceImpl implements ScreeningService {
         String sql = "select t1.id,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
-                " from (select * from app_tb_patient_assessment where result = 1 and del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t1 \n" +
+                " from (select * from (select * from app_tb_patient_assessment where del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t0 GROUP by t0.uid)t1 \n" +
                 " JOIN app_tb_register_info t2 on t1.uid = t2.registerid\n" +
                 " LEFT JOIN app_tb_register_address address on t2.registerid = address.registerid\n"+
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'"+
-                " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
+                " where t1.result= '1' AND NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "       type=1 and registerid = t1.uid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')\n" +
-                "  and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
+                "  and t2.identifytype != '0' and t3.tube_doctor_personcard is null and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
                 " %s %s\n" +
-                " GROUP BY t1.uid\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
 
@@ -82,7 +81,7 @@ public class ScreeningServiceImpl implements ScreeningService {
         String county = dictCache.queryHospitalAddressCounty(doctorInfo.getHospitalId());
         String area_filter = "";
         if(null != county && !StringUtils.isEmpty(county)){
-            area_filter = " or (t3.tube_doctor_personcard is null and t3.sign_doctor_personcard is null and " +
+            area_filter = " or (t3.sign_doctor_personcard is null and " +
                     " (address.province = '"+county+"' or address.city = '"+county+"' or" +
                     " address.county = '"+county+"' or address.town = '"+county+"' ))";
         }
