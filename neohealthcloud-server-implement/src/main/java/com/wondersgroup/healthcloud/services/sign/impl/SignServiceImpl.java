@@ -50,7 +50,7 @@ public class SignServiceImpl implements SignService {
         sql.append("SELECT a.* FROM fam_doctor_tube_sign_user a");
 
         // WHERE
-        sql.append(" WHERE 1 = 1");
+        sql.append(" WHERE a.sign_status = '1'");
         // name 搜索
         if (StringUtils.isNotEmpty(name)) {
             sql.append(" AND LOCATE('" + name + "', a.name) > 0");
