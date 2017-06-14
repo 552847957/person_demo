@@ -567,6 +567,7 @@ public class MeasureController {
      * @throws JsonProcessingException
      */
     @GetMapping("getHistoryByArrayDay")
+    @VersionRange
     public JsonResponseEntity getHistoryByArrayDay(
             String registerId,
             String personCard,
@@ -603,6 +604,7 @@ public class MeasureController {
      * @throws JsonProcessingException
      */
     @GetMapping("getWeekIsExistByArrayDay")
+    @VersionRange
     public JsonResponseEntity getWeekIsExistByArrayDay(String registerId, String date) {
         try {
             StringBuffer str = new StringBuffer();
@@ -657,6 +659,7 @@ public class MeasureController {
     }
 
     @GetMapping("userInfo")
+    @VersionRange
     public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
         RegisterInfo registerInfo = userService.getOneNotNull(uid);
@@ -744,7 +747,7 @@ public class MeasureController {
             infoDto.setName(registerInfo.getName());
 
             infoDto.setAddress(getAddress(registerId, true));
-            if(userInfo == null || userInfo.getAge() == null){
+            if(registerInfo.getPersoncard() != null){
                 IdcardUtils.getAgeByIdCard(registerInfo.getPersoncard());
             }else{
                 infoDto.setAge(userInfo.getAge());
