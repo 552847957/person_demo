@@ -78,8 +78,17 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             } else if(RequestMethod.POST.toString().equals(request.getMethod())){
                 uid = QueryParmUtils.filterUid(QueryParmUtils.getPostRequestQueryParam(request));
             }
-
-            if(!overAuthExclude.isExclude(request.getServletPath())){
+            String appName=request.getHeader("app-name");
+            if(StringUtils.isNotBlank(appName)&&appName.equals("com.wondersgroup.healthcloud.3101://doctor")){
+                if(!overAuthExclude.isExcludeForDoctor(request.getServletPath())){
+                    if(!StringUtils.isEmpty(uid)){
+                        if(!checkOverAuth(uid, session)){
+                            code = 13;
+                            message = "账户在其他设备登录, 请重新登录";
+                        }
+                    }
+                }
+            }else if(!overAuthExclude.isExclude(request.getServletPath())){
                 if(!StringUtils.isEmpty(uid)){
                     if(!checkOverAuth(uid, session)){
                         code = 13;
