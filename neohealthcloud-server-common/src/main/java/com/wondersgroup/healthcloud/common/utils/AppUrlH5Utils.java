@@ -20,6 +20,8 @@ public class AppUrlH5Utils {
 
     @Value("${h5-diabetes.connection.url}")
     private String diabetesBasePath;//糖尿病专区
+    //跳医生端下载地址
+    public static final String buildSkipToDownLodLink="https://www.wdjky.com/neohealthcloud-app-h5/";
     /**
      * 圈子的话题详情
      */
@@ -140,4 +142,5 @@ public class AppUrlH5Utils {
     public String buildDiabetesZoneUrl(){
         return diabetesBasePath;
     }
+    
 }

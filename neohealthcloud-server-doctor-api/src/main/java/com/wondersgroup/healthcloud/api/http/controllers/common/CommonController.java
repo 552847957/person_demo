@@ -253,7 +253,7 @@ public class CommonController {
         common.put("interADs", interADs);
         data.put("common",common);
         // APP分享
-        AppConfig appShare = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.shareUrl");
+        AppConfig appShare = appConfigService.findSingleAppConfigByKeyWord(mainArea, null, "app.common.shareUrl","2");
         try {
             if (appShare != null) {
                 ObjectMapper objectMapper = new ObjectMapper();

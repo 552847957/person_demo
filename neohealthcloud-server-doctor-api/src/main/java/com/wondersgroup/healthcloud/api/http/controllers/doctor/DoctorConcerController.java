@@ -50,7 +50,7 @@ public class DoctorConcerController {
 
         JsonResponseEntity<String> body = new JsonResponseEntity();
         try{
-            String qrCodeUrl = appUrlH5Utils.buildWeiXinScan(doctorId);//todo 具体的链接
+            String qrCodeUrl = AppUrlH5Utils.buildSkipToDownLodLink;//todo 具体的链接
             body.setData(qrCodeUrl);
         }catch (Exception e){
             e.printStackTrace();
