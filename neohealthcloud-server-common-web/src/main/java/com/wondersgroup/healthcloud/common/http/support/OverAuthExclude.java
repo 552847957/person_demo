@@ -13,27 +13,34 @@ public class OverAuthExclude {
     private static List<String> overAuthExcludes = Lists.newArrayList();
     private static List<String> overAuthExcludesForDoctor = Lists.newArrayList();
 
+    //==== User Begin
     private static final String APPOINTMENT = "/api/reservation";
-
     private static final String BBS = "/api/bbs";
-
     private static final String FAMILY = "/api/family";
-
     private static final String USER = "/api/user";
-
     private static final String ASSESSMENT = "/api/assessment";
-
     private static final String TUBERELATION = "/api/tuberelation";
-    
+    //==== User End
+
+    //==== Doctor Begin
     private static final String USERINFO="/api/measure/userInfo";
-    static{
+    private static final String GROUP="/api/group/";
+    //==== Doctor End
+
+    // Init User
+    static {
         overAuthExcludes.add(APPOINTMENT);
         overAuthExcludes.add(BBS);
         overAuthExcludes.add(FAMILY);
         overAuthExcludes.add(USER);
         overAuthExcludes.add(ASSESSMENT);
         overAuthExcludes.add(TUBERELATION);
+    }
+
+    // Init Doctor
+    static {
         overAuthExcludesForDoctor.add(USERINFO);
+        overAuthExcludesForDoctor.add(GROUP);
     }
 
     public Boolean isExclude(String request){
