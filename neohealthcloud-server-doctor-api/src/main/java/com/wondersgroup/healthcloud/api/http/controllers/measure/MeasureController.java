@@ -719,29 +719,33 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("heathUserInfo")
-    public JsonResponseEntity heathUserInfo(String personcard) {
+    public JsonResponseEntity heathUserInfo(String registerId, String famId) {
 
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
+        RegisterInfo regInfo = null;
+        DoctorTubeSignUser singUser = null;
         try {
-            DoctorTubeSignUser signUser = doctorTubeSignUserRepository.queryInfoByCard(personcard);
-            if(signUser == null){
-                return new JsonResponseEntity(1001, "身份证查询不到");
+            if(registerId != null){
+                regInfo = userService.findOne(registerId);
+            }else if(famId != null){
+                singUser = doctorTubeSignUserRepository.findOne(famId);
+                List<RegisterInfo> regisInfos = userService.findRegisterInfoByIdcard(singUser.getCardNumber());
+                if(regisInfos != null  && regisInfos.size() > 0){
+                    regInfo = regisInfos.get(0);
+                }
+            }else{
+                return new JsonResponseEntity(1001, "用户数据获取失败");
             }
-            List<RegisterInfo> registerInfos = userService.findRegisterInfoByIdcard(personcard);
-            infoDto.setName(signUser.getName());
-            RegisterInfo info = new RegisterInfo();
-            boolean infoIsExist = false;
-            if(registerInfos != null && registerInfos.size() > 0){
-                info = registerInfos.get(0);
-                infoDto.setAddress(getAddress(info.getRegisterid(), true));
-                infoIsExist = true;
+            String personcard = singUser != null ? singUser.getCardNumber() : regInfo.getPersoncard();
+            infoDto.setName(singUser != null ? singUser.getName() : regInfo.getName());
+            if(regInfo != null){
+                infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
             }
-
             infoDto.setAge(IdcardUtils.getAgeByIdCard(personcard));
-            infoDto.setIdentifyType(!"0".equals(signUser.getIdentifytype()));
-            infoDto.setAvatar(signUser.getAvatar());
-            infoDto.setPhone(signUser.getMoblilePhone());
-            infoDto.setGender(signUser.getGender());
+            infoDto.setIdentifyType(!"0".equals(singUser != null ? singUser.getIdentifytype() : regInfo.getIdentifytype()));
+            infoDto.setAvatar(singUser != null ? singUser.getAvatar() : regInfo.getHeadphoto());
+            infoDto.setPhone(singUser != null ? singUser.getMoblilePhone() : regInfo.getRegmobilephone());
+            infoDto.setGender(singUser != null ? singUser.getGender() : regInfo.getGender());
 
             List<HeathIconDto> icons = new ArrayList<HeathIconDto>();
 
@@ -752,12 +756,12 @@ public class MeasureController {
             imageText.setSource("2");
             List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
             boolean isNew = false;
-            if(infoIsExist){
-                isNew = doctorIntervenService.hasTodoIntervensByRegisterId(info.getRegisterid());
+            if(regInfo != null){
+                isNew = doctorIntervenService.hasTodoIntervensByRegisterId(regInfo.getRegisterid());
             }
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {
-                    String hopLink = infoIsExist ? repliceUrl(image.getHoplink(), info.getRegisterid(), personcard) : "";
+                    String hopLink = repliceUrl(image.getHoplink(), registerId == null ? famId : registerId, personcard);
                     HeathIconDto icon = new HeathIconDto(image.getMainTitle(), hopLink, image.getImgUrl());
                     if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
                         icon.setIsNew(isNew ? 1  : 0);
