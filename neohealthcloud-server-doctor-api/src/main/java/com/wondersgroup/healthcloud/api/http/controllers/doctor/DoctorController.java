@@ -204,7 +204,12 @@ public class DoctorController {
         doctorAccountDTO.setFansNum(medicalCircleService.getDocFansNum(id));
         doctorAccountDTO.setNotecaseNum(medicalCircleService.getNoteCaseNum(id));
         doctorAccountDTO.setDynamicNum(medicalCircleService.getDynamicNum(id));
-        doctorAccountDTO.setGroupNum(patientGroupService.getGroupNumByDoctorId(id));
+        int groupNum = patientGroupService.getGroupNumByDoctorId(id);
+        if(groupNum==0){
+            doctorAccountDTO.setGroupNum(1);
+        }else{
+            doctorAccountDTO.setGroupNum(groupNum);
+        }
         doctorAccountDTO.setHasQA(doctorService.checkDoctorHasService(id,"Q&A"));
         return doctorAccountDTO;
     }

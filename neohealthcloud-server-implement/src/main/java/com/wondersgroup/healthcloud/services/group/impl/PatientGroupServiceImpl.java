@@ -52,11 +52,14 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     @Override
     public String savePatientGroup(String id,String doctorId, String name) {
         List<PatientGroup> list = patientGroupRepository.getPatientGroupByDoctorId(doctorId);
-        if(CollectionUtils.isNotEmpty(list)&&list.size()>=20){
+        if(CollectionUtils.isNotEmpty(list)&&list.size()>=20&&StringUtils.isBlank(id)){
             throw new CommonException(1041, "分组已超过20个,无法继续创建");
         }
         if(StringUtils.trim(name)==null||"".equals(StringUtils.trim(name))){
             throw new CommonException(1042,"分组名称不支持空白");
+        }
+        if(StringUtils.isNotBlank(name)&&name.length()>12){
+            throw new CommonException(1048,"分组名称长度不能超过12个字符");
         }
         if(EmojiUtils.containsEmoji(name)){
             throw new CommonException(1043, "分组名称不支持表情符号") ;

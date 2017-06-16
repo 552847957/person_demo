@@ -115,8 +115,10 @@ public class HomeController {
             int unRead = doctorQuestionService.queryUnreadCount(uid);
             if(unRead>0)
                 ask_red = true;
-
             intervened_red = doctorIntervenService.hasTodoIntervensByDoctorId(uid);
+            if(groupNum==0){
+                groupNum=1;//初始给一个默认分组
+            }
             try (Jedis jedis = jedisPool.getResource()) {
                 follow_red = getIsRedByRedis(jedis,"followNum",uid,followNum);
                 screened_red = getIsRedByRedis(jedis,"screenNum",uid,screenNum);

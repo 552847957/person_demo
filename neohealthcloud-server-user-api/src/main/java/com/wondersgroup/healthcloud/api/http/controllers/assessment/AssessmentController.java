@@ -18,6 +18,7 @@ import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
@@ -227,7 +228,7 @@ public class AssessmentController {
         assessment.setIsOneself(isOneself);
         assessment.setDelFlag("0");
         assessment.setCreateDate(new Date());
-        assessment.setResult(0);
+        assessment.setResult(null);
 
         return getResult(assessment,true);
     }
@@ -265,13 +266,28 @@ public class AssessmentController {
                     assessmentAPIEntity.getIsOverWeight() || assessmentAPIEntity.getIsHypertension() ||
                     assessmentAPIEntity.getNeedMovement() || assessmentAPIEntity.getNeedAmendLife()||
                     assessmentAPIEntity.getHasFamilyHistory()){
-                assessment.setResult(1);
                 assessmentRepository.save(assessment);
             }
             if(assessment.getIsOneself() == 1) {//本人风险评估
                 RegisterInfo registerInfo = registerInfoRepo.findOne(assessment.getUid());
-                if(null != registerInfo.getPersoncard())
-                    tubeSignUserRepo.updateRisk(registerInfo.getPersoncard(),assessment.getResult());
+                if(!StringUtils.isEmpty(registerInfo.getPersoncard())) {
+                    DoctorTubeSignUser signUser = tubeSignUserRepo.queryInfoByCard(registerInfo.getPersoncard());
+                    if(null != signUser){
+                        if(StringUtils.isEmpty(assessment.getResult())){
+                            signUser.setIsRisk("0");
+                            signUser.setDiabetesCType("0");
+                            signUser.setHypCType("0");
+                            signUser.setApoCType("0");
+                        }else{
+                            signUser.setIsRisk("1");
+                            signUser.setDiabetesCType(assessment.getResult().contains("1") ? "1" : "0");
+                            signUser.setHypCType(assessment.getResult().contains("2") ? "1" : "0");
+                            signUser.setApoCType(assessment.getResult().contains("3") ? "1" : "0");
+
+                        }
+                        tubeSignUserRepo.save(signUser);
+                    }
+                }
             }
         }
         return response;
