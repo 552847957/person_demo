@@ -89,8 +89,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " left join (select a.registerid,b.hospital_id from  app_tb_register_address a \n" +
                 "           left join t_dic_hospital_info b on a.county = b.address_county\n" +
                 "                and b.hospital_id = '"+doctorInfo.getHospitalId()+"' )  h on h.registerid = t2.registerid" +
-                " where t3.sign_doctor_personcard ='"+doctorInfo.getIdcard()+"'\n" +
-                "       or (t3.sign_doctor_personcard is null and h.hospital_id is not null) " +
+                " where (t3.sign_doctor_personcard ='"+doctorInfo.getIdcard()+"'\n" +
+                "         or t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' " +
+                "       or (t3.sign_doctor_personcard is null and h.hospital_id is not null) )" +
                 " %s %s" +
                 " order by %s group_type desc,t1.warn_date desc " +
                 " limit "+(pageNo)*pageSize+","+(pageSize);
@@ -102,6 +103,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
         String nameOrder = "";
         //如果name非空则是搜索页面(只根据name搜索)
         if(StringUtils.isNotBlank(name)){
+            //搜索的时候把其他条件去掉
             interven_type = "";
             signStatus = "";
             nameWhere = " and t2.name like '%"+name+"%' ";
