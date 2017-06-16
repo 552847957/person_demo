@@ -108,16 +108,18 @@ public class HomeController {
         try {
             signedNum = doctorTubeSignUserRepository.countSignedUserByDoctorId(uid);
             answeredNum = doctorQuestionService.queryAnsweredCount(uid);
-            intervenNum = doctorIntervenService.countHasInterventionByDoctorId(uid);//异常干预
+            intervenNum = doctorIntervenService.countHasInterventionByDoctorId(uid);//已干预数量
             screenNum = screeningService.getRemindCount(uid);
             followNum = followRemindService.getRemindCount(uid);
             groupNum = patientGroupService.getGroupNumByDoctorId(uid);
+            int unRead = doctorQuestionService.queryUnreadCount(uid);
+            if(unRead>0)
+                ask_red = true;
 
+            intervened_red = doctorIntervenService.hasTodoIntervensByDoctorId(uid);
             try (Jedis jedis = jedisPool.getResource()) {
-                ask_red = getIsRedByRedis(jedis,"answeredNum",uid,answeredNum);
                 follow_red = getIsRedByRedis(jedis,"followNum",uid,followNum);
                 screened_red = getIsRedByRedis(jedis,"screenNum",uid,screenNum);
-                intervened_red = getIsRedByRedis(jedis,"intervenNum",uid,intervenNum);
             }
         }catch (Exception e){
             log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
@@ -132,7 +134,7 @@ public class HomeController {
         number.put("ask_red",ask_red);//问诊回答-红点
         number.put("follow_red",follow_red);//随访提醒-红点
         number.put("screened_red",screened_red);//筛查提醒-红点
-        number.put("intervened_red",intervened_red);//已干预-红点
+        number.put("intervened_red",intervened_red);//异常干预-红点
 
         body.setData(number);
 
@@ -162,7 +164,6 @@ public class HomeController {
             }
         }
         jedis.set(value_cache_key,String.valueOf(value));
-
         return isRed;
     }
 

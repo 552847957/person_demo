@@ -33,4 +33,5 @@ public interface DoctorIntervenService {
 
     Boolean hasTodoIntervensByRegisterId(String registerId);
 
+    Boolean hasTodoIntervensByDoctorId(String uid);
 }

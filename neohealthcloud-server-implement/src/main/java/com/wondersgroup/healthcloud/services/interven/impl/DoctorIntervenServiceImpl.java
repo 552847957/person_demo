@@ -337,7 +337,6 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public int countHasInterventionByDoctorId(String doctorId) {
-
         return doctorInterventionRepository.countHasInterventionByDoctorId(doctorId);
     }
 
@@ -369,11 +368,23 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public Boolean hasTodoIntervensByRegisterId(String registerId) {
-
         int intervens = neoFamInterventionRepository.countTodoIntervensByRegisterId(registerId);
         if(intervens>0){
             return true;
         }
+        return false;
+    }
+
+    /**
+     * 判断
+     * @param uid
+     * @return
+     */
+    @Override
+    public Boolean hasTodoIntervensByDoctorId(String uid) {
+        List<IntervenEntity> toDoList = findTodoInterveneList("",uid,"","", 0,1);
+        if(toDoList.size()>0)
+            return true;
         return false;
     }
 }
