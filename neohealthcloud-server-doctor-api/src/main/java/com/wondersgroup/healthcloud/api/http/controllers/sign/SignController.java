@@ -41,7 +41,7 @@ public class SignController {
      */
     @RequestMapping(value = "/userLists", method = RequestMethod.GET)
     @VersionRange
-    public JsonListResponseEntity userLists(@RequestParam(name = "famId") String doctorId,
+    public JsonListResponseEntity userLists(@RequestParam String doctorId,
                                             @RequestParam(required = false) String name,
                                             @RequestParam(required = false) String diseaseType,
                                             @RequestParam(required = false) String peopleType,
