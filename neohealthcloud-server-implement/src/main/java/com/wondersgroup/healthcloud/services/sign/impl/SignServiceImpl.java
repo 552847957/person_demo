@@ -42,7 +42,7 @@ public class SignServiceImpl implements SignService {
     private DictCache dictCache;
 
     @Override
-    public List<SignDTO> userLists(String name, String diseaseType, String peopleType, int pageNo, int pageSize) {
+    public List<SignDTO> userLists(String personcard, String name, String diseaseType, String peopleType, int pageNo, int pageSize) {
 
         StringBuffer sql = new StringBuffer();
 
@@ -51,6 +51,12 @@ public class SignServiceImpl implements SignService {
 
         // WHERE
         sql.append(" WHERE a.sign_status = '1'");
+
+        // personcard
+        if (StringUtils.isNotEmpty(personcard)) {
+            sql.append(" AND a.sign_doctor_personcard = '" + personcard + "'");
+        }
+
         // name 搜索
         if (StringUtils.isNotEmpty(name)) {
             sql.append(" AND LOCATE('" + name + "', a.name) > 0");

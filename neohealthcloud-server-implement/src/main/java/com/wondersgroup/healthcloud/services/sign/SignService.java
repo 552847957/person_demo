@@ -6,5 +6,5 @@ import java.util.List;
  * Created by ZZX on 2017/6/9.
  */
 public interface SignService {
-    List userLists(String name, String diseaseType, String peopleType, int pageNo, int pageSize);
+    List userLists(String personcard, String name, String diseaseType, String peopleType, int pageNo, int pageSize);
 }
