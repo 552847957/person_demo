@@ -65,7 +65,7 @@ public class ScreeningServiceImpl implements ScreeningService {
                 " and concat(t3.diabetes_c_type,t3.hyp_c_type,t3.apo_c_type)  <> '000'" +
                 " and (concat(diabetes_c_type,hyp_c_type,apo_c_type) <> '100'\n" +
                 "   or (concat(diabetes_c_type,hyp_c_type,apo_c_type)='100' and tube_doctor_personcard is null)) \n"+ //过滤掉仅仅是糖尿病高危，确是糖尿病在管的人群
-                " and t2.identifytype != '0' and t3.tube_doctor_personcard is null and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
+                " and t2.identifytype != '0'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
                 " %s %s\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);

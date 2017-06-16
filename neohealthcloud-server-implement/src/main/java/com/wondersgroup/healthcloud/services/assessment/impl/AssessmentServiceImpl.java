@@ -58,7 +58,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         assessment.setCreateDate(new Date());
         assessment.setDelFlag("0");
         String assment = getResult(assessment);
-        if(!StringUtils.isEmpty(assment)){
+        if(!StringUtils.isEmpty(assment) && !assment.equals("0")){
             StringBuffer buffer = new StringBuffer();
             if(assment.contains("1-")) buffer.append(",1");
             if(assment.contains("2-")) buffer.append(",2");

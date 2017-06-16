@@ -32,7 +32,7 @@ public class DiseaseConfig implements CommandLineRunner {
                 if(0 == list.size()) return;
                 for(Assessment assessment : list){
                     String assment = assessmentService.getResult(assessment);
-                    if(!StringUtils.isEmpty(assment)){
+                    if(!StringUtils.isEmpty(assment) && !assment.equals("0")){
                         StringBuffer buffer = new StringBuffer();
                         if(assment.contains("1-")) buffer.append(",1");
                         if(assment.contains("2-")) buffer.append(",2");
