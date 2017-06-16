@@ -112,7 +112,9 @@ public class HomeController {
             screenNum = screeningService.getRemindCount(uid);
             followNum = followRemindService.getRemindCount(uid);
             groupNum = patientGroupService.getGroupNumByDoctorId(uid);
-
+            if(groupNum==0){
+                groupNum=1;//初始给一个默认分组
+            }
             try (Jedis jedis = jedisPool.getResource()) {
                 ask_red = getIsRedByRedis(jedis,"answeredNum",uid,answeredNum);
                 follow_red = getIsRedByRedis(jedis,"followNum",uid,followNum);
