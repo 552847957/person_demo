@@ -75,12 +75,6 @@ public interface AssessmentService {
     Integer getAssessNum(String uid);
 
 
-    /**
-     * 是否是高危
-     * @param registerid
-     * @return true: 高危，false：正常
-     */
-    Boolean getIsRisk(String registerid);
 
 
 

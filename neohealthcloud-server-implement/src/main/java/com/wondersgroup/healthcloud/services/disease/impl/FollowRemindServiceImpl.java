@@ -61,13 +61,12 @@ public class FollowRemindServiceImpl implements FollowRemindService{
         if(null != diseaseType && !StringUtils.isEmpty(diseaseType)){
             buffer.append(" and (  ");
             StringBuffer child = new StringBuffer();
-            if(diseaseType.contains("1")) child.append(" and diabetes_type != 0");
-            if(diseaseType.contains("2")) child.append(" and hyp_type = 1");
-            if(diseaseType.contains("3")) child.append(" and apo_type = 1");
+            if(diseaseType.contains("1")) child.append(" and (t3.diabetes_type != '0' or t3.diabetes_c_type = 1)");
+            if(diseaseType.contains("2")) child.append(" and (t3.hyp_type = '1' or t3.hyp_c_type = 1)");
+            if(diseaseType.contains("3")) child.append(" and (t3.apo_type = '1' or t3.apo_c_type = 1)");
             buffer.append(child.toString().replaceFirst("and",""));
             buffer.append(" ) ");
         }
-
 
 
         sql = String.format(sql,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());

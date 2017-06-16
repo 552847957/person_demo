@@ -57,8 +57,17 @@ public class AssessmentServiceImpl implements AssessmentService {
         assessment.setId(IdGen.uuid());
         assessment.setCreateDate(new Date());
         assessment.setDelFlag("0");
+        String assment = getResult(assessment);
+        if(!StringUtils.isEmpty(assment)){
+            StringBuffer buffer = new StringBuffer();
+            if(assment.contains("1-")) buffer.append(",1");
+            if(assment.contains("2-")) buffer.append(",2");
+            if(assment.contains("3-")) buffer.append(",3");
+            assessment.setResult(buffer.toString().substring(1));
+        }
+
         assessmentRepository.save(assessment);
-        return getResult(assessment);
+        return assment;
     }
 
     @Override
@@ -417,13 +426,5 @@ public class AssessmentServiceImpl implements AssessmentService {
         return assessmentRepository.getAssessNum(uid);
     }
 
-    @Override
-    public Boolean getIsRisk(String registerid) {
-        Assessment assessment = assessmentRepository.getRecentAssess(registerid);
-//        if(1==assessment.getResult()){
-//            return true;
-//        }
-        return false;
-    }
 
 }

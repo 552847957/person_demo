@@ -31,4 +31,7 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
     @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.result = 1 and a.del_flag=0 and a.create_date >= ?2 GROUP BY DATEDIFF(create_date,'%Y-%c-%d') ORDER BY create_date desc")
     List<Assessment> queryAssessment(String registerId, String date);
 
+    @Query(nativeQuery = true,value = "select * from app_tb_patient_assessment where del_flag = '0' " +
+            " and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) and result is null")
+    List<Assessment> findUnSyncAssessment();
 }
