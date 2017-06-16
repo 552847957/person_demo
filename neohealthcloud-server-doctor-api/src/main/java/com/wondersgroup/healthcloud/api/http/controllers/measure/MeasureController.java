@@ -1,25 +1,29 @@
 package com.wondersgroup.healthcloud.api.http.controllers.measure;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wondersgroup.healthcloud.api.http.dto.doctor.AssessmentAbnormal;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathIconDto;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathUserInfoDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
+import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.enums.IntervenEnum;
+import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.imagetext.ImageText;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
-import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
+import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
+import com.wondersgroup.healthcloud.services.user.UserService;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
@@ -32,36 +36,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.AssessmentAbnormal;
-import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
-import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
-import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
-import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
-import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
-import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
-import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
-import com.wondersgroup.healthcloud.services.user.UserService;
-import com.wondersgroup.healthcloud.utils.DateFormatter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Jeffrey on 16/9/1.
@@ -738,24 +719,29 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("heathUserInfo")
-    public JsonResponseEntity heathUserInfo(String registerId) {
+    public JsonResponseEntity heathUserInfo(String personcard) {
 
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
         try {
-            RegisterInfo registerInfo = userService.getOneNotNull(registerId);
-            UserInfo userInfo = userService.getUserInfo(registerId);
-            infoDto.setName(registerInfo.getName());
-
-            infoDto.setAddress(getAddress(registerId, true));
-            if(registerInfo.getPersoncard() != null){
-                IdcardUtils.getAgeByIdCard(registerInfo.getPersoncard());
-            }else{
-                infoDto.setAge(userInfo.getAge());
+            DoctorTubeSignUser signUser = doctorTubeSignUserRepository.queryInfoByCard(personcard);
+            if(signUser == null){
+                return new JsonResponseEntity(1001, "身份证查询不到");
             }
-            infoDto.setIdentifyType(!"0".equals(registerInfo.getIdentifytype()));
-            infoDto.setAvatar(registerInfo.getHeadphoto());
-            infoDto.setPhone(registerInfo.getRegmobilephone());
-            infoDto.setGender(registerInfo.getGender());
+            List<RegisterInfo> registerInfos = userService.findRegisterInfoByIdcard(personcard);
+            infoDto.setName(signUser.getName());
+            RegisterInfo info = new RegisterInfo();
+            boolean infoIsExist = false;
+            if(registerInfos != null && registerInfos.size() > 0){
+                info = registerInfos.get(0);
+                infoDto.setAddress(getAddress(info.getRegisterid(), true));
+                infoIsExist = true;
+            }
+
+            infoDto.setAge(IdcardUtils.getAgeByIdCard(personcard));
+            infoDto.setIdentifyType(!"0".equals(signUser.getIdentifytype()));
+            infoDto.setAvatar(signUser.getAvatar());
+            infoDto.setPhone(signUser.getMoblilePhone());
+            infoDto.setGender(signUser.getGender());
 
             List<HeathIconDto> icons = new ArrayList<HeathIconDto>();
 
@@ -763,11 +749,15 @@ public class MeasureController {
             String specArea ="";
             ImageText imageText = new ImageText();
             imageText.setAdcode(14);
+            imageText.setSource("2");
             List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
-            boolean isNew = doctorIntervenService.hasTodoIntervensByRegisterId(registerId);
+            boolean isNew = false;
+            if(infoIsExist){
+                isNew = doctorIntervenService.hasTodoIntervensByRegisterId(info.getRegisterid());
+            }
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {
-                    String hopLink = repliceUrl(image.getHoplink(), registerId, registerInfo.getPersoncard());
+                    String hopLink = infoIsExist ? repliceUrl(image.getHoplink(), info.getRegisterid(), personcard) : "";
                     HeathIconDto icon = new HeathIconDto(image.getMainTitle(), hopLink, image.getImgUrl());
                     if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
                         icon.setIsNew(isNew ? 1  : 0);
