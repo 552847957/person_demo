@@ -52,7 +52,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
     @Override
     public String savePatientGroup(String id,String doctorId, String name) {
         List<PatientGroup> list = patientGroupRepository.getPatientGroupByDoctorId(doctorId);
-        if(CollectionUtils.isNotEmpty(list)&&list.size()>=20){
+        if(CollectionUtils.isNotEmpty(list)&&list.size()>=20&&StringUtils.isBlank(id)){
             throw new CommonException(1041, "分组已超过20个,无法继续创建");
         }
         if(StringUtils.trim(name)==null||"".equals(StringUtils.trim(name))){
