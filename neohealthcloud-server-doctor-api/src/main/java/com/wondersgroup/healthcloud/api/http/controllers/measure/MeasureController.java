@@ -678,6 +678,8 @@ public class MeasureController {
             infoDto.setApoType(!"0".equals(info.getApoType()));
             infoDto.setIsRisk(!"0".equals(info.getIsRisk()));
             infoDto.setIdentifyType(!"0".equals(info.getIdentifytype()));
+        }else{
+            return new JsonResponseEntity(1001, "用户数据获取失败");
         }
         return new JsonResponseEntity(0, "获取成功", infoDto);
     }
@@ -739,6 +741,10 @@ public class MeasureController {
                 if(regisInfos != null  && regisInfos.size() > 0){
                     regInfo = regisInfos.get(0);
                 }
+                infoDto.setHypType(!"0".equals(singUser.getHypType()));
+                infoDto.setDiabetesType(!"0".equals(singUser.getDiabetesType()));
+                infoDto.setApoType(!"0".equals(singUser.getApoType()));
+                infoDto.setIsRisk(!"0".equals(singUser.getIsRisk()));
             }else{
                 return new JsonResponseEntity(1001, "用户数据获取失败");
             }
