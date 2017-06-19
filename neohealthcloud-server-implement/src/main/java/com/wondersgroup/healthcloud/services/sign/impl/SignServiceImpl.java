@@ -149,7 +149,7 @@ public class SignServiceImpl implements SignService {
 
         // 是否实名
         if (StringUtils.isNotBlank(doctorTubeSignUser.getIdentifytype())) {
-            if (ResidentConstant.IDENTIFIED.equals(doctorTubeSignUser.getIdentifytype())) {
+            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getIdentifytype())) {
                 dto.setIdentifyType(true);
             }
         }
