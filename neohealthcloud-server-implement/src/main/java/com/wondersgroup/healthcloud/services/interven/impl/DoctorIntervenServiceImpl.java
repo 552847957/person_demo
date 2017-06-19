@@ -72,7 +72,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
 
         DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
         String sql = " select t1.register_id,t1.typelist,t2.`name`,t2.gender,t2.personcard,t2.identifytype," +
-                " t2.headphoto as avatar,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,\n" +
+                " t2.headphoto as avatar,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status, \n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t2.registerid and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
                 " from ( " +
