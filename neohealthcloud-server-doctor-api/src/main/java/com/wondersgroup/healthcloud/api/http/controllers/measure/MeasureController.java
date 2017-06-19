@@ -678,6 +678,7 @@ public class MeasureController {
             infoDto.setApoType(!"0".equals(info.getApoType()));
             infoDto.setIsRisk(!"0".equals(info.getIsRisk()));
             infoDto.setIdentifyType(!"0".equals(info.getIdentifytype()));
+            infoDto.setSignStatus(info.getSignStatus());
         }else{
             return new JsonResponseEntity(1001, "用户数据获取失败");
         }
