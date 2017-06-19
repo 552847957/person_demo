@@ -85,10 +85,10 @@ public class UserQuestionController {
 		url+=id;
 
 		if(StringUtils.isNoneEmpty(doctorId)){//一对一问答和向家庭医生提的问题需要推送到医生端
-			AppMessage message=AppMessage.Builder.init().title("我的问答").content("您有一条新的问诊提问，点击查看").isDoctor()
-					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
-			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
-			boolean success=aBoolean;
+//			AppMessage message=AppMessage.Builder.init().title("我的问答").content("您有一条新的问诊提问，点击查看").isDoctor()
+//					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(id)).persistence().build();
+//			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+//			boolean success=aBoolean;
 
 			//保存到医生信息表
 			doctorMessageService.saveDoctorQuestionMessage(question.getAnswerId(),question.getId(), 1);
@@ -151,9 +151,9 @@ public class UserQuestionController {
 		String doctorId=group.getAnswer_id();
 
 		if(StringUtils.isNoneEmpty(doctorId)){//用户回复医生问题需要推送到医生端
-			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId).param("questionId",group.getQuestion_id())
-					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
-			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
+//			AppMessage message=AppMessage.Builder.init().title("问答").content("您有一条新的回复，点击查看").isDoctor().param("doctorId",doctorId).param("questionId",group.getQuestion_id())
+//					.type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(group.getQuestion_id())).persistence().build();
+//			Boolean aBoolean = pushClientWrapper.pushToAlias(message, doctorId);
 
 			//保存到医生信息表
 			doctorMessageService.saveDoctorQuestionMessage(doctorId,group.getQuestion_id(),2);

@@ -27,4 +27,6 @@ public interface ScreeningService {
      * @return
      */
     Integer getRemindCount(String doctorId);
+
+    Boolean hasToRemindScreened(DoctorInfo doctorInfo);
 }

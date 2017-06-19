@@ -91,4 +91,13 @@ public class FollowRemindServiceImpl implements FollowRemindService{
     public Integer getRemindCount(String doctorId) {
         return remindRepo.getRemindCountByType(doctorId,2);
     }
+
+    @Override
+    public Boolean hasToRemindFollow(DoctorInfo doctorInfo,DoctorAccount doctorAccount) {
+        List<Map<String, Object>> list = findFollow(1, 1, null, null, doctorInfo,doctorAccount);
+        if(list!=null && list.size()>0){
+            return true;
+        }
+        return false;
+    }
 }

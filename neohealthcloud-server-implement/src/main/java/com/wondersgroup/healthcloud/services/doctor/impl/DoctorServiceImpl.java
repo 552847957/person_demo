@@ -331,6 +331,24 @@ public class DoctorServiceImpl implements DoctorService {
         return jt.queryForList(sql);
     }
 
+    @Override
+    public DoctorInfo getDoctorInfoByUid(String uid) {
+        DoctorInfo doctorInfo = doctorInfoRepository.findOne(uid);
+        if(doctorInfo == null){
+            throw new ErrorDoctorAccountException("用户不存在");
+        }
+        return  doctorInfo;
+    }
+
+    @Override
+    public DoctorAccount getDoctorAccountByUid(String uid) {
+        DoctorAccount doctorAccount = doctorAccountRepository.findOne(uid);
+        if(doctorAccount == null){
+            throw new ErrorDoctorAccountException("用户不存在");
+        }
+        return  doctorAccount;
+    }
+
     public String getWhereSqlByParameter(Map parameter){
         StringBuffer bf = new StringBuffer();
         bf.append(" where a.del_flag = '0'  ");

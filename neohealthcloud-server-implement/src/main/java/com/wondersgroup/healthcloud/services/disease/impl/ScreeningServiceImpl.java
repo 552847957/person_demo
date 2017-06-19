@@ -119,4 +119,13 @@ public class ScreeningServiceImpl implements ScreeningService {
     public Integer getRemindCount(String doctorId) {
         return remindRepo.getRemindCountByType(doctorId,1);
     }
+
+    @Override
+    public Boolean hasToRemindScreened(DoctorInfo doctorInfo) {
+        List<Map<String, Object>> list = findScreening(1,1, null, null, doctorInfo);
+        if(list!=null && list.size()>0){
+            return true;
+        }
+        return false;
+    }
 }
