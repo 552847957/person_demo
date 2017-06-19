@@ -104,7 +104,7 @@ public final class RequestAccessTokenInterceptor extends AbstractHeaderIntercept
             excluded = hm.getMethodAnnotation(WithoutToken.class) != null;
         }
 
-        if ((!excluded && code == 12) || (!excluded && code == 13)) {
+        if ((!excluded && code == 12) || (!excluded && code == 13) || (!excluded && code == 10)) {
             buildGuestResponseBody(response, code, message);
             return false;
         } else {
