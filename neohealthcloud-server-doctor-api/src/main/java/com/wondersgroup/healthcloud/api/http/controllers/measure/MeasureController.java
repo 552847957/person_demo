@@ -641,12 +641,12 @@ public class MeasureController {
 
     @GetMapping("userInfo")
     @VersionRange
-    public JsonResponseEntity userInfo(String uid, String personcard) throws JsonProcessingException {
+    public JsonResponseEntity userInfo(String registerId, String famId) throws JsonProcessingException {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
-        RegisterInfo registerInfo = userService.getOneNotNull(uid);
-        infoDto.setAddress(getAddress(uid, false));
-        infoDto.setMedicarecard(registerInfo.getMedicarecard());
-        if(StringUtils.isBlank(personcard)){
+        if(!StringUtils.isBlank(registerId)){
+            RegisterInfo registerInfo = userService.getOneNotNull(registerId);
+            infoDto.setAddress(getAddress(registerId, false));
+            infoDto.setMedicarecard(registerInfo.getMedicarecard());
             infoDto.setName(registerInfo.getName());
             infoDto.setGender(registerInfo.getGender());
             infoDto.setCardType("01");
@@ -655,8 +655,14 @@ public class MeasureController {
             if(registerInfo.getBirthday() != null){
                 infoDto.setBirth(registerInfo.getBirthday());
             }
-        }else{
-            DoctorTubeSignUser info = doctorTubeSignUserRepository.queryInfoByCard(personcard);
+        }else if(!StringUtils.isBlank(famId)){
+            DoctorTubeSignUser info = doctorTubeSignUserRepository.findOne(famId);
+            List<RegisterInfo> regInfos = userService.findRegisterInfoByIdcard(info.getCardNumber());
+            if(regInfos != null && regInfos.size() > 0){
+                RegisterInfo reg = regInfos.get(0);
+                infoDto.setAddress(getAddress(reg.getRegisterid(), false));
+                infoDto.setMedicarecard(reg.getMedicarecard());
+            }
             infoDto.setName(info.getName());
             infoDto.setGender(info.getGender());
             infoDto.setBirth(info.getBirth());

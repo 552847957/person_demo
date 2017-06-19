@@ -26,6 +26,7 @@ public class OverAuthExclude {
     private static final String USERINFO="/api/measure/userInfo";
     private static final String GROUP="/api/group/";
     private static final String HEATHUSERINFO="/api/measure/heathUserInfo";
+    private static final String REPORT_FOLLOW="/api/report/follow";
     //==== Doctor End
 
     // Init User
@@ -43,6 +44,7 @@ public class OverAuthExclude {
         overAuthExcludesForDoctor.add(USERINFO);
         overAuthExcludesForDoctor.add(GROUP);
         overAuthExcludesForDoctor.add(HEATHUSERINFO);
+        overAuthExcludesForDoctor.add(REPORT_FOLLOW);
     }
 
     public Boolean isExclude(String request){
