@@ -745,6 +745,7 @@ public class MeasureController {
                 infoDto.setDiabetesType(!"0".equals(singUser.getDiabetesType()));
                 infoDto.setApoType(!"0".equals(singUser.getApoType()));
                 infoDto.setIsRisk(!"0".equals(singUser.getIsRisk()));
+                infoDto.setSignStatus(singUser.getSignStatus());
             }else{
                 return new JsonResponseEntity(1001, "用户数据获取失败");
             }
