@@ -29,7 +29,7 @@ public class ResidentController {
 
     @GetMapping("/list")
     public JsonListResponseEntity list(
-            @RequestParam(required = true) String famId,
+            @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer signed,
             @RequestParam(required = false) String peopleType,
             @RequestParam(required = false) String diseaseType,
@@ -38,7 +38,7 @@ public class ResidentController {
             @RequestParam(required = false, defaultValue = "20") Integer pageSize) {
         JsonListResponseEntity response = new JsonListResponseEntity();
         Page<DoctorTubeSignUser> pageData = null;
-        ResidentCondition residentCondition = new ResidentCondition(famId, flag, pageSize, signed, peopleType, diseaseType, kw);
+        ResidentCondition residentCondition = new ResidentCondition(doctorId, flag, pageSize, signed, peopleType, diseaseType, kw);
 
         // 关键字搜索
         if (StringUtils.isNotBlank(kw)) {
@@ -69,9 +69,9 @@ public class ResidentController {
             if (pageData.getTotalPages() > flag) {
                 more = true;
             }
-            response.setContent(listData, more, null, "" + flag);
+            response.setContent(listData, more, null, "" + flag++);
         } else {
-            response.setContent(listData, false, null, "" + flag);
+            response.setContent(listData, false, null, "" + flag++);
         }
 
         return response;
