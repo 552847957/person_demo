@@ -29,13 +29,13 @@ public class PersonalIntervenController {
 
     /**
      *
-     * @param uid 医生registerId
+     * @param doctorId 医生registerId
      * @param flag
      * @return
      */
     @RequestMapping(value = "/interventionList", method = RequestMethod.GET)
     @VersionRange
-    public JsonListResponseEntity<PersonDTO> interventionList(@RequestParam String uid,
+    public JsonListResponseEntity<PersonDTO> interventionList(@RequestParam String doctorId,
                                                       @RequestParam(defaultValue = "", required = false) String flag) {
 
         JsonListResponseEntity<PersonDTO> response = new JsonListResponseEntity<>();
@@ -46,7 +46,7 @@ public class PersonalIntervenController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<IntervenEntity> interventionList = doctorInterventionService.findPersonalInterveneList(uid, pageNo, pageSize + 1);
+        List<IntervenEntity> interventionList = doctorInterventionService.findPersonalInterveneList(doctorId, pageNo, pageSize + 1);
 
         for (IntervenEntity intervenEntity : interventionList){
             if(toDoList.size()<pageSize){

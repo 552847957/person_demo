@@ -36,7 +36,7 @@ public class InterventionController {
 
     /**
      *
-     * @param uid 医生registerId
+     * @param doctorId 医生Id
      * @param flag
      * @param sign 0-非签约 1-签约
      * @param interven_type 异常类型
@@ -45,7 +45,7 @@ public class InterventionController {
      */
     @RequestMapping(value = "/todoList", method = RequestMethod.GET)
     @VersionRange
-    public JsonListResponseEntity<PersonDTO> toDoList(@RequestParam String uid,
+    public JsonListResponseEntity<PersonDTO> toDoList(@RequestParam String doctorId,
                                                       @RequestParam(defaultValue = "") String sign,
                                                       @RequestParam(defaultValue = "") String interven_type,
                                                       @RequestParam(defaultValue = "", required = false) String flag,
@@ -59,7 +59,7 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,uid, sign, interven_type, pageNo, pageSize+1);
+        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,doctorId, sign, interven_type, pageNo, pageSize+1);
 
         for (IntervenEntity intervenEntity : interventionList){
             if(toDoList.size()<pageSize){
