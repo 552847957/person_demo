@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.controllers.disease;
+package com.wondersgroup.healthcloud.api.http.controllers.resident;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
@@ -29,7 +29,7 @@ public class ResidentController {
 
     @GetMapping("/list")
     public JsonListResponseEntity list(
-            @RequestParam(required = false) String famId,
+            @RequestParam(required = true) String famId,
             @RequestParam(required = false) Integer signed,
             @RequestParam(required = false) String peopleType,
             @RequestParam(required = false) String diseaseType,

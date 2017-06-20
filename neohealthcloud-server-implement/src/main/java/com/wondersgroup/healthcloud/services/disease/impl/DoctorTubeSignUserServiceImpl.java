@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
@@ -16,6 +17,7 @@ import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant
 import com.wondersgroup.healthcloud.services.disease.constant.ResidentConstant;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentCondition;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
+import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,7 +31,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -60,6 +61,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private SignUserDoctorGroupRepository signUserDoctorGroupRepository;
     @Autowired
     private DictCache dictCache;
+    @Autowired
+    private DoctorService doctorService;
 
     @Override
     public Page<DoctorTubeSignUser> search(final ResidentCondition user) {
@@ -70,6 +73,22 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 List<Predicate> predicates = Lists.newArrayList();
                 Map<String, String> equalMap = Maps.newHashMap();
                 Map<String, String> notEqualMap = Maps.newHashMap();
+
+                // 根据医生id获取身份证号码
+                DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(user.getFamId());
+                String idCard = doctorInfo.getIdcard();
+
+                if (StringUtils.isNotBlank(idCard)) {
+                    // equalMap.put("signDoctorPersoncard", idCard);
+                    /**
+                     * 1，属于该医生签约居民
+                     2，属于该医生G端在管人群且非其他医生签约居民
+                     3，C端实名认证用户地址匹配出符合管辖范围（只匹配到区，即C端填写地址属于闵行区的所有与上述两条件去重后的用户会出现在闵行区的所有医生的居民列表）。
+                     */
+                    Predicate condition = cb.or(cb.equal(root.<String>get("signDoctorPersoncard"), idCard),
+                            cb.and(cb.equal(root.<String>get("tubeDoctorpersoncard"), idCard), cb.isNull(root.<String>get("signDoctorPersoncard"))));
+                    predicates.add(condition);
+                }
 
                 // 是否签约
                 if (user.getSigned() != null) {
@@ -249,7 +268,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         }
         // 是否签约
         if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
-            if (ResidentConstant.NORMAL.equals(doctorTubeSignUser.getSignStatus())) {
+            if ("1".equals(doctorTubeSignUser.getSignStatus())) {
                 dto.setIfSigned(true);
             }
         }
