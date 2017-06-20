@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.interven.entity;
 
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -40,5 +41,11 @@ public class IntervenEntity {
 
     public Integer getAge() {
         return IdcardUtils.getAgeByIdCard(this.personcard);
+    }
+    public String getGender(){
+        if(StringUtils.isBlank(this.gender)){
+            return IdcardUtils.getGenderByIdCard(this.personcard);
+        }
+        return this.gender;
     }
 }

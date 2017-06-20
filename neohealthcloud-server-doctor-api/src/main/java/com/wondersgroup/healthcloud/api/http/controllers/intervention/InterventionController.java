@@ -11,9 +11,11 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.enums.IntervenEnum;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorUsedTemplate;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
+import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,9 @@ public class InterventionController {
 
     @Autowired
     private DoctorTemplateService doctorTemplateService;
+
+    @Autowired
+    private UserService userService;
 
 
     /**
@@ -210,6 +215,16 @@ public class InterventionController {
         List<OutlierDTO> bloodGlucoseOutlierDTOs = Lists.newArrayList();
         List<OutlierDTO> pressureOutlierDTOs = Lists.newArrayList();
         IntervenDetailDTO intervenDetailDTO = new IntervenDetailDTO();
+
+        /**
+         * 如果不是C端用户则直接返回空
+         */
+        RegisterInfo registerInfo = userService.findOne(registerId);
+        if(registerInfo == null){
+            response.setData(intervenDetailDTO);
+            return response;
+        }
+
         IntervenEntity intervenEntity = doctorInterventionService.getUserDiseaseLabelByRegisterId(registerId);
         Boolean canIntervention = doctorInterventionService.hasTodoIntervensByRegisterId(registerId);
         String typeList = doctorInterventionService.findNotDealInterveneTypes(registerId);
