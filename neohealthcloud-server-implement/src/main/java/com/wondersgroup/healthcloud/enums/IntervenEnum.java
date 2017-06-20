@@ -20,7 +20,8 @@ public enum IntervenEnum {
     msgType5("40001","非首次收缩压过高"),
     msgType6("40002","非首次舒张压过低"),
     msgType7("40003","3天收缩压持续升高"),
-    msgType8("40004","脉压差异常");
+    msgType8("40004","脉压差异常"),
+    msgType9("41000","血压普通异常");//用于计算血压3天连续
 
 
     private final String typeCode;
@@ -74,7 +75,9 @@ public enum IntervenEnum {
             Collections.sort(data);
 
             for(String type : data){
-                result = result + IntervenEnum.fromTypeCode(type).getTypeName() + ",";
+                if(!( "41000".equals(type) || "30000".equals(type))){
+                    result = result + IntervenEnum.fromTypeCode(type).getTypeName() + ",";
+                }
             }
             if(result.length()>0)
                 result = result.substring(0,result.length()-1);
