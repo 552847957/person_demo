@@ -79,14 +79,14 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 String idCard = doctorInfo.getIdcard();
 
                 if (StringUtils.isNotBlank(idCard)) {
-                    // equalMap.put("signDoctorPersoncard", idCard);
                     /**
                      * 1，属于该医生签约居民
                      2，属于该医生G端在管人群且非其他医生签约居民
                      3，C端实名认证用户地址匹配出符合管辖范围（只匹配到区，即C端填写地址属于闵行区的所有与上述两条件去重后的用户会出现在闵行区的所有医生的居民列表）。
                      */
                     Predicate condition = cb.or(cb.equal(root.<String>get("signDoctorPersoncard"), idCard),
-                            cb.and(cb.equal(root.<String>get("tubeDoctorpersoncard"), idCard), cb.isNull(root.<String>get("signDoctorPersoncard"))));
+                            cb.and(cb.equal(root.<String>get("tubeDoctorpersoncard"), idCard), cb.isNull(root.<String>get("signDoctorPersoncard"))),
+                            root.<String>get("cardNumber").in(doctorService.getResidentListByArea(user.getFamId())));
                     predicates.add(condition);
                 }
 

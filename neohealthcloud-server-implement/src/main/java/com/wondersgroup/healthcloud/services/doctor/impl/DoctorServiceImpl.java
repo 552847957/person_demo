@@ -1,12 +1,12 @@
 package com.wondersgroup.healthcloud.services.doctor.impl;
 
+import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
-import com.wondersgroup.healthcloud.jpa.entity.faq.Faq;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
-import com.wondersgroup.healthcloud.jpa.repository.faq.FaqRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
+import com.wondersgroup.healthcloud.services.doctor.dto.DoctorAreaResidentDto;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
 import com.wondersgroup.healthcloud.services.doctor.exception.ErrorDoctorAccountException;
 import org.apache.commons.lang3.StringUtils;
@@ -347,6 +347,38 @@ public class DoctorServiceImpl implements DoctorService {
             throw new ErrorDoctorAccountException("用户不存在");
         }
         return  doctorAccount;
+    }
+
+    @Override
+    public List<DoctorAreaResidentDto> getResidentByDoctorArea(String doctorId) {
+        StringBuffer bf = new StringBuffer();
+        bf.append("select d.id,d.hospital_id,h.address_county,a.registerid,i.personcard \n" +
+                " from doctor_info_tb d left join t_dic_hospital_info h on d.hospital_id = h.hospital_id \n" +
+                " left join app_tb_register_address a on h.address_county = a.county\n" +
+                " left join app_tb_register_info i on a.registerid = i.registerid  \n" +
+                " where h.hospital_id is not null and a.county is not null and i.personcard is not null ");
+        bf.append(String.format(" and d.id = '%s' ", doctorId));
+        List<Map<String, Object>> result = jt.queryForList(bf.toString());
+
+        List<DoctorAreaResidentDto> resultList = Lists.newArrayList();
+        for (Map<String, Object> map : result) {
+            DoctorAreaResidentDto dto = new DoctorAreaResidentDto(String.valueOf(map.get("id")), String.valueOf(map.get("hospital_id")),
+                    String.valueOf(map.get("address_county")), String.valueOf(map.get("registerid")), String.valueOf(map.get("personcard")));
+            resultList.add(dto);
+        }
+        return resultList;
+    }
+
+    @Override
+    public List<String> getResidentListByArea(String doctorId) {
+        List<String> strList = Lists.newArrayList();
+        List<DoctorAreaResidentDto> list = getResidentByDoctorArea(doctorId);
+        for (DoctorAreaResidentDto dto : list) {
+            if (StringUtils.isNotBlank(dto.getPersonCard())) {
+                strList.add(dto.getPersonCard());
+            }
+        }
+        return strList;
     }
 
     public String getWhereSqlByParameter(Map parameter){
