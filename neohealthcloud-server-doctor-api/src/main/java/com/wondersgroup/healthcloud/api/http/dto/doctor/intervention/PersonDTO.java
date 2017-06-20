@@ -44,7 +44,7 @@ public class PersonDTO{
     @JsonProperty("apoType")
     private Boolean isApo;//是否是脑卒中 "脑"
 
-    private String  signStatus;//'签约状态 1：已签约,0:未签约',
+    private Boolean  signStatus;//'签约状态 true：已签约,false:未签约',
 
     private String memo;//列表下描述 例:血糖首次异常、血糖连续7天过高
 
@@ -71,7 +71,7 @@ public class PersonDTO{
             this.isHyp = StringUtils.isBlank(intervenEntity.getHyp_type())?false:!"0".equals(intervenEntity.getHyp_type());
             this.isDiabetes = StringUtils.isBlank(intervenEntity.getDiabetes_type())?false:!"0".equals(intervenEntity.getDiabetes_type());
             this.isApo = StringUtils.isBlank(intervenEntity.getApo_type())?false:!"0".equals(intervenEntity.getApo_type());
-            this.signStatus = intervenEntity.getSign_status();
+            this.signStatus = StringUtils.isBlank(intervenEntity.getSign_status())?false:"1".equals(intervenEntity.getSign_status());
             this.canIntervene = this.isJky;//目前的规则是只有在C端有账号的可以进行干预
 
             this.memo = IntervenEnum.getIntervenTypeNames(intervenEntity.getTypelist());
