@@ -42,7 +42,7 @@ public class ResidentController {
 
         // 关键字搜索
         if (StringUtils.isNotBlank(kw)) {
-            List<DoctorTubeSignUser> tubeList = doctorTubeSignUserService.kwSearchList(kw, flag, pageSize);
+            List<DoctorTubeSignUser> tubeList = doctorTubeSignUserService.kwSearchList(doctorId, kw, flag, pageSize);
             int count = (int) doctorTubeSignUserService.kwSearchCount(kw);
             int pages = 0;
             if (count % pageSize == 0) {
@@ -55,7 +55,7 @@ public class ResidentController {
             if (pages > flag) {
                 more = true;
             }
-            response.setContent(doctorTubeSignUserService.dbListToDtoList(tubeList), more, null, "" + flag);
+            response.setContent(doctorTubeSignUserService.dbListToDtoList(tubeList), more, null, "" + ++flag);
             return response;
         } else {
             pageData = doctorTubeSignUserService.search(residentCondition);

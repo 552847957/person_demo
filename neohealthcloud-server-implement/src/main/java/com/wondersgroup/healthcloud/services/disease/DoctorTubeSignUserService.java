@@ -16,7 +16,7 @@ public interface DoctorTubeSignUserService {
 
     Page<DoctorTubeSignUser> search(final ResidentCondition user);
 
-    List<DoctorTubeSignUser> kwSearchList(String kw, int page, int pageSize);
+    List<DoctorTubeSignUser> kwSearchList(String doctorId, String kw, int page, int pageSize);
 
     long kwSearchCount(String kw);
 

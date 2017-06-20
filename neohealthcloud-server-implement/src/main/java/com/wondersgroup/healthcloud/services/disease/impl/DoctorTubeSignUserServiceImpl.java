@@ -155,9 +155,25 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }// end outer method
 
     @Override
-    public List<DoctorTubeSignUser> kwSearchList(String kw, int page, int pageSize) {
+    public List<DoctorTubeSignUser> kwSearchList(String doctorId, String kw, int page, int pageSize) {
         // List<DoctorTubeSignUser> kwSearchList = doctorTubeSignUserRepository.searchByKw(kw, (page - 1) * pageSize, pageSize);
-        String sql = "select * from fam_doctor_tube_sign_user f where del_flag = '0' and f.name like '%%%s%%' order by \n" +
+        List<String> cardList = doctorService.getResidentListByArea(doctorId);
+        StringBuffer inSql = new StringBuffer("");
+        for (String s : cardList) {
+            inSql.append("'");
+            inSql.append(s);
+            inSql.append("',");
+        }
+        String inSqlStr = inSql.toString();
+        if (inSqlStr.length() > 1) {
+            inSqlStr = inSqlStr.substring(0, inSqlStr.length() - 1);
+        }
+
+        // 根据医生id获取身份证号码
+        DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
+        String idCard = doctorInfo.getIdcard();
+        String sql = "select * from fam_doctor_tube_sign_user f where del_flag = '0' " +
+                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) or f.card_number in (%s) )and f.name like '%%%s%%' order by \n" +
                 "(case\n" +
                 "when f.name = '%s' then 1 \n" +
                 "when f.name like '%s%%' then 2\n" +
@@ -165,7 +181,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 "when f.name like '%%%s%%' then 4  \n" +
                 "else 0\n" +
                 "end ) limit %s,%s";
-        sql = String.format(sql, kw, kw, kw, kw, kw, (page - 1) * pageSize, pageSize);
+        sql = String.format(sql, idCard, idCard, inSqlStr, kw, kw, kw, kw, kw, (page - 1) * pageSize, pageSize);
         List<DoctorTubeSignUser> kwSearchList = jdbcTemplate.query(sql, new Object[]{}, new BeanPropertyRowMapper(DoctorTubeSignUser.class));
         return kwSearchList;
     }
