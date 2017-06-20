@@ -26,6 +26,6 @@ public abstract class BaseResidentDto {
     private Boolean apoType;//标签:是否脑卒中 true:是 false:否
     private Boolean isRisk;//标签:是否高危人群 true:是 false:否
     private Boolean identifyType;//标签:是否实名认证用户 true:是 false:否
-    private String  signStatus;//'签约状态 1：已签约,0:未签约',
+    private Boolean signStatus;//'签约状态 true：已签约, false:未签约',
     private String address;// 地址
 }

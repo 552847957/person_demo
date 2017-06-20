@@ -673,12 +673,12 @@ public class MeasureController {
             infoDto.setMobilePhone(info.getMoblilePhone());
             infoDto.setFixedPhone(info.getFixedPhone());
             infoDto.setContactPhone(info.getContactPhone());
-            infoDto.setHypType(!"0".equals(info.getHypType()));
-            infoDto.setDiabetesType(!"0".equals(info.getDiabetesType()));
-            infoDto.setApoType(!"0".equals(info.getApoType()));
-            infoDto.setIsRisk(!"0".equals(info.getIsRisk()));
-            infoDto.setIdentifyType(!"0".equals(info.getIdentifytype()));
-            infoDto.setSignStatus(info.getSignStatus());
+            infoDto.setHypType("1".equals(info.getHypType()));
+            infoDto.setDiabetesType("1".equals(info.getDiabetesType()));
+            infoDto.setApoType("1".equals(info.getApoType()));
+            infoDto.setIsRisk("1".equals(info.getIsRisk()));
+            infoDto.setIdentifyType("1".equals(info.getIdentifytype()));
+            infoDto.setSignStatus("1".equals(info.getIsRisk()));
         }else{
             return new JsonResponseEntity(1001, "用户数据获取失败");
         }
@@ -742,11 +742,11 @@ public class MeasureController {
                 if(regisInfos != null  && regisInfos.size() > 0){
                     regInfo = regisInfos.get(0);
                 }
-                infoDto.setHypType(!"0".equals(singUser.getHypType()));
-                infoDto.setDiabetesType(!"0".equals(singUser.getDiabetesType()));
-                infoDto.setApoType(!"0".equals(singUser.getApoType()));
-                infoDto.setIsRisk(!"0".equals(singUser.getIsRisk()));
-                infoDto.setSignStatus(singUser.getSignStatus());
+                infoDto.setHypType("1".equals(singUser.getHypType()));
+                infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
+                infoDto.setApoType("1".equals(singUser.getApoType()));
+                infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
+                infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
             }else{
                 return new JsonResponseEntity(1001, "用户数据获取失败");
             }
@@ -756,7 +756,7 @@ public class MeasureController {
                 infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
             }
             infoDto.setAge(IdcardUtils.getAgeByIdCard(personcard));
-            infoDto.setIdentifyType(!"0".equals(singUser != null ? singUser.getIdentifytype() : regInfo.getIdentifytype()));
+            infoDto.setIdentifyType("1".equals(singUser != null ? singUser.getIdentifytype() : regInfo.getIdentifytype()));
             infoDto.setAvatar(singUser != null ? singUser.getAvatar() : regInfo.getHeadphoto());
             infoDto.setPhone(singUser != null ? singUser.getMoblilePhone() : regInfo.getRegmobilephone());
             infoDto.setGender(singUser != null ? singUser.getGender() : regInfo.getGender());
@@ -775,7 +775,7 @@ public class MeasureController {
             }
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {
-                    String hopLink = repliceUrl(image.getHoplink(), registerId == null ? famId : registerId, personcard);
+                    String hopLink = repliceUrl(image.getHoplink(), regInfo == null ? famId : regInfo.getRegisterid(), personcard);
                     HeathIconDto icon = new HeathIconDto(image.getMainTitle(), hopLink, image.getImgUrl());
                     if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
                         icon.setIsNew(isNew ? 1  : 0);
