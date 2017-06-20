@@ -655,6 +655,16 @@ public class MeasureController {
             if(registerInfo.getBirthday() != null){
                 infoDto.setBirth(registerInfo.getBirthday());
             }
+            if(!StringUtils.isBlank(registerInfo.getPersoncard())){
+                DoctorTubeSignUser singUser = doctorTubeSignUserRepository.queryInfoByCard(registerInfo.getPersoncard());
+                if(singUser != null){
+                    infoDto.setHypType("1".equals(singUser.getHypType()));
+                    infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
+                    infoDto.setApoType("1".equals(singUser.getApoType()));
+                    infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
+                    infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                }
+            }
         }else if(!StringUtils.isBlank(famId)){
             DoctorTubeSignUser info = doctorTubeSignUserRepository.findOne(famId);
             List<RegisterInfo> regInfos = userService.findRegisterInfoByIdcard(info.getCardNumber());
@@ -736,6 +746,16 @@ public class MeasureController {
         try {
             if(registerId != null){
                 regInfo = userService.findOne(registerId);
+                if(!StringUtils.isBlank(regInfo.getPersoncard())){
+                    singUser = doctorTubeSignUserRepository.queryInfoByCard(regInfo.getPersoncard());
+                    if(singUser != null){
+                        infoDto.setHypType("1".equals(singUser.getHypType()));
+                        infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
+                        infoDto.setApoType("1".equals(singUser.getApoType()));
+                        infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
+                        infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                    }
+                }
             }else if(famId != null){
                 singUser = doctorTubeSignUserRepository.findOne(famId);
                 List<RegisterInfo> regisInfos = userService.findRegisterInfoByIdcard(singUser.getCardNumber());
