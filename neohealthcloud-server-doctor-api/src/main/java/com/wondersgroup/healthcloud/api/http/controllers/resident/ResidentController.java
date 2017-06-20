@@ -69,9 +69,9 @@ public class ResidentController {
             if (pageData.getTotalPages() > flag) {
                 more = true;
             }
-            response.setContent(listData, more, null, "" + flag++);
+            response.setContent(listData, more, null, "" + ++flag);
         } else {
-            response.setContent(listData, false, null, "" + flag++);
+            response.setContent(listData, false, null, "" + ++flag);
         }
 
         return response;
