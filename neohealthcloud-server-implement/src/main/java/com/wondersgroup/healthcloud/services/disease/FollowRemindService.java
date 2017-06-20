@@ -20,4 +20,6 @@ public interface FollowRemindService {
      * @return
      */
     Integer getRemindCount(String doctorId);
+
+    Boolean hasToRemindFollow(DoctorInfo doctorInfo,DoctorAccount doctorAccount);
 }

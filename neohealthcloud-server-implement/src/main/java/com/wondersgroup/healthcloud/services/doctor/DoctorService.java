@@ -41,4 +41,8 @@ public interface DoctorService {
     int countFaqByParameter(Map parameter);
 
     List<Map<String,Object>> findDoctorServicesByIdWithoutDel(String uid);
+
+    DoctorInfo getDoctorInfoByUid(String uid);
+
+    DoctorAccount getDoctorAccountByUid(String uid);
 }

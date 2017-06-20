@@ -2,6 +2,8 @@ package com.wondersgroup.healthcloud.api.http.controllers.home;
 
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
@@ -93,6 +95,14 @@ public class HomeController {
     public JsonResponseEntity statistics(@RequestParam(required = true) String uid){
         JsonResponseEntity body = new JsonResponseEntity();
 
+        DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(uid);
+        DoctorAccount doctorAccount = doctorService.getDoctorAccountByUid(uid);
+        if(null == doctorInfo){
+            body.setCode(1001);
+            body.setMsg("不存在当前医生信息");
+            return body;
+        }
+
         Map<String,Object>  number = new HashMap<>();
         int answeredNum = 0;
         int intervenNum = 0;
@@ -119,10 +129,8 @@ public class HomeController {
             if(groupNum==0){
                 groupNum=1;//初始给一个默认分组
             }
-            try (Jedis jedis = jedisPool.getResource()) {
-                follow_red = getIsRedByRedis(jedis,"followNum",uid,followNum);
-                screened_red = getIsRedByRedis(jedis,"screenNum",uid,screenNum);
-            }
+            follow_red = followRemindService.hasToRemindFollow(doctorInfo,doctorAccount);
+            screened_red = screeningService.hasToRemindScreened(doctorInfo);
         }catch (Exception e){
             log.error("HomeController-error:doctorQuestionService.queryUnreadCount:"+e.getLocalizedMessage());
         }
@@ -143,7 +151,7 @@ public class HomeController {
         return body;
     }
 
-
+/*
     /**
      * 将数据放入缓存,与现在的数据比较判断是否有红点
      * @param jedis
@@ -151,7 +159,7 @@ public class HomeController {
      * @param uid
      * @param value
      * @return
-     */
+     *//*
     private Boolean getIsRedByRedis(Jedis jedis,String type, String uid,int value) {
 
         Boolean isRed = false;
@@ -167,7 +175,7 @@ public class HomeController {
         }
         jedis.set(value_cache_key,String.valueOf(value));
         return isRed;
-    }
+    }*/
 
     public String getNumStr(int number){
         if(number<=999){

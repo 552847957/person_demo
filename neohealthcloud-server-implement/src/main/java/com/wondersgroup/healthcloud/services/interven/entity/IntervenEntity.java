@@ -23,6 +23,8 @@ public class IntervenEntity {
     private String diabetes_type;//是否是糖尿病 "糖"
     private String apo_type;//是否是脑卒中 "脑"
 
+    private String  sign_status;//'签约状态 1：已签约,0:未签约',
+
     private String typelist;//异常类型 10000,20000
 
     private String personcard;//身份证号
