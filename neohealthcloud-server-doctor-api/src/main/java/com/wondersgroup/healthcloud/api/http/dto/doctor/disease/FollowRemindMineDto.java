@@ -37,7 +37,7 @@ public class FollowRemindMineDto extends BaseResidentDto {
         this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
-
+        this.setSignStatus(null == map.get("sign_status")?null:map.get("sign_status").toString());
 
 
         if(null != register && null != register.getPersoncard()){

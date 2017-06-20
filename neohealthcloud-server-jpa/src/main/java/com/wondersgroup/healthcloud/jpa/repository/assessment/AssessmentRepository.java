@@ -25,6 +25,10 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
             " order by create_date desc limit 1")
     Assessment getRecentAssess(String uid);
 
+    @Query(nativeQuery = true ,value = "select * from app_tb_patient_assessment  where uid=?1  and is_oneself=1  and result is not null and del_flag=0" +
+            " order by create_date desc limit 1")
+    Assessment getRecentRiskAssess(String uid);
+
     @Query("select count(1) from Assessment a where a.uid = ?1 and a.isOneself = 1 and a.delFlag=0")
     Integer getAssessNum(String uid);
     
