@@ -149,7 +149,7 @@ public class FollowRemindController {
         List<String> registerIds = remindRepo.findFollowByRegisterId(ids.split(","),2);
         if(0 == registerIds.size()){
             entity.setCode(1001);
-            entity.setMsg("该用户当日已经被提醒");
+//            entity.setMsg("该用户当日已经被提醒");
             return entity;
         }
 
