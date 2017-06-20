@@ -48,12 +48,12 @@ public class DoctorQuestionController {
         JsonResponseEntity<Object> response = new JsonResponseEntity<>();
         doctorQuestionService.doctorReplay(doctorId, questionId, content, contentImgs);
         //回复成功push用户端
-        /*Question question = doctorQuestionService.queryQuestion(questionId);
+        Question question = doctorQuestionService.queryQuestion(questionId);
         String userId = question.getAskerId();
         String doctorName = doctorService.findDoctorByUid(doctorId).getName();
         AppMessage message = AppMessage.Builder.init().title(doctorName + "医生回复了您的问题").content(content)
                 .type(AppMessageUrlUtil.Type.QUESTION).urlFragment(AppMessageUrlUtil.question(questionId)).persistence().build();
-        Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);*/
+        Boolean aBoolean = pushClientWrapper.pushToAlias(message, userId);
 
 
         response.setMsg("回复成功!");
