@@ -143,7 +143,7 @@ public class SignServiceImpl implements SignService {
         // 是否签约
         if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
             if (ResidentConstant.IDENTIFIED.equals(doctorTubeSignUser.getSignStatus())) {
-                dto.setIfSigned(true);
+                dto.setSignStatus(true);
             }
         }
 

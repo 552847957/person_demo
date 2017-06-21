@@ -12,5 +12,4 @@ import lombok.Data;
 public class SignDTO extends BaseResidentDto {
     //是否分组
     private Boolean ifGrouped;
-    private Boolean ifSigned;
 }
