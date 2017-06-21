@@ -852,7 +852,7 @@ public class MeasureController {
                     .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())))
                     .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
         }
-        return addrs.toString();
+        return addrs.toString() + (StringUtils.isBlank(address.getOther()) ? "" : address.getOther());
     }
 
     public String repliceUrl(String url, String registerId, String idc){
