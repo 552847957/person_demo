@@ -32,7 +32,6 @@ public class DoctorTemplateController {
     @RequestMapping(value = "/listAll", method = RequestMethod.GET)
     @VersionRange
     public JsonResponseEntity<MyTemplateDTO> listAll(@RequestParam("doctorId") String doctorId) {
-        String defaultType = "1";
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
 
         List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
@@ -148,12 +147,19 @@ public class DoctorTemplateController {
 
 
         DoctorTemplate entity = new DoctorTemplate();
-        entity.setTitle(title);//TODO　数据检查
+        entity.setTitle(title);
         entity.setContent(content);
         entity.setDoctorId(doctorId);
-        entity.setType("1");
+        entity.setType(defaultType);
         entity.setUpdateTime(new Date());
         entity.setCreateTime(new Date());
+
+        Integer count2 = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
+        if(count2 > LIMIT_COUNT){
+            response.setData("添加失败,超过 "+LIMIT_COUNT+" 条");
+            response.setCode(-1);
+            return response;
+        }
 
         doctorTemplateService.saveTemplate(entity);
         response.setData("添加成功");
