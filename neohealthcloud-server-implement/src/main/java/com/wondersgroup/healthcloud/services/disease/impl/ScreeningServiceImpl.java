@@ -91,7 +91,9 @@ public class ScreeningServiceImpl implements ScreeningService {
                 " where t1.result is not NULL AND NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "       type=1 and registerid = t1.uid and  create_date >= t1.create_date and del_flag = '0')\n" +
                 " and t3.is_risk is not null and t3.is_risk = '1'\n"+
-                " and t3.identifytype = '1' and t3.del_flag = '0'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
+                " and t3.identifytype = '1' and t3.del_flag = '0'  and \n " +
+                " ( (t3.sign_status ='1' AND t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"') OR " +
+                "      (t3.sign_status ='0' and t3.sign_doctor_personcard is null and t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"') %s) " +
                 " %s %s\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
@@ -110,9 +112,9 @@ public class ScreeningServiceImpl implements ScreeningService {
         String county = dictCache.queryHospitalAddressCounty(doctorInfo.getHospitalId());
         String area_filter = "";
         if(null != county && !StringUtils.isEmpty(county)){
-            area_filter = " or (t3.sign_doctor_personcard is null and " +
+            area_filter = " or (t3.sign_status ='0' AND t3.sign_doctor_personcard is null and " +
                     " (address.province = '"+county+"' or address.city = '"+county+"' or" +
-                    " address.county = '"+county+"' or address.town = '"+county+"' ))";
+                    " address.county = '"+county+"' or address.town = '"+county+"' ))\n";
         }
 
         sql = String.format(sql,area_filter,null == signStatus?"": " and sign_status = " + signStatus,buffer.toString());
