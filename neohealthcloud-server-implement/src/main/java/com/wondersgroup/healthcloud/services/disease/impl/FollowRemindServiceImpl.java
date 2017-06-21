@@ -82,8 +82,8 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
-                " where  t1.del_flag = '0' AND t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"'\n" +
-                " and t3.card_type = '01' and t3.tube_type != '1' and (t3.tube_doctor_personcard = '"+doctorInfo.getIdcard()+"' or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
+                " where  t1.del_flag = '0' AND ((t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"')\n" +
+                " or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
                 " order by  t1.report_date DESC"+
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
 

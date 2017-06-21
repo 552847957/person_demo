@@ -262,12 +262,7 @@ public class AssessmentController {
             assessmentAPIEntity.setSport(assessment.getSport());
             response.setData(assessmentAPIEntity);
 
-            if(!assessmentAPIEntity.getRisk().equals("0") || assessmentAPIEntity.getIsFat() ||
-                    assessmentAPIEntity.getIsOverWeight() || assessmentAPIEntity.getIsHypertension() ||
-                    assessmentAPIEntity.getNeedMovement() || assessmentAPIEntity.getNeedAmendLife()||
-                    assessmentAPIEntity.getHasFamilyHistory()){
-                assessmentRepository.save(assessment);
-            }
+
             if(assessment.getIsOneself() == 1) {//本人风险评估
                 RegisterInfo registerInfo = registerInfoRepo.findOne(assessment.getUid());
                 if(!StringUtils.isEmpty(registerInfo.getPersoncard())) {
@@ -275,14 +270,24 @@ public class AssessmentController {
                     if(null != signUser){
                         if(StringUtils.isEmpty(assessment.getResult())){
                             signUser.setIsRisk("0");
-                            signUser.setDiabetesCType("0");
-                            signUser.setHypCType("0");
-                            signUser.setApoCType("0");
+                            signUser.setDiabetesCType(0);
+                            signUser.setHypCType(0);
+                            signUser.setApoCType(0);
                         }else{
-                            signUser.setIsRisk("1");
-                            signUser.setDiabetesCType(assessment.getResult().contains("1") ? "1" : "0");
-                            signUser.setHypCType(assessment.getResult().contains("2") ? "1" : "0");
-                            signUser.setApoCType(assessment.getResult().contains("3") ? "1" : "0");
+
+                            signUser.setDiabetesCType(assessment.getResult().contains("1") ? 1 : 0);
+                            signUser.setHypCType(assessment.getResult().contains("2") ? 1 : 0);
+                            signUser.setApoCType(assessment.getResult().contains("3") ? 1 : 0);
+                            if((signUser.getDiabetesCType()-
+                                    (null == signUser.getDiabetesType()?0:Integer.parseInt(signUser.getDiabetesType())) )>0 ||
+                                (signUser.getHypCType()-
+                                            (null == signUser.getHypType()?0:Integer.parseInt(signUser.getHypType())) )>0 ||
+                                (signUser.getApoCType()-
+                                    (null == signUser.getApoType()?0:Integer.parseInt(signUser.getApoType())) )>0){
+                                signUser.setIsRisk("1");
+                            }else{
+                                signUser.setIsRisk("0");
+                            }
 
                         }
                         tubeSignUserRepo.save(signUser);

@@ -24,7 +24,7 @@ import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
-import com.wondersgroup.healthcloud.jpa.entity.disease.DiseaseMessage;
+import com.wondersgroup.healthcloud.jpa.entity.disease.xDiseaseMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.DiseaseRegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.disease.DiseaseMessageRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.DiseaseRegisterInfoRepository;

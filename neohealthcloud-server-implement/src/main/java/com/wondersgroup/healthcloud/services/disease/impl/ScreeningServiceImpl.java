@@ -9,13 +9,16 @@ import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.jpa.entity.assessment.Assessment;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.ReportFollow;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
+import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.ReportFollowRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.services.diabetes.dto.ReportFollowDTO;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +61,7 @@ public class ScreeningServiceImpl implements ScreeningService {
 
     @Autowired
     private AssessmentRepository assessmentRepo;
+
     /**
      * 获取筛查列表数据
      * @param pageNo
@@ -124,6 +128,7 @@ public class ScreeningServiceImpl implements ScreeningService {
         for(String registerid : registerIds){
             if(1 == type){
                 Assessment assessment = assessmentRepo.getRecentRiskAssess(registerid);
+
                 StringBuffer buffer = new StringBuffer();
                 if(assessment.getResult().contains("1"))buffer.append("糖尿病，");
                 if(assessment.getResult().contains("2"))buffer.append("高血压，");
@@ -146,7 +151,7 @@ public class ScreeningServiceImpl implements ScreeningService {
             remind.setDelFlag("0");
             remindRepo.save(remind);
 
-            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\"1\"," +
+            String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\""+type+"\"," +
                     " \"msgTitle\":\""+(type == 1?"筛查提醒":"随访提醒")+"\",\"msgContent\":\""+content+"\"}";
             Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
