@@ -652,6 +652,10 @@ public class MeasureController {
             infoDto.setCardType("01");
             infoDto.setCardNumber(registerInfo.getPersoncard());
             infoDto.setMobilePhone(registerInfo.getRegmobilephone());
+            if(registerInfo.getPersoncard() != null){
+                infoDto.setAge(IdcardUtils.getAgeByIdCard(registerInfo.getPersoncard()));
+            }
+            infoDto.setAvatar(registerInfo.getHeadphoto());
             if(registerInfo.getBirthday() != null){
                 infoDto.setBirth(registerInfo.getBirthday());
             }
@@ -689,6 +693,8 @@ public class MeasureController {
             infoDto.setIsRisk("1".equals(info.getIsRisk()));
             infoDto.setIdentifyType("1".equals(info.getIdentifytype()));
             infoDto.setSignStatus("1".equals(info.getIsRisk()));
+            infoDto.setAge(info.getAge());
+            infoDto.setAvatar(info.getAvatar());
         }else{
             return new JsonResponseEntity(1001, "用户数据获取失败");
         }
@@ -851,8 +857,11 @@ public class MeasureController {
                     addrs.append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())))
                     .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())))
                     .append(StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())));
+            if(address.getOther() != null){
+                addrs.append(address.getOther());
+            }
         }
-        return addrs.toString() + (StringUtils.isBlank(address.getOther()) ? "" : address.getOther());
+        return addrs.toString();
     }
 
     public String repliceUrl(String url, String registerId, String idc){
