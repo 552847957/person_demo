@@ -89,8 +89,7 @@ public class FollowRemindController {
 
         List<FollowRemindDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new FollowRemindDto(map, registerInfoRepo.findOne(map.get("registerid").toString()),
-                    userInfoRepo.findOne(map.get("registerid").toString())));
+            entityList.add(new FollowRemindDto(map));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
@@ -127,8 +126,7 @@ public class FollowRemindController {
 
         List<FollowRemindMineDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new FollowRemindMineDto(map, registerInfoRepo.findOne(map.get("registerid").toString()),
-                    userInfoRepo.findOne(map.get("registerid").toString()),diseaseUrl));
+            entityList.add(new FollowRemindMineDto(map,diseaseUrl));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;

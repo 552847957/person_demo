@@ -82,8 +82,7 @@ public class ScreeningController {
 
         List<ScreeningDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new ScreeningDto(map, assessmentRepo.findOne(map.get("id").toString()),
-                    registerInfoRepo.findOne(map.get("registerid").toString()), userInfoRepo.findOne(map.get("registerid").toString())));
+            entityList.add(new ScreeningDto(map, assessmentRepo.findOne(map.get("id").toString())));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;

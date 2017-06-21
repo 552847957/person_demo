@@ -27,27 +27,19 @@ public class ScreeningDto extends BaseResidentDto {
 
     private String riskFactor;//危险因素
 
-    public ScreeningDto(Map<String, Object> map,Assessment assessment, RegisterInfo register, UserInfo userInfo) {
+    public ScreeningDto(Map<String, Object> map,Assessment assessment) {
 
         this.setRegisterId(map.get("registerid").toString());
-        this.setAvatar(StringUtils.isEmpty(register.getHeadphoto())?"":register.getHeadphoto()+ ImagePath.avatarPostfix());
-        this.setName(register.getName());
-        this.setGender(register.getGender());
-        this.setIdentifyType("0".equals(register.getIdentifytype()) ?false:true);
-        this.setIsRisk(true);
+        this.setAge(null == map.get("age")?null:Integer.parseInt(map.get("age").toString()));
+        this.setAvatar(null == map.get("avatar")?null:map.get("avatar").toString());
+        this.setName(null == map.get("name")?null:map.get("name").toString());
+        this.setGender(null == map.get("gender")?null:map.get("gender").toString());
+        this.setIdentifyType(null == map.get("identifytype") || "0".equals(map.get("identifytype").toString()) ?false:true);
+        this.setIsRisk(null == map.get("is_risk") || "0".equals(map.get("is_risk").toString()) ?false:true);
         this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
         this.setSignStatus(null == map.get("sign_status") || "0".equals(map.get("sign_status").toString()) ?false:true);
-
-        if(null != register && null != register.getPersoncard()){
-            Date birthday = DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(register.getPersoncard()));
-            this.setAge( new DateTime().getYear() - new DateTime(birthday).getYear());
-        }else if(null != userInfo){
-            this.setAge(userInfo.getAge());
-        }else if(null != register && null != register.getBirthday()){
-            this.setAge(new DateTime().getYear() - new DateTime(register.getBirthday()).getYear());
-        }
 
         this.riskFactor = this.getRiskInfo(assessment);
     }

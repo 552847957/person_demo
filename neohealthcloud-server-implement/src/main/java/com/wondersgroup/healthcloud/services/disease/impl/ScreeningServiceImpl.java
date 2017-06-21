@@ -69,7 +69,8 @@ public class ScreeningServiceImpl implements ScreeningService {
     @Override
     public List<Map<String, Object>> findScreening(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo) {
 
-        String sql = "select t1.id,t2.registerid,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.sign_status," +
+        String sql = "select t1.id,t2.registerid," +
+                "t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.sign_status," +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t3.id and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from (select * from (select * from app_tb_patient_assessment where del_flag = '0' and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t0 GROUP by t0.uid)t1 \n" +
@@ -80,7 +81,7 @@ public class ScreeningServiceImpl implements ScreeningService {
                 "       type=1 and registerid = t1.uid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')\n" +
                 " and ((t3.hyp_c_type - IFNULL(t3.hyp_type,0))>0 or (t3.diabetes_c_type - IFNULL(t3.diabetes_type,0))>0 or " +
                 "       (t3.apo_c_type - IFNULL(t3.apo_type,0)) >0)\n"+ //过滤掉仅仅是糖尿病高危，确是糖尿病在管的人群
-                " and t2.identifytype != '0'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
+                " and t3.identifytype = '1'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
                 " %s %s\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
