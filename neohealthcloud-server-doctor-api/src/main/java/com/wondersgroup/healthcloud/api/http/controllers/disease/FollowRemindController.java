@@ -154,10 +154,10 @@ public class FollowRemindController {
         Boolean flag = screeningService.remind(registerIds,doctorId,2);
 
         if(flag){
-            entity.setMsg("您的随访提醒已经发送成功");
+            entity.setMsg("提醒发送成功");
         }else{
             entity.setCode(1002);
-            entity.setMsg("您的随访提醒发送失败");
+            entity.setMsg("提醒发送失败");
         }
         return entity;
     }
