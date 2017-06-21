@@ -1,5 +1,24 @@
 package com.wondersgroup.healthcloud.api.http.controllers.group;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.group.PatientGroupDto;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
@@ -15,20 +34,6 @@ import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepo
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import com.wondersgroup.healthcloud.services.group.PatientGroupService;
-import com.wondersgroup.healthcloud.utils.EmojiUtils;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -239,8 +244,8 @@ public class PatientGroupController {
             PatientGroupDto dto = new PatientGroupDto();
             dto.setId(p.getId());
             SignUserDoctorGroup isSelectedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId(),"0");
-            SignUserDoctorGroup isDeletedByGroupIdAndUserId = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, p.getId(),"1");
-            if(null==isDeletedByGroupIdAndUserId&&null==isSelectedByGroupIdAndUserId&&"1".equals(p.getIsDefault())){
+            SignUserDoctorGroup delFlagAndUid = signUserDoctorGroupRepository.queryFirst1ByDelFlagAndUid("0", userId);
+            if(null==isSelectedByGroupIdAndUserId&&null==delFlagAndUid&&"1".equals(p.getIsDefault())){
                 dto.setIsSelected(true); 
             }else if(null!=isSelectedByGroupIdAndUserId){
                 dto.setIsSelected(true);

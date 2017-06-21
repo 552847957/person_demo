@@ -13,9 +13,14 @@ import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoctorGroup, Integer> {
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag=?1 where t.group_id=?2 ")
+    @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag=?1,t.update_time=NOW() where t.group_id=?2 AND t.user_id=?3")
+    void updateDoctorGroup(String delFlag, Integer groupId,String userId);
+    
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag=?1,t.update_time=NOW() where t.group_id=?2")
     void updateDoctorGroup(String delFlag, Integer groupId);
-
+    
     @Query(nativeQuery = true, value = "SELECT t.group_id FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.del_flag=?2")
     List<Integer> getGroupIdsByUserId(String userId, String delFlag);
 

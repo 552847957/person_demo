@@ -65,7 +65,10 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             throw new CommonException(1043, "分组名称不支持表情符号") ;
         }
         PatientGroup isRepeatedName = patientGroupRepository.findIsNameRepeated(doctorId, name);
-        if(null!=isRepeatedName&&StringUtils.isNoneBlank(isRepeatedName.getName())&&name.equals(isRepeatedName.getName())){
+        //对原有的分组名称不变进行update
+        if(StringUtils.isNotBlank(id)&&null!=isRepeatedName&&StringUtils.isNotBlank(isRepeatedName.getName())&&name.equals(isRepeatedName.getName())){
+            throw new CommonException(1049, "编辑分组成功");
+        }else if(null!=isRepeatedName&&StringUtils.isNotBlank(isRepeatedName.getName())&&name.equals(isRepeatedName.getName())){
             throw new CommonException(1044,"分组名称不支持重复");
         }
         PatientGroup group = new PatientGroup();
@@ -148,12 +151,12 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             //list2.removeAll(list);
             list.removeAll(list2);
             for(Integer groupId:list){
-                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId);
+                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId,userId);
             }
         }else{
             //传入的ids是空时,将原有的进行删除
             for(Integer groupId:list){
-                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId);
+                signUserDoctorGroupRepository.updateDoctorGroup(delFlag,groupId,userId);
             }
         }
         if(CollectionUtils.isNotEmpty(list2)){
@@ -162,12 +165,13 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             for(Integer groupId:list2){
                 SignUserDoctorGroup userDoctorGroup = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, groupId, delFlag);
                 if(null!=userDoctorGroup){
-                    signUserDoctorGroupRepository.updateDoctorGroup(notDelFlag, groupId);
+                    signUserDoctorGroupRepository.updateDoctorGroup(notDelFlag, groupId,userId);
                 }else{
                     SignUserDoctorGroup signUserDoctorGroup = new SignUserDoctorGroup();
                     signUserDoctorGroup.setGroupId(groupId);
                     signUserDoctorGroup.setUid(userId);
                     signUserDoctorGroup.setDelFlag("0");
+                    signUserDoctorGroup.setCreateTime(new Date());
                     signUserDoctorGroupRepository.saveAndFlush(signUserDoctorGroup);
                 }
             }
@@ -201,5 +205,5 @@ public class PatientGroupServiceImpl implements PatientGroupService{
                   } ,iList );
         return iList;
     }
-
+    
 }
