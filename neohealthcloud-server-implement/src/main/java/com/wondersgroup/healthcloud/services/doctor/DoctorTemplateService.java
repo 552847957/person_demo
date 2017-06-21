@@ -22,5 +22,7 @@ public interface DoctorTemplateService {
 
     List<DoctorTemplate> findLastUsedTemplate(String doctorId);
 
-    Integer findDoctorTemplateCount(String doctorId, String type);
+    Integer findDoctorTemplateCount(String doctorId);
+
+    Integer findDefaultDoctorTemplateCount(String doctorId, String type);
 }

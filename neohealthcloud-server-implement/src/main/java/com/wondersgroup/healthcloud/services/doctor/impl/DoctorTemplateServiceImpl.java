@@ -30,7 +30,19 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
 
     @Override
     public List<DoctorTemplate> findByDoctorIdAndType(String doctorId, String type) {
-        return doctorTemplateRepository.findByDoctorIdAndType(doctorId, type);
+//        return doctorTemplateRepository.findByDoctorIdAndType(doctorId, type);
+        int defaultCount = findDefaultDoctorTemplateCount(doctorId, "0");
+        if (defaultCount <= 0) { //设置默认模板
+            DoctorTemplate entity = new DoctorTemplate();
+            entity.setTitle("默认模板");
+            entity.setContent("您好,您血糖首次异常,请及时到医院就诊或咨询医生");
+            entity.setDoctorId(doctorId);
+            entity.setType("0");
+            entity.setUpdateTime(new Date());
+            entity.setCreateTime(new Date());
+            saveTemplate(entity);
+        }
+        return doctorTemplateRepository.findByDoctorId(doctorId);
     }
 
     @Override
@@ -48,7 +60,7 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
         }
         toSave.setTitle(title);
         toSave.setContent(content);
-        toSave.setType(type);
+//        toSave.setType(type);
         toSave.setUpdateTime(new Date());
 
         return doctorTemplateRepository.save(toSave);
@@ -61,13 +73,29 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
 
     @Override
     public void deleteOne(String id) {
-        doctorTemplateRepository.delete(id);
+//        doctorTemplateRepository.delete(id);
+
+        DoctorTemplate toSave = null;
+        if (StringUtils.isBlank(id)) {
+            throw new RuntimeException();
+        } else {
+            toSave = doctorTemplateRepository.findOne(id);
+        }
+
+        if (null == toSave) {
+            throw new RuntimeException();
+        }
+
+        toSave.setUpdateTime(new Date());
+        toSave.setDelFlag("1");
+        doctorTemplateRepository.save(toSave);
     }
 
     @Override
     public void saveTemplate(DoctorTemplate entity) {
         if (StringUtils.isBlank(entity.getId())) {
             entity.setId(IdGen.uuid());
+            entity.setDelFlag("0");
         }
         doctorTemplateRepository.save(entity);
     }
@@ -90,9 +118,10 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
                 " select 1 from app_tb_doctor_used_template as b where b.doctor_id = a.doctor_id " +
                 " and a.template_id = b.template_id " +
                 " and b.create_time > a.create_time " +
-                " and b.doctor_id = '"+doctorId+"' " +
+                " and b.doctor_id = '" + doctorId + "' " +
                 ") " +
-                "and a.doctor_id = '"+doctorId+"' " +
+                " and c.del_flag = '0' " +
+                "and a.doctor_id = '" + doctorId + "' " +
                 "ORDER BY a.create_time desc limit 0,3";
 
 
@@ -100,8 +129,8 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
                 DoctorTemplate entity = null;
                 String id = rs.getString("id");
-                if(StringUtils.isNotBlank(id)){
-                    entity =  new DoctorTemplate();
+                if (StringUtils.isNotBlank(id)) {
+                    entity = new DoctorTemplate();
                     entity.setId(id);
                     entity.setDoctorId(rs.getString("doctor_id"));
                     entity.setTitle(rs.getString("title"));
@@ -115,8 +144,14 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
     }
 
     @Override
-    public Integer findDoctorTemplateCount(String doctorId, String type) {
-        Integer count  =  template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '"+doctorId+"' and type= '"+type+"' ",Integer.class);
+    public Integer findDoctorTemplateCount(String doctorId) {
+        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and def_flag = '0' ", Integer.class);
+        return count;
+    }
+
+    @Override
+    public Integer findDefaultDoctorTemplateCount(String doctorId, String type) {
+        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and type  = '" + type + "' ", Integer.class);
         return count;
     }
 

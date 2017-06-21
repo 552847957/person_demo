@@ -24,4 +24,6 @@ public class DoctorTemplate {
     private Date updateTime;
     @Column(name = "create_time")
     private Date createTime;
+    @Column(name = "del_flag")
+    private String delFlag;
 }

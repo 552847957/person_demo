@@ -23,7 +23,7 @@ public class DoctorTemplateController {
     @Autowired
     private DoctorTemplateService doctorTemplateService;
 
-    private String defaultType = "1";
+    private String doctorTemplateType = "1";
 
     public static final int LIMIT_COUNT = 30;
 
@@ -33,8 +33,7 @@ public class DoctorTemplateController {
     @VersionRange
     public JsonResponseEntity<MyTemplateDTO> listAll(@RequestParam("doctorId") String doctorId) {
         JsonResponseEntity<MyTemplateDTO> response = new JsonResponseEntity<>();
-
-        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, defaultType);
+        List<DoctorTemplate> templates = doctorTemplateService.findByDoctorIdAndType(doctorId, doctorTemplateType);
         MyTemplateDTO dto = new MyTemplateDTO();
         dto.setTotalCount(LIMIT_COUNT);
         dto.setCurrentIndex(CollectionUtils.isEmpty(templates)?0:templates.size());
@@ -108,8 +107,8 @@ public class DoctorTemplateController {
         String title = reader.readString("title", false);
         String content = reader.readString("content", false);
 
-        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
-        if(count > LIMIT_COUNT){
+        Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId);
+        if(count >= LIMIT_COUNT){
             response.setData("添加失败,超过 "+LIMIT_COUNT+" 条");
             response.setCode(-1);
             return response;
@@ -150,16 +149,9 @@ public class DoctorTemplateController {
         entity.setTitle(title);
         entity.setContent(content);
         entity.setDoctorId(doctorId);
-        entity.setType(defaultType);
+        entity.setType(doctorTemplateType);
         entity.setUpdateTime(new Date());
         entity.setCreateTime(new Date());
-
-        Integer count2 = doctorTemplateService.findDoctorTemplateCount(doctorId, defaultType);
-        if(count2 > LIMIT_COUNT){
-            response.setData("添加失败,超过 "+LIMIT_COUNT+" 条");
-            response.setCode(-1);
-            return response;
-        }
 
         doctorTemplateService.saveTemplate(entity);
         response.setData("添加成功");
@@ -214,7 +206,7 @@ public class DoctorTemplateController {
             return response;
         }
 
-        doctorTemplateService.update(id, doctorId, defaultType, title, content);
+        doctorTemplateService.update(id, doctorId, doctorTemplateType, title, content);
 
         response.setData("编辑成功");
         response.setCode(0);
