@@ -110,10 +110,10 @@ public class ScreeningController {
         Boolean flag = screeningService.remind(registerIds,doctorId,1);
 
         if(flag){
-            entity.setMsg("您的糖尿病高危筛查提醒已经发送成功");
+            entity.setMsg("提醒发送成功");
         }else{
             entity.setCode(1002);
-            entity.setMsg("您的糖尿病高危筛查提醒发送失败");
+            entity.setMsg("提醒发送失败");
         }
         return entity;
     }

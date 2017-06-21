@@ -35,7 +35,7 @@ public class ScreeningDto extends BaseResidentDto {
         this.setName(null == map.get("name")?null:map.get("name").toString());
         this.setGender(null == map.get("gender")?null:map.get("gender").toString());
         this.setIdentifyType(null == map.get("identifytype") || "0".equals(map.get("identifytype").toString()) ?false:true);
-        this.setIsRisk(null == map.get("is_risk") || "0".equals(map.get("is_risk").toString()) ?false:true);
+        this.setIsRisk(true);
         this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);

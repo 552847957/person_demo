@@ -49,7 +49,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " where NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
                 "     type=2 and registerid = t1.registerid and  create_date BETWEEN t1.remind_begin_date AND t1.remind_end_date and del_flag = '0')\n" +
                 " AND NOW() BETWEEN t1.remind_begin_date AND t1.remind_end_date AND t1.del_flag = '0' \n" +
-                " AND t3.identifytype = '1' " +
+                " AND t3.identifytype = '1' and t3.del_flag = '0'" +
                 " AND ((t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"')\n" +
                     " or t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
                 " %s %s\n" +
@@ -82,7 +82,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +
-                " where  t1.del_flag = '0' AND ((t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"')\n" +
+                " where  t1.del_flag = '0' and t3.del_flag = '0' AND ((t1.doctor_name = '"+doctorAccount.getName()+"' AND t1.hospital_code = '"+doctorInfo.getHospitalId()+"')\n" +
                 " or  t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"')\n" +
                 " order by  t1.report_date DESC"+
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);

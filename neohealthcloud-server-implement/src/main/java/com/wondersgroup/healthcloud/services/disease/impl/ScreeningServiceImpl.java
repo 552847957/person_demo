@@ -89,10 +89,9 @@ public class ScreeningServiceImpl implements ScreeningService {
                 " LEFT JOIN app_tb_register_address address on t2.registerid = address.registerid\n"+
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'"+
                 " where t1.result is not NULL AND NOT EXISTS(select * from app_tb_diabetes_assessment_remind where \n" +
-                "       type=1 and registerid = t1.uid and  DATEDIFF(create_date,t1.create_date) >= 0 and del_flag = '0')\n" +
-                " and ((t3.hyp_c_type - IFNULL(t3.hyp_type,0))>0 or (t3.diabetes_c_type - IFNULL(t3.diabetes_type,0))>0 or " +
-                "       (t3.apo_c_type - IFNULL(t3.apo_type,0)) >0)\n"+ //过滤掉仅仅是糖尿病高危，确是糖尿病在管的人群
-                " and t3.identifytype = '1'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
+                "       type=1 and registerid = t1.uid and  create_date >= t1.create_date and del_flag = '0')\n" +
+                " and t3.is_risk is not null and t3.is_risk = '1'\n"+
+                " and t3.identifytype = '1' and t3.del_flag = '0'  and ( t3.sign_doctor_personcard = '"+doctorInfo.getIdcard()+"' %s) " +
                 " %s %s\n" +
                 " order by group_type desc , t1.create_date DESC" +
                 " limit "+(pageNo-1)*pageSize+","+(pageSize+1);
