@@ -13,6 +13,7 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.ReportFollow;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
@@ -61,6 +62,12 @@ public class ScreeningServiceImpl implements ScreeningService {
 
     @Autowired
     private AssessmentRepository assessmentRepo;
+
+    @Autowired
+    private DoctorTubeSignUserRepository tubeSignUserRepo;
+
+    @Autowired
+    private RegisterInfoRepository registerInfoRepo;
 
     /**
      * 获取筛查列表数据
@@ -128,11 +135,13 @@ public class ScreeningServiceImpl implements ScreeningService {
         for(String registerid : registerIds){
             if(1 == type){
                 Assessment assessment = assessmentRepo.getRecentRiskAssess(registerid);
+                RegisterInfo registerInfo = registerInfoRepo.findOne(registerid);
+                DoctorTubeSignUser signUser = tubeSignUserRepo.queryInfoByCard(registerInfo.getPersoncard());
 
                 StringBuffer buffer = new StringBuffer();
-                if(assessment.getResult().contains("1"))buffer.append("糖尿病，");
-                if(assessment.getResult().contains("2"))buffer.append("高血压，");
-                if(assessment.getResult().contains("3"))buffer.append("脑卒中，");
+                if(assessment.getResult().contains("1") && (null == signUser.getDiabetesType() || "0".equals(signUser.getDiabetesType())))buffer.append("糖尿病，");
+                if(assessment.getResult().contains("2") && (null == signUser.getHypType() || "0".equals(signUser.getHypType())))buffer.append("高血压，");
+                if(assessment.getResult().contains("3") && (null == signUser.getApoType() || "0".equals(signUser.getApoType())))buffer.append("脑卒中，");
                 content = String.format("%s医生提醒您可能患有%s请尽快到所属社区卫生服务中心进行筛查。",account.getName(),
                         buffer.toString());
             }else{
