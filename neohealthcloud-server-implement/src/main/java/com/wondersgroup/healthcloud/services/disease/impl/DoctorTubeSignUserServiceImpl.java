@@ -286,6 +286,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
             if ("1".equals(doctorTubeSignUser.getSignStatus())) {
                 dto.setIfSigned(true);
+                dto.setSignStatus(true);
             }
         }
 
