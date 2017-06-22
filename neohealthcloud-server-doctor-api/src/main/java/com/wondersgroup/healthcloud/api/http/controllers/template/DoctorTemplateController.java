@@ -109,37 +109,37 @@ public class DoctorTemplateController {
 
         Integer count = doctorTemplateService.findDoctorTemplateCount(doctorId);
         if(count >= LIMIT_COUNT){
-            response.setData("添加失败,超过 "+LIMIT_COUNT+" 条");
+            response.setMsg("添加失败,超过 "+LIMIT_COUNT+" 条");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(doctorId)){
-            response.setData("添加失败,doctorId 不能为空 ");
+            response.setMsg("添加失败,doctorId 不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(title)){
-            response.setData("添加失败,title 不能为空 ");
+            response.setMsg("添加失败,title 不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(content)){
-            response.setData("添加失败, 内容不能为空 ");
+            response.setMsg("添加失败, 内容不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(title.length() > 15){
-            response.setData("添加失败,title 长度超过15个字符 ");
+            response.setMsg("添加失败,title 长度超过15个字符 ");
             response.setCode(-1);
             return response;
         }
 
         if(content.length() > 300){
-            response.setData("添加失败,title 内容长度超过300个字符 ");
+            response.setMsg("添加失败,title 内容长度超过300个字符 ");
             response.setCode(-1);
             return response;
         }
@@ -154,7 +154,7 @@ public class DoctorTemplateController {
         entity.setCreateTime(new Date());
 
         doctorTemplateService.saveTemplate(entity);
-        response.setData("添加成功");
+        response.setMsg("添加成功");
         response.setCode(0);
         return response;
     }
@@ -171,44 +171,44 @@ public class DoctorTemplateController {
 
 
         if(StringUtils.isBlank(id)){
-            response.setData("编辑失败,id 不能为空 ");
+            response.setMsg("编辑失败,id 不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(doctorId)){
-            response.setData("编辑失败,doctorId 不能为空 ");
+            response.setMsg("编辑失败,doctorId 不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(title)){
-            response.setData("编辑失败,title 不能为空 ");
+            response.setMsg("编辑失败,title 不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(StringUtils.isBlank(content)){
-            response.setData("编辑失败, 内容不能为空 ");
+            response.setMsg("编辑失败, 内容不能为空 ");
             response.setCode(-1);
             return response;
         }
 
         if(title.length() > 15){
-            response.setData("编辑失败,title 长度超过15个字符 ");
+            response.setMsg("编辑失败,title 长度超过15个字符 ");
             response.setCode(-1);
             return response;
         }
 
         if(content.length() > 300){
-            response.setData("编辑失败,title 内容长度超过300个字符 ");
+            response.setMsg("编辑失败,title 内容长度超过300个字符 ");
             response.setCode(-1);
             return response;
         }
 
         doctorTemplateService.update(id, doctorId, doctorTemplateType, title, content);
 
-        response.setData("编辑成功");
+        response.setMsg("编辑成功");
         response.setCode(0);
         return response;
     }
