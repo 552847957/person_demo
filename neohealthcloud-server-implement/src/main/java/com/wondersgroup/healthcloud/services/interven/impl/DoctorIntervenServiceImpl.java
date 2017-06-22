@@ -71,8 +71,8 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     public List<IntervenEntity> findTodoInterveneList(String name,String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
 
         DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
-        String sql = " select t1.register_id,t1.typelist,t3.`name`,t3.gender,t3.card_number as personcard,t2.identifytype," +
-                " t2.headphoto as avatar,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status, \n" +
+        String sql = " select t1.register_id,t1.typelist,t3.`name`,t3.gender,t3.card_number as personcard,t3.identifytype," +
+                " t3.avatar ,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status, \n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t3.id and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
                 " from ( " +
@@ -94,7 +94,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 "       or (t3.sign_doctor_personcard is null and h.hospital_id is not null) )" +
                 " %s %s" +
                 " order by %s group_type desc,t1.warn_date desc " +
-                " limit "+(pageNo)*pageSize+","+(pageSize);
+                " limit "+(pageNo)*pageSize+","+(pageSize+1);
         //内层查询要用正则把每个人的异常干预拼接起来
         StringBuffer REGEXPStr = new StringBuffer("");
         //在中间挑选参数的交集
@@ -151,7 +151,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                      " and del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
                      " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize+1);
         }else{
             sql = sql + " limit "+size;
         }
@@ -179,7 +179,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004'" +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+pageNo*pageSize+","+(pageSize);
+            sql = sql + " limit "+pageNo*pageSize+","+(pageSize+1);
         }else{
             sql = sql + " limit "+size;
         }
@@ -256,7 +256,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     @Override
     public List<IntervenEntity> findPersonalInterveneList(String uid, int pageNo, int pageSize) {
         String sql = " select di.patient_id as register_id,aa.typelist,u.`name`,u.card_number as personcard,u.gender,u.age,\n" +
-                     " info.identifytype,di.id,di.create_time as interventionDate,di.content\n" +
+                     " u.avatar,u.identifytype ,u.diabetes_type,u.hyp_type,u.apo_type,u.is_risk,u.sign_status,di.id,di.create_time as interventionDate,di.content\n" +
                      " from app_tb_doctor_intervention di\n" +
                      " inner join \n" +
                      " (select a.* from (\n" +
@@ -270,7 +270,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                      " LEFT  JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
                      " where di.del_flag = '0' and di.doctor_id = '%s'" +
                      " order by di.create_time desc" +
-                     " limit "+(pageNo)*pageSize+","+(pageSize);
+                     " limit "+(pageNo)*pageSize+","+(pageSize+1);
         sql = String.format(sql,uid);
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper(IntervenEntity.class));
     }
@@ -347,7 +347,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public IntervenEntity getUserDiseaseLabelByRegisterId(String registerId) {
-        String sql = " select a.registerid as register_id,b.`name`,b.gender,a.headphoto as avatar,b.card_number as personcard,b.identifytype,\n" +
+        String sql = " select a.registerid as register_id,b.`name`,b.gender,b.avatar as avatar,b.card_number as personcard,b.identifytype,\n" +
                 "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk\n" +
                 " from app_tb_register_info a \n" +
                 " join fam_doctor_tube_sign_user b on a.personcard = b.card_number and b.card_type = '01'\n" +

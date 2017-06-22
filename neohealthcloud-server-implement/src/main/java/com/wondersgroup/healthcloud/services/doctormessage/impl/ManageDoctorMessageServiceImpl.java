@@ -137,7 +137,7 @@ public class ManageDoctorMessageServiceImpl implements ManageDoctorMessageServic
 				" and a.msgType = '%s' and a.del_flag = '0' " +
 				" order by a.updateDate desc " +
 				" limit %d,%d";
-		sql = String.format(sql,uid,msgType,pageNo*pageSize,pageSize);
+		sql = String.format(sql,uid,msgType,pageNo*pageSize,pageSize+1);
 		return jdbcTemplate.query(sql, new BeanPropertyRowMapper(DoctorMessage.class));
 	}
 

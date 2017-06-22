@@ -64,7 +64,7 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,doctorId, sign, interven_type, pageNo, pageSize+1);
+        List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,doctorId, sign, interven_type, pageNo, pageSize);
 
         for (IntervenEntity intervenEntity : interventionList){
             if(toDoList.size()<pageSize){
@@ -105,7 +105,7 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<NeoFamIntervention> outlierList = doctorInterventionService.findBloodGlucoseOutlierListByRegisterId(registerId, is_all, pageNo, pageSize+1, Integer.valueOf(size)+1);
+        List<NeoFamIntervention> outlierList = doctorInterventionService.findBloodGlucoseOutlierListByRegisterId(registerId, is_all, pageNo, pageSize, Integer.valueOf(size)+1);
 
         for (NeoFamIntervention neoFamIntervention : outlierList){
             if(outlierDTOs.size()<pageSize){
@@ -150,7 +150,7 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<NeoFamIntervention> outlierList = doctorInterventionService.findpressureOutlierListByRegisterId(registerId, is_all, pageNo, pageSize+1, Integer.valueOf(size)+1);
+        List<NeoFamIntervention> outlierList = doctorInterventionService.findpressureOutlierListByRegisterId(registerId, is_all, pageNo, pageSize, Integer.valueOf(size)+1);
 
         for (NeoFamIntervention neoFamIntervention : outlierList){
             if(outlierDTOs.size()<pageSize){
@@ -187,7 +187,7 @@ public class InterventionController {
         String doctorId = reader.readString("doctorId", false);
         String patientId = reader.readString("patientId", false);
         String content = reader.readString("content", false);
-        String templateId = reader.readString("templateId", false);//模板Id
+        String templateId = reader.readString("templateId", true);//模板Id
 
         doctorInterventionService.intervenSaveOrUpdate(doctorId,patientId,content);
 

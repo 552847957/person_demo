@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.message.DoctorMessageDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -146,18 +147,30 @@ public class DoctorMessageController {
                                                             @RequestParam(required = true) String msg_type,
                                                             @RequestParam(defaultValue = "0") String flag) {
         int pageSize = 20;
+        Boolean more = false;
+        int pageNo = 0;
+        if(StringUtils.isNotBlank(flag)){
+            pageNo = Integer.valueOf(flag);
+        }
         JsonListResponseEntity<DoctorMessageDTO> response = new JsonListResponseEntity<>();
         List<DoctorMessageDTO> resultList = Lists.newArrayList();
         List<DoctorMessage> typeMsgList = manageDoctorMessageService.findMsgListByUidAndType(uid,msg_type,Integer.valueOf(flag),pageSize);
         for (DoctorMessage doctorMessage : typeMsgList){
-            DoctorMessageDTO doctorMessageDTO = new DoctorMessageDTO(doctorMessage);
-            doctorMessageDTO.setHasUnread(false);
-            resultList.add(doctorMessageDTO);
+            if(resultList.size()<pageSize){
+                DoctorMessageDTO doctorMessageDTO = new DoctorMessageDTO(doctorMessage);
+                doctorMessageDTO.setHasUnread(false);
+                resultList.add(doctorMessageDTO);
+            }
+
+        }
+        if(resultList.size()>pageSize){
+            more = true;
+            pageNo = pageNo+1;
         }
         //把医生下面所有这个类型的消息都设置为已读
         manageDoctorMessageService.setMsgIsReadByMsgType(uid,msg_type);
 
-        response.setContent(resultList, false, null, null);
+        response.setContent(resultList, more, null, String.valueOf(pageNo));
         return response;
     }
 
