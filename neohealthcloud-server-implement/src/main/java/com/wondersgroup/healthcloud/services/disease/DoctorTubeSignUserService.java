@@ -18,7 +18,7 @@ public interface DoctorTubeSignUserService {
 
     List<DoctorTubeSignUser> kwSearchList(String doctorId, String kw, int page, int pageSize);
 
-    long kwSearchCount(String kw);
+    long kwSearchCount(String doctorId, String kw);
 
     /**
      * 关键字搜索

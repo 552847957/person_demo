@@ -69,7 +69,7 @@ public class DoctorTubeSignUserTest {
     @Test
     public void kwSearchListTest() {
         List<DoctorTubeSignUser> kwSearchList = doctorTubeSignUserService.kwSearchList("", "方路", 1, 3);
-        long result = doctorTubeSignUserService.kwSearchCount("方路");
+        long result = doctorTubeSignUserService.kwSearchCount("","方路");
         logger.info(String.format("数据总条数:%d", result));
         for (DoctorTubeSignUser doctorTubeSignUser : kwSearchList) {
             logger.info(doctorTubeSignUser.toString());

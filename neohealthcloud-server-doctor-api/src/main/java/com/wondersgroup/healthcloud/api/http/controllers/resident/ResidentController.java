@@ -43,7 +43,7 @@ public class ResidentController {
         // 关键字搜索
         if (StringUtils.isNotBlank(kw)) {
             List<DoctorTubeSignUser> tubeList = doctorTubeSignUserService.kwSearchList(doctorId, kw, flag, pageSize);
-            int count = (int) doctorTubeSignUserService.kwSearchCount(kw);
+            int count = (int) doctorTubeSignUserService.kwSearchCount(doctorId,kw);
             int pages = 0;
             if (count % pageSize == 0) {
                 pages = count / pageSize;

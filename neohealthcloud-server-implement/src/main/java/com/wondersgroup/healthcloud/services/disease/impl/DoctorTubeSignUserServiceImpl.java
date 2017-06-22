@@ -157,17 +157,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     @Override
     public List<DoctorTubeSignUser> kwSearchList(String doctorId, String kw, int page, int pageSize) {
         // List<DoctorTubeSignUser> kwSearchList = doctorTubeSignUserRepository.searchByKw(kw, (page - 1) * pageSize, pageSize);
-        List<String> cardList = doctorService.getResidentListByArea(doctorId);
-        StringBuffer inSql = new StringBuffer("");
-        for (String s : cardList) {
-            inSql.append("'");
-            inSql.append(s);
-            inSql.append("',");
-        }
-        String inSqlStr = inSql.toString();
-        if (inSqlStr.length() > 1) {
-            inSqlStr = inSqlStr.substring(0, inSqlStr.length() - 1);
-        }
+        String inSqlStr = getInString(doctorId);
 
         // 根据医生id获取身份证号码
         DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
@@ -186,10 +176,38 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         return kwSearchList;
     }
 
+    private String getInString(String doctorId) {
+        List<String> cardList = doctorService.getResidentListByArea(doctorId);
+        StringBuffer inSql = new StringBuffer("");
+        for (String s : cardList) {
+            inSql.append("'");
+            inSql.append(s);
+            inSql.append("',");
+        }
+        String inSqlStr = inSql.toString();
+        if (inSqlStr.length() > 1) {
+            inSqlStr = inSqlStr.substring(0, inSqlStr.length() - 1);
+        }
+        return inSqlStr;
+    }
+
     @Override
-    public long kwSearchCount(String kw) {
-        String sql = "select count(f.id) from fam_doctor_tube_sign_user f where f.name like '%%%s%%' and del_flag = '0'";
-        sql = String.format(sql, kw);
+    public long kwSearchCount(String doctorId, String kw) {
+        String inSqlStr = getInString(doctorId);
+
+        // 根据医生id获取身份证号码
+        DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
+        String idCard = doctorInfo.getIdcard();
+        String sql = "select count(f.id) from fam_doctor_tube_sign_user f where del_flag = '0' " +
+                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) or f.card_number in (%s) )and f.name like '%%%s%%' order by \n" +
+                "(case\n" +
+                "when f.name = '%s' then 1 \n" +
+                "when f.name like '%s%%' then 2\n" +
+                "when f.name like '%%%s' then 3\n" +
+                "when f.name like '%%%s%%' then 4  \n" +
+                "else 0\n" +
+                "end )";
+        sql = String.format(sql, idCard, idCard, inSqlStr, kw, kw, kw, kw, kw);
         long result = jdbcTemplate.queryForObject(sql, new Object[]{}, Long.class);
         return result;
     }
