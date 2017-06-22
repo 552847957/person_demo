@@ -61,18 +61,19 @@ public class SignServiceImpl implements SignService {
             sql.append(" AND LOCATE('" + name + "', a.name) > 0");
         }
         // 慢病种类搜索
+        String apo = null, diabetes = null, hyp = null;
         if (StringUtils.isNotEmpty(diseaseType)) {
             String[] diseaseArray = diseaseType.split(",");
             for (String s : diseaseArray) {
                 switch (s) {
                     case DiseaseTypeConstant.APO:
-                        sql.append(" AND a.apo_type <> '0'");
+                        apo = "1";
                         break;
                     case DiseaseTypeConstant.DIABETES:
-                        sql.append(" AND a.diabetes_type <> '0'");
+                        diabetes = "1";
                         break;
                     case DiseaseTypeConstant.HYP:
-                        sql.append(" AND a.hyp_type <> '0'");
+                        hyp = "1";
                         break;
                 }
             }
@@ -82,13 +83,37 @@ public class SignServiceImpl implements SignService {
             switch (peopleType) {
                 case PeopleTypeConstant.RISK:// 高危人群
                     sql.append(" AND a.is_risk = '1'");
+                    if ("1".equals(apo))
+                        sql.append(" AND a.apo_c_type = 1");
+                    if ("1".equals(diabetes))
+                        sql.append(" AND a.diabetes_c_type = 1");
+                    if ("1".equals(hyp))
+                        sql.append(" AND a.hyp_c_type = 1");
                     break;
                 case PeopleTypeConstant.DISEASE:// 疾病人群
-                    sql.append(" AND (a.apo_type <> '0' OR a.diabetes_type <> '0' OR a.hyp_type <> '0')");
+                    if (apo == null && diabetes == null && hyp == null) {
+                        sql.append(" AND (a.apo_type = '1' OR a.diabetes_type = '1' OR a.hyp_type = '1')");
+                    } else {
+                        if ("1".equals(apo))
+                            sql.append(" AND a.apo_type = '1'");
+                        if ("1".equals(diabetes))
+                            sql.append(" AND a.diabetes_type = '1'");
+                        if ("1".equals(hyp))
+                            sql.append(" AND a.hyp_type = '1'");
+                    }
                     break;
                 case PeopleTypeConstant.HEALTHY:// 健康人群
-                    sql.append(" AND a.apo_type = '0' AND a.diabetes_type = '0' AND a.hyp_type = '0' AND a.is_risk = '0'");
+                    sql.append(" AND a.apo_type <> '1' AND a.diabetes_type <> '1' AND a.hyp_type <> '1' AND a.is_risk <> '1'");
                     break;
+            }
+        } else {
+            if (apo != null || diabetes != null || hyp != null) {
+                if ("1".equals(apo))
+                    sql.append(" AND (a.apo_type = '1' OR a.apo_c_type = 1)");
+                if ("1".equals(diabetes))
+                    sql.append(" AND (a.diabetes_type = '1' OR a.diabetes_c_type = 1)");
+                if ("1".equals(hyp))
+                    sql.append(" AND (a.hyp_type = '1' OR a.hyp_c_type = 1)");
             }
         }
 
