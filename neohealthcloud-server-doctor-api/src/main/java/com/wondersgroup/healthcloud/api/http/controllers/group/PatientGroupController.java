@@ -210,6 +210,7 @@ public class PatientGroupController {
         }
 
         String userId = object.getString("uid");
+        String doctorId=object.getString("doctorId");
         JSONArray json = object.getJSONArray("ids");
         List<String> groupIds = null;
         if (json.size() > 0) {
@@ -220,7 +221,7 @@ public class PatientGroupController {
             }
         }
         try {
-            patientGroupService.addUserToGroup(groupIds, userId);
+            patientGroupService.addUserToGroup(groupIds, userId,doctorId);
             entity.setCode(0);
             entity.setMsg("用户分组成功");
         } catch (Exception e) {
