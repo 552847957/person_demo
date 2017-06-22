@@ -26,7 +26,7 @@ public class FollowRemindMineDto extends BaseResidentDto {
     private String followDate;//随访开始时间
     private String followDetailUrl;//随访详情
 
-    public FollowRemindMineDto(Map<String, Object> map,String doctorId,String baseUrl) {
+    public FollowRemindMineDto(Map<String, Object> map,String doctorCard,String baseUrl) {
 
         this.setRegisterId(map.get("registerid").toString());
         this.setAge(null == map.get("age")?null:Integer.parseInt(map.get("age").toString()));
@@ -39,7 +39,7 @@ public class FollowRemindMineDto extends BaseResidentDto {
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
         if(null != map.get("sign_status") && "1".equals(map.get("sign_status").toString()) &&
-                null != map.get("sign_doctor_personcard") && doctorId.equals(map.get("sign_doctor_personcard").toString())){
+                null != map.get("sign_doctor_personcard") && doctorCard.equals(map.get("sign_doctor_personcard").toString())){
             this.setSignStatus(true);
         }else{
             this.setSignStatus(false);

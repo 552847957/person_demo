@@ -40,12 +40,6 @@ public class FollowRemindController {
     private FollowRemindService followRemindService;
 
     @Autowired
-    private RegisterInfoRepository registerInfoRepo;
-
-    @Autowired
-    private UserInfoRepository userInfoRepo;
-
-    @Autowired
     private ScreeningService screeningService;
 
     @Autowired
@@ -89,7 +83,7 @@ public class FollowRemindController {
 
         List<FollowRemindDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new FollowRemindDto(map,doctorId));
+            entityList.add(new FollowRemindDto(map,doctorInfo.getIdcard()));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
@@ -126,7 +120,7 @@ public class FollowRemindController {
 
         List<FollowRemindMineDto> entityList = Lists.newArrayList();
         for(Map<String,Object> map : list)
-            entityList.add(new FollowRemindMineDto(map,doctorId,diseaseUrl));
+            entityList.add(new FollowRemindMineDto(map,doctorInfo.getIdcard(),diseaseUrl));
 
         response.setContent(entityList,hasMore,null,flag.toString());
         return response;
