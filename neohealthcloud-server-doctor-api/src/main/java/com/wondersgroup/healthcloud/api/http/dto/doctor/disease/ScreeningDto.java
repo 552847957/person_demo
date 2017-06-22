@@ -14,6 +14,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -49,16 +50,14 @@ public class ScreeningDto extends BaseResidentDto {
             return "年龄="+assessment.getAge();
         }
 
-        Double bmi = Double.valueOf(assessment.getWeight()/Math.pow((assessment.getHeight()/100), 2));
-        if(bmi>=24&&bmi<28){
-            return "超重";
-        }
-        if(bmi>=28){
-            return "肥胖";
+        Double bmi = Double.valueOf(new DecimalFormat("##.00").
+                format(Double.valueOf(assessment.getWeight())/Math.pow((Double.valueOf(assessment.getHeight())/100), 2)));
+        if(bmi>=24){
+            return "超重/肥胖";
         }
 
-        if ((this.getGender().equals(AssessmentConstrains.GENDER_MAN) && assessment.getWaist() >= 90 )||
-                (this.getGender().equals(AssessmentConstrains.GENDER_WOMAN) && assessment.getWaist() >= 85 )) {
+        if (null != assessment.getWaist() && ((assessment.getGender().equals(AssessmentConstrains.GENDER_MAN) && assessment.getWaist() >= 90 )||
+                (assessment.getGender().equals(AssessmentConstrains.GENDER_WOMAN) && assessment.getWaist() >= 85 ))) {
             return "中心行肥胖";
         }
         if(!"0".equals(assessment.getDiabetesRelatives())){
