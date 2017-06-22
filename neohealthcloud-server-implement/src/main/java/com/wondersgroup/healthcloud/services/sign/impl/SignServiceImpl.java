@@ -81,13 +81,13 @@ public class SignServiceImpl implements SignService {
         if (StringUtils.isNotBlank(peopleType)) {
             switch (peopleType) {
                 case PeopleTypeConstant.RISK:// 高危人群
-                    sql.append(" AND a.is_risk <> '0'");
+                    sql.append(" AND a.is_risk = '1'");
                     break;
                 case PeopleTypeConstant.DISEASE:// 疾病人群
                     sql.append(" AND (a.apo_type <> '0' OR a.diabetes_type <> '0' OR a.hyp_type <> '0')");
                     break;
                 case PeopleTypeConstant.HEALTHY:// 健康人群
-                    sql.append(" AND a.apo_type = '0' AND a.diabetes_type = '0' AND a.hyp_type = '0'");
+                    sql.append(" AND a.apo_type = '0' AND a.diabetes_type = '0' AND a.hyp_type = '0' AND a.is_risk = '0'");
                     break;
             }
         }
