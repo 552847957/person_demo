@@ -21,8 +21,8 @@ public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoc
     @Query(nativeQuery = true, value = "update app_tb_sign_user_doctor_group t set t.del_flag=?1,t.update_time=NOW() where t.group_id=?2")
     void updateDoctorGroup(String delFlag, Integer groupId);
     
-    @Query(nativeQuery = true, value = "SELECT t.group_id FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.del_flag=?2")
-    List<Integer> getGroupIdsByUserId(String userId, String delFlag);
+    @Query(nativeQuery = true, value = "SELECT t.group_id FROM app_tb_sign_user_doctor_group t INNER JOIN app_tb_patient_group p ON p.id=t.group_id WHERE t.user_id=?1 AND p.doctor_id=?2 AND t.del_flag='0' AND p.del_flag='0'")
+    List<Integer> getGroupIdsByUserId(String userId, String doctorId);
 
     @Query(nativeQuery = true, value = "SELECT count(1) FROM app_tb_sign_user_doctor_group t WHERE t.group_id=?1 AND t.del_flag='0'")
     int getNumByGroupId(Integer groupId);

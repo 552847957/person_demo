@@ -140,9 +140,9 @@ public class PatientGroupServiceImpl implements PatientGroupService{
 
     @Transactional
     @Override
-    public void addUserToGroup(List<String> groupIds, String userId) {
+    public void addUserToGroup(List<String> groupIds, String userId,String doctorId) {
         //已分组的id
-        List<Integer> list = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,notDelFlag);
+        List<Integer> list = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,doctorId);
         //传入的分组id
         List<Integer> list2 = null;
         if(CollectionUtils.isNotEmpty(groupIds)){
@@ -160,7 +160,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
             }
         }
         if(CollectionUtils.isNotEmpty(list2)){
-            List<Integer> reList = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,notDelFlag);
+            List<Integer> reList = signUserDoctorGroupRepository.getGroupIdsByUserId(userId,doctorId);
             list2.removeAll(reList);
             for(Integer groupId:list2){
                 SignUserDoctorGroup userDoctorGroup = signUserDoctorGroupRepository.getIsSelectedByGroupIdAndUserId(userId, groupId, delFlag);
