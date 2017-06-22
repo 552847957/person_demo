@@ -89,11 +89,12 @@ public class PatientGroupController {
     @VersionRange
     @GetMapping(value = "/patientList")
     public JsonListResponseEntity<ResidentInfoDto> patientList(@RequestParam(value = "groupId", required = true) Integer groupId,
+                                                               @RequestParam(required = true) String doctorId,
                                                                @RequestParam(value = "page", defaultValue = "1") Integer page,
                                                                @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
         JsonListResponseEntity listResponseEntity = new JsonListResponseEntity();
         Page<DoctorTubeSignUser> pageData = doctorTubeSignUserService.queryByGroupId(groupId, page, pageSize);
-        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(null, pageData);
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(doctorId, pageData);
 
         if (dtoList.size() > 0) {
             for (ResidentInfoDto residentInfoDto : dtoList) {

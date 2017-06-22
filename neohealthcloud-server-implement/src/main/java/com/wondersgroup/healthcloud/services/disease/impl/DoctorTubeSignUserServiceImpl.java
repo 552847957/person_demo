@@ -282,12 +282,6 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 dto.setIsRisk(true);
             }
         }
-        // 是否签约
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
-            if ("1".equals(doctorTubeSignUser.getSignStatus())) {
-                dto.setSignStatus(true);
-            }
-        }
 
         // 是否实名
         if (StringUtils.isNotBlank(doctorTubeSignUser.getIdentifytype())) {
@@ -335,7 +329,24 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
             } else {
                 dto.setIfGrouped(false);
             }
-        }
+            // 是否签约
+            if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
+                if ("1".equals(doctorTubeSignUser.getSignStatus())) {
+                    // 判断是否属于该医生的签约
+                    // 根据医生id获取身份证号码
+                    DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
+                    String idCard = doctorInfo.getIdcard();
+                    if (StringUtils.isNotBlank(doctorTubeSignUser.getSignDoctorPersoncard())){
+                        // 该签约用户的签约医生身份证和当前查询的医生身份证一致,说明是该医生的签约用户,打上"签"标签
+                        if(doctorTubeSignUser.getSignDoctorPersoncard().equals(idCard)){
+                            dto.setSignStatus(true);
+                        }// end if
+                    }// end if
+                }
+            }
+        }// end if 判断医生Id是否存在
+
+
         return dto;
     }
 
