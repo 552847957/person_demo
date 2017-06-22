@@ -145,13 +145,13 @@ public class DoctorTemplateServiceImpl implements DoctorTemplateService {
 
     @Override
     public Integer findDoctorTemplateCount(String doctorId) {
-        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and def_flag = '0' ", Integer.class);
+        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and a.del_flag = '0' ", Integer.class);
         return count;
     }
 
     @Override
     public Integer findDefaultDoctorTemplateCount(String doctorId, String type) {
-        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and type  = '" + type + "' ", Integer.class);
+        Integer count = template.queryForObject("select count(1) from app_tb_doctor_template as a where a.doctor_id = '" + doctorId + "' and a.type  = '" + type + "' ", Integer.class);
         return count;
     }
 
