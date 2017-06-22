@@ -6,7 +6,6 @@ import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
-import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
@@ -114,48 +113,46 @@ public class SignServiceImpl implements SignService {
         return null;
     }
 
-    private SignDTO copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
+    private SignDTO copyResidentInfo(DoctorTubeSignUser dtsu) {
         SignDTO dto = new SignDTO();
-        BeanUtils.copyProperties(doctorTubeSignUser, dto);
-        dto.setRegisterId(doctorTubeSignUser.getId());
+        BeanUtils.copyProperties(dtsu, dto);
+        dto.setRegisterId(dtsu.getId());
 
         // 高糖脑危标签设置
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getHypType())) {
-            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getHypType())) {
+        if (StringUtils.isNotBlank(dtsu.getHypType())) {
+            if (!ResidentConstant.NORMAL.equals(dtsu.getHypType())) {
                 dto.setHypType(true);
             }
         }
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getDiabetesType())) {
-            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getDiabetesType())) {
+        if (StringUtils.isNotBlank(dtsu.getDiabetesType())) {
+            if (!ResidentConstant.NORMAL.equals(dtsu.getDiabetesType())) {
                 dto.setDiabetesType(true);
             }
         }
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getApoType())) {
-            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getApoType())) {
+        if (StringUtils.isNotBlank(dtsu.getApoType())) {
+            if (!ResidentConstant.NORMAL.equals(dtsu.getApoType())) {
                 dto.setApoType(true);
             }
         }
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getIsRisk())) {
-            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getIsRisk())) {
-                dto.setIsRisk(true);
-            }
+        if ("1".equals(dtsu.getIsRisk())) {
+            dto.setIsRisk(true);
         }
         // 是否签约
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getSignStatus())) {
-            if (ResidentConstant.IDENTIFIED.equals(doctorTubeSignUser.getSignStatus())) {
+        if (StringUtils.isNotBlank(dtsu.getSignStatus())) {
+            if (ResidentConstant.IDENTIFIED.equals(dtsu.getSignStatus())) {
                 dto.setSignStatus(true);
             }
         }
 
         // 是否实名
-        if (StringUtils.isNotBlank(doctorTubeSignUser.getIdentifytype())) {
-            if (!ResidentConstant.NORMAL.equals(doctorTubeSignUser.getIdentifytype())) {
+        if (StringUtils.isNotBlank(dtsu.getIdentifytype())) {
+            if (!ResidentConstant.NORMAL.equals(dtsu.getIdentifytype())) {
                 dto.setIdentifyType(true);
             }
         }
 
         // 设置地址信息
-        Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(doctorTubeSignUser.getCardNumber());
+        Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(dtsu.getCardNumber());
         if (address != null) {
             String adr = String.format("%s%s%s%s%s%s",
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
@@ -167,7 +164,7 @@ public class SignServiceImpl implements SignService {
             dto.setAddress(adr);
         }
         // 是否分组
-        SignUserDoctorGroup signUserDoctorGroup = sudgRepo.queryFirst1ByDelFlagAndUid(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
+        SignUserDoctorGroup signUserDoctorGroup = sudgRepo.queryFirst1ByDelFlagAndUid(CommonConstant.USED_DEL_FLAG, dtsu.getId());
         if (signUserDoctorGroup != null) {
             dto.setIfGrouped(true);
         } else {
