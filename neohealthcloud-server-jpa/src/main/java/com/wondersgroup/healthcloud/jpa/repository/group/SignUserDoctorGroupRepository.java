@@ -33,4 +33,10 @@ public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoc
     List<SignUserDoctorGroup> queryByDelFlagAndGroupIdOrderByCreateTimeAsc(String delFlag, Integer groupId);
 
     SignUserDoctorGroup queryFirst1ByDelFlagAndUid(String delFlag, String uid);
+
+    @Query(nativeQuery = true,value = "select u.* from app_tb_patient_group g inner join app_tb_sign_user_doctor_group u \n" +
+            " on g.id = u.group_id " +
+            " where u.del_flag = 0 and g.del_flag = 0 and " +
+            " g.doctor_id = ?1 and u.user_id = ?2 limit 1")
+    SignUserDoctorGroup queryByDoctorIdUid(String doctorId,String uId);
 }

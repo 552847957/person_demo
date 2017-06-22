@@ -93,7 +93,7 @@ public class PatientGroupController {
                                                                @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
         JsonListResponseEntity listResponseEntity = new JsonListResponseEntity();
         Page<DoctorTubeSignUser> pageData = doctorTubeSignUserService.queryByGroupId(groupId, page, pageSize);
-        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(pageData);
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(null, pageData);
 
         if (dtoList.size() > 0) {
             for (ResidentInfoDto residentInfoDto : dtoList) {

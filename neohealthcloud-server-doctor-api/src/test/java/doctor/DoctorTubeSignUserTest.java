@@ -59,7 +59,7 @@ public class DoctorTubeSignUserTest {
         List<DoctorTubeSignUser> list = page.getContent();
         logger.info(String.format("共查询到%d条数据", list.size()));
 
-        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(page);
+        List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList("",page);
         for (ResidentInfoDto infoDto : dtoList) {
             logger.info(infoDto.toString());
         }

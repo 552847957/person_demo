@@ -38,8 +38,8 @@ public interface DoctorTubeSignUserService {
 
     Page<DoctorTubeSignUser> queryByGroupId(Integer groupId, int page, int pageSize);
 
-    List<ResidentInfoDto> pageDataToDtoList(Page<DoctorTubeSignUser> pageData);
+    List<ResidentInfoDto> pageDataToDtoList(String doctorId, Page<DoctorTubeSignUser> pageData);
 
-    List<ResidentInfoDto> dbListToDtoList(List<DoctorTubeSignUser> dbList);
+    List<ResidentInfoDto> dbListToDtoList(String doctorId, List<DoctorTubeSignUser> dbList);
 
 }

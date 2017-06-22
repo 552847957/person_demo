@@ -55,13 +55,13 @@ public class ResidentController {
             if (pages > flag) {
                 more = true;
             }
-            response.setContent(doctorTubeSignUserService.dbListToDtoList(tubeList), more, null, "" + ++flag);
+            response.setContent(doctorTubeSignUserService.dbListToDtoList(doctorId,tubeList), more, null, "" + ++flag);
             return response;
         } else {
             pageData = doctorTubeSignUserService.search(residentCondition);
         }
 
-        List<ResidentInfoDto> listData = doctorTubeSignUserService.pageDataToDtoList(pageData);
+        List<ResidentInfoDto> listData = doctorTubeSignUserService.pageDataToDtoList(doctorId, pageData);
 
         if (listData.size() > 0) {
             boolean more = false;

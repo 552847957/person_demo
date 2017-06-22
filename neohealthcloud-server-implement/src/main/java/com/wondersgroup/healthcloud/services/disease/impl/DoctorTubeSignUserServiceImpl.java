@@ -227,7 +227,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }
 
     @Override
-    public List<ResidentInfoDto> pageDataToDtoList(Page<DoctorTubeSignUser> pageData) {
+    public List<ResidentInfoDto> pageDataToDtoList(String doctorId, Page<DoctorTubeSignUser> pageData) {
         List<ResidentInfoDto> dtoList = Lists.newArrayList();
 
         if (pageData != null && pageData.getContent() != null) {
@@ -236,7 +236,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
             if (tubeSignUserList.size() > 0) {
 
                 for (DoctorTubeSignUser doctorTubeSignUser : tubeSignUserList) {
-                    ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+                    ResidentInfoDto dto = copyResidentInfo(doctorId, doctorTubeSignUser);
                     dtoList.add(dto);
                 }
             }// end if
@@ -245,11 +245,11 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }
 
     @Override
-    public List<ResidentInfoDto> dbListToDtoList(List<DoctorTubeSignUser> dbList) {
+    public List<ResidentInfoDto> dbListToDtoList(String doctorId, List<DoctorTubeSignUser> dbList) {
         List<ResidentInfoDto> dtoList = Lists.newArrayList();
         if (dbList != null && dbList.size() > 0) {
             for (DoctorTubeSignUser doctorTubeSignUser : dbList) {
-                ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+                ResidentInfoDto dto = copyResidentInfo(doctorId, doctorTubeSignUser);
                 dtoList.add(dto);
             }
         }// end if
@@ -315,6 +315,27 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
             dto.setIfGrouped(false);
         }
 
+        return dto;
+    }
+
+    /**
+     * 是否分组,需要限制医生id
+     * @param doctorId
+     * @param doctorTubeSignUser
+     * @return
+     */
+    private ResidentInfoDto copyResidentInfo(String doctorId, DoctorTubeSignUser doctorTubeSignUser) {
+        ResidentInfoDto dto = copyResidentInfo(doctorTubeSignUser);
+        // 分组重新查询
+        if (StringUtils.isNotBlank(doctorId)) {
+            // 是否分组
+            SignUserDoctorGroup signUserDoctorGroup = signUserDoctorGroupRepository.queryByDoctorIdUid(doctorId, doctorTubeSignUser.getId());
+            if (signUserDoctorGroup != null) {
+                dto.setIfGrouped(true);
+            } else {
+                dto.setIfGrouped(false);
+            }
+        }
         return dto;
     }
 
