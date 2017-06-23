@@ -345,7 +345,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     @Override
     public IntervenEntity getUserDiseaseLabelByRegisterId(String registerId) {
         String sql = " select a.registerid as register_id,b.`name`,b.gender,b.avatar as avatar,b.card_number as personcard,b.identifytype,\n" +
-                "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk\n" +
+                "       b.diabetes_type,b.hyp_type,b.apo_type,b.is_risk,b.sign_status \n" +
                 " from app_tb_register_info a \n" +
                 " join fam_doctor_tube_sign_user b on a.personcard = b.card_number and b.card_type = '01'\n" +
                 " where a.registerid = '%s' order by b.update_date desc \n" +
