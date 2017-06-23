@@ -39,7 +39,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
     @Override
     public List<Map<String, Object>> findFollow(Integer pageNo, int pageSize, Integer signStatus, String diseaseType, DoctorInfo doctorInfo,DoctorAccount doctorAccount) {
         String sql = "select t1.follow_date,t1.remind_end_date,t2.registerid," +
-                " t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status,t3.sign_doctor_personcard,\n" +
+                " t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status,\n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where del_flag = '0' and user_id = t3.id and group_id in \n" +
                 "   (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from app_tb_report_follow t1\n" +
@@ -77,7 +77,7 @@ public class FollowRemindServiceImpl implements FollowRemindService{
     @Override
     public List<Map<String, Object>> findMineFollow(Integer pageNo, int pageSize, DoctorInfo doctorInfo, DoctorAccount doctorAccount) {
         String sql = "select t1.report_date,t2.name,t2.registerid," +
-                "t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status,t3.sign_doctor_personcard\n" +
+                "t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status\n" +
                 " from app_tb_report_follow t1\n" +
                 " JOIN app_tb_register_info t2 on t1.registerid = t2.registerid\n" +
                 " LEFT JOIN fam_doctor_tube_sign_user t3 ON t2.personcard = t3.card_number and t3.card_type = '01'\n" +

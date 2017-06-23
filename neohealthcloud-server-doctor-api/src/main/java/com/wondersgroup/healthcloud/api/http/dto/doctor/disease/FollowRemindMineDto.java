@@ -38,12 +38,8 @@ public class FollowRemindMineDto extends BaseResidentDto {
         this.setDiabetesType(null == map.get("diabetes_type") || "0".equals(map.get("diabetes_type").toString()) ?false:true);
         this.setHypType(null == map.get("hyp_type") || "0".equals(map.get("hyp_type").toString()) ?false:true);
         this.setApoType(null == map.get("apo_type") || "0".equals(map.get("apo_type").toString()) ?false:true);
-        if(null != map.get("sign_status") && "1".equals(map.get("sign_status").toString()) &&
-                null != map.get("sign_doctor_personcard") && doctorCard.equals(map.get("sign_doctor_personcard").toString())){
-            this.setSignStatus(true);
-        }else{
-            this.setSignStatus(false);
-        }
+        this.setSignStatus(null == map.get("sign_status") || "0".equals(map.get("sign_status").toString()) ?false:true);
+
         if(null != map.get("report_date")){
             this.followDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S").parseDateTime(map.get("report_date").toString()).toString("yyyy-MM-dd");
         }
