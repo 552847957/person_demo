@@ -67,17 +67,20 @@ public class InterventionController {
         int pageSize = 20;
         List<IntervenEntity> interventionList = doctorInterventionService.findTodoInterveneList(name,doctorId, sign, interven_type, pageNo, pageSize);
 
-        for (IntervenEntity intervenEntity : interventionList){
-            if(toDoList.size()<pageSize){
-                PersonDTO  personDTO = new PersonDTO(intervenEntity);
-                toDoList.add(personDTO);
+        if(interventionList!=null){
+            for (IntervenEntity intervenEntity : interventionList){
+                if(toDoList.size()<pageSize){
+                    PersonDTO  personDTO = new PersonDTO(intervenEntity);
+                    toDoList.add(personDTO);
+                }
+            }
+
+            if(interventionList.size()>pageSize){
+                more = true;
+                flag = String.valueOf(pageNo + 1);
             }
         }
 
-        if(interventionList.size()>pageSize){
-            more = true;
-            flag = String.valueOf(pageNo + 1);
-        }
         response.setContent(toDoList, more, null, flag);
 
         return response;

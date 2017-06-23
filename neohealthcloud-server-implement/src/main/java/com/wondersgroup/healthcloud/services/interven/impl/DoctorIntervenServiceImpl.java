@@ -71,13 +71,16 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
     public List<IntervenEntity> findTodoInterveneList(String name,String uid, String signStatus, String interven_type, int pageNo, int pageSize) {
 
         DoctorInfo doctorInfo = doctorInfoRepository.findById(uid);
+        if(doctorInfo==null){
+            return null;
+        }
         String sql = " select t1.register_id,t1.typelist,t3.`name`,t3.gender,t3.card_number as personcard,t3.identifytype," +
                 " t3.avatar ,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.is_risk,t3.sign_status, \n" +
                 " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t3.id and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '%s'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type \n" +
                 " from ( " +
                 " select a.* from (\n" +
-                " select register_id,warn_date,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
+                " select register_id,max(warn_date) as warn_date,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
                 " where type!='30000' and type!='41000' and del_flag='0' and is_deal ='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) group by register_id) a\n" +
                 " INNER JOIN\n" +
                 " (select register_id from neo_fam_intervention \n" +
