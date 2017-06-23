@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -56,8 +57,8 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         if(StringUtils.trim(name)==null||"".equals(StringUtils.trim(name))){
             throw new CommonException(1042,"分组名称不支持空白");
         }
-        if(StringUtils.isNotBlank(name)&&name.length()>12){
-            throw new CommonException(1048,"分组名称长度不能超过12个字符");
+        if(StringUtils.isNotBlank(name)&&String_length(name)>24){
+            throw new CommonException(1048,"分组名称长度不能超过24个字符");
         }
         if(EmojiUtils.containsEmoji(name)){
             throw new CommonException(1043, "分组名称不支持表情符号") ;
@@ -170,6 +171,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
                     signUserDoctorGroup.setUid(userId);
                     signUserDoctorGroup.setDelFlag("0");
                     signUserDoctorGroup.setCreateTime(new Date());
+                    signUserDoctorGroup.setUpdateTime(signUserDoctorGroup.getCreateTime());
                     signUserDoctorGroupRepository.saveAndFlush(signUserDoctorGroup);
                 }
             }
@@ -206,16 +208,6 @@ public class PatientGroupServiceImpl implements PatientGroupService{
         list.addAll(newList);
     }
 
-    public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
-        list.add("23");
-        list.add("8");
-        list.add("50");
-        list.add("23");
-        removeDuplicateWithOrder(list);
-        System.out.println(list);
-    }
-
     /**
      * List<String> to List<Integer>
      * @param inList
@@ -231,5 +223,22 @@ public class PatientGroupServiceImpl implements PatientGroupService{
                   } ,iList );
         return iList;
     }
-    
+    /**
+     * java中判断字段真实长度(按UTF-8编码中文3个字符)
+     * @param value
+     * @return
+     */
+    public static int String_length(String value) {
+        int valueLength = 0;
+        String chinese = "[\u4e00-\u9fa5]";
+        for (int i = 0; i < value.length(); i++) {
+         String temp = value.substring(i, i + 1);
+         if (temp.matches(chinese)) {
+          valueLength += 3;
+         } else {
+          valueLength += 1;
+         }
+        }
+        return valueLength;
+       }
 }
