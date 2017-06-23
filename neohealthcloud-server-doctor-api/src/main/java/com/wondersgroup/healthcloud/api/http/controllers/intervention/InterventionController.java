@@ -109,10 +109,14 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
+        int allSize = Integer.valueOf(size);
+        if(is_all){
+            allSize = pageSize;
+        }
         List<NeoFamIntervention> outlierList = doctorInterventionService.findBloodGlucoseOutlierListByRegisterId(registerId, is_all, pageNo, pageSize, Integer.valueOf(size)+1);
 
         for (NeoFamIntervention neoFamIntervention : outlierList){
-            if(outlierDTOs.size()<pageSize){
+            if(outlierDTOs.size()<allSize){
                 OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
                 outlierDTO.setFlag(outlierDTO.getFlag());
                 outlierDTOs.add(outlierDTO);
@@ -123,7 +127,7 @@ public class InterventionController {
             flag = String.valueOf(pageNo + 1);
         }else if(!is_all && outlierList.size()> Integer.valueOf(size)){
             more = true;
-            flag = String.valueOf(pageNo + 1);
+            flag = String.valueOf(pageNo);
         }
 
         response.setContent(outlierDTOs, more, null, flag);
@@ -154,10 +158,14 @@ public class InterventionController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
+        int allSize = Integer.valueOf(size);
+        if(is_all){
+            allSize = pageSize;
+        }
         List<NeoFamIntervention> outlierList = doctorInterventionService.findpressureOutlierListByRegisterId(registerId, is_all, pageNo, pageSize, Integer.valueOf(size)+1);
 
         for (NeoFamIntervention neoFamIntervention : outlierList){
-            if(outlierDTOs.size()<pageSize){
+            if(outlierDTOs.size()<allSize){
                 OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
                 outlierDTO.setSystolicFlag(String.valueOf(outlierDTO.getSystolicFlag()));
                 outlierDTO.setDiastolicFlag(String.valueOf(outlierDTO.getDiastolicFlag()));

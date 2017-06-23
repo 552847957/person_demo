@@ -576,6 +576,7 @@ public class UserController {
 
         //如果包含表情则返回错误
         if(StringUtils.isNotBlank(other)){
+            other = other.trim();
             String cleanName = EmojiUtils.cleanEmoji(other);
             if (other.length() > cleanName.length()) {
                 body.setCode(1090);
