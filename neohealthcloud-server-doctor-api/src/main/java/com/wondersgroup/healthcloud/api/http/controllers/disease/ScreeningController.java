@@ -102,8 +102,8 @@ public class ScreeningController {
 
         List<String> registerIds = remindRepo.findScreeningByRegisterId(ids.split(","),1);
         if(0 == registerIds.size()){
-            entity.setCode(1001);
-//            entity.setMsg("该用户当日已经被提醒");
+//            entity.setCode(1001);
+            entity.setMsg("提醒发送成功");
             return entity;
         }
 
