@@ -42,4 +42,11 @@ public interface DoctorTubeSignUserService {
 
     List<ResidentInfoDto> dbListToDtoList(String doctorId, List<DoctorTubeSignUser> dbList);
 
+    /**
+     * 患者按加入分组时间正序排序，最新加入的排在后面
+     * @param residentInfoDtoList
+     * @param groupId
+     */
+    List<ResidentInfoDto> sortTheGroupedResidents(List<ResidentInfoDto> residentInfoDtoList, Integer groupId);
+
 }

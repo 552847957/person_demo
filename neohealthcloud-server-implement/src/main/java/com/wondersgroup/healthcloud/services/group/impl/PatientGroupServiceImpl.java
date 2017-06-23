@@ -1,8 +1,6 @@
 package com.wondersgroup.healthcloud.services.group.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.jpa.constant.CommonConstant;
@@ -187,7 +185,35 @@ public class PatientGroupServiceImpl implements PatientGroupService{
                 userIdList.add(signUserDoctorGroup.getUid());
             }
         }
+        removeDuplicateWithOrder(userIdList);
         return userIdList;
+    }
+
+    /**
+     * 去除List中重复的元素
+     * @param list
+     * @return
+     */
+    public static void removeDuplicateWithOrder(List list) {
+        Set set = new HashSet();
+        List newList = new ArrayList();
+        for (Iterator iter = list.iterator(); iter.hasNext(); ) {
+            Object element = iter.next();
+            if (set.add(element))
+                newList.add(element);
+        }
+        list.clear();
+        list.addAll(newList);
+    }
+
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+        list.add("23");
+        list.add("8");
+        list.add("50");
+        list.add("23");
+        removeDuplicateWithOrder(list);
+        System.out.println(list);
     }
 
     /**

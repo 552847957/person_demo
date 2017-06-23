@@ -95,7 +95,7 @@ public class PatientGroupController {
         JsonListResponseEntity listResponseEntity = new JsonListResponseEntity();
         Page<DoctorTubeSignUser> pageData = doctorTubeSignUserService.queryByGroupId(groupId, page, pageSize);
         List<ResidentInfoDto> dtoList = doctorTubeSignUserService.pageDataToDtoList(doctorId, pageData);
-
+        dtoList = doctorTubeSignUserService.sortTheGroupedResidents(dtoList,groupId);
         if (dtoList.size() > 0) {
             for (ResidentInfoDto residentInfoDto : dtoList) {
                 // 全部是已分组状态

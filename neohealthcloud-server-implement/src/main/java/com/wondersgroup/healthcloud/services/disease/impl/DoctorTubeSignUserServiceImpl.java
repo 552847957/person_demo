@@ -35,8 +35,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Iterables.toArray;
 
@@ -277,6 +276,24 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         return dtoList;
     }
 
+    @Override
+    public List<ResidentInfoDto> sortTheGroupedResidents(List<ResidentInfoDto> residentInfoDtoList, Integer groupId) {
+        List<ResidentInfoDto> newList = Lists.newArrayList();
+        List<String> userIdList = patientGroupService.getUserIdsByGroupId(groupId);
+        if (userIdList != null && userIdList.size() > 0) {
+            for (String userId : userIdList) {
+                for (ResidentInfoDto residentInfoDto : residentInfoDtoList) {
+                    if (userId.equals(residentInfoDto.getRegisterId())) {
+                        newList.add(residentInfoDto);
+                        break;
+                    }
+                }// END FOR
+            }// end for
+        }
+        return newList;
+    }
+
+
     private ResidentInfoDto copyResidentInfo(DoctorTubeSignUser doctorTubeSignUser) {
         ResidentInfoDto dto = new ResidentInfoDto();
         BeanUtils.copyProperties(doctorTubeSignUser, dto);
@@ -367,24 +384,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
             }
         }// end if 判断医生Id是否存在
 
-
         return dto;
     }
 
-    public static void main(String[] args) {
-        String kw = "方路";
-        int page = 1;
-        int pageSize = 2;
-        String sql = "select * from fam_doctor_tube_sign_user f where f.name like '%%%s%%' order by \n" +
-                "(case\n" +
-                "when f.name = '%s' then 1 \n" +
-                "when f.name like '%s%%' then 2\n" +
-                "when f.name like '%%%s' then 3\n" +
-                "when f.name like '%%%s%%' then 4  \n" +
-                "else 0\n" +
-                "end ) limit %s,%s";
-        sql = String.format(sql, kw, kw, kw, kw, kw, page, pageSize);
-        System.out.println(sql);
-//        System.out.println(String.format("%%%s","a"));
-    }
 }
