@@ -83,10 +83,11 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                      * 1，属于该医生签约居民
                      2，属于该医生G端在管人群且非其他医生签约居民
                      3，C端实名认证用户地址匹配出符合管辖范围（只匹配到区，即C端填写地址属于闵行区的所有与上述两条件去重后的用户会出现在闵行区的所有医生的居民列表）。
+                     (第3条,去掉已签约的用户)
                      */
                     Predicate condition = cb.or(cb.equal(root.<String>get("signDoctorPersoncard"), idCard),
                             cb.and(cb.equal(root.<String>get("tubeDoctorpersoncard"), idCard), cb.isNull(root.<String>get("signDoctorPersoncard"))),
-                            root.<String>get("cardNumber").in(doctorService.getResidentListByArea(user.getFamId())));
+                            cb.and(root.<String>get("cardNumber").in(doctorService.getResidentListByArea(user.getFamId())), cb.isNull(root.<String>get("signDoctorPersoncard"))));
                     predicates.add(condition);
                 }
 
@@ -163,7 +164,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
         String idCard = doctorInfo.getIdcard();
         String sql = "select * from fam_doctor_tube_sign_user f where del_flag = '0' " +
-                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) or f.card_number in (%s) )and f.name like '%%%s%%' order by \n" +
+                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) " +
+                " or ( f.card_number in (%s) and f.sign_doctor_personcard is null )) and f.name like '%%%s%%' order by \n" +
                 "(case\n" +
                 "when f.name = '%s' then 1 \n" +
                 "when f.name like '%s%%' then 2\n" +
@@ -199,7 +201,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
         String idCard = doctorInfo.getIdcard();
         String sql = "select count(f.id) from fam_doctor_tube_sign_user f where del_flag = '0' " +
-                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) or f.card_number in (%s) )and f.name like '%%%s%%' order by \n" +
+                " and (f.sign_doctor_personcard = ('%s')  or (f.tube_doctor_personcard = '%s' and f.sign_doctor_personcard is null) " +
+                " or ( f.card_number in (%s) and f.sign_doctor_personcard is null ) )and f.name like '%%%s%%' order by \n" +
                 "(case\n" +
                 "when f.name = '%s' then 1 \n" +
                 "when f.name like '%s%%' then 2\n" +
