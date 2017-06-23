@@ -82,7 +82,7 @@ public class ScreeningServiceImpl implements ScreeningService {
 
         String sql = "select t1.id,t2.registerid," +
                 "t3.name,t3.avatar,t3.age,t3.gender,t3.identifytype,t3.diabetes_type,t3.hyp_type,t3.apo_type,t3.sign_status," +
-                " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where user_id = t3.id and group_id in \n" +
+                " CASE WHEN EXISTS(SELECT * FROM app_tb_sign_user_doctor_group where del_flag = '0' and user_id = t3.id and group_id in \n" +
                 " (select id from app_tb_patient_group where doctor_id = '"+doctorInfo.getId()+"'  and del_flag = '0')) THEN 1 ELSE 0 END AS group_type\n" +
                 " from (select * from (select * from app_tb_patient_assessment where del_flag = '0' and is_oneself=1 and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) order by create_date desc)t0 GROUP by t0.uid)t1 \n" +
                 " JOIN app_tb_register_info t2 on t1.uid = t2.registerid\n" +
