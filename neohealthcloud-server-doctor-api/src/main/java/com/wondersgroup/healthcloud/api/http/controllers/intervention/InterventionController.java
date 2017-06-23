@@ -15,6 +15,7 @@ import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.doctor.DoctorTemplateService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
+import com.wondersgroup.healthcloud.services.interven.exception.ErrorDoctorInterventException;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,7 +166,7 @@ public class InterventionController {
             flag = String.valueOf(pageNo + 1);
         }else if(!is_all && outlierList.size()> Integer.valueOf(size)){
             more = true;
-            flag = String.valueOf(pageNo + 1);
+            flag = String.valueOf(pageNo);
         }
 
         response.setContent(outlierDTOs, more, null, flag);
@@ -189,6 +190,11 @@ public class InterventionController {
         String content = reader.readString("content", false);
         String templateId = reader.readString("templateId", true);//模板Id
 
+
+        Boolean hasTodo = doctorInterventionService.hasTodoIntervensByRegisterId(patientId);
+        if(!hasTodo){
+            throw new ErrorDoctorInterventException();
+        }
         doctorInterventionService.intervenSaveOrUpdate(doctorId,patientId,content);
 
         //调用模板接口
@@ -196,7 +202,7 @@ public class InterventionController {
             doctorTemplateService.saveDoctorUsedTemplate(new DoctorUsedTemplate(doctorId,templateId));
         }
 
-        response.setMsg("干预成功");
+        response.setMsg("建议发送成功");
         return response;
     }
 

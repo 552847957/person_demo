@@ -46,7 +46,7 @@ public class PersonalIntervenController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<IntervenEntity> interventionList = doctorInterventionService.findPersonalInterveneList(doctorId, pageNo, pageSize + 1);
+        List<IntervenEntity> interventionList = doctorInterventionService.findPersonalInterveneList(doctorId, pageNo, pageSize);
 
         for (IntervenEntity intervenEntity : interventionList){
             if(toDoList.size()<pageSize){
@@ -87,11 +87,15 @@ public class PersonalIntervenController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<NeoFamIntervention> outlierList = doctorInterventionService.findBloodGlucoseOutlierListByInterventionId(interventionId, is_all, pageNo, pageSize + 1, Integer.valueOf(size) + 1);
+        int allSize = Integer.valueOf(size);
+        if(is_all){
+            allSize = pageSize;
+        }
+        List<NeoFamIntervention> outlierList = doctorInterventionService.findBloodGlucoseOutlierListByInterventionId(interventionId, is_all, pageNo, pageSize, Integer.valueOf(size) + 1);
 
         if(outlierList!=null && outlierList.size()>0){
             for (NeoFamIntervention neoFamIntervention : outlierList){
-                if(outlierDTOs.size()<pageSize){
+                if(outlierDTOs.size()<allSize){
                     OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
                     outlierDTO.setFlag(outlierDTO.getFlag());
                     outlierDTOs.add(outlierDTO);
@@ -102,7 +106,7 @@ public class PersonalIntervenController {
                 flag = String.valueOf(pageNo + 1);
             }else if(!is_all && outlierList.size()> Integer.valueOf(size)){
                 more = true;
-                flag = String.valueOf(pageNo + 1);
+                flag = String.valueOf(pageNo);
             }
         }
 
@@ -124,7 +128,7 @@ public class PersonalIntervenController {
     public JsonListResponseEntity<OutlierDTO> pressure(@RequestParam(required = true) String interventionId,
                                                        @RequestParam(defaultValue = "false") Boolean is_all,
                                                        @RequestParam(defaultValue = "0") String flag,
-                                                       @RequestParam(defaultValue = "4") String size) {
+                                                       @RequestParam(defaultValue = "3") String size) {
 
         JsonListResponseEntity<OutlierDTO> response = new JsonListResponseEntity<>();
         List<OutlierDTO> outlierDTOs = Lists.newArrayList();
@@ -134,11 +138,15 @@ public class PersonalIntervenController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
-        List<NeoFamIntervention> outlierList = doctorInterventionService.findpressureOutlierListByInterventionId(interventionId, is_all, pageNo, pageSize + 1, Integer.valueOf(size)+1);
+        int allSize = Integer.valueOf(size);
+        if(is_all){
+            allSize = pageSize;
+        }
+        List<NeoFamIntervention> outlierList = doctorInterventionService.findpressureOutlierListByInterventionId(interventionId, is_all, pageNo, pageSize, Integer.valueOf(size)+1);
 
         if(outlierList!=null && outlierList.size()>0){
             for (NeoFamIntervention neoFamIntervention : outlierList){
-                if(outlierDTOs.size()<pageSize){
+                if(outlierDTOs.size()<allSize){
                     OutlierDTO  outlierDTO = new OutlierDTO(neoFamIntervention);
                     outlierDTO.setSystolicFlag(String.valueOf(outlierDTO.getSystolicFlag()));
                     outlierDTO.setDiastolicFlag(String.valueOf(outlierDTO.getDiastolicFlag()));
@@ -150,7 +158,7 @@ public class PersonalIntervenController {
                 flag = String.valueOf(pageNo + 1);
             }else if(!is_all && outlierList.size()> Integer.valueOf(size)){
                 more = true;
-                flag = String.valueOf(pageNo + 1);
+                flag = String.valueOf(pageNo);
             }
         }
 

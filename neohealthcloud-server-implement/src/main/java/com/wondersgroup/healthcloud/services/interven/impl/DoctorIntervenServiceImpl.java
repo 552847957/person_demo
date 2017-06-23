@@ -255,17 +255,14 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<IntervenEntity> findPersonalInterveneList(String uid, int pageNo, int pageSize) {
-        String sql = " select di.patient_id as register_id,aa.typelist,u.`name`,u.card_number as personcard,u.gender,u.age,\n" +
+        String sql = " select di.patient_id as register_id,a.typelist,u.`name`,u.card_number as personcard,u.gender,u.age,\n" +
                      " u.avatar,u.identifytype ,u.diabetes_type,u.hyp_type,u.apo_type,u.is_risk,u.sign_status,di.id,di.create_time as interventionDate,di.content\n" +
                      " from app_tb_doctor_intervention di\n" +
                      " inner join \n" +
-                     " (select a.* from (\n" +
+                     " (" +
                      " select register_id,doctor_intervention_id,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
-                     " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id) a\n" +
-                     " INNER JOIN\n" +
-                     " (select register_id,doctor_intervention_id from neo_fam_intervention \n" +
-                     " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id\n" +
-                     " ) b on a.register_id=b.register_id ) aa on di.id = aa.doctor_intervention_id\n" +
+                     " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id) a \n" +
+                     "  on di.id = a.doctor_intervention_id\n" +
                      " JOIN app_tb_register_info info on di.patient_id = info.registerid\n" +
                      " LEFT  JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
                      " where di.del_flag = '0' and di.doctor_id = '%s'" +
@@ -294,7 +291,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and del_flag='0'  and create_date <= '%s' " +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize+1);
         }else{
             sql = sql + " limit "+size;
         }
@@ -322,7 +319,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
                 " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004' and create_date <= '%s'" +
                 " order by warn_date desc ";
         if(is_all){
-            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize);
+            sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize+1);
         }else{
             sql = sql + " limit "+size;
         }
