@@ -178,7 +178,7 @@ public class PatientGroupServiceImpl implements PatientGroupService{
 
     @Override
     public List<String> getUserIdsByGroupId(Integer groupId) {
-        List<SignUserDoctorGroup> groupList = signUserDoctorGroupRepository.queryByDelFlagAndGroupIdOrderByCreateTimeAsc(CommonConstant.USED_DEL_FLAG, groupId);
+        List<SignUserDoctorGroup> groupList = signUserDoctorGroupRepository.queryByDelFlagAndGroupIdOrderByUpdateTimeAsc(CommonConstant.USED_DEL_FLAG, groupId);
         List<String> userIdList = Lists.newArrayList();
         if (groupList != null && groupList.size() > 0) {
             for (SignUserDoctorGroup signUserDoctorGroup : groupList) {

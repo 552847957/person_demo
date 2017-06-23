@@ -30,7 +30,7 @@ public interface SignUserDoctorGroupRepository extends JpaRepository<SignUserDoc
     @Query(nativeQuery = true, value = "SELECT * FROM app_tb_sign_user_doctor_group t WHERE t.user_id=?1 AND t.group_id=?2 AND t.del_flag=?3")
     SignUserDoctorGroup getIsSelectedByGroupIdAndUserId(String userId, Integer groupId, String delFlag);
 
-    List<SignUserDoctorGroup> queryByDelFlagAndGroupIdOrderByCreateTimeAsc(String delFlag, Integer groupId);
+    List<SignUserDoctorGroup> queryByDelFlagAndGroupIdOrderByUpdateTimeAsc(String delFlag, Integer groupId);
 
     SignUserDoctorGroup queryFirst1ByDelFlagAndUid(String delFlag, String uid);
 
