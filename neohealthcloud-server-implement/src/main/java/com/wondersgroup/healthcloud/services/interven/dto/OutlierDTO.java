@@ -1,4 +1,4 @@
-package com.wondersgroup.healthcloud.api.http.dto.doctor.intervention;
+package com.wondersgroup.healthcloud.services.interven.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.enums.CriterionType;

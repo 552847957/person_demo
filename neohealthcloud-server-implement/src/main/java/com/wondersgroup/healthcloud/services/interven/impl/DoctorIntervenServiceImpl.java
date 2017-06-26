@@ -178,7 +178,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             return Lists.newArrayList();
         }
         String sql = " select * from neo_fam_intervention \n" +
-                " where  del_flag='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) \n" +
+                " where  del_flag='0' %s  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) \n" +
                 " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004'" +
                 " order by warn_date desc ";
         if(is_all){
