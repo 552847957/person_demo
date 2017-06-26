@@ -240,7 +240,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
 
             //调用job给用户端发送消息
             String jumpUrl = diseaseH5Url + "/DoctorAdviceDetail/" +doctorIntervention.getId();
-            String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + patientId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您血糖或血压数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"" + jumpUrl + "\"}";
+            String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + patientId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您体征测量数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"" + jumpUrl + "\"}";
             Request build = new RequestBuilder().post().url(jobClientUrl + "/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
