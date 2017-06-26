@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +18,8 @@ import org.joda.time.Days;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -587,42 +590,6 @@ public class MeasureController {
         return new JsonResponseEntity(1000, "近期历史数据获取失败");
     }
     
-    @VersionRange
-    @GetMapping("assessmentAbnormal")
-    public JsonResponseEntity assessmentAbnormal(String registerId){
-        List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
-        try {
-            String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
-            List<Assessment> list = assessmentRepository.queryAssessment(registerId,date);
-            for (Assessment assessment : list) {
-                AssessmentAbnormal as = new AssessmentAbnormal();
-                as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
-                as.setCause(AssessmentAbnormal.cause(assessment, assessmentService));
-                String   result = "";
-                String   su = assessmentService.getResult(assessment);
-                String[] split = su.split(",");
-                for (String str : split) {
-                    if("1-2".equals(str) || "1-3".equals(str)){
-                        result+= ",糖尿病";
-                    }else if("2-2".equals(str) || "2-3".equals(str)){
-                        result+= ",高血压";
-                    }else if("3-2".equals(str) || "3-3".equals(str)){
-                        result+= ",脑卒中";
-                    }
-                }
-                if(!StringUtils.isBlank(result)){
-                    as.setResult(result.substring(1, result.length()) + "风险");
-                }
-                arr.add(as);
-                
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.info("数据获取失败", e);
-            return new JsonResponseEntity(1000, "数据获取失败");
-        }
-        return new JsonResponseEntity(0, "数据获取成功", arr);
-    }
-    
+
     
 }

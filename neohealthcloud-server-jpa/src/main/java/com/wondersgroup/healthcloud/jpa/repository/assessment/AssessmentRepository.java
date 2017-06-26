@@ -30,10 +30,13 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
     Assessment getRecentRiskAssess(String uid);
 
     @Query("select count(1) from Assessment a where a.uid = ?1 and a.isOneself = 1 and a.delFlag=0")
-    Integer getAssessNum(String uid);
+        Integer getAssessNum(String uid);
 
-    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.del_flag=0 and a.result is not null and a.create_date >= ?2  ORDER BY create_date desc")
-    List<Assessment> queryAssessment(String registerId, String date);
+    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.del_flag=0 and a.result is not null and a.create_date >= ?2  ORDER BY create_date desc limit ?3,?4")
+    List<Assessment> queryAssessment(String registerId, String date,Integer a, Integer b);
+
+    @Query(nativeQuery = true, value = "select count(*) from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.del_flag=0 and a.result is not null and a.create_date >= ?2")
+    Integer queryAssessmentCount(String registerId, String date);
 
     @Query(nativeQuery = true,value = "select * from app_tb_patient_assessment where del_flag = '0' " +
             " and create_date >= DATE_ADD(NOW(),INTERVAL -3 MONTH) and result is null")

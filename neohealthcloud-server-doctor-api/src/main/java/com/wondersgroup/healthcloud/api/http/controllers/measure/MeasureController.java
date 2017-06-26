@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -703,12 +704,21 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("assessmentAbnormal")
-    public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(String registerId) {
+    public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(
+            String registerId,
+            @RequestParam(defaultValue = "1") Integer currentPage,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
         JsonListResponseEntity<AssessmentAbnormal> entity = new JsonListResponseEntity<>();
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
+        boolean more = false;
         try {
+           int start = (currentPage -1) * pageSize;
             String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
-            List<Assessment> list = assessmentRepository.queryAssessment(registerId, date);
+            List<Assessment> list = assessmentRepository.queryAssessment(registerId, date,start,pageSize);
+            if(list != null && list.size() > 0){
+                List<Assessment> res = assessmentRepository.queryAssessment(registerId, date,start + pageSize, pageSize);
+                more =  res.size() > 0;
+            }
             for (Assessment assessment : list) {
                 AssessmentAbnormal as = new AssessmentAbnormal();
                 as.setDate(new SimpleDateFormat("yyyy-MM-dd").format(assessment.getCreateDate()));
@@ -737,7 +747,7 @@ public class MeasureController {
             entity.setMsg("调用失败");
             return entity;
         }
-        entity.setContent(arr);
+        entity.setContent(arr, more, "", String.valueOf(currentPage + 1));
         return entity;
     }
 
