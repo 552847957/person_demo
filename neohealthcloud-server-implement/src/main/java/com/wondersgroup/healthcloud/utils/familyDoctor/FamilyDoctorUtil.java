@@ -7,12 +7,15 @@ import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.utils.InterfaceEnCode;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by longshasha on 16/6/24.
  */
 public class FamilyDoctorUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(FamilyDoctorUtil.class);
 
     private HttpRequestExecutorManager httpRequestExecutorManager;
 
@@ -25,14 +28,19 @@ public class FamilyDoctorUtil {
      * @param personcard
      * @return
      */
-    public JsonNode getFamilyDoctorByUserPersoncard(String baseUrl,String personcard){
-        String url = baseUrl + "/api/sign/signdoctor";
-        String[] form = new String[]{"personcard", personcard};
-        String[] header = new String[]{"access-token", InterfaceEnCode.getAccessToken()};
-        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
-        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
-        JsonNode result = response.convertBody();
-        return result;
+    public JsonNode getFamilyDoctorByUserPersoncard(String baseUrl, String personcard) {
+        try {
+            String url = baseUrl + "/api/sign/signdoctor";
+            String[] form = new String[]{"personcard", personcard};
+            String[] header = new String[]{"access-token", InterfaceEnCode.getAccessToken()};
+            Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
+            JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+            JsonNode result = response.convertBody();
+            return result;
+        } catch (Exception e) {
+            logger.error("getFamilyDoctorByUserPersoncard error:", e);
+            return null;
+        }
     }
 
     /**

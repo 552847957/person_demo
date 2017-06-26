@@ -618,7 +618,7 @@ public class UserController {
 
             JsonNode result = userService.getFamilyDoctorByUserPersoncard(userInfo.getPersoncard());
 
-            if (result.get("code").asInt() == 0) {
+            if (result != null && result.get("code").asInt() == 0) {
                 doctorIdcard = result.get("data").get("personcard") == null ? "" : result.get("data").get("personcard").asText();
                 if (!(StringUtils.isBlank(doctorIdcard) || "-1".equals(doctorIdcard))) {
                     isSignDoctor = true;
@@ -631,7 +631,7 @@ public class UserController {
                     }
                 }
                 //有签约无医生账号
-            } else if (result.get("code").asInt() == 2) {
+            } else if (result != null && result.get("code").asInt() == 2) {
                 isSignDoctor = true;
             }
 
