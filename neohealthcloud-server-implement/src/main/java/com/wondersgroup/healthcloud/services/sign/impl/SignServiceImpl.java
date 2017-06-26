@@ -46,19 +46,28 @@ public class SignServiceImpl implements SignService {
         StringBuffer sql = new StringBuffer();
 
         // SELECT
-        sql.append("SELECT a.* FROM fam_doctor_tube_sign_user a");
+        sql.append("SELECT fam.* FROM fam_doctor_tube_sign_user fam INNER JOIN");
+        sql.append("  (SELECT a.id, count(ct.group_id) num FROM fam_doctor_tube_sign_user a LEFT JOIN");
+        sql.append("      (SELECT aa.user_id, cc.idcard, aa.group_id");
+        sql.append("       FROM app_tb_sign_user_doctor_group aa, app_tb_patient_group bb, doctor_info_tb cc");
+        sql.append("       WHERE aa.group_id = bb.id AND bb.doctor_id = cc.id");
+        sql.append("      ) ct ON a.id = ct.user_id AND a.sign_doctor_personcard = ct.idcard");
+        sql.append("    WHERE a.sign_status = '1' AND a.sign_doctor_personcard = '" + personcard + "'");
+        sql.append("    GROUP BY a.id");
+        sql.append("  ) num ON fam.id = num.id");
+
 
         // WHERE
-        sql.append(" WHERE a.sign_status = '1'");
+        sql.append(" WHERE fam.sign_status = '1'");
 
         // personcard
         if (StringUtils.isNotEmpty(personcard)) {
-            sql.append(" AND a.sign_doctor_personcard = '" + personcard + "'");
+            sql.append(" AND fam.sign_doctor_personcard = '" + personcard + "'");
         }
 
         // name 搜索
         if (StringUtils.isNotEmpty(name)) {
-            sql.append(" AND LOCATE('" + name + "', a.name) > 0");
+            sql.append(" AND LOCATE('" + name + "', fam.name) > 0");
         }
         // 慢病种类搜索
         String apo = null, diabetes = null, hyp = null;
@@ -82,48 +91,48 @@ public class SignServiceImpl implements SignService {
         if (StringUtils.isNotBlank(peopleType)) {
             switch (peopleType) {
                 case PeopleTypeConstant.RISK:// 高危人群
-                    sql.append(" AND a.is_risk = '1'");
+                    sql.append(" AND fam.is_risk = '1'");
                     if ("1".equals(apo))
-                        sql.append(" AND a.apo_c_type = 1");
+                        sql.append(" AND fam.apo_c_type = 1");
                     if ("1".equals(diabetes))
-                        sql.append(" AND a.diabetes_c_type = 1");
+                        sql.append(" AND fam.diabetes_c_type = 1");
                     if ("1".equals(hyp))
-                        sql.append(" AND a.hyp_c_type = 1");
+                        sql.append(" AND fam.hyp_c_type = 1");
                     break;
                 case PeopleTypeConstant.DISEASE:// 疾病人群
                     if (apo == null && diabetes == null && hyp == null) {
-                        sql.append(" AND (a.apo_type = '1' OR a.diabetes_type = '1' OR a.hyp_type = '1')");
+                        sql.append(" AND (fam.apo_type = '1' OR fam.diabetes_type = '1' OR fam.hyp_type = '1')");
                     } else {
                         if ("1".equals(apo))
-                            sql.append(" AND a.apo_type = '1'");
+                            sql.append(" AND fam.apo_type = '1'");
                         if ("1".equals(diabetes))
-                            sql.append(" AND a.diabetes_type = '1'");
+                            sql.append(" AND fam.diabetes_type = '1'");
                         if ("1".equals(hyp))
-                            sql.append(" AND a.hyp_type = '1'");
+                            sql.append(" AND fam.hyp_type = '1'");
                     }
                     break;
                 case PeopleTypeConstant.HEALTHY:// 健康人群
                     if (StringUtils.isNotEmpty(diseaseType)) {
                         return null;
                     }
-                    sql.append(" AND a.apo_type <> '1' AND a.diabetes_type <> '1' AND a.hyp_type <> '1' AND a.is_risk <> '1'");
+                    sql.append(" AND fam.apo_type <> '1' AND fam.diabetes_type <> '1' AND fam.hyp_type <> '1' AND fam.is_risk <> '1'");
                     break;
             }
         } else {
             if (apo != null || diabetes != null || hyp != null) {
                 if ("1".equals(apo))
-                    sql.append(" AND (a.apo_type = '1' OR a.apo_c_type = 1)");
+                    sql.append(" AND (fam.apo_type = '1' OR fam.apo_c_type = 1)");
                 if ("1".equals(diabetes))
-                    sql.append(" AND (a.diabetes_type = '1' OR a.diabetes_c_type = 1)");
+                    sql.append(" AND (fam.diabetes_type = '1' OR fam.diabetes_c_type = 1)");
                 if ("1".equals(hyp))
-                    sql.append(" AND (a.hyp_type = '1' OR a.hyp_c_type = 1)");
+                    sql.append(" AND (fam.hyp_type = '1' OR fam.hyp_c_type = 1)");
             }
         }
 
         // ORDER BY
-        sql.append(" ORDER BY CONVERT(a.name USING gbk) COLLATE gbk_chinese_ci");
+        sql.append(" ORDER BY num.num DESC, CONVERT(fam.name USING gbk) COLLATE gbk_chinese_ci");
         if (StringUtils.isNotEmpty(name)) {
-            sql.append(", LOCATE('" + name + "', a.name), length(a.name)");
+            sql.append(", LOCATE('" + name + "', fam.name), length(fam.name)");
         }
 
         // LIMIT
