@@ -7,6 +7,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -31,6 +32,10 @@ public abstract class RSAUtil {
 
 	private static final String PUBLIC_KEY = "RSAPublicKey";
 	private static final String PRIVATE_KEY = "RSAPrivateKey";
+
+    private static final int MAX_ENCRYPT_BLOCK = 117;
+
+    private static final int MAX_DECRYPT_BLOCK = 128;
 
 	/**
 	 * BASE64解密
@@ -207,12 +212,26 @@ public abstract class RSAUtil {
 		// 对数据解密
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
 		cipher.init(Cipher.DECRYPT_MODE, privateKey);
-		 
-		//byte[] info = (new BASE64Decoder()).decodeBuffer(data);
 
-//		byte[] info = Base64.decodeBase64(data);
-		byte[] info = ByteString.decodeBase64(data).toByteArray();
-		byte[] decryptedData = cipher.doFinal(info); 
+		byte[] encryptedData = ByteString.decodeBase64(data).toByteArray();
+        int inputLen = encryptedData.length;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offSet = 0;
+        byte[] cache;
+        int i = 0;
+        // 对数据分段解密
+        while (inputLen - offSet > 0) {
+            if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
+                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
+            } else {
+                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offSet = i * MAX_DECRYPT_BLOCK;
+        }
+        byte[] decryptedData = out.toByteArray();
+        out.close();
         return new String(decryptedData);
 
 	}
@@ -263,8 +282,26 @@ public abstract class RSAUtil {
 		// 对数据加密
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
 		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-		  
-		byte[] encryptedData = cipher.doFinal(data.getBytes());
+        byte[] dataArray = data.getBytes();
+		int inputLen = dataArray.length;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		int offSet = 0;
+		byte[] cache;
+		int i = 0;
+		// 对数据分段加密
+		while (inputLen - offSet > 0) {
+			if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
+				cache = cipher.doFinal(dataArray, offSet, MAX_ENCRYPT_BLOCK);
+			} else {
+				cache = cipher.doFinal(dataArray, offSet, inputLen - offSet);
+			}
+			out.write(cache, 0, cache.length);
+			i++;
+			offSet = i * MAX_ENCRYPT_BLOCK;
+		}
+		byte[] encryptedData = out.toByteArray();
+
+//		byte[] encryptedData = cipher.doFinal(data.getBytes());
 
 		return ByteString.of(encryptedData).base64();
 //		return Base64.encodeBase64String(encryptedData);
@@ -348,20 +385,14 @@ public abstract class RSAUtil {
 	}
  
 	public static void main(String[] args) {
-		String password = "123456";
-		String API_DOCTOR_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDGHjtLwTJP9ehWYM3Dmwg9eTX3gDAFwQMyL1edXKPOjyUucWml7O8VF8adQgLH8fM1PoZSKHGliE0rZ3q6o1jh4lkF1CLIqWRbZ4ObKM2i1w5O2VP9lMKyWTrRM/R9RWxCgwINb/QQmbmNLTVruh4YG1Q0QTK2dQLnIh0oANdpwIDAQAB";
-		String PRIVATE_KEY = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIMYeO0vBMk/16FZgzcObCD15NfeAMAXBAzIvV51co86PJS5xaaXs7xUXxp1CAsfx8zU+hlIocaWITStnerqjWOHiWQXUIsipZFtng5sozaLXDk7ZU/2UwrJZOtEz9H1FbEKDAg1v9BCZuY0tNWu6HhgbVDRBMrZ1AuciHSgA12nAgMBAAECgYBDtQf/uCEIr+h2dPzIGrLN8zHWK9rHWxvEXokvmAkq4DEZvzjN6dvykMDtsTQOSsOujvD8zf5/ylosEt9UzP9ofvLwXNG9MfGd5iGpfQZ86o63ynImDL4KpPlUliFl98NHlG4PJetZhlxswgRT9RBQlhViYJPs/X5LrZ1tCOY0wQJBAOFSeXCzgL4VeZHg7WSg52ceUy+l1tLZvZeVzwePpj+OXHIEWjyjsR6kMKkUGlIZygifbkUtAaRW60ftxw8uoNsCQQCU8cOBYvCW6aSYwx853bA+1jwEDI3HiNstyRvCYO8S0bJwx5Ou+KthEYZNW/O+T3SC9dC2ZC2ETY9UO5p1ZbolAkAXeo2W9c1rgTdawRJbkvyp3RoT8/bvn6rG2eBpzEkphD8TzmpMuU3igH9ljuezOGa6AUrvQGJUao43v4onhddTAkBF5EDqmSPunQqoyH8Bp16JzfvxpnZtWHIJRSKqjtQAz7fdJjnN1FCPRyrvaCOzfRNeVL0wqUeWmtKUIzfyuN6lAkADQiKQnIptVJ5xLbUY5REFAr6xVCzvtbWQp05WBx0y7L5GR7B29DF4GgBToBt3NkESEsSlG398YNqjQUpsiNMV";
-		String psd = "";
-		try {
-			 psd = RSAUtil.encryptByPublicKey(password, API_DOCTOR_KEY);
-			 System.out.println(psd);
-			 String aa = RSAUtil.decryptByPrivateKey(psd, PRIVATE_KEY);
-			 System.out.println(aa);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+
+		String decodeType = "DEzL4VuUDFV8pCIPeMl2qf98P7V7U6gcViS4ZFMGuW2ja+kSwIIjned4v5KiR+z+OII+GC7JwRVhSUxxjC9zttHfCo8aCygU2h3eCH9ih6Fv7iXQYhXeRvADJ1tXJD8YAqDhJGCflvZjA5ADztSrFPAlHYfWwQYQ0n1uK3/d7ZiKwxinhLgpLo+KMFsc+6hK/14iZRJjM1N2MVs535QN1oMgQMAlUdWlz51abxaxxQw2CJI8gmBIzZukqF9QvD9Lao4xa/xik1mqV7UnILI7QDtvN6zPTin5u/UuuIl1nfTgtTaEaIkDa+Zv40S2B00l5RNGjU0YZmejKUpmem/eMJGKxasstA8K4dRDITFpQnFBOTKEVUBrUHrZLHQB7LhQYjz8QXYVGjzsWXR5mNp/QqnPI1M/eSbwTBpBCPecXyI3fFBYouahMXz2Z5Y8UZ3TpgLw8Ht4pMeG5fGqbJ6vl4tsZ3aArt/D1tRmddlm695w9EidfYZqx1ch3Siq5zJiq3Z1zaA1wVP6vbZMciYO3QhZOZk8GGMBEu5wrXtA3zl6OwaqCDPVxzyG8d0ZM0BfofEiYC3IwKojZotW5ektkHY8eHbsu0JsWOwot0dIsWK+SqX4PxgwH08VcDAxAUMag5XJ+gpIjGUVJVpXSaQnaJ4jmu5VluknBxHUjyBeKAdEdQ5B5BmeIVmvX6UZBwKyJnKlcEcnbebPiEzw9rJmifELrmHlRbbVvcGA8jv5Qd7bbydVUXUpKJKqHffch3hjWE1272nbBC9JxbdYAzPHTXmqqhF4WEbxkaXnz7boAk9ng3Vh6E8VlxAIvLGI7NKU/jsK//VtRiz+QcdeY/JsRq7a90pFGuAONjyzp0eODnkkyX3TyAJoDljt5cif4IqHEzpmrWS3iHWYjfqNAYijqSKdw1z6eXkTqHOo4mNR09b0fQ+MCfYYdaTlKoIvT3iy9T9G9gMnY6Ya/AY2OAVgc8O/UbeL3bKgb6ttfmYjuUBgtNsOsLNqzruTrNRPyYhwbkq+g8EzstzuAFSLH8q1PLfQ14pMHms6jHaX3Dfjbvg5G6JoxV/gu3hk+4to7oVRx6mgmBRDvgu9MXcPCjNbhXbDXfuDGY49DKzEXxrmp/kvNGvo/vDeh8ZtXBSiEENkrAqFRYXWVcjG5yfI5TBlo9AYi9Mya4VkSXy/daAz0Uw=";
+        String privateKey = DoctorKeyMap.getPrivateKey("4.1.0");
+        try {
+            String data = decryptByPrivateKey(decodeType, privateKey);
+            System.out.println(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 }

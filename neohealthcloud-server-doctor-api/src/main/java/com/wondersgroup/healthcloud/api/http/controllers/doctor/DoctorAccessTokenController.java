@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorAccountAndSessionDTO;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.session.AccessToken;
@@ -8,13 +9,14 @@ import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.services.doctor.DoctorAccountService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
 /**
  * Created by longshasha on 16/5/11.
  */
-@RestController
+@Controller
 @RequestMapping("/api")
 public class DoctorAccessTokenController {
     @Autowired
@@ -28,6 +30,7 @@ public class DoctorAccessTokenController {
 
     @WithoutToken
     @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountAndSessionDTO> fetchToken(
             @RequestHeader(value = "main-area", required = true) String mainArea,
@@ -43,6 +46,7 @@ public class DoctorAccessTokenController {
 
     @WithoutToken
     @RequestMapping(value = "/fastLogin", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountAndSessionDTO> fastFetchToken(
             @RequestHeader(value = "main-area", required = true) String mainArea,
@@ -57,6 +61,7 @@ public class DoctorAccessTokenController {
 
 
     @RequestMapping(value = "/logout", method = RequestMethod.DELETE)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<String> deleteToken(@RequestHeader("access-token") String token) {
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
