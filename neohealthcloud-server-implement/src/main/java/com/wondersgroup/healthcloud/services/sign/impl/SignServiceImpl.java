@@ -103,6 +103,9 @@ public class SignServiceImpl implements SignService {
                     }
                     break;
                 case PeopleTypeConstant.HEALTHY:// 健康人群
+                    if (StringUtils.isNotEmpty(diseaseType)) {
+                        return null;
+                    }
                     sql.append(" AND a.apo_type <> '1' AND a.diabetes_type <> '1' AND a.hyp_type <> '1' AND a.is_risk <> '1'");
                     break;
             }
