@@ -69,6 +69,9 @@ public class ScreeningServiceImpl implements ScreeningService {
     @Autowired
     private RegisterInfoRepository registerInfoRepo;
 
+    @Value("${disease.h5.url}")
+    private String diseaseUrl;
+
     /**
      * 获取筛查列表数据
      * @param pageNo
@@ -159,10 +162,12 @@ public class ScreeningServiceImpl implements ScreeningService {
             remind.setUpdateDate(new Date());
             remind.setType(type);
             remind.setDelFlag("0");
+
             remindRepo.save(remind);
 
             String param = "{\"notifierUID\":\""+doctorId+"\",\"receiverUID\":\""+registerid+"\",\"msgType\":\""+type+"\"," +
-                    " \"msgTitle\":\""+(type == 1?"筛查提醒":"随访提醒")+"\",\"msgContent\":\""+content+"\"}";
+                    " \"msgTitle\":\""+(type == 1?"筛查提醒":"随访提醒")+"\",\"msgContent\":\""+content+"\" %s}";
+            param = String.format(param,type==2?",\"jumpUrl\":\""+diseaseUrl+"/followupplan/"+registerid+"\"":"");
             Request build= new RequestBuilder().post().url(jobClientUrl+"/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
