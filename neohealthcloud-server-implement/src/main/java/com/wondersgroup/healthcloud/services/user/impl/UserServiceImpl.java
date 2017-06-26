@@ -310,11 +310,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JsonNode getFamilyDoctorByUserPersoncard(String personcard){
-        FamilyDoctorUtil familyDoctorUtil = new FamilyDoctorUtil();
-        familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
-        JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(),personcard);
-        return result;
+    public JsonNode getFamilyDoctorByUserPersoncard(String personcard) {
+        try {
+            FamilyDoctorUtil familyDoctorUtil = new FamilyDoctorUtil();
+            familyDoctorUtil.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
+            JsonNode result = familyDoctorUtil.getFamilyDoctorByUserPersoncard(jailPropertiesUtils.getGwWebSignedUrl(), personcard);
+            return result;
+        } catch (Exception e) {
+            log.error("getFamilyDoctorByUserPersoncard error:", e);
+        }
+        return null;
     }
 
     @Override
