@@ -51,6 +51,7 @@ public class SignServiceImpl implements SignService {
         sql.append("      (SELECT aa.user_id, cc.idcard, aa.group_id");
         sql.append("       FROM app_tb_sign_user_doctor_group aa, app_tb_patient_group bb, doctor_info_tb cc");
         sql.append("       WHERE aa.group_id = bb.id AND bb.doctor_id = cc.id");
+        sql.append("         and aa.del_flag = '0' and bb.del_flag = '0' and cc.del_flag = '0'");
         sql.append("      ) ct ON a.id = ct.user_id AND a.sign_doctor_personcard = ct.idcard");
         sql.append("    WHERE a.sign_status = '1' AND a.sign_doctor_personcard = '" + personcard + "'");
         sql.append("    GROUP BY a.id");
