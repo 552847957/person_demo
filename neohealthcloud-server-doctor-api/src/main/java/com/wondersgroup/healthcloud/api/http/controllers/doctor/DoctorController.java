@@ -2,8 +2,10 @@ package com.wondersgroup.healthcloud.api.http.controllers.doctor;
 
 import java.util.Map;
 
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,7 +28,7 @@ import com.wondersgroup.healthcloud.services.medicalcircle.MedicalCircleService;
 /**
  * Created by longshasha on 16/8/1.
  */
-@RestController
+@Controller
 @RequestMapping(value = "/api")
 public class DoctorController {
 
@@ -48,6 +50,7 @@ public class DoctorController {
      * @return
      */
     @RequestMapping(value = "/doctor/info", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountDTO> info(@RequestParam String uid) {
         DoctorAccountDTO  doctorAccountDTO = getDoctorInfo(uid);
@@ -57,6 +60,7 @@ public class DoctorController {
     }
 
     @RequestMapping(value = "/doctor/updateIntro", method = RequestMethod.POST)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountDTO> updateIntro(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
@@ -83,6 +87,7 @@ public class DoctorController {
      * @return
      */
     @RequestMapping(value = "/doctor/updateExpertin", method = RequestMethod.POST)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountDTO> updateExpertin(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
@@ -109,6 +114,7 @@ public class DoctorController {
      * @return
      */
     @RequestMapping(value = "/doctor/updateAvatar", method = RequestMethod.POST)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<DoctorAccountDTO> updateInfo(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
@@ -132,6 +138,7 @@ public class DoctorController {
      */
     @WithoutToken
     @RequestMapping(value = "/getVerificationCodes", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity<String> getVerificationCodes(@RequestParam String mobile,
                                                            @RequestParam(defaultValue = "0") Integer type)  {
@@ -167,6 +174,7 @@ public class DoctorController {
     @VersionRange
     @WithoutToken
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+    @JsonEncode(encode = true)
     public JsonResponseEntity<String> resetPassword(@RequestBody String request) {
         JsonKeyReader reader = new JsonKeyReader(request);
         String mobile = reader.readString("mobile", false);

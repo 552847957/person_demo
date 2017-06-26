@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.AssessmentAbnormal;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathIconDto;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.heathrecord.HeathUserInfoDto;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -35,9 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -48,7 +49,7 @@ import java.util.*;
 /**
  * Created by Jeffrey on 16/9/1.
  */
-@RestController
+@Controller
 @RequestMapping("api/measure")
 public class MeasureController {
 
@@ -86,6 +87,7 @@ public class MeasureController {
     private static final String REQUEST_PRESSURE_ABNORMAL = "%s/api/measure/3.0/queryPressureAbnormalHistorys?%s";
 
     @GetMapping(value = "nearest/bmiAndWhr", produces = MediaType.APPLICATION_JSON_VALUE)
+    @JsonEncode(encode = true)
     public JsonResponseEntity findBMIAndWHR(String registerId, String personCard) {
         String path = "registerId=" + registerId + "&personCard=" + personCard;
         try {
@@ -112,6 +114,7 @@ public class MeasureController {
      * @return JsonResponseEntity
      */
     @GetMapping(value = "queryPressureAbnormalHistorys", produces = MediaType.APPLICATION_JSON_VALUE)
+    @JsonEncode(encode = true)
     public JsonResponseEntity queryPressureAbnormalHistorys(
             @RequestParam String registerId,
             @RequestParam(required = false, defaultValue = "") String personCard,
@@ -144,6 +147,7 @@ public class MeasureController {
      * @return JsonResponseEntity
      */
     @GetMapping(value = "queryBloodGlucoseAbnormalHistorys", produces = MediaType.APPLICATION_JSON_VALUE)
+    @JsonEncode(encode = true)
     public JsonResponseEntity queryBloodGlucoseAbnormalHistorys(
             @RequestParam String registerId,
             @RequestParam(required = false, defaultValue = "") String personCard,
@@ -175,6 +179,7 @@ public class MeasureController {
      * @return JsonResponseEntity
      */
     @RequestMapping(value = "/lastWeekHistory", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonResponseEntity measureHistory(@RequestParam(name = "uid") String registerId,
                                              @RequestParam(required = false) String personCard) {
