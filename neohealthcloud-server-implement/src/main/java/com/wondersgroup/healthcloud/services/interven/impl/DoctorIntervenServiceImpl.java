@@ -151,14 +151,14 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             return Lists.newArrayList();
         }
         String sql = " select * from neo_fam_intervention where  register_id = '%s' and type REGEXP '10000|20000|30000' \n" +
-                     " and del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
+                     " and del_flag='0' %s  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)" +
                      " order by warn_date desc ";
         if(is_all){
             sql = sql + " limit "+(pageNo)*pageSize+","+(pageSize+1);
         }else{
             sql = sql + " limit "+size;
         }
-        sql = String.format(sql,registerId);
+        sql = String.format(sql,registerId,is_all?"":" and is_deal ='0' ");
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
@@ -178,7 +178,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             return Lists.newArrayList();
         }
         String sql = " select * from neo_fam_intervention \n" +
-                " where  del_flag='0' and is_deal ='0' and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) \n" +
+                " where  del_flag='0'  and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day) \n" +
                 " and register_id = '%s' and type REGEXP '40000|41000|40001|40002|40003|40004'" +
                 " order by warn_date desc ";
         if(is_all){
@@ -186,7 +186,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
         }else{
             sql = sql + " limit "+size;
         }
-        sql = String.format(sql,registerId);
+        sql = String.format(sql,is_all?"":" and is_deal ='0'" , registerId);
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper(NeoFamIntervention.class));
     }
 
