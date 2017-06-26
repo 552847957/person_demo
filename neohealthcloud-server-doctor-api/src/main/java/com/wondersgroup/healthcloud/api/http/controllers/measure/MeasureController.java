@@ -706,13 +706,13 @@ public class MeasureController {
     @GetMapping("assessmentAbnormal")
     public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(
             String registerId,
-            @RequestParam(defaultValue = "1") Integer currentPage,
+            @RequestParam(defaultValue = "1") Integer flag,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         JsonListResponseEntity<AssessmentAbnormal> entity = new JsonListResponseEntity<>();
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         boolean more = false;
         try {
-           int start = (currentPage -1) * pageSize;
+           int start = (flag -1) * pageSize;
             String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
             List<Assessment> list = assessmentRepository.queryAssessment(registerId, date,start,pageSize);
             if(list != null && list.size() > 0){
@@ -747,7 +747,7 @@ public class MeasureController {
             entity.setMsg("调用失败");
             return entity;
         }
-        entity.setContent(arr, more, "", String.valueOf(currentPage + 1));
+        entity.setContent(arr, more, "", String.valueOf(flag + 1));
         return entity;
     }
 
