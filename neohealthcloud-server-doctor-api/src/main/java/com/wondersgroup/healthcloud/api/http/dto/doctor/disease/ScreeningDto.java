@@ -58,7 +58,7 @@ public class ScreeningDto extends BaseResidentDto {
 
         if (null != assessment.getWaist() && ((assessment.getGender().equals(AssessmentConstrains.GENDER_MAN) && assessment.getWaist() >= 90 )||
                 (assessment.getGender().equals(AssessmentConstrains.GENDER_WOMAN) && assessment.getWaist() >= 85 ))) {
-            return "中心行肥胖";
+            return "中心性肥胖";
         }
         if(!"0".equals(assessment.getDiabetesRelatives())){
             return "亲属中有糖尿病患者";
@@ -99,7 +99,7 @@ public class ScreeningDto extends BaseResidentDto {
             return "血脂异常";
         }
         if(!"6".equals(assessment.getMedicalHistory())){
-            if(assessment.getMedicalHistory().contains("1")) return "有糖调节受损（IGR，又称糖尿病前期";
+            if(assessment.getMedicalHistory().contains("1")) return "有糖调节受损（IGR，又称糖尿病前期)";
             if(assessment.getMedicalHistory().contains("2")) return "动脉粥样硬化心脑血管疾病";
             if(assessment.getMedicalHistory().contains("3")) return "有一过性类固醇糖尿病";
             if(assessment.getMedicalHistory().contains("4")) return "房颤或明显的脉搏不齐";
