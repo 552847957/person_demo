@@ -300,9 +300,9 @@ public class UserServiceImpl implements UserService {
         RegisterInfo account = getOneNotNull(uid);
         if(account.verified() && StringUtils.isNotBlank(account.getPersoncard())){
             JsonNode result = getFamilyDoctorByUserPersoncard(account.getPersoncard());
-            if(result.get("code").asInt()==0){
-                doctorIdcard = result.get("data").get("personcard")==null?"":result.get("data").get("personcard").asText();
-                if(StringUtils.isNotBlank(doctorIdcard))
+            if (result != null && result.get("code").asInt() == 0) {
+                doctorIdcard = result.get("data").get("personcard") == null ? "" : result.get("data").get("personcard").asText();
+                if (StringUtils.isNotBlank(doctorIdcard))
                     doctorInfor = doctorService.findDoctorInfoByIdcard(doctorIdcard);
             }
         }
