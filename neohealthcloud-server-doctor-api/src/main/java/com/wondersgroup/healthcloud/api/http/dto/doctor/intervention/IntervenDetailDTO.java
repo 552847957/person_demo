@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.api.http.dto.doctor.intervention;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wondersgroup.healthcloud.services.interven.dto.OutlierDTO;
 import lombok.Data;
 
 import java.util.List;
