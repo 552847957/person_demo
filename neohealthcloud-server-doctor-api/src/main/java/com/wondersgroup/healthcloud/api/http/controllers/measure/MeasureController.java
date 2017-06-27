@@ -731,6 +731,9 @@ public class MeasureController {
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         boolean more = false;
         try {
+            if(flag < 1){
+                flag = 1;
+            }
            int start = (flag -1) * pageSize;
             String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
             List<Assessment> list = assessmentRepository.queryAssessment(registerId, date,start,pageSize);
