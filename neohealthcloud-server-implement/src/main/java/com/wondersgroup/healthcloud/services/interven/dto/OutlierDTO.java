@@ -7,7 +7,6 @@ import com.wondersgroup.healthcloud.utils.DateFormatter;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 
 /**
@@ -81,7 +80,7 @@ public class OutlierDTO {
         return criterionType == null ? null : criterionType.index;
     }
 
-    public static CriterionType calculator(double f, @NotNull String p) {
+    public static CriterionType calculator(double f, String p) {
         // 0 早餐前 1 早餐后 2 午餐前 3 午餐后 4 晚餐前 5 晚餐后 6睡前 7 凌晨 8 随机
         if (Arrays.asList("0", "2", "4").contains(p)) {
             return f < 4.4 ? CriterionType.LOW : f > 7.0 ? CriterionType.HIGH : CriterionType.ORDINARY;
