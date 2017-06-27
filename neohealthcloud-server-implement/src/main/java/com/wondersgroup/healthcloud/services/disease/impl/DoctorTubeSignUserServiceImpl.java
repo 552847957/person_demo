@@ -346,7 +346,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         }
         // 不是签约用户,同时是G端在管用户的,去在管表查地址
         if ("0".equals(doctorTubeSignUser.getSignStatus()) && doctorTubeSignUser.getTubeType() == 1) {
-            String adr = getGUserAddress(doctorTubeSignUser);
+            String adr = getGUserAddress(doctorTubeSignUser.getCardNumber());
             dto.setAddress(adr);
         }
 
@@ -362,8 +362,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     }
 
     @Override
-    public String getGUserAddress(DoctorTubeSignUser doctorTubeSignUser) {
-        TubeDiabetes tubeDiabetes = tubeDiabetesRepository.queryFirst1ByZjhm(doctorTubeSignUser.getCardNumber());
+    public String getGUserAddress(String cardNumber) {
+        TubeDiabetes tubeDiabetes = tubeDiabetesRepository.queryFirst1ByZjhm(cardNumber);
         String adr = String.format("%s%s%s%s%s",
                 //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
                 //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
