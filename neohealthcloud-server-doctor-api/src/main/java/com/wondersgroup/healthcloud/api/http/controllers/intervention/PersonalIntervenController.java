@@ -1,7 +1,7 @@
 package com.wondersgroup.healthcloud.api.http.controllers.intervention;
 
 import com.google.common.collect.Lists;
-import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.OutlierDTO;
+import com.wondersgroup.healthcloud.services.interven.dto.OutlierDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.PersonDTO;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
