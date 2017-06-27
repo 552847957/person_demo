@@ -370,8 +370,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdXia())),
                 StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdXng())),
                 StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdVlg())),
-                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdCun())),
-                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdMph())));
+                StringUtils.trimToEmpty(tubeDiabetes.getJzdCun()),
+                StringUtils.trimToEmpty(tubeDiabetes.getJzdMph()));
         return adr;
     }
 
