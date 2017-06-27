@@ -8,9 +8,11 @@ import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.group.SignUserDoctorGroup;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
+import com.wondersgroup.healthcloud.jpa.entity.user.TubeDiabetes;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.jpa.repository.group.SignUserDoctorGroupRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.AddressRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.TubeDiabetesRepository;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.disease.constant.DiseaseTypeConstant;
 import com.wondersgroup.healthcloud.services.disease.constant.PeopleTypeConstant;
@@ -58,6 +60,8 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
     private AddressRepository addressRepository;
     @Autowired
     private SignUserDoctorGroupRepository signUserDoctorGroupRepository;
+    @Autowired
+    private TubeDiabetesRepository tubeDiabetesRepository;
     @Autowired
     private DictCache dictCache;
     @Autowired
@@ -331,14 +335,21 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         // 设置地址信息
         Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(doctorTubeSignUser.getCardNumber());
         if (address != null) {
-            String adr = String.format("%s%s%s",
+            String adr = String.format("%s%s%s%s",
                     //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
                     //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())),
+                    StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())),
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())),
                     StringUtils.trimToEmpty(address.getOther()));
             dto.setAddress(adr);
         }
+        // 不是签约用户,同时是G端在管用户的,去在管表查地址
+        if ("0".equals(doctorTubeSignUser.getSignStatus()) && doctorTubeSignUser.getTubeType() == 1) {
+            String adr = getGUserAddress(doctorTubeSignUser);
+            dto.setAddress(adr);
+        }
+
         // 是否分组
         SignUserDoctorGroup signUserDoctorGroup = signUserDoctorGroupRepository.queryFirst1ByDelFlagAndUid(CommonConstant.USED_DEL_FLAG, doctorTubeSignUser.getId());
         if (signUserDoctorGroup != null) {
@@ -348,6 +359,20 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
         }
 
         return dto;
+    }
+
+    @Override
+    public String getGUserAddress(DoctorTubeSignUser doctorTubeSignUser) {
+        TubeDiabetes tubeDiabetes = tubeDiabetesRepository.queryFirst1ByZjhm(doctorTubeSignUser.getCardNumber());
+        String adr = String.format("%s%s%s%s%s",
+                //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
+                //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
+                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdXia())),
+                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdXng())),
+                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdVlg())),
+                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdCun())),
+                StringUtils.trimToEmpty(dictCache.queryArea(tubeDiabetes.getJzdMph())));
+        return adr;
     }
 
     /**

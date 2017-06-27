@@ -49,4 +49,5 @@ public interface DoctorTubeSignUserService {
      */
     List<ResidentInfoDto> sortTheGroupedResidents(List<ResidentInfoDto> residentInfoDtoList, Integer groupId);
 
+    String getGUserAddress(DoctorTubeSignUser doctorTubeSignUser);
 }
