@@ -192,9 +192,9 @@ public class SignServiceImpl implements SignService {
         // 设置地址信息
         Address address = addressRepository.queryFirst1ByDelFlagAndPersoncard(dtsu.getCardNumber());
         if (address != null) {
-            String adr = String.format("%s%s%s%s%s%s",
-                    StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
-                    StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
+            String adr = String.format("%s%s%s%s",
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getProvince())),
+                    //StringUtils.trimToEmpty(dictCache.queryArea(address.getCity())),
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getCounty())),
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getTown())),
                     StringUtils.trimToEmpty(dictCache.queryArea(address.getCommittee())),
