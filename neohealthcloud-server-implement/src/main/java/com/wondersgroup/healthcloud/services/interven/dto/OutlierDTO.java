@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.services.interven.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wondersgroup.healthcloud.enums.CriterionType;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
+import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -134,5 +135,15 @@ public class OutlierDTO {
         this.systolic = neoFamIntervention.getSystolic();
         this.diastolic = neoFamIntervention.getDiastolic();
         this.measureWay = neoFamIntervention.getMeasureWay();
+    }
+
+    public OutlierDTO(IntervenEntity intervenEntity) {
+        this.registerId = intervenEntity.getRegister_id();
+        this.testTime = intervenEntity.getTest_time()==null?"":DateFormatter.dateFormat(intervenEntity.getTest_time());
+        this.testPeriod = intervenEntity.getTest_period();
+        this.fpgValue = intervenEntity.getFpg_value()==null?null:Double.valueOf(intervenEntity.getFpg_value());
+        this.testHour = intervenEntity.getTest_time()==null?"":DateFormatter.hourDateFormat(intervenEntity.getTest_time());
+        this.measureWay = "1" ;
+
     }
 }

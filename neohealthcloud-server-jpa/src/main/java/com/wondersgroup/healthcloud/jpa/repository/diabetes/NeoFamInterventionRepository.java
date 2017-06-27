@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by longshasha on 17/5/26.
@@ -26,4 +27,10 @@ public interface NeoFamInterventionRepository extends JpaRepository<NeoFamInterv
     @Query(nativeQuery = true,value = "select count(*) from neo_fam_intervention a where a.register_id = ?1 and a.type <>'30000' and a.type <> '41000'" +
             "and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)  and a.del_flag ='0' and a.is_deal = '0' ")
     int countTodoIntervensByRegisterId(String registerId);
+
+    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' and type=?2 order by a.create_date desc limit 1 ")
+    NeoFamIntervention findLatestBGByTypeAndInterventionId(String intervenId,String type);
+
+    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' and type=?2 order by a.create_date desc limit 1 ")
+    List<NeoFamIntervention> findSevenBGByInterventionId(Date warnDate);
 }

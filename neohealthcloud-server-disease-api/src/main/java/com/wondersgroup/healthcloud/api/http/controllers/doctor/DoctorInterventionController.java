@@ -6,14 +6,19 @@ import java.util.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.squareup.okhttp.Request;
 import com.wondersgroup.common.http.HttpRequestExecutorManager;
 import com.wondersgroup.common.http.builder.RequestBuilder;
 import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import com.wondersgroup.healthcloud.api.http.dto.Interven.DoctorAdvice;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.DoctorInterventionDTO;
+import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
+import com.wondersgroup.healthcloud.enums.IntervenEnum;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DiabetesAssessmentRemind;
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DiabetesAssessmentRemindRepository;
@@ -24,6 +29,9 @@ import com.wondersgroup.healthcloud.services.doctor.DoctorInterventionService;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.entity.BloodGlucoseAndPressureDto;
 import com.wondersgroup.healthcloud.services.doctor.entity.Doctor;
+import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
+import com.wondersgroup.healthcloud.services.interven.dto.OutlierDTO;
+import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +89,9 @@ public class DoctorInterventionController {
 
     @Autowired
     private DoctorInterventionRepository doctorInterventionRepository;
+
+    @Autowired
+    private DoctorIntervenService doctorIntervenService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonResponseEntity list(@RequestParam(name = "uid", required = true) String patientId,
@@ -305,5 +316,119 @@ public class DoctorInterventionController {
             }
             return 0;
         }
+    }
+
+
+    /**
+     * 用户端医生建议列表
+     * @param patientId
+     * @return
+     */
+    @GetMapping(value = "/doctorAdvice/list")
+    public JsonListResponseEntity<DoctorAdvice> doctorAdviceList(@RequestParam(name = "uid", required = true) String patientId,
+                                                             @RequestParam(defaultValue = "0", required = false) String flag) {
+        JsonListResponseEntity<DoctorAdvice> response = new JsonListResponseEntity<>();
+        List<DoctorAdvice> doctorAdviceList = Lists.newArrayList();
+        boolean more = false;
+        int pageNo = 0;
+        if(StringUtils.isNotBlank(flag)){
+            pageNo = Integer.valueOf(flag);
+        }
+        int pageSize = 20;
+        List<IntervenEntity> intervenEntityList = doctorIntervenService.findDoctorAdviceListByRegisterid(patientId,pageNo,pageSize);
+        if(intervenEntityList!=null && intervenEntityList.size()>0){
+            for(IntervenEntity intervenEntity : intervenEntityList){
+                if(doctorAdviceList.size()<pageSize) {
+
+                    DoctorAdvice doctorAdvice = new DoctorAdvice(intervenEntity);
+                    //查询血糖异常数据
+                    List<OutlierDTO> bloodGlucoseOutlierDTOs = Lists.newArrayList();
+                    //查询血压异常数据
+                    List<OutlierDTO> pressureOutlierDTOs = Lists.newArrayList();
+
+                    //查询是否有关联的异常数据 如果没有则取医生干预中的一条记录
+                    NeoFamIntervention neoFamIntervention = doctorInterventionService.findLatestByInterventionId(intervenEntity.getId());
+                    if (neoFamIntervention == null) {
+                        OutlierDTO outlierDTO = new OutlierDTO(intervenEntity);
+                        bloodGlucoseOutlierDTOs.add(outlierDTO);
+                        doctorAdvice.setIntervenType(IntervenEnum.msgType1.getTypeName());
+                    } else {
+                        //血糖
+                        List<NeoFamIntervention> bloodGlucoseOutlierList = doctorInterventionService.findPatientBGOutlierListByIntervenId(intervenEntity.getId());
+                        if (bloodGlucoseOutlierList != null && bloodGlucoseOutlierList.size() > 0) {
+                            for (NeoFamIntervention intervention : bloodGlucoseOutlierList) {
+                                OutlierDTO outlierDTO = new OutlierDTO(intervention);
+                                bloodGlucoseOutlierDTOs.add(outlierDTO);
+                            }
+                        }
+                        //血压
+                        List<NeoFamIntervention> pressureOutlierList = doctorInterventionService.findPatientPressureOutlierListByIntervenId(intervenEntity);
+                        if (pressureOutlierList != null && pressureOutlierList.size() > 0) {
+                            for (NeoFamIntervention preInterven : pressureOutlierList) {
+                                OutlierDTO outlierDTO = new OutlierDTO(preInterven);
+                                pressureOutlierDTOs.add(outlierDTO);
+                            }
+                        }
+                    }
+
+                    doctorAdvice.setBloodGlucoseList(bloodGlucoseOutlierDTOs);
+                    doctorAdvice.setPressureList(pressureOutlierDTOs);
+                    doctorAdviceList.add(doctorAdvice);
+                }
+            }
+
+            if(intervenEntityList.size()>pageSize){
+                more = true;
+                flag = String.valueOf(pageNo + 1);
+            }
+
+        }
+        response.setContent(doctorAdviceList, more, null, flag);
+        return response;
+    }
+
+    @GetMapping(value = "/doctorAdvice/detail")
+    public JsonResponseEntity<DoctorAdvice> doctorAdviceDetail(@RequestParam(name = "id", required = true) String id) {
+        JsonResponseEntity<DoctorAdvice> response = new JsonResponseEntity<>();
+        DoctorAdvice doctorAdvice = null;
+        IntervenEntity intervenEntity = doctorIntervenService.findDoctorAdviceDetailById(id);
+        if(intervenEntity!=null){
+               doctorAdvice = new DoctorAdvice(intervenEntity);
+                //查询血糖异常数据
+                List<OutlierDTO> bloodGlucoseOutlierDTOs = Lists.newArrayList();
+                //查询血压异常数据
+                List<OutlierDTO> pressureOutlierDTOs = Lists.newArrayList();
+
+                //查询是否有关联的异常数据 如果没有则取医生干预中的一条记录
+                NeoFamIntervention neoFamIntervention = doctorInterventionService.findLatestByInterventionId(intervenEntity.getId());
+                if (neoFamIntervention == null) {
+                    OutlierDTO outlierDTO = new OutlierDTO(intervenEntity);
+                    bloodGlucoseOutlierDTOs.add(outlierDTO);
+                    doctorAdvice.setIntervenType(IntervenEnum.msgType1.getTypeName());
+                } else {
+                    //血糖
+                    List<NeoFamIntervention> bloodGlucoseOutlierList = doctorInterventionService.findPatientBGOutlierListByIntervenId(intervenEntity.getId());
+                    if (bloodGlucoseOutlierList != null && bloodGlucoseOutlierList.size() > 0) {
+                        for (NeoFamIntervention intervention : bloodGlucoseOutlierList) {
+                            OutlierDTO outlierDTO = new OutlierDTO(intervention);
+                            bloodGlucoseOutlierDTOs.add(outlierDTO);
+                        }
+                    }
+                    //血压
+                    List<NeoFamIntervention> pressureOutlierList = doctorInterventionService.findPatientPressureOutlierListByIntervenId(intervenEntity);
+                    if (pressureOutlierList != null && pressureOutlierList.size() > 0) {
+                        for (NeoFamIntervention preInterven : pressureOutlierList) {
+                            OutlierDTO outlierDTO = new OutlierDTO(preInterven);
+                            pressureOutlierDTOs.add(outlierDTO);
+                        }
+                    }
+                }
+
+                doctorAdvice.setBloodGlucoseList(bloodGlucoseOutlierDTOs);
+                doctorAdvice.setPressureList(pressureOutlierDTOs);
+            }
+
+        response.setData(doctorAdvice);
+        return response;
     }
 }

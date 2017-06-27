@@ -34,4 +34,8 @@ public interface DoctorIntervenService {
     Boolean hasTodoIntervensByRegisterId(String registerId);
 
     Boolean hasTodoIntervensByDoctorId(String uid);
+
+    List<IntervenEntity> findDoctorAdviceListByRegisterid(String patientId, int pageNo, int pageSize);
+
+    IntervenEntity findDoctorAdviceDetailById(String id);
 }

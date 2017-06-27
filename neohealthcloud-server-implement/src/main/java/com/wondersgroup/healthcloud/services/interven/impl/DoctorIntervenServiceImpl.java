@@ -387,4 +387,66 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
             return true;
         return false;
     }
+
+    /**
+     * 根据用户Id查询医生建议
+     * @param patientId
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public List<IntervenEntity> findDoctorAdviceListByRegisterid(String patientId, int pageNo, int pageSize) {
+        String sql = " select di.patient_id as register_id,a.typelist,u.`name`,u.card_number as personcard,u.gender,u.age,\n" +
+                " u.avatar,u.identifytype ,u.diabetes_type,u.hyp_type,u.apo_type,u.is_risk,u.sign_status,di.id," +
+                " di.create_time as interventionDate,di.content,di.fpg_value,di.test_period " +
+                " ,da.avatar as doctorAvatar,da.name as doctorName,h.hospital_name as hospitalName   " +
+                " from app_tb_doctor_intervention di\n" +
+                " left join \n" +
+                " (" +
+                " select register_id,doctor_intervention_id,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
+                " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id) a \n" +
+                "  on di.id = a.doctor_intervention_id\n" +
+                " JOIN app_tb_register_info info on di.patient_id = info.registerid\n" +
+                " LEFT  JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' " +
+                " LEFT JOIN  doctor_account_tb da on da.id = di.doctor_id" +
+                " LEFT JOIN  doctor_info_tb dInfo on dInfo.id = di.doctor_id " +
+                " LEFT JOIN t_dic_hospital_info h on h.hospital_id = dInfo.hospital_id  " +
+                " where di.del_flag = '0' and di.patient_id =  '%s'" +
+                " order by di.create_time desc" +
+                " limit "+(pageNo)*pageSize+","+(pageSize+1);
+        sql = String.format(sql,patientId);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(IntervenEntity.class));
+    }
+
+    /**
+     * 查询用户端干预详情
+     * @param id
+     * @return
+     */
+    @Override
+    public IntervenEntity findDoctorAdviceDetailById(String id) {
+        String sql = " select di.patient_id as register_id,a.typelist,u.`name`,u.card_number as personcard,u.gender,u.age,\n" +
+                " u.avatar,u.identifytype ,u.diabetes_type,u.hyp_type,u.apo_type,u.is_risk,u.sign_status,di.id," +
+                " di.create_time as interventionDate,di.content,di.fpg_value,di.test_period " +
+                " ,da.avatar as doctorAvatar,da.name as doctorName,h.hospital_name as hospitalName " +
+                " from app_tb_doctor_intervention di\n" +
+                " left join \n" +
+                " (" +
+                " select register_id,doctor_intervention_id,GROUP_CONCAT(distinct type) typelist from neo_fam_intervention \n" +
+                " where type!='30000' and del_flag='0' and is_deal ='1' and doctor_intervention_id is not null  group by register_id,doctor_intervention_id) a \n" +
+                "  on di.id = a.doctor_intervention_id\n" +
+                " JOIN app_tb_register_info info on di.patient_id = info.registerid\n" +
+                " LEFT  JOIN fam_doctor_tube_sign_user u on info.personcard = u.card_number and u.card_type = '01' \n" +
+                " LEFT JOIN  doctor_account_tb da on da.id = di.doctor_id" +
+                " LEFT JOIN  doctor_info_tb dInfo on dInfo.id = di.doctor_id " +
+                " LEFT JOIN t_dic_hospital_info h on h.hospital_id = dInfo.hospital_id  " +
+                " where di.del_flag = '0' and di.id = '%s' " ;
+        sql = String.format(sql,id);
+        List<IntervenEntity> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(IntervenEntity.class));
+        if(list!=null && list.size()>0){
+            return list.get(0);
+        }
+        return null;
+    }
 }

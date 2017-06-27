@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.services.interven.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,18 @@ public class IntervenEntity {
     private String id;
     private Date interventionDate;
     private String content;
+
+    /**
+     * 用户端医生建议
+     */
+    private String fpg_value;
+    private String test_period;
+    private Date test_time;
+
+    private String doctorName;
+    private String hospitalName;
+    private String doctorAvatar;
+
 
 
     public Integer getAge() {

@@ -1,6 +1,8 @@
 package com.wondersgroup.healthcloud.services.doctor;
 
+import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
+import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 
 import java.util.List;
 
@@ -11,4 +13,10 @@ import java.util.List;
 public interface DoctorInterventionService {
     List<DoctorIntervention> list(DoctorIntervention doctorIntervention);
     DoctorIntervention saveAndUpdate(DoctorIntervention doctorIntervention);
+
+    NeoFamIntervention findLatestByInterventionId(String intervenId);
+
+    List<NeoFamIntervention> findPatientBGOutlierListByIntervenId(String intervenId);
+
+    List<NeoFamIntervention> findPatientPressureOutlierListByIntervenId(IntervenEntity interven);
 }
