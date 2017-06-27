@@ -792,9 +792,7 @@ public class MeasureController {
                         infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
                     }
                 }
-                if(regInfo != null){
-                    infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
-                }
+
             }else if(famId != null){
                 singUser = doctorTubeSignUserRepository.findOne(famId);
                 List<RegisterInfo> regisInfos = userService.findRegisterInfoByIdcard(singUser.getCardNumber());
@@ -816,7 +814,9 @@ public class MeasureController {
             }
             String personcard = singUser != null ? singUser.getCardNumber() : regInfo.getPersoncard();
             infoDto.setName(singUser != null ? singUser.getName() : regInfo.getName());
-
+            if(regInfo != null && infoDto.getAddress() == null){
+                infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
+            }
             infoDto.setAge(IdcardUtils.getAgeByIdCard(personcard));
             infoDto.setIdentifyType("1".equals(singUser != null ? singUser.getIdentifytype() : regInfo.getIdentifytype()));
             infoDto.setAvatar(singUser != null ? singUser.getAvatar() : regInfo.getHeadphoto());
