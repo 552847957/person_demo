@@ -334,7 +334,7 @@ public class DoctorInterventionController {
         if(StringUtils.isNotBlank(flag)){
             pageNo = Integer.valueOf(flag);
         }
-        int pageSize = 20;
+        int pageSize = 10;
         List<IntervenEntity> intervenEntityList = doctorIntervenService.findDoctorAdviceListByRegisterid(patientId,pageNo,pageSize);
         if(intervenEntityList!=null && intervenEntityList.size()>0){
             for(IntervenEntity intervenEntity : intervenEntityList){
