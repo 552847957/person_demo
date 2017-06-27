@@ -23,6 +23,7 @@ import com.wondersgroup.healthcloud.jpa.repository.assessment.AssessmentReposito
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.DoctorTubeSignUserRepository;
 import com.wondersgroup.healthcloud.services.assessment.AssessmentService;
 import com.wondersgroup.healthcloud.services.assessment.dto.AssessmentConstrains;
+import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
 import com.wondersgroup.healthcloud.services.imagetext.ImageTextService;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.user.UserService;
@@ -74,6 +75,8 @@ public class MeasureController {
     private ImageTextService imageTextService;
     @Autowired
     private DoctorIntervenService doctorIntervenService;
+    @Autowired
+    private DoctorTubeSignUserService doctorTubeSignUserService;
 
     private RestTemplate restTemplate = new RestTemplate();
     private static final String recentMeasureHistoryByDate = "%s/api/measure/3.0/recentHistoryByDate/%s?%s";
@@ -789,6 +792,9 @@ public class MeasureController {
                         infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
                     }
                 }
+                if(regInfo != null){
+                    infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
+                }
             }else if(famId != null){
                 singUser = doctorTubeSignUserRepository.findOne(famId);
                 List<RegisterInfo> regisInfos = userService.findRegisterInfoByIdcard(singUser.getCardNumber());
@@ -800,14 +806,17 @@ public class MeasureController {
                 infoDto.setApoType("1".equals(singUser.getApoType()));
                 infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
                 infoDto.setSignStatus("1".equals(singUser.getSignStatus()));
+
+                if ("0".equals(singUser.getSignStatus()) && singUser.getTubeType() == 1) {
+                    String adr = doctorTubeSignUserService.getGUserAddress(singUser.getCardNumber());
+                    infoDto.setAddress(adr);
+                }
             }else{
                 return new JsonResponseEntity(1001, "用户数据获取失败");
             }
             String personcard = singUser != null ? singUser.getCardNumber() : regInfo.getPersoncard();
             infoDto.setName(singUser != null ? singUser.getName() : regInfo.getName());
-            if(regInfo != null){
-                infoDto.setAddress(getAddress(regInfo.getRegisterid(), true));
-            }
+
             infoDto.setAge(IdcardUtils.getAgeByIdCard(personcard));
             infoDto.setIdentifyType("1".equals(singUser != null ? singUser.getIdentifytype() : regInfo.getIdentifytype()));
             infoDto.setAvatar(singUser != null ? singUser.getAvatar() : regInfo.getHeadphoto());
