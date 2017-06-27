@@ -712,7 +712,7 @@ public class MeasureController {
     public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(
             String registerId,
             @RequestParam(defaultValue = "1") Integer flag,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+            @RequestParam(defaultValue = "20") Integer pageSize) {
         JsonListResponseEntity<AssessmentAbnormal> entity = new JsonListResponseEntity<>();
         List<AssessmentAbnormal> arr = new ArrayList<AssessmentAbnormal>();
         boolean more = false;
