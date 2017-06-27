@@ -933,49 +933,53 @@ public class MeasureController {
         if(!"0".equals(assessment.getStrokeRelatives())){
             list.add( "亲属中有脑卒中患者");
         }
-        if(3 == assessment.getIsDrink()){
+        if(assessment.getIsDrink() != null && 3 == assessment.getIsDrink()){
             list.add( "每天都喝酒");
         }
-        if(1 == assessment.getIsSmoking() || 2 == assessment.getIsSmoking()){
+        if(assessment.getIsSmoking() != null  && (1 == assessment.getIsSmoking() || 2 == assessment.getIsSmoking())){
             list.add(1 == assessment.getIsSmoking() ? "现在每天吸烟" : "现在吸烟，但不是每天吸烟");
         }
-        if(1 != assessment.getEatHabits()){
+        if(assessment.getEatHabits() != null && 1 != assessment.getEatHabits()){
             list.add( 2 == assessment.getEatHabits()?"饮食习惯荤食为主":"饮食习惯素食为主");
         }
-        if(!"4".equals(assessment.getEatTaste())){
+        if(assessment.getEatTaste() != null && !"4".equals(assessment.getEatTaste())){
             if(assessment.getEatTaste().contains("1")) list.add( "饮食口味嗜盐");
             if(assessment.getEatTaste().contains("2")) list.add( "饮食口味嗜油");
             if(assessment.getEatTaste().contains("3")) list.add( "饮食口味嗜糖");
         }
-        if(3 == assessment.getSport() || 4 == assessment.getSport()){
+        if(assessment.getSport() !=null && (3 == assessment.getSport() || 4 == assessment.getSport())){
             list.add( "严重缺乏运动");
         }
-        String[] pressures = assessment.getPressure().split("/");
-        Integer diastolic = Integer.valueOf(pressures[1]);
-        Integer systolic = Integer.valueOf(pressures[0]);
-        if(diastolic >=85 || systolic >=130){
-            list.add( "血压"+assessment.getPressure()+"mmHg");
+        if(assessment.getPressure() != null && !"0".equals(assessment.getPressure())){
+            String[] pressures = assessment.getPressure().split("/");
+            Integer diastolic = pressures.length > 1 ? Integer.valueOf(pressures[1]) : 0;
+            Integer systolic = Integer.valueOf(pressures[0]);
+            if(diastolic >=85 || systolic >=130){
+                list.add( "血压"+assessment.getPressure()+"mmHg");
+            }
         }
-        if(1 == assessment.getTakeAntihypertensiveDrugs()){
+        if(assessment.getTakeAntihypertensiveDrugs() !=null && 1 == assessment.getTakeAntihypertensiveDrugs()){
             list.add( "正在服用降压药");
         }
-        if(1 == assessment.getIsDyslipidemia()){
+        if(assessment.getIsDyslipidemia() != null && 1 == assessment.getIsDyslipidemia()){
             list.add( "血脂异常");
         }
-        if(!"6".equals(assessment.getMedicalHistory())){
+        if(assessment.getMedicalHistory() != null && !"6".equals(assessment.getMedicalHistory())){
             if(assessment.getMedicalHistory().contains("1")) list.add( "有糖调节受损（IGR，又称糖尿病前期)");
             if(assessment.getMedicalHistory().contains("2")) list.add( "动脉粥样硬化心脑血管疾病");
             if(assessment.getMedicalHistory().contains("3")) list.add( "有一过性类固醇糖尿病");
             if(assessment.getMedicalHistory().contains("4")) list.add( "房颤或明显的脉搏不齐");
             if(assessment.getMedicalHistory().contains("5")) list.add( "短暂脑缺血发作病史（TIA）");
         }
-        if(1 == assessment.getIsDepression()){
+        if(assessment.getIsDepression() != null && 1 == assessment.getIsDepression()){
             list.add( "长期接受抗精神类药物（或）抗抑郁症药物治疗");
         }
         if("2".equals(assessment.getGender()) && !"4".equals(assessment.getFemaleMedicalHistory())){
-            if(assessment.getFemaleMedicalHistory().contains("1")) list.add( "有巨大儿（出生体重>=4KG）生产史");
-            if(assessment.getFemaleMedicalHistory().contains("2")) list.add( "有妊娠期糖尿病史");
-            if(assessment.getFemaleMedicalHistory().contains("3")) list.add( "多囊卵巢综合症患者");
+            if(assessment.getFemaleMedicalHistory() != null){
+                if(assessment.getFemaleMedicalHistory().contains("1")) list.add( "有巨大儿（出生体重>=4KG）生产史");
+                if(assessment.getFemaleMedicalHistory().contains("2")) list.add( "有妊娠期糖尿病史");
+                if(assessment.getFemaleMedicalHistory().contains("3")) list.add( "多囊卵巢综合症患者");
+            }
         }
         return list;
     }
