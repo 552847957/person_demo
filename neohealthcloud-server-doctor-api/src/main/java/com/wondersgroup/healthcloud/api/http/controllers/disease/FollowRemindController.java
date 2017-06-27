@@ -45,7 +45,7 @@ public class FollowRemindController {
     @Autowired
     private DiabetesAssessmentRemindRepository remindRepo;
 
-    @Value("${disease.h5.url}")
+    @Value("${h5-diabetes.connection.url}")
     private String diseaseUrl;
 
     /**
