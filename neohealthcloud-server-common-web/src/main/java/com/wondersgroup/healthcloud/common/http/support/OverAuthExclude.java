@@ -27,6 +27,9 @@ public class OverAuthExclude {
     private static final String GROUP="/api/group/";
     private static final String HEATHUSERINFO="/api/measure/heathUserInfo";
     private static final String REPORT_FOLLOW="/api/report/follow";
+    private static final String LAST_WEEK_HISTORY = "/api/measure/lastWeekHistory";
+    private static final String USER_MONITOR = "/api/userMonitor/findUserMonitor";
+    private static final String REPORT = "/api/report/follow";
     //==== Doctor End
 
     // Init User
@@ -36,7 +39,9 @@ public class OverAuthExclude {
         overAuthExcludes.add(FAMILY);
         overAuthExcludes.add(USER);
         overAuthExcludes.add(ASSESSMENT);
-        overAuthExcludes.add(TUBERELATION);
+        overAuthExcludes.add(LAST_WEEK_HISTORY);
+        overAuthExcludes.add(USER_MONITOR);
+        overAuthExcludes.add(REPORT);
     }
 
     // Init Doctor
