@@ -29,7 +29,7 @@ public interface NeoFamInterventionRepository extends JpaRepository<NeoFamInterv
      * @param interventionId
      * @return
      */
-    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.type  REGEXP '10000|200000' and a.del_flag ='0' order by a.create_date desc limit 1 ")
+    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.type  REGEXP '10000|20000' and a.del_flag ='0' order by a.create_date desc limit 1 ")
     NeoFamIntervention findLatestBGByInterventionId(String interventionId);
 
     /**
