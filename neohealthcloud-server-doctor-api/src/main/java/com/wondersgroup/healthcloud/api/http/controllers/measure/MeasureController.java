@@ -836,7 +836,12 @@ public class MeasureController {
             List<ImageText> imageTextList = imageTextService.findImageTextByAdcodeForApp(mainArea, specArea, imageText);
             boolean isNew = false;
             if(regInfo != null){
+                String date = new DateTime().plusDays(-90).toString("yyyy-MM-dd HH:mm:ss");
+                List<Assessment> list = assessmentRepository.queryAssessment(regInfo.getRegisterid(), date,0,10);
                 isNew = doctorIntervenService.hasTodoIntervensByRegisterId(regInfo.getRegisterid());
+                if(list !=null && list.size() > 0){
+                    isNew = true;
+                }
             }
             if(imageTextList !=null){
                 for (ImageText image : imageTextList) {

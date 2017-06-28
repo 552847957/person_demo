@@ -32,7 +32,9 @@ public interface AssessmentRepository extends JpaRepository<Assessment,String> {
     @Query("select count(1) from Assessment a where a.uid = ?1 and a.isOneself = 1 and a.delFlag=0")
         Integer getAssessNum(String uid);
 
-    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.del_flag=0 and a.result is not null and a.create_date >= ?2  ORDER BY create_date desc limit ?3,?4")
+    @Query(nativeQuery = true, value = "select * from app_tb_patient_assessment a where a.uid = ?1 and a.is_oneself = 1 and a.del_flag=0 and a.result is not null and a.create_date >= ?2  and not EXISTS (\n" +
+            "\tselect * from app_tb_diabetes_assessment_remind where registerid = ?1 \n" +
+            "    and  type = 1 and create_date >= a.create_date) ORDER BY a.create_date desc limit ?3,?4")
     List<Assessment> queryAssessment(String registerId, String date,Integer a, Integer b);
 
 
