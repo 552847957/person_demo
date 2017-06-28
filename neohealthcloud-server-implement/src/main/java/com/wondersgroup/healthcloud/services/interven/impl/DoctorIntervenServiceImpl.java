@@ -286,7 +286,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<NeoFamIntervention> findBloodGlucoseOutlierListByInterventionId(String interventionId, Boolean is_all, int pageNo, int pageSize, int size) {
-        NeoFamIntervention neoFamIntervention = neoFamInterventionRepository.findLatestByInterventionId(interventionId);
+        NeoFamIntervention neoFamIntervention = neoFamInterventionRepository.findLatestBGByInterventionId(interventionId);
         if(neoFamIntervention == null){
             return null;
         }
@@ -313,7 +313,7 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
      */
     @Override
     public List<NeoFamIntervention> findpressureOutlierListByInterventionId(String interventionId, Boolean is_all, int pageNo, int pageSize, int size) {
-        NeoFamIntervention neoFamIntervention = neoFamInterventionRepository.findLatestByInterventionId(interventionId);
+        NeoFamIntervention neoFamIntervention = neoFamInterventionRepository.findLatestPressByInterventionId(interventionId);
         if(neoFamIntervention == null){
             return null;
         }

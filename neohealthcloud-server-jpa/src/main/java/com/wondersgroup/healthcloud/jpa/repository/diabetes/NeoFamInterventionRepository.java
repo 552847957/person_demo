@@ -24,6 +24,22 @@ public interface NeoFamInterventionRepository extends JpaRepository<NeoFamInterv
     @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' order by a.create_date desc limit 1 ")
     NeoFamIntervention findLatestByInterventionId(String interventionId);
 
+    /**
+     * 查询干预过的血糖的最近的一条数据
+     * @param interventionId
+     * @return
+     */
+    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.type  REGEXP '10000|200000' and a.del_flag ='0' order by a.create_date desc limit 1 ")
+    NeoFamIntervention findLatestBGByInterventionId(String interventionId);
+
+    /**
+     * 查询干预过的血压的最近的一条数据
+     * @param interventionId
+     * @return
+     */
+    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.type  REGEXP '40000|40001|40002|40003|40004' and a.del_flag ='0' order by a.create_date desc limit 1 ")
+    NeoFamIntervention findLatestPressByInterventionId(String interventionId);
+
     @Query(nativeQuery = true,value = "select count(*) from neo_fam_intervention a where a.register_id = ?1 and a.type <>'30000' and a.type <> '41000'" +
             "and warn_date>=DATE_SUB(CURDATE(),INTERVAL 90 day)  and a.del_flag ='0' and a.is_deal = '0' ")
     int countTodoIntervensByRegisterId(String registerId);
@@ -31,6 +47,4 @@ public interface NeoFamInterventionRepository extends JpaRepository<NeoFamInterv
     @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' and type=?2 order by a.create_date desc limit 1 ")
     NeoFamIntervention findLatestBGByTypeAndInterventionId(String intervenId,String type);
 
-    @Query(nativeQuery=true,value = " select * from neo_fam_intervention a where a.doctor_intervention_id =?1 and a.del_flag ='0' and type=?2 order by a.create_date desc limit 1 ")
-    List<NeoFamIntervention> findSevenBGByInterventionId(Date warnDate);
 }
