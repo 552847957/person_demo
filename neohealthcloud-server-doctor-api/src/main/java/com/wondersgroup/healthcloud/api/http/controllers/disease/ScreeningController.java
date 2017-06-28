@@ -6,6 +6,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.disease;
 
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.ScreeningDto;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -17,6 +18,7 @@ import com.wondersgroup.healthcloud.jpa.repository.user.RegisterInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserInfoRepository;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.Map;
  * 高危筛查
  * Created by Administrator on 2016/12/8.
  */
-@RestController
+@Controller
 @RequestMapping(value = "/api/screening")
 public class ScreeningController {
 
@@ -56,6 +58,7 @@ public class ScreeningController {
      * @return
      */
     @GetMapping("/list")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity list(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer  signStatus,
@@ -93,6 +96,7 @@ public class ScreeningController {
      * @return
      */
     @PostMapping("/remind")
+    @ResponseBody
     public JsonResponseEntity remind(@RequestBody String request) {
 
         JsonResponseEntity entity = new JsonResponseEntity();

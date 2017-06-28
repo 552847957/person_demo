@@ -1,7 +1,6 @@
 package com.wondersgroup.healthcloud.common.http.support.jackson;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wondersgroup.common.http.utils.JsonConverter;
 import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;

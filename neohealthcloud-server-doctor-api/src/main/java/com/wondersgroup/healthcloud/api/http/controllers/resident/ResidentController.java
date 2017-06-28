@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.resident;
 
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.DoctorTubeSignUser;
 import com.wondersgroup.healthcloud.services.disease.DoctorTubeSignUserService;
@@ -8,6 +9,7 @@ import com.wondersgroup.healthcloud.services.disease.dto.ResidentInfoDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +22,7 @@ import java.util.List;
  *
  * @author limenghua
  */
-@RestController
+@Controller
 @RequestMapping(value = "/api/resident")
 public class ResidentController {
 
@@ -28,6 +30,7 @@ public class ResidentController {
     private DoctorTubeSignUserService doctorTubeSignUserService;
 
     @GetMapping("/list")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity list(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer signed,

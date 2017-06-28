@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.disease;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.FollowRemindDto;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.disease.FollowRemindMineDto;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -17,6 +18,7 @@ import com.wondersgroup.healthcloud.services.disease.FollowRemindService;
 import com.wondersgroup.healthcloud.services.disease.ScreeningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.Map;
  * 随访提醒
  * Created by zhuchunliu on 2017/5/23.
  */
-@RestController
+@Controller
 @RequestMapping(value = "/api/follow")
 public class FollowRemindController {
 
@@ -56,6 +58,7 @@ public class FollowRemindController {
      * @return
      */
     @GetMapping("/list")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity list(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false) Integer  signStatus,
@@ -95,6 +98,7 @@ public class FollowRemindController {
      * @return
      */
     @GetMapping("/mine")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity mine(
             @RequestParam(required = true) String doctorId,
             @RequestParam(required = false, defaultValue = "1") Integer flag) {
@@ -131,6 +135,7 @@ public class FollowRemindController {
      * @return
      */
     @PostMapping("/remind")
+    @ResponseBody
     public JsonResponseEntity remind(@RequestBody String request) {
 
         JsonResponseEntity entity = new JsonResponseEntity();

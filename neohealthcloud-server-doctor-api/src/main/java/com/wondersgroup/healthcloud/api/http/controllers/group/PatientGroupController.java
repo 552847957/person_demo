@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +42,7 @@ import com.wondersgroup.healthcloud.services.group.PatientGroupService;
  * @author zhongshuqing
  *
  */
-@RestController
+@Controller
 @RequestMapping(value="/api/group")
 public class PatientGroupController {
     
@@ -61,6 +63,7 @@ public class PatientGroupController {
      */
     @VersionRange
     @GetMapping(value="/list")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity<PatientGroupDto> getGroupByDoctorId(@RequestParam(value="uid",required=true) String doctorId){
         JsonListResponseEntity<PatientGroupDto> entity = new JsonListResponseEntity<>();
         List<PatientGroupDto> list = new ArrayList<>();
@@ -88,6 +91,7 @@ public class PatientGroupController {
 
     @VersionRange
     @GetMapping(value = "/patientList")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity<ResidentInfoDto> patientList(@RequestParam(value = "groupId", required = true) Integer groupId,
                                                                @RequestParam(required = true) String doctorId,
                                                                @RequestParam(value = "page", defaultValue = "1") Integer page,
@@ -123,6 +127,7 @@ public class PatientGroupController {
      */
     @VersionRange
     @PostMapping(value="/saveOrUpdate")
+    @JsonEncode(encode = true)
     public JsonResponseEntity<Map<String, String>> saveOrUpdateGroup(@RequestBody String request){
         JsonResponseEntity<Map<String, String>> entity = new JsonResponseEntity<>();
         JsonKeyReader reader = new JsonKeyReader(request);
@@ -153,6 +158,7 @@ public class PatientGroupController {
      */
     @VersionRange
     @DeleteMapping(value="/delete")
+    @JsonEncode(encode = true)
     public JsonResponseEntity<Map<String, Boolean>> delGroup(@RequestParam String uid,@RequestParam String id){
         JsonResponseEntity<Map<String, Boolean>> entity = new JsonResponseEntity<>();
             Boolean delPatientGroup = patientGroupService.delPatientGroup(id, uid);
@@ -169,6 +175,7 @@ public class PatientGroupController {
      */
     @VersionRange
     @PostMapping(value="/sort")
+    @JsonEncode(encode = true)
     public JsonResponseEntity<Object> sortGroup(@RequestBody String request){
         JsonResponseEntity<Object> entity = new JsonResponseEntity<>();
         JSONObject object = JSONObject.fromObject(request);
@@ -201,6 +208,7 @@ public class PatientGroupController {
      */
     @VersionRange
     @PostMapping(value="/addUserToGroup")
+    @JsonEncode(encode = true)
     public JsonResponseEntity<Object> addUserToGroup(@RequestBody String request){
         JsonResponseEntity<Object> entity = new JsonResponseEntity<>();
         JSONObject object = JSONObject.fromObject(request);
@@ -236,6 +244,7 @@ public class PatientGroupController {
 
     @VersionRange
     @GetMapping(value = "/selectGroupList")
+    @JsonEncode(encode = true)
     public JsonListResponseEntity<PatientGroupDto> getGroupByUserIdAndDoctorId(
             @RequestParam(value = "doctorId", required = true) String doctorId,
             @RequestParam(value = "userId", required = true) String userId) {

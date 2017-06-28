@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.sign;
 
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +22,7 @@ import java.util.List;
 /**
  * Created by ZZX on 2017/6/9.
  */
-@RestController
+@Controller
 @RequestMapping("/api/doctor/sign")
 public class SignController {
 
@@ -40,6 +42,7 @@ public class SignController {
      * @return
      */
     @RequestMapping(value = "/userLists", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonListResponseEntity userLists(@RequestParam String doctorId,
                                             @RequestParam(required = false) String name,

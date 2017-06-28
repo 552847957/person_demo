@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.controllers.intervention;
 import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.services.interven.dto.OutlierDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.PersonDTO;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
@@ -10,6 +11,7 @@ import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
 import com.wondersgroup.healthcloud.services.interven.entity.IntervenEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +22,7 @@ import java.util.List;
 /**
  * Created by longshasha on 17/5/27.
  */
-@RestController
+@Controller
 @RequestMapping("/api/doctor/personal")
 public class PersonalIntervenController {
 
@@ -34,6 +36,7 @@ public class PersonalIntervenController {
      * @return
      */
     @RequestMapping(value = "/interventionList", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonListResponseEntity<PersonDTO> interventionList(@RequestParam String doctorId,
                                                       @RequestParam(defaultValue = "", required = false) String flag) {
@@ -73,6 +76,7 @@ public class PersonalIntervenController {
      * @return
      */
     @RequestMapping(value = "/intervention/bloodGlucose", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonListResponseEntity<OutlierDTO> bloodGlucose(@RequestParam(required = true) String interventionId,
                                                            @RequestParam(defaultValue = "false") Boolean is_all,
@@ -124,6 +128,7 @@ public class PersonalIntervenController {
      * @return
      */
     @RequestMapping(value = "/intervention/pressure", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonListResponseEntity<OutlierDTO> pressure(@RequestParam(required = true) String interventionId,
                                                        @RequestParam(defaultValue = "false") Boolean is_all,

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.IntervenDetailDTO;
 import com.wondersgroup.healthcloud.services.interven.dto.OutlierDTO;
 import com.wondersgroup.healthcloud.api.http.dto.doctor.intervention.PersonDTO;
+import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
@@ -19,6 +20,7 @@ import com.wondersgroup.healthcloud.services.interven.exception.ErrorDoctorInter
 import com.wondersgroup.healthcloud.services.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
 /**
  * Created by longshasha on 17/5/18.
  */
-@RestController
+@Controller
 @RequestMapping("/api/doctor/intervention")
 public class InterventionController {
 
@@ -50,6 +52,7 @@ public class InterventionController {
      * @return
      */
     @RequestMapping(value = "/todoList", method = RequestMethod.GET)
+    @JsonEncode(encode = true)
     @VersionRange
     public JsonListResponseEntity<PersonDTO> toDoList(@RequestParam String doctorId,
                                                       @RequestParam(defaultValue = "") String sign,
@@ -95,6 +98,7 @@ public class InterventionController {
      * @return
      */
     @RequestMapping(value = "/bloodGlucose", method = RequestMethod.GET)
+    @ResponseBody
     @VersionRange
     public JsonListResponseEntity<OutlierDTO> bloodGlucose(@RequestParam String registerId,
                                                       @RequestParam(defaultValue = "false") Boolean is_all,
@@ -144,6 +148,7 @@ public class InterventionController {
      * @return
      */
     @RequestMapping(value = "/pressure", method = RequestMethod.GET)
+    @ResponseBody
     @VersionRange
     public JsonListResponseEntity<OutlierDTO> pressure(@RequestParam String registerId,
                                                            @RequestParam(defaultValue = "false") Boolean is_all,
@@ -191,6 +196,7 @@ public class InterventionController {
      * @return
      */
     @RequestMapping(value = "/saveAndUpdate", method = RequestMethod.POST)
+    @ResponseBody
     @VersionRange
     public JsonResponseEntity<String> updateIntro(@RequestBody String body) {
         JsonKeyReader reader = new JsonKeyReader(body);
@@ -224,6 +230,7 @@ public class InterventionController {
      * @return
      */
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    @ResponseBody
     @VersionRange
     public JsonResponseEntity<IntervenDetailDTO> detail(@RequestParam String registerId,
                                                            @RequestParam(defaultValue = "4") String size) {
