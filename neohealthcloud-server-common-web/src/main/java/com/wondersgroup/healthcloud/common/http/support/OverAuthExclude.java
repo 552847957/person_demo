@@ -50,6 +50,9 @@ public class OverAuthExclude {
         overAuthExcludesForDoctor.add(GROUP);
         overAuthExcludesForDoctor.add(HEATHUSERINFO);
         overAuthExcludesForDoctor.add(REPORT_FOLLOW);
+        overAuthExcludesForDoctor.add(LAST_WEEK_HISTORY);
+        overAuthExcludesForDoctor.add(USER_MONITOR);
+        overAuthExcludes.add(REPORT);
     }
 
     public Boolean isExclude(String request){
