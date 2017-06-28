@@ -691,10 +691,16 @@ public class MeasureController {
         }else if(!StringUtils.isBlank(famId)){
             DoctorTubeSignUser info = doctorTubeSignUserRepository.findOne(famId);
             List<RegisterInfo> regInfos = userService.findRegisterInfoByIdcard(info.getCardNumber());
+            if ("0".equals(info.getSignStatus()) && info.getTubeType() == 1) {
+                String adr = doctorTubeSignUserService.getGUserAddress(info.getCardNumber());
+                infoDto.setAddress(adr);
+            }
             if(regInfos != null && regInfos.size() > 0){
                 RegisterInfo reg = regInfos.get(0);
-                infoDto.setAddress(getAddress(reg.getRegisterid(), false));
                 infoDto.setMedicarecard(reg.getMedicarecard());
+                if(infoDto.getAddress() == null){
+                    infoDto.setAddress(getAddress(reg.getRegisterid(), false));
+                }
             }
             infoDto.setName(info.getName());
             infoDto.setGender(info.getGender());
