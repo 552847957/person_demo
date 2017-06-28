@@ -47,7 +47,7 @@ public class SignServiceImpl implements SignService {
 
         // SELECT
         sql.append("SELECT fam.* FROM fam_doctor_tube_sign_user fam INNER JOIN");
-        sql.append("  (SELECT a.id, (case count(ct.group_id) when count(ct.group_id) > 0 then 1 else 0 end) num");
+        sql.append("  (SELECT a.id, if(count(ct.group_id) > 0, 1, 0) num");
         sql.append("    FROM fam_doctor_tube_sign_user a LEFT JOIN");
         sql.append("      (SELECT aa.user_id, cc.idcard, aa.group_id");
         sql.append("       FROM app_tb_sign_user_doctor_group aa, app_tb_patient_group bb, doctor_info_tb cc");
