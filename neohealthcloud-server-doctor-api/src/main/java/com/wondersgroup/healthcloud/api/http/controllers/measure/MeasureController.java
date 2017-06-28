@@ -847,7 +847,7 @@ public class MeasureController {
                 for (ImageText image : imageTextList) {
                     String hopLink = repliceUrl(image.getHoplink(), regInfo == null ? famId : regInfo.getRegisterid(), personcard);
                     HeathIconDto icon = new HeathIconDto(image.getMainTitle(), hopLink, image.getImgUrl());
-                    if(!StringUtils.isBlank(image.getMainTitle()) && "异常".contains(image.getMainTitle())){
+                    if(!StringUtils.isBlank(image.getMainTitle()) && image.getMainTitle().contains("异常")){
                         icon.setIsNew(isNew ? 1  : 0);
                     }
                     icons.add(icon);
