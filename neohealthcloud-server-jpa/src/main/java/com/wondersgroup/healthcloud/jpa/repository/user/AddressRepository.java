@@ -16,7 +16,7 @@ public interface AddressRepository extends JpaRepository<Address,String> {
 
     Address queryFirst1ByDelFlagAndUserId(String delFlag,String userId);
 
-    @Query(nativeQuery = true, value = "SELECT a.* FROM healthcloud.app_tb_register_address a, healthcloud.app_tb_register_info b WHERE a.registerid = b.registerid AND b.del_flag = '0' AND b.personcard = ?1 limit 0, 1")
+    @Query(nativeQuery = true, value = "SELECT a.* FROM app_tb_register_address a, app_tb_register_info b WHERE a.registerid = b.registerid AND b.del_flag = '0' AND b.personcard = ?1 order by b.update_date desc limit 0, 1")
     Address queryFirst1ByDelFlagAndPersoncard(String personcard);
 
 }
