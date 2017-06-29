@@ -659,7 +659,7 @@ public class MeasureController {
 
     @GetMapping("userInfo")
     @VersionRange
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity userInfo(String registerId, String famId) throws JsonProcessingException {
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
         if(!StringUtils.isBlank(registerId)){
@@ -782,7 +782,7 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("heathUserInfo")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity heathUserInfo(String registerId, String famId) {
 
         HeathUserInfoDto infoDto = new HeathUserInfoDto();
