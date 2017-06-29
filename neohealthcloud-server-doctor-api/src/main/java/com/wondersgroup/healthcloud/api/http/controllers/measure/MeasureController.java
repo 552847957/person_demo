@@ -685,7 +685,7 @@ public class MeasureController {
                     infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
                     infoDto.setApoType("1".equals(singUser.getApoType()));
                     infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
-                    infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                    infoDto.setSignStatus("1".equals(singUser.getSignStatus()));
                 }
             }
         }else if(!StringUtils.isBlank(famId)){
@@ -717,7 +717,7 @@ public class MeasureController {
             infoDto.setApoType("1".equals(info.getApoType()));
             infoDto.setIsRisk("1".equals(info.getIsRisk()));
             infoDto.setIdentifyType("1".equals(info.getIdentifytype()));
-            infoDto.setSignStatus("1".equals(info.getIsRisk()));
+            infoDto.setSignStatus("1".equals(info.getSignStatus()));
             infoDto.setAge(info.getAge());
             infoDto.setAvatar(info.getAvatar());
         }else{
@@ -798,7 +798,7 @@ public class MeasureController {
                         infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
                         infoDto.setApoType("1".equals(singUser.getApoType()));
                         infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
-                        infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                        infoDto.setSignStatus("1".equals(singUser.getSignStatus()));
                     }
                 }
 
