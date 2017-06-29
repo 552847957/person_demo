@@ -371,7 +371,7 @@ public class MeasureController {
      */
     @RequestMapping(value = "/getMeasureHistoryByDate", method = RequestMethod.GET)
     @VersionRange
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity measureHistoryByDate(@RequestParam(name = "uid") String registerId,
                                                    @RequestParam(required = false) String personCard,
                                                    @RequestParam(name = "beginDate", required = false) String begin_date) {
@@ -497,7 +497,7 @@ public class MeasureController {
      */
     @VersionRange
     @GetMapping("history/hba1c")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity<?> queryHba1cHistoryData(@RequestParam(defaultValue = "0") Integer flag,
                                                        @RequestParam(defaultValue = "10") Integer pageSize,
                                                        @RequestParam String registerId, String personCard) {
@@ -528,7 +528,7 @@ public class MeasureController {
      */
     @VersionRange
     @GetMapping("chart/bmi")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity<?> chartBmi(
             String registerId,
             @RequestParam(required = false) String personCard,
@@ -564,7 +564,7 @@ public class MeasureController {
      */
     @GetMapping("getHistoryByArrayDay")
     @VersionRange
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity getHistoryByArrayDay(
             String registerId,
             String personCard,
@@ -602,7 +602,7 @@ public class MeasureController {
      */
     @GetMapping("getWeekIsExistByArrayDay")
     @VersionRange
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity getWeekIsExistByArrayDay(String registerId, String date) {
         try {
             StringBuffer str = new StringBuffer();
@@ -634,7 +634,7 @@ public class MeasureController {
      */
     @VersionRange
     @GetMapping("recentHistory/{type}")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonResponseEntity getRecentMeasureHistory(@PathVariable int type, Integer flag, String registerId) throws JsonProcessingException {
         try {
             RegisterInfo info = userService.findRegOrAnonymous(registerId);
@@ -730,7 +730,7 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("assessmentAbnormal")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public JsonListResponseEntity<AssessmentAbnormal> assessmentAbnormal(
             String registerId,
             @RequestParam(defaultValue = "1") Integer flag,
@@ -873,7 +873,7 @@ public class MeasureController {
 
     @VersionRange
     @GetMapping("findAbnormalType")
-    @ResponseBody
+    @JsonEncode(encode = true)
     public Map findAbnormalType(String registerId){
         Map<String,Object> result = new HashedMap();
         String types = doctorIntervenService.findNotDealInterveneTypes(registerId);
