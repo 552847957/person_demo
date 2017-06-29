@@ -8,6 +8,7 @@ import com.wondersgroup.healthcloud.common.http.annotations.JsonEncode;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,7 @@ public class PatientGroupController {
         String id = reader.readString("id", true);
         try {
             String msg = patientGroupService.savePatientGroup(id, doctorId, name);
-            PatientGroup group = patientGroupRepository.findIsNameRepeated(doctorId, name);
+            PatientGroup group = patientGroupRepository.findIsNameRepeated(doctorId,StringUtils.trim(name));
             Map<String, String> data = Maps.newHashMap();
             data.put("name", name);
             data.put("id", group.getId().toString());
