@@ -13,8 +13,8 @@ import java.util.List;
 @Data
 public class HeathUserInfoDto extends BaseResidentDto{
    public  String  phone;
-   @JsonFormat(pattern="yyyy-MM-dd")
-   public  Date birth;
+//   @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
+   public  String birth;
    public  String  cardType;
    public  String  cardNumber;
    public  String  profession;

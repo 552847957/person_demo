@@ -676,7 +676,7 @@ public class MeasureController {
             }
             infoDto.setAvatar(registerInfo.getHeadphoto());
             if(registerInfo.getBirthday() != null){
-                infoDto.setBirth(registerInfo.getBirthday());
+                    infoDto.setBirth(new SimpleDateFormat("yyyy-MM-dd").format(registerInfo.getBirthday()));
             }
             if(!StringUtils.isBlank(registerInfo.getPersoncard())){
                 DoctorTubeSignUser singUser = doctorTubeSignUserRepository.queryInfoByCard(registerInfo.getPersoncard());
@@ -704,7 +704,9 @@ public class MeasureController {
             }
             infoDto.setName(info.getName());
             infoDto.setGender(info.getGender());
-            infoDto.setBirth(info.getBirth());
+            if(info.getBirth() !=null){
+                infoDto.setBirth(new SimpleDateFormat("yyyy-MM-dd").format(info.getBirth()));
+            }
             infoDto.setCardType(info.getCardType());
             infoDto.setCardNumber(info.getCardNumber());
             infoDto.setProfession(info.getProfession());
