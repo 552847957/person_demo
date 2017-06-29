@@ -676,7 +676,7 @@ public class MeasureController {
             }
             infoDto.setAvatar(registerInfo.getHeadphoto());
             if(registerInfo.getBirthday() != null){
-                infoDto.setBirth(registerInfo.getBirthday());
+                    infoDto.setBirth(new SimpleDateFormat("yyyy-MM-dd").format(registerInfo.getBirthday()));
             }
             if(!StringUtils.isBlank(registerInfo.getPersoncard())){
                 DoctorTubeSignUser singUser = doctorTubeSignUserRepository.queryInfoByCard(registerInfo.getPersoncard());
@@ -685,7 +685,7 @@ public class MeasureController {
                     infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
                     infoDto.setApoType("1".equals(singUser.getApoType()));
                     infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
-                    infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                    infoDto.setSignStatus("1".equals(singUser.getSignStatus()));
                 }
             }
         }else if(!StringUtils.isBlank(famId)){
@@ -704,7 +704,9 @@ public class MeasureController {
             }
             infoDto.setName(info.getName());
             infoDto.setGender(info.getGender());
-            infoDto.setBirth(info.getBirth());
+            if(info.getBirth() !=null){
+                infoDto.setBirth(new SimpleDateFormat("yyyy-MM-dd").format(info.getBirth()));
+            }
             infoDto.setCardType(info.getCardType());
             infoDto.setCardNumber(info.getCardNumber());
             infoDto.setProfession(info.getProfession());
@@ -717,7 +719,7 @@ public class MeasureController {
             infoDto.setApoType("1".equals(info.getApoType()));
             infoDto.setIsRisk("1".equals(info.getIsRisk()));
             infoDto.setIdentifyType("1".equals(info.getIdentifytype()));
-            infoDto.setSignStatus("1".equals(info.getIsRisk()));
+            infoDto.setSignStatus("1".equals(info.getSignStatus()));
             infoDto.setAge(info.getAge());
             infoDto.setAvatar(info.getAvatar());
         }else{
@@ -798,7 +800,7 @@ public class MeasureController {
                         infoDto.setDiabetesType("1".equals(singUser.getDiabetesType()));
                         infoDto.setApoType("1".equals(singUser.getApoType()));
                         infoDto.setIsRisk("1".equals(singUser.getIsRisk()));
-                        infoDto.setSignStatus("1".equals(singUser.getIsRisk()));
+                        infoDto.setSignStatus("1".equals(singUser.getSignStatus()));
                     }
                 }
 
