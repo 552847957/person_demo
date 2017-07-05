@@ -139,6 +139,7 @@ public class HttpWdUtils {
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
+
         return result;
     }
 
@@ -190,7 +191,8 @@ public class HttpWdUtils {
         String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
                 "octopus_apiid", idMap.get("sendCodeApiId")};
-        String[] form = new String[]{"mobile", mobile, "message", message, "token", appToken};
+        String[] form = new String[]{"mobile", mobile, "message", message, "token", appToken,
+                "sid",idMap.get("smsSid"),"stoken",idMap.get("smsStoken")};
         Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
@@ -544,6 +546,11 @@ public class HttpWdUtils {
         return result;
     }
 
+    /**
+     * 广州健康通绑定
+     * @param token
+     * @return
+     */
     public JsonNode guangzhouLogin(String token) {
         String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
                 "octopus_sid", octopusSid,
@@ -552,6 +559,23 @@ public class HttpWdUtils {
         String[] form = new String[]{"access_token", token, "token", appToken};
 
         Request request = new RequestBuilder().post().url(url).params(form).headers(header).build();
+        JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
+        JsonNode result = response.convertBody();
+        return result;
+    }
+
+    /**
+     * 1.31	获取多平台用户信息
+     * @param userid 用户ID
+     * @param platform 三方账号来源（wechat/weibo/qq/smy/alipay/jkt）
+     * @return
+     */
+    public JsonNode basicInfoByPlatform(String userid,String platform) {
+        String[] header = new String[]{"octopus_channelid", channelid, "octopus_appkey", appkey,
+                "octopus_sid", octopusSid,
+                "octopus_apiid", idMap.get("basicInfoByPlatformApiId")};
+        String[] form = new String[]{"userid", userid,"platform",platform, "token", appToken};
+        Request request = new RequestBuilder().get().url(url).params(form).headers(header).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run().as(JsonNodeResponseWrapper.class);
         JsonNode result = response.convertBody();
         return result;
@@ -589,6 +613,11 @@ public class HttpWdUtils {
         idMap.put("verificationChildSubmitApiId", "4c118096-b3ed-4b06-bb4e-18b3547a8974");//儿童实名信息提交
 
         idMap.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");
+        idMap.put("basicInfoByPlatformApiId","015d18f7-b155-44dd-a5f2-503b4fcb64de");
+
+        //短信通道的 sid和stoken
+        idMap.put("smsSid", "jky");
+        idMap.put("smsStoken", "jsoQxjFFRziFDiRNpCb4aIWtGIBN2e");
 
         HttpWdUtils httpWdUtils = new HttpWdUtils();
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");
@@ -606,13 +635,20 @@ public class HttpWdUtils {
 //        idMap.put("smyLoginApiId", "7be12461-fc5e-4ddb-8940-7da3799ff5aa");//三方市民云绑定接口
 //        idMap.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
+//        idMap.put("sendCodeApiId", "521d23b9-c68e-40ff-a587-0e1859583224");//发送验证码
+//        idMap.put("smsSid", "jky");
+//        idMap.put("smsStoken", "MUFpJNT8WsbUZizlhVHF2Wvh84qz9J");
+
 
         httpWdUtils.setIdMap(idMap);
 
         httpWdUtils.setHttpRequestExecutorManager(new HttpRequestExecutorManager(new OkHttpClient()));
 
 //        httpWdUtils.basicInfo("2c928bb0549fe6850154f1456c82061a");
-//        httpWdUtils.basicInfo("18886869999");
+//        httpWdUtils.basicInfo("18516092013");
+
+//        httpWdUtils.basicInfo("18601723711");
+//        httpWdUtils.basicInfo("13052220293");
 
 //        try {
 //            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
@@ -639,15 +675,16 @@ public class HttpWdUtils {
 //        String newPsd = "cCmAfDziWZbxoKjUGYzCWMXgBHyZ8ilpPFtbrkKAgsen2V2cQ1bqHU0DN79UPoZlXYnQlxo6bRq/elDNQr5Ih4eKp86cU7TxomFAeC4UJIhk9/TDGae8k7qivAkQMypZVpS0ZvQitE4zhq35pD9S0LAfv2/YsqoY/udUtRrNT+w=";
 
 //        try {
-//            String password = RSAUtil.encryptByPublicKey("1234567", publicKey);
+//            String password = RSAUtil.encryptByPublicKey("123456", publicKey);
 //            httpWdUtils.resetPassword("15639763552", password);
+////            httpWdUtils.resetPassword("18910000002", password);
 //        } catch (Exception e) {
 //
 //        }
 
 
-        /*String message = "【健康长宁】验证码:code,用于测试。";
-        httpWdUtils.sendCode("15639763552",message);*/
+//        String message = "验证码:code,用于测试。";//13916054905
+//        httpWdUtils.sendCode("15639763552",message);
 
 //        httpWdUtils.verifyCode("15639763552","354735",false);
 
@@ -671,8 +708,8 @@ public class HttpWdUtils {
 //        httpWdUtils.verficationSubmitInfo("ff80808154177829015417bbe1970020");
 
         //匿名
-//        httpWdUtils.verficationSubmitInfo("2c928bb153f19ea101562a176fe52f40");
-
+//        httpWdUtils.verficationSubmitInfo("2c928bb158dd7776015a1b44b71f2938");
+//        httpWdUtils.verficationSubmitInfo("2c928bb057db52000157dfa001620100");
 
 //        String key = IdGen.uuid();
 //        httpWdUtils.addSessionExtra("f5a280c7315f480c94da78069530b9e3",key);
@@ -684,6 +721,8 @@ public class HttpWdUtils {
 
 //        httpWdUtils.guangzhouLogin("56b428b180cd48b49e8dea8be9a33d42");
 //        httpWdUtils.guangzhouLogin("TGC-80-W1degYtKg4byg75ybdspgzEaYrapgfZsjlkFSxASmIPGDEdE8t");
+//        httpWdUtils.guangzhouLogin("TGC-2-WarJGk7O76P2F5ctB0qAqOZJSKNnQlWxcp2CDEqT6DChL48a1C");
+//        httpWdUtils.basicInfoByPlatform("ff8080815a26d7f2015a3504d8630000","jkt");
 
     }
 
