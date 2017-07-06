@@ -771,6 +771,24 @@ public class UserController {
     }
 
     /**
+     * 用户端sdk实名认证回调接口 暂时不用
+     * @param uid
+     * @return
+     */
+    @GetMapping(value = "/verification/callback")
+    @VersionRange
+    public JsonResponseEntity<String> verificationCallback(@RequestParam(value = "uid",required = true) String uid) {
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        RegisterInfo info = userAccountService.fetchInfo(uid);
+        if(info.verified()){
+            //调用健康档案
+            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(), info.getName());
+        }
+        body.setMsg("回调成功");
+        return body;
+    }
+
+    /**
      * 根据用户registerid获取地址信息
      * @param uid
      * @return

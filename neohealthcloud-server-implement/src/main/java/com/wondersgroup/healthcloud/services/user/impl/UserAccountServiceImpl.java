@@ -492,6 +492,9 @@ public class UserAccountServiceImpl implements UserAccountService {
                     user.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.getPersoncard())));
                     user.setGender(IdcardUtils.getGenderByIdCard(user.getPersoncard()));
                     registerInfoRepository.saveAndFlush(user);
+
+                    //调用健康档案
+                    healthRecordUpdateUtil.onVerificationSuccess(user.getPersoncard(),user.getName());
                 }
             } else {
                 AnonymousAccount anonymousAccount = anonymousAccountRepository.findOne(id);
@@ -502,6 +505,9 @@ public class UserAccountServiceImpl implements UserAccountService {
                     anonymousAccount.setIdcard(info.get("idcard").asText());
                     anonymousAccount.setName(info.get("name").asText());
                     anonymousAccountRepository.saveAndFlush(anonymousAccount);
+
+                    //调用健康档案
+                    healthRecordUpdateUtil.onVerificationSuccess(anonymousAccount.getIdcard(),anonymousAccount.getName());
                 }
             }
             return result.get("info");
