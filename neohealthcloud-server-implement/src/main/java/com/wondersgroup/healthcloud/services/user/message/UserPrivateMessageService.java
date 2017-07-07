@@ -28,4 +28,8 @@ public interface UserPrivateMessageService {
     List<UserPrivateMessage> findRoot(String area, String uid);
 
     List<UserPrivateMessage> findType(String area, String uid, String typeId, Long flag);
+
+    UserPrivateMessage findLastQuestionMsgByUid(String area, String uid,String type);
+
+    UserPrivateMessage findLastSysMsgByUid(String area, String uid);
 }

@@ -34,4 +34,10 @@ public interface MsgService {
     
     //根据uid查 当天有发送过这个type消息
     int getCountByDate(String uid, String memberId, int type);
+
+    int countMsgByUidAndType(String uid, String typeCode);
+
+    int countOfUnReadMessagesByUidType(String uid, String typeCode);
+
+    Map<String,Object> findLastMessageByUidType(String uid, String typeCode);
 }

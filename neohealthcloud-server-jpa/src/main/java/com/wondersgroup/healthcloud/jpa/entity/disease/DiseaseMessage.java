@@ -20,6 +20,14 @@ public class DiseaseMessage {
     public String notifierUid;
     @Column(name = "receiver_uid")
     public String receiverUid;
+
+    /**
+     0 干预提醒
+     1 筛查提醒
+     2 随访提醒
+     3 血糖测量提醒
+     4 报告提醒
+     */
     @Column(name = "msg_type")
     public String msgType;
     @Column(name = "is_read")
@@ -32,5 +40,8 @@ public class DiseaseMessage {
     public String content;
     @Column(name = "create_time")
     public Date   createTime;
+
+    @Column(name="del_flag")
+    public String delFlag;
 
 }

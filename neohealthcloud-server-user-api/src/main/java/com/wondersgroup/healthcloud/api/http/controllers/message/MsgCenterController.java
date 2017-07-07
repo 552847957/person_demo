@@ -36,10 +36,27 @@ public class MsgCenterController {
     }
 
     @GetMapping(path = "/index")
-    @VersionRange
+    @VersionRange(to = "4.3")
     public JsonListResponseEntity<MessageCenterDto> rootList(@RequestHeader("main-area") String area,
                                                        @RequestParam String uid) {
         List<MessageCenterDto> rootList=messageCenterService.getRootList(area,uid);
+        JsonListResponseEntity<MessageCenterDto> response = new JsonListResponseEntity();
+        response.setContent(rootList);
+        return response;
+    }
+
+
+    /**
+     * 消息中心首页接口
+     * @param area
+     * @param uid
+     * @return
+     */
+    @GetMapping(path = "/index")
+    @VersionRange(from = "4.4")
+    public JsonListResponseEntity<MessageCenterDto> msgRootList(@RequestHeader("main-area") String area,
+                                                             @RequestParam String uid) {
+        List<MessageCenterDto> rootList=messageCenterService.getMsgRootList(area,uid);
         JsonListResponseEntity<MessageCenterDto> response = new JsonListResponseEntity();
         response.setContent(rootList);
         return response;

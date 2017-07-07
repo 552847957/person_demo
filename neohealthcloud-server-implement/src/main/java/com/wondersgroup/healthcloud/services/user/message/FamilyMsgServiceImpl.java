@@ -227,4 +227,19 @@ public class FamilyMsgServiceImpl implements MsgService{
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
+
+    @Override
+    public int countMsgByUidAndType(String uid, String typeCode) {
+        return 0;
+    }
+
+    @Override
+    public int countOfUnReadMessagesByUidType(String uid, String typeCode) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> findLastMessageByUidType(String uid, String typeCode) {
+        return null;
+    }
 }

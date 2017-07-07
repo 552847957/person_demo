@@ -5,6 +5,8 @@ import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserPrivateMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -32,6 +34,9 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
 
     @Autowired
     private MessageReadService messageReadService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public UserPrivateMessage findOne(String id) {
@@ -76,5 +81,34 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
             flag = System.currentTimeMillis() / 1000L;
         }
         return messageRepository.findTypeMessages(area, uid, typeId, flag);
+    }
+
+    @Override
+    public UserPrivateMessage findLastQuestionMsgByUid(String area, String uid,String type) {
+        return messageRepository.findLastQuestionMsgByUid(area,uid,type);
+    }
+
+    /**
+     * app_tb_user_private_message表type为0的数据和 app_tb_disease_message表type为3的数据
+     * @param area
+     * @param uid
+     * @return
+     */
+    @Override
+    public UserPrivateMessage findLastSysMsgByUid(String area, String uid) {
+        String sql = " select a.id,a.uid,a.type,a.title,a.content,a.url ,a.create_time  " +
+                " from app_tb_user_private_message a " +
+                " where a.uid = '%s' and a.type = '0' and (main_area is null or main_area='%s') and a.del_flag = '0' " +
+                "union all " +
+                " select a.id,a.receiver_uid as uid,a.msg_type as type,a.title,a.content,a.jump_url as url,a.create_time " +
+                " from app_tb_disease_message a\n" +
+                " where a.receiver_uid = '%s' and a.msg_type = '3' and a.del_flag = '0' " +
+                "order by create_time desc  limit 1";
+        sql = String.format(sql,uid,area,uid);
+        List<UserPrivateMessage> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(UserPrivateMessage.class));
+        if(list!=null && list.size()>0){
+            return list.get(0);
+        }
+        return null;
     }
 }

@@ -367,6 +367,12 @@ public class UserController {
         return body;
     }
 
+    /**
+     * 当前用户为验证码实名认证时, 若查询市民云实名信息, 则传'1', 若查询认证码实名信息, 则传'2'
+     * @param id
+     * @param type
+     * @return
+     */
     @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
     @VersionRange(from = "4.0")
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id,

@@ -36,7 +36,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public int countMsgByUid(String uid) {
-        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s'",uid);
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and del_flag='0' ",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -44,7 +44,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s'" +
+                " from app_tb_disease_message where receiver_uid='%s' and del_flag='0' " +
                 " order by create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -93,7 +93,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public Map<String, Object> findOneMessageByUid(String uid) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s' and is_read=0 " +
+                " from app_tb_disease_message where receiver_uid='%s' and is_read=0 and del_flag='0'" +
                 " order by create_time desc" +
                 " limit 0, 1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -110,7 +110,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public int countOfUnReadMessages(String uid) {
-        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and is_read=0",uid);
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and del_flag='0' and is_read=0",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -124,5 +124,43 @@ public class DiseaseMsgServiceImpl implements MsgService{
     public int getCountByDate(String uid,String memberId, int type) {
 
         return 0;
+    }
+
+    /**
+     * 根据用户id和消息类型查询消息
+     * @param uid
+     * @param typeCode
+     * @return
+     */
+    @Override
+    public int countMsgByUidAndType(String uid, String typeCode) {
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and msg_type='%s' and del_flag =0 ",uid,typeCode);
+        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
+        return num != null ? num : 0;
+    }
+
+    @Override
+    public int countOfUnReadMessagesByUidType(String uid, String typeCode) {
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and msg_type='%s' and is_read=0 and del_flag=0 ",uid,typeCode);
+        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
+        return num != null ? num : 0;
+    }
+
+    @Override
+    public Map<String, Object> findLastMessageByUidType(String uid, String typeCode) {
+        String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
+                " from app_tb_disease_message where receiver_uid='%s' and del_flag=0 " +
+                " order by create_time desc" +
+                " limit 0, 1",uid);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        Map<String, Object> data;
+        if (null == list || list.isEmpty()){
+            return null;
+        }else {
+            data = list.get(0);
+            //MAP null值处理为""
+            MapChecker.checkMap(data);
+        }
+        return data;
     }
 }
