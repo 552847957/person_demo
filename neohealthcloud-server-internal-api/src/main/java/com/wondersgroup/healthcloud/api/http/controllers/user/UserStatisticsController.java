@@ -6,12 +6,13 @@ import com.wondersgroup.healthcloud.services.user.UserActiveStatService;
 import com.wondersgroup.healthcloud.services.user.impl.UserActiveStatExportServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -55,8 +56,8 @@ public class UserStatisticsController {
     }
 
 
-    @GetMapping("/statistics/export")
-    public void exportExcel(String startTime,String endTime,String type, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/statistics/export",produces = "application/vnd.ms-excel")
+    public ResponseEntity<InputStreamResource> exportExcel(String startTime, String endTime, String type, HttpServletRequest request) throws IOException {
         Map param = new HashMap();
         param.put("startTime",startTime);
         param.put("endTime",endTime);
@@ -66,14 +67,15 @@ public class UserStatisticsController {
         List excelData = userActiveStatServiceImpl.queryUserActiveStatList(param);
         String userAgent = request.getHeader("USER-AGENT");
         String excelName = generateExcelName(userAgent);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        userActiveStatExportServiceImpl.exportExcel(excelData, type, out);
 
-        response.reset();
-        response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-disposition", "attachment; filename=" + excelName);
-
-        OutputStream out = response.getOutputStream();
-        request.getInputStream(); //解决internalGateInterceptor获取request.getInputStream()报错
-        userActiveStatExportServiceImpl.exportExcel(excelData, type,out);
+        return ResponseEntity
+                .ok()
+                .header("Content-Disposition","attachment; filename=" + excelName )
+                .contentLength(out.size())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(new InputStreamResource(new ByteArrayInputStream(out.toByteArray())));
     }
 
 
