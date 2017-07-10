@@ -38,7 +38,9 @@ public class AnonymousAccount{
     private String updateBy;
     @Column(name = "update_date")
     private Date updateDate;
-    
+    @Column(name = "medicarecard")
+    private  String medicarecard;
+
     private String appellation;
     private String height;
     private String weight;
