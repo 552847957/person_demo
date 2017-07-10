@@ -2,7 +2,9 @@ package com.wondersgroup.healthcloud.jpa.repository.user;
 
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,4 +32,14 @@ public interface UserPrivateMessageRepository extends JpaRepository<UserPrivateM
 
     @Query(nativeQuery = true,value = "select * from app_tb_user_private_message where uid=?2 and (main_area is null or main_area=?1) and type =?3 and del_flag='0' order by create_time desc limit 1")
     UserPrivateMessage findLastQuestionMsgByUid(String area, String uid,String type);
+
+    @Transactional
+    @Modifying
+    @Query(" update UserPrivateMessage a set a.delFlag ='1' where a.id = ?2 and  a.type=?1 ")
+    void deleteMsg(String type, String msgID);
+
+    @Transactional
+    @Modifying
+    @Query(" update UserPrivateMessage a set a.delFlag ='1' where a.uid = ?2 and  a.type=?1 ")
+    void deleteAllMsg(String uid, String type);
 }

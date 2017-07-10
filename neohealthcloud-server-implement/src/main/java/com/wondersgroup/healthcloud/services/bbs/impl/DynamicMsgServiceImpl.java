@@ -40,7 +40,7 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
     public int countMsgByUid(String uid) {
         String query =String.format("select count(1) from app_tb_register_info a,tb_bbs_dynamic_message c,tb_bbs_topic d" +
                 " where a.registerid=d.uid and c.type_id=d.id" +
-                " and c.type=0" +
+                " and c.type=0 and c.del_flag ='0' " +
                 " and c.uid='%s'",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
@@ -60,7 +60,7 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
                 " from app_tb_register_info a,tb_bbs_dynamic_message c,tb_bbs_topic d" +
                 " where a.registerid=d.uid and c.type_id=d.id" +
                 " and c.type=0" +
-                " and c.uid='%s'" +
+                " and c.uid='%s' and c.del_flag ='0' " +
                 " order by c.create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -88,6 +88,18 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
         String sql=String.format("update tb_bbs_dynamic_message set is_read=1 where is_read=0 and uid='%s'",uid);
         jdbcTemplate.update(sql);
     }
+
+    @Override
+    public void deleteMsg(String msgID) {
+        String sql=String.format("update tb_bbs_dynamic_message set is_read=1, del_flag = 1 where  id ='%s' ",msgID);
+        jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public void deleteAllMsg(String uid) {
+        String sql=String.format("update tb_bbs_dynamic_message set is_read=1, del_flag = 1 where uid ='%s' and (del_flag='0' or is_read='0') ",uid);
+        jdbcTemplate.update(sql);
+    }
     /*public void setRead(List<Integer> ids){
         Joiner joiner = Joiner.on(",").skipNulls();
         String sql=String.format("update tb_bbs_dynamic_message set is_read=1 where id in(%s)",joiner.join(ids));
@@ -97,7 +109,7 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
     @Override
     public Map<String, Object> findOneDynamicMessageByUid(String uid) {
         String query =String.format("select a.id,a.uid,a.type,a.is_read,a.type_id,a.create_time from tb_bbs_dynamic_message a" +
-                " where a.uid='%s' and a.is_read=0  order by a.create_time desc limit 0,1",uid);
+                " where a.uid='%s' and a.is_read=0 and del_flag='0'  order by a.create_time desc limit 0,1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
         Map<String, Object> data;
         if (null == list || list.isEmpty()){
@@ -124,7 +136,7 @@ public class DynamicMsgServiceImpl implements BbsSysMsgService {
 
     @Override
     public int countOfUnReadMessages(String uid) {
-        String query =String.format("select count(1) from tb_bbs_dynamic_message where uid='%s' and is_read=0",uid);
+        String query =String.format("select count(1) from tb_bbs_dynamic_message where uid='%s' and del_flag='0' and is_read=0",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }

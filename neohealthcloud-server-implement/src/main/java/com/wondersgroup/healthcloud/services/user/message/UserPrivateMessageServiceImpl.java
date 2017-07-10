@@ -111,4 +111,46 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         }
         return null;
     }
+
+    @Override
+    public List<UserPrivateMessage> findSystemMsgList(String area, String uid,String type, int pageNo, int pageSize) {
+        String sql = "";
+        //系统消息
+        if("0".equals(type)){
+             sql = " select a.id,a.uid,a.type,a.title,a.content,a.url ,a.create_time,null as xtIsRead  " +
+                    " from app_tb_user_private_message a " +
+                    " where a.uid = '%s' and a.type = '0' and (main_area is null or main_area='%s') and a.del_flag = '0' " +
+                    "union all " +
+                    " select a.id,a.receiver_uid as uid,a.msg_type as type,a.title,a.content,a.jump_url as url,a.create_time," +
+                     " a.is_read as xtIsRead " +
+                    " from app_tb_disease_message a\n" +
+                    " where a.receiver_uid = '%s' and a.msg_type = '3' and a.del_flag = '0' " +
+                    " order by create_time desc " +
+                    " limit "+(pageNo)*pageSize+","+(pageSize+1);
+            sql = String.format(sql,uid,area,uid);
+        //我的咨询
+        }else if("1".equals(type)){
+             sql = " select a.id,a.uid,a.type,a.title,a.content,a.url ,a.create_time  " +
+                    " from app_tb_user_private_message a " +
+                    " where a.uid = '%s' and a.type = '1' and (main_area is null or main_area='%s') and a.del_flag = '0' " +
+                    " order by create_time desc " +
+                    " limit "+(pageNo)*pageSize+","+(pageSize+1);
+            sql = String.format(sql,uid,area);
+        }
+        List<UserPrivateMessage> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(UserPrivateMessage.class));
+        return list;
+    }
+
+    @Override
+    public void deleteMsg(String type, String msgID) {
+        messageRepository.deleteMsg(type,msgID);
+
+    }
+
+    @Override
+    public void deleteAllMsg(String uid, String type) {
+        messageRepository.deleteAllMsg(uid, type);
+    }
+
+
 }

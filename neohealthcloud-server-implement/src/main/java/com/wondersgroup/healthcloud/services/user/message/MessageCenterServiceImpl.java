@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.common.appenum.SysMsgTypeEnum;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
@@ -160,7 +161,12 @@ public class MessageCenterServiceImpl {
     }
 
 
-
+    /**
+     * 4.4版本的医生建议 随访提醒 报告提醒 筛查提醒
+     * @param uid
+     * @param typeCode
+     * @return
+     */
     private MessageCenterDto getDiseaseMsgByUidAndType(String uid, String typeCode) {
         Boolean hasUnread = false;
         //消息表里无数据时，不在根列表中显示
@@ -244,8 +250,10 @@ public class MessageCenterServiceImpl {
             content="您有一条新的筛查提醒";
         }else if(type.equals("2")){
             content="您有一条新的随访提醒";
-        } else if ("3".equals(type)) {
+        }else if ("3".equals(type)) {
             content = "您有一条血糖测量提醒";
+        }else if("4".equals(type)){
+            content = "您有一条报告提醒";
         }
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
@@ -425,6 +433,134 @@ public class MessageCenterServiceImpl {
                 break;
             case msgType5:
                 diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            default:
+        }
+    }
+
+    /**
+     * 4.4版本
+     * @param msgType
+     * @param msgID
+     */
+    @Transactional
+    public void setAsReadV4(String msgType,String msgID){
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //系统消息的redis
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                //血糖测量的
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType1:
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                break;
+            case msgType2:
+                familyMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType6:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType7:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType8:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType9:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            default:
+        }
+    }
+
+    @Transactional
+    public void delateMsg(String msgType, String msgID) {
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //先删数据库 再删红点
+                messageService.deleteMsg("0", msgID);
+                //系统消息的redis
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                //血糖测量的
+                if(!(msgID.length()>30)){
+                    diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType3.getTypeCode(), msgID);
+                }
+                break;
+            case msgType1:
+                messageService.deleteMsg("1",msgID);
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                break;
+            case msgType2:
+                familyMsgService.deleteMsg("",msgID);
+                break;
+            case msgType4:
+                dynamicMsgService.deleteMsg(msgID);
+                sysMsgService.deleteMsg(msgID);
+                break;
+            case msgType6:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType0.getTypeCode(), msgID);
+                break;
+            case msgType7:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType2.getTypeCode(), msgID);
+                break;
+            case msgType8:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType4.getTypeCode(), msgID);
+                break;
+            case msgType9:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType1.getTypeCode(), msgID);
+                break;
+            default:
+        }
+
+    }
+
+    /**
+     * 根据类型删除所有的消息
+     * @param uid
+     * @param msgType
+     * @param bbsType 1:动态消息 2:系统消息
+     */
+    public void delateAllMsg(String uid, String msgType, String bbsType) {
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //先删数据库 再删红点
+                messageService.deleteAllMsg(uid,"0");
+                //系统消息的redis
+                messageReadService.setAllAsRead(uid,"0");
+                //血糖测量的
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType3.getTypeCode());
+                break;
+            case msgType1:
+                //先删数据库 再删红点
+                messageService.deleteAllMsg(uid,"1");
+                //系统消息的redis
+                messageReadService.setAllAsRead(uid,"1");
+                break;
+            case msgType2:
+                familyMsgService.deleteAllMsg(uid,"");
+                break;
+            case msgType4://1:动态消息 2:系统消息
+                if("1".equals(bbsType)){
+                    dynamicMsgService.deleteAllMsg(uid);
+                }else if("2".equals(bbsType)){
+                    sysMsgService.deleteAllMsg(uid);
+                }
+                break;
+            case msgType6:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType0.getTypeCode());
+                break;
+            case msgType7:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType2.getTypeCode());
+                break;
+            case msgType8:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType4.getTypeCode());
+                break;
+            case msgType9:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType1.getTypeCode());
                 break;
             default:
         }

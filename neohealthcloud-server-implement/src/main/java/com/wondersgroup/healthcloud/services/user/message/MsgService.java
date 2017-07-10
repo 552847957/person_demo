@@ -11,11 +11,11 @@ import java.util.Map;
 public interface MsgService {
 
     //消息列表分页
-    Page queryMsgListByUid(String uid, Page page);
+    Page queryMsgListByUid(String uid, Page page,Boolean isSetRead);
     //统计消息
     int countMsgByUid(String uid);
     //消息列表
-    List<Map<String,Object>> getMsgListByUid(String uid, int pageNo, int pageSize);
+    List<Map<String,Object>> getMsgListByUid(String uid, int pageNo, int pageSize,Boolean isSetRead);
 
     /**
      * 消息中心接口-查找最近一条未读动态消息
@@ -40,4 +40,10 @@ public interface MsgService {
     int countOfUnReadMessagesByUidType(String uid, String typeCode);
 
     Map<String,Object> findLastMessageByUidType(String uid, String typeCode);
+
+    void deleteMsg(String typeCode, String msgID);
+
+    void deleteAllMsg(String uid, String typeCode);
+
+    Page queryMsgListByUidType(String uid, Page page, String msgType);
 }

@@ -37,7 +37,7 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
      */
     @Override
     public int countMsgByUid(String uid) {
-        String query =String.format("select count(1) from tb_bbs_system_message where uid='%s'",uid);
+        String query =String.format("select count(1) from tb_bbs_system_message where uid='%s' and del_flag ='0' ",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -52,7 +52,7 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id as msgid,uid,type as msgtype,content,jump_url,create_time " +
-                " from tb_bbs_system_message where uid='%s'" +
+                " from tb_bbs_system_message where uid='%s' and del_flag ='0' " +
                 " order by create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -90,6 +90,19 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
     }
 
     @Override
+    public void deleteMsg(String msgID) {
+        String sql = String.format("update tb_bbs_system_message set is_read=1,del_flag=1 where id='%s'",msgID);
+        jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public void deleteAllMsg(String uid) {
+        String sql = String.format("update tb_bbs_system_message set is_read=1,del_flag=1 where uid='%s' and (del_flag='0' or is_read='0')",uid);
+        jdbcTemplate.update(sql);
+
+    }
+
+    @Override
     public Map<String, Object> findOneDynamicMessageByUid(String uid) {
         return null;
     }
@@ -97,7 +110,7 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
     @Override
     public Map<String, Object> findOneSysMessageByUid(String uid) {
         String query =String.format("select a.id,a.uid,a.type,a.is_read,a.content,a.create_time from tb_bbs_system_message a" +
-                " where a.uid='%s' and a.is_read=0  order by a.create_time desc limit 0,1",uid);
+                " where a.uid='%s' and a.is_read=0 and del_flag ='0'  order by a.create_time desc limit 0,1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
         Map<String, Object> data;
         if (null == list || list.isEmpty()){
@@ -110,7 +123,7 @@ public class SysMsgServiceImpl implements BbsSysMsgService {
 
     @Override
     public int countOfUnReadMessages(String uid) {
-        String query =String.format("select count(1) from tb_bbs_system_message where uid='%s' and is_read=0",uid);
+        String query =String.format("select count(1) from tb_bbs_system_message where uid='%s' and del_flag ='0' and is_read=0",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }

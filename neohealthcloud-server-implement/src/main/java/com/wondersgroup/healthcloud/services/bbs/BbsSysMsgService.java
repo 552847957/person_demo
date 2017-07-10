@@ -41,4 +41,7 @@ public interface BbsSysMsgService {
     //设置全部未读消息为已读
     void setAllRead(String uid);
 
+    void deleteMsg(String msgID);
+
+    void deleteAllMsg(String uid);
 }
