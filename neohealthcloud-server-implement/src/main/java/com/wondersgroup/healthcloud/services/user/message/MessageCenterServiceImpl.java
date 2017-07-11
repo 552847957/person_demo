@@ -179,6 +179,20 @@ public class MessageCenterServiceImpl {
         if(hasUnreadData>0){
             hasUnread = true;
         }
+        String title = "",type = "";
+        if(typeCode.equals(DiseaseMsgTypeEnum.msgType0.getTypeCode())){
+            title = MsgTypeEnum.msgType6.getTypeName();
+            type = MsgTypeEnum.msgType6.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType1.getTypeCode())){
+            title = MsgTypeEnum.msgType9.getTypeName();
+            type = MsgTypeEnum.msgType9.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType2.getTypeCode())){
+            title = MsgTypeEnum.msgType7.getTypeName();
+            type = MsgTypeEnum.msgType7.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType4.getTypeCode())){
+            title = MsgTypeEnum.msgType8.getTypeName();
+            type = MsgTypeEnum.msgType8.getTypeCode();
+        }
         //查询最新的一条消息
         Map<String, Object> msg=diseaseMsgService.findLastMessageByUidType(uid, typeCode);
         String content = msg.get("content")==null?"":msg.get("content").toString();
@@ -186,9 +200,9 @@ public class MessageCenterServiceImpl {
         Date date= DateUtils.parseString(msgCreateTime);
         String time=DateUtils.convertMsgDate(date);
         MessageCenterDto message = new MessageCenterDto();
-        message.setTitle(MsgTypeEnum.msgType6.getTypeName());
+        message.setTitle(title);
         message.setContent(content);
-        message.setType(MsgTypeEnum.msgType6.getTypeCode());
+        message.setType(type);
         message.setTime(time);
         message.setIsRead(hasUnread);//是否有未读的消息
         return message;
@@ -342,10 +356,10 @@ public class MessageCenterServiceImpl {
             }
             AppMessageUrlUtil.Type type = AppMessageUrlUtil.Type.getById("0");
             MessageCenterDto message = new MessageCenterDto();
-            message.setTitle(lastSysMsg.getTitle());
+            message.setTitle(MsgTypeEnum.msgType0.getTypeName());
             message.setContent(type.showTitleInRoot ? lastSysMsg.getTitle() : lastSysMsg.getContent());
             message.setTime(DateUtils.convertMsgDate(lastSysMsg.getCreateTime()));
-            message.setType(AppMessageUrlUtil.Type.SYSTEM.id);
+            message.setType(MsgTypeEnum.msgType0.getTypeCode());
             message.setIsRead(unRead);
             return message;
         }
@@ -363,10 +377,10 @@ public class MessageCenterServiceImpl {
         if(userPrivateMessage!=null){
             AppMessageUrlUtil.Type type = AppMessageUrlUtil.Type.getById(userPrivateMessage.getType());
             MessageCenterDto message = new MessageCenterDto();
-            message.setTitle(userPrivateMessage.getTitle());
+            message.setTitle(MsgTypeEnum.msgType1.getTypeName());
             message.setContent(type.showTitleInRoot ? userPrivateMessage.getTitle() : userPrivateMessage.getContent());
             message.setTime(DateUtils.convertMsgDate(userPrivateMessage.getCreateTime()));
-            message.setType(AppMessageUrlUtil.Type.QUESTION.id);
+            message.setType(MsgTypeEnum.msgType1.getTypeCode());
             message.setIsRead(messageReadService.unreadCountByType(uid, userPrivateMessage.getType()) == 0?false:true);
             return message;
         }
