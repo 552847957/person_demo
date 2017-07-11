@@ -170,8 +170,7 @@ public class MsgCenterController {
         }
 
         if(msgType.equals(MsgTypeEnum.msgType4.getTypeCode())
-        && (StringUtils.isBlank(bbsType)
-            || !bbsType.equals(1) ||!bbsType.equals(2) )){
+        && (StringUtils.isBlank(bbsType) || !(bbsType.equals("1") || bbsType.equals("2")) )){
             throw new EnumMatchException("健康圈消息类型需传bbsType");
         }
         messageCenterService.delateAllMsg(uid, msgType, bbsType);
