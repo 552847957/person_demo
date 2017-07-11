@@ -860,7 +860,7 @@ public class UserController {
         anonymousAccountRepository.saveAndFlush(ano);
         healthRecordUpdateUtil.onMedicareBindSuccess(ano.getIdcard(), medicarecard, ano.getName());
 
-        rt.setData("success");
+        rt.setData("绑定成功");
         return rt;
     }
 }
