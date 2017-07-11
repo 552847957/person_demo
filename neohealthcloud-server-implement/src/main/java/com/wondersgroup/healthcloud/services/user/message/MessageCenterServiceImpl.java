@@ -465,7 +465,9 @@ public class MessageCenterServiceImpl {
                 //系统消息的redis
                 messageReadService.setAsRead(messageService.findOne(msgID));
                 //血糖测量的
-                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                if(!(msgID.length()>30)){
+                    diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                }
                 break;
             case msgType1:
                 messageReadService.setAsRead(messageService.findOne(msgID));
