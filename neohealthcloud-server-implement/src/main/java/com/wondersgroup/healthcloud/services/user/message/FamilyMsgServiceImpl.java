@@ -250,7 +250,7 @@ public class FamilyMsgServiceImpl implements MsgService{
         if (StringUtils.isBlank(msgID)){
             return;
         }
-        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  id =%s",msgID);
+        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  id = '%s' ",msgID);
         jdbcTemplate.update(sql);
     }
 
@@ -259,7 +259,7 @@ public class FamilyMsgServiceImpl implements MsgService{
         if (StringUtils.isBlank(uid) ){
             return;
         }
-        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  receiver_uid =%s and (del_flag=0 or is_read=0)",uid);
+        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  receiver_uid = '%s' and (del_flag=0 or is_read=0)",uid);
         jdbcTemplate.update(sql);
     }
 
