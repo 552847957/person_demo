@@ -137,6 +137,7 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
                     " limit "+(pageNo)*pageSize+","+(pageSize+1);
             sql = String.format(sql,uid,area);
         }
+        //todo 空数据会报错
         List<UserPrivateMessage> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(UserPrivateMessage.class));
         return list;
     }

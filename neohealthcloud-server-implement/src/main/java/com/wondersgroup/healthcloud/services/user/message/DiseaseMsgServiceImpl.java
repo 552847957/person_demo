@@ -217,7 +217,6 @@ public class DiseaseMsgServiceImpl implements MsgService{
         if (null == list || list.isEmpty()){
             return null;
         }else{
-            List<Integer> setReadIds=new ArrayList<>();
             for(Map<String, Object> row:list){
                 //处理消息时间
                 String msgCreateTime=String.valueOf(row.get("create_time"));
@@ -232,13 +231,6 @@ public class DiseaseMsgServiceImpl implements MsgService{
                     row.put("isReaded",false);
                 }else if(isReaded.equals("1")){
                     row.put("isReaded",true);
-                }
-                //筛查消息没有红点、干预消息有红点
-                String type= String.valueOf(row.get("type"));
-                String id= String.valueOf(row.get("id"));
-                if(type.equals("1")){//干预提醒0、筛查提醒1
-                    row.put("isReaded",true);
-                    setReadIds.add(Integer.valueOf(id));
                 }
             }
 
