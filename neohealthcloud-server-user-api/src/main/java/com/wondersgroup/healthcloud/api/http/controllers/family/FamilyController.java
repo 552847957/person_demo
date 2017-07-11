@@ -965,6 +965,7 @@ public class FamilyController {
             if (ano != null && ano.getIsStandalone()) {
                 info.setIsStandalone(true);
             }
+            info.setName(ano.getName());
             info.setIdcard(ano.getIdcard());
             info.setMedicarecard(ano.getMedicarecard());
             info.setWeight(ano.getWeight());
@@ -993,6 +994,7 @@ public class FamilyController {
                 info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight().intValue()) : "");
                 info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight().intValue()) : "");
             }
+            info.setName(regInfo.getName());
             info.setIdcard(regInfo.getPersoncard());
             info.setMedicarecard(regInfo.getMedicarecard());
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
@@ -1096,7 +1098,6 @@ public class FamilyController {
 
     /**
      * 修改非JKY家人信息
-     * @param uid
      * @return Object
      */
     @RequestMapping(value = "/memberFamilyInfoUpdate", method = RequestMethod.POST)
