@@ -28,9 +28,9 @@ public class FamilyMsgServiceImpl implements MsgService{
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Page queryMsgListByUid(String uid, Page page,Boolean isSetRead) {
+    public Page queryMsgListByUid(String uid, Page page) {
         int num=this.countMsgByUid(uid);
-        List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize(),isSetRead);
+        List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize());
         page.setTotalCount(num);
         page.setResult(list);
         return page;
@@ -44,7 +44,7 @@ public class FamilyMsgServiceImpl implements MsgService{
     }
 
     @Override
-    public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize,Boolean isSetRead) {
+    public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,req_record_id as reqRecordID,'' as avatar,create_time" +
                 " from app_tb_family_message where receiver_uid='%s' and del_flag='0' " +
                 " order by create_time desc" +
@@ -94,10 +94,7 @@ public class FamilyMsgServiceImpl implements MsgService{
                 //MAP null值处理为""
                 MapChecker.checkMap(row);
             }
-            //消息设为已读
-            if(isSetRead){//兼容老版本 新版本是点击一下红点消失 老版本是拉取一个列表红点消失
-                this.setRead(setReadIds);
-            }
+            this.setRead(setReadIds);
             //补全头像字段
             List<Map<String, Object>> avatarList=this.getAvatarByUids(notifierUids);
             if(avatarList != null){

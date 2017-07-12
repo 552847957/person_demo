@@ -39,7 +39,7 @@ public class DiseaseMsgController {
         int pageSize=Integer.parseInt(reader.readDefaultString("pageSize", "10"));
 
         Page page=new Page(pageNo,pageSize);
-        Page data=diseaseMsgService.queryMsgListByUid(uid,page,true);
+        Page data=diseaseMsgService.queryMsgListByUid(uid,page);
         List<Map<String, Object>> list = (List<Map<String, Object>>) data.getResult();
         list = list == null?new ArrayList():list;
         JsonListResponseEntity<Map<String, Object>> result = new JsonListResponseEntity<>();

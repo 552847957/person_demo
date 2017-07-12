@@ -136,10 +136,10 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
                     " order by create_time desc " +
                     " limit "+(pageNo)*pageSize+","+(pageSize+1);
             sql = String.format(sql,uid,area);
+        }else{
+            return null;
         }
-        //todo 空数据会报错
-        List<UserPrivateMessage> list = jdbcTemplate.query(sql,new BeanPropertyRowMapper(UserPrivateMessage.class));
-        return list;
+        return jdbcTemplate.query(sql,new BeanPropertyRowMapper(UserPrivateMessage.class));
     }
 
     @Override

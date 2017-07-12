@@ -36,11 +36,11 @@ public class FamilyMsgController {
         int pageSize=Integer.parseInt(reader.readDefaultString("pageSize", "10"));
 
         Page page=new Page(pageNo,pageSize);
-        Boolean isSetRead = true;
-        if(CommonUtils.compareVersion("4.3",version)){//兼容老版本 新版本是点击一下红点消失 老版本是拉取一个列表红点消失
-            isSetRead = false;
-        }
-        Page data=familyMsgService.queryMsgListByUid(uid,page,isSetRead);
+//        Boolean isSetRead = true;
+//        if(CommonUtils.compareVersion("4.3",version)){//兼容老版本 新版本是点击一下红点消失 老版本是拉取一个列表红点消失
+//            isSetRead = false;
+//        }
+        Page data=familyMsgService.queryMsgListByUid(uid,page);
         List<Map<String, Object>> list = (List<Map<String, Object>>) data.getResult();
         list = list == null?new ArrayList():list;
         JsonListResponseEntity<Map<String, Object>> result = new JsonListResponseEntity<>();

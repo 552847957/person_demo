@@ -82,22 +82,25 @@ public class SystemMsgController {
         }
         int pageSize = 20;
         List<UserPrivateMessage> results = messageService.findSystemMsgList(area, uid,type, pageNo,pageSize);
-        messageReadService.isRead(results);
-        for (UserPrivateMessage result : results) {
-            if (messages.size()<pageSize) {
-                MessageDTO message = new MessageDTO(result, area);
-                if(result.getType().equals("3")){
-                    message.isRead = result.getXtIsRead().equals("1")?true:false;
-                    message.type = MsgTypeEnum.msgType0.getTypeCode();
+        if(results!=null && results.size()>0){
+            messageReadService.isRead(results);
+            for (UserPrivateMessage result : results) {
+                if (messages.size()<pageSize) {
+                    MessageDTO message = new MessageDTO(result, area);
+                    if(result.getType().equals("3")){
+                        message.isRead = result.getXtIsRead().equals("1")?true:false;
+                        message.type = MsgTypeEnum.msgType0.getTypeCode();
+                    }
+                    messages.add(message);
                 }
-                messages.add(message);
+            }
+            if(results.size()>pageSize){
+                more = true;
+                flag = String.valueOf(pageNo+1);
+
             }
         }
-        if(results.size()>pageSize){
-            more = true;
-            flag = String.valueOf(pageNo+1);
 
-        }
         response.setContent(messages, more, null, flag);
         return response;
     }

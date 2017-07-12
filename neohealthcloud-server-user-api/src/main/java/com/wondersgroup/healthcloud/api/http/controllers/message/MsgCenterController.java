@@ -90,7 +90,7 @@ public class MsgCenterController {
         return response;
     }
 
-    //单条设置已读 只针对系统消息、我的咨询、家庭消息、 医生建议、 筛查提醒 、报告提醒 、随访提醒
+    //单条设置已读 只针对系统消息、我的咨询、家庭消息、 医生建议 、报告提醒 、随访提醒
     @PostMapping(path = "/message/status")
     @VersionRange(from = "4.4")
     public JsonResponseEntity<Map<String, Object>> setAsRead(@RequestBody String body) {
@@ -98,15 +98,14 @@ public class MsgCenterController {
         String msgType = reader.readString("msgType", false);
         String msgID = reader.readString("msgID", false);
 
-        //此接口只跟系统消息、我的咨询、家庭消息、 医生建议、 筛查提醒 、报告提醒 、随访提醒
+        //此接口只跟系统消息、我的咨询、家庭消息、 医生建议 、报告提醒 、随访提醒
         MsgTypeEnum.fromTypeCode(msgType);
         if(!msgType.equals(MsgTypeEnum.msgType0.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType1.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType2.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType6.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType7.getTypeCode())
-                && !msgType.equals(MsgTypeEnum.msgType8.getTypeCode())
-                && !msgType.equals(MsgTypeEnum.msgType9.getTypeCode())){
+                && !msgType.equals(MsgTypeEnum.msgType8.getTypeCode())){
             throw new EnumMatchException("消息类型["+msgType+"]不匹配.");
         }
         messageCenterService.setAsReadV4(msgType, msgID);
@@ -117,7 +116,7 @@ public class MsgCenterController {
 
 
     /**
-     * 所有类型
+     * 除家庭消息外可以删除
      * 单条删除消息
      * @param msgType
      * @param msgID
@@ -131,7 +130,6 @@ public class MsgCenterController {
         MsgTypeEnum.fromTypeCode(msgType);
         if(!msgType.equals(MsgTypeEnum.msgType0.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType1.getTypeCode())
-                && !msgType.equals(MsgTypeEnum.msgType2.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType4.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType6.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType7.getTypeCode())
@@ -146,7 +144,7 @@ public class MsgCenterController {
     }
 
     /**
-     * 根据消息类型批量删除
+     * 根据消息类型批量删除(除去家庭消息)
      * @param uid
      * @param msgType
      * @param bbsType 1:动态消息 2:系统消息
@@ -160,7 +158,6 @@ public class MsgCenterController {
         MsgTypeEnum.fromTypeCode(msgType);
         if(!msgType.equals(MsgTypeEnum.msgType0.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType1.getTypeCode())
-                && !msgType.equals(MsgTypeEnum.msgType2.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType4.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType6.getTypeCode())
                 && !msgType.equals(MsgTypeEnum.msgType7.getTypeCode())

@@ -33,9 +33,9 @@ public class DiseaseMsgServiceImpl implements MsgService{
     private DiseaseMessageRepository diseaseMessageRepository;
 
     @Override
-    public Page queryMsgListByUid(String uid, Page page,Boolean isSetRead) {
+    public Page queryMsgListByUid(String uid, Page page) {
         int num=this.countMsgByUid(uid);
-        List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize(),isSetRead);
+        List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize());
         page.setTotalCount(num);
         page.setResult(list);
         return page;
@@ -49,7 +49,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     }
 
     @Override
-    public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize,Boolean isSetRead) {
+    public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
                 " from app_tb_disease_message where receiver_uid='%s' and del_flag='0' " +
                 " order by create_time desc" +
@@ -83,10 +83,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
                     setReadIds.add(Integer.valueOf(id));
                 }
             }
-            //消息设为已读
-            if(isSetRead){//不用兼容传参为true
-                this.setRead(setReadIds);
-            }
+            this.setRead(setReadIds);
 
         }
         return list;
@@ -217,6 +214,8 @@ public class DiseaseMsgServiceImpl implements MsgService{
         if (null == list || list.isEmpty()){
             return null;
         }else{
+
+            List<Integer> setReadIds=new ArrayList<>();
             for(Map<String, Object> row:list){
                 //处理消息时间
                 String msgCreateTime=String.valueOf(row.get("create_time"));
@@ -232,8 +231,16 @@ public class DiseaseMsgServiceImpl implements MsgService{
                 }else if(isReaded.equals("1")){
                     row.put("isReaded",true);
                 }
+                //筛查消息没有红点、干预消息有红点
+                String type= String.valueOf(row.get("type"));
+                String id= String.valueOf(row.get("id"));
+                if(type.equals("1")){//筛查提醒1
+                    row.put("isReaded",true);
+                    setReadIds.add(Integer.valueOf(id));
+                }
             }
-
+            //消息设为已读
+            this.setRead(setReadIds);
         }
         return list;
 
