@@ -31,6 +31,7 @@ public class OverAuthExclude {
     private static final String USER_MONITOR = "/api/userMonitor/findUserMonitor";
     private static final String REPORT = "/api/report/follow";
     private static final String SCREENING = "/api/report/screening";
+    private static final String MEASUREHISTORY = "/api/measure/getMeasureHistoryByDate";
     //==== Doctor End
 
     // Init User
@@ -56,6 +57,7 @@ public class OverAuthExclude {
         overAuthExcludesForDoctor.add(USER_MONITOR);
         overAuthExcludesForDoctor.add(REPORT);
         overAuthExcludesForDoctor.add(SCREENING);
+        overAuthExcludesForDoctor.add(MEASUREHISTORY);
     }
 
     public Boolean isExclude(String request){
