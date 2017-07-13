@@ -1,6 +1,7 @@
 package com.wondersgroup.healthcloud.jpa.repository.disease;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,5 +15,13 @@ public interface DiseaseMessageRepository extends JpaRepository<DiseaseMessage, 
     DiseaseMessage getDiseaseMessageByToday(String receiverUid);
 
 
+    @Transactional
+    @Modifying
+    @Query(" update DiseaseMessage set delFlag ='1',isRead='1' where id = ?2 and msgType=?1 ")
+    void deleteMsg(String typeCode, Integer msgID);
 
+    @Transactional
+    @Modifying
+    @Query(" update DiseaseMessage set delFlag ='1',isRead='1' where receiverUid = ?1 and msgType=?2  ")
+    void deleteAllMsg(String uid, String typeCode);
 }

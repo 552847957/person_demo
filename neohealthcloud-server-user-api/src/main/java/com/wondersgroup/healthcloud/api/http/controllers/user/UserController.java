@@ -21,11 +21,14 @@ import com.wondersgroup.healthcloud.dict.DictCache;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.helper.healthrecord.HealthRecordUpdateUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
+import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
+import com.wondersgroup.healthcloud.jpa.repository.user.AnonymousAccountRepository;
 import com.wondersgroup.healthcloud.services.doctor.DoctorService;
 import com.wondersgroup.healthcloud.services.doctor.SigningVerficationService;
 import com.wondersgroup.healthcloud.services.friend.FriendRelationshipService;
+import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
@@ -71,6 +74,12 @@ public class UserController {
 
     @Autowired
     private HealthRecordUpdateUtil healthRecordUpdateUtil;
+
+    @Autowired
+    private AnonymousAccountRepository anonymousAccountRepository;
+
+    @Autowired
+    private AnonymousAccountService anonymousAccountService;
 
     private DecimalFormat decimalFormat;
 
@@ -367,6 +376,12 @@ public class UserController {
         return body;
     }
 
+    /**
+     * 当前用户为验证码实名认证时, 若查询市民云实名信息, 则传'1', 若查询认证码实名信息, 则传'2'
+     * @param id
+     * @param type
+     * @return
+     */
     @RequestMapping(value = "/verification/submit/info", method = RequestMethod.GET)
     @VersionRange(from = "4.0")
     public JsonResponseEntity<VerificationInfoDTO> verificationSubmitInfo40(@RequestParam("uid") String id,
@@ -771,6 +786,24 @@ public class UserController {
     }
 
     /**
+     * 用户端sdk实名认证回调接口 暂时不用
+     * @param uid
+     * @return
+     */
+    @GetMapping(value = "/verification/callback")
+    @VersionRange
+    public JsonResponseEntity<String> verificationCallback(@RequestParam(value = "uid",required = true) String uid) {
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        RegisterInfo info = userAccountService.fetchInfo(uid);
+        if(info.verified()){
+            //调用健康档案
+            healthRecordUpdateUtil.onVerificationSuccess(info.getPersoncard(), info.getName());
+        }
+        body.setMsg("回调成功");
+        return body;
+    }
+
+    /**
      * 根据用户registerid获取地址信息
      * @param uid
      * @return
@@ -785,5 +818,49 @@ public class UserController {
             }
         }
         return addressDTO;
+    }
+
+    /**
+     * 匿名账户医保卡绑定
+     */
+    @RequestMapping(value = "/anoBindMedicarecard", method = RequestMethod.POST)
+    @VersionRange
+    public JsonResponseEntity<String> anoBindUserCard(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String medicarecard = reader.readString("medicarecard", false).trim().toUpperCase();
+        String uid = reader.readString("uid", false);
+
+        JsonResponseEntity<String> rt = new JsonResponseEntity<>();
+        AnonymousAccount ano = anonymousAccountService.getAnonymousAccount(uid,false);
+        String personcard = ano.getIdcard();
+        if (StringUtils.isEmpty(personcard)) {
+            throw new CommonException(1005, "用户没有实名认证");
+        }
+        if (StringUtils.isNotEmpty(ano.getMedicarecard())) {
+            throw new CommonException(2001, "用户已绑定医保卡");
+        }
+
+        Pattern pattern = Pattern.compile("^[A-Z0-9]{9,10}$");
+        Matcher isNum = pattern.matcher(medicarecard);
+        if (!isNum.matches()) {
+            throw new CommonException(2002, "您输入的医保卡格式内容有误，请重新输入");
+        }
+        //非沪籍：10位数字
+        boolean islocal = medicarecard.length() != 10;
+        Map<String, String> userInfo = this.getUserInfoByMedicareCard(medicarecard, islocal);
+        if (null == userInfo || !userInfo.containsKey("name")) {
+            throw new CommonException(2011, "您输入的医保卡号暂无相关记录，无法绑定。");
+        }
+        String name = userInfo.get("name");
+        String sex = userInfo.get("sex");
+        if (!name.equals(ano.getName())) {
+            throw new CommonException(2012, "您输入的医保卡信息内容与您实名制信息内容不匹配，请重新输入。");
+        }
+        ano.setMedicarecard(medicarecard);
+        anonymousAccountRepository.saveAndFlush(ano);
+        healthRecordUpdateUtil.onMedicareBindSuccess(ano.getIdcard(), medicarecard, ano.getName());
+
+        rt.setData("绑定成功");
+        return rt;
     }
 }

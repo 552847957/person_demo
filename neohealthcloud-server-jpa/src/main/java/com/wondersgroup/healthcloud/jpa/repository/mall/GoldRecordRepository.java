@@ -18,7 +18,7 @@ public interface GoldRecordRepository extends JpaRepository<GoldRecord, String> 
 	 * @return
 	 */
 	@Query(value = "from GoldRecord where userId = ?1 and createTime = (select max(createTime) from GoldRecord where userId = ?1)")
-	GoldRecord findByUserIdRecently(String userId);
+	List<GoldRecord> findByUserIdRecently(String userId);
 
 	/**
 	 * 根据记录类型查询用户某一天的金币记录

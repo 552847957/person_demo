@@ -120,6 +120,11 @@ public class BeanFactory {
 
         builder.put("guangzhouLoginApiId", "2a7bc88c-a88a-4452-b80b-a2166c464520");//广州登录接口
 
+        //短信通道的 sid和stoken
+        builder.put("smsSid", "jky");
+        builder.put("smsStoken", "jsoQxjFFRziFDiRNpCb4aIWtGIBN2e");
+
+
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("59b30cbd-7f39-4fa7-8fda-17acabb74d86");//健康云token 用户端
         httpWdUtils.setOctopusSid("C6B18542F8E0000118BD1E2A1C001D9E");
@@ -162,6 +167,10 @@ public class BeanFactory {
         builder.put("verificationChildSubmitApiId", "ae83b372-317b-4482-808b-cd3fe3559634");//儿童实名信息提交
 
         builder.put("guangzhouLoginApiId", "59676d23-7458-4727-b8ad-5061bd6ae573");//广州登录接口
+
+        //短信通道的 sid和stoken
+        builder.put("smsSid", "jky");
+        builder.put("smsStoken", "MUFpJNT8WsbUZizlhVHF2Wvh84qz9J");
 
         httpWdUtils.setIdMap(builder.build());
         httpWdUtils.setAppToken("bc2b8bfd-b935-4dc9-8bff-6919bd1aff64");

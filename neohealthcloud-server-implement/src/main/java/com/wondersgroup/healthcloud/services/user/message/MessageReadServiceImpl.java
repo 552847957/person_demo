@@ -87,6 +87,13 @@ public class MessageReadServiceImpl implements MessageReadService {
         }
     }
 
+    @Override
+    public void setAllAsRead(String uid, String type) {
+        try (Jedis jedis = pool.getResource()) {
+            jedis.del(key(uid, type));
+        }
+    }
+
     @Autowired
     public void setPool(JedisPool pool) {
         this.pool = pool;

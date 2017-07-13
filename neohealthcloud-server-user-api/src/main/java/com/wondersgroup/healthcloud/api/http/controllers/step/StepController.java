@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -183,7 +184,14 @@ public class StepController {
 	@RequestMapping(method = RequestMethod.POST)
 	@VersionRange(from="4.1")
 	public Object saveAll(@RequestBody Map<String, Object> request) {
-		return stepCountService.saveAll(request);
+	    String userId = (String) request.get("registerId");
+	    Boolean hasTake = goldRecordService.isGet(userId, GoldRecordTypeEnum.REWARDS);
+	    List<GoldRecord> list = goldRecordService.findByUserIdAndTypeAndCreateTime(userId, GoldRecordTypeEnum.INITIALIZATION);
+	    if(CollectionUtils.isNotEmpty(list)){
+	        hasTake=true;
+	    }
+	    request.put("hasTake", hasTake);
+	    return stepCountService.saveAll(request);
 	}
 
 }

@@ -35,6 +35,13 @@ public class UserPrivateMessage {
     private String url;
     @Column(name = "create_time")
     private Date createTime;
+
+    @Column(name = "del_flag")
+    private String delFlag = "0";
+
     @Transient
     private Boolean isRead;
+
+    @Transient
+    private String xtIsRead;//如果血糖测量的已读未读 读取数据库
 }

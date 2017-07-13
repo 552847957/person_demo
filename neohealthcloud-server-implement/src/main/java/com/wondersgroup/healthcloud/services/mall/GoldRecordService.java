@@ -1,8 +1,10 @@
 package com.wondersgroup.healthcloud.services.mall;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecord;
+import com.wondersgroup.healthcloud.jpa.entity.mall.GoldRecordComparator;
 import com.wondersgroup.healthcloud.jpa.enums.GoldRecordTypeEnum;
 import com.wondersgroup.healthcloud.jpa.repository.mall.GoldRecordRepository;
 
@@ -23,9 +26,14 @@ public class GoldRecordService {
 
 	public Integer findRestGoldByUserId(String userId) {
 		Integer restGold = 0;
-		GoldRecord goldRecord = goldRecordRepository.findByUserIdRecently(userId);
-		if (goldRecord != null) {
-			restGold = goldRecord.getRestNum();
+		List<GoldRecord> goldRecord = goldRecordRepository.findByUserIdRecently(userId);
+		GoldRecordComparator comparator = new GoldRecordComparator();
+		if (CollectionUtils.isNotEmpty(goldRecord)) {
+		    if(goldRecord.get(0).getType()==3){
+		        restGold=Collections.min(goldRecord,comparator).getRestNum();
+		    }else{
+		        restGold=Collections.max(goldRecord,comparator).getRestNum();
+		    }
 		}
 		return restGold;
 	}

@@ -1,11 +1,13 @@
 package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.collect.Lists;
+import com.wondersgroup.healthcloud.common.appenum.SysMsgTypeEnum;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import com.wondersgroup.healthcloud.services.bbs.BbsSysMsgService;
 import com.wondersgroup.healthcloud.services.user.message.dto.MessageCenterDto;
+import com.wondersgroup.healthcloud.services.user.message.enums.DiseaseMsgTypeEnum;
 import com.wondersgroup.healthcloud.services.user.message.enums.MsgTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,6 +86,128 @@ public class MessageCenterServiceImpl {
         messages.addAll(lastSystem);
         return messages;
     }
+
+    /**
+     * 4.4 消息中心按照 1系统消息，2健康圈消息，3我的咨询，4家庭消息，5医生建议，6随访提醒，7报告提醒，8筛查提醒 顺序
+     * @param area
+     * @param uid
+     * @return
+     *  msgType0("0","系统消息"),
+        msgType1("1","我的咨询"),
+        msgType2("2","家庭消息"),
+        msgType3("3",""),
+        msgType4("4","健康圈消息"),
+        msgType5("5","慢病消息"),
+        msgType6("6","医生建议"),
+        msgType7("7","随访提醒"),
+        msgType8("8","报告提醒"),
+        msgType9("9","筛查提醒");
+     */
+    public List<MessageCenterDto> getMsgRootList(String area, String uid){
+        List<MessageCenterDto> messages = Lists.newLinkedList();
+        //系统消息 原系统消息 + 血糖测量提醒
+        MessageCenterDto lastSystemMsg = this.getLastSystemMsg(area, uid);
+        //我的咨询
+        MessageCenterDto lastQuestionMsg = this.getLastQuestionMsg(area, uid);
+
+        //健康圈消息
+        List<MessageCenterDto> lastBbsMsg=this.getBbsMessage(uid);
+        if(lastBbsMsg!=null){
+            for (MessageCenterDto messageCenterDto : lastBbsMsg){
+                messageCenterDto.setSort(2);
+            }
+        }
+        //家庭消息
+        MessageCenterDto lastFamilyMsg=this.getFamilyMsg(uid);
+
+        MessageCenterDto lastDoctorAdviceMsg = this.getDiseaseMsgByUidAndType(uid, DiseaseMsgTypeEnum.msgType0.getTypeCode());
+        MessageCenterDto lastFollowMsg = this.getDiseaseMsgByUidAndType(uid, DiseaseMsgTypeEnum.msgType1.getTypeCode());
+        MessageCenterDto lastReportMsg = this.getDiseaseMsgByUidAndType(uid, DiseaseMsgTypeEnum.msgType2.getTypeCode());
+        MessageCenterDto lastScreenMsg = this.getDiseaseMsgByUidAndType(uid, DiseaseMsgTypeEnum.msgType4.getTypeCode());
+
+        messages.addAll(lastBbsMsg);
+
+        if(lastSystemMsg != null){
+            lastSystemMsg.setSort(1);
+            messages.add(lastSystemMsg);
+        }
+        if(lastQuestionMsg != null){
+            lastQuestionMsg.setSort(3);
+            messages.add(lastQuestionMsg);
+        }
+        if(lastFamilyMsg !=null){
+            lastFamilyMsg.setSort(4);
+            messages.add(lastFamilyMsg);
+        }
+
+        if(lastDoctorAdviceMsg !=null){
+            lastDoctorAdviceMsg.setSort(5);
+            messages.add(lastDoctorAdviceMsg);
+        }
+        if(lastFollowMsg !=null){
+            lastFollowMsg.setSort(6);
+            messages.add(lastFollowMsg);
+        }
+        if(lastReportMsg !=null){
+            lastReportMsg.setSort(7);
+            messages.add(lastReportMsg);
+        }
+        if(lastScreenMsg !=null){
+            lastScreenMsg.setSort(8);
+            messages.add(lastScreenMsg);
+        }
+
+        return messages;
+    }
+
+
+    /**
+     * 4.4版本的医生建议 随访提醒 报告提醒 筛查提醒
+     * @param uid
+     * @param typeCode
+     * @return
+     */
+    private MessageCenterDto getDiseaseMsgByUidAndType(String uid, String typeCode) {
+        Boolean hasUnread = false;
+        //消息表里无数据时，不在根列表中显示
+        int hasData=diseaseMsgService.countMsgByUidAndType(uid, typeCode);
+        if(hasData == 0){
+            return null;
+        }
+        //查询是否有未读消息
+        int hasUnreadData=diseaseMsgService.countOfUnReadMessagesByUidType(uid,typeCode);
+        if(hasUnreadData>0){
+            hasUnread = true;
+        }
+        String title = "",type = "";
+        if(typeCode.equals(DiseaseMsgTypeEnum.msgType0.getTypeCode())){
+            title = MsgTypeEnum.msgType6.getTypeName();
+            type = MsgTypeEnum.msgType6.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType1.getTypeCode())){
+            title = MsgTypeEnum.msgType9.getTypeName();
+            type = MsgTypeEnum.msgType9.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType2.getTypeCode())){
+            title = MsgTypeEnum.msgType7.getTypeName();
+            type = MsgTypeEnum.msgType7.getTypeCode();
+        }else if(typeCode.equals(DiseaseMsgTypeEnum.msgType4.getTypeCode())){
+            title = MsgTypeEnum.msgType8.getTypeName();
+            type = MsgTypeEnum.msgType8.getTypeCode();
+        }
+        //查询最新的一条消息
+        Map<String, Object> msg=diseaseMsgService.findLastMessageByUidType(uid, typeCode);
+        String content = msg.get("content")==null?"":msg.get("content").toString();
+        String msgCreateTime=String.valueOf(msg.get("create_time"));
+        Date date= DateUtils.parseString(msgCreateTime);
+        String time=DateUtils.convertMsgDate(date);
+        MessageCenterDto message = new MessageCenterDto();
+        message.setTitle(title);
+        message.setContent(content);
+        message.setType(type);
+        message.setTime(time);
+        message.setIsRead(hasUnread);//是否有未读的消息
+        return message;
+    }
+
     //家庭消息
     private MessageCenterDto getFamilyMsg(String uid){
         //消息表里无数据时，不在根列表中显示
@@ -140,8 +264,10 @@ public class MessageCenterServiceImpl {
             content="您有一条新的筛查提醒";
         }else if(type.equals("2")){
             content="您有一条新的随访提醒";
-        } else if ("3".equals(type)) {
+        }else if ("3".equals(type)) {
             content = "您有一条血糖测量提醒";
+        }else if("4".equals(type)){
+            content = "您有一条报告提醒";
         }
         String msgCreateTime=String.valueOf(msg.get("create_time"));
         Date date= DateUtils.parseString(msgCreateTime);
@@ -209,6 +335,58 @@ public class MessageCenterServiceImpl {
         messages.add(message);
         return messages;
     }
+
+    /**
+     * 4.4版本的系统消息(因为血糖测量提醒从慢病消息移到系统消息 为了老版本没有迁移数据)
+     * @param area
+     * @param uid
+     * @return
+     */
+    private MessageCenterDto getLastSystemMsg(String area, String uid) {
+        UserPrivateMessage lastSysMsg =  messageService.findLastSysMsgByUid(area,uid);
+
+        if(lastSysMsg!=null){
+            //查询是否有血糖测量未读信息
+            Boolean unRead = false;
+            int hasUnread =  diseaseMsgService.countOfUnReadMessagesByUidType(uid,DiseaseMsgTypeEnum.msgType3.getTypeCode());
+
+            //系统消息的未读是缓存 血糖测量的未读是数据库存储
+            if(hasUnread > 0 || messageReadService.unreadCountByType(uid, AppMessageUrlUtil.Type.SYSTEM.id) > 0){
+                unRead = true;
+            }
+            AppMessageUrlUtil.Type type = AppMessageUrlUtil.Type.getById("0");
+            MessageCenterDto message = new MessageCenterDto();
+            message.setTitle(MsgTypeEnum.msgType0.getTypeName());
+            message.setContent(type.showTitleInRoot ? lastSysMsg.getTitle() : lastSysMsg.getContent());
+            message.setTime(DateUtils.convertMsgDate(lastSysMsg.getCreateTime()));
+            message.setType(MsgTypeEnum.msgType0.getTypeCode());
+            message.setIsRead(unRead);
+            return message;
+        }
+        return null;
+    }
+
+    /**
+     * 我的咨询
+     * @param area
+     * @param uid
+     * @return
+     */
+    private MessageCenterDto getLastQuestionMsg(String area, String uid) {
+        UserPrivateMessage userPrivateMessage = messageService.findLastQuestionMsgByUid(area,uid,AppMessageUrlUtil.Type.QUESTION.id);
+        if(userPrivateMessage!=null){
+            AppMessageUrlUtil.Type type = AppMessageUrlUtil.Type.getById(userPrivateMessage.getType());
+            MessageCenterDto message = new MessageCenterDto();
+            message.setTitle(MsgTypeEnum.msgType1.getTypeName());
+            message.setContent(type.showTitleInRoot ? userPrivateMessage.getTitle() : userPrivateMessage.getContent());
+            message.setTime(DateUtils.convertMsgDate(userPrivateMessage.getCreateTime()));
+            message.setType(MsgTypeEnum.msgType1.getTypeCode());
+            message.setIsRead(messageReadService.unreadCountByType(uid, userPrivateMessage.getType()) == 0?false:true);
+            return message;
+        }
+        return null;
+    }
+
     //获取系统消息、咨询消息中最新的未读消息
     private List<MessageCenterDto> getLastSystem(String area, String uid){
         List<MessageCenterDto> messages = Lists.newLinkedList();
@@ -269,6 +447,136 @@ public class MessageCenterServiceImpl {
                 break;
             case msgType5:
                 diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            default:
+        }
+    }
+
+    /**
+     * 4.4版本
+     * @param msgType
+     * @param msgID
+     */
+    @Transactional
+    public void setAsReadV4(String msgType,String msgID){
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //系统消息的redis
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                //血糖测量的
+                if(!(msgID.length()>30)){
+                    diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                }
+                break;
+            case msgType1:
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                break;
+            case msgType2:
+                familyMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType6:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType7:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType8:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            case msgType9:
+                diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
+                break;
+            default:
+        }
+    }
+
+    @Transactional
+    public void delateMsg(String msgType, String msgID) {
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //先删数据库 再删红点
+                messageService.deleteMsg("0", msgID);
+                //系统消息的redis
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                //血糖测量的
+                if(!(msgID.length()>30)){
+                    diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType3.getTypeCode(), msgID);
+                }
+                break;
+            case msgType1:
+                messageService.deleteMsg("1",msgID);
+                messageReadService.setAsRead(messageService.findOne(msgID));
+                break;
+            case msgType2:
+                familyMsgService.deleteMsg("",msgID);
+                break;
+            case msgType4:
+                dynamicMsgService.deleteMsg(msgID);
+                sysMsgService.deleteMsg(msgID);
+                break;
+            case msgType6:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType0.getTypeCode(), msgID);
+                break;
+            case msgType7:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType2.getTypeCode(), msgID);
+                break;
+            case msgType8:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType4.getTypeCode(), msgID);
+                break;
+            case msgType9:
+                diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType1.getTypeCode(), msgID);
+                break;
+            default:
+        }
+
+    }
+
+    /**
+     * 根据类型删除所有的消息
+     * @param uid
+     * @param msgType
+     * @param bbsType 1:动态消息 2:系统消息
+     */
+    public void delateAllMsg(String uid, String msgType, String bbsType) {
+        MsgTypeEnum type= MsgTypeEnum.fromTypeCode(msgType);
+        switch (type){
+            case msgType0:
+                //先删数据库 再删红点
+                messageService.deleteAllMsg(uid,"0");
+                //系统消息的redis
+                messageReadService.setAllAsRead(uid,"0");
+                //血糖测量的
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType3.getTypeCode());
+                break;
+            case msgType1:
+                //先删数据库 再删红点
+                messageService.deleteAllMsg(uid,"1");
+                //系统消息的redis
+                messageReadService.setAllAsRead(uid,"1");
+                break;
+            case msgType2:
+                familyMsgService.deleteAllMsg(uid,"");
+                break;
+            case msgType4://1:动态消息 2:系统消息
+                if("1".equals(bbsType)){
+                    dynamicMsgService.deleteAllMsg(uid);
+                }else if("2".equals(bbsType)){
+                    sysMsgService.deleteAllMsg(uid);
+                }
+                break;
+            case msgType6:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType0.getTypeCode());
+                break;
+            case msgType7:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType2.getTypeCode());
+                break;
+            case msgType8:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType4.getTypeCode());
+                break;
+            case msgType9:
+                diseaseMsgService.deleteAllMsg(uid, DiseaseMsgTypeEnum.msgType1.getTypeCode());
                 break;
             default:
         }

@@ -28,4 +28,14 @@ public interface UserPrivateMessageService {
     List<UserPrivateMessage> findRoot(String area, String uid);
 
     List<UserPrivateMessage> findType(String area, String uid, String typeId, Long flag);
+
+    UserPrivateMessage findLastQuestionMsgByUid(String area, String uid,String type);
+
+    UserPrivateMessage findLastSysMsgByUid(String area, String uid);
+
+    List<UserPrivateMessage> findSystemMsgList(String area, String uid,String type, int pageNo, int pageSize);
+
+    void deleteMsg(String type, String msgID);
+
+    void deleteAllMsg(String uid, String type);
 }

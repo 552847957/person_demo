@@ -2,10 +2,14 @@ package com.wondersgroup.healthcloud.services.user.message;
 
 import com.google.common.base.Joiner;
 import com.wondersgroup.healthcloud.common.utils.DateUtils;
+import com.wondersgroup.healthcloud.jpa.repository.disease.DiseaseMessageRepository;
+import com.wondersgroup.healthcloud.jpa.repository.user.DiseaseRegisterInfoRepository;
+import com.wondersgroup.healthcloud.services.user.message.enums.MsgTypeEnum;
 import com.wondersgroup.healthcloud.utils.MapChecker;
 import com.wondersgroup.healthcloud.utils.Page;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,9 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private DiseaseMessageRepository diseaseMessageRepository;
+
     @Override
     public Page queryMsgListByUid(String uid, Page page) {
         int num=this.countMsgByUid(uid);
@@ -36,7 +43,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public int countMsgByUid(String uid) {
-        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s'",uid);
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and del_flag='0' ",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -44,7 +51,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s'" +
+                " from app_tb_disease_message where receiver_uid='%s' and del_flag='0' " +
                 " order by create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -76,8 +83,8 @@ public class DiseaseMsgServiceImpl implements MsgService{
                     setReadIds.add(Integer.valueOf(id));
                 }
             }
-            //消息设为已读
             this.setRead(setReadIds);
+
         }
         return list;
     }
@@ -93,7 +100,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public Map<String, Object> findOneMessageByUid(String uid) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s' and is_read=0 " +
+                " from app_tb_disease_message where receiver_uid='%s' and is_read=0 and del_flag='0'" +
                 " order by create_time desc" +
                 " limit 0, 1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -110,7 +117,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public int countOfUnReadMessages(String uid) {
-        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and is_read=0",uid);
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and del_flag='0' and is_read=0",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -124,5 +131,118 @@ public class DiseaseMsgServiceImpl implements MsgService{
     public int getCountByDate(String uid,String memberId, int type) {
 
         return 0;
+    }
+
+    /**
+     * 根据用户id和消息类型查询消息
+     * @param uid
+     * @param typeCode
+     * @return
+     */
+    @Override
+    public int countMsgByUidAndType(String uid, String typeCode) {
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and msg_type='%s' and del_flag =0 ",uid,typeCode);
+        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
+        return num != null ? num : 0;
+    }
+
+    @Override
+    public int countOfUnReadMessagesByUidType(String uid, String typeCode) {
+        String query =String.format("select count(1) from app_tb_disease_message where receiver_uid='%s' and msg_type='%s' and is_read=0 and del_flag=0 ",uid,typeCode);
+        Integer num = jdbcTemplate.queryForObject(query, Integer.class);
+        return num != null ? num : 0;
+    }
+
+    @Override
+    public Map<String, Object> findLastMessageByUidType(String uid, String typeCode) {
+        String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
+                " from app_tb_disease_message where receiver_uid='%s' and del_flag=0 " +
+                " order by create_time desc" +
+                " limit 0, 1",uid);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        Map<String, Object> data;
+        if (null == list || list.isEmpty()){
+            return null;
+        }else {
+            data = list.get(0);
+            //MAP null值处理为""
+            MapChecker.checkMap(data);
+        }
+        return data;
+    }
+
+    @Override
+    public void deleteMsg(String typeCode, String msgID) {
+        diseaseMessageRepository.deleteMsg(typeCode,Integer.valueOf(msgID));
+    }
+
+    @Override
+    public void deleteAllMsg(String uid, String typeCode) {
+        diseaseMessageRepository.deleteAllMsg(uid,typeCode);
+    }
+
+    @Override
+    public Page queryMsgListByUidType(String uid, Page page, String msgType) {
+        int num=this.countMsgByUid(uid);
+        List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize(),msgType);
+        page.setTotalCount(num);
+        page.setResult(list);
+        return page;
+    }
+
+    private List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize, String msgType) {
+        String whereType = "";
+        if(StringUtils.isNotBlank(msgType)){
+            if(msgType.equals(MsgTypeEnum.msgType6.getTypeCode())){//医生建议
+                whereType = " and msg_type ='0' ";
+            }else if(msgType.equals(MsgTypeEnum.msgType7.getTypeCode())){//随访提醒
+                whereType = " and msg_type ='2' ";
+            }else if(msgType.equals(MsgTypeEnum.msgType8.getTypeCode())){//报告提醒
+                whereType = " and msg_type ='4' ";
+            }else if(msgType.equals(MsgTypeEnum.msgType9.getTypeCode())){//筛查提醒
+                whereType = " and msg_type ='1' ";
+            }
+        }else{
+            return null;
+        }
+
+        String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
+                " from app_tb_disease_message where receiver_uid='%s' %s and del_flag='0' " +
+                " order by create_time desc" +
+                " limit %s, %s",uid,whereType,pageNo, pageSize);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
+        if (null == list || list.isEmpty()){
+            return null;
+        }else{
+
+            List<Integer> setReadIds=new ArrayList<>();
+            for(Map<String, Object> row:list){
+                //处理消息时间
+                String msgCreateTime=String.valueOf(row.get("create_time"));
+                Date date= DateUtils.parseString(msgCreateTime);
+                //String msgtime=DateUtils.formatDate2Custom(date);
+                String msgtime=DateUtils.convertMsgDate(date);
+                row.put("time",msgtime);
+
+                //处理是否已读状态
+                String isReaded= String.valueOf(row.get("isReaded"));
+                if(isReaded.equals("0")){//0:未读，1:已读
+                    row.put("isReaded",false);
+                }else if(isReaded.equals("1")){
+                    row.put("isReaded",true);
+                }
+                //筛查消息没有红点、干预消息有红点
+                String type= String.valueOf(row.get("type"));
+                String id= String.valueOf(row.get("id"));
+                if(type.equals("1")){//筛查提醒1
+                    row.put("isReaded",true);
+                    setReadIds.add(Integer.valueOf(id));
+                }
+            }
+            //消息设为已读
+            this.setRead(setReadIds);
+        }
+        return list;
+
     }
 }

@@ -29,4 +29,6 @@ public interface MessageReadService {
     int unreadCountByType(String userId, String... type);
 
     void isRead(List<UserPrivateMessage> privateMessages);
+
+    void setAllAsRead(String uid,String type);
 }

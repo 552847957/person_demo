@@ -38,7 +38,7 @@ public class FamilyMsgServiceImpl implements MsgService{
 
     @Override
     public int countMsgByUid(String uid) {
-        String query =String.format("select count(1) from app_tb_family_message where receiver_uid='%s'",uid);
+        String query =String.format("select count(1) from app_tb_family_message where receiver_uid='%s' and del_flag='0' ",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -46,7 +46,7 @@ public class FamilyMsgServiceImpl implements MsgService{
     @Override
     public List<Map<String, Object>> getMsgListByUid(String uid, int pageNo, int pageSize) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,req_record_id as reqRecordID,'' as avatar,create_time" +
-                " from app_tb_family_message where receiver_uid='%s'" +
+                " from app_tb_family_message where receiver_uid='%s' and del_flag='0' " +
                 " order by create_time desc" +
                 " limit %s, %s",uid,pageNo, pageSize);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -94,7 +94,6 @@ public class FamilyMsgServiceImpl implements MsgService{
                 //MAP null值处理为""
                 MapChecker.checkMap(row);
             }
-            //消息设为已读
             this.setRead(setReadIds);
             //补全头像字段
             List<Map<String, Object>> avatarList=this.getAvatarByUids(notifierUids);
@@ -169,7 +168,7 @@ public class FamilyMsgServiceImpl implements MsgService{
             return;
         }
         Joiner joiner = Joiner.on(",").skipNulls();
-        String sql=String.format("update app_tb_family_message set is_read=1 where id in(%s)",joiner.join(ids));
+        String sql=String.format("update app_tb_family_message set is_read=1 where  del_flag='0'  and id in(%s)",joiner.join(ids));
         jdbcTemplate.update(sql);
     }
     //根据邀请记录ID，获取邀请状态
@@ -196,7 +195,7 @@ public class FamilyMsgServiceImpl implements MsgService{
     @Override
     public Map<String, Object> findOneMessageByUid(String uid) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,req_record_id as reqRecordID,create_time" +
-                " from app_tb_family_message where receiver_uid='%s' and is_read=0 " +
+                " from app_tb_family_message where receiver_uid='%s' and is_read=0 and del_flag='0'  " +
                 " order by create_time desc" +
                 " limit 0, 1",uid);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
@@ -211,7 +210,7 @@ public class FamilyMsgServiceImpl implements MsgService{
 
     @Override
     public int countOfUnReadMessages(String uid) {
-        String query =String.format("select count(1) from app_tb_family_message where receiver_uid='%s' and is_read=0",uid);
+        String query =String.format("select count(1) from app_tb_family_message where receiver_uid='%s' and is_read=0 and del_flag='0' ",uid);
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
     }
@@ -223,8 +222,46 @@ public class FamilyMsgServiceImpl implements MsgService{
 
     @Override
     public int getCountByDate(String uid, String memberId, int type) {
-        String query = "select count(*) from app_tb_family_message where notifier_uid = '" + uid + "' and receiver_uid = '" + memberId + "' and msg_type = " + type + " and DATE_FORMAT(create_time,'%Y-%c-%d') = DATE_FORMAT(now(),'%Y-%c-%d')";
+        String query = "select count(*) from app_tb_family_message where notifier_uid = '" + uid + "' and receiver_uid = '" + memberId + "' and msg_type = " + type + " and del_flag='0'  and DATE_FORMAT(create_time,'%Y-%c-%d') = DATE_FORMAT(now(),'%Y-%c-%d')";
         Integer num = jdbcTemplate.queryForObject(query, Integer.class);
         return num != null ? num : 0;
+    }
+
+    @Override
+    public int countMsgByUidAndType(String uid, String typeCode) {
+        return 0;
+    }
+
+    @Override
+    public int countOfUnReadMessagesByUidType(String uid, String typeCode) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> findLastMessageByUidType(String uid, String typeCode) {
+        return null;
+    }
+
+    @Override
+    public void deleteMsg(String typeCode, String msgID) {
+        if (StringUtils.isBlank(msgID)){
+            return;
+        }
+        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  id = '%s' ",msgID);
+        jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public void deleteAllMsg(String uid, String typeCode) {
+        if (StringUtils.isBlank(uid) ){
+            return;
+        }
+        String sql=String.format("update app_tb_family_message set del_flag=1,is_read=1 where  receiver_uid = '%s' and (del_flag=0 or is_read=0)",uid);
+        jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public Page queryMsgListByUidType(String uid, Page page, String msgType) {
+        return null;
     }
 }

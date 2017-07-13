@@ -86,8 +86,6 @@ public class HealthActivityController {
 
 	/**
 	 * 根据类型和区域查询健康活动【分页功能】
-	 * @param uid
-	 * @param location
 	 * @return
 	 */
 	@RequestMapping(value = "/activities/page", method = RequestMethod.GET)
@@ -98,7 +96,7 @@ public class HealthActivityController {
 			@RequestParam(value = "province", required = false) String province,
 			@RequestParam(value = "city", required = false) String city,
 			@RequestParam(value = "county", required = false) String county,
-			@RequestParam(value = "status", defaultValue = "1") Integer status,
+			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "flag", defaultValue = "1") Integer flag,
 			@RequestHeader(value="screen-width")String width,
 			@RequestHeader(value="screen-height")String height,HttpServletRequest request) {

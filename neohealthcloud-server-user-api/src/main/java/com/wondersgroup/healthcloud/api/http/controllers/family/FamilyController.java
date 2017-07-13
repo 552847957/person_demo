@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -963,6 +965,9 @@ public class FamilyController {
             if (ano != null && ano.getIsStandalone()) {
                 info.setIsStandalone(true);
             }
+            info.setName(ano.getName());
+            info.setIdcard(ano.getIdcard());
+            info.setMedicarecard(ano.getMedicarecard());
             info.setWeight(ano.getWeight());
             info.setHeight(ano.getHeight());
             info.setId(ano.getId());
@@ -989,6 +994,9 @@ public class FamilyController {
                 info.setWeight(userInfo.getWeight() != null ? String.valueOf(userInfo.getWeight().intValue()) : "");
                 info.setHeight(userInfo.getHeight() != null ? String.valueOf(userInfo.getHeight().intValue()) : "");
             }
+            info.setName(regInfo.getName());
+            info.setIdcard(regInfo.getPersoncard());
+            info.setMedicarecard(regInfo.getMedicarecard());
             info.setSex(GenderConverter.toChinese(regInfo.getGender()));
             info.setId(regInfo.getRegisterid());
             info.setIsVerification(regInfo.verified());
@@ -1090,7 +1098,6 @@ public class FamilyController {
 
     /**
      * 修改非JKY家人信息
-     * @param uid
      * @return Object
      */
     @RequestMapping(value = "/memberFamilyInfoUpdate", method = RequestMethod.POST)
@@ -1331,6 +1338,8 @@ public class FamilyController {
         return list;
     }
 
+
+
     public Map<String, String> getFamilyMemberByUid(String uid) {
         Map<String, String> map = new LinkedHashMap<String, String>();
         List<FamilyMember> familyMembers = familyService.getFamilyMembers(uid);
@@ -1449,5 +1458,5 @@ public class FamilyController {
         }
         return result;
     }
-    
+
 }
