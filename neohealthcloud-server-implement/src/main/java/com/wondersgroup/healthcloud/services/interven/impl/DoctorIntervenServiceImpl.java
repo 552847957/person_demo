@@ -9,9 +9,11 @@ import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.exceptions.Exceptions;
 import com.wondersgroup.healthcloud.jpa.entity.diabetes.NeoFamIntervention;
+import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorAccount;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorInfo;
 import com.wondersgroup.healthcloud.jpa.entity.doctor.DoctorIntervention;
 import com.wondersgroup.healthcloud.jpa.repository.diabetes.NeoFamInterventionRepository;
+import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorAccountRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInfoRepository;
 import com.wondersgroup.healthcloud.jpa.repository.doctor.DoctorInterventionRepository;
 import com.wondersgroup.healthcloud.services.interven.DoctorIntervenService;
@@ -53,6 +55,9 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
 
     @Autowired
     private DoctorInfoRepository doctorInfoRepository;
+
+    @Autowired
+    private DoctorAccountRepository doctorAccountRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -238,12 +243,16 @@ public class DoctorIntervenServiceImpl implements DoctorIntervenService {
 
             neoFamInterventionRepository.setInterventionIsdealAndInterventionId(patientId, doctorIntervention.getId(),new Date());
 
+            DoctorAccount doctorAccount = doctorAccountRepository.findOne(doctorId);
+
             //调用job给用户端发送消息
             String jumpUrl = diseaseH5Url + "/DoctorAdviceDetail/" +doctorIntervention.getId();
-            String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + patientId + "\",\"msgType\":\"0\",\"msgTitle\":\"干预提醒\",\"msgContent\":\"近期您体征测量数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。\",\"jumpUrl\":\"" + jumpUrl + "\"}";
+            //近期您体征测量数据异常，建议您到所属社区卫生服务中心专业咨询。点击查看医生相关建议。
+            String param = "{\"notifierUID\":\"" + doctorId + "\",\"receiverUID\":\"" + patientId + "\",\"msgType\":\"0\",\"msgTitle\":\"医生建议\",\"msgContent\":\""+doctorAccount.getName()+"医生对您的体征异常情况给出了相关建议，请查看。\",\"jumpUrl\":\"" + jumpUrl + "\"}";
             Request build = new RequestBuilder().post().url(jobClientUrl + "/api/disease/message").body(param).build();
             JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(build).run().as(JsonNodeResponseWrapper.class);
             JsonNode result = response.convertBody();
+
         } catch (Exception ex) {
             logger.error(Exceptions.getStackTraceAsString(ex));
         }
