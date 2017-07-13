@@ -62,6 +62,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private OverAuthExclude overAuthExclude;
+
     private String getActiveProfile() {
         String[] profiles = environment.getActiveProfiles();
         if (profiles.length != 0) {
@@ -83,7 +86,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         Boolean isSandbox = "de".equals(getActiveProfile()) || "te".equals(getActiveProfile());
         RequestMappingHandlerMapping handlerMapping = new VersionedRequestMappingHandlerMapping();
         List<Object> interceptorList = Lists.newLinkedList();
-        OverAuthExclude overAuthExclude = new OverAuthExclude();
         interceptorList.add(new GateInterceptor());
         if (!"de".equals(getActiveProfile())) {
             interceptorList.add(new RequestTimeInterceptor(isSandbox));
