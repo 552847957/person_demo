@@ -81,6 +81,9 @@ public class SystemMsgController {
             pageNo = Integer.valueOf(flag);
         }
         int pageSize = 20;
+        if(type.equals("1")){
+            pageSize = 10;
+        }
         List<UserPrivateMessage> results = messageService.findSystemMsgList(area, uid,type, pageNo,pageSize);
         if(results!=null && results.size()>0){
             messageReadService.isRead(results);
