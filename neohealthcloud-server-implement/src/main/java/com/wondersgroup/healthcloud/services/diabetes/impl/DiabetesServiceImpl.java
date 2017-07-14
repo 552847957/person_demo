@@ -395,7 +395,7 @@ public class DiabetesServiceImpl implements DiabetesService {
                    message.setContent("您已有" + day + "周无血糖测量记录, 请前往测量。");
                    message.setCreateTime(new Date());
                    message.setIsRead("0");
-                   message.setJumpUrl("");
+                   message.setJumpUrl("com.wondersgroup.healthcloud.3101//user/measure/boold_sugar");
                    message.setMsgType("3");
                    message.setTitle("血糖测量提醒");
                    message.setReceiverUid(registerId);
