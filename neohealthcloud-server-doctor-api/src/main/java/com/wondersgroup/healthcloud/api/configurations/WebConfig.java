@@ -84,6 +84,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private JsonReturnValueFilter jsonReturnValueFilter;
 
+    @Autowired
+    private OverAuthExclude overAuthExclude;
+
     private String getActiveProfile() {
         String[] profiles = environment.getActiveProfiles();
         if (profiles.length != 0) {
@@ -106,7 +109,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         RequestMappingHandlerMapping handlerMapping = new VersionedRequestMappingHandlerMapping();
         List<Object> interceptorList = Lists.newLinkedList();
         interceptorList.add(new GateInterceptor());
-        OverAuthExclude overAuthExclude = new OverAuthExclude();
         if (!"de".equals(getActiveProfile())) {
             interceptorList.add(new RequestTimeInterceptor(isSandbox));
             interceptorList.add(new RequestHeaderInterceptor(isSandbox));
