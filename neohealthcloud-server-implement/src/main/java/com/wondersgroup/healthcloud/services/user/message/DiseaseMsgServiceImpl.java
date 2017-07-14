@@ -156,9 +156,9 @@ public class DiseaseMsgServiceImpl implements MsgService{
     @Override
     public Map<String, Object> findLastMessageByUidType(String uid, String typeCode) {
         String query =String.format("select id,notifier_uid as notifierUID,receiver_uid as receiverUID,msg_type as type,is_read as isReaded,title,content,jump_url as jumpUrl,create_time" +
-                " from app_tb_disease_message where receiver_uid='%s' and del_flag=0 " +
+                " from app_tb_disease_message where receiver_uid='%s' and del_flag=0 and msg_type='%s' " +
                 " order by create_time desc" +
-                " limit 0, 1",uid);
+                " limit 0, 1",uid,typeCode);
         List<Map<String, Object>> list = jdbcTemplate.queryForList(query);
         Map<String, Object> data;
         if (null == list || list.isEmpty()){
