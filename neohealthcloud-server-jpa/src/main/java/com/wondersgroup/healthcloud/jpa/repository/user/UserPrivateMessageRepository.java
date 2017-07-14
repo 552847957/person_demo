@@ -40,6 +40,6 @@ public interface UserPrivateMessageRepository extends JpaRepository<UserPrivateM
 
     @Transactional
     @Modifying
-    @Query(" update UserPrivateMessage a set a.delFlag ='1' where a.uid = ?2 and  a.type=?1 ")
+    @Query(" update UserPrivateMessage a set a.delFlag ='1' where a.uid = ?1 and  a.type=?2 ")
     void deleteAllMsg(String uid, String type);
 }
