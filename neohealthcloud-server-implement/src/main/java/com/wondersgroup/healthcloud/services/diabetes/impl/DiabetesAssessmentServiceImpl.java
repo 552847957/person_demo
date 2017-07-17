@@ -221,7 +221,7 @@ public class DiabetesAssessmentServiceImpl implements DiabetesAssessmentService{
             JsonNode result = response.convertBody();
 
             if(0 != result.get("code").asInt()){
-                logger.error("高位筛查提醒失败 "+registerid+" "+doctorId);
+                logger.error("高危筛查提醒失败 "+registerid+" "+doctorId);
                 logger.error(result.toString());
             }
 
