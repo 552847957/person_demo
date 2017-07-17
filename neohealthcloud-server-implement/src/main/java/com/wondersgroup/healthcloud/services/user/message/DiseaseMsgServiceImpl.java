@@ -183,7 +183,7 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public Page queryMsgListByUidType(String uid, Page page, String msgType) {
-        int num=this.countMsgByUid(uid);
+        int num=this.countMsgByUidAndType(uid,msgType);
         List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize(),msgType);
         page.setTotalCount(num);
         page.setResult(list);
