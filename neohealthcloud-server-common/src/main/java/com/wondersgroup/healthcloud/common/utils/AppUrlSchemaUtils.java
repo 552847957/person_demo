@@ -23,5 +23,12 @@ public class AppUrlSchemaUtils {
         return getBasePath(areaCode) + "bbs/topic_detail?topic_id="+topic_id;
     }
 
+    /**
+     * 消息中心列表
+     */
+    public static String msgCenterView() {
+        return getBasePath(areaCode) + "message_center";
+    }
+
 
 }
