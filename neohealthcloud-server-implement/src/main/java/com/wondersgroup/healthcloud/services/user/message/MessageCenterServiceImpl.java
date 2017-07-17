@@ -463,9 +463,9 @@ public class MessageCenterServiceImpl {
         switch (type){
             case msgType0:
                 //系统消息的redis
-                messageReadService.setAsRead(messageService.findOne(msgID));
-                //血糖测量的
-                if(!(msgID.length()>30)){
+                if(msgID.length()>30){
+                    messageReadService.setAsRead(messageService.findOne(msgID));
+                }else{
                     diseaseMsgService.setRead(Lists.newArrayList(Integer.valueOf(msgID)));
                 }
                 break;
@@ -497,13 +497,14 @@ public class MessageCenterServiceImpl {
         switch (type){
             case msgType0:
                 //先删数据库 再删红点
-                messageService.deleteMsg("0", msgID);
-                //系统消息的redis
-                messageReadService.setAsRead(messageService.findOne(msgID));
-                //血糖测量的
-                if(!(msgID.length()>30)){
+                if(msgID.length()>30){
+                    messageService.deleteMsg("0", msgID);
+                    //系统消息的redis
+                    messageReadService.setAsRead(messageService.findOne(msgID));
+                }else{//血糖测量的
                     diseaseMsgService.deleteMsg(DiseaseMsgTypeEnum.msgType3.getTypeCode(), msgID);
                 }
+
                 break;
             case msgType1:
                 messageService.deleteMsg("1",msgID);

@@ -458,6 +458,7 @@ public class HealthActivityAPIEntity {
     }
     
     //活动分享信息
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public class ActivityShare{
         public String id;
         public String title;
