@@ -93,6 +93,7 @@ public class SystemMsgController {
                     if(result.getType().equals("3")){
                         message.isRead = result.getXtIsRead().equals("1")?true:false;
                         message.type = MsgTypeEnum.msgType0.getTypeCode();
+                        message.url = result.getUrl();
                     }
                     messages.add(message);
                 }
