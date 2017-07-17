@@ -32,7 +32,7 @@ public class FamilyInfoDTO {
 
     public String getMedicarecard() {
         if(this.medicarecard != null){
-            this.medicarecard = medicarecard.substring(0,2) + "*****" + medicarecard.substring(7,medicarecard.length());
+            this.medicarecard = medicarecard.substring(0,2) + "****" + medicarecard.substring(medicarecard.length() -3, medicarecard.length());
         }
         return medicarecard;
     }
