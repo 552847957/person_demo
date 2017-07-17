@@ -99,44 +99,78 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                     equalMap.put("signStatus", String.valueOf(user.getSigned()));
                 }
 
-                // 慢病种类筛选
-                if (StringUtils.isNotBlank(user.getDiseaseType())) {
-                    String[] diseaseArray = user.getDiseaseType().split(",");
-                    for (String s : diseaseArray) {
-                        switch (s) {
-                            case DiseaseTypeConstant.APO:
-                                notEqualMap.put("apoType", "0");
-                                break;
-                            case DiseaseTypeConstant.DIABETES:
-                                notEqualMap.put("diabetesType", "0");
-                                break;
-                            case DiseaseTypeConstant.HYP:
-                                notEqualMap.put("hypType", "0");
-                                break;
-                        }
-                    }// end for
-                }// end if
-
                 // 人群分类
-                if (StringUtils.isNotBlank(user.getPeopleType())) {
+                if (StringUtils.isNotBlank(user.getPeopleType())) {// 对人群分类进行限制
                     switch (user.getPeopleType()) {
                         case PeopleTypeConstant.RISK:
                             // 高危人群
                             equalMap.put("isRisk", "1");
+                            // 若人群分类选择高危人群，慢病种类筛选的逻辑按照C端风险评估的结果
+
+                            // 慢病种类筛选
+                            if (StringUtils.isNotBlank(user.getDiseaseType())) {
+                                String[] diseaseArray = user.getDiseaseType().split(",");
+                                for (String s : diseaseArray) {
+                                    switch (s) {
+                                        case DiseaseTypeConstant.APO:
+                                            notEqualMap.put("apoCType", "0");
+                                            break;
+                                        case DiseaseTypeConstant.DIABETES:
+                                            notEqualMap.put("diabetesCType", "0");
+                                            break;
+                                        case DiseaseTypeConstant.HYP:
+                                            notEqualMap.put("hypCType", "0");
+                                            break;
+                                    }
+                                }// end for
+                            }// end if
                             break;
                         case PeopleTypeConstant.DISEASE:
-                            // 疾病人群
-                            Predicate condition = cb.or(cb.notEqual(root.<String>get("apoType"), "0"), cb.notEqual(root.<String>get("diabetesType"), "0"), cb.notEqual(root.<String>get("hypType"), "0"));
-                            predicates.add(condition);
+                            // 慢病种类筛选
+                            if (StringUtils.isNotBlank(user.getDiseaseType())) {
+                                diseaseTypeDeal(notEqualMap);
+                            } else {  // 慢病种类没有限制
+                                // 疾病人群
+                                Predicate condition = cb.or(cb.notEqual(root.<String>get("apoType"), "0"), cb.notEqual(root.<String>get("diabetesType"), "0"), cb.notEqual(root.<String>get("hypType"), "0"));
+                                predicates.add(condition);
+                            }
                             break;
                         case PeopleTypeConstant.HEALTHY:
                             // 健康人群
                             Predicate conditionH = cb.and(cb.equal(root.<String>get("apoType"), "0"), cb.equal(root.<String>get("diabetesType"), "0"), cb.equal(root.<String>get("hypType"), "0"), cb.equal(root.<String>get("isRisk"), "0"));
                             predicates.add(conditionH);
+
+                            // 慢病种类筛选
+                            if (StringUtils.isNotBlank(user.getDiseaseType())) {
+                                diseaseTypeDeal(notEqualMap);
+                            }// end if
                             break;
                     }// end switch
+                } else { // 人群不限制时
+                    // 慢病种类筛选
+                    if (StringUtils.isNotBlank(user.getDiseaseType())) {
+                        String[] diseaseArray = user.getDiseaseType().split(",");
+                        for (String s : diseaseArray) {
+                            switch (s) {
+                                case DiseaseTypeConstant.APO:
+                                    // notEqualMap.put("apoType", "0");
+                                    Predicate condition = cb.or(cb.equal(root.<String>get("apoType"), "1"), cb.equal(root.<String>get("apoCType"), "1"));
+                                    predicates.add(condition);
+                                    break;
+                                case DiseaseTypeConstant.DIABETES:
+                                    // notEqualMap.put("diabetesType", "0");
+                                    Predicate conditionD = cb.or(cb.equal(root.<String>get("diabetesType"), "1"), cb.equal(root.<String>get("diabetesCType"), "1"));
+                                    predicates.add(conditionD);
+                                    break;
+                                case DiseaseTypeConstant.HYP:
+                                    // notEqualMap.put("hypType", "0");
+                                    Predicate conditionH = cb.or(cb.equal(root.<String>get("hypType"), "1"), cb.equal(root.<String>get("hypCType"), "1"));
+                                    predicates.add(conditionH);
+                                    break;
+                            }
+                        }// end for
+                    }// end if
                 }// end if
-
 
                 // equal
                 for (String s : equalMap.keySet()) {
@@ -151,6 +185,23 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
 
                 Predicate result = predicates.isEmpty() ? cb.conjunction() : cb.and(toArray(predicates, Predicate.class));
                 return result;
+            }// end inner method
+
+            private void diseaseTypeDeal(Map<String, String> notEqualMap) {
+                String[] diseaseArray = user.getDiseaseType().split(",");
+                for (String s : diseaseArray) {
+                    switch (s) {
+                        case DiseaseTypeConstant.APO:
+                            notEqualMap.put("apoType", "0");
+                            break;
+                        case DiseaseTypeConstant.DIABETES:
+                            notEqualMap.put("diabetesType", "0");
+                            break;
+                        case DiseaseTypeConstant.HYP:
+                            notEqualMap.put("hypType", "0");
+                            break;
+                    }
+                }// end for
             }// end inner method
         }, new PageRequest(user.getPage() - 1, user.getPageSize(), new Sort(Sort.Direction.ASC, "name")));// end method
 
@@ -212,7 +263,7 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                 "when f.name like '%%%s' then 3\n" +
                 "when f.name like '%%%s%%' then 4  \n" +
                 "else 0\n" +
-                "end )";
+                "end ), CONVERT(f.name USING gbk) COLLATE gbk_chinese_ci ";
         sql = String.format(sql, idCard, idCard, inSqlStr, kw, kw, kw, kw, kw);
         long result = jdbcTemplate.queryForObject(sql, new Object[]{}, Long.class);
         return result;
@@ -399,9 +450,9 @@ public class DoctorTubeSignUserServiceImpl implements DoctorTubeSignUserService 
                     // 根据医生id获取身份证号码
                     DoctorInfo doctorInfo = doctorService.getDoctorInfoByUid(doctorId);
                     String idCard = doctorInfo.getIdcard();
-                    if (StringUtils.isNotBlank(doctorTubeSignUser.getSignDoctorPersoncard())){
+                    if (StringUtils.isNotBlank(doctorTubeSignUser.getSignDoctorPersoncard())) {
                         // 该签约用户的签约医生身份证和当前查询的医生身份证一致,说明是该医生的签约用户,打上"签"标签
-                        if(doctorTubeSignUser.getSignDoctorPersoncard().equals(idCard)){
+                        if (doctorTubeSignUser.getSignDoctorPersoncard().equals(idCard)) {
                             dto.setSignStatus(true);
                         }// end if
                     }// end if
