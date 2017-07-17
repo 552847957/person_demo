@@ -3,6 +3,7 @@ package com.wondersgroup.healthcloud.api.http.dto.family;
 import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 家人信息
@@ -31,14 +32,14 @@ public class FamilyInfoDTO {
     private String idcard;
 
     public String getMedicarecard() {
-        if(this.medicarecard != null){
-            this.medicarecard = medicarecard.substring(0,2) + "****" + medicarecard.substring(medicarecard.length() -3, medicarecard.length());
+        if(!StringUtils.isBlank(this.medicarecard)){
+                this.medicarecard = medicarecard.substring(0,2) + "****" + medicarecard.substring(medicarecard.length() -3, medicarecard.length());
         }
         return medicarecard;
     }
 
     public String getIdcard() {
-        if(this.idcard != null){
+        if(!StringUtils.isBlank(this.idcard)){
             this.idcard = idcard.substring(0,4) + "**********" + idcard.substring(idcard.length() - 4, idcard.length());
         }
         return idcard;
