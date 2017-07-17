@@ -84,7 +84,7 @@ public class UserAccountDTO {
             this.talkId = user.get("talkid") == null ? "" : user.get("talkid").toString();
             this.talkPwd = user.get("talkpwd") == null ? "" : user.get("talkpwd").toString();
             this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
-            this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskIdcard(user.get("medicarecard").toString());
+            this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskMedicarecard(user.get("medicarecard").toString());
             this.bindPersoncard = user.get("bind_personcard") == null ? "" : IdcardUtils.maskIdcard(user.get("bind_personcard").toString());
             this.isBBsAdmin = null != user.get("is_bbs_admin")  && user.get("is_bbs_admin").toString().equals("1");
             if (StringUtils.isNotBlank(this.idcard)) {
@@ -121,7 +121,7 @@ public class UserAccountDTO {
         this.talkId = registerInfo.getTalkid() == null ? "" : registerInfo.getTalkid();
         this.talkPwd = registerInfo.getTalkpwd() == null ? "" : registerInfo.getTalkpwd();
         this.tagid = registerInfo.getTagid() == null ? "" : registerInfo.getTagid();
-        this.medicarecard = registerInfo.getMedicarecard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getMedicarecard());
+        this.medicarecard = registerInfo.getMedicarecard() == null ? "" : IdcardUtils.maskMedicarecard(registerInfo.getMedicarecard());
         this.bindPersoncard = registerInfo.getBindPersoncard() == null ? "" : IdcardUtils.maskIdcard(registerInfo.getBindPersoncard());
         this.isBBsAdmin = registerInfo.getIsBBsAdmin() == 1;
         if (StringUtils.isNotBlank(this.idcard)) {

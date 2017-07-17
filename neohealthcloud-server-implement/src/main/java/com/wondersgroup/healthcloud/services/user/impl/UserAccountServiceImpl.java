@@ -901,6 +901,8 @@ public class UserAccountServiceImpl implements UserAccountService {
                     if (isVerified) {
                         anonymousAccount.setName(user.name);
                         anonymousAccount.setIdcard(user.idCard);
+                        anonymousAccount.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
+                        anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(user.idCard));
                         anonymousAccountRepository.saveAndFlush(anonymousAccount);
                     }
 

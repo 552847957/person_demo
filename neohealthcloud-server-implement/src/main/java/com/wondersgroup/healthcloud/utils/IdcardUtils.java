@@ -593,6 +593,14 @@ public final class IdcardUtils extends StringUtils {
         return new String(bytes);
     }
 
+    public static String maskMedicarecard(String medicarecard) {
+        byte[] bytes = medicarecard.getBytes();
+        for (int i = 2; i < bytes.length - 3; i++) {
+            bytes[i] = '*';
+        }
+        return new String(bytes);
+    }
+
     public static String maskMobile(String mobile) {
         byte[] bytes = mobile.getBytes();
         for (int i = 4; i < bytes.length - 3; i++) {

@@ -16,6 +16,7 @@ import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorChildVerificationException;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorIdcardException;
+import com.wondersgroup.healthcloud.utils.DateFormatter;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -95,6 +96,8 @@ public class ChildController {
         if(account != null && (!idCard.equals(account.getIdcard()) || !name.equals(account.getName()))){
             account.setIdcard(idCard);
             account.setName(name);
+            account.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(idCard)));
+            account.setSex(IdcardUtils.getGenderByIdCard(idCard));
             account.setUpdateDate(new Date());
             anonymousAccountRepository.saveAndFlush(account);
             
