@@ -37,6 +37,7 @@ public class HealthActivityAPIEntity {
     private String  enrollCountdown;    //报名倒计时
     private String  enrollColor;        //报名倒计时字体显示颜色
     private String  url;                //活动跳转链接
+    private String  h5Url;                //活动跳转链接
 
     private HealthActivityEvaluationAPIEntity evaluation;
     private SimpleDateFormat                  monthDayStr_sdf = new SimpleDateFormat("MM月dd日");
@@ -540,5 +541,13 @@ public class HealthActivityAPIEntity {
     public void setUrl(String url) {
         this.url = url;
     }
+
+	public String getH5Url() {
+		return h5Url;
+	}
+
+	public void setH5Url(String h5Url) {
+		this.h5Url = h5Url;
+	}
     
 }

@@ -385,7 +385,7 @@ public class DiabetesServiceImpl implements DiabetesService {
             if (Integer.parseInt(m.get("code").toString()) == 0) {
                 String date = String.valueOf(m.get("data"));
                long sum = DateFormatter.dateMinusDateForDays(date, DateTime.now().toString("yyyy-MM-dd"), "yyyy-MM-dd");
-               if(sum != 0 && sum % 7 == 0){
+               if(sum != 0 && sum / 7 != 0){
                    DiseaseMessage mes = diseaseMessageRepository.getDiseaseMessageByToday(registerId);
                    if(mes != null){
                        return false;
