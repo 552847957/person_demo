@@ -40,11 +40,14 @@ public class PushGetuiAdminClientImpl implements PushAdminClient {
     @Override
     public void overrideTagToClient(String cid, List<String> tags) {
         IQueryResult ret = push.setClientTag(appId, cid, tags);
+        logger.info(String.format("bindTag[%s] all result[%s]", cid, ret.getResponse().toString()));
+
     }
 
     @Override
     public void unbindAliasAll(String alias) {
         IAliasResult AliasUnBindAll = push.unBindAliasAll(appId, alias);
+        logger.info(String.format("bindTag[%s] all result[%s]  error_msg[%s]", alias, AliasUnBindAll.getResult(),AliasUnBindAll.getErrorMsg()));
     }
 
     @Override
