@@ -109,8 +109,10 @@ public class HealthActivityController {
 		    more = !list.isEmpty();
 		}
 		List<HealthActivityAPIEntity> list = new ArrayList<HealthActivityAPIEntity>();
+		String h5Url = environment.getProperty("activeti_detail_h5_url");
 		for (HealthActivityInfo info : infoList) {
 			HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info,width,height);
+			entity.setH5Url(h5Url);
 			this.setDetailInfo(entity,info,registerid);
 			list.add(entity);
 		}
