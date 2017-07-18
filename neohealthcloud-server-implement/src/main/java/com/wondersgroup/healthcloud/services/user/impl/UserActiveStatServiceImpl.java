@@ -18,11 +18,6 @@ public class UserActiveStatServiceImpl implements UserActiveStatService{
     @Override
     public List<Map<String, Object>> queryUserActiveStatList(Map<String, Object> param) {
         String sql=makeSql(param,1);
-        int pageSize = (Integer) param.get("pageSize");
-        int pageNo = (Integer) param.get("pageNo");
-        if(pageSize>0) {
-            sql += " limit " + (pageNo - 1) * pageSize + "," + pageSize;
-        }
         List<Map<String,Object>> results = jt.queryForList(sql);
         return results;
     }
