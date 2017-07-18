@@ -40,18 +40,10 @@ public class UserStatisticsController {
     @PostMapping("/statistics")
     public Pager statistics(@RequestBody Pager pager){
         Map param = new HashMap();
+        pager.setSize(-1);
         param.putAll(pager.getParameter());
-        int pageSize = pager.getSize();
-
-        param.put("pageSize", pager.getSize());
-
-        param.put("pageNo", pager.getNumber());
         List list = userActiveStatServiceImpl.queryUserActiveStatList(param);
         pager.setData(list);
-        int total=userActiveStatServiceImpl.getCount(param);
-        int totalPage=total % pageSize == 0 ? total / pageSize : (total / pageSize) + 1;
-        pager.setTotalElements(total);
-        pager.setTotalPages(totalPage);
         return pager;
     }
 
@@ -63,7 +55,7 @@ public class UserStatisticsController {
         param.put("endTime",endTime);
         param.put("pageSize",-1);
         param.put("pageNo", 0);
-        param.put("type",type);
+        param.put("type",type.toString());
         List excelData = userActiveStatServiceImpl.queryUserActiveStatList(param);
         String userAgent = request.getHeader("USER-AGENT");
         String excelName = generateExcelName(userAgent);
