@@ -48,6 +48,8 @@ import java.util.List;
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
+    @Autowired
+    private OverAuthExclude overAuthExclude;
 
     @Autowired
     private Environment environment;
@@ -79,7 +81,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         Boolean isSandbox = "de".equals(getActiveProfile());
-        OverAuthExclude overAuthExclude = new OverAuthExclude();
         registry.addInterceptor(new DiseaseGateInterceptor()).addPathPatterns("/**");
         registry.addInterceptor(new RequestReplayDefenderInterceptor(defender, isSandbox));
         registry.addInterceptor(new RequestAccessTokenInterceptor(sessionUtil, isSandbox, overAuthExclude));
