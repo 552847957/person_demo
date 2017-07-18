@@ -47,7 +47,7 @@ public class PushGetuiAdminClientImpl implements PushAdminClient {
     @Override
     public void unbindAliasAll(String alias) {
         IAliasResult AliasUnBindAll = push.unBindAliasAll(appId, alias);
-        logger.info(String.format("bindTag[%s] all result[%s]  error_msg[%s]", alias, AliasUnBindAll.getResult(),AliasUnBindAll.getErrorMsg()));
+        logger.info(String.format("unbindTag[%s] all result[%s]  error_msg[%s]", alias, AliasUnBindAll.getResult(),AliasUnBindAll.getErrorMsg()));
     }
 
     @Override
