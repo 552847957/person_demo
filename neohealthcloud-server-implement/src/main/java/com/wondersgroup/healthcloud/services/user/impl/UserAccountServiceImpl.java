@@ -903,6 +903,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                         anonymousAccount.setIdcard(user.idCard);
                         anonymousAccount.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
                         anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(user.idCard));
+                        anonymousAccount.setUpdateDate(new Date());
                         anonymousAccountRepository.saveAndFlush(anonymousAccount);
                     }
 
