@@ -183,7 +183,21 @@ public class DiseaseMsgServiceImpl implements MsgService{
 
     @Override
     public Page queryMsgListByUidType(String uid, Page page, String msgType) {
-        int num=this.countMsgByUidAndType(uid,msgType);
+        String type = "";
+        if(StringUtils.isNotBlank(msgType)){
+            if(msgType.equals(MsgTypeEnum.msgType6.getTypeCode())){//医生建议
+                type = "0";
+            }else if(msgType.equals(MsgTypeEnum.msgType7.getTypeCode())){//随访提醒
+                type = "2";
+            }else if(msgType.equals(MsgTypeEnum.msgType8.getTypeCode())){//报告提醒
+                type = "4";
+            }else if(msgType.equals(MsgTypeEnum.msgType9.getTypeCode())){//筛查提醒
+                type = "1";
+            }
+        }else{
+            return null;
+        }
+        int num=this.countMsgByUidAndType(uid, type);
         List<Map<String, Object>> list =this.getMsgListByUid(uid,page.getOffset(),page.getPageSize(),msgType);
         page.setTotalCount(num);
         page.setResult(list);
