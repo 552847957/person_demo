@@ -504,6 +504,9 @@ public class UserAccountServiceImpl implements UserAccountService {
                 if (info.get("status").asInt() == 1 && anonymousAccount.getIdcard() == null) {
                     anonymousAccount.setIdcard(info.get("idcard").asText());
                     anonymousAccount.setName(info.get("name").asText());
+                    anonymousAccount.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(info.get("idcard").asText())));
+                    anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(info.get("idcard").asText()));
+                    anonymousAccount.setUpdateDate(new Date());
                     anonymousAccountRepository.saveAndFlush(anonymousAccount);
 
                     //调用健康档案
