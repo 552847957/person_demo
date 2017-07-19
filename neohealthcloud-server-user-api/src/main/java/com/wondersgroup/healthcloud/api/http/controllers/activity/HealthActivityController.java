@@ -113,7 +113,7 @@ public class HealthActivityController {
 		for (HealthActivityInfo info : infoList) {
 			HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info,width,height);
 			if(h5Url != null){
-				h5Url+="/activity/detail?acitivityId="+ info.getActivityid();
+				h5Url+="/activity/detail?acitivityId="+ info.getActivityid()+"&uid="+registerid;
 			}
 			entity.setH5Url(h5Url);
 			this.setDetailInfo(entity,info,registerid);
