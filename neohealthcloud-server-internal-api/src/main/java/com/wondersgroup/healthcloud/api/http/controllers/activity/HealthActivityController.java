@@ -520,7 +520,7 @@ public class HealthActivityController {
 	 * @param activityid
 	 * @return
 	 */
-	@RequestMapping(value = "/activities/participation", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/activities/participation", method = RequestMethod.GET)
 	@VersionRange
 	public JsonResponseEntity<String> doCancelParticipation(
 			@RequestParam(value="uid",required=true) String registerId,
