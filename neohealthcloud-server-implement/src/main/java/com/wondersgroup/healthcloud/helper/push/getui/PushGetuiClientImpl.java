@@ -83,7 +83,7 @@ public class PushGetuiClientImpl implements PushClient {
         target.setAppId(appId);
         target.setAlias(alias);
         PushResult result = (PushResult) push.pushMessageToSingle(singleMessage, target);
-        logger.info(String.format("cli[%s] msg[%s][%s] alias[%s] result[%s]", area, message.title, message.content, alias, result.getResponse().toString()));
+        logger.info(String.format("cli[%s] msg[%s][%s] alias[%s] url[%s] result[%s]", area, message.title, message.content, alias,message.url, result.getResponse().toString()));
     }
 
     @Override
