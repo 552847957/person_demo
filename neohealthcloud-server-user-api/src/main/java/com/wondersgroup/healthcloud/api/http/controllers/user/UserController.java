@@ -412,8 +412,8 @@ public class UserController {
                 } else {
                     VerificationInfoDTO data = new VerificationInfoDTO();
                     data.setUid(id);
-                    data.setName(IdcardUtils.maskName(person.getName()));
-                    data.setIdcard(IdcardUtils.maskIdcard(person.getPersoncard()));
+                    data.setName(StringUtils.isBlank(person.getName())?"":IdcardUtils.maskName(person.getName()));
+                    data.setIdcard(StringUtils.isBlank(person.getPersoncard())?"":IdcardUtils.maskIdcard(person.getPersoncard()));
                     data.setIdentifytype(person.getIdentifytype());
                     data.setStatus(VerificationInfoDTO.statusArray[0]);
                     data.setCanSubmit(true);
