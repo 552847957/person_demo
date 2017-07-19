@@ -1,5 +1,6 @@
 package com.wondersgroup.healthcloud.api.http.controllers.activity;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 
+
 import com.wondersgroup.healthcloud.api.http.dto.activity.UserInfoDTO;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +86,7 @@ public class HealthActivityController {
     private ImageUtils imageUtils;
     @Autowired
     private HealthActivityDetailRepository healthActivityDetailRepository;
+    
     
     @RequestMapping(value = "/listdata", method = RequestMethod.POST)
     public JsonListResponseEntity<HealthActivityInfoDTO> searchActivity(@RequestBody String request) {
@@ -454,4 +458,105 @@ public class HealthActivityController {
         }
         return docinfoService.findDoctorByIds(ids.substring(0, ids.length() - 1));
     }
+    
+    /**
+	 * 报名活动
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/activities/participation", method = RequestMethod.POST)
+	@VersionRange
+	public JsonResponseEntity<String> doParticipationActivity(@RequestBody String request) {
+	        
+			JsonKeyReader reader = new JsonKeyReader(request);
+			String activityid =  reader.readString("activityid", false);
+			String registerId = reader.readString("uid", false);
+
+			JsonResponseEntity<String> response = new JsonResponseEntity<String>();
+			HealthActivityDetail detail = healthActivityDetailRepository.findActivityDetailByAidAndRid(activityid, registerId);
+			if (detail == null || detail.getActivityid() == null){
+				HealthActivityInfo info = activityRepo.findOne(activityid);
+				
+				Integer totalApply = healthActivityDetailRepository.findActivityRegistrationByActivityId(activityid);// 已报名人数
+				Integer quota = info.getQuota();// 活动限定名额
+
+				if (info.getEnrollStartTime().after(new Timestamp(System.currentTimeMillis()))) {
+					response.setCode(1620);
+					response.setMsg("活动报名尚未开始");
+					return response;
+				}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
+					response.setCode(1608);
+					response.setMsg("活动报名已结束");
+					return response;
+				}else if (totalApply != null && Integer.valueOf(totalApply) >= quota) {
+					response.setCode(1609);
+					response.setMsg("名额已满");
+					return response;
+
+				}else {
+					HealthActivityDetail detailInfo = new HealthActivityDetail();
+                    detailInfo.setSigntime(DateFormatter.dateTimeFormat(new Date()));
+                    detailInfo.setRegisterid(registerId);
+                    detailInfo.setActivityid(activityid);
+                    detailInfo.setId(IdGen.uuid());
+                    detailInfo.setDelFlag("0");
+                    healthActivityDetailRepository.save(detailInfo);
+                    response.setCode(0);//1：报名成功
+                    response.setMsg("报名成功");
+                    
+				}
+			} else {
+				response.setCode(1610);
+				response.setMsg("不能重复报名");
+				return response;
+			}
+		response.setMsg("报名成功");
+			
+		return response;
+	}
+
+	/**
+	 * 取消活动报名
+	 * @param activityid
+	 * @return
+	 */
+	@RequestMapping(value = "/activities/participation", method = RequestMethod.DELETE)
+	@VersionRange
+	public JsonResponseEntity<String> doCancelParticipation(
+			@RequestParam(value="uid",required=true) String registerId,
+			@RequestParam(value = "activityid", required = true) String activityid) {
+
+
+			JsonResponseEntity<String> response = new JsonResponseEntity<String>();
+			HealthActivityDetail detail = healthActivityDetailRepository
+					.findActivityDetailByAidAndRid(activityid, registerId);
+			HealthActivityInfo info = activityRepo.findOne(activityid);
+			
+			if(detail == null){
+			    response.setCode(1615);
+                response.setMsg("请先报名");
+                return response;
+			}else if (info.getEndtime().before(new Timestamp(System.currentTimeMillis()))) {
+				response.setCode(1616);
+				response.setMsg("活动已结束不能取消报名");
+				return response;
+			}else if (info.getEnrollEndTime().before(new Timestamp(System.currentTimeMillis()))) {
+                response.setCode(1617);
+                response.setMsg("活动报名已结束");
+                return response;
+            }else {
+				detail.setDelFlag("1");
+				detail = healthActivityDetailRepository.save(detail);
+				int result = detail.getDelFlag().equals("1") ? 1 : 0;// 0:取消报名失败，1：取消报名成功
+				if(detail.getDelFlag().equals("1")){
+					response.setCode(0);
+					response.setMsg("取消报名成功");
+				}else{
+					response.setCode(1612);
+					response.setMsg("取消报名失败");
+				}
+				return response;
+			}
+	}
+
 }
