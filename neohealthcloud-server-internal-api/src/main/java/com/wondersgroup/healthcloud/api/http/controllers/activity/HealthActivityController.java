@@ -127,6 +127,11 @@ public class HealthActivityController {
 		}else{
 			infoDto.setIsApplied("0");
 		}
+		if ("0".equals(infoDto.getEnrollOverdue())) {
+			infoDto.setLtDay( (info.getEnrollEndTime().getTime() - new Date().getTime()) < 86400000);
+        }
+		infoDto.setOverdue(info.getEndtime().getTime() < new Date().getTime() ? "1" : "0");
+		infoDto.setEnrollOverdue(info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0");
         entity.setData(infoDto);
         entity.setMsg("查询成功");
         return entity;
