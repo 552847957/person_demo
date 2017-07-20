@@ -372,6 +372,11 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
     @Transactional
     public Boolean verificationSubmit(String id, String name, String idCard, String photoUrl) {
+        WondersUser wondersUser = getWondersBaseInfo(id,CHANNEL_TYPE_JKY);
+        if(wondersUser.isVerified){
+            throw new CommonException(1000, "提交的账户已实名认证,不能重复提交！");
+        }
+
         if (!IdcardUtils.containsChinese(name)) {
             throw new ErrorChildVerificationException("姓名必须是中文");
         }
