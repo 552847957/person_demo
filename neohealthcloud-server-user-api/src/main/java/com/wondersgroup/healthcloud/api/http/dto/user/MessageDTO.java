@@ -49,7 +49,7 @@ public class MessageDTO {
         this.title = message.getTitle();
         this.content = message.getContent();
         this.type = message.getType();
-        this.url = "-1".equals(type) ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
+        this.url = ("-1".equals(type)|| message.getUrl().startsWith("http"))  ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
         this.time = parseDate(message.getCreateTime());
         this.isRead = message.getIsRead();
         this.nativeMessage = message;
