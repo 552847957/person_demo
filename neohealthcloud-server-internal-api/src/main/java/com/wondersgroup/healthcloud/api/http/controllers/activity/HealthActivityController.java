@@ -9,6 +9,7 @@ import java.util.Map;
 
 
 
+
 import com.wondersgroup.healthcloud.api.http.dto.activity.UserInfoDTO;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 
@@ -115,18 +116,29 @@ public class HealthActivityController {
     }
 
     @RequestMapping("/findActivity")
-    public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(@RequestParam() String acitivityId, String registerid) {
+    public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(@RequestParam() String acitivityId, String uid) {
         JsonResponseEntity<HealthActivityInfoDTO> entity = new JsonResponseEntity<HealthActivityInfoDTO>();
         HealthActivityInfo info = activityRepo.findOne(acitivityId);
         HealthActivityInfoDTO infoDto = new HealthActivityInfoDTO(info);
         infoDto.setTotalApplied(healthActivityDetailRepository.findActivityRegistrationByActivityId(info.getActivityid()));// 已报名人数
        
-		if(!StringUtils.isEmpty(registerid)) {
+		if(!StringUtils.isEmpty(uid)) {
 			infoDto.setIsApplied(healthActivityDetailRepository.
-					findActivityDetailByActivityIdAndRegisterid(info.getActivityid(), registerid));
+					findActivityDetailByActivityIdAndRegisterid(info.getActivityid(), uid));
 		}else{
 			infoDto.setIsApplied("0");
 		}
+		if ("0".equals(infoDto.getEnrollOverdue())) {
+			infoDto.setLtDay( (info.getEnrollEndTime().getTime() - new Date().getTime()) < 86400000);
+        }
+		infoDto.setOverdue(info.getEndtime().getTime() < new Date().getTime() ? "1" : "0");
+		infoDto.setEnrollOverdue(info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0");
+		Timestamp nowTime = new Timestamp(System.currentTimeMillis());
+		 if(info.getOfflineStartTime() != null && info.getOfflineEndTime() != null ){
+	            if(info.getOfflineStartTime().before(nowTime) && info.getOfflineEndTime().after(nowTime)){
+	            	infoDto.setOfflineOverdue(true);
+	            }
+	    }
         entity.setData(infoDto);
         entity.setMsg("查询成功");
         return entity;
