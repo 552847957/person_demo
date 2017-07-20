@@ -26,7 +26,7 @@ public class AppMessageUrlUtil {
         QUESTION("1", "我的咨询", null, "/question", true),
         FAMILY("2", "亲情账户", null, "/family", false),
         ACTIVITY("3", "健康活动", null, "/activity", false),
-        ACTIVITY_H5("0", "健康活动活动详情跳h5", null, "/activity", false);//活动跳转H5 属于系统消息
+        ACTIVITY_H5("4", "健康活动活动详情跳h5", null, "/activity", false);//活动跳转H5 属于系统消息
 
         public final String id;
         public final String name;
