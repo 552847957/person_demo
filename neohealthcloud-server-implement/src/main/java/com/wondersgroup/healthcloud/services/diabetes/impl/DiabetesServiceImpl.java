@@ -175,6 +175,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public List<ReportScreeningDTO> getReportScreening(String cardType, String cardNumber) {
+        logger.info(url+this.REPORT_SCREENING_LIST+" 参数："+new String[] { "personcardType", cardType, "personcardNo", cardNumber });
         Request request = new RequestBuilder().get().url(url + this.REPORT_SCREENING_LIST)
                 .params(new String[] { "personcardType", cardType, "personcardNo", cardNumber }).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
@@ -204,6 +205,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public List<ReportInspectDTO> getReportInspectList(String cardType, String cardNumber) {
+        logger.info(url+this.REPORT_INSPECT_LIST+" 参数："+new String[] { "personcardType", cardType, "personcardNo", cardNumber });
         Request request = new RequestBuilder().get().url(url + this.REPORT_INSPECT_LIST)
                 .params(new String[] { "personcardType", cardType, "personcardNo", cardNumber }).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
@@ -233,6 +235,8 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public List<ReportInspectDetailDTO> getReportInspectDetail(String reportNum, Date reportDate) {
+        logger.info(url+this.REPORT_INSPECT_DETAIL+" 参数："+new String[] { "reportNo", reportNum, "reportDate",
+                new DateTime(reportDate).toString("yyyyMMdd") });
         Request request = new RequestBuilder()
                 .get()
                 .url(url + this.REPORT_INSPECT_DETAIL)
@@ -266,6 +270,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public List<ReportFollowDTO> getReportFollowList(String cardType, String cardNumber) {
+        logger.info(url+this.REPORT_FOLLOW_LIST+" 参数："+new String[] { "personcardType", cardType, "personcardNo", cardNumber });
         Request request = new RequestBuilder().get().url(url + this.REPORT_FOLLOW_LIST)
                 .params(new String[] { "personcardType", cardType, "personcardNo", cardNumber }).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
@@ -297,6 +302,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public Map<String, Object> getReportCount(String cardType, String cardNumber) {
+        logger.info(url+this.REPORT_COUNT+" 参数："+new String[] { "personcardType", cardType, "personcardNo", cardNumber });
         Request request = new RequestBuilder().get().url(url + this.REPORT_COUNT)
                 .params(new String[] { "personcardType", cardType, "personcardNo", cardNumber }).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
@@ -323,6 +329,7 @@ public class DiabetesServiceImpl implements DiabetesService {
      */
     @Override
     public FollowPlanDTO getFollowPlanList(String cardType, String cardNumber) {
+        logger.info(url+this.FOLLOW_PLAN_LIST+" 参数："+new String[] { "personcardType", cardType, "personcardNo", cardNumber });
         Request request = new RequestBuilder().get().url(url + DiabetesServiceImpl.FOLLOW_PLAN_LIST)
                 .params(new String[] { "personcardType", cardType, "personcardNo", cardNumber }).build();
         JsonNodeResponseWrapper response = (JsonNodeResponseWrapper) httpRequestExecutorManager.newCall(request).run()
