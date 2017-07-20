@@ -65,7 +65,7 @@ public class AppMessage {
         if (urlFragment == null) {
             return null;
         }
-        if (type == AppMessageUrlUtil.Type.ACTIVITY) {
+        if (type == AppMessageUrlUtil.Type.ACTIVITY_H5) {
             type = AppMessageUrlUtil.Type.SYSTEM;
             return urlFragment;
         }
