@@ -2,6 +2,7 @@ package com.wondersgroup.healthcloud.services.user.message;
 
 import com.wondersgroup.healthcloud.common.utils.IdGen;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
+import com.wondersgroup.healthcloud.helper.push.api.AppMessageUrlUtil;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import com.wondersgroup.healthcloud.jpa.repository.user.UserPrivateMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,10 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
                 }
                 userPrivateMessage.setUrl(message.urlFragment);
                 userPrivateMessage.setType(message.type.id);
+                if (message.type == AppMessageUrlUtil.Type.ACTIVITY_H5) {
+                    userPrivateMessage.setType(AppMessageUrlUtil.Type.SYSTEM.id);
+                }
+
                 userPrivateMessage.setCreateTime(new Date());
 
                 userPrivateMessage = messageRepository.save(userPrivateMessage);
