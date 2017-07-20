@@ -115,11 +115,18 @@ public class HealthActivityController {
     }
 
     @RequestMapping("/findActivity")
-    public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(@RequestParam() String acitivityId) {
+    public JsonResponseEntity<HealthActivityInfoDTO> findActivitie(@RequestParam() String acitivityId, String registerid) {
         JsonResponseEntity<HealthActivityInfoDTO> entity = new JsonResponseEntity<HealthActivityInfoDTO>();
         HealthActivityInfo info = activityRepo.findOne(acitivityId);
         HealthActivityInfoDTO infoDto = new HealthActivityInfoDTO(info);
         infoDto.setTotalApplied(healthActivityDetailRepository.findActivityRegistrationByActivityId(info.getActivityid()));// 已报名人数
+       
+		if(!StringUtils.isEmpty(registerid)) {
+			infoDto.setIsApplied(healthActivityDetailRepository.
+					findActivityDetailByActivityIdAndRegisterid(info.getActivityid(), registerid));
+		}else{
+			infoDto.setIsApplied("0");
+		}
         entity.setData(infoDto);
         entity.setMsg("查询成功");
         return entity;

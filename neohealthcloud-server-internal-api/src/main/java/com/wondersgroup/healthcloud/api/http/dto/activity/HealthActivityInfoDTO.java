@@ -20,6 +20,7 @@ public class HealthActivityInfoDTO {
     @JsonIgnore
     private SimpleDateFormat                  hourMinute_sdf  = new SimpleDateFormat("HH:mm");
     
+    private String isApplied;        // 是否已报名（按钮状态）
     private String  activityid;
     private String  host;             // '主办者',
     private String  type;             // '活动类型 1：糖尿病:2：高血压',
