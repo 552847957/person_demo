@@ -20,6 +20,7 @@ public class HealthActivityInfoDTO {
     @JsonIgnore
     private SimpleDateFormat                  hourMinute_sdf  = new SimpleDateFormat("HH:mm");
     
+    private boolean offlineOverdue;     //是否在下线活动时间段之内
     private boolean ltDay;              //再报名时间||活动时间未过期的情况下，剩余时间是否只剩一天
     private String  overdue;            //活动是否过期：0为未过期，1为过期
     private String  enrollOverdue;      //报名时间是否过期：0为未过期，1为过期

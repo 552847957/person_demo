@@ -9,6 +9,7 @@ import java.util.Map;
 
 
 
+
 import com.wondersgroup.healthcloud.api.http.dto.activity.UserInfoDTO;
 import com.wondersgroup.healthcloud.jpa.entity.activity.HealthActivityDetail;
 
@@ -132,6 +133,12 @@ public class HealthActivityController {
         }
 		infoDto.setOverdue(info.getEndtime().getTime() < new Date().getTime() ? "1" : "0");
 		infoDto.setEnrollOverdue(info.getEnrollEndTime().getTime() < new Date().getTime() ? "1" : "0");
+		Timestamp nowTime = new Timestamp(System.currentTimeMillis());
+		 if(info.getOfflineStartTime() != null && info.getOfflineEndTime() != null ){
+	            if(info.getOfflineStartTime().before(nowTime) && info.getOfflineEndTime().after(nowTime)){
+	            	infoDto.setOfflineOverdue(true);
+	            }
+	    }
         entity.setData(infoDto);
         entity.setMsg("查询成功");
         return entity;
