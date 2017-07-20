@@ -112,7 +112,7 @@ public class HealthActivityController {
 		String h5Url = environment.getProperty("h5-web.connection.url");
 		for (HealthActivityInfo info : infoList) {
 			HealthActivityAPIEntity entity = new HealthActivityAPIEntity(info,width,height);
-			if(h5Url != null && info.getSummaryHtml() !=null){
+			if(h5Url != null && !StringUtils.isBlank(info.getSummaryHtml())){
 				entity.setH5Url(h5Url + "/activity/activityDetail?activityid="+ info.getActivityid()+"&uid="+registerid);
 			}
 			this.setDetailInfo(entity,info,registerid);
