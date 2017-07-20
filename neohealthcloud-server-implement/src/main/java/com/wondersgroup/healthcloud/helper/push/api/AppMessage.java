@@ -65,6 +65,10 @@ public class AppMessage {
         if (urlFragment == null) {
             return null;
         }
+        if (type == AppMessageUrlUtil.Type.ACTIVITY) {
+            type = AppMessageUrlUtil.Type.SYSTEM;
+            return urlFragment;
+        }
         if (type != AppMessageUrlUtil.Type.HTTP) {
             return buildAppUrl(area, isDoctor, urlFragment);
         } else {
