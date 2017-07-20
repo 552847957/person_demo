@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wondersgroup.healthcloud.helper.push.api.AppMessage;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserPrivateMessage;
 import com.wondersgroup.healthcloud.utils.DateFormatter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -49,7 +50,7 @@ public class MessageDTO {
         this.title = message.getTitle();
         this.content = message.getContent();
         this.type = message.getType();
-        this.url = ("-1".equals(type)|| message.getUrl().startsWith("http"))  ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
+        this.url = ("-1".equals(type) || (StringUtils.isNotBlank(message.getUrl())&&message.getUrl().startsWith("http"))) ? message.getUrl() : AppMessage.buildAppUrl(area, false, message.getUrl());
         this.time = parseDate(message.getCreateTime());
         this.isRead = message.getIsRead();
         this.nativeMessage = message;
