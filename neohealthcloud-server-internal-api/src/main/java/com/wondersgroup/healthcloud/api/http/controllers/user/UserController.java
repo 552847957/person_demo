@@ -17,11 +17,13 @@ import com.wondersgroup.healthcloud.services.user.UserService;
 import com.wondersgroup.healthcloud.services.user.dto.Session;
 import com.wondersgroup.healthcloud.services.user.dto.UserInfoForm;
 import com.wondersgroup.healthcloud.services.user.exception.ErrorUserAccountException;
+import com.wondersgroup.healthcloud.utils.sms.SMS;
 import com.wondersgroup.healthcloud.utils.wonderCloud.AccessToken;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 
@@ -43,6 +45,9 @@ public class UserController {
 
     @Autowired
     private SessionUtil sessionUtil;
+
+    @Resource(name = "verification")
+    private SMS sms;
 
     @Autowired
     private Debug debug;
@@ -195,4 +200,27 @@ public class UserController {
         body.setMsg(result ? "短信验证码验证通过" : "短信验证码验证错误");
         return body;
     }
+
+    /**
+     * 发送短信
+     *
+     * @return
+     */
+    @PostMapping(path = "/message/send")
+    public JsonResponseEntity<String> sendMessage(@RequestBody String request) {
+        JsonKeyReader reader = new JsonKeyReader(request);
+        String mobile = reader.readObject("mobile", true, String.class);
+        String content = reader.readObject("content", true, String.class);
+        if (!(StringUtils.isNumeric(mobile) && mobile.length() == 11 && StringUtils.startsWith(mobile, "1"))) {
+            throw new CommonException(1000, "手机号码不正确");
+        }
+        sms.send(mobile, content);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setCode(0);
+        body.setMsg("短信发送成功");
+        return body;
+    }
+
+
+
 }
