@@ -1,9 +1,12 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.google.common.collect.Maps;
+import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
+import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.Debug;
+import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
@@ -140,5 +143,56 @@ public class UserController {
         map.put("addIsComplete",judgeAddressIsComplete.toString());
         response.setData(map);
         return response;
+    }
+
+    /**
+     * 获取验证码 type : `0`:默认, `1`:注册, `2`:手机动态码登陆, `3`:重置密码 ,4 :修改手机号 ,5:绑定手机号
+     * `7`:手机动态码登陆(未注册时不发送验证码 提示未注册) ,"8":计免
+     *
+     * @param mobile
+     * @param type
+     * @return
+     */
+    @GetMapping(path = "/code")
+    public JsonResponseEntity<Map<String, String>> getVerificationCodes(@RequestParam String mobile,
+                                                                        @RequestParam(defaultValue = "0") Integer type) {
+        JsonResponseEntity<Map<String, String>> response = new JsonResponseEntity<>();
+        userAccountService.getVerifyCode(mobile, type);
+        String msg = "短信验证码发送成功";
+
+        if (!(StringUtils.isNumeric(mobile) && mobile.length() == 11 && StringUtils.startsWith(mobile, "1"))) {
+            throw new CommonException(1000, "手机号码不正确");
+        }
+
+        if (type == 1) {
+            msg = "验证码已发送，请注意查看短信";
+        } else if (type == 3) {
+            msg = "验证码已发送至" + mobile;
+        }
+        response.setMsg(msg);
+        //动态登录获取验证码时返回手机是否注册的状态
+        if(type == 2){
+            Map<String, String> data = Maps.newHashMap();
+            data.put("is_registe",userAccountService.checkAccount(mobile)?"1":"0");
+            response.setData(data);
+        }
+        return response;
+    }
+
+    /**
+     * 验证验证码
+     *
+     * @param mobile
+     * @param code
+     * @return
+     */
+    @GetMapping(path = "/code/check")
+    public JsonResponseEntity<String> validateCode(@RequestParam("mobile") String mobile,
+                                                   @RequestParam("verify_code") String code) {
+        Boolean result = userAccountService.validateCode(mobile, code, true);
+        JsonResponseEntity<String> body = new JsonResponseEntity<>();
+        body.setCode(result ? 0 : 1002);
+        body.setMsg(result ? "短信验证码验证通过" : "短信验证码验证错误");
+        return body;
     }
 }
