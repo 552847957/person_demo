@@ -40,7 +40,7 @@ public class AppMessage {
     @JsonProperty("url_fragment")
     public String urlFragment;
     public Map<String, String> params;
-
+    public Boolean unTransformUrl;//是否需要对urlFragment进行转换，true：不需要；false 或 null：原有逻辑判断
     public AppMessage() {
     }
 
@@ -64,6 +64,9 @@ public class AppMessage {
     private String buildUrl() {
         if (urlFragment == null) {
             return null;
+        }
+        if(null != unTransformUrl && unTransformUrl){
+            return urlFragment;
         }
         if (type == AppMessageUrlUtil.Type.ACTIVITY_H5) {
             type = AppMessageUrlUtil.Type.SYSTEM;
