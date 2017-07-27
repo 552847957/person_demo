@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.utils.IdcardUtils;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.RoundingMode;
@@ -16,6 +17,7 @@ import java.util.Map;
 /**
  * Created by longshasha on 16/8/4.
  */
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAccountDTO {
 
@@ -46,7 +48,7 @@ public class UserAccountDTO {
     private String height;
     private String weight;
     private String waist;
-    private Boolean isChangedNickName=true;
+    private Boolean isChangedNickName = true;
 
     @JsonUnwrapped(prefix = "address_")
     private AddressDTO addressDTO;
@@ -86,7 +88,7 @@ public class UserAccountDTO {
             this.tagid = user.get("tagid") == null ? "" : user.get("tagid").toString();
             this.medicarecard = user.get("medicarecard") == null ? "" : IdcardUtils.maskMedicarecard(user.get("medicarecard").toString());
             this.bindPersoncard = user.get("bind_personcard") == null ? "" : IdcardUtils.maskIdcard(user.get("bind_personcard").toString());
-            this.isBBsAdmin = null != user.get("is_bbs_admin")  && user.get("is_bbs_admin").toString().equals("1");
+            this.isBBsAdmin = null != user.get("is_bbs_admin") && user.get("is_bbs_admin").toString().equals("1");
             if (StringUtils.isNotBlank(this.idcard)) {
                 this.idcard = IdcardUtils.maskIdcard(this.idcard);
             }
@@ -128,170 +130,6 @@ public class UserAccountDTO {
             this.idcard = IdcardUtils.maskIdcard(this.idcard);
         }
         this.identifytype = registerInfo.getIdentifytype();
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getAge() {
-        return age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public Integer getGender() {
-        return gender;
-    }
-
-    public void setGender(Integer gender) {
-        this.gender = gender;
-    }
-
-    public Boolean getVerified() {
-        return verified;
-    }
-
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
-    }
-
-    public String getTalkId() {
-        return talkId;
-    }
-
-    public void setTalkId(String talkId) {
-        this.talkId = talkId;
-    }
-
-    public String getTalkPwd() {
-        return talkPwd;
-    }
-
-    public void setTalkPwd(String talkPwd) {
-        this.talkPwd = talkPwd;
-    }
-
-    public String getTagid() {
-        return tagid;
-    }
-
-    public void setTagid(String tagid) {
-        this.tagid = tagid;
-    }
-
-    public String getMedicarecard() {
-        return medicarecard;
-    }
-
-    public void setMedicarecard(String medicarecard) {
-        this.medicarecard = medicarecard;
-    }
-
-    public String getBindPersoncard() {
-        return bindPersoncard;
-    }
-
-    public void setBindPersoncard(String bindPersoncard) {
-        this.bindPersoncard = bindPersoncard;
-    }
-
-    public String getIdcard() {
-        return idcard;
-    }
-
-    public void setIdcard(String idcard) {
-        this.idcard = idcard;
-    }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
-    }
-
-    public String getWaist() {
-        return waist;
-    }
-
-    public void setWaist(String waist) {
-        this.waist = waist;
-    }
-
-    public AddressDTO getAddressDTO() {
-        return addressDTO;
-    }
-
-    public void setAddressDTO(AddressDTO addressDTO) {
-        this.addressDTO = addressDTO;
-    }
-
-    public String getIdentifytype() {
-        return identifytype;
-    }
-
-    public void setIdentifytype(String identifytype) {
-        this.identifytype = identifytype;
-    }
-
-    public Boolean getIsBBsAdmin() {
-        return isBBsAdmin;
-    }
-
-    public void setIsBBsAdmin(Boolean isBBsAdmin) {
-        isBBsAdmin = isBBsAdmin;
-    }
-
-    public void setIsChangedNickName(Boolean isChangedNickName) {
-        isChangedNickName = isChangedNickName;
     }
 
     public Boolean getIsChangedNickName() {

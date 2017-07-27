@@ -1,14 +1,9 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.google.common.collect.Maps;
-<<<<<<< Updated upstream
-import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
-=======
 import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
->>>>>>> Stashed changes
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
-import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.common.utils.Debug;
 import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
