@@ -1,7 +1,11 @@
 package com.wondersgroup.healthcloud.api.http.controllers.user;
 
 import com.google.common.collect.Maps;
+<<<<<<< Updated upstream
 import com.wondersgroup.healthcloud.common.http.annotations.WithoutToken;
+=======
+import com.wondersgroup.healthcloud.api.http.dto.user.UserAccountDTO;
+>>>>>>> Stashed changes
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
@@ -10,6 +14,7 @@ import com.wondersgroup.healthcloud.exceptions.CommonException;
 import com.wondersgroup.healthcloud.jpa.entity.user.Address;
 import com.wondersgroup.healthcloud.jpa.entity.user.AnonymousAccount;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
+import com.wondersgroup.healthcloud.jpa.entity.user.UserInfo;
 import com.wondersgroup.healthcloud.services.user.AnonymousAccountService;
 import com.wondersgroup.healthcloud.services.user.SessionUtil;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
@@ -120,6 +125,24 @@ public class UserController {
             }
             return response;
         }
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param uid
+     * @return
+     */
+    @GetMapping(path = "/info")
+    public JsonResponseEntity<UserAccountDTO> info(@RequestParam String uid) {
+        RegisterInfo registerInfo = userService.getOneNotNull(uid);
+
+        UserInfo userInfo = userService.getUserInfo(uid);
+        JsonResponseEntity<UserAccountDTO> response = new JsonResponseEntity<>();
+
+        UserAccountDTO userAccountDTO = new UserAccountDTO(registerInfo, userInfo);
+        response.setData(userAccountDTO);
+        return response;
     }
 
     /**
