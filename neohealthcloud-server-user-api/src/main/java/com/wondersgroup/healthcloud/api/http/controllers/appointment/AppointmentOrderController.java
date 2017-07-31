@@ -57,8 +57,9 @@ public class AppointmentOrderController {
 
     @Value("${internal.api.service.vaccine.url}")
     private String vaccineInternalHost;
-
-
+    
+    @Value("${api.vaccine.h5.url}")
+    private String myReservationJumpUrl;
 
     /**
      * 发送(验证)短信
@@ -222,7 +223,7 @@ public class AppointmentOrderController {
         HomeIconSetting homeIconSetting = restTemplate.getForObject(url, HomeIconSetting.class,serviceName);
         if(null!=homeIconSetting&&homeIconSetting.getSwitchStatus()==1){
             AppointmentAndVaccineDto dto = new AppointmentAndVaccineDto();
-            dto.setJumpUrl("");
+            dto.setJumpUrl(myReservationJumpUrl+"/myReservationView?uid="+uid);
             dto.setImg("http://img.wdjky.com/1501059367287");
             dto.setTitle("全程接种");
             result.add(dto);
