@@ -1,18 +1,30 @@
 package com.wondersgroup.healthcloud.api.http.controllers.appointment;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
 import com.google.common.collect.Lists;
-import com.squareup.okhttp.Request;
-import com.wondersgroup.common.http.HttpRequestExecutorManager;
-import com.wondersgroup.common.http.builder.RequestBuilder;
-import com.wondersgroup.common.http.entity.JsonNodeResponseWrapper;
+import com.wondersgroup.healthcloud.api.http.dto.appointment.AppointmentAndVaccineDto;
 import com.wondersgroup.healthcloud.api.http.dto.appointment.AppointmentOrderDTO;
+import com.wondersgroup.healthcloud.api.http.dto.appointment.HomeIconSetting;
 import com.wondersgroup.healthcloud.common.http.dto.JsonListResponseEntity;
 import com.wondersgroup.healthcloud.common.http.dto.JsonResponseEntity;
 import com.wondersgroup.healthcloud.common.http.support.misc.JsonKeyReader;
 import com.wondersgroup.healthcloud.common.http.support.version.VersionRange;
 import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentContact;
-import com.wondersgroup.healthcloud.jpa.entity.appointment.AppointmentDoctorSchedule;
 import com.wondersgroup.healthcloud.jpa.entity.user.RegisterInfo;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentApiService;
 import com.wondersgroup.healthcloud.services.appointment.AppointmentContactService;
@@ -21,14 +33,6 @@ import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointm
 import com.wondersgroup.healthcloud.services.appointment.exception.ErrorAppointmentIsOffException;
 import com.wondersgroup.healthcloud.services.user.UserAccountService;
 import com.wondersgroup.healthcloud.services.user.UserService;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by longshasha on 16/12/8.
@@ -51,9 +55,11 @@ public class AppointmentOrderController {
     @Autowired
     private AppointmentContactService appointmentContactService;
 
-
-
-
+    @Value("${internal.api.service.vaccine.url}")
+    private String vaccineInternalHost;
+    
+    @Value("${api.vaccine.h5.url}")
+    private String myReservationJumpUrl;
 
     /**
      * 发送(验证)短信
@@ -201,6 +207,36 @@ public class AppointmentOrderController {
 
         return response;
     }
-
-
+    
+    /**
+     * 我的预约和疫苗开关
+     * @return
+     */
+    @GetMapping("/appointmentAndVaccineSwith")
+    public JsonListResponseEntity<Object> AppointmentAndVaccineSwith(@RequestParam(required = true) String uid,@RequestHeader(name = "main-area", required = true) String mainArea){
+        List<Object> result = Lists.newLinkedList();
+        JsonListResponseEntity<Object> responseEntity = new JsonListResponseEntity<>();
+        
+        RestTemplate restTemplate = new RestTemplate();
+        String url =vaccineInternalHost+"/api/home/queryStatusByServiceName?serviceName={serviceName}";
+        String serviceName="vaccinationAppointments";
+        HomeIconSetting homeIconSetting = restTemplate.getForObject(url, HomeIconSetting.class,serviceName);
+        if(null!=homeIconSetting&&homeIconSetting.getSwitchStatus()==1){
+            AppointmentAndVaccineDto dto = new AppointmentAndVaccineDto();
+            dto.setJumpUrl(myReservationJumpUrl+"/myReservationView?uid="+uid);
+            dto.setImg("http://img.wdjky.com/1501059367287");
+            dto.setTitle("全程接种");
+            result.add(dto);
+        }
+        Boolean registrationIsOn = appointmentApiService.getRegistrationIsOn(mainArea);
+        if(registrationIsOn){
+            AppointmentAndVaccineDto dto = new AppointmentAndVaccineDto();
+            dto.setJumpUrl("com.wondersgroup.healthcloud.3101://user/my_appointment");
+            dto.setImg("http://img.wdjky.com/1501059431007");
+            dto.setTitle("预约挂号");
+            result.add(dto);
+        }
+        responseEntity.setContent(result);
+        return responseEntity;
+    }
 }
