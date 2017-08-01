@@ -223,7 +223,7 @@ public class AppointmentOrderController {
         HomeIconSetting homeIconSetting = restTemplate.getForObject(url, HomeIconSetting.class,serviceName);
         if(null!=homeIconSetting&&homeIconSetting.getSwitchStatus()==1){
             AppointmentAndVaccineDto dto = new AppointmentAndVaccineDto();
-            dto.setJumpUrl(myReservationJumpUrl+"/myReservationView?uid="+uid);
+            dto.setJumpUrl(myReservationJumpUrl+"/myReservationView");
             dto.setImg("http://img.wdjky.com/1501059367287");
             dto.setTitle("全程接种");
             result.add(dto);
