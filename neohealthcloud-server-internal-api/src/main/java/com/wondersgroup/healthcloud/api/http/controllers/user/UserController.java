@@ -212,7 +212,7 @@ public class UserController {
     @GetMapping(path = "/code/check")
     public JsonResponseEntity<String> validateCode(@RequestParam("mobile") String mobile,
                                                    @RequestParam("verify_code") String code) {
-        Boolean result = userAccountService.validateCode(mobile, code, true);
+        Boolean result = userAccountService.validateCode(mobile, code, false);
         JsonResponseEntity<String> body = new JsonResponseEntity<>();
         body.setCode(result ? 0 : 1002);
         body.setMsg(result ? "短信验证码验证通过" : "短信验证码验证错误");
