@@ -498,7 +498,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                     user.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.getPersoncard())));
                     user.setGender(IdcardUtils.getGenderByIdCard(user.getPersoncard()));
 
-                    WondersUser wondersUser = getWondersBaseInfo(user.getRegisterid(),null);
+                    WondersUser wondersUser = getWondersBaseInfo(user.getRegisterid(),0);
                     user.setRealMode(wondersUser.realMode);
 
                     registerInfoRepository.saveAndFlush(user);
