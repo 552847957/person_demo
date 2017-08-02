@@ -19,6 +19,8 @@ public class WondersUser {
     public String tagid;
     public Integer channelType;
 
+    public Integer realMode;
+
     public WondersUser() {
     }
 
@@ -32,6 +34,7 @@ public class WondersUser {
         this.name = wu.get("name").isNull() ? null : wu.get("name").asText();
         this.idCard = wu.get("idcard").isNull() ? null : wu.get("idcard").asText();
         this.ssCard = wu.get("sscard").isNull() ? null : wu.get("sscard").asText();
+        this.realMode = wu.get("realMode").isNull()?null : wu.get("realMode").asInt();
     }
     public WondersUser(JsonNode wu, int channelType) {
         this.userId = wu.get("userid").asText();
@@ -48,5 +51,7 @@ public class WondersUser {
             this.tagid = tagNode.asText();
         }
         this.channelType = channelType;
+
+        this.realMode = wu.get("realMode").isNull()?null : wu.get("realMode").asInt();
     }
 }

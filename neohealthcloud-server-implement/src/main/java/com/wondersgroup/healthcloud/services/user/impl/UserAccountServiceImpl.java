@@ -92,7 +92,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         }
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
-            WondersUser user = new WondersUser(result.get("user"), CHANNEL_TYPE_JKY);
+            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_JKY);
             RegisterInfo registerInfo = mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
@@ -497,6 +497,10 @@ public class UserAccountServiceImpl implements UserAccountService {
                     user.setName(info.get("name").asText());
                     user.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.getPersoncard())));
                     user.setGender(IdcardUtils.getGenderByIdCard(user.getPersoncard()));
+
+                    WondersUser wondersUser = getWondersBaseInfo(user.getRegisterid(),null);
+                    user.setRealMode(wondersUser.realMode);
+
                     registerInfoRepository.saveAndFlush(user);
 
                     //调用健康档案
@@ -513,6 +517,10 @@ public class UserAccountServiceImpl implements UserAccountService {
                     anonymousAccount.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(info.get("idcard").asText())));
                     anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(info.get("idcard").asText()));
                     anonymousAccount.setUpdateDate(new Date());
+
+                    WondersUser wondersUser = getWondersBaseInfo(anonymousAccount.getId(),null);
+                    anonymousAccount.setRealMode(wondersUser.realMode);
+
                     anonymousAccountRepository.saveAndFlush(anonymousAccount);
 
                     //调用健康档案
@@ -667,7 +675,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         RegisterInfo registerInfo = registerInfoRepository.findOne(user.userId);
         //是否有本地账号 如果没有保存本地
         if (registerInfo == null) {
-            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard, user.type, user.tagid, user.channelType);
+            registerInfo = localRegistration(user.userId, user.mobile, user.username, user.name, user.isVerified, user.idCard, user.type, user.tagid, user.channelType,user.realMode);
 
             //用戶注册送100金币
             friendRelationshipService.register(registerInfo.getRegisterid());
@@ -687,6 +695,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                     healthRecordUpdateUtil.unBindMedicareCard(originalPersoncard);
                     registerInfo.setMedicarecard(null);
                 }
+                registerInfo.setRealMode(user.realMode);
             } else if (registerInfo.verified()) {//解决数据库中已实名认证的性别为0的数据
                 registerInfo.setGender(IdcardUtils.getGenderByIdCard(registerInfo.getPersoncard()));
                 registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(registerInfo.getPersoncard())));
@@ -716,7 +725,8 @@ public class UserAccountServiceImpl implements UserAccountService {
      * @param idCard
      * @return
      */
-    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard, String userSource, String tagid, Integer channelType) {
+    private RegisterInfo localRegistration(String id, String mobile, String username, String name, boolean isVerified, String idCard,
+                                           String userSource, String tagid, Integer channelType,Integer realMode) {
         ThirdPartyUser thirdPartyUser = thirdPartyBinding(id);
         Boolean fromThirdParty = thirdPartyUser != null;
         RegisterInfo registerInfo = new RegisterInfo();
@@ -738,6 +748,7 @@ public class UserAccountServiceImpl implements UserAccountService {
             registerInfo.setPersoncard(idCard);
             registerInfo.setGender(IdcardUtils.getGenderByIdCard(idCard));
             registerInfo.setBirthday(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(idCard)));
+            registerInfo.setRealMode(realMode);
         } else {
             registerInfo.setGender(fromThirdParty ? thirdPartyUser.gender : null);
         }
@@ -912,6 +923,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                         anonymousAccount.setIdcard(user.idCard);
                         anonymousAccount.setBirthDate(DateFormatter.parseIdCardDate(IdcardUtils.getBirthByIdCard(user.idCard)));
                         anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(user.idCard));
+                        anonymousAccount.setRealMode(user.realMode);
                         anonymousAccount.setUpdateDate(new Date());
                         anonymousAccountRepository.saveAndFlush(anonymousAccount);
                     }

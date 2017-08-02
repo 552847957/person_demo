@@ -52,5 +52,17 @@ public class AnonymousAccount{
     @Column(name = "is_standalone")
     private Boolean isStandalone;
     private String headphoto;
+
+    /***
+     * 用户是市民云实名认证类型
+     * 1：手持证件照实名,
+     * 2：支付宝实名,
+     * 3：ca人脸识别实名,
+     * 4：EID实名,
+     * 5：支付宝（芝麻认证）人脸识别,
+     * 6：支付宝（芝麻认证SDK版本）人脸识别
+     */
+    @Column(name = "real_mode")
+    private Integer realMode;
     
 }
