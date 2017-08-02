@@ -92,7 +92,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         }
         JsonNode result = httpWdUtils.login(account, password);
         if (wondersCloudResult(result)) {
-            WondersUser user = getWondersBaseInfo(result.get("userid").asText(), CHANNEL_TYPE_JKY);
+            WondersUser user = getWondersBaseInfo(result.get("user").get("userid").asText(), CHANNEL_TYPE_JKY);
             RegisterInfo registerInfo = mergeRegistration(user);
             return fetchTokenFromWondersCloud(result.get("session_token").asText());
         } else {
