@@ -219,7 +219,7 @@ public class AppointmentOrderController {
         
         RestTemplate restTemplate = new RestTemplate();
         String url =vaccineInternalHost+"/api/home/queryStatusByServiceName?serviceName={serviceName}";
-        String serviceName="vaccinationAppointments";
+        String serviceName="vaccinationRecord";
         HomeIconSetting homeIconSetting = restTemplate.getForObject(url, HomeIconSetting.class,serviceName);
         if(null!=homeIconSetting&&homeIconSetting.getSwitchStatus()==1){
             AppointmentAndVaccineDto dto = new AppointmentAndVaccineDto();
