@@ -518,7 +518,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                     anonymousAccount.setSex(IdcardUtils.getGenderByIdCard(info.get("idcard").asText()));
                     anonymousAccount.setUpdateDate(new Date());
 
-                    WondersUser wondersUser = getWondersBaseInfo(anonymousAccount.getId(),null);
+                    WondersUser wondersUser = getWondersBaseInfo(anonymousAccount.getId(),0);
                     anonymousAccount.setRealMode(wondersUser.realMode);
 
                     anonymousAccountRepository.saveAndFlush(anonymousAccount);
