@@ -40,6 +40,7 @@ public class AppMessage {
     @JsonProperty("url_fragment")
     public String urlFragment;
     public Map<String, String> params;
+    @JsonProperty("unTransformUrl")
     public Boolean unTransformUrl;//是否需要对urlFragment进行转换，true：不需要；false 或 null：原有逻辑判断
     public AppMessage() {
     }
